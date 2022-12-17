@@ -1,0 +1,14 @@
+{
+  "uniforms": {
+    "uAtlas": "uAtlas",
+    "uAtlasSize": "uAtlasSize",
+    "uProjection": "uProjection",
+    "uSourceByCelID": "uSourceByCelID"
+  },
+  "perVertex": [{ "name": "vUV", "type": "UNSIGNED_SHORT", "len": 2 }],
+  "perInstance": [
+    { "name": "iCelID", "type": "UNSIGNED_SHORT", "len": 1 },
+    { "name": "iTarget", "type": "SHORT", "len": 4 },
+    { "name": "iLayer", "type": "UNSIGNED_SHORT", "len": 1 }
+  ]
+}
