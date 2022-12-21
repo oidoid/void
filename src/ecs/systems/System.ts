@@ -1,6 +1,7 @@
 import { ECSUpdate } from '@/void';
 
 export interface System<T, Update extends ECSUpdate = ECSUpdate> {
+  /** These are the keys populated in each set. */
   readonly query: Set<keyof T>;
   /**
    * If specified, returns true if this update should be skipped (for

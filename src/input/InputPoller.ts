@@ -1,5 +1,5 @@
+import { I16Box, I32, NumberXY } from '@/oidlib';
 import { Input, InputState, Viewport } from '@/void';
-import { I16Box, I32, NumberMillis, NumberXY } from '@/oidlib';
 import { assert } from '../../../oidlib/src/utils/assert.ts';
 import { Str } from '../../../oidlib/src/utils/Str.ts';
 
@@ -53,7 +53,7 @@ export namespace InputPoller {
       towards the end of the game update loop *after* entity processing. */
   export function update(
     self: InputPoller,
-    time: NumberMillis,
+    time: number,
     clientViewportWH: Readonly<NumberXY>,
     cam: Readonly<I16Box>,
   ): void {
@@ -82,11 +82,7 @@ function eventToPoint(
   if (ev.type == 'pointercancel') return undefined;
   const active = ev.type == 'pointermove' || ev.type == 'pointerdown';
   const { point } = self.inputs;
-  const timer = point == null
-    ? NumberMillis(1)
-    : point.active != active
-    ? NumberMillis(0)
-    : point.timer;
+  const timer = point == null ? 1 : point.active != active ? 0 : point.timer;
   const windowXY = NumberXY(ev.clientX, ev.clientY);
   const pointerType = parsePointerType(ev.pointerType);
   return {
@@ -110,11 +106,7 @@ function eventToPick(
   const { pick } = self.inputs;
   const active = ev.type == 'pointerdown' ||
     ev.type == 'pointermove' && pick?.active == true;
-  const timer = pick == null
-    ? NumberMillis(1)
-    : pick.active != active
-    ? NumberMillis(0)
-    : pick.timer;
+  const timer = pick == null ? 1 : pick.active != active ? 0 : pick.timer;
   const windowXY = NumberXY(ev.clientX, ev.clientY);
   const pointerType = parsePointerType(ev.pointerType);
   return {

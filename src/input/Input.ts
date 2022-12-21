@@ -1,4 +1,4 @@
-import { I16XY, I32, NumberMillis, NumberXY } from '@/oidlib';
+import { I16XY, I32, NumberXY } from '@/oidlib';
 
 export const Button = Object.freeze({
   None: 0,
@@ -15,7 +15,7 @@ export interface Input {
   readonly active: boolean;
   /** 0 on state change. When 0 and active, triggered on. When 0 and inactive,
       triggered off. */
-  readonly timer: NumberMillis;
+  readonly timer: number;
   /** The position of the input in window coordinates. Pointer state polling is
       simulated through events so level position must be recalculated through
       the camera lens of each frame. See xy. */
@@ -42,17 +42,14 @@ export namespace Input {
     return input == null || !input.active && input.timer == 0;
   }
 
-  export function update(
-    input: Input,
-    time: NumberMillis,
-  ): Input {
+  export function update(input: Input, time: number): Input {
     return {
       active: input.active,
       buttons: input.buttons,
       created: input.created,
       pointerType: input.pointerType,
       received: input.received,
-      timer: NumberMillis(input.timer + time),
+      timer: input.timer + time,
       windowXY: input.windowXY,
       xy: input.xy,
     };

@@ -11,7 +11,6 @@ import {
   U16,
   U16Box,
   U8,
-  UnumberMillis,
   XY,
 } from '@/oidlib';
 import {
@@ -50,11 +49,7 @@ interface LayerConfig {
   readonly layer: U8;
 }
 
-export function Sprite(
-  film: Film,
-  layer: U8,
-  props?: SpriteProps,
-): Sprite {
+export function Sprite(film: Film, layer: U8, props?: SpriteProps): Sprite {
   const start = props?.start ?? I16XY(0, 0);
   const wh = props?.wh ?? I16XY(film.wh);
   const layerSuborder = props?.layerSuborder ?? 'End';
@@ -94,14 +89,14 @@ export namespace Sprite {
     return I16Box.intersects(self.bounds, <XY<number>> xyOrBoxOrSprite);
   }
 
-  export function getCel(self: Readonly<Sprite>, time: UnumberMillis): Cel {
+  export function getCel(self: Readonly<Sprite>, time: number): Cel {
     return self.animator.cel(time);
   }
 
   export function intersectsSprite(
     self: Readonly<Sprite>,
     sprite: Readonly<Sprite>,
-    time: UnumberMillis,
+    time: number,
   ): boolean {
     if (!intersectsBounds(self, sprite)) return false;
 
@@ -122,17 +117,17 @@ export namespace Sprite {
   export function intersects(
     self: Readonly<Sprite>,
     box: Readonly<Box<XY<number>, number>>,
-    time: UnumberMillis,
+    time: number,
   ): boolean;
   export function intersects(
     self: Readonly<Sprite>,
     xy: Readonly<XY<number>>,
-    time: UnumberMillis,
+    time: number,
   ): boolean;
   export function intersects(
     self: Readonly<Sprite>,
     xyOrBox: Readonly<Box<XY<number>, number> | XY<number>>,
-    time: UnumberMillis,
+    time: number,
   ): boolean {
     if (!intersectsBounds(self, <XY<number>> xyOrBox)) return false;
 
@@ -166,7 +161,7 @@ export namespace Sprite {
     return self;
   }
 
-  export function reset(self: Sprite, start: UnumberMillis, film: Film): void {
+  export function reset(self: Sprite, start: number, film: Film): void {
     self.animator.reset(start, film);
   }
 
@@ -195,7 +190,7 @@ export namespace Sprite {
     const layer = U8(wrapSuborderLayer & LayerMask);
     return {
       wrap: I4XY(wrapX, wrapY),
-      suborder: suborder === LayerSuborderFlagEnd ? 'End' : 'Start',
+      suborder: suborder == LayerSuborderFlagEnd ? 'End' : 'Start',
       layer,
     };
   }

@@ -7,17 +7,16 @@ import {
   I16XY,
   NonNull,
   U16Box,
-  UnumberMillis,
 } from '@/oidlib';
 import {
   ECSUpdate,
   fragmentGLSL,
   GL,
+  InstanceBuffer,
   ShaderLayout,
   vertexGLSL,
   Viewport,
 } from '@/void';
-import { InstanceBuffer } from '../shaders/InstanceBuffer.ts';
 
 export interface Renderer {
   readonly gl: GL;
@@ -153,7 +152,7 @@ export namespace Renderer {
    */
   export function render(
     self: Renderer,
-    _time: UnumberMillis,
+    _time: number,
     scale: I16,
     state: ECSUpdate, // to-do: destructure
     cam: Readonly<I16Box>,

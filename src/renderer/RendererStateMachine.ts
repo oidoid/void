@@ -1,12 +1,11 @@
 import { Renderer } from '@/void';
-import { UnumberMillis } from '@/oidlib';
 
 export interface RendererStateMachine {
   readonly window: Window;
   readonly canvas: HTMLCanvasElement;
   renderer: Renderer;
   frameID?: number;
-  onFrame(delta: UnumberMillis): void;
+  onFrame(delta: number): void;
   onPause(): void;
   newRenderer(): Renderer;
   onEvent(event: Event): void;
@@ -68,18 +67,15 @@ function onEvent(self: RendererStateMachine, event: Event): void {
   else pause(self, event.type);
 }
 
-function loop(
-  self: RendererStateMachine,
-  then: UnumberMillis | undefined,
-): void {
+function loop(self: RendererStateMachine, then: number | undefined): void {
   self.frameID = self.window.requestAnimationFrame((now) => {
     // Duration can be great when a frame is held for debugging. Limit it to one
     // second.
-    const time = UnumberMillis(Math.min(now - (then ?? now), 1000));
+    const time = Math.min(now - (then ?? now), 1000);
     self.onFrame(time);
 
     // If not paused by client, request a new frame.
-    if (self.frameID != null) loop(self, UnumberMillis(now));
+    if (self.frameID != null) loop(self, now);
   });
 }
 

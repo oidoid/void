@@ -1,5 +1,4 @@
 import { Input } from '@/void';
-import { NumberMillis } from '@/oidlib';
 
 export interface InputState {
   point?: Input | undefined;
@@ -7,7 +6,7 @@ export interface InputState {
 }
 
 export namespace InputState {
-  export function update(state: InputState, time: NumberMillis): void {
+  export function update(state: InputState, time: number): void {
     if (state.point != null) state.point = Input.update(state.point, time);
     if (state.pick != null) state.pick = Input.update(state.pick, time);
   }
