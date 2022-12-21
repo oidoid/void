@@ -1,5 +1,5 @@
-import { Sprite, System } from '@/void';
 import { I16Box, Immutable, NonNull } from '@/oidlib';
+import { Sprite, System } from '@/void';
 import { ECSUpdate } from '../ECSUpdate.ts';
 
 export interface FollowPointSet {
@@ -18,6 +18,5 @@ function skip(update: ECSUpdate): boolean {
 }
 
 function updateEnt(set: FollowPointSet, update: ECSUpdate): void {
-  const { sprite } = set;
-  I16Box.moveTo(sprite.bounds, NonNull(update.inputs.point).xy);
+  I16Box.moveTo(set.sprite.bounds, NonNull(update.inputs.point).xy);
 }

@@ -1,5 +1,5 @@
 import { Immutable } from '@/oidlib';
-import { InstanceBuffer, Renderer, Sprite, System } from '@/void';
+import { InstanceBuffer, Sprite, System } from '@/void';
 import { ECSUpdate } from '../ECSUpdate.ts';
 
 interface RenderSet {
@@ -19,11 +19,9 @@ function update(sets: Set<RenderSet>, update: ECSUpdate): void {
     index++;
   }
 
-  Renderer.render(
-    update.rendererStateMachine.renderer,
+  update.rendererStateMachine.render(
     update.time,
     update.scale,
-    update,
     update.camBounds,
     update.instanceBuffer,
   );

@@ -1,5 +1,5 @@
-import { ShaderLayout } from '@/void';
 import { assertNonNull, NonNull } from '@/oidlib';
+import { ShaderLayout } from '@/void';
 
 declare global {
   type GL = WebGL2RenderingContext;

@@ -9,7 +9,6 @@ import {
   U16Box,
 } from '@/oidlib';
 import {
-  ECSUpdate,
   fragmentGLSL,
   GL,
   InstanceBuffer,
@@ -154,11 +153,10 @@ export namespace Renderer {
     self: Renderer,
     _time: number,
     scale: I16,
-    state: ECSUpdate, // to-do: destructure
     cam: Readonly<I16Box>,
     instanceBuffer: InstanceBuffer,
   ): void {
-    resize(self, scale, state, cam);
+    resize(self, scale, cam);
     self.gl.clear(self.gl.COLOR_BUFFER_BIT | self.gl.DEPTH_BUFFER_BIT);
     // self.gl.uniform1ui(
     //   GL.uniformLocation(self.layout, self.uniforms, 'time'),
@@ -183,27 +181,23 @@ export namespace Renderer {
                     {w: window.innerWidth, h: window.innerHeight}.
       @arg scale Positive integer zoom. */
   export function resize(
-    { gl, layout, uniforms, projection }: Renderer,
+    self: Renderer,
     scale: I16,
-    _state: ECSUpdate, // to-do: destructure
     cam: Readonly<I16Box>,
   ): void {
     // Always <= native. These are level pixels.
     const camWH = I16XY(I16Box.width(cam), I16Box.height(cam)); // to-do: I16Box.toWH() or drop WH.
     // Always >= native. These are physical pixels.
     const nativeCanvasWH = Viewport.nativeCanvasWH(camWH, scale);
-    // const canvasH: I16 = I16.cast(camH * scale);
-    // const nativeW = state.nativeWH.w;
-    // const nativeH = state.nativeWH.h;
 
     if (
-      gl.canvas.width != nativeCanvasWH.x ||
-      gl.canvas.height != nativeCanvasWH.y
+      self.gl.canvas.width != nativeCanvasWH.x ||
+      self.gl.canvas.height != nativeCanvasWH.y
     ) {
-      gl.canvas.width = nativeCanvasWH.x;
-      gl.canvas.height = nativeCanvasWH.y;
+      self.gl.canvas.width = nativeCanvasWH.x;
+      self.gl.canvas.height = nativeCanvasWH.y;
 
-      gl.viewport(0, 0, nativeCanvasWH.x, nativeCanvasWH.y);
+      self.gl.viewport(0, 0, nativeCanvasWH.x, nativeCanvasWH.y);
 
       console.debug(
         `Canvas resized to ${nativeCanvasWH.x}×${nativeCanvasWH.y} native pixels with ${camWH.x}×${camWH.y} cam (level pixels) at a ${scale}x scale.`,
@@ -211,35 +205,35 @@ export namespace Renderer {
     }
 
     // to-do: support OffscreenCanvas.
-    if (gl.canvas instanceof HTMLCanvasElement) {
+    if (self.gl.canvas instanceof HTMLCanvasElement) {
       // No constraints. These pixels may be greater than, less than, or equal to
       // native.
       const clientWH = Viewport.clientCanvasWH(window, nativeCanvasWH); // to-do: pass in devicePixelRatio.
-      const diffW = Number.parseFloat(gl.canvas.style.width.slice(0, -2)) -
+      const diffW = Number.parseFloat(self.gl.canvas.style.width.slice(0, -2)) -
         clientWH.x;
-      const diffH = Number.parseFloat(gl.canvas.style.height.slice(0, -2)) -
+      const diffH =
+        Number.parseFloat(self.gl.canvas.style.height.slice(0, -2)) -
         clientWH.y;
 
-      // const clientH = `${canvasH / devicePixelRatio}px`;
       if (
         !Number.isFinite(diffW) || Math.abs(diffW) >= .5 ||
         !Number.isFinite(diffH) || Math.abs(diffH) >= .5
       ) {
         // Ignore zoom.
-        gl.canvas.style.width = `${clientWH.x}px`;
-        gl.canvas.style.height = `${clientWH.y}px`;
+        self.gl.canvas.style.width = `${clientWH.x}px`;
+        self.gl.canvas.style.height = `${clientWH.y}px`;
         console.debug(
-          `Canvas styled to ${gl.canvas.style.width}×${gl.canvas.style.height} ` +
+          `Canvas styled to ${self.gl.canvas.style.width}×${self.gl.canvas.style.height} ` +
             `for ${devicePixelRatio}x pixel ratio.`,
         );
       }
     }
 
-    projection.set(project(cam));
-    gl.uniformMatrix4fv(
-      GL.uniformLocation(layout, uniforms, 'uProjection'),
+    self.projection.set(project(cam));
+    self.gl.uniformMatrix4fv(
+      GL.uniformLocation(self.layout, self.uniforms, 'uProjection'),
       false,
-      projection,
+      self.projection,
     );
   }
 

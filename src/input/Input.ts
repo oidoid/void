@@ -13,7 +13,7 @@ export interface Input {
   readonly pointerType: 'Mouse' | 'Pen' | 'Touch';
   /** True if input is on. */
   readonly active: boolean;
-  /** 0 on state change. When 0 and active, triggered on. When 0 and inactive,
+  /** Duration in state in milliseconds. 0 on state change. When 0 and active, triggered on. When 0 and inactive,
       triggered off. */
   readonly timer: number;
   /** The position of the input in window coordinates. Pointer state polling is
