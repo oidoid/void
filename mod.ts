@@ -1,3 +1,4 @@
+export * from './src/audio/Synth.ts';
 export * from './src/ecs/components/CursorFilmSet.ts';
 export * from './src/ecs/components/FollowCamConfig.ts';
 export * from './src/ecs/components/PickableConfig.ts';
