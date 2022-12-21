@@ -58,7 +58,7 @@ export class RendererStateMachine {
   }
 
   stop(): void {
-    this.#pause(undefined);
+    this.#pause();
     this.#register('remove');
   }
 
@@ -78,38 +78,26 @@ export class RendererStateMachine {
     });
   }
 
-  #pause(type: string | undefined): void {
-    if (this.#frameID != null) this.#window.cancelAnimationFrame(this.#frameID);
-    this.#frameID = undefined;
-    if (type == 'visibilitychange') {
-      console.debug('Renderer paused; document unfocused.');
-    } else if (type == 'webglcontextlost') {
-      console.debug('Renderer paused; no GL context.');
-    } else console.debug('Renderer paused.');
-    this.#onPause();
-  }
-
-  #resume(): void {
-    const { visibilityState } = this.#window.document;
-    if (this.isContextLost()) {
-      console.debug('Renderer cannot resume; no GL context.');
-    } else if (!this.#isDocumentVisible()) {
-      console.debug(`Renderer cannot resume; document ${visibilityState}.`);
-    } else if (this.#frameID == null) {
-      console.debug('Renderer looping.');
-      this.#loop(undefined);
-    }
-  }
-
   #onEvent = (event: Event): void => {
     event.preventDefault();
     if (event.type == 'webglcontextrestored') {
       this.#renderer = this.#newRenderer();
-      this.#resume();
-    } else if (event.type == 'visibilitychange' && this.#isDocumentVisible()) {
-      this.#resume();
-    } else this.#pause(event.type);
+    }
+
+    if (!this.isContextLost() && this.#isDocumentVisible()) this.#resume();
+    else this.#pause();
   };
+
+  #pause(): void {
+    if (this.#frameID == null) return;
+    this.#window.cancelAnimationFrame(this.#frameID);
+    this.#frameID = undefined;
+    if (this.isContextLost()) console.debug('Renderer paused; no GL context.');
+    else if (!this.#isDocumentVisible()) {
+      console.debug('Renderer paused; document hidden.');
+    } else console.debug('Renderer paused.');
+    this.#onPause();
+  }
 
   #register(op: 'add' | 'remove'): void {
     const fn = `${op}EventListener` as const;
@@ -117,5 +105,16 @@ export class RendererStateMachine {
       this.#canvas[fn](type, this.#onEvent);
     }
     this.#window[fn]('visibilitychange', this.#onEvent);
+  }
+
+  #resume(): void {
+    if (this.isContextLost()) {
+      console.debug('Renderer cannot resume; no GL context.');
+    } else if (!this.#isDocumentVisible()) {
+      console.debug('Renderer cannot resume; document hidden.');
+    } else if (this.#frameID == null) {
+      console.debug('Renderer looping.');
+      this.#loop(undefined);
+    }
   }
 }
