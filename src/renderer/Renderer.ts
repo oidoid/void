@@ -7,6 +7,7 @@ import {
   I16XY,
   NonNull,
   U16Box,
+  U32,
 } from '@/oidlib';
 import {
   fragmentGLSL,
@@ -47,7 +48,7 @@ export function Renderer<FilmID extends Aseprite.Tag>(
   assertNonNull(gl, 'WebGL 2 unsupported.');
 
   // Avoid initial color flash by matching the background. [palette][theme]
-  const [r, g, b, a] = Color.intToFloats(0xe6e6df_ff); // whoops
+  const [r, g, b, a] = Color.intToFloats(U32(0xe6e6df_ff)); // whoops
   gl.clearColor(r, g, b, a);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
