@@ -43,12 +43,12 @@ export namespace InstanceBuffer {
       resize(self, Uint(Math.max(1, index) * 2));
     }
     self.size = index + 1;
-
     self.buffer.setUint16(i + 0, sprite.animator.cel(time).id, littleEndian);
     self.buffer.setInt16(i + 2, sprite.bounds.start.x, littleEndian);
     self.buffer.setInt16(i + 4, sprite.bounds.start.y, littleEndian);
     self.buffer.setInt16(i + 6, I16Box.width(sprite.bounds), littleEndian);
     self.buffer.setInt16(i + 8, I16Box.height(sprite.bounds), littleEndian);
     self.buffer.setUint16(i + 10, sprite.wrapSuborderLayer, littleEndian);
+    self.buffer.setUint16(i + 12, sprite.moreBits, littleEndian);
   }
 }

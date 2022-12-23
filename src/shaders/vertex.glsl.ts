@@ -34,6 +34,7 @@ in uint iCelID;
 in ivec4 iTarget;
 
 in uint iLayer;
+in uint iMoreBits;
 
 
 const uint LayerSuborderFlag = 1u << 7;
@@ -57,10 +58,14 @@ out vec4 vSourceXYWH;
 flat out uint oLayer;
 
 void main() {
+  ivec2 flip = ivec2(
+    (int(iMoreBits >> 1) & 0x1) == 1 ? -1 : 1,
+    (int(iMoreBits >> 0) & 0x1) == 1 ? -1 : 1
+  );
   uvec4 sourceXYWH = texelFetch(uSourceByCelID, ivec2(0, iCelID), 0);
 
   gl_Position = vec4(iTarget.xy + ivec2(vUV) * iTarget.zw, z_depth(), 1) * uProjection;
-  vSource = vec2(vUV) * vec2(iTarget.zw);
+  vSource = vec2(vUV) * vec2(iTarget.zw * flip);
   vSourceXYWH = vec4(sourceXYWH);
   oLayer = iLayer;
 }`;

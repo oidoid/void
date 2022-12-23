@@ -14,11 +14,11 @@ import {
   XY,
 } from '@/oidlib';
 import {
+  LayerMask,
   LayerSuborder,
   LayerSuborderFlagEnd,
   LayerSuborderFlagStart,
 } from '@/void';
-import { LayerMask } from './Layer.ts';
 
 export type Sprite = {
   animator: Animator;
@@ -26,6 +26,8 @@ export type Sprite = {
   // animator collision detection is not wrap aware
   // 4b signed x wrap, 4b signed y wrap, 1b layer by start, 7b layer
   wrapSuborderLayer: U16;
+  // 2b flip, 00 - no flip, 01 : flip Y, 10 flip x, 11 flip x&y
+  moreBits: U16;
 };
 
 // to-do: review fancy SpriteProps-like default generator in NE.
@@ -41,13 +43,20 @@ export interface SpriteProps {
   readonly layerSuborder?: LayerSuborder;
   readonly wrapX?: I4;
   readonly wrapY?: I4;
+  readonly flip?: SexyFlipMan;
 }
 
-interface LayerConfig {
+interface SpriteFlags {
   readonly wrap: I4XY;
   readonly suborder: LayerSuborder;
   readonly layer: U8;
 }
+
+interface SpriteFlagsBits {
+  readonly flip: SexyFlipMan;
+}
+
+type SexyFlipMan = 'X' | 'Y' | 'XY' | '';
 
 export function Sprite(film: Film, layer: U8, props?: SpriteProps): Sprite {
   const start = props?.start ?? I16XY(0, 0);
@@ -63,10 +72,21 @@ export function Sprite(film: Film, layer: U8, props?: SpriteProps): Sprite {
       layerSuborder,
       layer,
     ),
+    moreBits: serializeMoreBits(props?.flip ?? ''),
   };
 }
 
 export namespace Sprite {
+  export function toString(self: Readonly<Sprite>): string {
+    const wsl = parseWrapSuborderLayer(self.wrapSuborderLayer);
+    const morebits = parseMoreBits(self.moreBits);
+    return `Sprite {id=${self.animator.film.id} box=${
+      I16Box.toString(self.bounds)
+    } layer=${wsl.layer} suborder=${wsl.suborder} flip=${
+      morebits.flip || 'None'
+    } wrap=${I4XY.toString(wsl.wrap)}}`;
+  }
+
   export function intersectsBounds(
     self: Readonly<Sprite>,
     xy: Readonly<XY<number>>,
@@ -150,8 +170,14 @@ export namespace Sprite {
   }
 
   export function setLayer(self: Sprite, layer: U8): Sprite {
-    const { wrap, suborder } = parseWrapSuborderLayer(self.wrapSuborderLayer);
-    self.wrapSuborderLayer = serializeWrapSuborderLayer(wrap, suborder, layer);
+    const { wrap, suborder } = parseWrapSuborderLayer(
+      self.wrapSuborderLayer,
+    );
+    self.wrapSuborderLayer = serializeWrapSuborderLayer(
+      wrap,
+      suborder,
+      layer,
+    );
     return self;
   }
 
@@ -183,9 +209,9 @@ export namespace Sprite {
       : lhsLayer - rhsLayer;
   }
 
-  export function parseWrapSuborderLayer(wrapSuborderLayer: U16): LayerConfig {
-    const wrapX = I4.mod(NumUtil.ushift(wrapSuborderLayer, 12));
-    const wrapY = I4.mod(NumUtil.ushift(wrapSuborderLayer, 8));
+  export function parseWrapSuborderLayer(wrapSuborderLayer: U16): SpriteFlags {
+    const wrapX = I4.mod(NumUtil.ushift(wrapSuborderLayer, 12) & 0xf);
+    const wrapY = I4.mod(NumUtil.ushift(wrapSuborderLayer, 8) & 0xf);
     const suborder = NumUtil.ushift(wrapSuborderLayer, 7) & 1;
     const layer = U8(wrapSuborderLayer & LayerMask);
     return {
@@ -194,6 +220,14 @@ export namespace Sprite {
       layer,
     };
   }
+}
+
+function parseMoreBits(
+  moreBits: U16,
+): SpriteFlagsBits {
+  const flipX = (NumUtil.ushift(moreBits, 1) & 1) == 1;
+  const flipY = (NumUtil.ushift(moreBits, 0) & 1) == 1;
+  return { flip: `${flipX ? 'X' : ''}${flipY ? 'Y' : ''}` };
 }
 
 function serializeWrapSuborderLayer(
@@ -208,4 +242,11 @@ function serializeWrapSuborderLayer(
   const wrap = NumUtil.lshift(wrapXY.x & 0xf, 12) |
     NumUtil.lshift(wrapXY.y & 0xf, 8);
   return U16(wrap | suborder | layer);
+}
+
+function serializeMoreBits(flip: SexyFlipMan): U16 {
+  const flipX = flip == 'X' || flip == 'XY';
+  const flipY = flip == 'Y' || flip == 'XY';
+  const flipXY = (((flipX ? 1 : 0) << 1) | ((flipY ? 1 : 0) << 0)) << 0;
+  return U16(flipXY | 0);
 }
