@@ -14,7 +14,7 @@ import {
   XY,
 } from '@/oidlib';
 import { LayerMask } from '@/void';
-import { ExcludeHeightFlag } from './Layer.ts';
+import { IncludeHeightFlag } from './Layer.ts';
 
 export interface SpriteProps {
   /**
@@ -30,7 +30,7 @@ export interface SpriteProps {
    * default), this sprite compares with `y`. When true, this sprite compares
    * with `y + h`.
    */
-  readonly excludeHeight?: boolean;
+  readonly includeHeight?: boolean;
   /** Offset sprite. */
   readonly wrap?: Partial<I4XY>;
   /** Mirror sprite. Defaults to unflipped. to-do: add intersection support. */
@@ -43,9 +43,9 @@ export type SpriteFlip =
   | /** Flip vertically. */ 'Y'
   | /** Flip horizontally and vertically. */ 'XY';
 
-interface WrapExcludeHeightLayer {
+interface WrapIncludeHeightLayer {
   readonly wrap: I4XY;
-  readonly excludeHeight: boolean;
+  readonly includeHeight: boolean;
   readonly layer: U8;
 }
 
@@ -55,7 +55,7 @@ export class Sprite {
   #bounds: I16Box;
   // animator collision detection is not wrap aware
   // 4b signed x wrap, 4b signed y wrap, 1b layer by start, 7b layer
-  #wrapExcludeHeightLayer: U16;
+  #wrapIncludeHeightLayer: U16;
 
   get bounds(): I16Box {
     return this.#bounds;
@@ -71,12 +71,12 @@ export class Sprite {
   }
 
   set layer(layer: U8) {
-    const { wrap, excludeHeight } = parseWrapExcludeHeightLayer(
-      this.#wrapExcludeHeightLayer,
+    const { wrap, includeHeight } = parseWrapIncludeHeightLayer(
+      this.#wrapIncludeHeightLayer,
     );
-    this.#wrapExcludeHeightLayer = serializeWrapExcludeHeightLayer(
+    this.#wrapIncludeHeightLayer = serializeWrapIncludeHeightLayer(
       wrap,
-      excludeHeight,
+      includeHeight,
       layer,
     );
   }
@@ -86,8 +86,8 @@ export class Sprite {
     return I16Box.width(this.#bounds);
   }
 
-  get wrapExcludeHeightLayer(): U16 {
-    return this.#wrapExcludeHeightLayer;
+  get wrapIncludeHeightLayer(): U16 {
+    return this.#wrapIncludeHeightLayer;
   }
 
   get x(): I16 {
@@ -110,9 +110,9 @@ export class Sprite {
       (props?.wh?.x ?? film.wh.x) * flip.x,
       (props?.wh?.y ?? film.wh.y) * flip.y,
     );
-    this.#wrapExcludeHeightLayer = serializeWrapExcludeHeightLayer(
+    this.#wrapIncludeHeightLayer = serializeWrapIncludeHeightLayer(
       I4XY(props?.wrap?.x ?? 0, props?.wrap?.y ?? 0),
-      props?.excludeHeight ?? false,
+      props?.includeHeight ?? false,
       layer,
     );
   }
@@ -133,17 +133,17 @@ export class Sprite {
   // to-do: keep in sync with shader
   // order from top to bottom
   compareDepth(sprite: Sprite): number {
-    const { excludeHeight: lhsExcludeHeight, layer: lhsLayer } =
-      parseWrapExcludeHeightLayer(
-        this.#wrapExcludeHeightLayer,
+    const { includeHeight: lhsIncludeHeight, layer: lhsLayer } =
+      parseWrapIncludeHeightLayer(
+        this.#wrapIncludeHeightLayer,
       );
-    const { excludeHeight: rhsExcludeHeight, layer: rhsLayer } =
-      parseWrapExcludeHeightLayer(
-        sprite.#wrapExcludeHeightLayer,
+    const { includeHeight: rhsIncludeHeight, layer: rhsLayer } =
+      parseWrapIncludeHeightLayer(
+        sprite.#wrapIncludeHeightLayer,
       );
     return lhsLayer == rhsLayer
-      ? (sprite.bounds[rhsExcludeHeight ? 'start' : 'end'].y -
-        this.bounds[lhsExcludeHeight ? 'start' : 'end'].y)
+      ? (sprite.bounds[rhsIncludeHeight ? 'start' : 'end'].y -
+        this.bounds[lhsIncludeHeight ? 'start' : 'end'].y)
       : lhsLayer - rhsLayer;
   }
 
@@ -205,36 +205,36 @@ export class Sprite {
   }
 
   toString(): string {
-    const wehl = parseWrapExcludeHeightLayer(this.#wrapExcludeHeightLayer);
+    const wihl = parseWrapIncludeHeightLayer(this.#wrapIncludeHeightLayer);
     return `Sprite {id=${this.film.id} box=${
       I16Box.toString(this.bounds)
-    } layer=${wehl.layer} excludeHeight=${wehl.excludeHeight} wrap=${
-      I4XY.toString(wehl.wrap)
+    } layer=${wihl.layer} includeHeight=${wihl.includeHeight} wrap=${
+      I4XY.toString(wihl.wrap)
     }}`;
   }
 }
 
-function parseWrapExcludeHeightLayer(
-  wrapExcludeHeightLayer: U16,
-): WrapExcludeHeightLayer {
-  const wrapX = I4.mod(NumUtil.ushift(wrapExcludeHeightLayer, 12) & 0xf);
-  const wrapY = I4.mod(NumUtil.ushift(wrapExcludeHeightLayer, 8) & 0xf);
-  const excludeHeight = NumUtil.ushift(wrapExcludeHeightLayer, 7) & 1;
-  const layer = U8(wrapExcludeHeightLayer & LayerMask);
+function parseWrapIncludeHeightLayer(
+  wrapIncludeHeightLayer: U16,
+): WrapIncludeHeightLayer {
+  const wrapX = I4.mod(NumUtil.ushift(wrapIncludeHeightLayer, 12) & 0xf);
+  const wrapY = I4.mod(NumUtil.ushift(wrapIncludeHeightLayer, 8) & 0xf);
+  const includeHeight = NumUtil.ushift(wrapIncludeHeightLayer, 7) & 1;
+  const layer = U8(wrapIncludeHeightLayer & LayerMask);
   return {
     wrap: I4XY(wrapX, wrapY),
-    excludeHeight: excludeHeight == ExcludeHeightFlag,
+    includeHeight: includeHeight == IncludeHeightFlag,
     layer,
   };
 }
 
-function serializeWrapExcludeHeightLayer(
+function serializeWrapIncludeHeightLayer(
   wrapXY: I4XY,
-  excludeHeight: boolean,
+  includeHeight: boolean,
   layer: U8,
 ): U16 {
   // this is dangerous
   const wrap = NumUtil.lshift(wrapXY.x & 0xf, 12) |
     NumUtil.lshift(wrapXY.y & 0xf, 8);
-  return U16(wrap | (excludeHeight ? 0 : ExcludeHeightFlag) | layer);
+  return U16(wrap | (includeHeight ? 0 : IncludeHeightFlag) | layer);
 }
