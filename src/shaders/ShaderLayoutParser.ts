@@ -1,4 +1,4 @@
-import { Immutable, NumUtil } from '@/oidlib';
+import { assert, Immutable, NumUtil } from '@/oidlib';
 import { ShaderLayout, ShaderLayoutConfig } from '@/void';
 
 enum DataTypeSize {
@@ -24,17 +24,22 @@ function parseAttributes(
   divisor: number,
   configs: readonly ShaderLayoutConfig.Attribute[],
 ): ShaderLayout.AttributeBuffer {
-  const attributes = configs.reduce(reduceAttributeVariable, []);
-  const maxDataTypeSize = attributes
-    .map(({ type }) => DataTypeSize[type])
-    .reduce((max, val) => Math.max(max, val), 0);
-  const lastAttribute = attributes.at(-1);
+  const attribs = configs.reduce(reduceAttributeVariable, []);
+  let maxDataTypeSize = 0;
+  for (const attrib of attribs) {
+    assert(
+      attrib.type in DataTypeSize,
+      `Attribute type ${attrib.type} is unsupported.`,
+    );
+    maxDataTypeSize = Math.max(maxDataTypeSize, DataTypeSize[attrib.type]);
+  }
+  const lastAttribute = attribs.at(-1);
   const size = lastAttribute == null ? 0 : nextAttributeOffset(lastAttribute);
   return {
-    len: attributes.reduce((sum, { len }) => sum + len, 0),
+    len: attribs.reduce((sum, { len }) => sum + len, 0),
     stride: NumUtil.ceilMultiple(maxDataTypeSize, size),
     divisor,
-    attributes,
+    attributes: attribs,
   };
 }
 
