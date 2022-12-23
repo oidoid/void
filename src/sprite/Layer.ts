@@ -1,5 +1,16 @@
 import { Immutable, Inverse, U16, U8 } from '@/oidlib';
 
+/**
+ * The render order.
+ *
+ * Sprites are rendered in the following order:
+ * - Lowest layer (Layer.Top).
+ * - Greatest y. When ExcludeHeightFlag is unset (the default), height is
+ *   included in this calculation (`y + h`).
+ * - Render instance position.
+ *
+ * See zDepth() in vertex.glsl.
+ */
 export const Layer = Immutable({
   Top: U8(0x01), // so that shader substraction keeps layer >= 0
   Cursor: U8(0x01),
@@ -14,3 +25,18 @@ export const LayerMask: U16 = U16(0b0000_0000_0111_1111);
 export const ExcludeHeightShift: number = 7;
 export const ExcludeHeightFlag: U16 = U16(0b1000_0000);
 export const ExcludeHeightMask: U16 = U16(ExcludeHeightFlag);
+
+// to-do: i had some notes on how to pattern bitmasks a lot better. figure it out
+// the masking terms / pattern. fixing the number types
+// shifted values / flags
+
+// WrapXWidth = 4
+// WrapXShift = 12
+// WrapXMask = mask(WrapXWidth, WrapXShift)
+
+// WrapYWidth = 4
+// WrapYShift = 8
+// WrapYMask = mask(WrapYWidth, WrapYShift)
+
+// const MaxX = I16.max;
+// const MaxY = 16 * 1024; //shader
