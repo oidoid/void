@@ -1,15 +1,18 @@
 import { assert, Immutable, NumUtil } from '@/oidlib';
 import { ShaderLayout, ShaderLayoutConfig } from '@/void';
 
-enum DataTypeSize {
-  BYTE = 1,
-  UNSIGNED_BYTE = 1,
-  SHORT = 2,
-  UNSIGNED_SHORT = 2,
-  INT = 4,
-  UNSIGNED_INT = 4,
-  FLOAT = 4,
-}
+export type DataTypeSize = typeof DataTypeSize[keyof typeof DataTypeSize];
+export const DataTypeSize = Immutable(
+  {
+    BYTE: 1,
+    UNSIGNED_BYTE: 1,
+    SHORT: 2,
+    UNSIGNED_SHORT: 2,
+    INT: 4,
+    UNSIGNED_INT: 4,
+    FLOAT: 4,
+  } as const,
+) satisfies Record<GLDataType, number>;
 
 export namespace ShaderLayoutParser {
   export const parse = (config: ShaderLayoutConfig): ShaderLayout =>
