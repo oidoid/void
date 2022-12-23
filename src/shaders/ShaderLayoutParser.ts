@@ -1,8 +1,8 @@
 import { assert, Immutable, NumUtil } from '@/oidlib';
 import { ShaderLayout, ShaderLayoutConfig } from '@/void';
 
-export type DataTypeSize = typeof DataTypeSize[keyof typeof DataTypeSize];
-export const DataTypeSize = Immutable(
+export type GLDataTypeSize = typeof GLDataTypeSize[keyof typeof GLDataTypeSize];
+export const GLDataTypeSize = Immutable(
   {
     BYTE: 1,
     UNSIGNED_BYTE: 1,
@@ -15,29 +15,26 @@ export const DataTypeSize = Immutable(
 ) satisfies Record<GLDataType, number>;
 
 export namespace ShaderLayoutParser {
-  export const parse = (config: ShaderLayoutConfig): ShaderLayout =>
-    Immutable({
+  export function parse(config: ShaderLayoutConfig): ShaderLayout {
+    return Immutable({
       uniforms: config.uniforms,
       perVertex: parseAttributes(0, config.perVertex),
       perInstance: parseAttributes(1, config.perInstance),
     });
+  }
 }
 
 function parseAttributes(
   divisor: number,
   configs: readonly ShaderLayoutConfig.Attribute[],
 ): ShaderLayout.AttributeBuffer {
-  const attribs = configs.reduce(reduceAttributeVariable, []);
-  let maxDataTypeSize = 0;
-  for (const attrib of attribs) {
-    assert(
-      attrib.type in DataTypeSize,
-      `Attribute type ${attrib.type} is unsupported.`,
-    );
-    maxDataTypeSize = Math.max(maxDataTypeSize, DataTypeSize[attrib.type]);
-  }
-  const lastAttribute = attribs.at(-1);
-  const size = lastAttribute == null ? 0 : nextAttributeOffset(lastAttribute);
+  const attribs = configs.reduce(reduceAttribVariable, []);
+  const maxDataTypeSize = attribs.reduce(
+    (max, attrib) => Math.max(max, GLDataTypeSize[attrib.type]),
+    0,
+  );
+  const lastAttrib = attribs.at(-1);
+  const size = lastAttrib == null ? 0 : nextAttribOffset(lastAttrib);
   return {
     len: attribs.reduce((sum, { len }) => sum + len, 0),
     stride: NumUtil.ceilMultiple(maxDataTypeSize, size),
@@ -46,15 +43,21 @@ function parseAttributes(
   };
 }
 
-const reduceAttributeVariable = (
-  attributes: readonly ShaderLayout.Attribute[],
+function reduceAttribVariable(
+  attribs: readonly ShaderLayout.Attribute[],
   { type, name, len }: ShaderLayoutConfig.Attribute,
   index: number,
-): readonly ShaderLayout.Attribute[] => {
-  const attribute = attributes[index - 1];
-  const offset = attribute == null ? 0 : nextAttributeOffset(attribute);
-  return attributes.concat({ type: <GLDataType> type, name, len, offset });
-};
+): readonly ShaderLayout.Attribute[] {
+  const attrib = attribs[index - 1];
+  const offset = attrib == null ? 0 : nextAttribOffset(attrib);
+  assert(isGLDataType(type), `${type} is not a GLDataType.`);
+  return attribs.concat({ type, name, len, offset });
+}
 
-const nextAttributeOffset = (attr: ShaderLayout.Attribute): number =>
-  attr.offset + DataTypeSize[attr.type] * attr.len;
+function nextAttribOffset(attrib: ShaderLayout.Attribute): number {
+  return attrib.offset + GLDataTypeSize[attrib.type] * attrib.len;
+}
+
+function isGLDataType(type: string): type is GLDataType {
+  return type in GLDataTypeSize;
+}
