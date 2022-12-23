@@ -24,15 +24,15 @@ function updateEnt(set: CursorSet, update: ECSUpdate): void {
   if (
     update.inputs.point?.pointerType == 'Pen' ||
     update.inputs.point?.pointerType == 'Touch'
-  ) Sprite.setLayer(sprite, Layer.Bottom);
-  else Sprite.setLayer(sprite, Layer.Cursor);
+  ) sprite.layer = Layer.Bottom;
+  else sprite.layer = Layer.Cursor;
 
   if (
     update.inputs.pick?.active == true &&
     (update.inputs.pick.buttons & Button.Primary) == Button.Primary
   ) {
     if (Input.activeTriggered(update.inputs.pick)) {
-      sprite.animator.reset(update.time, cursor.pick);
+      sprite.animate(update.time, cursor.pick);
     }
-  } else sprite.animator.reset(update.time, cursor.point);
+  } else sprite.animate(update.time, cursor.point);
 }

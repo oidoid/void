@@ -33,8 +33,8 @@ in uint iCelID;
 // rendered result is the source truncated or repeated.
 in ivec4 iTarget;
 
-in uint iLayer;
-in uint iMoreBits;
+in uint iWrapSuborderLayer;
+in uint iFlip;
 
 
 const uint LayerSuborderFlag = 1u << 7;
@@ -48,8 +48,8 @@ float z_depth() {
   const float maxLayer = 64.;
   const float maxY = 16. * 1024.;
   const float maxDepth = maxLayer * maxY;
-  bool byStart = (iLayer & LayerSuborderMask) == LayerSuborderFlagStart;
-  float depth = float(iLayer & ~LayerSuborderMask & LayerMask) * maxY  - float(iTarget.y + (byStart ? 0 : iTarget.w));
+  bool byStart = (iWrapSuborderLayer & LayerSuborderMask) == LayerSuborderFlagStart;
+  float depth = float(iWrapSuborderLayer & ~LayerSuborderMask & LayerMask) * maxY  - float(iTarget.y + (byStart ? 0 : iTarget.w));
   return depth / maxDepth;
 }
 
@@ -59,15 +59,17 @@ flat out uint oLayer;
 
 void main() {
   ivec2 flip = ivec2(
-    (int(iMoreBits >> 1) & 0x1) == 1 ? -1 : 1,
-    (int(iMoreBits >> 0) & 0x1) == 1 ? -1 : 1
+    (int(iFlip >> 1) & 0x1) == 1 ? -1 : 1,
+    (int(iFlip >> 0) & 0x1) == 1 ? -1 : 1
   );
   uvec4 sourceXYWH = texelFetch(uSourceByCelID, ivec2(0, iCelID), 0);
 
   gl_Position = vec4(iTarget.xy + ivec2(vUV) * iTarget.zw, z_depth(), 1) * uProjection;
   vSource = vec2(vUV) * vec2(iTarget.zw * flip);
   vSourceXYWH = vec4(sourceXYWH);
-  oLayer = iLayer;
+oLayer = iWrapSuborderLayer;
+
+  // vSource = vec2(sourceXYWH.xy + vUV * sourceXYWH.zw);
 }`;
 
 import { GL } from '@/void';
