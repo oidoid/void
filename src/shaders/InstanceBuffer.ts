@@ -48,7 +48,7 @@ export namespace InstanceBuffer {
     self.buffer.setInt16(i + 4, sprite.bounds.start.y, littleEndian);
     self.buffer.setInt16(i + 6, I16Box.width(sprite.bounds), littleEndian);
     self.buffer.setInt16(i + 8, I16Box.height(sprite.bounds), littleEndian);
-    self.buffer.setUint16(i + 10, sprite.wrapSuborderLayer, littleEndian);
+    self.buffer.setUint16(i + 10, sprite.wrapOriginLayer, littleEndian);
     self.buffer.setUint16(i + 12, sprite.flip, littleEndian);
   }
 }

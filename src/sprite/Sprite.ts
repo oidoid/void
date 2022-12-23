@@ -15,9 +15,9 @@ import {
 } from '@/oidlib';
 import {
   LayerMask,
-  LayerSuborder,
-  LayerSuborderFlagEnd,
-  LayerSuborderFlagStart,
+  LayerOrigin,
+  LayerOriginFlagEnd,
+  LayerOriginFlagStart,
 } from '@/void';
 
 // to-do: review fancy SpriteProps-like default generator in NE.
@@ -27,11 +27,11 @@ export interface SpriteProps {
    *
    * Ents that are repositioned by other systems like FollowCam don't care.
    */
-  readonly start?: I16XY;
+  readonly start?: Partial<I16XY>;
   /** The dimensions of the sprite. Defaults to animation size. */
-  readonly wh?: I16XY;
+  readonly wh?: Partial<I16XY>;
   /** How to resolve render order for sprites on same layer. */
-  readonly layerSuborder?: LayerSuborder;
+  readonly layerOrigin?: LayerOrigin;
   /** Offset sprite. */
   readonly wrap?: Partial<I4XY>;
   /** Mirror sprite. to-do: add intersection support. */
@@ -44,9 +44,9 @@ export type SpriteFlip =
   | /** Flip vertically. */ 'Y'
   | /** Flip horizontally and vertically. */ 'XY';
 
-interface WrapSuborderLayer {
+interface WrapOriginLayer {
   readonly wrap: I4XY;
-  readonly suborder: LayerSuborder;
+  readonly origin: LayerOrigin;
   readonly layer: U8;
 }
 
@@ -54,12 +54,13 @@ interface Flip {
   readonly flip: SpriteFlip;
 }
 
+/** A renderable animation. */
 export class Sprite {
   #animator: Animator;
   #bounds: I16Box;
   // animator collision detection is not wrap aware
   // 4b signed x wrap, 4b signed y wrap, 1b layer by start, 7b layer
-  #wrapSuborderLayer: U16;
+  #wrapOriginLayer: U16;
   // 2b flip, 00 - no flip, 01 : flip Y, 10 flip x, 11 flip x&y
   #flip: U16;
 
@@ -72,10 +73,10 @@ export class Sprite {
   }
 
   set layer(layer: U8) {
-    const { wrap, suborder } = parseWrapSuborderLayer(this.#wrapSuborderLayer);
-    this.#wrapSuborderLayer = serializeWrapSuborderLayer(
+    const { wrap, origin } = parseWrapOriginLayer(this.#wrapOriginLayer);
+    this.#wrapOriginLayer = serializeWrapOriginLayer(
       wrap,
-      suborder,
+      origin,
       layer,
     );
   }
@@ -84,21 +85,21 @@ export class Sprite {
     return this.#flip;
   }
 
-  get wrapSuborderLayer(): U16 {
-    return this.#wrapSuborderLayer;
+  get wrapOriginLayer(): U16 {
+    return this.#wrapOriginLayer;
   }
 
   constructor(film: Film, layer: U8, props?: SpriteProps) {
-    const start = props?.start ?? I16XY(0, 0);
-    const wh = props?.wh ?? I16XY(film.wh);
-    const layerSuborder = props?.layerSuborder ?? 'End';
-    const wrapX = props?.wrap?.x ?? I4(0);
-    const wrapY = props?.wrap?.y ?? I4(0);
     this.#animator = new Animator(film);
-    this.#bounds = I16Box(start.x, start.y, wh.x, wh.y);
-    this.#wrapSuborderLayer = serializeWrapSuborderLayer(
-      I4XY(wrapX, wrapY),
-      layerSuborder,
+    this.#bounds = I16Box(
+      props?.start?.x ?? 0,
+      props?.start?.y ?? 0,
+      props?.wh?.x ?? film.wh.x,
+      props?.wh?.y ?? film.wh.y,
+    );
+    this.#wrapOriginLayer = serializeWrapOriginLayer(
+      I4XY(props?.wrap?.x ?? 0, props?.wrap?.y ?? 0),
+      props?.layerOrigin ?? 'End',
       layer,
     );
     this.#flip = serializeFlip(props?.flip ?? '');
@@ -120,15 +121,15 @@ export class Sprite {
   // to-do: keep in sync with shader
   // order from top to bottom
   compareDepth(sprite: Sprite): number {
-    const { suborder: lhsSuborder, layer: lhsLayer } = parseWrapSuborderLayer(
-      this.#wrapSuborderLayer,
+    const { origin: lhsOrigin, layer: lhsLayer } = parseWrapOriginLayer(
+      this.#wrapOriginLayer,
     );
-    const { suborder: rhsSuborder, layer: rhsLayer } = parseWrapSuborderLayer(
-      sprite.#wrapSuborderLayer,
+    const { origin: rhsOrigin, layer: rhsLayer } = parseWrapOriginLayer(
+      sprite.#wrapOriginLayer,
     );
     return lhsLayer == rhsLayer
-      ? (sprite.bounds[Str.uncapitalize(rhsSuborder)].y -
-        this.bounds[Str.uncapitalize(lhsSuborder)].y)
+      ? (sprite.bounds[Str.uncapitalize(rhsOrigin)].y -
+        this.bounds[Str.uncapitalize(lhsOrigin)].y)
       : lhsLayer - rhsLayer;
   }
 
@@ -190,24 +191,24 @@ export class Sprite {
   }
 
   toString(): string {
-    const wsl = parseWrapSuborderLayer(this.#wrapSuborderLayer);
+    const wol = parseWrapOriginLayer(this.#wrapOriginLayer);
     const flip = parseFlip(this.#flip);
     return `Sprite {id=${this.film.id} box=${
       I16Box.toString(this.bounds)
-    } layer=${wsl.layer} suborder=${wsl.suborder} flip=${
+    } layer=${wol.layer} origin=${wol.origin} flip=${
       flip.flip || 'None'
-    } wrap=${I4XY.toString(wsl.wrap)}}`;
+    } wrap=${I4XY.toString(wol.wrap)}}`;
   }
 }
 
-function parseWrapSuborderLayer(wrapSuborderLayer: U16): WrapSuborderLayer {
-  const wrapX = I4.mod(NumUtil.ushift(wrapSuborderLayer, 12) & 0xf);
-  const wrapY = I4.mod(NumUtil.ushift(wrapSuborderLayer, 8) & 0xf);
-  const suborder = NumUtil.ushift(wrapSuborderLayer, 7) & 1;
-  const layer = U8(wrapSuborderLayer & LayerMask);
+function parseWrapOriginLayer(wrapOriginLayer: U16): WrapOriginLayer {
+  const wrapX = I4.mod(NumUtil.ushift(wrapOriginLayer, 12) & 0xf);
+  const wrapY = I4.mod(NumUtil.ushift(wrapOriginLayer, 8) & 0xf);
+  const origin = NumUtil.ushift(wrapOriginLayer, 7) & 1;
+  const layer = U8(wrapOriginLayer & LayerMask);
   return {
     wrap: I4XY(wrapX, wrapY),
-    suborder: suborder == LayerSuborderFlagEnd ? 'End' : 'Start',
+    origin: origin == LayerOriginFlagEnd ? 'End' : 'Start',
     layer,
   };
 }
@@ -218,18 +219,18 @@ function parseFlip(moreBits: U16): Flip {
   return { flip: `${flipX ? 'X' : ''}${flipY ? 'Y' : ''}` };
 }
 
-function serializeWrapSuborderLayer(
+function serializeWrapOriginLayer(
   wrapXY: I4XY,
-  layerSuborder: string,
+  layerOrigin: string,
   layer: U8,
 ): U16 {
-  const suborder = layerSuborder == 'End'
-    ? LayerSuborderFlagEnd
-    : LayerSuborderFlagStart;
+  const origin = layerOrigin == 'End'
+    ? LayerOriginFlagEnd
+    : LayerOriginFlagStart;
   // this is dangerous
   const wrap = NumUtil.lshift(wrapXY.x & 0xf, 12) |
     NumUtil.lshift(wrapXY.y & 0xf, 8);
-  return U16(wrap | suborder | layer);
+  return U16(wrap | origin | layer);
 }
 
 function serializeFlip(flip: SpriteFlip): U16 {

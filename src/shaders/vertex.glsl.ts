@@ -33,23 +33,23 @@ in uint iCelID;
 // rendered result is the source truncated or repeated.
 in ivec4 iTarget;
 
-in uint iWrapSuborderLayer;
+in uint iWrapOriginLayer;
 in uint iFlip;
 
 
-const uint LayerSuborderFlag = 1u << 7;
+const uint LayerOriginFlag = 1u << 7;
 const uint LayerMask = 0x00ffu;
-const uint LayerSuborderMask = LayerSuborderFlag;
-const uint LayerSuborderFlagStart = LayerSuborderMask & LayerSuborderFlag;
-const uint LayerSuborderFlagEnd = LayerSuborderMask & ~LayerSuborderFlag;
+const uint LayerOriginMask = LayerOriginFlag;
+const uint LayerOriginFlagStart = LayerOriginMask & LayerOriginFlag;
+const uint LayerOriginFlagEnd = LayerOriginMask & ~LayerOriginFlag;
 
 // For picking, only care about layer and (y + h).
 float z_depth() {
   const float maxLayer = 64.;
   const float maxY = 16. * 1024.;
   const float maxDepth = maxLayer * maxY;
-  bool byStart = (iWrapSuborderLayer & LayerSuborderMask) == LayerSuborderFlagStart;
-  float depth = float(iWrapSuborderLayer & ~LayerSuborderMask & LayerMask) * maxY  - float(iTarget.y + (byStart ? 0 : iTarget.w));
+  bool byStart = (iWrapOriginLayer & LayerOriginMask) == LayerOriginFlagStart;
+  float depth = float(iWrapOriginLayer & ~LayerOriginMask & LayerMask) * maxY  - float(iTarget.y + (byStart ? 0 : iTarget.w));
   return depth / maxDepth;
 }
 
@@ -67,7 +67,7 @@ void main() {
   gl_Position = vec4(iTarget.xy + ivec2(vUV) * iTarget.zw, z_depth(), 1) * uProjection;
   vSource = vec2(vUV) * vec2(iTarget.zw * flip);
   vSourceXYWH = vec4(sourceXYWH);
-oLayer = iWrapSuborderLayer;
+oLayer = iWrapOriginLayer;
 
   // vSource = vec2(sourceXYWH.xy + vUV * sourceXYWH.zw);
 }`;
