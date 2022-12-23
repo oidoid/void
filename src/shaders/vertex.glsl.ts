@@ -3,7 +3,9 @@ export default `#version 300 es
 #pragma optimize(${GL.debug ? 'off' : 'on'})
 
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#essl300_minimum_requirements_webgl_2
-precision highp int; // I16 wutttttt this broke on my partner's phone
+// todo: int is currently I32 but should be mediump (I16). However, that broke
+// on Joie's phone.
+precision highp int; // I32
 precision mediump isampler2D; // U16
 precision mediump usampler2D; // U16
 precision highp float; // F32
@@ -24,52 +26,50 @@ uniform usampler2D uSourceByCelID;
 // bounding box.
 in uvec2 vUV;
 
-// The atlas cel ID.
+// The atlas cel ID (index).
 in uint iCelID;
 
 // The rendered destination and dimensions in level pixel coordinates. x, y,
 // scaled width (z) and scaled height (w) in pixels. When the destination width
 // and height is not equal to the source width and height times scale, the
-// rendered result is the source truncated or repeated.
+// rendered result is the source truncated or repeated. Width and height are
+// negative when flipped.
 in ivec4 iTarget;
 
-in uint iWrapOriginLayer;
-in uint iFlip;
+in uint iWrapExcludeHeightLayer;
 
+const uint ExcludeHeightFlag = 1u << 7;
+const uint LayerMask = 0x007fu;
+const uint ExcludeHeightMask = ExcludeHeightFlag;
+const uint ExcludeHeightFlagStart = ExcludeHeightMask & ExcludeHeightFlag;
+const uint ExcludeHeightFlagEnd = ExcludeHeightMask & ~ExcludeHeightFlag;
 
-const uint LayerOriginFlag = 1u << 7;
-const uint LayerMask = 0x00ffu;
-const uint LayerOriginMask = LayerOriginFlag;
-const uint LayerOriginFlagStart = LayerOriginMask & LayerOriginFlag;
-const uint LayerOriginFlagEnd = LayerOriginMask & ~LayerOriginFlag;
-
-// For picking, only care about layer and (y + h).
-float z_depth() {
+// Only care about layer, height, and y. See
+// https://www.patternsgameprog.com/opengl-2d-facade-25-get-the-z-of-a-pixel.
+float zDepth() {
   const float maxLayer = 64.;
   const float maxY = 16. * 1024.;
   const float maxDepth = maxLayer * maxY;
-  bool byStart = (iWrapOriginLayer & LayerOriginMask) == LayerOriginFlagStart;
-  float depth = float(iWrapOriginLayer & ~LayerOriginMask & LayerMask) * maxY  - float(iTarget.y + (byStart ? 0 : iTarget.w));
+  bool excludeHeight =
+    iWrapExcludeHeightLayer & ExcludeHeightMask == ExcludeHeightFlagStart;
+  float depth = float(iWrapExcludeHeightLayer & LayerMask) * maxY
+    - float(iTarget.y + (excludeHeight ? 0 : iTarget.w));
   return depth / maxDepth;
 }
 
-out vec2 vSource;
+out vec2 vTargetWH;
 out vec4 vSourceXYWH;
-flat out uint oLayer;
+flat out ivec2 vWrapXY;
 
 void main() {
-  ivec2 flip = ivec2(
-    (int(iFlip >> 1) & 0x1) == 1 ? -1 : 1,
-    (int(iFlip >> 0) & 0x1) == 1 ? -1 : 1
-  );
   uvec4 sourceXYWH = texelFetch(uSourceByCelID, ivec2(0, iCelID), 0);
 
-  gl_Position = vec4(iTarget.xy + ivec2(vUV) * iTarget.zw, z_depth(), 1) * uProjection;
-  vSource = vec2(vUV) * vec2(iTarget.zw * flip);
+  ivec2 targetWH = ivec2(vUV) * iTarget.zw;
+  gl_Position = vec4(iTarget.xy + abs(targetWH), zDepth(), 1) * uProjection;
+  vTargetWH = vec2(targetWH);
   vSourceXYWH = vec4(sourceXYWH);
-oLayer = iWrapOriginLayer;
 
-  // vSource = vec2(sourceXYWH.xy + vUV * sourceXYWH.zw);
+  vWrapXY= ivec2((iWrapExcludeHeightLayer >> 12)& 0xfu, (iWrapExcludeHeightLayer >> 8)& 0xfu);
 }`;
 
 import { GL } from '@/void';

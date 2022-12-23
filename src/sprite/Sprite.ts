@@ -1,26 +1,21 @@
 import { Animator, Cel, Film } from '@/atlas-pack';
 import {
   Box,
+  I16,
   I16Box,
   I16XY,
   I4,
   I4XY,
   NumberBox,
   NumUtil,
-  Str,
   U16,
   U16Box,
   U8,
   XY,
 } from '@/oidlib';
-import {
-  LayerMask,
-  LayerOrigin,
-  LayerOriginFlagEnd,
-  LayerOriginFlagStart,
-} from '@/void';
+import { LayerMask } from '@/void';
+import { ExcludeHeightFlag } from './Layer.ts';
 
-// to-do: review fancy SpriteProps-like default generator in NE.
 export interface SpriteProps {
   /**
    * The origin of the sprite in level coordinates. Defaults to (0, 0).
@@ -30,11 +25,15 @@ export interface SpriteProps {
   readonly start?: Partial<I16XY>;
   /** The dimensions of the sprite. Defaults to animation size. */
   readonly wh?: Partial<I16XY>;
-  /** How to resolve render order for sprites on same layer. */
-  readonly layerOrigin?: LayerOrigin;
+  /**
+   * How to resolve render order for sprites on same layer. When false (the
+   * default), this sprite compares with `y`. When true, this sprite compares
+   * with `y + h`.
+   */
+  readonly excludeHeight?: boolean;
   /** Offset sprite. */
   readonly wrap?: Partial<I4XY>;
-  /** Mirror sprite. to-do: add intersection support. */
+  /** Mirror sprite. Defaults to unflipped. to-do: add intersection support. */
   readonly flip?: SpriteFlip;
 }
 
@@ -44,14 +43,10 @@ export type SpriteFlip =
   | /** Flip vertically. */ 'Y'
   | /** Flip horizontally and vertically. */ 'XY';
 
-interface WrapOriginLayer {
+interface WrapExcludeHeightLayer {
   readonly wrap: I4XY;
-  readonly origin: LayerOrigin;
+  readonly excludeHeight: boolean;
   readonly layer: U8;
-}
-
-interface Flip {
-  readonly flip: SpriteFlip;
 }
 
 /** A renderable animation. */
@@ -60,9 +55,7 @@ export class Sprite {
   #bounds: I16Box;
   // animator collision detection is not wrap aware
   // 4b signed x wrap, 4b signed y wrap, 1b layer by start, 7b layer
-  #wrapOriginLayer: U16;
-  // 2b flip, 00 - no flip, 01 : flip Y, 10 flip x, 11 flip x&y
-  #flip: U16;
+  #wrapExcludeHeightLayer: U16;
 
   get bounds(): I16Box {
     return this.#bounds;
@@ -72,37 +65,56 @@ export class Sprite {
     return this.#animator.film;
   }
 
+  /** Height (negative when flipped). */
+  get h(): I16 {
+    return I16Box.height(this.#bounds);
+  }
+
   set layer(layer: U8) {
-    const { wrap, origin } = parseWrapOriginLayer(this.#wrapOriginLayer);
-    this.#wrapOriginLayer = serializeWrapOriginLayer(
+    const { wrap, excludeHeight } = parseWrapExcludeHeightLayer(
+      this.#wrapExcludeHeightLayer,
+    );
+    this.#wrapExcludeHeightLayer = serializeWrapExcludeHeightLayer(
       wrap,
-      origin,
+      excludeHeight,
       layer,
     );
   }
 
-  get flip(): U16 {
-    return this.#flip;
+  /** Width (negative when flipped). */
+  get w(): I16 {
+    return I16Box.width(this.#bounds);
   }
 
-  get wrapOriginLayer(): U16 {
-    return this.#wrapOriginLayer;
+  get wrapExcludeHeightLayer(): U16 {
+    return this.#wrapExcludeHeightLayer;
+  }
+
+  get x(): I16 {
+    return this.#bounds.start.x;
+  }
+
+  get y(): I16 {
+    return this.#bounds.start.y;
   }
 
   constructor(film: Film, layer: U8, props?: SpriteProps) {
     this.#animator = new Animator(film);
+    const flip = I16XY(
+      (props?.flip == 'X' || props?.flip == 'XY') ? -1 : 1,
+      (props?.flip == 'Y' || props?.flip == 'XY') ? -1 : 1,
+    );
     this.#bounds = I16Box(
       props?.start?.x ?? 0,
       props?.start?.y ?? 0,
-      props?.wh?.x ?? film.wh.x,
-      props?.wh?.y ?? film.wh.y,
+      (props?.wh?.x ?? film.wh.x) * flip.x,
+      (props?.wh?.y ?? film.wh.y) * flip.y,
     );
-    this.#wrapOriginLayer = serializeWrapOriginLayer(
+    this.#wrapExcludeHeightLayer = serializeWrapExcludeHeightLayer(
       I4XY(props?.wrap?.x ?? 0, props?.wrap?.y ?? 0),
-      props?.layerOrigin ?? 'End',
+      props?.excludeHeight ?? false,
       layer,
     );
-    this.#flip = serializeFlip(props?.flip ?? '');
   }
 
   /**
@@ -121,15 +133,17 @@ export class Sprite {
   // to-do: keep in sync with shader
   // order from top to bottom
   compareDepth(sprite: Sprite): number {
-    const { origin: lhsOrigin, layer: lhsLayer } = parseWrapOriginLayer(
-      this.#wrapOriginLayer,
-    );
-    const { origin: rhsOrigin, layer: rhsLayer } = parseWrapOriginLayer(
-      sprite.#wrapOriginLayer,
-    );
+    const { excludeHeight: lhsExcludeHeight, layer: lhsLayer } =
+      parseWrapExcludeHeightLayer(
+        this.#wrapExcludeHeightLayer,
+      );
+    const { excludeHeight: rhsExcludeHeight, layer: rhsLayer } =
+      parseWrapExcludeHeightLayer(
+        sprite.#wrapExcludeHeightLayer,
+      );
     return lhsLayer == rhsLayer
-      ? (sprite.bounds[Str.uncapitalize(rhsOrigin)].y -
-        this.bounds[Str.uncapitalize(lhsOrigin)].y)
+      ? (sprite.bounds[rhsExcludeHeight ? 'start' : 'end'].y -
+        this.bounds[lhsExcludeHeight ? 'start' : 'end'].y)
       : lhsLayer - rhsLayer;
   }
 
@@ -147,7 +161,7 @@ export class Sprite {
     const box = 'x' in xyOrBox
       ? I16Box.round(xyOrBox.x, xyOrBox.y, 0, 0)
       : I16Box.round(xyOrBox);
-    I16Box.moveBy(box, -this.bounds.start.x, -this.bounds.start.y);
+    I16Box.moveBy(box, -this.x, -this.y);
     if (!U16Box.intersects(cel.sliceBounds, box)) return false;
     for (const slice of cel.slices) {
       if (U16Box.intersects(slice, box)) return true;
@@ -191,51 +205,36 @@ export class Sprite {
   }
 
   toString(): string {
-    const wol = parseWrapOriginLayer(this.#wrapOriginLayer);
-    const flip = parseFlip(this.#flip);
+    const wehl = parseWrapExcludeHeightLayer(this.#wrapExcludeHeightLayer);
     return `Sprite {id=${this.film.id} box=${
       I16Box.toString(this.bounds)
-    } layer=${wol.layer} origin=${wol.origin} flip=${
-      flip.flip || 'None'
-    } wrap=${I4XY.toString(wol.wrap)}}`;
+    } layer=${wehl.layer} excludeHeight=${wehl.excludeHeight} wrap=${
+      I4XY.toString(wehl.wrap)
+    }}`;
   }
 }
 
-function parseWrapOriginLayer(wrapOriginLayer: U16): WrapOriginLayer {
-  const wrapX = I4.mod(NumUtil.ushift(wrapOriginLayer, 12) & 0xf);
-  const wrapY = I4.mod(NumUtil.ushift(wrapOriginLayer, 8) & 0xf);
-  const origin = NumUtil.ushift(wrapOriginLayer, 7) & 1;
-  const layer = U8(wrapOriginLayer & LayerMask);
+function parseWrapExcludeHeightLayer(
+  wrapExcludeHeightLayer: U16,
+): WrapExcludeHeightLayer {
+  const wrapX = I4.mod(NumUtil.ushift(wrapExcludeHeightLayer, 12) & 0xf);
+  const wrapY = I4.mod(NumUtil.ushift(wrapExcludeHeightLayer, 8) & 0xf);
+  const excludeHeight = NumUtil.ushift(wrapExcludeHeightLayer, 7) & 1;
+  const layer = U8(wrapExcludeHeightLayer & LayerMask);
   return {
     wrap: I4XY(wrapX, wrapY),
-    origin: origin == LayerOriginFlagEnd ? 'End' : 'Start',
+    excludeHeight: excludeHeight == ExcludeHeightFlag,
     layer,
   };
 }
 
-function parseFlip(moreBits: U16): Flip {
-  const flipX = (NumUtil.ushift(moreBits, 1) & 1) == 1;
-  const flipY = (NumUtil.ushift(moreBits, 0) & 1) == 1;
-  return { flip: `${flipX ? 'X' : ''}${flipY ? 'Y' : ''}` };
-}
-
-function serializeWrapOriginLayer(
+function serializeWrapExcludeHeightLayer(
   wrapXY: I4XY,
-  layerOrigin: string,
+  excludeHeight: boolean,
   layer: U8,
 ): U16 {
-  const origin = layerOrigin == 'End'
-    ? LayerOriginFlagEnd
-    : LayerOriginFlagStart;
   // this is dangerous
   const wrap = NumUtil.lshift(wrapXY.x & 0xf, 12) |
     NumUtil.lshift(wrapXY.y & 0xf, 8);
-  return U16(wrap | origin | layer);
-}
-
-function serializeFlip(flip: SpriteFlip): U16 {
-  const flipX = flip == 'X' || flip == 'XY';
-  const flipY = flip == 'Y' || flip == 'XY';
-  const flipXY = (((flipX ? 1 : 0) << 1) | ((flipY ? 1 : 0) << 0)) << 0;
-  return U16(flipXY | 0);
+  return U16(wrap | (excludeHeight ? 0 : ExcludeHeightFlag) | layer);
 }

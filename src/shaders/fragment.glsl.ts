@@ -10,20 +10,27 @@ precision highp float; // F32
 precision highp sampler2D; // F32
 
 uniform sampler2D uAtlas;
-
 uniform uvec2 uAtlasSize; // width (x), height (y) in pixels.
 
-in vec2 vSource;
+/**
+ * The destination width and height. These dimensions are negative when flipped.
+ */
+in vec2 vTargetWH;
+
+/** Atlas position and dimensions. */
 in vec4 vSourceXYWH;
-flat in uint oLayer;
+
+/** Destination texture rotation offset. */
+flat in ivec2 vWrapXY;
 
 out vec4 frag;
 
 void main() {
-  int xOffset = int((oLayer >> 12)& 0xfu);
-  int yOffset = int((oLayer >> 8)& 0xfu);
   // Wrap the target over the source to prevent scaling.
-  frag = texture(uAtlas, (vSourceXYWH.xy + mod(vSource.xy - vec2(xOffset,yOffset), vSourceXYWH.zw)) / vec2(uAtlasSize));
+  vec2 sourceXY = vSourceXYWH.xy;
+  vec2 sourceWH = vSourceXYWH.zw;
+  vec2 px = sourceXY + mod(vTargetWH - vec2(vWrapXY), sourceWH);
+  frag = texture(uAtlas, px / vec2(uAtlasSize));
   if(frag.a < 1.) discard;
 }`;
 

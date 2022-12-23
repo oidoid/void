@@ -9,7 +9,6 @@
   "perInstance": [
     { "name": "iCelID", "type": "UNSIGNED_SHORT", "len": 1 },
     { "name": "iTarget", "type": "SHORT", "len": 4 },
-    { "name": "iWrapOriginLayer", "type": "UNSIGNED_SHORT", "len": 1 },
-    { "name": "iFlip", "type": "UNSIGNED_SHORT", "len": 1 }
+    { "name": "iWrapExcludeHeightLayer", "type": "UNSIGNED_SHORT", "len": 1 }
   ]
 }

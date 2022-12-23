@@ -1,4 +1,4 @@
-import { I16Box, Uint } from '@/oidlib';
+import { Uint } from '@/oidlib';
 import { ShaderLayout, Sprite } from '@/void';
 
 const littleEndian: boolean = new Int8Array(new Int16Array([1]).buffer)[0] == 1;
@@ -44,11 +44,10 @@ export namespace InstanceBuffer {
     }
     self.size = index + 1;
     self.buffer.setUint16(i + 0, sprite.cel(time).id, littleEndian);
-    self.buffer.setInt16(i + 2, sprite.bounds.start.x, littleEndian);
-    self.buffer.setInt16(i + 4, sprite.bounds.start.y, littleEndian);
-    self.buffer.setInt16(i + 6, I16Box.width(sprite.bounds), littleEndian);
-    self.buffer.setInt16(i + 8, I16Box.height(sprite.bounds), littleEndian);
-    self.buffer.setUint16(i + 10, sprite.wrapOriginLayer, littleEndian);
-    self.buffer.setUint16(i + 12, sprite.flip, littleEndian);
+    self.buffer.setInt16(i + 2, sprite.x, littleEndian);
+    self.buffer.setInt16(i + 4, sprite.y, littleEndian);
+    self.buffer.setInt16(i + 6, sprite.w, littleEndian);
+    self.buffer.setInt16(i + 8, sprite.h, littleEndian);
+    self.buffer.setUint16(i + 10, sprite.wrapExcludeHeightLayer, littleEndian);
   }
 }

@@ -1,5 +1,5 @@
-import { FollowCamConfig, Sprite, System } from '@/void';
 import { I16, I16Box, I16XY, Immutable } from '@/oidlib';
+import { FollowCamConfig, Sprite, System } from '@/void';
 import { ECSUpdate } from '../ECSUpdate.ts';
 
 export interface FollowCamSet {
@@ -20,12 +20,12 @@ function updateEnt(set: FollowCamSet, update: ECSUpdate): void {
     I16(
       followCam.fill == 'X' || followCam.fill == 'XY'
         ? (I16Box.width(update.camBounds) - pad.x * 2)
-        : I16Box.width(sprite.bounds),
+        : sprite.w,
     ),
     I16(
       followCam.fill == 'Y' || followCam.fill == 'XY'
         ? (I16Box.height(update.camBounds) - pad.y * 2)
-        : I16Box.height(sprite.bounds),
+        : sprite.h,
     ),
   );
   I16Box.moveTo(
@@ -41,7 +41,7 @@ function computeX(
   component: Readonly<FollowCamConfig>,
 ): I16 {
   const camW = I16Box.width(cam);
-  const spriteW = I16Box.width(sprite.bounds);
+  const spriteW = Math.abs(sprite.w);
   const padW = component.pad?.x ?? 0;
   let x = cam.start.x;
   switch (component.orientation) {
@@ -71,7 +71,7 @@ function computeY(
   component: Readonly<FollowCamConfig>,
 ): I16 {
   const camH = I16Box.height(cam);
-  const spriteH = I16Box.height(sprite.bounds);
+  const spriteH = Math.abs(sprite.h);
   const padH = component.pad?.y ?? 0;
   let y = cam.start.y;
   switch (component.orientation) {
