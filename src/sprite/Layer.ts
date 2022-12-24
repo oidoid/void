@@ -5,7 +5,7 @@ import { Immutable, Inverse, U16, U8 } from '@/oidlib';
  *
  * Sprites are rendered in the following order:
  * - Lowest layer (Layer.Top).
- * - Greatest y. When IncludeHeightFlag is set, height is included in this
+ * - Greatest y. When LayerByHeightFlag is set, height is included in this
  *   calculation (`y + h`). The default is to exclude height.
  * - Render instance position.
  *
@@ -22,9 +22,9 @@ export const LayerInverse = Immutable(Inverse(Layer));
 
 export const WrapMask: U16 = U16(0b1111_1111_0000_0000);
 export const LayerMask: U16 = U16(0b0000_0000_0111_1111);
-export const IncludeHeightShift: number = 7;
-export const IncludeHeightFlag: U16 = U16(0b1000_0000);
-export const IncludeHeightMask: U16 = U16(IncludeHeightFlag);
+export const LayerByHeightShift: number = 7;
+export const LayerByHeightFlag: U16 = U16(0b1000_0000);
+export const LayerByHeightMask: U16 = U16(LayerByHeightFlag);
 
 // to-do: i had some notes on how to pattern bitmasks a lot better. figure it out
 // the masking terms / pattern. fixing the number types

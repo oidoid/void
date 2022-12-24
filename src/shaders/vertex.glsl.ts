@@ -36,13 +36,13 @@ in uint iCelID;
 // negative when flipped.
 in ivec4 iTarget;
 
-in uint iWrapIncludeHeightLayer;
+in uint iWrapLayerByHeightLayer;
 
-const uint IncludeHeightFlag = 1u << 7;
+const uint LayerByHeightFlag = 1u << 7;
 const uint LayerMask = 0x007fu;
-const uint IncludeHeightMask = IncludeHeightFlag;
-const uint IncludeHeightFlagStart = IncludeHeightMask & IncludeHeightFlag;
-const uint IncludeHeightFlagEnd = IncludeHeightMask & ~IncludeHeightFlag;
+const uint LayerByHeightMask = LayerByHeightFlag;
+const uint LayerByHeightFlagStart = LayerByHeightMask & LayerByHeightFlag;
+const uint LayerByHeightFlagEnd = LayerByHeightMask & ~LayerByHeightFlag;
 
 // Only care about layer, height, and y. See
 // https://www.patternsgameprog.com/opengl-2d-facade-25-get-the-z-of-a-pixel.
@@ -50,10 +50,10 @@ float zDepth() {
   const float maxLayer = 64.;
   const float maxY = 16. * 1024.;
   const float maxDepth = maxLayer * maxY;
-  bool includeHeight =
-    (iWrapIncludeHeightLayer & IncludeHeightMask) == IncludeHeightFlagStart;
-  float depth = float(iWrapIncludeHeightLayer & LayerMask) * maxY
-    - float(iTarget.y + (includeHeight ? iTarget.w : 0));
+  bool layerByHeight =
+    (iWrapLayerByHeightLayer & LayerByHeightMask) == LayerByHeightFlagStart;
+  float depth = float(iWrapLayerByHeightLayer & LayerMask) * maxY
+    - float(iTarget.y + (layerByHeight ? iTarget.w : 0));
   return depth / maxDepth;
 }
 
@@ -69,7 +69,7 @@ void main() {
   vTargetWH = vec2(targetWH);
   vSourceXYWH = vec4(sourceXYWH);
 
-  vWrapXY= ivec2((iWrapIncludeHeightLayer >> 12)& 0xfu, (iWrapIncludeHeightLayer >> 8)& 0xfu);
+  vWrapXY= ivec2((iWrapLayerByHeightLayer >> 12)& 0xfu, (iWrapLayerByHeightLayer >> 8)& 0xfu);
 }`;
 
 import { GL } from '@/void';

@@ -14,7 +14,7 @@ export const FollowCamSystem: System<FollowCamSet> = Immutable({
 
 function updateEnt(set: FollowCamSet, update: ECSUpdate): void {
   const { followCam, sprite } = set;
-  const pad = followCam.pad ?? I16XY(0, 0);
+  const pad = I16XY(followCam.pad?.x ?? 0, followCam.pad?.y ?? 0);
   I16Box.sizeTo(
     sprite.bounds,
     I16(

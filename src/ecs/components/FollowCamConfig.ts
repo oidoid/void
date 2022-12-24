@@ -1,11 +1,28 @@
-import { I16XY, Immutable } from '@/oidlib';
+import { Immutable } from '@/oidlib';
+import { NumberXY } from '../../../../oidlib/src/2d/XY.ts';
 
 export type FollowCamConfig = {
-  readonly fill?: 'X' | 'Y' | 'XY';
-  readonly modulo?: I16XY;
+  readonly fill?: FollowCamFill | undefined;
+  readonly modulo?: Partial<NumberXY> | undefined;
   readonly orientation: FollowCamConfig.Orientation;
-  readonly pad?: I16XY;
+  readonly pad?: Partial<NumberXY> | undefined;
 };
+
+export type FollowCamFill = Parameters<typeof FollowCamFill.values['has']>[0];
+export namespace FollowCamFill {
+  export const values = Immutable(
+    new Set(
+      [
+        /** Fill horizontally. */
+        'X',
+        /** Fill vertically. */
+        'Y',
+        /** Fill horizontally and vertically. */
+        'XY',
+      ] as const,
+    ),
+  );
+}
 
 export namespace FollowCamConfig {
   /** The position relative the camera's bounding box. */
