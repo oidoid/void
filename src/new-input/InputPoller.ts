@@ -1,10 +1,11 @@
 import { I16Box, I32, NumberXY } from '@/oidlib';
-import { Input, InputState, Viewport } from '@/void';
+import { Input, PointerState, Viewport } from '@/void';
 import { assert } from '../../../oidlib/src/utils/assert.ts';
 import { Str } from '../../../oidlib/src/utils/Str.ts';
+import { PointerType } from './Input.ts';
 
 export interface InputPoller {
-  readonly inputs: InputState;
+  readonly inputs: PointerState;
   onEvent(event: PointerEvent): void;
   clientViewportWH: Readonly<NumberXY>;
   cam: Readonly<I16Box>;
@@ -85,16 +86,16 @@ function eventToPoint(
   const timer = point == null ? 1 : point.active != active ? 0 : point.timer;
   const windowXY = NumberXY(ev.clientX, ev.clientY);
   const pointerType = parsePointerType(ev.pointerType);
-  return {
-    pointerType,
+  return new Input(
     active,
-    buttons: I32(ev.buttons),
-    created: ev.timeStamp,
+    I32(ev.buttons),
+    ev.timeStamp,
+    pointerType,
     received,
     timer,
-    windowXY, // winXY
-    xy: Viewport.toLevelXY(windowXY, self.clientViewportWH, self.cam),
-  };
+    windowXY,
+    Viewport.toLevelXY(windowXY, self.clientViewportWH, self.cam),
+  );
 }
 
 function eventToPick(
@@ -109,24 +110,24 @@ function eventToPick(
   const timer = pick == null ? 1 : pick.active != active ? 0 : pick.timer;
   const windowXY = NumberXY(ev.clientX, ev.clientY);
   const pointerType = parsePointerType(ev.pointerType);
-  return {
-    pointerType,
+  return new Input(
     active,
-    buttons: I32(ev.buttons),
-    created: ev.timeStamp,
+    I32(ev.buttons),
+    ev.timeStamp,
+    pointerType,
     received,
     timer,
     windowXY,
-    xy: Viewport.toLevelXY(windowXY, self.clientViewportWH, self.cam),
-  };
+    Viewport.toLevelXY(windowXY, self.clientViewportWH, self.cam),
+  );
 }
-
-type PointerType = 'Mouse' | 'Pen' | 'Touch';
 
 function parsePointerType(type: string): PointerType {
   const pointerType = Str.capitalize(type);
-  assert(
-    pointerType == 'Mouse' || pointerType == 'Pen' || pointerType == 'Touch',
-  );
-  return pointerType as PointerType;
+  assert(isPointerType(pointerType), `Unknown pointer type "${pointerType}".`);
+  return pointerType;
+}
+
+function isPointerType(type: string): type is PointerType {
+  return PointerType.values.has(type as PointerType);
 }

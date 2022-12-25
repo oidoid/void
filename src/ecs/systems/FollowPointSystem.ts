@@ -14,7 +14,7 @@ export const FollowPointSystem: System<FollowPointSet> = Immutable({
 });
 
 function skip(update: ECSUpdate): boolean {
-  return update.inputs.point?.active != true;
+  return !update.inputs.point?.active;
 }
 
 function updateEnt(set: FollowPointSet, update: ECSUpdate): void {
