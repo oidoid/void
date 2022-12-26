@@ -14,12 +14,13 @@ export class PointerPoller {
     return this.#pointer?.xy;
   }
 
-  get #triggered(): boolean {
+  /** True if triggered. */
+  get #start(): boolean {
     return this.#pointer?.duration == 0;
   }
 
   get #long(): boolean {
-    return (this.#pointer?.duration ?? 0) > 500;
+    return (this.#pointer?.duration ?? 0) > 400;
   }
 
   constructor() {
@@ -33,12 +34,12 @@ export class PointerPoller {
     // there's no pointer event state, "on" should always be false.
     if (this.#pointer == null) return false;
 
-    const mask = PointerButton.toBits[button];
+    const mask = PointerButton.toMask[button];
     return (this.#pointer.buttons & mask) == mask;
   }
 
-  onTriggered(button: PointerButton): boolean {
-    return this.#triggered && this.on(button);
+  onStart(button: PointerButton): boolean {
+    return this.#start && this.on(button);
   }
 
   onLong(button: PointerButton): boolean {
@@ -49,8 +50,8 @@ export class PointerPoller {
     return !this.on(button);
   }
 
-  offTriggered(button: PointerButton): boolean {
-    return this.off(button) && this.#triggered;
+  offStart(button: PointerButton): boolean {
+    return this.off(button) && this.#start;
   }
 
   offLong(button: PointerButton): boolean {

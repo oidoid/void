@@ -16,10 +16,10 @@ export namespace PointerButton {
     ),
   );
 
-  export const toBits = Immutable(
+  export const toMask = Immutable(
     // deno-fmt-ignore
     {
-      // Point has no button state. If the event exists, it's active.
+      /** Point has no button state. If the event exists, it's active. */
       Point:          0b000000,
       ClickPrimary:   0b000001,
       ClickSecondary: 0b000010,

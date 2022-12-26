@@ -20,7 +20,7 @@ function updateEnt(set: CursorSet, update: ECSUpdate): void {
   else sprite.layer = Layer.Cursor;
 
   if (update.pointer.on('ClickPrimary')) {
-    if (update.pointer.onTriggered('ClickPrimary')) {
+    if (update.pointer.onStart('ClickPrimary')) {
       sprite.animate(update.time, cursor.pick);
     }
   } else sprite.animate(update.time, cursor.point);
