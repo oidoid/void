@@ -14,9 +14,9 @@ export const FollowPointSystem: System<FollowPointSet> = Immutable({
 });
 
 function skip(update: ECSUpdate): boolean {
-  return !update.inputs.point?.active;
+  return !update.pointer.on('Point');
 }
 
 function updateEnt(set: FollowPointSet, update: ECSUpdate): void {
-  I16Box.moveTo(set.sprite.bounds, NonNull(update.inputs.point).xy);
+  I16Box.moveTo(set.sprite.bounds, NonNull(update.pointer.xy));
 }

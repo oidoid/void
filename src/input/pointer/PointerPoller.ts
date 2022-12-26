@@ -1,25 +1,138 @@
-import { I16Box, I32, NumberXY } from '@/oidlib';
-import { PointerInput, PointerState, PointerType, Viewport } from '@/void';
+import { I16Box, I16XY, I32, NumberXY } from '@/oidlib';
+import { PointerButton, PointerInput, PointerType, Viewport } from '@/void';
 
 export class PointerPoller {
-  readonly #state: PointerState;
-  #clientViewportWH: Readonly<NumberXY>;
   #cam: Readonly<I16Box>;
+  #clientViewportWH: Readonly<NumberXY>;
+  #pointer?: PointerInput | undefined;
 
-  get state(): PointerState {
-    return this.#state;
+  get pointerType(): PointerType | undefined {
+    return this.#pointer?.pointerType;
+  }
+
+  get xy(): I16XY | undefined {
+    return this.#pointer?.xy;
+  }
+
+  get #triggered(): boolean {
+    return this.#pointer?.duration == 0;
+  }
+
+  get #long(): boolean {
+    return (this.#pointer?.duration ?? 0) > 500;
   }
 
   constructor() {
-    this.#state = new PointerState();
     // Initialize to 1x1 dimensions to avoid division by zero.
-    this.#clientViewportWH = NumberXY(1, 1);
     this.#cam = I16Box(0, 0, 1, 1);
+    this.#clientViewportWH = NumberXY(1, 1);
   }
 
-  /** Call this function *after* processing the collected input. This function
-      primes the poller to collect input for the next frame so it should occur
-      towards the end of the game update loop *after* entity processing. */
+  on(button: PointerButton): boolean {
+    // PointerButton.Point is zero since it has no button states. However, when
+    // there's no pointer event state, "on" should always be false.
+    if (this.#pointer == null) return false;
+
+    const mask = PointerButton.toBits[button];
+    return (this.#pointer.buttons & mask) == mask;
+  }
+
+  onTriggered(button: PointerButton): boolean {
+    return this.#triggered && this.on(button);
+  }
+
+  onLong(button: PointerButton): boolean {
+    return this.#long && this.on(button);
+  }
+
+  off(button: PointerButton): boolean {
+    return !this.on(button);
+  }
+
+  offTriggered(button: PointerButton): boolean {
+    return this.off(button) && this.#triggered;
+  }
+
+  offLong(button: PointerButton): boolean {
+    return this.off(button) && this.#long;
+  }
+
+  // what should this API be??
+  // mask API changes, number api changes
+
+  // on
+  // off
+  // onTrigger
+  // offTrigger
+  // onLong
+  // offLong
+  // onCombo / onTriggerCombo: B[][] [[Up,Left], [Down]] i guess htis could have off too and long.
+  // point is super weird: it's continuous (?), it has an XY, there's no button
+  // for it. it's more line an event.
+
+  // on2(_combo: B[][], ..._types: PointerType[]): boolean {
+  //   return false;
+  // }
+
+  // ono(button: B, ...types: PointerType[]): boolean;
+  // ono(button0: B, button1: B, ...types: PointerType[]): boolean;
+  // ono(button0: B, button1: B, button2: B, ...types: PointerType[]): boolean;
+  // ono(
+  //   button0: B,
+  //   button1: B,
+  //   button2: B,
+  //   button3: B,
+  //   ...types: PointerType[]
+  // ): boolean;
+  // ono(
+  //   button0: B,
+  //   button1: B,
+  //   button2: B,
+  //   button3: B,
+  //   button4: B,
+  //   ...types: PointerType[]
+  // ): boolean;
+  // ono(
+  //   button0: B,
+  //   button1: B,
+  //   button2: B,
+  //   button3: B,
+  //   button4: B,
+  //   button5: B,
+  //   ...types: PointerType[]
+  // ): boolean;
+  // ono(
+  //   button0: B,
+  //   button1: B,
+  //   button2: B,
+  //   button3: B,
+  //   button4: B,
+  //   button5: B,
+  //   button6: B,
+  //   ...types: PointerType[]
+  // ): boolean;
+  // ono(
+  //   button0: B,
+  //   button1: B,
+  //   button2: B,
+  //   button3: B,
+  //   button4: B,
+  //   button5: B,
+  //   button7: B,
+  //   ...types: PointerType[]
+  // ): boolean;
+  // ono(
+  //   _button0: B,
+  //   ..._types: unknown[]
+  // ): boolean {
+  //   return false;
+  // }
+
+  /**
+   * Call this function *after* processing the collected input. This function
+   * primes the poller to collect input for the next frame so it should occur
+   * towards the end of the game update loop *after* entity processing.
+   */
   update(
     delta: number,
     clientViewportWH: Readonly<NumberXY>,
@@ -27,84 +140,64 @@ export class PointerPoller {
   ): void {
     this.#clientViewportWH = clientViewportWH;
     this.#cam = cam;
-    this.#state.update(delta);
+
+    // If there any existing pointer state, update the duration.
+    this.#pointer = this.#pointer == null ? undefined : {
+      buttons: I32(this.#pointer.buttons),
+      created: this.#pointer.created,
+      duration: this.#pointer.duration + delta,
+      pointerType: this.#pointer.pointerType,
+      received: this.#pointer.received,
+      xy: this.#pointer.xy,
+    };
   }
 
   register(window: Window, op: 'add' | 'remove'): void {
-    const fn = `${op}EventListener` as const;
     const types = [
       'contextmenu',
-      'pointerup',
-      'pointermove',
-      'pointerdown',
       'pointercancel',
-    ] as const;
+      'pointerdown',
+      'pointermove',
+      'pointerup',
+    ];
     for (const type of types) {
-      window[fn](type, <EventListener> this.#onEvent, {
-        capture: true,
-        passive: type != 'contextmenu' && type != 'pointerdown',
-        // passive: type != 'pointerdown',
-      });
+      const fn = `${op}EventListener` as const;
+      const passive = type != 'contextmenu' && type != 'pointerdown';
+      window[fn](type, this.#onEvent, { capture: true, passive });
     }
   }
 
-  #onEvent = (ev: PointerEvent): void => {
+  #onEvent = (ev: PointerEvent | Event): void => {
     const received = performance.now();
-    if (ev.type != 'contextmenu') {
-      this.#state.point = this.#eventToPoint(ev, received);
+    const pointer = ev.type != 'contextmenu';
+    if (pointer) {
+      this.#pointer = this.#eventToInput(<PointerEvent> ev, received);
     }
-    if (ev.type != 'contextmenu') {
-      this.#state.pick = this.#eventToPick(ev, received);
-    }
-    // event.stopImmediatePropagation();
-    if (ev.type == 'contextmenu' || ev.type == 'pointerdown') {
-      // if (event.type == 'pointerdown')
-      ev.preventDefault();
-    }
+    const passive = ev.type == 'contextmenu' || ev.type == 'pointerdown';
+    if (passive) ev.preventDefault();
   };
 
-  #eventToPoint(
+  #eventToInput(
     ev: PointerEvent,
     received: DOMHighResTimeStamp,
   ): PointerInput | undefined {
+    // Discard the event.
     if (ev.type == 'pointercancel') return;
-    const active = ev.type == 'pointermove' || ev.type == 'pointerdown';
-    const { point } = this.#state;
-    const timer = point == null ? 1 : point.active != active ? 0 : point.timer;
-    const windowXY = NumberXY(ev.clientX, ev.clientY);
-    const pointerType = PointerType.parse(ev.pointerType);
-    return new PointerInput(
-      active,
-      I32(ev.buttons),
-      ev.timeStamp,
-      pointerType,
-      received,
-      timer,
-      windowXY,
-      Viewport.toLevelXY(windowXY, this.#clientViewportWH, this.#cam),
-    );
-  }
 
-  #eventToPick(
-    ev: PointerEvent,
-    received: DOMHighResTimeStamp,
-  ): PointerInput | undefined {
-    if (ev.type == 'pointercancel') return;
-    const { pick } = this.#state;
-    const active = ev.type == 'pointerdown' ||
-      ev.type == 'pointermove' && pick?.active == true; // Require all pick moves to start with an active click.
-    const timer = pick == null ? 1 : pick.active != active ? 0 : pick.timer;
-    const windowXY = NumberXY(ev.clientX, ev.clientY);
-    const pointerType = PointerType.parse(ev.pointerType);
-    return new PointerInput(
-      active,
-      I32(ev.buttons),
-      ev.timeStamp,
-      pointerType,
+    // The buttons change on down and up events kicking off a new timer. Move
+    // events keep any prior event's timer.
+    const duration = ev.type == 'pointerdown' || ev.type == 'pointerup'
+      ? 0
+      : this.#pointer?.duration ?? 0;
+
+    const clientXY = NumberXY(ev.clientX, ev.clientY);
+    return {
+      buttons: I32(ev.buttons),
+      created: ev.timeStamp,
+      duration,
+      pointerType: PointerType.parse(ev.pointerType),
       received,
-      timer,
-      windowXY,
-      Viewport.toLevelXY(windowXY, this.#clientViewportWH, this.#cam),
-    );
+      xy: Viewport.toLevelXY(clientXY, this.#clientViewportWH, this.#cam),
+    };
   }
 }

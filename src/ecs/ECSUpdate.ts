@@ -1,8 +1,8 @@
 import { I16, I16Box, NumberXY, U16XY } from '@/oidlib';
-import { InstanceBuffer, PointerState, RendererStateMachine } from '@/void';
+import { InstanceBuffer, PointerPoller, RendererStateMachine } from '@/void';
 
 export interface ECSUpdate {
-  readonly inputs: Readonly<PointerState>;
+  readonly pointer: Readonly<PointerPoller>;
   readonly time: number;
   readonly camBounds: Readonly<I16Box>;
   readonly instanceBuffer: InstanceBuffer;

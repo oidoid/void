@@ -1,6 +1,7 @@
 import { assert, Immutable, Str } from '@/oidlib';
 
 export type PointerType = Parameters<typeof PointerType.values['has']>[0];
+
 export namespace PointerType {
   export const values = Immutable(new Set(['Mouse', 'Pen', 'Touch'] as const));
 

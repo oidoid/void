@@ -14,7 +14,6 @@ export * from './src/ecs/systems/System.ts';
 export * from './src/input/pointer/PointerButton.ts';
 export * from './src/input/pointer/PointerInput.ts';
 export * from './src/input/pointer/PointerPoller.ts';
-export * from './src/input/pointer/PointerState.ts';
 export * from './src/input/pointer/PointerType.ts';
 // export * from './src/input/button.ts';
 // export * from './src/input/gamepad/gamepad-recorder.ts';

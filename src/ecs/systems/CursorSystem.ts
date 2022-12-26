@@ -14,13 +14,13 @@ export const CursorSystem: System<CursorSet> = Immutable({
 function updateEnt(set: CursorSet, update: ECSUpdate): void {
   const { cursor, sprite } = set;
   if (
-    update.inputs.point?.pointerType == 'Pen' ||
-    update.inputs.point?.pointerType == 'Touch'
+    update.pointer.pointerType == 'Pen' ||
+    update.pointer.pointerType == 'Touch'
   ) sprite.layer = Layer.Bottom;
   else sprite.layer = Layer.Cursor;
 
-  if (update.inputs.pick?.active && update.inputs.pick.on('ClickPrimary')) {
-    if (update.inputs.pick.active && update.inputs.pick.triggered) {
+  if (update.pointer.on('ClickPrimary')) {
+    if (update.pointer.onTriggered('ClickPrimary')) {
       sprite.animate(update.time, cursor.pick);
     }
   } else sprite.animate(update.time, cursor.point);
