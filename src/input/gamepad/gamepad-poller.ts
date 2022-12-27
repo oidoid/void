@@ -56,14 +56,8 @@ export class GamepadPoller {
   }
 
   postupdate(delta: number): void {
-    this.#button = new GamepadButtonInput(
-      this.#button.duration + delta,
-      this.#button.buttons,
-    );
-    this.#direction = new GamepadDirectionInput(
-      this.#direction.duration + delta,
-      this.#direction.directions,
-    );
+    this.#button.postupdate(delta);
+    this.#direction.postupdate(delta);
   }
 }
 
@@ -98,13 +92,13 @@ function buttonIndexToPadInput(index: number): Pad {
   return { buttons, directions };
 }
 
-// Always assumed to be Direction.
+// Always assumed to be Direction not Button.
 function reduceAxes(sum: number, axis: number, index: number): I32 {
   const bit = axisIndexToDirection(index, Math.sign(axis));
   return I32(sum | (bit & (Math.abs(axis) >= 0.5 ? bit : 0)));
 }
 
-// Always assumed to be Direction.
+// Always assumed to be Direction not Button.
 function axisIndexToDirection(index: number, direction: number): I32 {
   const fn = gamepadMap.axes[index];
   if (fn == null) return I32(0);

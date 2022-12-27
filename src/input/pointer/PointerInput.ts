@@ -1,7 +1,12 @@
 import { I16XY, I32 } from '@/oidlib';
-import { DeviceInput, PointerButton, PointerType } from '@/void';
+import { DeviceInput, PointerType } from '@/void';
+import { Button } from '../button.ts';
 
-export class PointerInput extends DeviceInput<PointerButton> {
+export class PointerInput extends DeviceInput<Button> {
+  /**
+   * Logical state of gamepad nondirectional buttons. The original encoding is
+   * not preserved. These should only ever be Button.toBit flags.
+   */
   readonly buttons: I32;
   /** The event creation timestamp. */
   readonly created: DOMHighResTimeStamp;
@@ -28,8 +33,8 @@ export class PointerInput extends DeviceInput<PointerButton> {
     this.xy = xy;
   }
 
-  isOn(direction: PointerButton): boolean {
-    const mask = PointerButton.toBit[direction];
+  isOn(direction: Button): boolean {
+    const mask = Button.toBit[direction];
     return (this.buttons & mask) == mask;
   }
 }

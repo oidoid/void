@@ -1,5 +1,11 @@
 import { I16Box, I32, NumberXY } from '@/oidlib';
-import { PointerInput, PointerType, Viewport } from '@/void';
+import {
+  Button,
+  PointerInput,
+  pointerMap,
+  PointerType,
+  Viewport,
+} from '@/void';
 
 export class PointerPoller {
   #cam: Readonly<I16Box>;
@@ -30,16 +36,8 @@ export class PointerPoller {
     this.#cam = cam;
 
     // If there any existing pointer state, update the duration.
-    this.#input = this.#input == null || this.#input.buttons == 0
-      ? undefined
-      : new PointerInput(
-        this.#input.duration + delta,
-        I32(this.#input.buttons),
-        this.#input.created,
-        this.#input.pointerType,
-        this.#input.received,
-        this.#input.xy,
-      );
+    if (this.#input?.buttons == 0) this.#input = undefined;
+    else this.#input?.postupdate(delta);
   }
 
   register(window: Window, op: 'add' | 'remove'): void {
@@ -79,15 +77,27 @@ export class PointerPoller {
     const duration = ev.type == 'pointerdown' || ev.type == 'pointerup'
       ? 0
       : this.#input?.duration ?? 0;
-
     const clientXY = NumberXY(ev.clientX, ev.clientY);
     return new PointerInput(
       duration,
-      I32(ev.buttons),
+      pointerButtonsToButtons(ev.buttons),
       ev.timeStamp,
       PointerType.parse(ev.pointerType),
       received,
       Viewport.toLevelXY(clientXY, this.#clientViewportWH, this.#cam),
     );
   }
+}
+
+// Assumed to be Button not Direction.
+function pointerButtonsToButtons(buttons: number): I32 {
+  let mapped: number = Button.toBit.None;
+  let button = 1;
+  while (button <= buttons) {
+    const fn = pointerMap[button];
+    if (fn == null) continue;
+    mapped = mapped | Button.toBit[fn];
+    button = button << 1;
+  }
+  return I32(mapped);
 }

@@ -3,7 +3,7 @@ export abstract class DeviceInput<T> {
    * How long the state has persisted. Duration is 0 (triggered) on state
    * change.
    */
-  readonly duration: number;
+  duration: number;
 
   constructor(duration: number) {
     this.duration = duration;
@@ -29,6 +29,10 @@ export abstract class DeviceInput<T> {
 
   isOffHeld(button: T): boolean {
     return this.isOff(button) && this.isHeld();
+  }
+
+  postupdate(delta: number): void {
+    this.duration += delta;
   }
 
   /** True if triggered. */

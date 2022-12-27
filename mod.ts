@@ -19,7 +19,7 @@ export * from './src/input/gamepad/gamepad-direction-input.ts';
 export * from './src/input/gamepad/gamepad-map.ts';
 export * from './src/input/gamepad/gamepad-poller.ts';
 export * from './src/input/input-poller.ts';
-export * from './src/input/pointer/PointerButton.ts';
+export * from './src/input/pointer/pointer-map.ts';
 export * from './src/input/pointer/PointerInput.ts';
 export * from './src/input/pointer/PointerPoller.ts';
 export * from './src/input/pointer/PointerType.ts';
@@ -48,6 +48,7 @@ import { GamepadMap } from './src/input/gamepad/gamepad-map.ts';
 import pointerMapJSON from './src/input/pointer/pointer-map.json' assert {
   type: 'json',
 };
+import { PointerMap } from './src/input/pointer/pointer-map.ts';
 import fragment from './src/shaders/fragment.glsl.ts';
 import shaderLayoutConfigJSON from './src/shaders/shaderLayoutConfig.json' assert {
   type: 'json',
@@ -55,7 +56,7 @@ import shaderLayoutConfigJSON from './src/shaders/shaderLayoutConfig.json' asser
 import vertex from './src/shaders/vertex.glsl.ts';
 
 export const gamepadMap = gamepadMapJSON as GamepadMap;
-export const pointerMap = pointerMapJSON;
+export const pointerMap = pointerMapJSON as PointerMap;
 export const fragmentGLSL: string = fragment;
 export const shaderLayoutConfig = shaderLayoutConfigJSON;
 export const vertexGLSL: string = vertex;
