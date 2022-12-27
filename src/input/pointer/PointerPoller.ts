@@ -6,6 +6,10 @@ export class PointerPoller {
   #clientViewportWH: Readonly<NumberXY>;
   #pointer?: PointerInput | undefined;
 
+  get pointer(): PointerInput | undefined {
+    return this.#pointer;
+  }
+
   get pointerType(): PointerType | undefined {
     return this.#pointer?.pointerType;
   }
@@ -34,7 +38,7 @@ export class PointerPoller {
     // there's no pointer event state, "on" should always be false.
     if (this.#pointer == null) return false;
 
-    const mask = PointerButton.toMask[button];
+    const mask = PointerButton.toBit[button];
     return (this.#pointer.buttons & mask) == mask;
   }
 
@@ -134,7 +138,7 @@ export class PointerPoller {
    * primes the poller to collect input for the next frame so it should occur
    * towards the end of the game update loop *after* entity processing.
    */
-  update(
+  postupdate(
     delta: number,
     clientViewportWH: Readonly<NumberXY>,
     cam: Readonly<I16Box>,
@@ -143,14 +147,16 @@ export class PointerPoller {
     this.#cam = cam;
 
     // If there any existing pointer state, update the duration.
-    this.#pointer = this.#pointer == null ? undefined : {
-      buttons: I32(this.#pointer.buttons),
-      created: this.#pointer.created,
-      duration: this.#pointer.duration + delta,
-      pointerType: this.#pointer.pointerType,
-      received: this.#pointer.received,
-      xy: this.#pointer.xy,
-    };
+    this.#pointer = this.#pointer == null || this.#pointer.buttons == 0
+      ? undefined
+      : {
+        buttons: I32(this.#pointer.buttons),
+        created: this.#pointer.created,
+        duration: this.#pointer.duration + delta,
+        pointerType: this.#pointer.pointerType,
+        received: this.#pointer.received,
+        xy: this.#pointer.xy,
+      };
   }
 
   register(window: Window, op: 'add' | 'remove'): void {

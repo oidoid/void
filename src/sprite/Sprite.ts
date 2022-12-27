@@ -216,6 +216,12 @@ export class Sprite {
     return this;
   }
 
+  // This would be great as a prop setter of xy.
+  moveBy(xy: Readonly<I16XY>): Sprite {
+    I16Box.moveBy(this.bounds, xy);
+    return this;
+  }
+
   toString(): string {
     const wlbhl = parseWrapLayerByHeightLayer(this.#wrapLayerByHeightLayer);
     return `Sprite {id=${this.film.id} box=${

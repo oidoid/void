@@ -1,0 +1,17 @@
+{
+  "//": "https://w3c.github.io/gamepad/#remapping",
+  "buttons": {
+    "14": "LeftPrimary",
+    "15": "RightPrimary",
+    "12": "UpPrimary",
+    "13": "DownPrimary",
+    "0": "ActionPrimary",
+    "9": "Menu"
+  },
+  "axes": {
+    "0": "LeftPrimary",
+    "1": "UpPrimary",
+    "2": "LeftPrimary",
+    "3": "UpPrimary"
+  }
+}
