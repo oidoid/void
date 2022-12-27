@@ -1,8 +1,8 @@
 import { I16Box, I16XY, NumberXY } from '@/oidlib';
 import {
+  Button,
+  Direction,
   GamepadPoller,
-  InputButton,
-  InputDirection,
   PointerButton,
   PointerInput,
   PointerPoller,
@@ -14,15 +14,15 @@ export class InputPoller {
   #pointer: PointerPoller;
 
   get pointer(): PointerInput | undefined {
-    return this.#pointer.pointer;
+    return this.#pointer.input;
   }
 
   get pointerType(): PointerType | undefined {
-    return this.#pointer?.pointerType;
+    return this.#pointer.input?.pointerType;
   }
 
   get xy(): I16XY | undefined {
-    return this.#pointer?.xy;
+    return this.#pointer.input?.xy;
   }
 
   constructor() {
@@ -30,40 +30,50 @@ export class InputPoller {
     this.#pointer = new PointerPoller();
   }
 
-  on(button: InputButton | InputDirection): boolean {
+  isOn(button: Button | Direction): boolean {
     const pointerButton = this.#inputToPointerButton(button);
-    return pointerButton != null && this.#pointer.on(pointerButton) ||
-      this.#pad.on(button);
+    return pointerButton != null && this.#pointer.input?.isOn(pointerButton) ||
+      Button.is(button) && this.#pad.button.isOn(button) ||
+      Direction.is(button) && this.#pad.direction.isOn(button);
   }
 
-  onStart(button: InputButton | InputDirection): boolean {
+  isOnStart(button: Button | Direction): boolean {
     const pointerButton = this.#inputToPointerButton(button);
-    return pointerButton != null && this.#pointer.onStart(pointerButton) ||
-      this.#pad.onStart(button);
+    return pointerButton != null &&
+        this.#pointer.input?.isOnStart(pointerButton) ||
+      Button.is(button) && this.#pad.button.isOnStart(button) ||
+      Direction.is(button) && this.#pad.direction.isOnStart(button);
   }
 
-  onLong(button: InputButton | InputDirection): boolean {
+  isOnHeld(button: Button | Direction): boolean {
     const pointerButton = this.#inputToPointerButton(button);
-    return pointerButton != null && this.#pointer.onLong(pointerButton) ||
-      this.#pad.onLong(button);
+    return pointerButton != null &&
+        this.#pointer.input?.isOnHeld(pointerButton) ||
+      Button.is(button) && this.#pad.button.isOnHeld(button) ||
+      Direction.is(button) && this.#pad.direction.isOnHeld(button);
   }
 
-  off(button: InputButton | InputDirection): boolean {
+  isOff(button: Button | Direction): boolean {
     const pointerButton = this.#inputToPointerButton(button);
-    return (pointerButton == null || this.#pointer.off(pointerButton)) ||
-      this.#pad.off(button);
+    return pointerButton != null && this.#pointer.input?.isOff(pointerButton) ||
+      Button.is(button) && this.#pad.button.isOff(button) ||
+      Direction.is(button) && this.#pad.direction.isOff(button);
   }
 
-  offStart(button: InputButton | InputDirection): boolean {
+  isOffStart(button: Button | Direction): boolean {
     const pointerButton = this.#inputToPointerButton(button);
-    return (pointerButton == null || this.#pointer.offStart(pointerButton)) ||
-      this.#pad.offStart(button);
+    return pointerButton != null &&
+        this.#pointer.input?.isOffStart(pointerButton) ||
+      Button.is(button) && this.#pad.button.isOffStart(button) ||
+      Direction.is(button) && this.#pad.direction.isOffStart(button);
   }
 
-  offLong(button: InputButton | InputDirection): boolean {
+  isOffHeld(button: Button | Direction): boolean {
     const pointerButton = this.#inputToPointerButton(button);
-    return (pointerButton == null || this.#pointer.offLong(pointerButton)) ||
-      this.#pad.offLong(button);
+    return pointerButton != null &&
+        this.#pointer.input?.isOffHeld(pointerButton) ||
+      Button.is(button) && this.#pad.button.isOffHeld(button) ||
+      Direction.is(button) && this.#pad.direction.isOffHeld(button);
   }
 
   preupdate(navigator: Navigator): void {
@@ -84,7 +94,7 @@ export class InputPoller {
   }
 
   #inputToPointerButton(
-    button: InputButton | InputDirection,
+    button: Button | Direction,
   ): PointerButton | undefined {
     return PointerButton
       .fromInput[

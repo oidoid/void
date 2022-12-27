@@ -11,9 +11,13 @@ export * from './src/ecs/systems/FollowCamSystem.ts';
 export * from './src/ecs/systems/FollowPointSystem.ts';
 export * from './src/ecs/systems/RenderSystem.ts';
 export * from './src/ecs/systems/System.ts';
-export * from './src/input/gamepad/gamepad-input.ts';
+export * from './src/input/button.ts';
+export * from './src/input/device-input.ts';
+export * from './src/input/direction.ts';
+export * from './src/input/gamepad/gamepad-button-input.ts';
+export * from './src/input/gamepad/gamepad-direction-input.ts';
+export * from './src/input/gamepad/gamepad-map.ts';
 export * from './src/input/gamepad/gamepad-poller.ts';
-export * from './src/input/input-button.ts';
 export * from './src/input/input-poller.ts';
 export * from './src/input/pointer/PointerButton.ts';
 export * from './src/input/pointer/PointerInput.ts';
@@ -40,6 +44,7 @@ export * from './src/text/TextLayout.ts';
 import gamepadMapJSON from './src/input/gamepad/gamepad-map.json' assert {
   type: 'json',
 };
+import { GamepadMap } from './src/input/gamepad/gamepad-map.ts';
 import pointerMapJSON from './src/input/pointer/pointer-map.json' assert {
   type: 'json',
 };
@@ -49,7 +54,7 @@ import shaderLayoutConfigJSON from './src/shaders/shaderLayoutConfig.json' asser
 };
 import vertex from './src/shaders/vertex.glsl.ts';
 
-export const gamepadMap = gamepadMapJSON;
+export const gamepadMap = gamepadMapJSON as GamepadMap;
 export const pointerMap = pointerMapJSON;
 export const fragmentGLSL: string = fragment;
 export const shaderLayoutConfig = shaderLayoutConfigJSON;

@@ -1,16 +1,16 @@
-import { gamepadMap, InputButton } from '@/void';
+import { Button, Direction, gamepadMap } from '@/void';
 import { assertEquals } from 'std/testing/asserts.ts';
 
 for (const button of Object.values(gamepadMap.buttons)) {
   Deno.test(
-    `Button ${button} is an InputButton key.`,
-    () => assertEquals(button in InputButton, true),
+    `Button ${button} is an Button or Direction key.`,
+    () => assertEquals(button in Button || button in Direction, true),
   );
 }
 
 for (const axis of Object.values(gamepadMap.axes)) {
   Deno.test(
-    `Axis ${axis} is an InputButton key.`,
-    () => assertEquals(axis in InputButton, true),
+    `Axis ${axis} is an Direction key.`,
+    () => assertEquals(axis in Button, true),
   );
 }

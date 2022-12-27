@@ -1,8 +1,8 @@
-import { InputButton } from '@/void';
+import { Button } from '@/void';
 import { assertEquals } from 'std/testing/asserts.ts';
 
 const bits: readonly number[] = Object.freeze(
-  Object.values(InputButton.toBit),
+  Object.values(Button.toBit),
 );
 
 for (const bit of bits) {
