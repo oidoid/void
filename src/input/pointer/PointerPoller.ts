@@ -61,8 +61,8 @@ export class PointerPoller {
     if (pointer) {
       this.#input = this.#eventToInput(<PointerEvent> ev, received);
     }
-    const passive = ev.type == 'contextmenu' || ev.type == 'pointerdown';
-    if (passive) ev.preventDefault();
+    const active = ev.type == 'contextmenu' || ev.type == 'pointerdown';
+    if (active) ev.preventDefault();
   };
 
   #eventToInput(
@@ -92,12 +92,10 @@ export class PointerPoller {
 // Assumed to be Button not Direction.
 function pointerButtonsToButtons(buttons: number): I32 {
   let mapped: number = Button.toBit.None;
-  let button = 1;
-  while (button <= buttons) {
+  for (let button = 1; button <= buttons; button = button << 1) {
     const fn = pointerMap[button];
     if (fn == null) continue;
     mapped = mapped | Button.toBit[fn];
-    button = button << 1;
   }
   return I32(mapped);
 }

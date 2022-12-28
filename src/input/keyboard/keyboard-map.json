@@ -1,0 +1,17 @@
+{
+  "ArrowLeft": "LeftPrimary",
+  "a": "LeftPrimary",
+  "ArrowRight": "RightPrimary",
+  "d": "RightPrimary",
+  "ArrowUp": "UpPrimary",
+  "w": "UpPrimary",
+  "ArrowDown": "DownPrimary",
+  "s": "DownPrimary",
+  " ": "ActionPrimary",
+  "Enter": "ActionPrimary",
+  "Escape": "Menu",
+  "p": "DebugContextLoss",
+  "0": "ScaleReset",
+  "-": "ScaleDecrease",
+  "+": "ScaleIncrease"
+}
