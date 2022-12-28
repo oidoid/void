@@ -17,4 +17,10 @@ export class GamepadDirectionInput extends DeviceInput<Direction> {
     const mask = Direction.toBit[direction];
     return (this.directions & mask) == mask;
   }
+
+  protected override isStart(button: Direction, last: this): boolean {
+    const mask = Direction.toBit[button];
+    return this.duration == 0 &&
+      (this.directions & mask) != (last.directions & mask);
+  }
 }

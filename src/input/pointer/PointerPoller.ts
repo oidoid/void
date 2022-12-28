@@ -1,4 +1,4 @@
-import { I16Box, I32, NumberXY } from '@/oidlib';
+import { I16Box, I16XY, I32, NumberXY } from '@/oidlib';
 import {
   Button,
   PointerInput,
@@ -10,13 +10,15 @@ import {
 export class PointerPoller {
   #cam: Readonly<I16Box>;
   #clientViewportWH: Readonly<NumberXY>;
-  #input?: PointerInput | undefined;
+  #input: PointerInput;
 
-  get input(): PointerInput | undefined {
+  get input(): PointerInput {
     return this.#input;
   }
 
   constructor() {
+    const now = performance.now();
+    this.#input = new PointerInput(0, I32(0), now, 'Mouse', now, I16XY(0, 0));
     // Initialize to 1x1 dimensions to avoid division by zero.
     this.#cam = I16Box(0, 0, 1, 1);
     this.#clientViewportWH = NumberXY(1, 1);
@@ -35,9 +37,18 @@ export class PointerPoller {
     this.#clientViewportWH = clientViewportWH;
     this.#cam = cam;
 
-    // If there any existing pointer state, update the duration.
-    if (this.#input?.buttons == 0) this.#input = undefined;
-    else this.#input?.postupdate(delta);
+    // There's no off event for point. Clear it whenever there's no other button
+    // on.
+    if (this.#input.buttons == Button.toBit.Point) {
+      this.#input = new PointerInput(
+        this.#input.duration,
+        I32(0),
+        this.#input.created,
+        'Mouse',
+        this.#input.received,
+        this.#input.xy,
+      );
+    } else this.#input.postupdate(delta);
   }
 
   register(window: Window, op: 'add' | 'remove'): void {
@@ -68,30 +79,34 @@ export class PointerPoller {
   #eventToInput(
     ev: PointerEvent,
     received: DOMHighResTimeStamp,
-  ): PointerInput | undefined {
+  ): PointerInput {
+    const clientXY = NumberXY(ev.clientX, ev.clientY);
+    const xy = Viewport.toLevelXY(clientXY, this.#clientViewportWH, this.#cam);
+
     // Discard the event.
-    if (ev.type == 'pointercancel') return;
+    if (ev.type == 'pointercancel') {
+      return new PointerInput(0, I32(0), ev.timeStamp, 'Mouse', received, xy);
+    }
 
     // The buttons change on down and up events kicking off a new timer. Move
     // events keep any prior event's timer.
     const duration = ev.type == 'pointerdown' || ev.type == 'pointerup'
       ? 0
       : this.#input?.duration ?? 0;
-    const clientXY = NumberXY(ev.clientX, ev.clientY);
     return new PointerInput(
       duration,
       pointerButtonsToButtons(ev.buttons),
       ev.timeStamp,
       PointerType.parse(ev.pointerType),
       received,
-      Viewport.toLevelXY(clientXY, this.#clientViewportWH, this.#cam),
+      xy,
     );
   }
 }
 
 // Assumed to be Button not Direction.
 function pointerButtonsToButtons(buttons: number): I32 {
-  let mapped: number = Button.toBit.None;
+  let mapped: number = Button.toBit.Point; // Any event is a point.
   for (let button = 1; button <= buttons; button = button << 1) {
     const fn = pointerMap[button];
     if (fn == null) continue;

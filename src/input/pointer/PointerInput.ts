@@ -37,4 +37,9 @@ export class PointerInput extends DeviceInput<Button> {
     const mask = Button.toBit[direction];
     return (this.buttons & mask) == mask;
   }
+
+  protected override isStart(button: Button, last: this): boolean {
+    const mask = Button.toBit[button];
+    return this.duration == 0 && (this.buttons & mask) != (last.buttons & mask);
+  }
 }

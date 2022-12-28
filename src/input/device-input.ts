@@ -11,8 +11,8 @@ export abstract class DeviceInput<T> {
 
   abstract isOn(button: T): boolean;
 
-  isOnStart(button: T): boolean {
-    return this.isStart() && this.isOn(button);
+  isOnStart(button: T, last: this): boolean {
+    return this.isStart(button, last) && this.isOn(button);
   }
 
   isOnHeld(button: T): boolean {
@@ -23,8 +23,8 @@ export abstract class DeviceInput<T> {
     return !this.isOn(button);
   }
 
-  isOffStart(button: T): boolean {
-    return this.isOff(button) && this.isStart();
+  isOffStart(button: T, last: this): boolean {
+    return this.isOff(button) && this.isStart(button, last);
   }
 
   isOffHeld(button: T): boolean {
@@ -36,9 +36,7 @@ export abstract class DeviceInput<T> {
   }
 
   /** True if triggered. */
-  protected isStart(): boolean {
-    return this.duration == 0;
-  }
+  protected abstract isStart(button: T, last: this): boolean;
 
   protected isHeld(): boolean {
     return this.duration > 400;
