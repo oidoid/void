@@ -14,7 +14,7 @@ export const FollowPointSystem: System<FollowPointSet> = Immutable({
 function updateEnt(set: FollowPointSet, update: ECSUpdate): void {
   const { sprite } = set;
 
-  if (update.input.isOn('Point')) sprite.moveTo(update.input.xy);
+  if (update.input.xy != null) sprite.moveTo(update.input.xy);
   else {
     // to-do: limit to screen area.
     // to-do: pass tick in.

@@ -1,5 +1,1 @@
-{
-  "//": "Point has no button state. If the event exists, it's active.",
-  "0": "Point",
-  "1": "ActionPrimary"
-}
+{ "0": "Point", "1": "ActionPrimary" }

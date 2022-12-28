@@ -1,6 +1,5 @@
-import { I32, Immutable } from '@/oidlib';
+import { Immutable } from '@/oidlib';
 
-// Logical things.
 export type Button = Parameters<typeof Button.values['has']>[0];
 
 export namespace Button {
@@ -8,6 +7,10 @@ export namespace Button {
     new Set(
       [
         'Point',
+        'LeftPrimary',
+        'RightPrimary',
+        'UpPrimary',
+        'DownPrimary',
         'ActionPrimary',
         'Menu',
         'DebugContextLoss',
@@ -18,22 +21,30 @@ export namespace Button {
     ),
   );
 
-  export function is(button: string): button is Button {
-    return values.has(button as Button);
-  }
-
   // No relationship to PointerButton.toBit.
-  export const toBit = Immutable(
+  export const Bit = Immutable(
     // deno-fmt-ignore
     {
-      None:             I32(0b000_0000),
-      Point:            I32(0b000_0001),
-      ActionPrimary:    I32(0b000_0010),
-      Menu:             I32(0b000_0100),
-      DebugContextLoss: I32(0b000_1000),
-      ScaleReset:       I32(0b001_0000),
-      ScaleIncrease:    I32(0b010_0000),
-      ScaleDecrease:    I32(0b100_0000),
+      LeftPrimary:      0b000_0000_0001n,
+      RightPrimary:     0b000_0000_0010n,
+      UpPrimary:        0b000_0000_0100n,
+      DownPrimary:      0b000_0000_1000n,
+      Point:            0b000_0001_0000n,
+      ActionPrimary:    0b000_0010_0000n,
+      Menu:             0b000_0100_0000n,
+      DebugContextLoss: 0b000_1000_0000n,
+      ScaleReset:       0b001_0000_0000n,
+      ScaleIncrease:    0b010_0000_0000n,
+      ScaleDecrease:    0b100_0000_0000n,
     } as const,
-  ) satisfies Record<Button, I32>;
+  ) satisfies Record<Button, bigint>;
+
+  export const InvertBit: Partial<Record<Button, bigint>> = Immutable(
+    {
+      LeftPrimary: Bit.RightPrimary,
+      RightPrimary: Bit.LeftPrimary,
+      UpPrimary: Bit.DownPrimary,
+      DownPrimary: Bit.UpPrimary,
+    },
+  );
 }

@@ -1,20 +1,18 @@
 import { Button } from '@/void';
 import { assertEquals } from 'std/testing/asserts.ts';
 
-const bits: readonly number[] = Object.freeze(
-  Object.values(Button.toBit),
-);
+const bits: readonly bigint[] = Object.freeze(Object.values(Button.Bit));
 
-for (const bit of bits) {
+for (const [button, bit] of Object.entries(Button.Bit)) {
   Deno.test(
-    `Bit ${bit} is unique.`,
+    `${button} bit is unique.`,
     () => assertEquals(bits.filter((val) => bit === val).length, 1),
   );
 }
 
-for (const bit of bits) {
+for (const [button, bit] of Object.entries(Button.Bit)) {
   Deno.test(
-    `Bit ${bit} is a nonzero power of two.`,
-    () => assertEquals(Math.log2(bit) % 1, 0),
+    `${button} is a nonzero power of two.`,
+    () => assertEquals(Math.log2(Number(bit)) % 1, 0),
   );
 }

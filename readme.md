@@ -1,6 +1,6 @@
 # void
 
-The oidoid common game library.
+All of my free time goes into void.
 
 ## Installation
 

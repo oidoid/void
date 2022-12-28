@@ -10,7 +10,7 @@
   " ": "ActionPrimary",
   "Enter": "ActionPrimary",
   "Escape": "Menu",
-  "p": "DebugContextLoss",
+  "Ctrl+Alt+Shift+D": "DebugContextLoss",
   "0": "ScaleReset",
   "-": "ScaleDecrease",
   "+": "ScaleIncrease"
