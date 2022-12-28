@@ -19,7 +19,7 @@ export class InputPoller {
     return this.#gamepad.sample | this.#keyboard.sample | this.#pointer.sample;
   }
 
-  get xy(): I16XY | undefined {
+  get xy(): Readonly<I16XY> | undefined {
     return this.#pointer.xy;
   }
 

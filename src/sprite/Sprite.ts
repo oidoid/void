@@ -159,6 +159,11 @@ export class Sprite {
       : lhsLayer - rhsLayer;
   }
 
+  /** True if this is in front of sprite. */
+  isInFrontOf(sprite: Sprite): boolean {
+    return this.compareDepth(sprite) < 0;
+  }
+
   intersects(box: Readonly<Box<XY<number>, number>>, time: number): boolean;
   intersects(xy: Readonly<XY<number>>, time: number): boolean;
   intersects(

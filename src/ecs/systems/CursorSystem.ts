@@ -13,15 +13,13 @@ export const CursorSystem: System<CursorSet> = Immutable({
 
 function updateEnt(set: CursorSet, update: ECSUpdate): void {
   const { cursor, sprite } = set;
-  // to-do: this probably needs to check something more general like pointerType + input type so it doesn't flip on and off constantly
   if (
-    update.input.pointerType == 'Pen' ||
-    update.input.pointerType == 'Touch'
+    update.input.pointerType == 'Pen' || update.input.pointerType == 'Touch'
   ) sprite.layer = Layer.Bottom;
-  else sprite.layer = Layer.Cursor;
+  else if (update.input.pointerType == 'Mouse') sprite.layer = Layer.Cursor;
 
-  if (update.input.isOn('ActionPrimary')) {
-    if (update.input.isOnStart('ActionPrimary')) {
+  if (update.input.isOn('Action')) {
+    if (update.input.isOnStart('Action')) {
       sprite.animate(update.time, cursor.pick);
     }
   } else sprite.animate(update.time, cursor.point);
