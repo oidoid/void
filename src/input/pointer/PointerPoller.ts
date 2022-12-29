@@ -37,17 +37,15 @@ export class PointerPoller {
     this.#clientViewportWH = clientViewportWH;
     this.#cam = cam;
 
-    // There's no off event for point. Clear it whenever there's no other button
-    // on.
-    if (this.#buttons == Button.Bit.Point) this.reset();
+    // pointerdown, pointermove, and pointerup events are all treated as
+    // pointing but there's no event to clear the pointing state. If there's no
+    // other button on, consider pointing off.
+    if (this.#buttons == 0n || this.#buttons == Button.Bit.Point) this.reset();
   }
 
   register(op: 'add' | 'remove'): void {
     const fn = `${op}EventListener` as const;
-    window[fn]('pointercancel', this.#onCancelEvent, {
-      capture: true,
-      passive: true,
-    });
+    window[fn]('pointercancel', this.reset, { capture: true, passive: true });
     const types = ['contextmenu', 'pointerdown', 'pointermove', 'pointerup'];
     for (const type of types) {
       const passive = type != 'contextmenu' && type != 'pointerdown';
@@ -55,13 +53,7 @@ export class PointerPoller {
     }
   }
 
-  reset(): void {
-    this.#buttons = 0n;
-    this.#pointerType = undefined;
-    this.#xy = undefined;
-  }
-
-  #onCancelEvent = (): void => {
+  reset = (): void => {
     this.#buttons = 0n;
     this.#pointerType = undefined;
     this.#xy = undefined;
@@ -86,7 +78,7 @@ export class PointerPoller {
 }
 
 function pointerButtonsToButton(buttons: number): bigint {
-  let mapped: bigint = Button.Bit.Point; // Any event is a point.
+  let mapped: bigint = Button.Bit.Point; // All events are points.
   for (let button = 1; button <= buttons; button <<= 1) {
     if ((button & buttons) != button) continue;
     const fn = pointerMap[button];

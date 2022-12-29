@@ -38,26 +38,30 @@ export class Input {
     return this.#poller.xy;
   }
 
-  // Combos are interpreted exactly (eg, Up will not match Up+Down the way isOn() will).
-  // Combos don't support start / held except on the last button.
+  /**
+   * Combos are interpreted exactly both in buttons pressed per tick (eg, up
+   * will not match up + down the way `isOn('Up')` will) and sequence (order and
+   * length).
+   */
   isOnCombo(...combo: readonly (readonly Button[])[]): boolean {
+    if (combo.length != this.#combo.length) return false;
     for (const [i, buttons] of combo.entries()) {
       const mask = buttons.reduce(
         (sum, button) => sum | Button.Bit[button],
         0n,
       );
-      if (((this.#combo.at(-(combo.length - i)) ?? 0n) & mask) != mask) {
-        return false;
-      }
+      if (this.#combo[i] != mask) return false;
     }
     return true;
   }
 
+  /** Like isOnCombo() but test if the last button event is triggered. */
   isOnComboStart(...combo: readonly (readonly Button[])[]): boolean {
     return this.isOnCombo(...combo) &&
       !!combo.at(-1)?.every((button) => this.isOnStart(button));
   }
 
+  /** Like isOnCombo() but test if the last button event is held. */
   isOnComboHeld(...combo: readonly (readonly Button[])[]): boolean {
     return this.isOnCombo(...combo) && this.isHeld();
   }
@@ -87,7 +91,7 @@ export class Input {
     return this.isOff(button) && this.isHeld();
   }
 
-  // On or off
+  /** True if triggered on or off. */
   isStart(button: Button): boolean {
     const mask = Button.Bit[button];
     return this.#duration == 0 &&
