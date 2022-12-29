@@ -42,8 +42,10 @@ export class Input {
    * Combos are interpreted exactly both in buttons pressed per tick (eg, up
    * will not match up + down the way `isOn('Up')` will) and sequence (order and
    * length).
+   *
+   * Combos only test button on state.
    */
-  isOnCombo(...combo: readonly (readonly Button[])[]): boolean {
+  isCombo(...combo: readonly (readonly Button[])[]): boolean {
     if (combo.length != this.#combo.length) return false;
     for (const [i, buttons] of combo.entries()) {
       const mask = buttons.reduce(
@@ -56,14 +58,14 @@ export class Input {
   }
 
   /** Like isOnCombo() but test if the last button event is triggered. */
-  isOnComboStart(...combo: readonly (readonly Button[])[]): boolean {
-    return this.isOnCombo(...combo) &&
+  isComboStart(...combo: readonly (readonly Button[])[]): boolean {
+    return this.isCombo(...combo) &&
       !!combo.at(-1)?.every((button) => this.isOnStart(button));
   }
 
   /** Like isOnCombo() but test if the last button event is held. */
-  isOnComboHeld(...combo: readonly (readonly Button[])[]): boolean {
-    return this.isOnCombo(...combo) && this.isHeld();
+  isComboHeld(...combo: readonly (readonly Button[])[]): boolean {
+    return this.isCombo(...combo) && this.isHeld();
   }
 
   isOn(button: Button): boolean {
