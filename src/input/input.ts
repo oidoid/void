@@ -77,38 +77,43 @@ export class Input {
     return this.isCombo(...combo) && this.isHeld();
   }
 
-  isOn(button: Button): boolean {
-    const mask = Button.Bit[button];
-    return (this.buttons & mask) == mask;
+  isOn(...buttons: readonly Button[]): boolean {
+    return buttons.every((button) => {
+      const mask = Button.Bit[button];
+      return (this.buttons & mask) == mask;
+    });
   }
 
-  isOnStart(button: Button): boolean {
-    return this.isOn(button) && this.isStart(button);
+  isOnStart(...buttons: readonly Button[]): boolean {
+    return this.isOn(...buttons) && this.isStart(...buttons);
   }
 
-  isOnHeld(button: Button): boolean {
-    return this.isOn(button) && this.isHeld();
+  isOnHeld(...buttons: readonly Button[]): boolean {
+    return this.isOn(...buttons) && this.isHeld();
   }
 
-  isOff(button: Button): boolean {
-    return !this.isOn(button);
+  isOff(...buttons: readonly Button[]): boolean {
+    return !this.isOn(...buttons);
   }
 
-  isOffStart(button: Button): boolean {
-    return this.isOff(button) && this.isStart(button);
+  isOffStart(...buttons: readonly Button[]): boolean {
+    return this.isOff(...buttons) && this.isStart(...buttons);
   }
 
-  isOffHeld(button: Button): boolean {
-    return this.isOff(button) && this.isHeld();
+  isOffHeld(...buttons: readonly Button[]): boolean {
+    return this.isOff(...buttons) && this.isHeld();
   }
 
   /** True if triggered on or off. */
-  isStart(button: Button): boolean {
-    const mask = Button.Bit[button];
-    return this.#duration == 0 &&
-      (this.buttons & mask) != (this.#prevButtons & mask);
+  isStart(...buttons: readonly Button[]): boolean {
+    return buttons.every((button) => {
+      const mask = Button.Bit[button];
+      return this.#duration == 0 &&
+        (this.buttons & mask) != (this.#prevButtons & mask);
+    });
   }
 
+  /** True if held on or off. */
   isHeld(): boolean {
     return this.#duration >= this.#minHeld;
   }

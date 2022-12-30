@@ -115,26 +115,19 @@ Deno.test('Simultaneously pressed buttons are active and triggered.', () => {
   dispatchKeyEvent('keydown', 'ArrowDown');
   input.preupdate();
 
-  assertEquals(input.isOn('Up'), true);
-  assertEquals(input.isOnStart('Up'), true);
-  assertEquals(input.isOnHeld('Up'), false);
-  assertEquals(input.isOff('Up'), false);
-  assertEquals(input.isOffStart('Up'), false);
-  assertEquals(input.isOffHeld('Up'), false);
+  assertEquals(input.isOn('Up', 'Down'), true);
+  assertEquals(input.isOnStart('Up', 'Down'), true);
+  assertEquals(input.isOnHeld('Up', 'Down'), false);
+  assertEquals(input.isOff('Up', 'Down'), false);
+  assertEquals(input.isOffStart('Up', 'Down'), false);
+  assertEquals(input.isOffHeld('Up', 'Down'), false);
+
   assertEquals(input.isCombo(['Up']), false);
   assertEquals(input.isComboStart(['Up']), false);
   assertEquals(input.isComboHeld(['Up']), false);
-
-  assertEquals(input.isOn('Down'), true);
-  assertEquals(input.isOnStart('Down'), true);
-  assertEquals(input.isOnHeld('Down'), false);
-  assertEquals(input.isOff('Down'), false);
-  assertEquals(input.isOffStart('Down'), false);
-  assertEquals(input.isOffHeld('Down'), false);
   assertEquals(input.isCombo(['Down']), false);
   assertEquals(input.isComboStart(['Down']), false);
   assertEquals(input.isComboHeld(['Down']), false);
-
   assertEquals(input.isCombo(['Up', 'Down']), true);
   assertEquals(input.isComboStart(['Up', 'Down']), true);
   assertEquals(input.isComboHeld(['Up', 'Down']), false);
