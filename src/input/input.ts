@@ -77,6 +77,12 @@ export class Input {
     return this.isCombo(...combo) && this.isHeld();
   }
 
+  /**
+   * Test if all buttons are on. True if the buttons are pressed regardless of
+   * whether other buttons are pressed. Eg, `isOn('Up')` will return true when
+   * up is pressed, up and down are pressed, and up and any other button is
+   * pressed.
+   */
   isOn(...buttons: readonly Button[]): boolean {
     return buttons.every((button) => {
       const mask = Button.Bit[button];
