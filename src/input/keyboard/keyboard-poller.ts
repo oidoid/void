@@ -13,10 +13,10 @@ export class KeyboardPoller {
 
   register(op: 'add' | 'remove'): void {
     const fn = `${op}EventListener` as const;
-    window[fn]('blur', this.#onBlurEvent, { capture: true, passive: true });
+    globalThis[fn]('blur', this.#onBlurEvent, { capture: true, passive: true });
     for (const type of ['keydown', 'keyup']) {
       const callback = <EventListenerOrEventListenerObject> this.#onKeyEvent;
-      window[fn](type, callback, { capture: true, passive: true });
+      globalThis[fn](type, callback, { capture: true, passive: true });
     }
   }
 
@@ -46,6 +46,7 @@ function eventToKeys(ev: Readonly<KeyboardEvent>): Set<string> {
   }
 
   // keyup events fanout to all variations since only one event is received.
+  // Don't care if this clears bits never set.
   return new Set([
     meta + ctrl + alt + shift + ev.key,
     ctrl + alt + shift + ev.key,

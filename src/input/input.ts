@@ -1,9 +1,6 @@
 import { I16Box, I16XY, NumberXY } from '@/oidlib';
 import { Button, InputPoller, PointerType } from '@/void';
 
-/** The maximum duration in milliseconds permitted between combo inputs. */
-const maxInterval: number = 300;
-
 export class Input {
   /** The time in milliseconds since the input changed. */
   #duration: number = 0;
@@ -26,6 +23,12 @@ export class Input {
    */
   readonly #combo: bigint[] = [];
 
+  /** The maximum duration in milliseconds permitted between combo inputs. */
+  #maxInterval: number;
+
+  /** The minimum duration in milliseconds for an input to be considered held. */
+  #minHeld: number;
+
   get buttons(): bigint {
     return this.#poller.sample;
   }
@@ -36,6 +39,11 @@ export class Input {
 
   get xy(): Readonly<I16XY> | undefined {
     return this.#poller.xy;
+  }
+
+  constructor(minHeld = 300, maxInterval: number = 300) {
+    this.#minHeld = minHeld;
+    this.#maxInterval = maxInterval;
   }
 
   /**
@@ -101,20 +109,18 @@ export class Input {
   }
 
   isHeld(): boolean {
-    return this.#duration >= 300;
+    return this.#duration >= this.#minHeld;
   }
 
   preupdate(): void {
     this.#poller.preupdate();
     if (
-      this.#duration > maxInterval &&
+      this.#duration > this.#maxInterval &&
       (this.buttons == 0n || this.buttons != this.#prevButtons)
     ) {
       // Expired.
       this.#duration = 0;
       this.#combo.length = 0;
-      // If any button is pressed, start a new combo.
-      if (this.buttons != 0n) this.#combo.push(this.buttons);
     } else if (this.buttons != this.#prevButtons) {
       // Some button state has changed and at least one button is still pressed.
       this.#duration = 0;
