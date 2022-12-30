@@ -42,12 +42,12 @@ export namespace InstanceBuffer {
     if (self.buffer.byteLength < (i + self.layout.perInstance.stride)) {
       resize(self, Uint(Math.max(1, index) * 2));
     }
-    self.size = index + 1;
     self.buffer.setUint16(i + 0, sprite.cel(time).id, littleEndian);
     self.buffer.setInt16(i + 2, sprite.x, littleEndian);
     self.buffer.setInt16(i + 4, sprite.y, littleEndian);
     self.buffer.setInt16(i + 6, sprite.w, littleEndian);
     self.buffer.setInt16(i + 8, sprite.h, littleEndian);
     self.buffer.setUint16(i + 10, sprite.wrapLayerByHeightLayer, littleEndian);
+    self.size = index + 1;
   }
 }

@@ -66,16 +66,10 @@ export class RendererStateMachine {
     return this.#window.document.visibilityState == 'visible';
   }
 
-  #loop(then: number | undefined): void {
-    this.#frameID = this.#window.requestAnimationFrame((now) => {
-      // Duration can be great when a frame is held for debugging. Limit it to
-      // one second.
-      const delta = Math.min(now - (then ?? now), 1000);
-      this.#onFrame(delta);
-
-      // If not paused, request a new frame.
-      if (this.#frameID != null) this.#loop(now);
-    });
+  #requestAnimationFrame(then: number | undefined): void {
+    this.#frameID = this.#window.requestAnimationFrame((now) =>
+      this.#loop(now, then)
+    );
   }
 
   #onEvent = (event: Event): void => {
@@ -87,6 +81,16 @@ export class RendererStateMachine {
     if (!this.isContextLost() && this.#isDocumentVisible()) this.#resume();
     else this.#pause();
   };
+
+  #loop(now: number, then: number | undefined) {
+    // Duration can be great when a frame is held for debugging. Limit it to
+    // one second.
+    const delta = Math.min(now - (then ?? now), 1000);
+    this.#onFrame(delta);
+
+    // If not paused, request a new frame.
+    if (this.#frameID != null) this.#requestAnimationFrame(now);
+  }
 
   #pause(): void {
     if (this.#frameID == null) return;
@@ -114,7 +118,7 @@ export class RendererStateMachine {
       console.debug('Renderer cannot resume; document hidden.');
     } else if (this.#frameID == null) {
       console.debug('Renderer looping.');
-      this.#loop(undefined);
+      this.#requestAnimationFrame(undefined);
     }
   }
 }

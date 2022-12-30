@@ -43,12 +43,13 @@ export function Renderer<FilmID extends Aseprite.Tag>(
     antialias: false,
     // https://developer.chrome.com/blog/desynchronized
     desynchronized: true,
-    preserveDrawingBuffer: true,
+    preserveDrawingBuffer: false,
+    alpha: true,
   });
   assertNonNull(gl, 'WebGL 2 unsupported.');
 
   // Avoid initial color flash by matching the background. [palette][theme]
-  const [r, g, b, a] = Color.intToFloats(U32(0xe6e6df_ff)); // whoops
+  const [r, g, b, a] = Color.intToFloats(U32(0x0a1a1a_ff)); // whoops
   gl.clearColor(r, g, b, a);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 

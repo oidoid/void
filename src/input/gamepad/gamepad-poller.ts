@@ -12,6 +12,7 @@ export class GamepadPoller {
   }
 
   preupdate(): void {
+    if (!globalThis.isSecureContext) return;
     const gamepads = Array.from(navigator.getGamepads());
     // OR all gamepad button states into one.
     this.#buttons = gamepads.reduce(reduceGamepads, 0n);
