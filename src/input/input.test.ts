@@ -54,6 +54,29 @@ Deno.test('Held buttons are active but not triggered.', () => {
   input.register('remove');
 });
 
+Deno.test('Releases buttons are off and triggered.', () => {
+  const input = new Input();
+  input.register('add');
+  dispatchKeyEvent('keydown', 'ArrowUp');
+  input.preupdate();
+  input.postupdate(16, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+
+  dispatchKeyEvent('keyup', 'ArrowUp');
+  input.preupdate();
+
+  assertEquals(input.isOn('Up'), false);
+  assertEquals(input.isOnStart('Up'), false);
+  assertEquals(input.isOnHeld('Up'), false);
+  assertEquals(input.isOff('Up'), true);
+  assertEquals(input.isOffStart('Up'), true);
+  assertEquals(input.isOffHeld('Up'), false);
+  assertEquals(input.isCombo(['Up']), false);
+  assertEquals(input.isComboStart(['Up']), false);
+  assertEquals(input.isComboHeld(['Up']), false);
+
+  input.register('remove');
+});
+
 Deno.test('Combos are exact in length.', () => {
   const input = new Input();
   input.register('add');
@@ -333,7 +356,6 @@ Deno.test('Combo after long-pressed combo is active.', () => {
   dispatchKeyEvent('keydown', 'ArrowUp');
   input.preupdate();
   input.postupdate(16, NumberXY(1, 1), I16Box(0, 0, 1, 1));
-  dispatchKeyEvent('keyup', 'ArrowUp');
 
   assertEquals(input.isCombo(['Left'], ['Down'], ['Up']), true);
 

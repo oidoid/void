@@ -61,6 +61,7 @@ export class Input {
         0n,
       );
       if (this.#combo[i] != mask) return false;
+      if (i == (combo.length - 1) && mask != this.buttons) return false;
     }
     return true;
   }
