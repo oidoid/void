@@ -1,5 +1,6 @@
-import { I16Box, I16XY, NumberXY } from '@/oidlib';
+import { I16XY } from '@/oidlib';
 import {
+  Cam,
   GamepadPoller,
   KeyboardPoller,
   PointerPoller,
@@ -9,7 +10,11 @@ import {
 export class InputPoller {
   readonly #gamepad: GamepadPoller = new GamepadPoller();
   readonly #keyboard: KeyboardPoller = new KeyboardPoller();
-  readonly #pointer: PointerPoller = new PointerPoller();
+  readonly #pointer: PointerPoller;
+
+  constructor(cam: Readonly<Cam>) {
+    this.#pointer = new PointerPoller(cam);
+  }
 
   get pointerType(): PointerType | undefined {
     return this.#pointer.pointerType;
@@ -27,11 +32,8 @@ export class InputPoller {
     this.#gamepad.preupdate();
   }
 
-  postupdate(
-    clientViewportWH: Readonly<NumberXY>, // to-do: branding?
-    cam: Readonly<I16Box>,
-  ): void {
-    this.#pointer.postupdate(clientViewportWH, cam);
+  postupdate(): void {
+    this.#pointer.postupdate();
   }
 
   register(op: 'add' | 'remove'): void {

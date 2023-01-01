@@ -1,15 +1,7 @@
 import { Aseprite, AtlasMeta } from '@/atlas-pack';
+import { assertNonNull, Color, NonNull, U16Box, U32 } from '@/oidlib';
 import {
-  assertNonNull,
-  Color,
-  I16,
-  I16Box,
-  I16XY,
-  NonNull,
-  U16Box,
-  U32,
-} from '@/oidlib';
-import {
+  Cam,
   fragmentGLSL,
   GL,
   InstanceBuffer,
@@ -153,11 +145,10 @@ export namespace Renderer {
   export function render(
     self: Renderer,
     _time: number,
-    scale: I16,
-    cam: Readonly<I16Box>,
+    cam: Readonly<Cam>,
     instanceBuffer: InstanceBuffer,
   ): void {
-    resize(self, scale, cam);
+    resize(self, cam);
     self.gl.clear(self.gl.COLOR_BUFFER_BIT | self.gl.DEPTH_BUFFER_BIT);
     // self.gl.uniform1ui(
     //   GL.uniformLocation(self.layout, self.uniforms, 'time'),
@@ -181,15 +172,10 @@ export namespace Renderer {
   /** @arg canvasWH The desired resolution of the canvas in CSS pixels. E.g.,
                     {w: window.innerWidth, h: window.innerHeight}.
       @arg scale Positive integer zoom. */
-  export function resize(
-    self: Renderer,
-    scale: I16,
-    cam: Readonly<I16Box>,
-  ): void {
+  export function resize(self: Renderer, cam: Readonly<Cam>): void {
     // Always <= native. These are level pixels.
-    const camWH = I16XY(I16Box.width(cam), I16Box.height(cam)); // to-do: I16Box.toWH() or drop WH.
     // Always >= native. These are physical pixels.
-    const nativeCanvasWH = Viewport.nativeCanvasWH(camWH, scale);
+    const nativeCanvasWH = Viewport.nativeCanvasWH(cam.wh, cam.scale);
 
     if (
       self.gl.canvas.width != nativeCanvasWH.x ||
@@ -201,7 +187,7 @@ export namespace Renderer {
       self.gl.viewport(0, 0, nativeCanvasWH.x, nativeCanvasWH.y);
 
       console.debug(
-        `Canvas resized to ${nativeCanvasWH.x}×${nativeCanvasWH.y} native pixels with ${camWH.x}×${camWH.y} cam (level pixels) at a ${scale}x scale.`,
+        `Canvas resized to ${nativeCanvasWH.x}×${nativeCanvasWH.y} native pixels with ${cam.wh.x}×${cam.wh.y} cam (level pixels) at a ${cam.scale}x scale.`,
       );
     }
 
@@ -239,20 +225,17 @@ export namespace Renderer {
   }
 
   // to-do: don't recreate array every loop
-  function project(cam: Readonly<I16Box>): number[] {
+  function project(cam: Readonly<Cam>): number[] {
     // Convert the pixels to clipspace by taking them as a fraction of the cam
     // resolution, scaling to 0-2, flipping the y-coordinate so that positive y
     // is downward, and translating to -1 to 1 and again by the camera position.
-    const { w, h } = {
-      w: 2 / I16Box.width(cam),
-      h: 2 / I16Box.height(cam),
-    };
+    const { w, h } = { w: 2 / cam.wh.x, h: 2 / cam.wh.y };
     // deno-fmt-ignore
     return [
-      w,  0, 0, -1 - cam.start.x * w,
-      0, -h, 0,  1 + cam.start.y * h,
-      0,  0, 1,                    0,
-      0,  0, 0,                    1
+      w,  0, 0, -1 - cam.xy.x * w,
+      0, -h, 0,  1 + cam.xy.y * h,
+      0,  0, 1,                 0,
+      0,  0, 0,                 1
     ]
   }
 }

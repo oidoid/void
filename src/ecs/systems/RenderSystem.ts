@@ -21,8 +21,7 @@ function update(sets: Set<RenderSet>, update: ECSUpdate): void {
 
   update.rendererStateMachine.render(
     update.time,
-    update.scale,
-    update.camBounds,
+    update.cam,
     update.instanceBuffer,
   );
 }

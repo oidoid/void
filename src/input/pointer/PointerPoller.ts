@@ -1,11 +1,10 @@
 import { I16Box, I16XY, NumberXY } from '@/oidlib';
-import { Button, pointerMap, PointerType, Viewport } from '@/void';
+import { Button, Cam, pointerMap, PointerType, Viewport } from '@/void';
 
 export class PointerPoller {
   /** The button state of the most recent pointer. */
   #buttons: bigint;
-  #cam: Readonly<I16Box>;
-  #clientViewportWH: Readonly<NumberXY>;
+  #cam: Readonly<Cam>;
   /** The pointer type of the most recent pointer. Undefined when canceled. */
   #pointerType?: PointerType | undefined;
   /** The level position of the most recent pointer. Undefined when canceled. */
@@ -23,20 +22,12 @@ export class PointerPoller {
     return this.#xy;
   }
 
-  constructor() {
+  constructor(cam: Cam) {
     this.#buttons = 0n;
-    // Initialize to 1x1 dimensions to avoid division by zero.
-    this.#cam = I16Box(0, 0, 1, 1);
-    this.#clientViewportWH = NumberXY(1, 1);
+    this.#cam = cam;
   }
 
-  postupdate(
-    clientViewportWH: Readonly<NumberXY>,
-    cam: Readonly<I16Box>,
-  ): void {
-    this.#clientViewportWH = clientViewportWH;
-    this.#cam = cam;
-
+  postupdate(): void {
     // pointerdown, pointermove, and pointerup events are all treated as
     // pointing but there's no event to clear the pointing state. If there's no
     // other button on, consider pointing off.
@@ -67,8 +58,8 @@ export class PointerPoller {
       const clientXY = NumberXY(pointer.clientX, pointer.clientY);
       this.#xy = Viewport.toLevelXY(
         clientXY,
-        this.#clientViewportWH,
-        this.#cam,
+        this.#cam.clientViewportWH,
+        I16Box(this.#cam.xy, this.#cam.wh),
       );
     }
 

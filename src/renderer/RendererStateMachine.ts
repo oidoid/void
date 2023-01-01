@@ -1,5 +1,4 @@
-import { I16, I16Box } from '@/oidlib';
-import { InstanceBuffer, Renderer } from '@/void';
+import { Cam, InstanceBuffer, Renderer } from '@/void';
 
 export interface RendererStateMachineProps {
   readonly window: Window;
@@ -41,11 +40,10 @@ export class RendererStateMachine {
   // to render.
   render(
     time: number,
-    scale: I16,
-    cam: Readonly<I16Box>,
+    cam: Readonly<Cam>,
     instanceBuffer: InstanceBuffer,
   ): void {
-    Renderer.render(this.#renderer, time, scale, cam, instanceBuffer);
+    Renderer.render(this.#renderer, time, cam, instanceBuffer);
   }
 
   restoreContext(): void {

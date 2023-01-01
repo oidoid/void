@@ -1,5 +1,5 @@
-import { I16Box, I16XY, NumberXY } from '@/oidlib';
-import { Button, InputPoller, PointerType } from '@/void';
+import { I16XY } from '@/oidlib';
+import { Button, Cam, InputPoller, PointerType } from '@/void';
 
 export class Input {
   /** The time in milliseconds since the input changed. */
@@ -10,7 +10,7 @@ export class Input {
    * combo member but is necessary to persist in previous to distinguish the off
    * state between repeated button presses like [UP, UP].
    */
-  readonly #poller: InputPoller = new InputPoller();
+  readonly #poller: InputPoller;
 
   /**
    * The previous button state, possible 0, but not necessarily a combo member.
@@ -41,7 +41,8 @@ export class Input {
     return this.#poller.xy;
   }
 
-  constructor(minHeld = 300, maxInterval: number = 300) {
+  constructor(cam: Readonly<Cam>, minHeld = 300, maxInterval: number = 300) {
+    this.#poller = new InputPoller(cam);
     this.#minHeld = minHeld;
     this.#maxInterval = maxInterval;
   }
@@ -149,12 +150,8 @@ export class Input {
    * primes the poller to collect input for the next frame so it should occur
    * towards the end of the game update loop *after* entity processing.
    */
-  postupdate(
-    delta: number,
-    clientViewportWH: Readonly<NumberXY>,
-    cam: Readonly<I16Box>,
-  ): void {
-    this.#poller.postupdate(clientViewportWH, cam);
+  postupdate(delta: number): void {
+    this.#poller.postupdate();
     this.#duration += delta;
     this.#prevButtons = this.buttons;
   }
@@ -166,4 +163,32 @@ export class Input {
   reset(): void {
     this.#poller.reset();
   }
+
+  toString(): string {
+    const on = [];
+    const start = [];
+    for (const button of Button.values) {
+      if (this.isOn(button)) on.push(button);
+      if (this.isStart(button)) start.push(button);
+    }
+    const combo: Button[][] = [];
+    for (const buttons of this.#combo) {
+      combo.push(
+        [...Button.values].filter((button) =>
+          (buttons & Button.Bit[button]) == Button.Bit[button]
+        ),
+      );
+    }
+    const last = combo.at(-1);
+    const comboStart = last == null ? false : this.isOnStart(...last);
+    return [
+      `on: ${on.join(', ')}`,
+      `start: ${start.join(', ')}`,
+      `held: ${this.isHeld()}`,
+      `combo: ${combo.map((buttons) => buttons.join('+')).join(', ')}`,
+      `combo start: ${comboStart}`,
+    ].join('\n');
+  }
 }
+
+//bigint is easier

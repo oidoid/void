@@ -1,9 +1,18 @@
-import { I16Box, NumberXY } from '@/oidlib';
-import { Button, Input } from '@/void';
+import { I16, I16XY, NumberXY, U16XY } from '@/oidlib';
+import { Button, Cam, Input } from '@/void';
 import { assertEquals } from 'std/testing/asserts.ts';
 
+const cam: Cam = {
+  clientViewportWH: NumberXY(1, 1),
+  minViewport: U16XY(1, 1),
+  nativeViewportWH: U16XY(1, 1),
+  scale: I16(1),
+  wh: I16XY(1, 1),
+  xy: I16XY(0, 0),
+};
+
 Deno.test('Buttons are initially inactive.', () => {
-  const input = new Input();
+  const input = new Input(cam);
   input.register('add');
   input.preupdate();
   assertEquals(input.isOn('Up'), false);
@@ -19,7 +28,7 @@ Deno.test('Buttons are initially inactive.', () => {
 });
 
 Deno.test('Pressed buttons are active and triggered.', () => {
-  const input = new Input();
+  const input = new Input(cam);
   input.register('add');
   dispatchKeyEvent('keydown', 'ArrowUp');
   input.preupdate();
@@ -36,11 +45,11 @@ Deno.test('Pressed buttons are active and triggered.', () => {
 });
 
 Deno.test('Held buttons are active but not triggered.', () => {
-  const input = new Input(16);
+  const input = new Input(cam, 16);
   input.register('add');
   dispatchKeyEvent('keydown', 'ArrowUp');
   input.preupdate();
-  input.postupdate(16, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+  input.postupdate(16);
   input.preupdate();
   assertEquals(input.isOn('Up'), true);
   assertEquals(input.isOnStart('Up'), false);
@@ -55,11 +64,11 @@ Deno.test('Held buttons are active but not triggered.', () => {
 });
 
 Deno.test('Releases buttons are off and triggered.', () => {
-  const input = new Input();
+  const input = new Input(cam);
   input.register('add');
   dispatchKeyEvent('keydown', 'ArrowUp');
   input.preupdate();
-  input.postupdate(16, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+  input.postupdate(16);
 
   dispatchKeyEvent('keyup', 'ArrowUp');
   input.preupdate();
@@ -78,13 +87,13 @@ Deno.test('Releases buttons are off and triggered.', () => {
 });
 
 Deno.test('Combos are exact in length.', () => {
-  const input = new Input();
+  const input = new Input(cam);
   input.register('add');
 
   dispatchKeyEvent('keydown', 'ArrowUp');
   input.preupdate();
   assertEquals(input.isCombo(['Up']), true);
-  input.postupdate(16, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+  input.postupdate(16);
   dispatchKeyEvent('keyup', 'ArrowUp');
 
   dispatchKeyEvent('keydown', 'ArrowDown');
@@ -92,7 +101,7 @@ Deno.test('Combos are exact in length.', () => {
   assertEquals(input.isCombo(['Up']), false);
   assertEquals(input.isCombo(['Down']), false);
   assertEquals(input.isCombo(['Up'], ['Down']), true);
-  input.postupdate(16, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+  input.postupdate(16);
   dispatchKeyEvent('keyup', 'ArrowDown');
 
   dispatchKeyEvent('keydown', 'ArrowRight');
@@ -102,14 +111,14 @@ Deno.test('Combos are exact in length.', () => {
   assertEquals(input.isCombo(['Right']), false);
   assertEquals(input.isCombo(['Down'], ['Right']), false);
   assertEquals(input.isCombo(['Up'], ['Down'], ['Right']), true);
-  input.postupdate(16, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+  input.postupdate(16);
   dispatchKeyEvent('keyup', 'ArrowRight');
 
   input.register('remove');
 });
 
 Deno.test('Simultaneously pressed buttons are active and triggered.', () => {
-  const input = new Input();
+  const input = new Input(cam);
   input.register('add');
   dispatchKeyEvent('keydown', 'ArrowUp');
   dispatchKeyEvent('keydown', 'ArrowDown');
@@ -136,13 +145,13 @@ Deno.test('Simultaneously pressed buttons are active and triggered.', () => {
 });
 
 Deno.test('Combos buttons are exact.', () => {
-  const input = new Input();
+  const input = new Input(cam);
   input.register('add');
 
   dispatchKeyEvent('keydown', 'ArrowUp');
   input.preupdate();
   assertEquals(input.isCombo(['Up']), true);
-  input.postupdate(16, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+  input.postupdate(16);
   dispatchKeyEvent('keyup', 'ArrowUp');
 
   dispatchKeyEvent('keydown', 'ArrowDown');
@@ -151,7 +160,7 @@ Deno.test('Combos buttons are exact.', () => {
   assertEquals(input.isCombo(['Up']), false);
   assertEquals(input.isCombo(['Down']), false);
   assertEquals(input.isCombo(['Up'], ['Down']), false);
-  input.postupdate(16, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+  input.postupdate(16);
   dispatchKeyEvent('keyup', 'ArrowDown');
   dispatchKeyEvent('keyup', 'ArrowLeft');
 
@@ -162,14 +171,14 @@ Deno.test('Combos buttons are exact.', () => {
   assertEquals(input.isCombo(['Right']), false);
   assertEquals(input.isCombo(['Down'], ['Right']), false);
   assertEquals(input.isCombo(['Up'], ['Down'], ['Right']), false);
-  input.postupdate(16, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+  input.postupdate(16);
   dispatchKeyEvent('keyup', 'ArrowRight');
 
   input.register('remove');
 });
 
 Deno.test('A long combo is active and triggered.', () => {
-  const input = new Input();
+  const input = new Input(cam);
   input.register('add');
 
   const keys = [
@@ -186,11 +195,11 @@ Deno.test('A long combo is active and triggered.', () => {
     dispatchKeyEvent('keydown', key);
     input.preupdate();
     if (i == (keys.length - 1)) break;
-    input.postupdate(16, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+    input.postupdate(16);
 
     dispatchKeyEvent('keyup', key);
     input.preupdate();
-    input.postupdate(16, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+    input.postupdate(16);
   }
 
   const combo = keys.map((key) => [key.replace('Arrow', '') as Button]);
@@ -202,7 +211,7 @@ Deno.test('A long combo is active and triggered.', () => {
 });
 
 Deno.test('Around-the-world combo is active and triggered.', () => {
-  const input = new Input();
+  const input = new Input(cam);
   input.register('add');
 
   const keyCombo = [
@@ -221,13 +230,13 @@ Deno.test('Around-the-world combo is active and triggered.', () => {
     }
     input.preupdate();
     if (i == (keyCombo.length - 1)) break;
-    input.postupdate(16, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+    input.postupdate(16);
 
     for (const button of buttons) {
       dispatchKeyEvent('keyup', button);
     }
     input.preupdate();
-    input.postupdate(16, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+    input.postupdate(16);
   }
 
   const combo = keyCombo.map((
@@ -241,13 +250,13 @@ Deno.test('Around-the-world combo is active and triggered.', () => {
 });
 
 Deno.test('Combo expired.', () => {
-  const input = new Input();
+  const input = new Input(cam);
   input.register('add');
 
   dispatchKeyEvent('keydown', 'ArrowUp');
   input.preupdate();
   assertEquals(input.isCombo(['Up']), true);
-  input.postupdate(16, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+  input.postupdate(16);
   dispatchKeyEvent('keyup', 'ArrowUp');
 
   dispatchKeyEvent('keydown', 'ArrowDown');
@@ -255,7 +264,7 @@ Deno.test('Combo expired.', () => {
   assertEquals(input.isCombo(['Up']), false);
   assertEquals(input.isCombo(['Down']), false);
   assertEquals(input.isCombo(['Up'], ['Down']), true);
-  input.postupdate(1000, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+  input.postupdate(1000);
   dispatchKeyEvent('keyup', 'ArrowDown');
 
   dispatchKeyEvent('keydown', 'ArrowRight');
@@ -265,20 +274,20 @@ Deno.test('Combo expired.', () => {
   assertEquals(input.isCombo(['Right']), false);
   assertEquals(input.isCombo(['Down'], ['Right']), false);
   assertEquals(input.isCombo(['Up'], ['Down'], ['Right']), false);
-  input.postupdate(16, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+  input.postupdate(16);
   dispatchKeyEvent('keyup', 'ArrowRight');
 
   input.register('remove');
 });
 
 Deno.test('Long-pressed combo is active and held.', () => {
-  const input = new Input();
+  const input = new Input(cam);
   input.register('add');
 
   dispatchKeyEvent('keydown', 'ArrowUp');
   input.preupdate();
   assertEquals(input.isCombo(['Up']), true);
-  input.postupdate(16, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+  input.postupdate(16);
   dispatchKeyEvent('keyup', 'ArrowUp');
 
   dispatchKeyEvent('keydown', 'ArrowDown');
@@ -286,7 +295,7 @@ Deno.test('Long-pressed combo is active and held.', () => {
   assertEquals(input.isCombo(['Up']), false);
   assertEquals(input.isCombo(['Down']), false);
   assertEquals(input.isCombo(['Up'], ['Down']), true);
-  input.postupdate(16, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+  input.postupdate(16);
   dispatchKeyEvent('keyup', 'ArrowDown');
 
   dispatchKeyEvent('keydown', 'ArrowRight');
@@ -296,7 +305,7 @@ Deno.test('Long-pressed combo is active and held.', () => {
   assertEquals(input.isCombo(['Right']), false);
   assertEquals(input.isCombo(['Down'], ['Right']), false);
   assertEquals(input.isCombo(['Up'], ['Down'], ['Right']), true);
-  input.postupdate(1000, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+  input.postupdate(1000);
 
   input.preupdate();
   assertEquals(input.isCombo(['Up'], ['Down'], ['Right']), true);
@@ -306,13 +315,13 @@ Deno.test('Long-pressed combo is active and held.', () => {
 });
 
 Deno.test('Combo after long-pressed combo is active.', () => {
-  const input = new Input();
+  const input = new Input(cam);
   input.register('add');
 
   dispatchKeyEvent('keydown', 'ArrowUp');
   input.preupdate();
   assertEquals(input.isCombo(['Up']), true);
-  input.postupdate(16, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+  input.postupdate(16);
   dispatchKeyEvent('keyup', 'ArrowUp');
 
   dispatchKeyEvent('keydown', 'ArrowDown');
@@ -320,7 +329,7 @@ Deno.test('Combo after long-pressed combo is active.', () => {
   assertEquals(input.isCombo(['Up']), false);
   assertEquals(input.isCombo(['Down']), false);
   assertEquals(input.isCombo(['Up'], ['Down']), true);
-  input.postupdate(16, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+  input.postupdate(16);
   dispatchKeyEvent('keyup', 'ArrowDown');
 
   dispatchKeyEvent('keydown', 'ArrowRight');
@@ -330,25 +339,25 @@ Deno.test('Combo after long-pressed combo is active.', () => {
   assertEquals(input.isCombo(['Right']), false);
   assertEquals(input.isCombo(['Down'], ['Right']), false);
   assertEquals(input.isCombo(['Up'], ['Down'], ['Right']), true);
-  input.postupdate(1000, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+  input.postupdate(1000);
   dispatchKeyEvent('keyup', 'ArrowRight');
 
   input.preupdate();
-  input.postupdate(16, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+  input.postupdate(16);
 
   dispatchKeyEvent('keydown', 'ArrowLeft');
   input.preupdate();
-  input.postupdate(16, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+  input.postupdate(16);
   dispatchKeyEvent('keyup', 'ArrowLeft');
 
   dispatchKeyEvent('keydown', 'ArrowDown');
   input.preupdate();
-  input.postupdate(16, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+  input.postupdate(16);
   dispatchKeyEvent('keyup', 'ArrowDown');
 
   dispatchKeyEvent('keydown', 'ArrowUp');
   input.preupdate();
-  input.postupdate(16, NumberXY(1, 1), I16Box(0, 0, 1, 1));
+  input.postupdate(16);
 
   assertEquals(input.isCombo(['Left'], ['Down'], ['Up']), true);
 

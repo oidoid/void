@@ -1,4 +1,5 @@
 export * from './src/audio/Synth.ts';
+export * from './src/ecs/components/Cam.ts';
 export * from './src/ecs/components/CursorFilmSet.ts';
 export * from './src/ecs/components/FollowCamConfig.ts';
 export * from './src/ecs/components/PickableConfig.ts';
@@ -6,6 +7,7 @@ export * from './src/ecs/ComponentSet.ts';
 export * from './src/ecs/ECS.ts';
 export * from './src/ecs/ECSUpdate.ts';
 export * from './src/ecs/Ent.ts';
+export * from './src/ecs/systems/CamSystem.ts';
 export * from './src/ecs/systems/CursorSystem.ts';
 export * from './src/ecs/systems/FollowCamSystem.ts';
 export * from './src/ecs/systems/FollowPointSystem.ts';

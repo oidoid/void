@@ -1,6 +1,7 @@
 import { Film } from '@/atlas-pack';
-import { assert, NonNull, NumberXY, U8 } from '@/oidlib';
+import { assert, I16, I16XY, NonNull, NumberXY, U16XY, U8 } from '@/oidlib';
 import {
+  Cam,
   ComponentSet,
   CursorFilmSet,
   FilmLUT,
@@ -33,7 +34,13 @@ export interface CursorFilmSetJSON {
   readonly point: string;
 }
 
+export interface CamJSON {
+  readonly xy?: Partial<NumberXY>;
+  readonly minViewport: Partial<NumberXY>;
+}
+
 export interface ComponentSetJSON {
+  readonly cam?: CamJSON;
   readonly cursor?: CursorFilmSetJSON;
   readonly followCam?: FollowCamJSON;
   readonly followPoint?: Record<never, never>;
@@ -47,6 +54,8 @@ export namespace LevelParser {
     val: unknown,
   ): ComponentSet[keyof ComponentSetJSON] | undefined {
     switch (key) { // to-do: fail when missing types.
+      case 'cam':
+        return parseCam(val as CamJSON);
       case 'cursor':
         return parseCursorFilmSet(lut, val as CursorFilmSetJSON);
       case 'followCam':
@@ -56,6 +65,18 @@ export namespace LevelParser {
       case 'sprite':
         return parseSprite(lut, val as SpriteJSON);
     }
+  }
+
+  export function parseCam(json: CamJSON): Cam {
+    return {
+      xy: I16XY(json.xy?.x ?? 0, json.xy?.y ?? 0),
+      // Avoid possible division by zero.
+      wh: I16XY(1, 1),
+      clientViewportWH: NumberXY(1, 1),
+      nativeViewportWH: U16XY(1, 1),
+      minViewport: U16XY(json.minViewport.x ?? 1, json.minViewport?.y ?? 1),
+      scale: I16(1),
+    };
   }
 
   export function parseFollowCam(json: FollowCamJSON): FollowCamConfig {
