@@ -59,7 +59,10 @@ export class PointerPoller {
       this.#xy = Viewport.toLevelXY(
         clientXY,
         this.#cam.clientViewportWH,
-        I16Box(this.#cam.xy, this.#cam.wh),
+        // to-do: this Box(XY, XY) API sucks because I accidentally passed in an
+        // XY for the second param acting as a WH but it was read as end (
+        // instead of area.
+        I16Box(this.#cam.xy.x, this.#cam.xy.y, this.#cam.wh.x, this.#cam.wh.y),
       );
     }
 
