@@ -57,11 +57,12 @@ export class Input {
   isCombo(...combo: readonly (readonly Button[])[]): boolean {
     if (combo.length != this.#combo.length) return false;
     for (const [i, buttons] of combo.entries()) {
-      const mask = buttons.reduce(
-        (sum, button) => sum | Button.Bit[button],
-        0n,
-      );
+      const mask = Button.toBits(...buttons);
       if (this.#combo[i] != mask) return false;
+
+      // combo is a historical record of buttons. Whenever buttons changes, a
+      // new entry is pushed. Make sure the current entry is the current state
+      // and that the last entry's buttons haven't been released.
       if (i == (combo.length - 1) && mask != this.buttons) return false;
     }
     return true;
@@ -85,10 +86,8 @@ export class Input {
    * pressed.
    */
   isOn(...buttons: readonly Button[]): boolean {
-    return buttons.every((button) => {
-      const mask = Button.Bit[button];
-      return (this.buttons & mask) == mask;
-    });
+    const bits = Button.toBits(...buttons);
+    return (this.buttons & bits) == bits;
   }
 
   isOnStart(...buttons: readonly Button[]): boolean {
@@ -113,11 +112,8 @@ export class Input {
 
   /** True if triggered on or off. */
   isStart(...buttons: readonly Button[]): boolean {
-    return buttons.every((button) => {
-      const mask = Button.Bit[button];
-      return this.#duration == 0 &&
-        (this.buttons & mask) != (this.#prevButtons & mask);
-    });
+    const bits = Button.toBits(...buttons);
+    return (this.buttons & bits) != (this.#prevButtons & bits);
   }
 
   /** True if held on or off. */
@@ -172,13 +168,7 @@ export class Input {
       if (this.isStart(button)) start.push(button);
     }
     const combo: Button[][] = [];
-    for (const buttons of this.#combo) {
-      combo.push(
-        [...Button.values].filter((button) =>
-          (buttons & Button.Bit[button]) == Button.Bit[button]
-        ),
-      );
-    }
+    for (const buttons of this.#combo) combo.push(Button.fromBits(buttons));
     const last = combo.at(-1);
     const comboStart = last == null ? false : this.isOnStart(...last);
     return [
@@ -190,5 +180,3 @@ export class Input {
     ].join('\n');
   }
 }
-
-//bigint is easier

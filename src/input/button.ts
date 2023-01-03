@@ -21,6 +21,16 @@ export namespace Button {
     ),
   );
 
+  export function fromBits(bits: bigint): Button[] {
+    return [...Button.values].filter((button) =>
+      (bits & Button.Bit[button]) == Button.Bit[button]
+    );
+  }
+
+  export function toBits(...buttons: readonly Button[]): bigint {
+    return buttons.reduce((sum, button) => sum | Button.Bit[button], 0n);
+  }
+
   // No relationship to PointerButton.toBit.
   export const Bit = Immutable(
     // deno-fmt-ignore
