@@ -104,8 +104,6 @@ export namespace LevelParser {
   ): Sprite {
     const film = parseFilm(lut, json.id);
     const layer = parseLayer(lut, json.layer);
-    // to-do: this should accept raw x, y, w, and h properties instead of
-    // requiring xy and wh.
     const props: SpriteProps = {
       flip: json.flip == null ? undefined : parseSpriteFlip(json.flip),
       wh: json.wh,
