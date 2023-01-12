@@ -1,0 +1,3 @@
+Implement 9-patch https://en.wikipedia.org/wiki/9-slice_scaling. Is this a single sprite with 9 areas or 9 sprites? I think the former sounds simpler but will probably still require a shader transform.
+Implement autotile/automap
+

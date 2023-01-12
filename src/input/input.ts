@@ -47,6 +47,10 @@ export class Input {
     this.#maxInterval = maxInterval;
   }
 
+  isAnyOn(...buttons: readonly Button[]): boolean {
+    return buttons.some((button) => this.isOn(button));
+  }
+
   /**
    * Combos are interpreted exactly both in buttons pressed per tick (eg, up
    * will not match up + down the way `isOn('Up')` will) and sequence (order and

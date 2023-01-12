@@ -12,10 +12,6 @@ export class InputPoller {
   readonly #keyboard: KeyboardPoller = new KeyboardPoller();
   readonly #pointer: PointerPoller;
 
-  constructor(cam: Readonly<Cam>) {
-    this.#pointer = new PointerPoller(cam);
-  }
-
   get pointerType(): PointerType | undefined {
     return this.#pointer.pointerType;
   }
@@ -26,6 +22,10 @@ export class InputPoller {
 
   get xy(): Readonly<I16XY> | undefined {
     return this.#pointer.xy;
+  }
+
+  constructor(cam: Readonly<Cam>) {
+    this.#pointer = new PointerPoller(cam);
   }
 
   preupdate(): void {

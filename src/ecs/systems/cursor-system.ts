@@ -1,26 +1,19 @@
-import { Immutable } from '@/oidlib';
-import { CursorFilmSet, ECSUpdate, Layer, Sprite, System } from '@/void';
+import { CursorFilmSet, ECSUpdate, Sprite, System } from '@/void';
 
 export interface CursorSet {
   readonly cursor: CursorFilmSet;
   readonly sprite: Sprite;
 }
 
-export const CursorSystem: System<CursorSet> = Immutable({
-  query: new Set(['cursor', 'sprite']),
-  updateEnt,
-});
+export class CursorSystem implements System<CursorSet> {
+  readonly query = new Set(['cursor', 'sprite'] as const);
 
-function updateEnt(set: CursorSet, update: ECSUpdate): void {
-  const { cursor, sprite } = set;
-  if (
-    update.input.pointerType == 'Pen' || update.input.pointerType == 'Touch'
-  ) sprite.layer = Layer.Bottom;
-  else if (update.input.pointerType == 'Mouse') sprite.layer = Layer.Cursor;
-
-  if (update.input.isOn('Action')) {
+  updateEnt(set: CursorSet, update: ECSUpdate): void {
+    const { cursor, sprite } = set;
     if (update.input.isOnStart('Action')) {
       sprite.animate(update.time, cursor.pick);
+    } else if (update.input.isOffStart('Action')) {
+      sprite.animate(update.time, cursor.point);
     }
-  } else sprite.animate(update.time, cursor.point);
+  }
 }
