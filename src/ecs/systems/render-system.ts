@@ -1,6 +1,5 @@
 import { Immutable } from '@/oidlib';
-import { InstanceBuffer, Sprite, System } from '@/void';
-import { ECSUpdate } from '../ECSUpdate.ts';
+import { ECSUpdate, InstanceBuffer, Sprite, System } from '@/void';
 
 export interface RenderSet {
   readonly sprite: Sprite;

@@ -6,17 +6,16 @@ import {
   I16XY,
   I4,
   I4XY,
+  Immutable,
   NumberBox,
+  NumberXY,
   NumUtil,
   U16,
   U16Box,
   U8,
   XY,
 } from '@/oidlib';
-import { LayerMask } from '@/void';
-import { NumberXY } from '../../../oidlib/src/2d/XY.ts';
-import { Immutable } from '../../../oidlib/src/types/Immutable.ts';
-import { LayerByHeightFlag } from './Layer.ts';
+import { LayerByHeightFlag, LayerMask } from '@/void';
 
 export interface SpriteProps {
   /**

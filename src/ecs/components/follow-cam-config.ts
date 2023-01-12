@@ -1,5 +1,4 @@
-import { Immutable } from '@/oidlib';
-import { NumberXY } from '../../../../oidlib/src/2d/XY.ts';
+import { Immutable, NumberXY } from '@/oidlib';
 
 export type FollowCamConfig = {
   readonly fill?: FollowCamFill | undefined;

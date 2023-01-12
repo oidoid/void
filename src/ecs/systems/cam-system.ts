@@ -1,6 +1,5 @@
 import { I16, Immutable } from '@/oidlib';
-import { Cam, System } from '@/void';
-import { Viewport } from '../../renderer/Viewport.ts';
+import { Cam, System, Viewport } from '@/void';
 
 export interface CamSet {
   readonly cam: Cam;

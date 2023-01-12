@@ -1,6 +1,5 @@
-import { NonNull } from '@/oidlib';
+import { assertNonNull, NonNull } from '@/oidlib';
 import { ECSUpdate, Ent, System } from '@/void';
-import { assertNonNull } from '../../../oidlib/src/types/NonNull.ts';
 
 export interface ECS<T, Update extends ECSUpdate = ECSUpdate> {
   factory: Ent;
