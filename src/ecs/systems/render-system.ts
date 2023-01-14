@@ -1,5 +1,5 @@
 import { Immutable } from '@/oidlib';
-import { ECSUpdate, InstanceBuffer, Sprite, System } from '@/void';
+import { ECSUpdate, Sprite, System } from '@/void';
 
 export interface RenderSet {
   readonly sprite: Sprite;
@@ -14,7 +14,7 @@ export const RenderSystem: System<RenderSet> = Immutable({
 function update(sets: Set<RenderSet>, update: ECSUpdate): void {
   let index = 0;
   for (const set of sets.values()) {
-    InstanceBuffer.set(update.instanceBuffer, index, set.sprite, update.time);
+    update.instanceBuffer.set(index, set.sprite, update.time);
     index++;
   }
 
