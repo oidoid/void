@@ -1,4 +1,4 @@
-import { I16Box, I16XY, NumberXY } from '@/oidlib';
+import { I16XY, NumXY } from '@/oidlib';
 import { Button, Cam, pointerMap, PointerType, Viewport } from '@/void';
 
 export class PointerPoller {
@@ -55,14 +55,11 @@ export class PointerPoller {
       const pointer = <PointerEvent> ev;
       this.#buttons = pointerButtonsToButton(pointer.buttons);
       this.#pointerType = PointerType.parse(pointer.pointerType);
-      const clientXY = NumberXY(pointer.clientX, pointer.clientY);
+      const clientXY = new NumXY(pointer.clientX, pointer.clientY);
       this.#xy = Viewport.toLevelXY(
         clientXY,
         this.#cam.clientViewportWH,
-        // to-do: this Box(XY, XY) API sucks because I accidentally passed in an
-        // XY for the second param acting as a WH but it was read as end (
-        // instead of area.
-        I16Box(this.#cam.xy.x, this.#cam.xy.y, this.#cam.wh.x, this.#cam.wh.y),
+        this.#cam.viewport,
       );
     }
 

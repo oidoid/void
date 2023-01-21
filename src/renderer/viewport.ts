@@ -1,4 +1,4 @@
-import { I16, I16Box, I16XY, NumberXY, U16XY } from '@/oidlib';
+import { I16, I16Box, I16XY, NumXY, U16XY } from '@/oidlib';
 
 export namespace Viewport {
   /** @return The maximum scale possible. what to multiply level px's by to get native pixels */
@@ -13,15 +13,15 @@ export namespace Viewport {
   }
 
   // returns wh of body in css px
-  export function clientViewportWH(window: Window): NumberXY {
+  export function clientViewportWH(window: Window): NumXY {
     const { width, height } = window.document.body.getBoundingClientRect();
-    return NumberXY(width, height);
+    return new NumXY(width, height);
   }
 
   // physical pixels
   export function nativeViewportWH(
     window: Window,
-    clientViewportWH: Readonly<NumberXY>,
+    clientViewportWH: Readonly<NumXY>,
   ): U16XY {
     // These are physical pixels so rounding is correct.
     return U16XY.round(
@@ -44,15 +44,15 @@ export namespace Viewport {
 
   /** Canvas must be an integer multiple of camera. */
   export function nativeCanvasWH(camWH: Readonly<I16XY>, scale: number): I16XY {
-    return I16XY(camWH.x * scale, camWH.y * scale);
+    return new I16XY(camWH.x * scale, camWH.y * scale);
   }
 
   export function clientCanvasWH(
     window: Window,
     nativeCanvasWH: Readonly<I16XY>,
-  ): NumberXY {
+  ): NumXY {
     const ratio = window.devicePixelRatio;
-    return NumberXY(nativeCanvasWH.x / ratio, nativeCanvasWH.y / ratio);
+    return new NumXY(nativeCanvasWH.x / ratio, nativeCanvasWH.y / ratio);
   }
 
   /** @arg point The viewport coordinates of the input in window pixels,
@@ -61,13 +61,13 @@ export namespace Viewport {
                through in level pixels.
       @return The fractional position in level coordinates. */
   export function toLevelXY(
-    point: Readonly<NumberXY>,
-    clientViewportWH: Readonly<NumberXY>,
+    point: Readonly<NumXY>,
+    clientViewportWH: Readonly<NumXY>,
     cam: Readonly<I16Box>,
   ): I16XY {
     return I16XY.trunc(
-      cam.start.x + (point.x / clientViewportWH.x) * I16Box.width(cam),
-      cam.start.y + (point.y / clientViewportWH.y) * I16Box.height(cam),
+      cam.x + (point.x / clientViewportWH.x) * cam.w,
+      cam.y + (point.y / clientViewportWH.y) * cam.h,
     );
   }
 }

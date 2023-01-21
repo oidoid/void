@@ -1,16 +1,16 @@
-import { Int, NumberXY } from '@/oidlib';
+import { Int, NumXY } from '@/oidlib';
 import { ECS, Ent } from '@/void';
 import { assertEquals } from 'std/testing/asserts.ts';
 
 type Components = {
   readonly name: string;
-  readonly position: NumberXY;
+  readonly position: NumXY;
   readonly bags: Int;
 };
 
 Deno.test('ECS stores and retrieves component.', () => {
   const ecs = ECS<Components>(new Set());
-  ECS.addEnt(ecs, { name: 'name', position: NumberXY(1, 2), bags: Int(1) });
+  ECS.addEnt(ecs, { name: 'name', position: new NumXY(1, 2), bags: Int(1) });
   ECS.flush(ecs);
   const bags = ECS.get(ecs, Ent(1), 'bags');
   assertEquals(bags, Int(1));
@@ -18,9 +18,9 @@ Deno.test('ECS stores and retrieves component.', () => {
 
 Deno.test('ECS stores and retrieves component tuple.', () => {
   const ecs = ECS<Components>(new Set());
-  ECS.addEnt(ecs, { name: 'name', position: NumberXY(1, 2), bags: Int(1) });
+  ECS.addEnt(ecs, { name: 'name', position: new NumXY(1, 2), bags: Int(1) });
   ECS.flush(ecs);
   const [position, name] = ECS.get(ecs, Ent(1), 'position', 'name');
-  assertEquals(position, NumberXY(1, 2));
+  assertEquals(position, new NumXY(1, 2));
   assertEquals(name, 'name');
 });

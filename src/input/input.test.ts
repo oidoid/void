@@ -1,14 +1,13 @@
-import { I16, I16XY, NumberXY, U16XY } from '@/oidlib';
+import { I16, I16Box, NumXY, U16XY } from '@/oidlib';
 import { Button, Cam, Input } from '@/void';
 import { assertEquals } from 'std/testing/asserts.ts';
 
 const cam: Cam = {
-  clientViewportWH: NumberXY(1, 1),
-  minViewport: U16XY(1, 1),
-  nativeViewportWH: U16XY(1, 1),
+  clientViewportWH: new NumXY(1, 1),
+  minViewport: new U16XY(1, 1),
+  nativeViewportWH: new U16XY(1, 1),
   scale: I16(1),
-  wh: I16XY(1, 1),
-  xy: I16XY(0, 0),
+  viewport: new I16Box(0, 0, 1, 1),
 };
 
 Deno.test('Buttons are initially inactive.', () => {

@@ -1,3 +1,5 @@
+Only render sprites that are on screen.
 Implement 9-patch https://en.wikipedia.org/wiki/9-slice_scaling. Is this a single sprite with 9 areas or 9 sprites? I think the former sounds simpler but will probably still require a shader transform.
 Implement autotile/automap
+Make it installable; https://web.dev/codelab-make-installable/ https://web.dev/learn/pwa/
 

@@ -1,12 +1,12 @@
-import { Font } from '@/void';
 import { I16, I16Box, I16XY, Str, Uint } from '@/oidlib';
+import { Font } from '@/void';
 
 // todo: any opportunity for collaboration with sprite_layout?
 export interface TextLayout {
   /** The length of this array matches the string length. */
-  chars: (I16Box | undefined)[];
+  chars: (Readonly<I16Box> | undefined)[];
   /** The offset in pixels. todo: should this be passed in? */
-  cursor: I16XY;
+  cursor: Readonly<I16XY>;
 }
 
 export namespace TextLayout {
@@ -15,10 +15,10 @@ export namespace TextLayout {
     font: Font,
     str: string,
     width: I16,
-    scale: I16XY,
+    scale: Readonly<I16XY>,
   ): TextLayout {
     const chars = [];
-    let cursor = I16XY(0, 0);
+    let cursor = new I16XY(0, 0);
     let i = 0;
     for (;;) {
       const char = str[i];
@@ -94,19 +94,19 @@ export namespace TextLayout {
 
       index++;
     }
-    return { chars, cursor: I16XY(x, y) };
+    return { chars, cursor: new I16XY(x, y) };
   }
 }
 
-function nextLine(font: Font, y: I16, scale: I16XY): I16XY {
+function nextLine(font: Font, y: I16, scale: Readonly<I16XY>): I16XY {
   return I16XY.round(0, y + scale.y * font.lineHeight);
 }
 
 /** @arg cursor The cursor offset in pixels. */
 function layoutNewline(
   font: Font,
-  { y }: I16XY,
-  scale: I16XY,
+  { y }: Readonly<I16XY>,
+  scale: Readonly<I16XY>,
 ): TextLayout {
   return { chars: [undefined], cursor: nextLine(font, y, scale) };
 }
@@ -119,10 +119,10 @@ function layoutNewline(
  */
 function layoutSpace(
   font: Font,
-  { x, y }: I16XY,
+  { x, y }: Readonly<I16XY>,
   width: I16,
   span: I16,
-  scale: I16XY,
+  scale: Readonly<I16XY>,
 ): TextLayout {
   const cursor = (x != 0 && (x + span) >= width)
     ? nextLine(font, y, scale)
@@ -134,7 +134,7 @@ function layoutSpace(
 function tracking(
   font: Font,
   lhs: string,
-  scale: I16XY,
+  scale: Readonly<I16XY>,
   rhs: string | undefined,
 ): I16 {
   return I16.round(

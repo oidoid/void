@@ -7,11 +7,8 @@ import {
   I4,
   I4XY,
   Immutable,
-  NumberBox,
-  NumberXY,
   NumUtil,
   U16,
-  U16Box,
   U8,
   XY,
 } from '@/oidlib';
@@ -23,9 +20,15 @@ export interface SpriteProps {
    *
    * Ents that are repositioned by other systems like FollowCam don't care.
    */
-  readonly xy?: Partial<NumberXY> | undefined;
+  readonly xy?: Partial<XY<number>> | undefined;
+  x?: number;
+  y?: number;
+
   /** The dimensions of the sprite. Defaults to animation size. */
-  readonly wh?: Partial<NumberXY> | undefined;
+  readonly wh?: Partial<XY<number>> | undefined;
+  w?: number;
+  h?: number;
+
   /**
    * How to resolve render order for sprites on same layer. When false (the
    * default), this sprite compares with `y`. When true, this sprite compares
@@ -33,7 +36,7 @@ export interface SpriteProps {
    */
   readonly layerByHeight?: boolean | undefined;
   /** Offset sprite. Capped to I4. */
-  readonly wrap?: Partial<NumberXY> | undefined;
+  readonly wrap?: Partial<XY<number>> | undefined;
   /** Mirror sprite. Defaults to unflipped. to-do: add intersection support. */
   readonly flip?: SpriteFlip | undefined;
 }
@@ -60,6 +63,7 @@ interface WrapLayerByHeightLayer {
   readonly layer: U8;
 }
 
+// to-do: i almost want this to extend Box. so many functions i want to expose wihtout have to drill into bounds
 /** A renderable animation. */
 export class Sprite {
   #animator: Animator;
@@ -78,7 +82,7 @@ export class Sprite {
 
   /** Height (negative when flipped). */
   get h(): I16 {
-    return I16Box.height(this.#bounds);
+    return this.#bounds.h;
   }
 
   set layer(layer: U8) {
@@ -94,7 +98,7 @@ export class Sprite {
 
   /** Width (negative when flipped). */
   get w(): I16 {
-    return I16Box.width(this.#bounds);
+    return this.#bounds.w;
   }
 
   get wrapLayerByHeightLayer(): U16 {
@@ -102,27 +106,27 @@ export class Sprite {
   }
 
   get x(): I16 {
-    return this.#bounds.start.x;
+    return this.#bounds.x;
   }
 
   get y(): I16 {
-    return this.#bounds.start.y;
+    return this.#bounds.y;
   }
 
   constructor(film: Film, layer: U8, props?: SpriteProps) {
     this.#animator = new Animator(film);
-    const flip = I16XY(
+    const flip = new I16XY(
       (props?.flip == 'X' || props?.flip == 'XY') ? -1 : 1,
       (props?.flip == 'Y' || props?.flip == 'XY') ? -1 : 1,
     );
-    this.#bounds = I16Box(
-      props?.xy?.x ?? 0,
-      props?.xy?.y ?? 0,
-      (props?.wh?.x ?? film.wh.x) * flip.x,
-      (props?.wh?.y ?? film.wh.y) * flip.y,
+    this.#bounds = new I16Box(
+      props?.xy?.x ?? props?.x ?? 0,
+      props?.xy?.y ?? props?.y ?? 0,
+      (props?.wh?.x ?? props?.w ?? film.wh.x) * flip.x,
+      (props?.wh?.y ?? props?.h ?? film.wh.y) * flip.y,
     );
     this.#wrapLayerByHeightLayer = serializeWrapLayerByHeightLayer(
-      I4XY(props?.wrap?.x ?? 0, props?.wrap?.y ?? 0),
+      new I4XY(props?.wrap?.x ?? 0, props?.wrap?.y ?? 0),
       props?.layerByHeight ?? false,
       layer,
     );
@@ -153,8 +157,8 @@ export class Sprite {
         sprite.#wrapLayerByHeightLayer,
       );
     return lhsLayer == rhsLayer
-      ? (sprite.bounds[rhsLayerByHeight ? 'start' : 'end'].y -
-        this.bounds[lhsLayerByHeight ? 'start' : 'end'].y)
+      ? (sprite.bounds[rhsLayerByHeight ? 'xy' : 'endNum'].y -
+        this.bounds[lhsLayerByHeight ? 'xy' : 'endNum'].y)
       : lhsLayer - rhsLayer;
   }
 
@@ -163,10 +167,10 @@ export class Sprite {
     return this.compareDepth(sprite) < 0;
   }
 
-  intersects(box: Readonly<Box<XY<number>, number>>, time: number): boolean;
+  intersects(box: Readonly<Box<number>>, time: number): boolean;
   intersects(xy: Readonly<XY<number>>, time: number): boolean;
   intersects(
-    xyOrBox: Readonly<Box<XY<number>, number> | XY<number>>,
+    xyOrBox: Readonly<Box<number> | XY<number>>,
     time: number,
   ): boolean {
     if (!this.intersectsBounds(<XY<number>> xyOrBox)) return false;
@@ -177,24 +181,24 @@ export class Sprite {
     const box = 'x' in xyOrBox
       ? I16Box.round(xyOrBox.x, xyOrBox.y, 0, 0)
       : I16Box.round(xyOrBox);
-    I16Box.moveBy(box, -this.x, -this.y);
-    if (!U16Box.intersects(cel.sliceBounds, box)) return false;
+    box.moveBy(-this.x, -this.y);
+    if (!cel.sliceBounds.intersects(box)) return false;
     for (const slice of cel.slices) {
-      if (U16Box.intersects(slice, box)) return true;
+      if (slice.intersects(box)) return true;
     }
     return false;
   }
 
   intersectsBounds(xy: Readonly<XY<number>>): boolean;
-  intersectsBounds(box: Readonly<NumberBox>): boolean;
+  intersectsBounds(box: Readonly<Box<number>>): boolean;
   intersectsBounds(sprite: Readonly<Sprite>): boolean;
   intersectsBounds(
-    xyOrBoxOrSprite: Readonly<XY<number> | NumberBox | Sprite>,
+    xyOrBoxOrSprite: Readonly<XY<number> | Box<number> | Sprite>,
   ): boolean {
     if ('bounds' in xyOrBoxOrSprite) {
-      return I16Box.intersects(this.bounds, xyOrBoxOrSprite.bounds);
+      return this.bounds.intersects(xyOrBoxOrSprite.bounds);
     }
-    return I16Box.intersects(this.bounds, <XY<number>> xyOrBoxOrSprite);
+    return this.bounds.intersects(xyOrBoxOrSprite);
   }
 
   intersectsSprite(sprite: Readonly<Sprite>, time: number): boolean {
@@ -205,10 +209,10 @@ export class Sprite {
       return this.intersects(sprite.bounds, time);
     }
 
-    const box = I16Box.moveBy(I16Box(cel.sliceBounds), sprite.bounds.start);
+    const box = new I16Box(cel.sliceBounds).moveBy(sprite.bounds.xy);
     if (!this.intersects(box, time)) return false;
     for (const slice of cel.slices) {
-      const box = I16Box.moveBy(I16Box(slice), sprite.bounds.start);
+      const box = new I16Box(slice).moveBy(sprite.bounds.xy);
       if (this.intersects(box, time)) return true;
     }
     return false;
@@ -216,23 +220,21 @@ export class Sprite {
 
   // to-do: flesh out the Sprite API
   moveTo(xy: Readonly<I16XY>): Sprite {
-    I16Box.moveTo(this.bounds, xy);
+    this.bounds.moveTo(xy);
     return this;
   }
 
   // This would be great as a prop setter of xy.
   moveBy(xy: Readonly<I16XY>): Sprite {
-    I16Box.moveBy(this.bounds, xy);
+    this.bounds.moveBy(xy);
     return this;
   }
 
   toString(): string {
     const wlbhl = parseWrapLayerByHeightLayer(this.#wrapLayerByHeightLayer);
-    return `Sprite {id=${this.film.id} box=${
-      I16Box.toString(this.bounds)
-    } layer=${wlbhl.layer} layerByHeight=${wlbhl.layerByHeight} wrap=${
-      I4XY.toString(wlbhl.wrap)
-    }}`;
+    return `Sprite {id=${this.film.id} box=${this.bounds.toString()} ` +
+      `layer=${wlbhl.layer} layerByHeight=${wlbhl.layerByHeight} ` +
+      `wrap=${wlbhl.wrap.toString()}}`;
   }
 }
 
@@ -244,7 +246,7 @@ function parseWrapLayerByHeightLayer(
   const layerByHeight = NumUtil.ushift(wrapLayerByHeightLayer, 7) & 1;
   const layer = U8(wrapLayerByHeightLayer & LayerMask);
   return {
-    wrap: I4XY(wrapX, wrapY),
+    wrap: new I4XY(wrapX, wrapY),
     layerByHeight: layerByHeight == LayerByHeightFlag,
     layer,
   };

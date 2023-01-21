@@ -1,5 +1,5 @@
 import { Film } from '@/atlas-pack';
-import { assert, I16, I16XY, NonNull, NumberXY, U16XY, U8 } from '@/oidlib';
+import { assert, I16, I16Box, NonNull, NumXY, U16XY, U8 } from '@/oidlib';
 import {
   Cam,
   ComponentSet,
@@ -17,16 +17,16 @@ export interface SpriteJSON {
   readonly id: string;
   readonly layer: string;
   readonly layerByHeight?: boolean;
-  readonly wh?: Partial<NumberXY>;
-  readonly wrap?: Partial<NumberXY>;
-  readonly xy?: Partial<NumberXY>;
+  readonly wh?: Partial<NumXY>;
+  readonly wrap?: Partial<NumXY>;
+  readonly xy?: Partial<NumXY>;
 }
 
 export interface FollowCamJSON {
   readonly fill?: string;
-  readonly modulo?: Partial<NumberXY>;
+  readonly modulo?: Partial<NumXY>;
   readonly orientation: string;
-  readonly pad?: Partial<NumberXY>;
+  readonly pad?: Partial<NumXY>;
 }
 
 export interface CursorFilmSetJSON {
@@ -35,8 +35,8 @@ export interface CursorFilmSetJSON {
 }
 
 export interface CamJSON {
-  readonly xy?: Partial<NumberXY>;
-  readonly minViewport: Partial<NumberXY>;
+  readonly xy?: Partial<NumXY>;
+  readonly minViewport: Partial<NumXY>;
 }
 
 export interface ComponentSetJSON {
@@ -69,12 +69,11 @@ export namespace LevelParser {
 
   export function parseCam(json: CamJSON): Cam {
     return {
-      xy: I16XY(json.xy?.x ?? 0, json.xy?.y ?? 0),
-      // Avoid possible division by zero.
-      wh: I16XY(1, 1),
-      clientViewportWH: NumberXY(1, 1),
-      nativeViewportWH: U16XY(1, 1),
-      minViewport: U16XY(json.minViewport.x ?? 1, json.minViewport?.y ?? 1),
+      // Avoid possible division by zero by specifying nonzero width and height.
+      viewport: new I16Box(json.xy?.x ?? 0, json.xy?.y ?? 0, 1, 1),
+      clientViewportWH: new NumXY(1, 1),
+      nativeViewportWH: new U16XY(1, 1),
+      minViewport: new U16XY(json.minViewport.x ?? 1, json.minViewport?.y ?? 1),
       scale: I16(1),
     };
   }

@@ -1,11 +1,11 @@
+import { I16, I16Box, NumXY, U16XY } from '@/oidlib';
 import { Viewport } from '@/void';
-import { I16, I16Box, NumberXY, U16XY } from '@/oidlib';
 import { assertEquals } from 'std/testing/asserts.ts';
 
 Deno.test('okokokokok', () => {
-  const clientViewportWH = NumberXY(162.1999969482422, 88.80000305175781);
+  const clientViewportWH = new NumXY(162.1999969482422, 88.80000305175781);
   const devicePixelRatio = 5;
-  const minViewportWH = U16XY(400, 128);
+  const minViewportWH = new U16XY(400, 128);
 
   const nativeViewportWH = Viewport.nativeViewportWH(
     { devicePixelRatio } as Window,
@@ -33,9 +33,9 @@ Deno.test('okokokokok', () => {
   assertEquals(clientCanvasWH.y, 88.8);
 
   const xy = Viewport.toLevelXY(
-    NumberXY(137.40000915527344, 48.400001525878906),
+    new NumXY(137.40000915527344, 48.400001525878906),
     clientViewportWH,
-    I16Box(0, 0, camWH.x, camWH.y),
+    new I16Box(0, 0, camWH.x, camWH.y),
   );
   assertEquals(xy.x, 343);
   assertEquals(xy.y, 120);

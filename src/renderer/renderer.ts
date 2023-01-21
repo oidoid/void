@@ -1,5 +1,5 @@
 import { Aseprite, AtlasMeta } from '@/atlas-pack';
-import { assertNonNull, Color, NonNull, U16Box, U32 } from '@/oidlib';
+import { assertNonNull, Color, NonNull, U32 } from '@/oidlib';
 import {
   Cam,
   fragmentGLSL,
@@ -106,11 +106,7 @@ export function Renderer<FilmID extends Aseprite.Tag>(
   GL.loadTexture(gl, gl.TEXTURE0, atlas);
 
   const dat = new Uint16Array(
-    atlasMeta.celBoundsByID.flatMap(
-      (
-        box,
-      ) => [box.start.x, box.start.y, U16Box.width(box), U16Box.height(box)],
-    ),
+    atlasMeta.celBoundsByID.flatMap((box) => [box.x, box.y, box.w, box.h]),
   );
 
   GL.loadDataTexture(
@@ -175,7 +171,7 @@ export namespace Renderer {
   export function resize(self: Renderer, cam: Readonly<Cam>): void {
     // Always <= native. These are level pixels.
     // Always >= native. These are physical pixels.
-    const nativeCanvasWH = Viewport.nativeCanvasWH(cam.wh, cam.scale);
+    const nativeCanvasWH = Viewport.nativeCanvasWH(cam.viewport.wh, cam.scale);
 
     if (
       self.gl.canvas.width != nativeCanvasWH.x ||
@@ -187,7 +183,7 @@ export namespace Renderer {
       self.gl.viewport(0, 0, nativeCanvasWH.x, nativeCanvasWH.y);
 
       console.debug(
-        `Canvas resized to ${nativeCanvasWH.x}×${nativeCanvasWH.y} native pixels with ${cam.wh.x}×${cam.wh.y} cam (level pixels) at a ${cam.scale}x scale.`,
+        `Canvas resized to ${nativeCanvasWH.x}×${nativeCanvasWH.y} native pixels with ${cam.viewport.w}×${cam.viewport.h} cam (level pixels) at a ${cam.scale}x scale.`,
       );
     }
 
@@ -211,7 +207,7 @@ export namespace Renderer {
         self.gl.canvas.style.height = `${clientWH.y}px`;
         console.debug(
           `Canvas styled to ${self.gl.canvas.style.width}×${self.gl.canvas.style.height} ` +
-            `for ${devicePixelRatio}x pixel ratio.`,
+            `for ${devicePixelRatio}× pixel ratio.`,
         );
       }
     }
@@ -229,13 +225,13 @@ export namespace Renderer {
     // Convert the pixels to clipspace by taking them as a fraction of the cam
     // resolution, scaling to 0-2, flipping the y-coordinate so that positive y
     // is downward, and translating to -1 to 1 and again by the camera position.
-    const { w, h } = { w: 2 / cam.wh.x, h: 2 / cam.wh.y };
+    const { w, h } = { w: 2 / cam.viewport.w, h: 2 / cam.viewport.h };
     // deno-fmt-ignore
     return [
-      w,  0, 0, -1 - cam.xy.x * w,
-      0, -h, 0,  1 + cam.xy.y * h,
-      0,  0, 1,                 0,
-      0,  0, 0,                 1
+      w,  0, 0, -1 - cam.viewport.x * w,
+      0, -h, 0,  1 + cam.viewport.y * h,
+      0,  0, 1,                       0,
+      0,  0, 0,                       1
     ]
   }
 }

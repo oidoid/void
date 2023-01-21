@@ -1,10 +1,10 @@
-import { Immutable, NumberXY } from '@/oidlib';
+import { Immutable, XY } from '@/oidlib';
 
 export type FollowCamConfig = {
   readonly fill?: FollowCamFill | undefined;
-  readonly modulo?: Partial<NumberXY> | undefined;
+  readonly modulo?: Partial<XY<number>> | undefined;
   readonly orientation: FollowCamConfig.Orientation;
-  readonly pad?: Partial<NumberXY> | undefined;
+  readonly pad?: Partial<XY<number>> | undefined;
 };
 
 export type FollowCamFill = Parameters<typeof FollowCamFill.values['has']>[0];

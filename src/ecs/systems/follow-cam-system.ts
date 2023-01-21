@@ -1,4 +1,4 @@
-import { I16, I16Box, I16XY, Immutable } from '@/oidlib';
+import { I16, I16XY, Immutable } from '@/oidlib';
 import { Cam, ECSUpdate, FollowCamConfig, Sprite, System } from '@/void';
 
 export interface FollowCamSet {
@@ -13,22 +13,20 @@ export const FollowCamSystem: System<FollowCamSet> = Immutable({
 
 function updateEnt(set: FollowCamSet, update: ECSUpdate): void {
   const { followCam, sprite } = set;
-  const pad = I16XY(followCam.pad?.x ?? 0, followCam.pad?.y ?? 0);
-  I16Box.sizeTo(
-    sprite.bounds,
+  const pad = new I16XY(followCam.pad?.x ?? 0, followCam.pad?.y ?? 0);
+  sprite.bounds.sizeTo(
     I16(
       followCam.fill == 'X' || followCam.fill == 'XY'
-        ? (update.cam.wh.x - pad.x * 2)
+        ? (update.cam.viewport.w - pad.x * 2)
         : sprite.w,
     ),
     I16(
       followCam.fill == 'Y' || followCam.fill == 'XY'
-        ? (update.cam.wh.y - pad.y * 2)
+        ? (update.cam.viewport.h - pad.y * 2)
         : sprite.h,
     ),
   );
-  I16Box.moveTo(
-    sprite.bounds,
+  sprite.bounds.moveTo(
     computeX(sprite, update.cam, followCam),
     computeY(sprite, update.cam, followCam),
   );
@@ -39,10 +37,10 @@ function computeX(
   cam: Readonly<Cam>,
   component: Readonly<FollowCamConfig>,
 ): I16 {
-  const camW = cam.wh.x;
+  const camW = cam.viewport.w;
   const spriteW = Math.abs(sprite.w);
   const padW = component.pad?.x ?? 0;
-  let x = cam.xy.x;
+  let x = cam.viewport.x;
   switch (component.orientation) {
     case 'Southwest':
     case 'West':
@@ -69,10 +67,10 @@ function computeY(
   cam: Readonly<Cam>,
   component: Readonly<FollowCamConfig>,
 ): I16 {
-  const camH = cam.wh.y;
+  const camH = cam.viewport.h;
   const spriteH = Math.abs(sprite.h);
   const padH = component.pad?.y ?? 0;
-  let y = cam.xy.y;
+  let y = cam.viewport.y;
   switch (component.orientation) {
     case 'North':
     case 'Northeast':
