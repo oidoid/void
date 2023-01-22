@@ -1,7 +1,6 @@
 import { I16, I16Box, I16XY, Str, Uint } from '@/oidlib';
 import { Font } from '@/void';
 
-// todo: any opportunity for collaboration with sprite_layout?
 export interface TextLayout {
   /** The length of this array matches the string length. */
   chars: (Readonly<I16Box> | undefined)[];
