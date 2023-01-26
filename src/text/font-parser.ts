@@ -1,7 +1,7 @@
-import { Immutable } from '@/oidlib';
-import { Font } from '@/void';
-import { FontMeta } from '@/mem';
-import { mapValues } from 'std/collections/map_values.ts';
+import { Immutable } from '@/oidlib'
+import { Font } from '@/void'
+import { FontMeta } from '@/mem'
+import { mapValues } from 'std/collections/map_values.ts'
 
 export namespace FontParser {
   export function parse<T extends number>(
@@ -22,6 +22,6 @@ export namespace FontParser {
       endOfLineKerning: cast(meta.endOfLineKerning),
       charWidth: mapValues(meta.charWidth, cast),
       defaultCharWidth: cast(meta.defaultCharWidth),
-    });
+    })
   }
 }

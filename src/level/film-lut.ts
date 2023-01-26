@@ -1,7 +1,7 @@
-import { Film } from '@/atlas-pack';
-import { U8 } from '@/oidlib';
+import { Film } from '@/atlas-pack'
+import { U8 } from '@/oidlib'
 
 export interface FilmLUT {
-  readonly filmByID: Readonly<{ [id: string]: Film }>;
-  readonly layerByID: Readonly<{ [id: string]: U8 }>;
+  readonly filmByID: Readonly<{ [id: string]: Film }>
+  readonly layerByID: Readonly<{ [id: string]: U8 }>
 }

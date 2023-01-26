@@ -1,9 +1,9 @@
-import { memProp5x5 } from '@/mem';
-import { I16, I16Box, I16XY, Uint } from '@/oidlib';
-import { Font, FontParser, TextLayout } from '@/void';
-import { assertEquals } from 'std/testing/asserts.ts';
+import { memProp5x5 } from '@/mem'
+import { I16, I16Box, I16XY, Uint } from '@/oidlib'
+import { Font, FontParser, TextLayout } from '@/void'
+import { assertEquals } from 'std/testing/asserts.ts'
 
-const font: Font = FontParser.parse(memProp5x5, I16);
+const font: Font = FontParser.parse(memProp5x5, I16)
 Deno.test('layout()', async (test) => {
   for (
     const [caseNumber, [string, width, expected]] of ([
@@ -167,9 +167,9 @@ Deno.test('layout()', async (test) => {
       assertEquals(
         TextLayout.layout(font, string, I16(width), new I16XY(1, 1)),
         expected as unknown,
-      ));
+      ))
   }
-});
+})
 
 Deno.test('layout_word()', async (test) => {
   for (
@@ -630,6 +630,6 @@ Deno.test('layout_word()', async (test) => {
           new I16XY(1, 1),
         ),
         expected as unknown,
-      ));
+      ))
   }
-});
+})

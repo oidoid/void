@@ -1,11 +1,11 @@
-import { I16, I16Box, I16XY, Str, Uint } from '@/oidlib';
-import { Font } from '@/void';
+import { I16, I16Box, I16XY, Str, Uint } from '@/oidlib'
+import { Font } from '@/void'
 
 export interface TextLayout {
   /** The length of this array matches the string length. */
-  chars: (Readonly<I16Box> | undefined)[];
+  chars: (Readonly<I16Box> | undefined)[]
   /** The offset in pixels. todo: should this be passed in? */
-  cursor: Readonly<I16XY>;
+  cursor: Readonly<I16XY>
 }
 
 export namespace TextLayout {
@@ -16,15 +16,15 @@ export namespace TextLayout {
     width: I16,
     scale: Readonly<I16XY>,
   ): TextLayout {
-    const chars = [];
-    let cursor = new I16XY(0, 0);
-    let i = 0;
+    const chars = []
+    let cursor = new I16XY(0, 0)
+    let i = 0
     for (;;) {
-      const char = str[i];
-      if (char == null) break;
+      const char = str[i]
+      if (char == null) break
 
-      let layout;
-      if (char == '\n') layout = layoutNewline(font, cursor, scale);
+      let layout
+      if (char == '\n') layout = layoutNewline(font, cursor, scale)
       else if (Str.isBlank(char)) {
         layout = layoutSpace(
           font,
@@ -32,28 +32,28 @@ export namespace TextLayout {
           width,
           tracking(font, char, scale, str[i + 1]),
           scale,
-        );
+        )
       } else {
-        layout = layoutWord(font, cursor, width, str, Uint(i), scale);
+        layout = layoutWord(font, cursor, width, str, Uint(i), scale)
         if (
           cursor.x != 0 &&
           layout.cursor.y == nextLine(font, cursor.y, scale).y
         ) {
-          const word_width = width - cursor.x + layout.cursor.x;
+          const word_width = width - cursor.x + layout.cursor.x
           if (word_width <= width) {
             // Word can fit on one line if cursor is reset to the start of the
             // line.
-            cursor = nextLine(font, cursor.y, scale);
-            layout = layoutWord(font, cursor, width, str, Uint(i), scale);
+            cursor = nextLine(font, cursor.y, scale)
+            layout = layoutWord(font, cursor, width, str, Uint(i), scale)
           }
         }
       }
-      i += layout.chars.length;
-      chars.push(...layout.chars);
-      cursor.x = layout.cursor.x;
-      cursor.y = layout.cursor.y;
+      i += layout.chars.length
+      chars.push(...layout.chars)
+      cursor.x = layout.cursor.x
+      cursor.y = layout.cursor.y
     }
-    return { chars, cursor };
+    return { chars, cursor }
   }
 
   /**
@@ -68,37 +68,37 @@ export namespace TextLayout {
     index: Uint,
     scale: Readonly<I16XY>,
   ): TextLayout {
-    const chars = [];
-    let x = cursor.x;
-    let y = cursor.y;
+    const chars = []
+    let x = cursor.x
+    let y = cursor.y
     for (;;) {
-      const char = word[index];
-      if (char == null || Str.isBlank(char)) break;
+      const char = word[index]
+      if (char == null || Str.isBlank(char)) break
 
-      const span = tracking(font, char, scale, word[index + 1]);
+      const span = tracking(font, char, scale, word[index + 1])
       if (x != 0 && (x + span) > width) {
-        const xy = nextLine(font, y, scale);
-        x = xy.x;
-        y = xy.y;
+        const xy = nextLine(font, y, scale)
+        x = xy.x
+        y = xy.y
       }
       // Width is not span since, with kerning, that may exceed the actual
       // width of the character's sprite. For example, if w has the maximal
       // character width of five pixels and a one pixel kerning for a given pair
       // of characters, it will have a span of six pixels which is greater than
       // the maximal five pixel sprite that can be rendered.
-      const w = scale.x * Font.charWidth(font, char);
-      const h = scale.y * font.cellHeight;
-      chars.push(I16Box.round(x, y, w, h));
-      x = I16.round(x + span);
+      const w = scale.x * Font.charWidth(font, char)
+      const h = scale.y * font.cellHeight
+      chars.push(I16Box.round(x, y, w, h))
+      x = I16.round(x + span)
 
-      index++;
+      index++
     }
-    return { chars, cursor: new I16XY(x, y) };
+    return { chars, cursor: new I16XY(x, y) }
   }
 }
 
 function nextLine(font: Font, y: I16, scale: Readonly<I16XY>): I16XY {
-  return I16XY.round(0, y + scale.y * font.lineHeight);
+  return I16XY.round(0, y + scale.y * font.lineHeight)
 }
 
 /** @arg cursor The cursor offset in pixels. */
@@ -107,7 +107,7 @@ function layoutNewline(
   { y }: Readonly<I16XY>,
   scale: Readonly<I16XY>,
 ): TextLayout {
-  return { chars: [undefined], cursor: nextLine(font, y, scale) };
+  return { chars: [undefined], cursor: nextLine(font, y, scale) }
 }
 
 /**
@@ -125,8 +125,8 @@ function layoutSpace(
 ): TextLayout {
   const cursor = (x != 0 && (x + span) >= width)
     ? nextLine(font, y, scale)
-    : I16XY.round(x + span, y);
-  return { chars: [undefined], cursor };
+    : I16XY.round(x + span, y)
+  return { chars: [undefined], cursor }
 }
 
 /** Returns the distance in pixels from the start of lhs to the start of rhs. */
@@ -138,5 +138,5 @@ function tracking(
 ): I16 {
   return I16.round(
     scale.x * (Font.charWidth(font, lhs) + Font.kerning(font, lhs, rhs)),
-  );
+  )
 }

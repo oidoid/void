@@ -1,49 +1,49 @@
-import { I16XY } from '@/oidlib';
+import { I16XY } from '@/oidlib'
 import {
   Cam,
   GamepadPoller,
   KeyboardPoller,
   PointerPoller,
   PointerType,
-} from '@/void';
+} from '@/void'
 
 export class InputPoller {
-  readonly #gamepad: GamepadPoller = new GamepadPoller();
-  readonly #keyboard: KeyboardPoller = new KeyboardPoller();
-  readonly #pointer: PointerPoller;
+  readonly #gamepad: GamepadPoller = new GamepadPoller()
+  readonly #keyboard: KeyboardPoller = new KeyboardPoller()
+  readonly #pointer: PointerPoller
 
   get pointerType(): PointerType | undefined {
-    return this.#pointer.pointerType;
+    return this.#pointer.pointerType
   }
 
   get sample(): bigint {
-    return this.#gamepad.sample | this.#keyboard.sample | this.#pointer.sample;
+    return this.#gamepad.sample | this.#keyboard.sample | this.#pointer.sample
   }
 
   get xy(): Readonly<I16XY> | undefined {
-    return this.#pointer.xy;
+    return this.#pointer.xy
   }
 
   constructor(cam: Readonly<Cam>) {
-    this.#pointer = new PointerPoller(cam);
+    this.#pointer = new PointerPoller(cam)
   }
 
   preupdate(): void {
-    this.#gamepad.preupdate();
+    this.#gamepad.preupdate()
   }
 
   postupdate(): void {
-    this.#pointer.postupdate();
+    this.#pointer.postupdate()
   }
 
   register(op: 'add' | 'remove'): void {
-    this.#keyboard.register(op);
-    this.#pointer.register(op);
+    this.#keyboard.register(op)
+    this.#pointer.register(op)
   }
 
   reset(): void {
-    this.#gamepad.reset();
-    this.#keyboard.reset();
-    this.#pointer.reset();
+    this.#gamepad.reset()
+    this.#keyboard.reset()
+    this.#pointer.reset()
   }
 }

@@ -1,6 +1,6 @@
-import { Immutable } from '@/oidlib';
+import { Immutable } from '@/oidlib'
 
-export type Button = Parameters<typeof Button.values['has']>[0];
+export type Button = Parameters<typeof Button.values['has']>[0]
 
 export namespace Button {
   export const values = Immutable(
@@ -19,16 +19,16 @@ export namespace Button {
         'ScaleDecrease',
       ] as const,
     ),
-  );
+  )
 
   export function fromBits(bits: bigint): Button[] {
     return [...Button.values].filter((button) =>
       (bits & Button.Bit[button]) == Button.Bit[button]
-    );
+    )
   }
 
   export function toBits(...buttons: readonly Button[]): bigint {
-    return buttons.reduce((sum, button) => sum | Button.Bit[button], 0n);
+    return buttons.reduce((sum, button) => sum | Button.Bit[button], 0n)
   }
 
   // No relationship to PointerButton.toBit.
@@ -47,9 +47,9 @@ export namespace Button {
       ScaleIncrease:    0b010_0000_0000n,
       ScaleDecrease:    0b100_0000_0000n,
     } as const,
-  ) satisfies Record<Button, bigint>;
+  ) satisfies Record<Button, bigint>
 
   export const InvertBit: Partial<Record<Button, bigint>> = Immutable(
     { Left: Bit.Right, Right: Bit.Left, Up: Bit.Down, Down: Bit.Up },
-  );
+  )
 }

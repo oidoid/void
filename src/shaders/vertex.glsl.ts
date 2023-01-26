@@ -70,6 +70,6 @@ void main() {
   vSourceXYWH = vec4(sourceXYWH);
 
   vWrapXY= ivec2((iWrapLayerByHeightLayer >> 12)& 0xfu, (iWrapLayerByHeightLayer >> 8)& 0xfu);
-}`;
+}`
 
-import { GL } from '@/void';
+import { GL } from '@/void'

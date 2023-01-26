@@ -32,6 +32,6 @@ void main() {
   vec2 px = sourceXY + mod(vTargetWH - vec2(vWrapXY), sourceWH);
   frag = texture(uAtlas, px / vec2(uAtlasSize));
   if(frag.a < 1.) discard;
-}`;
+}`
 
-import { GL } from '@/void';
+import { GL } from '@/void'
