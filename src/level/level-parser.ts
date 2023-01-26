@@ -1,5 +1,5 @@
 import { Film } from '@/atlas-pack';
-import { assert, I16, I16Box, NonNull, NumXY, U16XY, U8 } from '@/oidlib';
+import { assert, I16, I16Box, NonNull, NumXY, U16XY, U8, XY } from '@/oidlib';
 import {
   Cam,
   ComponentSet,
@@ -17,16 +17,20 @@ export interface SpriteJSON {
   readonly id: string;
   readonly layer: string;
   readonly layerByHeight?: boolean;
-  readonly wh?: Partial<NumXY>;
-  readonly wrap?: Partial<NumXY>;
-  readonly xy?: Partial<NumXY>;
+  readonly wh?: Partial<XY<number>>;
+  readonly wrap?: Partial<XY<number>>;
+  readonly xy?: Partial<XY<number>>;
+  readonly x?: number | undefined;
+  readonly y?: number | undefined;
+  readonly w?: number | undefined;
+  readonly h?: number | undefined;
 }
 
 export interface FollowCamJSON {
   readonly fill?: string;
-  readonly modulo?: Partial<NumXY>;
+  readonly modulo?: Partial<XY<number>>;
   readonly orientation: string;
-  readonly pad?: Partial<NumXY>;
+  readonly pad?: Partial<XY<number>>;
 }
 
 export interface CursorFilmSetJSON {
@@ -35,8 +39,8 @@ export interface CursorFilmSetJSON {
 }
 
 export interface CamJSON {
-  readonly xy?: Partial<NumXY>;
-  readonly minViewport: Partial<NumXY>;
+  readonly xy?: Partial<XY<number>>;
+  readonly minViewport: Partial<XY<number>>;
 }
 
 export interface ComponentSetJSON {
@@ -108,6 +112,10 @@ export namespace LevelParser {
       wh: json.wh,
       wrap: json.wrap,
       xy: json.xy,
+      x: json.x,
+      y: json.y,
+      w: json.w,
+      h: json.h,
       layerByHeight: json.layerByHeight,
     };
     return new Sprite(film, layer, props);

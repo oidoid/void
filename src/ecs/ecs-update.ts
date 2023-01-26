@@ -1,3 +1,4 @@
+import { Random } from '@/oidlib';
 import { Cam, Input, InstanceBuffer, RendererStateMachine } from '@/void';
 
 export interface ECSUpdate {
@@ -13,4 +14,5 @@ export interface ECSUpdate {
   readonly instanceBuffer: InstanceBuffer;
   readonly rendererStateMachine: RendererStateMachine;
   pickHandled?: boolean;
+  random: Random;
 }

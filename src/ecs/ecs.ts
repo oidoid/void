@@ -68,7 +68,10 @@ export namespace ECS {
     self.pending.push({ type: 'AddComponents', ent, components });
   }
 
-  export function addEnt<T>(self: ECS<T>, ...components: readonly T[]): void {
+  export function addEnt<T>(
+    self: ECS<T>,
+    ...components: readonly T[] //[T, ...T[]]
+  ): void {
     for (const map of components) {
       self.pending.push({ type: 'AddEnt', components: map });
     }

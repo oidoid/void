@@ -21,13 +21,13 @@ export interface SpriteProps {
    * Ents that are repositioned by other systems like FollowCam don't care.
    */
   readonly xy?: Partial<XY<number>> | undefined;
-  x?: number;
-  y?: number;
+  x?: number | undefined;
+  y?: number | undefined;
 
   /** The dimensions of the sprite. Defaults to animation size. */
   readonly wh?: Partial<XY<number>> | undefined;
-  w?: number;
-  h?: number;
+  w?: number | undefined;
+  h?: number | undefined;
 
   /**
    * How to resolve render order for sprites on same layer. When false (the
@@ -178,9 +178,9 @@ export class Sprite {
     const cel = this.cel(time);
     if (cel.slices.length == 0) return true; // No slices.
 
-    const box = 'x' in xyOrBox
-      ? I16Box.round(xyOrBox.x, xyOrBox.y, 0, 0)
-      : I16Box.round(xyOrBox);
+    const box = 'w' in xyOrBox
+      ? I16Box.round(xyOrBox)
+      : I16Box.round(xyOrBox.x, xyOrBox.y, 0, 0);
     box.moveBy(-this.x, -this.y);
     if (!cel.sliceBounds.intersects(box)) return false;
     for (const slice of cel.slices) {
