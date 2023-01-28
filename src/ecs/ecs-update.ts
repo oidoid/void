@@ -1,7 +1,9 @@
+import { Aseprite, FilmByID } from '@/atlas-pack'
 import { Random } from '@/oidlib'
 import { Cam, Input, InstanceBuffer, RendererStateMachine } from '@/void'
 
-export interface ECSUpdate {
+export interface ECSUpdate<FilmID extends Aseprite.Tag = string> {
+  readonly filmByID: FilmByID<FilmID>
   readonly input: Readonly<Input>
   /** The running age in milliseconds. */
   readonly time: number

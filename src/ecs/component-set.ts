@@ -1,9 +1,22 @@
-import { Cam, CursorFilmSet, FollowCamConfig, Sprite } from '@/void'
+import {
+  CamSet,
+  CursorSet,
+  FollowCamSet,
+  FollowPointSet,
+  FPSSet,
+  RenderSet,
+  Sprite,
+  TextSet,
+} from '@/void'
 
-export interface ComponentSet {
-  cam: Cam
-  cursor: CursorFilmSet
-  followCam: FollowCamConfig
-  followPoint: Record<never, never>
+export interface ComponentSet
+  extends
+    CursorSet,
+    FollowCamSet,
+    CamSet,
+    FPSSet,
+    TextSet,
+    FollowPointSet,
+    RenderSet {
   sprites: [Sprite, ...Sprite[]]
 }

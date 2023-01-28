@@ -165,7 +165,7 @@ Deno.test('layout()', async (test) => {
   ) {
     await test.step(`Case ${caseNumber}: string="${string}" width=${width}.`, () =>
       assertEquals(
-        TextLayout.layout(font, string, I16(width), new I16XY(1, 1)),
+        TextLayout.layout(font, string, I16(width)),
         expected as unknown,
       ))
   }
@@ -621,14 +621,7 @@ Deno.test('layout_word()', async (test) => {
   ) {
     await test.step(`Case ${caseNumber}: xy=${xy.toString()}, width=${width}, string="${string}", index=${index}.`, () =>
       assertEquals(
-        TextLayout.layoutWord(
-          font,
-          xy,
-          I16(width),
-          string,
-          Uint(index),
-          new I16XY(1, 1),
-        ),
+        TextLayout.layoutWord(font, xy, I16(width), string, Uint(index)),
         expected as unknown,
       ))
   }

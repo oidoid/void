@@ -1,3 +1,4 @@
+import { Aseprite } from '@/atlas-pack'
 import { FontMeta } from '@/mem'
 import { I16, Str } from '@/oidlib'
 
@@ -7,6 +8,15 @@ export interface Font<T extends number = I16> extends FontMeta<T> {
 }
 
 export namespace Font {
+  export function charToFilmID<FilmID extends Aseprite.Tag>(
+    self: Font,
+    char: string,
+  ): FilmID {
+    let pt = char.codePointAt(0)
+    if (pt == null || pt > 0xff) pt = 63 // ?
+    return `${self.id}-${pt.toString(16)}` as FilmID
+  }
+
   /** @arg rhs Undefined means end of line. */
   export function kerning(
     self: Font,

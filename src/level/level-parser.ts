@@ -1,5 +1,17 @@
 import { Film } from '@/atlas-pack'
-import { assert, I16, I16Box, NonNull, NumXY, U16XY, U8, XY } from '@/oidlib'
+import {
+  assert,
+  assertNonNull,
+  BoxJSON,
+  I16,
+  I16Box,
+  NonNull,
+  NumXY,
+  U16XY,
+  U8,
+  Uint,
+  XY,
+} from '@/oidlib'
 import {
   Cam,
   ComponentSet,
@@ -7,9 +19,12 @@ import {
   FilmLUT,
   FollowCamConfig,
   FollowCamFill,
+  Font,
+  Layer,
   Sprite,
   SpriteFlip,
   SpriteProps,
+  Text,
 } from '@/void'
 
 export interface SpriteJSON {
@@ -49,11 +64,18 @@ export interface ComponentSetJSON {
   readonly followCam?: FollowCamJSON
   readonly followPoint?: Record<never, never>
   readonly sprites?: SpriteJSON[]
+  readonly text?: TextJSON
+}
+
+export interface TextJSON extends BoxJSON {
+  layer?: number
+  str?: string
 }
 
 export namespace LevelParser {
   export function parseComponent(
     lut: FilmLUT,
+    font: Font | undefined,
     key: string,
     val: unknown,
   ): ComponentSet[keyof ComponentSetJSON] | undefined {
@@ -66,9 +88,26 @@ export namespace LevelParser {
         return parseFollowCam(val as FollowCamJSON)
       case 'followPoint':
         return {}
+      case 'fps':
+        return {
+          prev: 0,
+          next: { created: performance.now(), frames: Uint(0) },
+        }
       case 'sprites':
         return (val as SpriteJSON[]).map((v) => parseSprite(lut, v))
+      case 'text':
+        assertNonNull(font, 'Missing font for text component.')
+        return parseText(font, val as TextJSON)
     }
+  }
+
+  export function parseText(font: Font, json: TextJSON): Text {
+    return new Text(
+      I16Box.fromJSON(json),
+      font,
+      U8(json.layer ?? Layer.Top),
+      json.str ?? '',
+    )
   }
 
   export function parseCam(json: CamJSON): Cam {

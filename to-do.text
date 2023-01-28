@@ -4,14 +4,10 @@ Make the ECS API a class. This should be something like new, add, query, update.
 Document system update order for ECS. It's the order they're added.
 Review ECS.get(). This has a lot of typing but is only used internally.
 Can I get rid of second template param to SPUpdate?
-Add text support.
-Add Sprite grouping support. How should this work?
 Add UI components like buttons and forms.
 LevelParser should accept raw x, y, w, and h properties instead of requiring xy and wh. Level config can get smaller with xy and box config changes.
 Add support for input order to ECS. I think this has to be update order but also have notion of handling.
-Only render sprites that are on screen.
 Implement 9-patch https://en.wikipedia.org/wiki/9-slice_scaling. Is this a single sprite with 9 areas or 9 sprites? I think the former sounds simpler but will probably still require a shader transform.
 Implement autotile/automap
 Make it installable; https://web.dev/codelab-make-installable/ https://web.dev/learn/pwa/
-Add input profiler debug pane; FPS meter, avg, min, max, now.
-
+Add input profiler debug pane; avg, min, max, now.
