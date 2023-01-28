@@ -5,5 +5,5 @@ export interface ComponentSet {
   cursor: CursorFilmSet
   followCam: FollowCamConfig
   followPoint: Record<never, never>
-  sprite: Sprite
+  sprites: [Sprite, ...Sprite[]]
 }

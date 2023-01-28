@@ -48,7 +48,7 @@ export interface ComponentSetJSON {
   readonly cursor?: CursorFilmSetJSON
   readonly followCam?: FollowCamJSON
   readonly followPoint?: Record<never, never>
-  readonly sprite?: SpriteJSON
+  readonly sprites?: SpriteJSON[]
 }
 
 export namespace LevelParser {
@@ -66,8 +66,8 @@ export namespace LevelParser {
         return parseFollowCam(val as FollowCamJSON)
       case 'followPoint':
         return {}
-      case 'sprite':
-        return parseSprite(lut, val as SpriteJSON)
+      case 'sprites':
+        return (val as SpriteJSON[]).map((v) => parseSprite(lut, v))
     }
   }
 

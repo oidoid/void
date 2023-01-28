@@ -5,10 +5,7 @@ export interface ECSUpdate {
   readonly input: Readonly<Input>
   /** The running age in milliseconds. */
   readonly time: number
-  /**
-   * The exact duration in milliseconds to apply each update step. Any number
-   * of updates may occur per animation frame.
-   */
+  /** The exact duration in milliseconds to apply on a given update step. */
   readonly tick: number
   readonly cam: Readonly<Cam>
   readonly instanceBuffer: InstanceBuffer

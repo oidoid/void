@@ -3,16 +3,16 @@ import { ECSUpdate, Layer, Sprite, System } from '@/void'
 
 export interface FollowPointSet {
   readonly followPoint: Record<never, never>
-  readonly sprite: Sprite
+  readonly sprites: [Sprite, ...Sprite[]]
 }
 
 export const FollowPointSystem: System<FollowPointSet> = Immutable({
-  query: new Set(['followPoint', 'sprite']),
+  query: new Set(['followPoint', 'sprites']),
   updateEnt,
 })
 
 function updateEnt(set: FollowPointSet, update: ECSUpdate): void {
-  const { sprite } = set
+  const { sprites: [sprite] } = set
 
   if (update.input.xy != null) {
     sprite.moveTo(update.input.xy)

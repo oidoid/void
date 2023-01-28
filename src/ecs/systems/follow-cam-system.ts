@@ -3,16 +3,16 @@ import { Cam, ECSUpdate, FollowCamConfig, Sprite, System } from '@/void'
 
 export interface FollowCamSet {
   readonly followCam: FollowCamConfig
-  readonly sprite: Sprite
+  readonly sprites: [Sprite, ...Sprite[]]
 }
 
 export const FollowCamSystem: System<FollowCamSet> = Immutable({
-  query: new Set(['followCam', 'sprite']),
+  query: new Set(['followCam', 'sprites']),
   updateEnt,
 })
 
 function updateEnt(set: FollowCamSet, update: ECSUpdate): void {
-  const { followCam, sprite } = set
+  const { followCam, sprites: [sprite] } = set
   const pad = new I16XY(followCam.pad?.x ?? 0, followCam.pad?.y ?? 0)
   sprite.bounds.sizeTo(
     I16(
