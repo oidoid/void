@@ -13,5 +13,5 @@ export interface ECSUpdate<FilmID extends Aseprite.Tag = string> {
   readonly instanceBuffer: InstanceBuffer
   readonly rendererStateMachine: RendererStateMachine
   pickHandled?: boolean
-  random: Random
+  readonly random: Random
 }
