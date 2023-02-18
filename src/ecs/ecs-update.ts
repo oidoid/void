@@ -1,5 +1,4 @@
 import { Aseprite, FilmByID } from '@/atlas-pack'
-import { Random } from '@/oidlib'
 import { Cam, Input, InstanceBuffer, RendererStateMachine } from '@/void'
 
 export interface ECSUpdate<FilmID extends Aseprite.Tag = string> {
@@ -13,5 +12,5 @@ export interface ECSUpdate<FilmID extends Aseprite.Tag = string> {
   readonly instanceBuffer: InstanceBuffer
   readonly rendererStateMachine: RendererStateMachine
   pickHandled?: boolean
-  readonly random: Random
+  readonly random: () => number
 }
