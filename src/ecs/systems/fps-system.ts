@@ -1,21 +1,20 @@
 import { Uint } from '@/oidlib'
-import { ECSUpdate, FPS, System, Text } from '@/void'
+import { FPS, QueryToEnt, System, Text } from '@/void'
 
-export interface FPSSet {
-  fps: FPS
-  text: Text
-}
+export type FPSEnt = QueryToEnt<{ fps: FPS; text: Text }, typeof query>
 
-export class FPSSystem implements System<FPSSet, ECSUpdate> {
-  query = new Set(['fps', 'text'] as const)
+const query = 'fps & text'
 
-  updateEnt(set: FPSSet): void {
+export class FPSSystem implements System<FPSEnt> {
+  readonly query = query
+
+  runEnt(ent: FPSEnt): void {
     const now = performance.now()
-    if ((now - set.fps.next.created) >= 1000) {
-      set.fps.prev = set.fps.next.frames
-      set.fps.next = { created: now, frames: Uint(0) }
+    if ((now - ent.fps.next.created) >= 1000) {
+      ent.fps.prev = ent.fps.next.frames
+      ent.fps.next = { created: now, frames: Uint(0) }
     }
-    set.fps.next.frames = Uint(set.fps.next.frames + 1)
-    set.text.str = set.fps.prev.toString().padStart(3, '0')
+    ent.fps.next.frames = Uint(ent.fps.next.frames + 1)
+    ent.text.str = ent.fps.prev.toString().padStart(3, '0')
   }
 }

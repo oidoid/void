@@ -85,6 +85,10 @@ export class Sprite {
     return this.#bounds.h
   }
 
+  get layer(): U8 {
+    return parseWrapLayerByHeightLayer(this.#wrapLayerByHeightLayer).layer
+  }
+
   set layer(layer: U8) {
     const { wrap, layerByHeight } = parseWrapLayerByHeightLayer(
       this.#wrapLayerByHeightLayer,

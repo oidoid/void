@@ -1,39 +1,39 @@
-import { I16, I16XY, Immutable } from '@/oidlib'
-import { ECSUpdate, Layer, Sprite, System } from '@/void'
+import { I16, I16XY } from '@/oidlib'
+import { Layer, QueryToEnt, RunState, Sprite, System } from '@/void'
 
-export interface FollowPointSet {
-  readonly followPoint: Record<never, never>
-  readonly sprites: [Sprite, ...Sprite[]]
-}
+export type FollowPointEnt = QueryToEnt<
+  { followPoint: Record<never, never>; sprite: Sprite },
+  typeof query
+>
 
-export const FollowPointSystem: System<FollowPointSet> = Immutable({
-  query: new Set(['followPoint', 'sprites']),
-  updateEnt,
-})
+const query = 'followPoint & sprite'
 
-function updateEnt(set: FollowPointSet, update: ECSUpdate): void {
-  const { sprites: [sprite] } = set
+export class FollowPointSystem implements System<FollowPointEnt> {
+  readonly query = query
+  runEnt(ent: FollowPointEnt, state: RunState<FollowPointEnt>): void {
+    const { sprite } = ent
 
-  if (update.input.xy != null) {
-    sprite.moveTo(update.input.xy)
-    setCursorLayer(sprite, update)
-  } else {
-    // to-do: limit to screen area.
-    const speed = I16.trunc(Math.max(1, update.tick / 4))
-    if (update.input.isOn('Left')) sprite.moveBy(new I16XY(-speed, 0)) // to-do: support XYArgs here.
-    if (update.input.isOn('Right')) sprite.moveBy(new I16XY(speed, 0))
-    if (update.input.isOn('Up')) sprite.moveBy(new I16XY(0, -speed))
-    if (update.input.isOn('Down')) sprite.moveBy(new I16XY(0, speed))
-    if (update.input.isAnyOn('Left', 'Right', 'Up', 'Down')) {
-      setCursorLayer(sprite, update)
+    if (state.input.xy != null) {
+      sprite.moveTo(state.input.xy)
+      setCursorLayer(sprite, state)
+    } else {
+      // to-do: limit to screen area.
+      const speed = I16.trunc(Math.max(1, state.tick / 4))
+      if (state.input.isOn('Left')) sprite.moveBy(new I16XY(-speed, 0)) // to-do: support XYArgs here.
+      if (state.input.isOn('Right')) sprite.moveBy(new I16XY(speed, 0))
+      if (state.input.isOn('Up')) sprite.moveBy(new I16XY(0, -speed))
+      if (state.input.isOn('Down')) sprite.moveBy(new I16XY(0, speed))
+      if (state.input.isAnyOn('Left', 'Right', 'Up', 'Down')) {
+        setCursorLayer(sprite, state)
+      }
     }
   }
 }
 
-function setCursorLayer(sprite: Sprite, update: Readonly<ECSUpdate>): void {
-  if (update.input.pointerType == null || update.input.pointerType == 'Mouse') {
+function setCursorLayer(sprite: Sprite, state: RunState<FollowPointEnt>): void {
+  if (state.input.pointerType == null || state.input.pointerType == 'Mouse') {
     sprite.layer = Layer.Cursor
   } else if (
-    update.input.pointerType == 'Pen' || update.input.pointerType == 'Touch'
+    state.input.pointerType == 'Pen' || state.input.pointerType == 'Touch'
   ) sprite.layer = Layer.Bottom
 }

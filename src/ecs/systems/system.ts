@@ -1,15 +1,18 @@
-import { ECSUpdate } from '@/void'
+import { RunState } from '@/void'
 
-export interface System<T, Update extends ECSUpdate = ECSUpdate> {
-  /** These are the keys populated in each set. */
-  readonly query: Set<keyof T>
+export interface System<PartialEnt, Ent extends PartialEnt = PartialEnt> {
   /**
-   * If specified, returns true if this update should be skipped (for
-   * performance).
+   * Where query is `[!]<key>[ <& or |><query>]`. Eg, `'a & b | !a & c'`. No
+   * grouping is permitted. The empty string applies to all ents and is
+   * discouraged.
    */
-  skip?(update: Update): boolean
-  /** If specified, called once for all matching ents. */
-  update?(sets: Set<T>, update: Update): void
-  /** If specified and update() is not, called for each matching ent. */
-  updateEnt?(set: T, update: Update): void
+  readonly query: string
+  run?(
+    ents: ReadonlySet<Readonly<PartialEnt & Partial<Ent>>>,
+    state: RunState<Partial<Ent>>,
+  ): void
+  runEnt?(
+    ent: Readonly<PartialEnt & Partial<Ent>>,
+    state: RunState<Partial<Ent>>,
+  ): void
 }

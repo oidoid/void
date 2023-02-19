@@ -14,7 +14,6 @@ import {
 } from '@/oidlib'
 import {
   Cam,
-  ComponentSet,
   CursorFilmSet,
   FilmLUT,
   FollowCamConfig,
@@ -25,6 +24,7 @@ import {
   SpriteFlip,
   SpriteProps,
   Text,
+  VoidEnt,
 } from '@/void'
 
 export interface SpriteJSON {
@@ -58,11 +58,13 @@ export interface CamJSON {
   readonly minViewport: Partial<XY<number>>
 }
 
-export interface ComponentSetJSON {
+export interface VoidEntJSON {
   readonly cam?: CamJSON
   readonly cursor?: CursorFilmSetJSON
   readonly followCam?: FollowCamJSON
   readonly followPoint?: Record<never, never>
+  readonly fps?: Record<never, never>
+  readonly sprite?: SpriteJSON
   readonly sprites?: SpriteJSON[]
   readonly text?: TextJSON
 }
@@ -78,7 +80,7 @@ export namespace LevelParser {
     font: Font | undefined,
     key: string,
     val: unknown,
-  ): ComponentSet[keyof ComponentSetJSON] | undefined {
+  ): VoidEnt[keyof VoidEntJSON] | undefined {
     switch (key) { // to-do: fail when missing types.
       case 'cam':
         return parseCam(val as CamJSON)
@@ -93,6 +95,8 @@ export namespace LevelParser {
           prev: 0,
           next: { created: performance.now(), frames: Uint(0) },
         }
+      case 'sprite':
+        return parseSprite(lut, val as SpriteJSON)
       case 'sprites':
         return (val as SpriteJSON[]).map((v) => parseSprite(lut, v))
       case 'text':

@@ -1,15 +1,18 @@
 Now
-  Make the ECS API a class. This should be something like new, add, query, update.
-  Review ECS.get(). This has a lot of typing but is only used internally.
-  Document system update order for ECS. It's the order they're added.
   Add support for input order to ECS. I think this has to be update order but also have notion of handling.
+  How to do system-to-system communication for a given ent?
 
+Explore adding isOnScreen with a BSP tree implementation.
 Rework layers and bitmasks at the num level. Explore mul / div by 2 ** power for shifting and masking the lower 31/32 bits.
 Sprite should wrap all the APIs of its constituent pieces like `isIntersecting(XY|Box|Sprite)` and `cel()` (get cel for rendering).
-Can I get rid of second template param to SPUpdate?
 Add UI components like buttons and forms.
-LevelParser should accept raw x, y, w, and h properties instead of requiring xy and wh. Level config can get smaller with xy and box config changes.
 Implement 9-patch https://en.wikipedia.org/wiki/9-slice_scaling. Is this a single sprite with 9 areas or 9 sprites? I think the former sounds simpler but will probably still require a shader transform.
-Implement autotile/automap
+Implement autotile/automap.
 Make it installable; https://web.dev/codelab-make-installable/ https://web.dev/learn/pwa/
 Add input profiler debug pane; avg, min, max, now.
+Explore a more compact sprite representation on the GPU.
+  Right now, we specify target XYWH. This is nice for conceptualizing.
+    To not specify XY, we have to assume instance position corresponds to screen position. This kind of only works for exact grid alignment like background tiles, not character sprites that might be in-between tiles.
+    To not specify WH, we can use the source CelID today no issues for 1:1 sprites. For scaled sprites, we need a few magic bits like 8**(bit) (would I ever use a small number?). This is only needed for backgrounds.
+  There's not a nice way to zap a full screen of background tiles in a minimum of bytes. It'd be nice if we treated static background resources differently so they occupied a single ent named GiantBitmap in ECS. It's a giant 2D array. If I limit the number of possible CelIDs possible for background tiles, I could put them in nibbles and really pack it tight maybe. Maybe the first couple bytes specify the region so you don't have to fill the entire screen.
+Not really sure how to group the background with the FPS meter. Text needs to be able to blow away at that full array on text change to get rid of any old character sprites. It doesn't know there is other stuff in there.

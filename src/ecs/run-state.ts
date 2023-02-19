@@ -1,7 +1,8 @@
 import { Aseprite, FilmByID } from '@/atlas-pack'
-import { Cam, Input, InstanceBuffer, RendererStateMachine } from '@/void'
+import { Cam, ECS, Input, InstanceBuffer, RendererStateMachine } from '@/void'
 
-export interface ECSUpdate<FilmID extends Aseprite.Tag = string> {
+export interface RunState<T, FilmID extends Aseprite.Tag = string> {
+  readonly ecs: ECS<T>
   readonly filmByID: FilmByID<FilmID>
   readonly input: Readonly<Input>
   /** The running age in milliseconds. */
@@ -12,5 +13,5 @@ export interface ECSUpdate<FilmID extends Aseprite.Tag = string> {
   readonly instanceBuffer: InstanceBuffer
   readonly rendererStateMachine: RendererStateMachine
   pickHandled?: boolean
-  readonly random: () => number
+  random(): number
 }

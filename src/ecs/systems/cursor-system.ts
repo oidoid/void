@@ -1,19 +1,21 @@
-import { CursorFilmSet, ECSUpdate, Sprite, System } from '@/void'
+import { CursorFilmSet, QueryToEnt, RunState, Sprite, System } from '@/void'
 
-export interface CursorSet {
-  readonly cursor: CursorFilmSet
-  readonly sprites: [Sprite, ...Sprite[]]
-}
+export type CursorEnt = QueryToEnt<
+  { cursor: CursorFilmSet; sprite: Sprite },
+  typeof query
+>
 
-export class CursorSystem implements System<CursorSet> {
-  readonly query = new Set(['cursor', 'sprites'] as const)
+const query = 'cursor & sprite'
 
-  updateEnt(set: CursorSet, update: ECSUpdate): void {
-    const { cursor, sprites: [sprite] } = set
-    if (update.input.isOnStart('Action')) {
-      sprite.animate(update.time, cursor.pick)
-    } else if (update.input.isOffStart('Action')) {
-      sprite.animate(update.time, cursor.point)
+export class CursorSystem implements System<CursorEnt> {
+  readonly query = query
+
+  runEnt(ent: CursorEnt, state: RunState<CursorEnt>): void {
+    const { cursor, sprite } = ent
+    if (state.input.isOnStart('Action')) {
+      sprite.animate(state.time, cursor.pick)
+    } else if (state.input.isOffStart('Action')) {
+      sprite.animate(state.time, cursor.point)
     }
   }
 }

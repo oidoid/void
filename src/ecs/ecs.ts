@@ -1,246 +1,212 @@
-import { assertNonNull, NonNull } from '@/oidlib'
-import { ECSUpdate, Ent, System } from '@/void'
+import { Exact } from '@/oidlib'
+import {
+  parseUnpackedQuery,
+  QueryToEnt,
+  RunState,
+  System,
+  UnpackedQuery,
+} from '@/void'
 
-export interface ECS<T, Update extends ECSUpdate = ECSUpdate> {
-  factory: Ent
-  readonly systems: Set<System<T, Update>>
-  readonly entsBySystem: Map<System<T, Update>, Set<Ent>> // process in order
-  readonly componentsByRef: Map<T[keyof T], T> // to-do: no
-  readonly componentsByEnt: Map<Ent, Partial<T>>
-  readonly systemsByEnt: Map<Ent, Set<System<T, Update>>>
-  readonly pending: Command<T>[]
-}
-
-type Command<T> =
-  | AddComponentsCommand<T>
-  | AddEntCommand<T>
-  | RemoveComponentsCommand<T>
-  | RemoveEntCommand
-
-interface AddComponentsCommand<T> {
-  readonly type: 'AddComponents'
-  readonly ent: Ent
-  readonly components: T
-}
-
-interface AddEntCommand<T> {
-  readonly type: 'AddEnt'
-  readonly components: T
-}
-
-interface RemoveComponentsCommand<T> {
-  readonly type: 'RemoveComponents'
-  readonly ent: Ent
-  readonly components: ReadonlySet<keyof T>
-}
-
-interface RemoveEntCommand {
-  readonly type: 'RemoveEnt'
-  readonly ent: Ent
-}
-
-// Map a tuple of types to a tuple of optional components.
-type TypeToComponentArray<T, Tuple> = Tuple extends [infer Type, ...infer Rest]
-  ? Type extends keyof T ? [T[Type], ...TypeToComponentArray<T, Rest>]
-  : never
+// Map a tuple of partial ents to an exact tuple of partial ents.
+type PartialEntsToExact<Ent, Tuple> = Tuple extends
+  [infer PartialEnt, ...infer Rest]
+  ? [Exact<Partial<Ent>, PartialEnt>, ...PartialEntsToExact<Ent, Rest>]
   : []
 
-export function ECS<T, Update extends ECSUpdate = ECSUpdate>(
-  systems: Set<System<T, Update>>,
-): ECS<T> {
-  return {
-    factory: Ent(0),
-    systems,
-    entsBySystem: new Map([...systems].map((system) => [system, new Set()])),
-    componentsByEnt: new Map(),
-    componentsByRef: new Map(),
-    systemsByEnt: new Map(),
-    pending: [],
-  }
-}
+export class ECS<Ent> {
+  /** May be sparse. */
+  readonly #systemsByOrder: System<Partial<Ent>, Ent>[] = []
+  readonly #ents: Set<Partial<Ent>> = new Set()
+  readonly #entsByQuery: { [query: string]: Set<Partial<Ent>> } = {}
+  readonly #entsByComponent: Map<Ent[keyof Ent], Partial<Ent>> = new Map()
 
-export namespace ECS {
-  export function addComponents<T>(
-    self: ECS<T>,
-    ent: Ent,
-    components: T,
-  ): void {
-    self.pending.push({ type: 'AddComponents', ent, components })
-  }
+  /**
+   * The transition-to state. Editing existing components occurs synchronously
+   * but adding, removing, or replacing components, or adding or deleting an
+   * ent, doesn't occur until all systems run.
+   *
+   * The next state is conceptually a diff aggregated across all system runs
+   * with the following invariants:
+   *
+   *   {}                 → No change (eg, add).
+   *   {[key]: val}       → Add or replace component at key.
+   *   {[key]: undefined} → Remove component at key.
+   *   undefined          → Remove ent.
+   *
+   * Surprising behavior may occur due to the transition delay such as:
+   *
+   * - Adding and then removing a component removes the old component.
+   * - Replacing a component causes any subsequent edits on the old component to
+   *   be lost.
+   * - Accessing a component always retrieves the copy present at run start
+   *   even if it was later replaced or removed.
+   *
+   * The synchronous read / asynchronous write approach allows easy reads and
+   * stable components states for full runs. It's possible to allow systems to
+   * take full ownerships of ents (e.g., `delete ent.key`) but they still have
+   * to invalidate the Ent with the ECS after doing so which is both more code
+   * and easy to forget. This also requires looser typing on the components a
+   * system expects; the type must both allow entrance into the system and for
+   * the key to be deletable.
+   */
+  readonly #patchesByEnt: Map<
+    Partial<Ent>,
+    Partial<Ent> | Partial<Record<keyof Ent, undefined>> | undefined
+  > = new Map()
+  readonly #queriesByStr: { [queryStr: string]: UnpackedQuery<Ent> } = {}
 
-  export function addEnt<T>(
-    self: ECS<T>,
-    ...components: readonly T[] //[T, ...T[]]
-  ): void {
-    for (const map of components) {
-      self.pending.push({ type: 'AddEnt', components: map })
-    }
-  }
-
-  export function query<T>(self: ECS<T>, ...types: (keyof T)[]): T[] {
-    const sets = []
-    for (const set of self.componentsByEnt.values()) {
-      if (types.every((type) => type in set)) sets.push(<Required<T>> set)
-    }
-    return sets
-  }
-
-  export function get<T, Type extends keyof T>(
-    self: ECS<T>,
-    ent: Ent,
-    type: Type,
-  ): NonNullable<T[Type]>
-  export function get<T, Types extends readonly (keyof T)[]>(
-    self: ECS<T>,
-    ent: Ent,
-    ...types: Types
-  ): TypeToComponentArray<T, Types>
-  export function get<T, Types extends readonly (keyof T)[]>(
-    self: ECS<T>,
-    ent: Ent,
-    ...types: Types
-  ): NonNullable<T[Types[0]]> | TypeToComponentArray<T, Types> {
-    const components = []
-    for (const type of types) {
-      const component = self.componentsByEnt.get(ent)?.[type]
-      assertNonNull(component, `Ent ${ent} missing ${String(type)} component.`)
-      components.push(component)
-    }
-    return types.length == 1
-      ? components[0] as NonNullable<T[Types[0]]>
-      : (components as TypeToComponentArray<T, Types>)
+  /** Enqueue ents. */
+  addEnt<PartialEnt>(ent: Exact<Partial<Ent>, PartialEnt>): PartialEnt
+  addEnt<Tuple>(...ents: Tuple & PartialEntsToExact<Ent, Tuple>): Tuple
+  addEnt(...ents: Partial<Ent>[]): Partial<Ent>[]
+  addEnt(...ents: Partial<Ent>[]): Partial<Ent> | Partial<Ent>[] {
+    for (const ent of ents) this.#patchesByEnt.set(ent, ent) // bit of a hack
+    return ents.length == 1 ? ents[0]! : ents
   }
 
-  export function flush<T extends Record<never, never>>(self: ECS<T>): void {
-    for (const cmd of self.pending) execCmd<T>(cmd, self)
-    self.pending.length = 0
+  addSystem<T>(system: T & System<Partial<Ent>, Ent>): T
+  addSystem<Tuple>(...systems: Tuple & System<Partial<Ent>, Ent>[]): Tuple
+  addSystem(
+    ...systems: System<Partial<Ent>, Ent>[]
+  ): System<Partial<Ent>, Ent>[]
+  addSystem(
+    ...systems: System<Partial<Ent>, Ent>[]
+  ): System<Partial<Ent>, Ent> | System<Partial<Ent>, Ent>[] {
+    for (const system of systems) this.insertSystem(-0, system)
+    return systems.length == 1 ? systems[0]! : systems
   }
 
-  export function removeEnt<T>(self: ECS<T>, ent: Ent): void {
-    self.pending.push({ type: 'RemoveEnt', ent })
+  /**
+   * Splice system at index where order:
+   *
+   *   -2 → two before the last system.
+   *   -1 → one before the last system.
+   *   -0 → the last system.
+   *    0 → the first system.
+   *    1 → the second system.
+   *    1 → the third system.
+   *
+   * Order does not need to be contiguous. Inserting at an existing index
+   * splices before the existing element.
+   *
+   * Effect is immediate.
+   */
+  insertSystem<T>(order: number, system: T & System<Partial<Ent>, Ent>): T {
+    this.#systemsByOrder.splice(
+      Object.is(order, -0) ? this.#systemsByOrder.length : order,
+      0,
+      system,
+    )
+    if (system.query in this.#entsByQuery) return system
+    this.#queriesByStr[system.query] = parseUnpackedQuery(system.query)
+    this.#entsByQuery[system.query] = new Set(
+      this.query(system.query as `${keyof Ent & string}`),
+    ) as Set<Partial<Ent>>
+    return system
   }
 
-  export function removeComponents<T>(
-    self: ECS<T>,
-    ent: Ent,
-    components: ReadonlySet<keyof T>,
-  ): void {
-    self.pending.push({ type: 'RemoveComponents', ent, components })
-  }
-
-  export function update<
-    T extends Record<never, never>,
-    Update extends ECSUpdate,
-  >(
-    self: ECS<T>,
-    update: Update,
-  ): void {
-    for (const [system, ents] of self.entsBySystem.entries()) {
-      if (system.skip?.(update)) continue
-      const sets = new Set(
-        [...ents].map((ent) => getEntComponents(self, ent)) as unknown as T[],
-      )
-
-      if (system.update != null) system.update(sets, update)
-      else for (const set of sets) system.updateEnt?.(set, update)
-    }
-    flush(self)
-  }
-}
-
-function execCmd<T extends Record<never, never>>(
-  cmd: Command<T>,
-  self: ECS<T>,
-): void {
-  switch (cmd.type) {
-    case 'AddComponents': {
-      addComponents(self, cmd.ent, cmd.components)
-      break
-    }
-    case 'AddEnt': {
-      self.factory = Ent(self.factory + 1)
-      const ent = self.factory
-      self.componentsByEnt.set(ent, {})
-      self.systemsByEnt.set(ent, new Set())
-      addComponents(self, ent, cmd.components)
-      break
-    }
-    case 'RemoveComponents':
-      removeComponents(self, cmd.ent, cmd.components)
-      break
-    case 'RemoveEnt': {
-      self.componentsByEnt.delete(cmd.ent)
-      const systems = getEntSystems(self, cmd.ent)
-      self.systemsByEnt.delete(cmd.ent)
-      for (const system of systems) {
-        self.entsBySystem.get(system)?.delete(cmd.ent)
+  /**
+   * Called by ECS after run. May also be used at initialization, before or
+   * after a run, between system runs, or even between ent loops but not
+   * mid-iteration.
+   */
+  patch(): void {
+    for (const [ent, patch] of this.#patchesByEnt.entries()) {
+      if (patch == null) this.#removeEntImmediately(ent)
+      else {
+        this.#ents.add(ent)
+        this.#patchEnt(ent, patch)
+        this.#invalidateSystemEnts(ent)
       }
-      break
+      this.#patchesByEnt.delete(ent)
     }
   }
-}
 
-// add or replace components.
-function addComponents<T extends Record<never, never>>(
-  self: ECS<T>,
-  ent: Ent,
-  components: T,
-): void {
-  const entComponents = getEntComponents(self, ent)
-  if (entComponents == null) return
-  for (const [type, component] of Object.entries(components)) {
-    self.componentsByRef.delete(entComponents[type as keyof T]!)
-    entComponents[type as keyof T] = component as T[keyof T]
-    self.componentsByRef.set(component as T[keyof T], entComponents as T)
+  /** Uncached query. */
+  query<Q extends `${keyof Ent & string}${string}`>(
+    query: Q,
+  ): QueryToEnt<Ent, Q>[] {
+    const ents = []
+    const queryObj = this.#queriesByStr[query] ?? parseUnpackedQuery(query)
+    for (const ent of this.#ents) {
+      if (this.#queryEnt(ent, queryObj)) ents.push(ent)
+    }
+    return ents as QueryToEnt<Ent, Q>[]
   }
-  invalidateEntSystems(self, ent)
-}
 
-function removeComponents<T>(
-  self: ECS<T>,
-  ent: Ent,
-  components: ReadonlySet<keyof T>,
-): void {
-  const entComponents = getEntComponents(self, ent)
-  for (const component of components) {
-    const ref = entComponents[component]
-    delete entComponents[component]
-    self.componentsByRef.delete(ref!)
+  get(component: Ent[keyof Ent] & Record<never, never>): Partial<Ent> {
+    return this.#entsByComponent.get(component) ?? {}
   }
-  invalidateEntSystems(self, ent)
-}
 
-function getEntComponents<T>(self: ECS<T>, ent: Ent): Partial<T> {
-  return NonNull(
-    self.componentsByEnt.get(ent),
-    `Ent ${ent} missing in ECS.componentsByEnt.`,
-  )
-}
-
-function hasEntComponents<T>(
-  self: ECS<T>,
-  ent: Ent,
-  query: ReadonlySet<keyof T>,
-): boolean {
-  const components = getEntComponents(self, ent)
-  return [...query].every((type) => type in components)
-}
-
-function invalidateEntSystems<T>(self: ECS<T>, ent: Ent): void {
-  const systems = new Set<System<T>>()
-  for (const [system, ents] of self.entsBySystem) {
-    const add = hasEntComponents(self, ent, system.query)
-    ents[add ? 'add' : 'delete'](ent)
-    if (add) systems.add(system)
+  run(state: RunState<Partial<Ent>>): void {
+    for (const system of this.#systemsByOrder) {
+      const ents = this.#systemEnts(system)
+      system.run?.(ents, state)
+      if (system.runEnt != null) {
+        for (const ent of ents) system.runEnt(ent, state)
+      }
+    }
+    this.patch()
   }
-  const entSystems = getEntSystems(self, ent)
-  entSystems.clear()
-  for (const system of systems) entSystems.add(system)
-}
 
-function getEntSystems<T>(self: ECS<T>, ent: Ent): Set<System<T>> {
-  return NonNull(
-    self.systemsByEnt.get(ent),
-    `Ent ${ent} missing in ECS.systemsByEnt.`,
-  )
+  /** Enqueue components for removal. */
+  removeKeys(ent: Partial<Ent>, ...keys: readonly (keyof Ent)[]): void {
+    const patch = keys.reduce((sum, key) => ({ ...sum, [key]: undefined }), {})
+    this.#patchesByEnt.set(ent, patch)
+  }
+
+  /** Enqueue an ent for removal. */
+  removeEnt(ent: Partial<Ent>): void {
+    this.#patchesByEnt.set(ent, undefined)
+  }
+
+  /** Replace or remove components. */
+  setEnt(
+    ent: Partial<Ent>,
+    patch: Partial<Ent> | Partial<Record<keyof Ent, undefined>>,
+  ): void {
+    this.#patchesByEnt.set(ent, patch)
+  }
+
+  #invalidateSystemEnts(ent: Partial<Ent>): void {
+    for (const [query, ents] of Object.entries(this.#entsByQuery)) {
+      if (this.#queryEnt(ent, this.#queriesByStr[query]!)) ents.add(ent)
+      else ents.delete(ent)
+    }
+  }
+
+  /** Test whether an ent matches query. */
+  #queryEnt(ent: Partial<Ent>, query: UnpackedQuery<Ent>): boolean {
+    return query.some((keys) =>
+      [...keys].every((key) =>
+        key[0] == '!' ? !(key.slice(1) in ent) : key in ent
+      )
+    )
+  }
+
+  /** Remove all references to an ent. */
+  #removeEntImmediately(ent: Partial<Ent>): void {
+    for (const ents of Object.values(this.#entsByQuery)) ents.delete(ent)
+    for (const key in ent) this.#entsByComponent.delete(ent[key]!)
+    this.#ents.delete(ent)
+  }
+
+  /** Get all ents matching system. */
+  #systemEnts(system: System<Partial<Ent>, Ent>): ReadonlySet<Ent> {
+    return this.#entsByQuery[system.query] as ReadonlySet<
+      unknown
+    > as ReadonlySet<Ent>
+  }
+
+  #patchEnt(ent: Partial<Ent>, patch: Partial<Ent>): void {
+    for (const key in patch) {
+      if (patch[key] == null) {
+        this.#entsByComponent.delete(ent[key]!)
+        delete ent[key]
+      } else {
+        ent[key] = patch[key]
+        this.#entsByComponent.set(ent[key]!, ent)
+      }
+    }
+  }
 }
