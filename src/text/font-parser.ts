@@ -1,4 +1,4 @@
-import { Immutable } from '@/oidlib'
+import { Immutable } from '@/ooz'
 import { Font } from '@/void'
 import { FontMeta } from '@/mem'
 import { mapValues } from 'std/collections/map_values.ts'

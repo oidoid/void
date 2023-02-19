@@ -1,4 +1,4 @@
-import { Immutable, XY } from '@/oidlib'
+import { Immutable, XY } from '@/ooz'
 
 export type FollowCamConfig = {
   readonly fill?: FollowCamFill | undefined

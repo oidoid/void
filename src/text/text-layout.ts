@@ -1,4 +1,4 @@
-import { I16, I16Box, I16XY, Str, Uint } from '@/oidlib'
+import { I16, I16Box, I16XY, Str, Uint } from '@/ooz'
 import { Font } from '@/void'
 
 export interface TextLayout {

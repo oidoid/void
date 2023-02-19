@@ -1,4 +1,4 @@
-import { JSONValue } from '@/oidlib'
+import { JSONValue } from '@/ooz'
 
 export namespace JSONStorage {
   export function clear(storage: Storage): void {

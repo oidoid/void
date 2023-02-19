@@ -1,5 +1,5 @@
 import { Film } from '@/atlas-pack'
-import { U8 } from '@/oidlib'
+import { U8 } from '@/ooz'
 
 export interface FilmLUT {
   readonly filmByID: Readonly<{ [id: string]: Film }>

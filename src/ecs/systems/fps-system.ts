@@ -1,4 +1,4 @@
-import { Uint } from '@/oidlib'
+import { Uint } from '@/ooz'
 import { FPS, QueryToEnt, System, Text } from '@/void'
 
 export type FPSEnt = QueryToEnt<{ fps: FPS; text: Text }, typeof query>

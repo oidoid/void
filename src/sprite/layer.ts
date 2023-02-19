@@ -1,4 +1,4 @@
-import { Immutable, Inverse, U16, U8 } from '@/oidlib'
+import { Immutable, Inverse, U16, U8 } from '@/ooz'
 
 /**
  * The render order.

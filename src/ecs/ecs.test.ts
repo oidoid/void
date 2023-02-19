@@ -1,4 +1,4 @@
-import { Int, NumXY, U8XY } from '@/oidlib'
+import { Int, NumXY, U8XY } from '@/ooz'
 import { ECS, parseUnpackedQuery, System } from '@/void'
 import { assertEquals } from 'std/testing/asserts.ts'
 import { RunState } from './run-state.ts'

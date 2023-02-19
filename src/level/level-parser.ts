@@ -11,7 +11,7 @@ import {
   U8,
   Uint,
   XY,
-} from '@/oidlib'
+} from '@/ooz'
 import {
   Cam,
   CursorFilmSet,

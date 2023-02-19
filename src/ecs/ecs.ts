@@ -1,4 +1,4 @@
-import { Exact } from '@/oidlib'
+import { Exact } from '@/ooz'
 import {
   parseUnpackedQuery,
   QueryToEnt,

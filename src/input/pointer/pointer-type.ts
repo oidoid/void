@@ -1,4 +1,4 @@
-import { Immutable, Str } from '@/oidlib'
+import { Immutable, Str } from '@/ooz'
 
 export type PointerType = Parameters<typeof PointerType.values['has']>[0]
 

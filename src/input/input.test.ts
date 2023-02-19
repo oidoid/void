@@ -1,4 +1,4 @@
-import { I16, I16Box, NumXY, U16XY } from '@/oidlib'
+import { I16, I16Box, NumXY, U16XY } from '@/ooz'
 import { Button, Cam, Input } from '@/void'
 import { assertEquals } from 'std/testing/asserts.ts'
 

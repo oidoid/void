@@ -1,4 +1,4 @@
-import { I4XY, U4Box } from '@/oidlib'
+import { I4XY, U4Box } from '@/ooz'
 import { QueryToEnt } from '@/void'
 
 interface BoxesEnt {

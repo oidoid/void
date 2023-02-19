@@ -11,7 +11,7 @@ import {
   U16,
   U8,
   XY,
-} from '@/oidlib'
+} from '@/ooz'
 import { LayerByHeightFlag, LayerMask } from '@/void'
 
 export interface SpriteProps {

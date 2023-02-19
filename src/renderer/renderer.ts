@@ -1,5 +1,5 @@
 import { Aseprite, AtlasMeta } from '@/atlas-pack'
-import { assertNonNull, Color, NonNull, U32 } from '@/oidlib'
+import { assertNonNull, Color, NonNull, U32 } from '@/ooz'
 import {
   Cam,
   fragmentGLSL,

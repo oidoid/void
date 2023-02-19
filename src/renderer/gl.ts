@@ -1,4 +1,4 @@
-import { assertNonNull, NonNull } from '@/oidlib'
+import { assertNonNull, NonNull } from '@/ooz'
 import { ShaderLayout } from '@/void'
 
 declare global {

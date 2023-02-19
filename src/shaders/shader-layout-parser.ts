@@ -1,4 +1,4 @@
-import { assert, Immutable, NumUtil } from '@/oidlib'
+import { assert, Immutable, NumUtil } from '@/ooz'
 import { ShaderLayout, ShaderLayoutConfig } from '@/void'
 
 export type GLDataTypeSize = typeof GLDataTypeSize[keyof typeof GLDataTypeSize]

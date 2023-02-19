@@ -1,4 +1,4 @@
-import { I16 } from '@/oidlib'
+import { I16 } from '@/ooz'
 import { Cam, QueryToEnt, System, Viewport } from '@/void'
 
 export type CamEnt = QueryToEnt<{ cam: Cam }, typeof query>

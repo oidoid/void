@@ -1,4 +1,4 @@
-import { I16, I16XY } from '@/oidlib'
+import { I16, I16XY } from '@/ooz'
 import { Layer, QueryToEnt, RunState, Sprite, System } from '@/void'
 
 export type FollowPointEnt = QueryToEnt<

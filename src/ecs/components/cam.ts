@@ -1,4 +1,4 @@
-import { I16, I16Box, NumXY, U16XY } from '@/oidlib'
+import { I16, I16Box, NumXY, U16XY } from '@/ooz'
 
 export interface Cam {
   readonly clientViewportWH: NumXY

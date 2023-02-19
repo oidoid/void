@@ -1,4 +1,4 @@
-import { I16, I16Box, I16XY, NumXY, U16XY } from '@/oidlib'
+import { I16, I16Box, I16XY, NumXY, U16XY } from '@/ooz'
 
 export namespace Viewport {
   /** @return The maximum scale possible. what to multiply level px's by to get native pixels */

@@ -1,1 +1,1 @@
-include ../oidlib/rules.make
+include ../ooz/rules.make

@@ -1,4 +1,4 @@
-import { JSONObject } from '@/oidlib'
+import { JSONObject } from '@/ooz'
 
 export namespace JSONLoader {
   export async function load(source: string): Promise<JSONObject> {

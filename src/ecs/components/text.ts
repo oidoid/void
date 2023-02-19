@@ -1,5 +1,5 @@
 import { Aseprite, FilmByID } from '@/atlas-pack'
-import { I16, I16Box, U8 } from '@/oidlib'
+import { I16, I16Box, U8 } from '@/ooz'
 import { Font, Sprite, TextLayout } from '@/void'
 
 export class Text {

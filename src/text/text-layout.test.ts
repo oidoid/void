@@ -1,5 +1,5 @@
 import { memProp5x5 } from '@/mem'
-import { I16, I16Box, I16XY, Uint } from '@/oidlib'
+import { I16, I16Box, I16XY, Uint } from '@/ooz'
 import { Font, FontParser, TextLayout } from '@/void'
 import { assertEquals } from 'std/testing/asserts.ts'
 

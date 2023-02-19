@@ -1,4 +1,4 @@
-import { I16XY } from '@/oidlib'
+import { I16XY } from '@/ooz'
 import { Button, Cam, InputPoller, PointerType } from '@/void'
 
 export class Input {

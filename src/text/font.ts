@@ -1,6 +1,6 @@
 import { Aseprite } from '@/atlas-pack'
 import { FontMeta } from '@/mem'
-import { I16, Str } from '@/oidlib'
+import { I16, Str } from '@/ooz'
 
 export interface Font<T extends number = I16> extends FontMeta<T> {
   /** `cellHeight + leading`. */

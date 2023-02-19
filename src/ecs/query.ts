@@ -1,4 +1,4 @@
-import { Str } from '@/oidlib'
+import { Str } from '@/ooz'
 
 /** Map query string to the subset of T specified by Query and a Partial<T>. */
 export type QueryToEnt<T, Query> = Readonly<

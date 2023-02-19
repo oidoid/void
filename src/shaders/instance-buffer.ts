@@ -1,4 +1,4 @@
-import { Uint } from '@/oidlib'
+import { Uint } from '@/ooz'
 import { ShaderLayout, Sprite } from '@/void'
 
 const littleEndian: boolean = new Int8Array(new Int16Array([1]).buffer)[0] == 1

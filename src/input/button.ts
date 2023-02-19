@@ -1,4 +1,4 @@
-import { Immutable } from '@/oidlib'
+import { Immutable } from '@/ooz'
 
 export type Button = Parameters<typeof Button.values['has']>[0]
 
