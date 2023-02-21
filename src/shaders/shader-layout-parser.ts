@@ -1,7 +1,7 @@
 import { assert, Immutable, NumUtil } from '@/ooz'
 import { ShaderLayout, ShaderLayoutConfig } from '@/void'
 
-export type GLDataTypeSize = typeof GLDataTypeSize[keyof typeof GLDataTypeSize]
+export type GLDataTypeSize = keyof typeof GLDataTypeSize
 export const GLDataTypeSize = Immutable(
   {
     BYTE: 1,
