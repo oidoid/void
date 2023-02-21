@@ -151,7 +151,12 @@ export class ECS<Ent> {
 
   /** Enqueue components for removal. */
   removeKeys(ent: Partial<Ent>, ...keys: readonly (keyof Ent)[]): void {
-    const patch = keys.reduce((sum, key) => ({ ...sum, [key]: undefined }), {})
+    if (keys.length == 0) return
+    const patch: Partial<Ent> | undefined = this.#patchesByEnt.has(ent)
+      ? this.#patchesByEnt.get(ent)
+      : {}
+    if (patch == null) return // Deleted.
+    for (const key of keys) patch[key] = undefined
     this.#patchesByEnt.set(ent, patch)
   }
 
@@ -160,12 +165,17 @@ export class ECS<Ent> {
     this.#patchesByEnt.set(ent, undefined)
   }
 
+  // to-do: this is a bit confusing since it only impacts keys specified.
   /** Replace or remove components. */
   setEnt(
     ent: Partial<Ent>,
     patch: Partial<Ent> | Partial<Record<keyof Ent, undefined>>,
   ): void {
-    this.#patchesByEnt.set(ent, patch)
+    const pending: Partial<Ent> | undefined = this.#patchesByEnt.has(ent)
+      ? this.#patchesByEnt.get(ent)
+      : {}
+    if (pending == null) return // Deleted.
+    this.#patchesByEnt.set(ent, { ...pending, patch })
   }
 
   #invalidateSystemEnts(ent: Partial<Ent>): void {
