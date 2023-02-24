@@ -8,6 +8,7 @@ import {
   I4XY,
   Immutable,
   NumUtil,
+  NumXY,
   U16,
   U8,
   XY,
@@ -21,13 +22,13 @@ export interface SpriteProps {
    * Ents that are repositioned by other systems like FollowCam don't care.
    */
   readonly xy?: Partial<XY<number>> | undefined
-  x?: number | undefined
-  y?: number | undefined
+  readonly x?: number | undefined
+  readonly y?: number | undefined
 
   /** The dimensions of the sprite. Defaults to animation size. */
   readonly wh?: Partial<XY<number>> | undefined
-  w?: number | undefined
-  h?: number | undefined
+  readonly w?: number | undefined
+  readonly h?: number | undefined
 
   /**
    * How to resolve render order for sprites on same layer. When false (the
@@ -63,7 +64,6 @@ interface WrapLayerByHeightLayer {
   readonly layer: U8
 }
 
-// to-do: i almost want this to extend Box. so many functions i want to expose wihtout have to drill into bounds
 /** A renderable animation. */
 export class Sprite {
   #animator: Animator
@@ -71,51 +71,6 @@ export class Sprite {
   // animator collision detection is not wrap aware
   // 4b signed x wrap, 4b signed y wrap, 1b layer by start, 7b layer
   #wrapLayerByHeightLayer: U16
-
-  get bounds(): I16Box {
-    return this.#bounds
-  }
-
-  get film(): Film {
-    return this.#animator.film
-  }
-
-  /** Height (negative when flipped). */
-  get h(): I16 {
-    return this.#bounds.h
-  }
-
-  get layer(): U8 {
-    return parseWrapLayerByHeightLayer(this.#wrapLayerByHeightLayer).layer
-  }
-
-  set layer(layer: U8) {
-    const { wrap, layerByHeight } = parseWrapLayerByHeightLayer(
-      this.#wrapLayerByHeightLayer,
-    )
-    this.#wrapLayerByHeightLayer = serializeWrapLayerByHeightLayer(
-      wrap,
-      layerByHeight,
-      layer,
-    )
-  }
-
-  /** Width (negative when flipped). */
-  get w(): I16 {
-    return this.#bounds.w
-  }
-
-  get wrapLayerByHeightLayer(): U16 {
-    return this.#wrapLayerByHeightLayer
-  }
-
-  get x(): I16 {
-    return this.#bounds.x
-  }
-
-  get y(): I16 {
-    return this.#bounds.y
-  }
 
   constructor(film: Film, layer: U8, props?: SpriteProps) {
     this.#animator = new Animator(film)
@@ -144,14 +99,56 @@ export class Sprite {
     this.#animator.reset(start, film)
   }
 
+  /** Width (w) × height (h) (may be negative if flipped). */
+  get area(): I16 {
+    return this.#bounds.area
+  }
+
+  get areaClamp(): I16 {
+    return this.#bounds.areaClamp
+  }
+
+  get areaNum(): number {
+    return this.#bounds.areaNum
+  }
+
+  get bounds(): I16Box {
+    return this.#bounds
+  }
+
   /** @return The active film cel. */
   cel(time: number): Cel {
     return this.#animator.cel(time)
   }
 
+  /** The center coordinate. */
+  get center(): I16XY {
+    return this.#bounds.center
+  }
+
+  get centerNum(): NumXY {
+    return this.#bounds.centerNum
+  }
+
+  get centerCeil(): I16XY {
+    return this.#bounds.centerCeil
+  }
+
+  get centerFloor(): I16XY {
+    return this.#bounds.centerFloor
+  }
+
+  get centerRound(): I16XY {
+    return this.#bounds.centerRound
+  }
+
+  get centerTrunc(): I16XY {
+    return this.#bounds.centerTrunc
+  }
+
   // to-do: keep in sync with shader
   // order from top to bottom
-  compareDepth(sprite: Sprite): number {
+  compareDepth(sprite: this): number {
     const { layerByHeight: lhsLayerByHeight, layer: lhsLayer } =
       parseWrapLayerByHeightLayer(
         this.#wrapLayerByHeightLayer,
@@ -166,8 +163,35 @@ export class Sprite {
       : lhsLayer - rhsLayer
   }
 
+  /** The starting coordinate plus dimensions. */
+  get end(): I16XY {
+    return this.#bounds.end
+  }
+
+  get endClamp(): I16XY {
+    return this.#bounds.endClamp
+  }
+
+  get endNum(): NumXY {
+    return this.#bounds.endNum
+  }
+
+  get film(): Film {
+    return this.#animator.film
+  }
+
+  /** Returns true if boxed is flipped along either or both axes. Doesn't impact rendering. */
+  get flipped(): boolean {
+    return this.#bounds.flipped
+  }
+
+  /** Height (negative when flipped). */
+  get h(): I16 {
+    return this.#bounds.h
+  }
+
   /** True if this is in front of sprite. */
-  isInFrontOf(sprite: Sprite): boolean {
+  isAbove(sprite: this): boolean {
     return this.compareDepth(sprite) < 0
   }
 
@@ -187,22 +211,30 @@ export class Sprite {
       : I16Box.round(xyOrBox.x, xyOrBox.y, 0, 0)
     box.moveBy(-this.x, -this.y)
     if (!cel.sliceBounds.intersects(box)) return false
-    for (const slice of cel.slices) {
-      if (slice.intersects(box)) return true
-    }
+    for (const slice of cel.slices) if (slice.intersects(box)) return true
     return false
   }
 
+  /**
+   * Return true if self and box are overlapping, false if only touching or
+   * independent.
+   */
+  intersectsBounds(x: number, y: number): boolean
   intersectsBounds(xy: Readonly<XY<number>>): boolean
+  intersectsBounds(x: number, y: number, w: number, h: number): boolean
+  intersectsBounds(xy: Readonly<XY<number>>, wh: Readonly<XY<number>>): boolean
   intersectsBounds(box: Readonly<Box<number>>): boolean
   intersectsBounds(sprite: Readonly<Sprite>): boolean
   intersectsBounds(
-    xyOrBoxOrSprite: Readonly<XY<number> | Box<number> | Sprite>,
+    xXYBoxSprite: number | Readonly<XY<number> | Box<number> | Sprite>,
+    yWH?: number | Readonly<XY<number>>,
+    w?: number,
+    h?: number,
   ): boolean {
-    if ('bounds' in xyOrBoxOrSprite) {
-      return this.bounds.intersects(xyOrBoxOrSprite.bounds)
+    if (typeof xXYBoxSprite == 'object' && 'bounds' in xXYBoxSprite) {
+      return this.bounds.intersects(xXYBoxSprite.bounds)
     }
-    return this.bounds.intersects(xyOrBoxOrSprite)
+    return this.bounds.intersects(xXYBoxSprite as number, yWH as number, w!, h!)
   }
 
   intersectsSprite(sprite: Readonly<Sprite>, time: number): boolean {
@@ -222,15 +254,167 @@ export class Sprite {
     return false
   }
 
-  // to-do: flesh out the Sprite API
-  moveTo(xy: Readonly<I16XY>): Sprite {
-    this.bounds.moveTo(xy)
+  get layer(): U8 {
+    return parseWrapLayerByHeightLayer(this.#wrapLayerByHeightLayer).layer
+  }
+
+  set layer(layer: U8) {
+    const { wrap, layerByHeight } = parseWrapLayerByHeightLayer(
+      this.#wrapLayerByHeightLayer,
+    )
+    this.#wrapLayerByHeightLayer = serializeWrapLayerByHeightLayer(
+      wrap,
+      layerByHeight,
+      layer,
+    )
+  }
+
+  /** The greatest coordinate of this box. */
+  get max(): I16XY {
+    return this.#bounds.max
+  }
+
+  get maxClamp(): I16XY {
+    return this.#bounds.maxClamp
+  }
+
+  get maxNum(): NumXY {
+    return this.#bounds.maxNum
+  }
+
+  /** The least coordinate of this box. */
+  get min(): I16XY {
+    return this.#bounds.min
+  }
+
+  get minClamp(): I16XY {
+    return this.#bounds.minClamp
+  }
+
+  get minNum(): NumXY {
+    return this.#bounds.minNum
+  }
+
+  /** Reposition the box by arguments. */
+  moveBy(x: number, y: number): this
+  moveBy(xy: Readonly<XY<number>>): this
+  moveBy(xXY: number | Readonly<XY<number>>, y?: number): this {
+    this.bounds.moveBy(xXY as number, y!)
     return this
   }
 
-  // This would be great as a prop setter of xy.
-  moveBy(xy: Readonly<I16XY>): Sprite {
-    this.bounds.moveBy(xy)
+  moveByCeil(x: number, y: number): this
+  moveByCeil(xy: Readonly<XY<number>>): this
+  moveByCeil(xXY: number | Readonly<XY<number>>, y?: number): this {
+    this.bounds.moveByCeil(xXY as number, y!)
+    return this
+  }
+
+  moveByFloor(x: number, y: number): this
+  moveByFloor(xy: Readonly<XY<number>>): this
+  moveByFloor(xXY: number | Readonly<XY<number>>, y?: number): this {
+    this.bounds.moveByFloor(xXY as number, y!)
+    return this
+  }
+
+  moveByRound(x: number, y: number): this
+  moveByRound(xy: Readonly<XY<number>>): this
+  moveByRound(xXY: number | Readonly<XY<number>>, y?: number): this {
+    this.bounds.moveByRound(xXY as number, y!)
+    return this
+  }
+
+  moveByTrunc(x: number, y: number): this
+  moveByTrunc(xy: Readonly<XY<number>>): this
+  moveByTrunc(xXY: number | Readonly<XY<number>>, y?: number): this {
+    this.bounds.moveByTrunc(xXY as number, y!)
+    return this
+  }
+
+  /** Reposition the box to arguments. */
+  moveTo(x: number, y: number): this
+  moveTo(xy: Readonly<XY<number>>): this
+  moveTo(xXY: number | Readonly<XY<number>>, y?: number): this {
+    this.bounds.moveTo(xXY as number, y!)
+    return this
+  }
+
+  moveToCeil(x: number, y: number): this
+  moveToCeil(xy: Readonly<XY<number>>): this
+  moveToCeil(xXY: number | Readonly<XY<number>>, y?: number): this {
+    this.bounds.moveToCeil(xXY as number, y!)
+    return this
+  }
+
+  moveToFloor(x: number, y: number): this
+  moveToFloor(xy: Readonly<XY<number>>): this
+  moveToFloor(xXY: number | Readonly<XY<number>>, y?: number): this {
+    this.bounds.moveToFloor(xXY as number, y!)
+    return this
+  }
+
+  moveToRound(x: number, y: number): this
+  moveToRound(xy: Readonly<XY<number>>): this
+  moveToRound(xXY: number | Readonly<XY<number>>, y?: number): this {
+    this.bounds.moveToRound(xXY as number, y!)
+    return this
+  }
+
+  moveToTrunc(x: number, y: number): this
+  moveToTrunc(xy: Readonly<XY<number>>): this
+  moveToTrunc(xXY: number | Readonly<XY<number>>, y?: number): this {
+    this.bounds.moveToTrunc(xXY as number, y!)
+    return this
+  }
+
+  /** Center the box on arguments. */
+  moveCenterTo(x: number, y: number): this
+  moveCenterTo(xy: Readonly<XY<number>>): this
+  moveCenterTo(xXY: number | Readonly<XY<number>>, y?: number): this {
+    this.bounds.moveCenterTo(xXY as number, y!)
+    return this
+  }
+
+  moveCenterToCeil(x: number, y: number): this
+  moveCenterToCeil(xy: Readonly<XY<number>>): this
+  moveCenterToCeil(xXY: number | Readonly<XY<number>>, y?: number): this {
+    this.bounds.moveCenterToCeil(xXY as number, y!)
+    return this
+  }
+
+  moveCenterToFloor(x: number, y: number): this
+  moveCenterToFloor(xy: Readonly<XY<number>>): this
+  moveCenterToFloor(xXY: number | Readonly<XY<number>>, y?: number): this {
+    this.bounds.moveCenterToFloor(xXY as number, y!)
+    return this
+  }
+
+  moveCenterToRound(x: number, y: number): this
+  moveCenterToRound(xy: Readonly<XY<number>>): this
+  moveCenterToRound(xXY: number | Readonly<XY<number>>, y?: number): this {
+    this.bounds.moveCenterToRound(xXY as number, y!)
+    return this
+  }
+
+  moveCenterToTrunc(x: number, y: number): this
+  moveCenterToTrunc(xy: Readonly<XY<number>>): this
+  moveCenterToTrunc(xXY: number | Readonly<XY<number>>, y?: number): this {
+    this.bounds.moveCenterToTrunc(xXY as number, y!)
+    return this
+  }
+
+  /**
+   * Recomputes as a front-facing Box range with coordinates reordered such that
+   * each component of start is less than or equal to end. The result is always
+   * unflipped.
+   */
+  order(): this {
+    this.#bounds.order()
+    return this
+  }
+
+  orderClamp(): this {
+    this.#bounds.orderClamp()
     return this
   }
 
@@ -239,6 +423,33 @@ export class Sprite {
     return `Sprite {id=${this.film.id} box=${this.bounds.toString()} ` +
       `layer=${wlbhl.layer} layerByHeight=${wlbhl.layerByHeight} ` +
       `wrap=${wlbhl.wrap.toString()}}`
+  }
+
+  /** Width (negative when flipped). */
+  get w(): I16 {
+    return this.#bounds.w
+  }
+
+  /** The box dimensions. */
+  get wh(): I16XY {
+    return this.#bounds.wh
+  }
+
+  get wrapLayerByHeightLayer(): U16 {
+    return this.#wrapLayerByHeightLayer
+  }
+
+  /** The box coordinates. */
+  get xy(): I16XY {
+    return this.#bounds.xy
+  }
+
+  get x(): I16 {
+    return this.#bounds.x
+  }
+
+  get y(): I16 {
+    return this.#bounds.y
   }
 }
 
