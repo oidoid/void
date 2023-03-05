@@ -25,7 +25,7 @@ const uv: Uint16Array = new Uint16Array(
 )
 const uvLen: number = uv.length / 2 // dimensions
 
-export function Renderer<FilmID extends Aseprite.Tag>(
+export function Renderer<FilmID extends Aseprite.FileTag>(
   canvas: HTMLCanvasElement,
   atlas: HTMLImageElement,
   layout: ShaderLayout,
@@ -207,7 +207,7 @@ export namespace Renderer {
         self.gl.canvas.style.height = `${clientWH.y}px`
         console.debug(
           `Canvas styled to ${self.gl.canvas.style.width}×${self.gl.canvas.style.height} ` +
-            `for ${devicePixelRatio}× pixel ratio.`,
+            `for ${devicePixelRatio}× pixel density.`,
         )
       }
     }

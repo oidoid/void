@@ -21,7 +21,7 @@ export class Text {
     return this.#layer
   }
 
-  render<FilmID extends Aseprite.Tag>(
+  render<FilmID extends Aseprite.FileTag>(
     filmByID: FilmByID<FilmID>,
     layer: U8,
   ): Sprite[] {

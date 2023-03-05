@@ -1,7 +1,10 @@
 import { Aseprite, FilmByID } from '@/atlas-pack'
 import { Cam, ECS, Input, InstanceBuffer, RendererStateMachine } from '@/void'
 
-export interface RunState<T, FilmID extends Aseprite.Tag = string> {
+export interface RunState<
+  T,
+  FilmID extends Aseprite.FileTag = Aseprite.FileTag,
+> {
   readonly ecs: ECS<T>
   readonly filmByID: FilmByID<FilmID>
   readonly input: Readonly<Input>

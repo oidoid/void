@@ -1,4 +1,4 @@
-import { Exact } from '@/ooz'
+import { Exact, NonNull } from '@/ooz'
 import {
   parseUnpackedQuery,
   QueryToEnt,
@@ -76,6 +76,19 @@ export class ECS<Ent> {
     return systems.length == 1 ? systems[0]! : systems
   }
 
+  get entSize(): number {
+    return this.#ents.size
+  }
+
+  get(
+    component: Ent[keyof Ent] & Record<never, never>,
+  ): NonNullable<Partial<Ent>> {
+    return NonNull(
+      this.#entsByComponent.get(component),
+      `Missing ent with component ${JSON.stringify(component)}.`,
+    )
+  }
+
   /**
    * Splice system at index where order:
    *
@@ -132,10 +145,6 @@ export class ECS<Ent> {
       if (this.#queryEnt(ent, queryObj)) ents.push(ent)
     }
     return ents as QueryToEnt<Ent, Q>[]
-  }
-
-  get(component: Ent[keyof Ent] & Record<never, never>): Partial<Ent> {
-    return this.#entsByComponent.get(component) ?? {}
   }
 
   run(state: RunState<Partial<Ent>>): void {
