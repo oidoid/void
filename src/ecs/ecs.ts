@@ -131,8 +131,8 @@ export class ECS<Ent> {
         this.#patchEnt(ent, patch)
         this.#invalidateSystemEnts(ent)
       }
-      this.#patchesByEnt.delete(ent)
     }
+    this.#patchesByEnt.clear()
   }
 
   /** Uncached query. */
@@ -165,8 +165,13 @@ export class ECS<Ent> {
       ? this.#patchesByEnt.get(ent)
       : {}
     if (patch == null) return // Deleted.
-    for (const key of keys) patch[key] = undefined
-    this.#patchesByEnt.set(ent, patch)
+
+    for (const key of keys) {
+      if (key in ent) patch[key] = undefined // Remove.
+      else delete patch[key] // Nothing to remove.
+    }
+    if (Object.keys(patch).length == 0) this.#patchesByEnt.delete(ent) // Nothing to do.
+    else this.#patchesByEnt.set(ent, patch)
   }
 
   /** Enqueue an ent for removal. */
@@ -184,13 +189,29 @@ export class ECS<Ent> {
       ? this.#patchesByEnt.get(ent)
       : {}
     if (pending == null) return // Deleted.
-    this.#patchesByEnt.set(ent, { ...pending, patch })
+
+    // to-do: add checks like rmeoveKeys has for empty object and already removed
+    // keys. Be careful not to screw up adding an ent.
+
+    this.#patchesByEnt.set(ent, { ...pending, ...patch })
   }
 
   #invalidateSystemEnts(ent: Partial<Ent>): void {
     for (const [query, ents] of Object.entries(this.#entsByQuery)) {
       if (this.#queryEnt(ent, this.#queriesByStr[query]!)) ents.add(ent)
       else ents.delete(ent)
+    }
+  }
+
+  #patchEnt(ent: Partial<Ent>, patch: Partial<Ent>): void {
+    for (const key in patch) {
+      if (patch[key] == null) {
+        this.#entsByComponent.delete(ent[key]!)
+        delete ent[key]
+      } else {
+        ent[key] = patch[key]
+        this.#entsByComponent.set(ent[key]!, ent)
+      }
     }
   }
 
@@ -215,17 +236,5 @@ export class ECS<Ent> {
     return this.#entsByQuery[system.query] as ReadonlySet<
       unknown
     > as ReadonlySet<Ent>
-  }
-
-  #patchEnt(ent: Partial<Ent>, patch: Partial<Ent>): void {
-    for (const key in patch) {
-      if (patch[key] == null) {
-        this.#entsByComponent.delete(ent[key]!)
-        delete ent[key]
-      } else {
-        ent[key] = patch[key]
-        this.#entsByComponent.set(ent[key]!, ent)
-      }
-    }
   }
 }

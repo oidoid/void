@@ -40,6 +40,9 @@ export interface SpriteProps {
   readonly wrap?: Partial<XY<number>> | undefined
   /** Mirror sprite. Defaults to unflipped. to-do: add intersection support. */
   readonly flip?: SpriteFlip | undefined
+
+  /** The animation starting time. */
+  readonly time?: number
 }
 
 export type SpriteFlip = Parameters<typeof SpriteFlip.values['has']>[0]
@@ -73,7 +76,7 @@ export class Sprite {
   #wrapLayerByHeightLayer: U16
 
   constructor(film: Film, layer: U8, props?: SpriteProps) {
-    this.#animator = new Animator(film)
+    this.#animator = new Animator(film, props?.time)
     const flip = new I16XY(
       (props?.flip == 'X' || props?.flip == 'XY') ? -1 : 1,
       (props?.flip == 'Y' || props?.flip == 'XY') ? -1 : 1,
