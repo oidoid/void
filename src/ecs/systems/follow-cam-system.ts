@@ -2,13 +2,13 @@ import { I16, I16XY } from '@/ooz'
 import {
   Cam,
   FollowCamConfig,
-  QueryToEnt,
+  QueryEnt,
   RunState,
   Sprite,
   System,
 } from '@/void'
 
-export type FollowCamEnt = QueryToEnt<
+export type FollowCamEnt = QueryEnt<
   { followCam: FollowCamConfig; sprite: Sprite },
   typeof query
 >

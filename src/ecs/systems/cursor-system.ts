@@ -1,6 +1,6 @@
-import { CursorFilmSet, QueryToEnt, RunState, Sprite, System } from '@/void'
+import { CursorFilmSet, QueryEnt, RunState, Sprite, System } from '@/void'
 
-export type CursorEnt = QueryToEnt<
+export type CursorEnt = QueryEnt<
   { cursor: CursorFilmSet; sprite: Sprite },
   typeof query
 >

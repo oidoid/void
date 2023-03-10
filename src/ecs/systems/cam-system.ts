@@ -1,7 +1,7 @@
 import { I16 } from '@/ooz'
-import { Cam, QueryToEnt, System, Viewport } from '@/void'
+import { Cam, QueryEnt, System, Viewport } from '@/void'
 
-export type CamEnt = QueryToEnt<{ cam: Cam }, typeof query>
+export type CamEnt = QueryEnt<{ cam: Cam }, typeof query>
 
 const query = 'cam'
 

@@ -1,10 +1,11 @@
 import { Exact, NonNull } from '@/ooz'
 import {
-  parseUnpackedQuery,
-  QueryToEnt,
+  EQL,
+  parseQuerySet,
+  QueryEnt,
+  QuerySet,
   RunState,
   System,
-  UnpackedQuery,
 } from '@/void'
 
 // Map a tuple of partial ents to an exact tuple of partial ents.
@@ -15,10 +16,10 @@ type PartialEntsToExact<Ent, Tuple> = Tuple extends
 
 export class ECS<Ent> {
   /** May be sparse. */
-  readonly #systemsByOrder: System<Partial<Ent>, Ent>[] = []
+  readonly #systemByOrder: System<Partial<Ent>, Ent>[] = []
   readonly #ents: Set<Partial<Ent>> = new Set()
   readonly #entsByQuery: { [query: string]: Set<Partial<Ent>> } = {}
-  readonly #entsByComponent: Map<Ent[keyof Ent], Partial<Ent>> = new Map()
+  readonly #entByComponent: Map<Ent[keyof Ent], Partial<Ent>> = new Map()
 
   /**
    * The transition-to state. Editing existing components occurs synchronously
@@ -49,26 +50,25 @@ export class ECS<Ent> {
    * system expects; the type must both allow entrance into the system and for
    * the key to be deletable.
    */
-  readonly #patchesByEnt: Map<
+  readonly #patchByEnt: Map<
     Partial<Ent>,
     Partial<Ent> | Partial<Record<keyof Ent, undefined>> | undefined
   > = new Map()
-  readonly #queriesByStr: { [queryStr: string]: UnpackedQuery<Ent> } = {}
+  readonly #setByQuery: { [query: string]: QuerySet<Ent> } = {}
 
   /** Enqueue ents. */
   addEnt<PartialEnt>(ent: Exact<Partial<Ent>, PartialEnt>): PartialEnt
   addEnt<Tuple>(...ents: Tuple & PartialEntsToExact<Ent, Tuple>): Tuple
   addEnt(...ents: Partial<Ent>[]): Partial<Ent>[]
   addEnt(...ents: Partial<Ent>[]): Partial<Ent> | Partial<Ent>[] {
-    for (const ent of ents) this.#patchesByEnt.set(ent, ent) // bit of a hack
+    for (const ent of ents) this.#patchByEnt.set(ent, ent) // bit of a hack
     return ents.length == 1 ? ents[0]! : ents
   }
 
-  addSystem<T>(system: T & System<Partial<Ent>, Ent>): T
-  addSystem<Tuple>(...systems: Tuple & System<Partial<Ent>, Ent>[]): Tuple
-  addSystem(
-    ...systems: System<Partial<Ent>, Ent>[]
-  ): System<Partial<Ent>, Ent>[]
+  addSystem<T>(system: T & System<Partial<Ent>>): T
+  addSystem<Tuple>(
+    ...systems: Tuple & [System<Partial<Ent>>, ...System<Partial<Ent>>[]]
+  ): Tuple
   addSystem(
     ...systems: System<Partial<Ent>, Ent>[]
   ): System<Partial<Ent>, Ent> | System<Partial<Ent>, Ent>[] {
@@ -84,7 +84,7 @@ export class ECS<Ent> {
     component: Ent[keyof Ent] & Record<never, never>,
   ): NonNullable<Partial<Ent>> {
     return NonNull(
-      this.#entsByComponent.get(component),
+      this.#entByComponent.get(component),
       `Missing ent with component ${JSON.stringify(component)}.`,
     )
   }
@@ -105,15 +105,15 @@ export class ECS<Ent> {
    * Effect is immediate.
    */
   insertSystem<T>(order: number, system: T & System<Partial<Ent>, Ent>): T {
-    this.#systemsByOrder.splice(
-      Object.is(order, -0) ? this.#systemsByOrder.length : order,
+    this.#systemByOrder.splice(
+      Object.is(order, -0) ? this.#systemByOrder.length : order,
       0,
       system,
     )
     if (system.query in this.#entsByQuery) return system
-    this.#queriesByStr[system.query] = parseUnpackedQuery(system.query)
+    this.#setByQuery[system.query] = parseQuerySet(system.query)
     this.#entsByQuery[system.query] = new Set(
-      this.query(system.query as `${keyof Ent & string}`),
+      this.query(system.query as EQL<Ent, ''>),
     ) as Set<Partial<Ent>>
     return system
   }
@@ -124,7 +124,7 @@ export class ECS<Ent> {
    * mid-iteration.
    */
   patch(): void {
-    for (const [ent, patch] of this.#patchesByEnt.entries()) {
+    for (const [ent, patch] of this.#patchByEnt.entries()) {
       if (patch == null) this.#removeEntImmediately(ent)
       else {
         this.#ents.add(ent)
@@ -132,23 +132,21 @@ export class ECS<Ent> {
         this.#invalidateSystemEnts(ent)
       }
     }
-    this.#patchesByEnt.clear()
+    this.#patchByEnt.clear()
   }
 
   /** Uncached query. */
-  query<Q extends `${keyof Ent & string}${string}`>(
-    query: Q,
-  ): QueryToEnt<Ent, Q>[] {
+  query<Query>(query: EQL<Ent, Query>): QueryEnt<Ent, Query>[] {
     const ents = []
-    const queryObj = this.#queriesByStr[query] ?? parseUnpackedQuery(query)
+    const querySet = this.#setByQuery[query] ?? parseQuerySet(query)
     for (const ent of this.#ents) {
-      if (this.#queryEnt(ent, queryObj)) ents.push(ent)
+      if (this.#queryEnt(ent, querySet)) ents.push(ent)
     }
-    return ents as QueryToEnt<Ent, Q>[]
+    return ents as QueryEnt<Ent, Query>[]
   }
 
-  run(state: RunState<Partial<Ent>>): void {
-    for (const system of this.#systemsByOrder) {
+  run(state: RunState<Ent>): void {
+    for (const system of this.#systemByOrder) {
       const ents = this.#systemEnts(system)
       system.run?.(ents, state)
       if (system.runEnt != null) {
@@ -161,8 +159,8 @@ export class ECS<Ent> {
   /** Enqueue components for removal. */
   removeKeys(ent: Partial<Ent>, ...keys: readonly (keyof Ent)[]): void {
     if (keys.length == 0) return
-    const patch: Partial<Ent> | undefined = this.#patchesByEnt.has(ent)
-      ? this.#patchesByEnt.get(ent)
+    const patch: Partial<Ent> | undefined = this.#patchByEnt.has(ent)
+      ? this.#patchByEnt.get(ent)
       : {}
     if (patch == null) return // Deleted.
 
@@ -170,13 +168,13 @@ export class ECS<Ent> {
       if (key in ent) patch[key] = undefined // Remove.
       else delete patch[key] // Nothing to remove.
     }
-    if (Object.keys(patch).length == 0) this.#patchesByEnt.delete(ent) // Nothing to do.
-    else this.#patchesByEnt.set(ent, patch)
+    if (Object.keys(patch).length == 0) this.#patchByEnt.delete(ent) // Nothing to do.
+    else this.#patchByEnt.set(ent, patch)
   }
 
   /** Enqueue an ent for removal. */
   removeEnt(ent: Partial<Ent>): void {
-    this.#patchesByEnt.set(ent, undefined)
+    this.#patchByEnt.set(ent, undefined)
   }
 
   // to-do: this is a bit confusing since it only impacts keys specified.
@@ -185,20 +183,20 @@ export class ECS<Ent> {
     ent: Partial<Ent>,
     patch: Partial<Ent> | Partial<Record<keyof Ent, undefined>>,
   ): void {
-    const pending: Partial<Ent> | undefined = this.#patchesByEnt.has(ent)
-      ? this.#patchesByEnt.get(ent)
+    const pending: Partial<Ent> | undefined = this.#patchByEnt.has(ent)
+      ? this.#patchByEnt.get(ent)
       : {}
     if (pending == null) return // Deleted.
 
     // to-do: add checks like rmeoveKeys has for empty object and already removed
     // keys. Be careful not to screw up adding an ent.
 
-    this.#patchesByEnt.set(ent, { ...pending, ...patch })
+    this.#patchByEnt.set(ent, { ...pending, ...patch })
   }
 
   #invalidateSystemEnts(ent: Partial<Ent>): void {
     for (const [query, ents] of Object.entries(this.#entsByQuery)) {
-      if (this.#queryEnt(ent, this.#queriesByStr[query]!)) ents.add(ent)
+      if (this.#queryEnt(ent, this.#setByQuery[query]!)) ents.add(ent)
       else ents.delete(ent)
     }
   }
@@ -206,17 +204,17 @@ export class ECS<Ent> {
   #patchEnt(ent: Partial<Ent>, patch: Partial<Ent>): void {
     for (const key in patch) {
       if (patch[key] == null) {
-        this.#entsByComponent.delete(ent[key]!)
+        this.#entByComponent.delete(ent[key]!)
         delete ent[key]
       } else {
         ent[key] = patch[key]
-        this.#entsByComponent.set(ent[key]!, ent)
+        this.#entByComponent.set(ent[key]!, ent)
       }
     }
   }
 
   /** Test whether an ent matches query. */
-  #queryEnt(ent: Partial<Ent>, query: UnpackedQuery<Ent>): boolean {
+  #queryEnt(ent: Partial<Ent>, query: QuerySet<Ent>): boolean {
     return query.some((keys) =>
       [...keys].every((key) =>
         key[0] == '!' ? !(key.slice(1) in ent) : key in ent
@@ -227,7 +225,7 @@ export class ECS<Ent> {
   /** Remove all references to an ent. */
   #removeEntImmediately(ent: Partial<Ent>): void {
     for (const ents of Object.values(this.#entsByQuery)) ents.delete(ent)
-    for (const key in ent) this.#entsByComponent.delete(ent[key]!)
+    for (const key in ent) this.#entByComponent.delete(ent[key]!)
     this.#ents.delete(ent)
   }
 

@@ -1,32 +1,44 @@
 import { Str } from '@/ooz'
 
-/** Map query string to the subset of T specified by Query and a Partial<T>. */
-export type QueryToEnt<T, Query> = Readonly<
-  Partial<T> & QueryToExactEnt<T, Query>
+/** Map Query to a subset of Ent and a Partial<T>. */
+export type QueryEnt<Ent, Query> = Readonly<
+  Partial<Ent> & ExactQueryEnt<Ent, Query>
 >
 
-/** Map query string to the subset of T specified by Query. */
-type QueryToExactEnt<T, Query> = Query extends keyof T
-  ? { [Key in Query]: T[Query] }
-  : Query extends `!${infer Key & keyof T & string}`
-    ? { [K in Key & string]: never }
-  : Query extends `${infer Key & keyof T & string} & ${infer Rest}`
-    ? { [K in Key & string]: T[K & keyof T] } & QueryToExactEnt<T, Rest>
-  : Query extends `!${infer Key & keyof T & string} & ${infer Rest}`
-    ? { [K in Key & string]: never } & QueryToExactEnt<T, Rest>
-  : Query extends `${infer Key & keyof T & string} | ${infer Rest}`
-    ? { [K in Key & string]: T[K & keyof T] } | QueryToExactEnt<T, Rest>
-  : Query extends `!${infer Key & keyof T & string} | ${infer Rest}`
-    ? { [K in Key & string]: never } | QueryToExactEnt<T, Rest>
+/** Map Query to a subset of Ent. */
+type ExactQueryEnt<Ent, Query> = Query extends keyof Ent
+  ? { [Key in Query]: Ent[Query] }
+  : Query extends `!${infer Key extends keyof Ent & string}`
+    ? { [K in Key]: never }
+  : Query extends `${infer Key extends keyof Ent & string} & ${infer Rest}`
+    ? { [K in Key]: Ent[K & keyof Ent] } & ExactQueryEnt<Ent, Rest>
+  : Query extends `!${infer Key extends keyof Ent & string} & ${infer Rest}`
+    ? { [K in Key]: never } & ExactQueryEnt<Ent, Rest>
+  : Query extends `${infer Key extends keyof Ent & string} | ${infer Rest}`
+    ? { [K in Key]: Ent[K & keyof Ent] } | ExactQueryEnt<Ent, Rest>
+  : Query extends `!${infer Key extends keyof Ent & string} | ${infer Rest}`
+    ? { [K in Key]: never } | ExactQueryEnt<Ent, Rest>
   : never
 
-export type UnpackedQuery<T> = readonly ReadonlySet<
+/** Returns Query if valid, never otherwise. */
+export type EQL<Ent, Query> = Query extends `${'!' | ''}${
+  & keyof Ent
+  & string}` ? Query
+  : Query extends
+    `${infer Term extends `${'!' | ''}${keyof Ent & string}`} & ${infer Rest}`
+    ? `${Term} & ${EQL<Ent, Rest>}`
+  : Query extends
+    `${infer Term extends `${'!' | ''}${keyof Ent & string}`} | ${infer Rest}`
+    ? `${Term} | ${EQL<Ent, Rest>}`
+  : never
+
+export type QuerySet<T> = readonly ReadonlySet<
   `${'!' | ''}${keyof T & string}`
 >[]
 
-export function parseUnpackedQuery<T>(query: string): UnpackedQuery<T> {
+export function parseQuerySet<Ent>(query: string): QuerySet<Ent> {
   return query.split(' | ').sort(Str.compareEn)
-    .map((and) =>
-      new Set(and.split(' & ').sort(Str.compareEn))
-    ) as UnpackedQuery<T>
+    .map((and) => new Set(and.split(' & ').sort(Str.compareEn))) as QuerySet<
+      Ent
+    >
 }

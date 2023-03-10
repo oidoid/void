@@ -1,5 +1,5 @@
 import { Int, NumXY, U8XY } from '@/ooz'
-import { ECS, parseUnpackedQuery, System } from '@/void'
+import { ECS, parseQuerySet, System } from '@/void'
 import { assertEquals } from 'std/testing/asserts.ts'
 import { RunState } from './run-state.ts'
 
@@ -30,14 +30,14 @@ for (
   ] as const).entries()
 ) {
   Deno.test(`Parse query: ${index}.`, () => {
-    interface Components {
+    interface Ent {
       readonly name: string
       readonly position: NumXY
       readonly bags: Int
       readonly wh: U8XY
       readonly items: string[]
     }
-    assertEquals(parseUnpackedQuery<Components>(queryStr), query)
+    assertEquals(parseQuerySet<Ent>(queryStr), query)
   })
 }
 

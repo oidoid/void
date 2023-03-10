@@ -1,15 +1,16 @@
-import { QueryToEnt, RunState, Sprite, System } from '@/void'
+import { QueryEnt, RunState, Sprite, System } from '@/void'
 
-export type RenderEnt = QueryToEnt<
+export type RenderEnt = QueryEnt<
   { sprite: Sprite; sprites: Sprite[] },
   typeof query
 >
 
 const query = 'sprite | sprites'
 
-export class RenderSystem implements System<RenderEnt> {
+export class RenderSystem<Ent extends RenderEnt>
+  implements System<RenderEnt, Ent> {
   readonly query = query
-  run(ents: ReadonlySet<RenderEnt>, state: RunState<RenderEnt>): void {
+  run(ents: ReadonlySet<RenderEnt>, state: RunState<Ent>): void {
     let index = 0
     for (const ent of ents) {
       if ('sprites' in ent) {

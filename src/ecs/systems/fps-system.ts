@@ -1,7 +1,7 @@
 import { Uint } from '@/ooz'
-import { FPS, QueryToEnt, System, Text } from '@/void'
+import { FPS, QueryEnt, System, Text } from '@/void'
 
-export type FPSEnt = QueryToEnt<{ fps: FPS; text: Text }, typeof query>
+export type FPSEnt = QueryEnt<{ fps: FPS; text: Text }, typeof query>
 
 const query = 'fps & text'
 

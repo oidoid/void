@@ -2,10 +2,10 @@ import { Aseprite, FilmByID } from '@/atlas-pack'
 import { Cam, ECS, Input, InstanceBuffer, RendererStateMachine } from '@/void'
 
 export interface RunState<
-  T,
+  Ent,
   FilmID extends Aseprite.FileTag = Aseprite.FileTag,
 > {
-  readonly ecs: ECS<T>
+  readonly ecs: ECS<Ent>
   readonly filmByID: FilmByID<FilmID>
   readonly input: Readonly<Input>
   /** The running age in milliseconds. */

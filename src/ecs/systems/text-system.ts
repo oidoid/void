@@ -1,6 +1,6 @@
-import { QueryToEnt, RunState, Sprite, System, Text } from '@/void'
+import { QueryEnt, RunState, Sprite, System, Text } from '@/void'
 
-export type TextEnt = QueryToEnt<
+export type TextEnt = QueryEnt<
   { sprites: Sprite[]; text: Text },
   typeof query
 >
