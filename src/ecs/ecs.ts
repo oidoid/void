@@ -1,4 +1,4 @@
-import { Exact, NonNull } from '@/ooz'
+import { assert, Exact, NonNull } from '@/ooz'
 import {
   EQL,
   parseQuerySet,
@@ -156,6 +156,15 @@ export class ECS<Ent> {
       if (this.#queryEnt(ent, querySet)) ents.push(ent)
     }
     return ents as QueryEnt<Ent, Query>[]
+  }
+
+  queryOne<Query>(query: EQL<Ent, Query>): QueryEnt<Ent, Query> {
+    const ents = this.query(query)
+    assert(
+      ents.length == 1,
+      `Expected exactly one ent for "${query}" query, got ${ents.length}.`,
+    )
+    return ents[0]!
   }
 
   run(state: RunState<Ent>): void {
