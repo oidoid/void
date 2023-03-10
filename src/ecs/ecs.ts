@@ -29,7 +29,7 @@ export class ECS<Ent> {
    * The next state is conceptually a diff aggregated across all system runs
    * with the following invariants:
    *
-   *   {}                 → No change (eg, add).
+   *   {}                 → No change. This shouldn't occur but does nothing.
    *   {[key]: val}       → Add or replace component at key.
    *   {[key]: undefined} → Remove component at key.
    *   undefined          → Remove ent.
@@ -58,17 +58,30 @@ export class ECS<Ent> {
 
   /** Enqueue ents. */
   addEnt<PartialEnt>(ent: Exact<Partial<Ent>, PartialEnt>): PartialEnt
-  addEnt<Tuple>(...ents: Tuple & PartialEntsToExact<Ent, Tuple>): Tuple
-  addEnt(...ents: Partial<Ent>[]): Partial<Ent>[]
+  addEnt<Tuple>(
+    ...ents:
+      & Tuple
+      & readonly [
+        PartialEntsToExact<Ent, Tuple>,
+        ...PartialEntsToExact<Ent, Tuple>[],
+      ]
+  ): Tuple
+  addEnt<Array>(...ents: Array & Partial<Ent>[]): Array
   addEnt(...ents: Partial<Ent>[]): Partial<Ent> | Partial<Ent>[] {
-    for (const ent of ents) this.#patchByEnt.set(ent, ent) // bit of a hack
+    // Use the ent reference for the patch key with the ent as also as the patch
+    // itself. This is a bit redundant since the ent already has these
+    // components set but patching uses it to invalidate the relevant queries.
+    for (const ent of ents) this.#patchByEnt.set(ent, ent)
     return ents.length == 1 ? ents[0]! : ents
   }
 
   addSystem<T>(system: T & System<Partial<Ent>>): T
   addSystem<Tuple>(
-    ...systems: Tuple & [System<Partial<Ent>>, ...System<Partial<Ent>>[]]
+    ...systems:
+      & Tuple
+      & readonly [System<Partial<Ent>>, ...System<Partial<Ent>>[]]
   ): Tuple
+  addSystem<Array>(...systems: Array & System<Partial<Ent>>[]): Array
   addSystem(
     ...systems: System<Partial<Ent>, Ent>[]
   ): System<Partial<Ent>, Ent> | System<Partial<Ent>, Ent>[] {
@@ -157,8 +170,12 @@ export class ECS<Ent> {
   }
 
   /** Enqueue components for removal. */
+  removeKeys(
+    ent: Partial<Ent>,
+    ...keys: readonly [keyof Ent, ...(keyof Ent)[]]
+  ): void
+  removeKeys(ent: Partial<Ent>, ...keys: readonly (keyof Ent)[]): void
   removeKeys(ent: Partial<Ent>, ...keys: readonly (keyof Ent)[]): void {
-    if (keys.length == 0) return
     const patch: Partial<Ent> | undefined = this.#patchByEnt.has(ent)
       ? this.#patchByEnt.get(ent)
       : {}
@@ -177,8 +194,9 @@ export class ECS<Ent> {
     this.#patchByEnt.set(ent, undefined)
   }
 
-  // to-do: this is a bit confusing since it only impacts keys specified.
-  /** Replace or remove components. */
+  /**
+   * Replace or remove components. Unreferenced components in ent are unchanged.
+   */
   setEnt(
     ent: Partial<Ent>,
     patch: Partial<Ent> | Partial<Record<keyof Ent, undefined>>,
@@ -188,10 +206,9 @@ export class ECS<Ent> {
       : {}
     if (pending == null) return // Deleted.
 
-    // to-do: add checks like rmeoveKeys has for empty object and already removed
-    // keys. Be careful not to screw up adding an ent.
-
-    this.#patchByEnt.set(ent, { ...pending, ...patch })
+    Object.assign(pending, patch)
+    if (Object.keys(pending).length == 0) this.#patchByEnt.delete(ent) // Nothing to do.
+    else this.#patchByEnt.set(ent, pending)
   }
 
   #invalidateSystemEnts(ent: Partial<Ent>): void {
