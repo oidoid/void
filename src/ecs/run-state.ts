@@ -3,7 +3,7 @@ import { Cam, ECS, Input, InstanceBuffer, RendererStateMachine } from '@/void'
 
 export interface RunState<
   Ent,
-  FilmID extends Aseprite.FileTag = Aseprite.FileTag,
+  in FilmID extends Aseprite.FileTag = Aseprite.FileTag,
 > {
   readonly ecs: ECS<Ent>
   readonly filmByID: FilmByID<FilmID>

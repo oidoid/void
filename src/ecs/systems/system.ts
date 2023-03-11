@@ -1,6 +1,6 @@
 import { RunState } from '@/void'
 
-export interface System<PartialEnt, Ent extends PartialEnt = PartialEnt> {
+export interface System<out PartialEnt, Ent extends PartialEnt = PartialEnt> {
   /**
    * Query of the form `[!]<key>[ <& or |><query>]`. Eg, `'a & b | !a & c'`. No
    * grouping is permitted. The empty string applies to all ents and is
