@@ -1,10 +1,10 @@
 import { Aseprite, AtlasMeta } from '@/atlas-pack'
 import { assertNonNull, Color, NonNull, U32 } from '@/ooz'
 import {
+  BitmapBuffer,
   Cam,
   fragmentGLSL,
   GL,
-  InstanceBuffer,
   ShaderLayout,
   vertexGLSL,
   Viewport,
@@ -161,7 +161,7 @@ export class Renderer {
   render(
     _time: number,
     cam: Readonly<Cam>,
-    instanceBuffer: InstanceBuffer,
+    bitmaps: BitmapBuffer,
   ): void {
     this.#resize(cam)
     this.#gl.clear(this.#gl.COLOR_BUFFER_BIT | this.#gl.DEPTH_BUFFER_BIT)
@@ -169,18 +169,17 @@ export class Renderer {
     //   GL.uniformLocation(this.#layout, this.#uniforms, 'time'),
     //   time,
     // );
-    const perInstanceBuffer = this.#perInstanceBuffer
     GL.bufferData(
       this.#gl,
-      perInstanceBuffer,
-      instanceBuffer.buffer,
+      this.#perInstanceBuffer,
+      bitmaps.buffer,
       this.#gl.DYNAMIC_READ,
     )
     this.#gl.drawArraysInstanced(
       this.#gl.TRIANGLE_STRIP,
       0,
       uvLen,
-      instanceBuffer.size,
+      bitmaps.size,
     )
   }
 
@@ -206,7 +205,9 @@ export class Renderer {
       this.#gl.viewport(0, 0, nativeCanvasWH.x, nativeCanvasWH.y)
 
       console.debug(
-        `Canvas resized to ${nativeCanvasWH.x}×${nativeCanvasWH.y} native pixels with ${cam.viewport.w}×${cam.viewport.h} cam (level pixels) at a ${cam.scale}x scale.`,
+        `Canvas resized to ${nativeCanvasWH.x}×${nativeCanvasWH.y} native ` +
+          `pixels with ${cam.viewport.w}×${cam.viewport.h} cam (level ` +
+          `pixels) at a ${cam.scale}x scale.`,
       )
     }
 
@@ -230,7 +231,8 @@ export class Renderer {
         this.#gl.canvas.style.width = `${clientWH.x}px`
         this.#gl.canvas.style.height = `${clientWH.y}px`
         console.debug(
-          `Canvas styled to ${this.#gl.canvas.style.width}×${this.#gl.canvas.style.height} ` +
+          `Canvas styled to ` +
+            `${this.#gl.canvas.style.width}×${this.#gl.canvas.style.height} ` +
             `for ${devicePixelRatio}× pixel density.`,
         )
       }

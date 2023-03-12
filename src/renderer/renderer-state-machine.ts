@@ -1,4 +1,4 @@
-import { Cam, InstanceBuffer, Renderer } from '@/void'
+import { BitmapBuffer, Cam, Renderer } from '@/void'
 
 export interface RendererStateMachineProps {
   readonly window: Window
@@ -41,9 +41,9 @@ export class RendererStateMachine {
   render(
     time: number,
     cam: Readonly<Cam>,
-    instanceBuffer: InstanceBuffer,
+    bitmaps: BitmapBuffer,
   ): void {
-    this.#renderer.render(time, cam, instanceBuffer)
+    this.#renderer.render(time, cam, bitmaps)
   }
 
   restoreContext(): void {

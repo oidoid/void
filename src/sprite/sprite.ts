@@ -13,7 +13,7 @@ import {
   U8,
   XY,
 } from '@/ooz'
-import { LayerByHeightFlag, LayerMask } from '@/void'
+import { Bitmap, LayerByHeightFlag, LayerMask } from '@/void'
 
 export interface SpriteProps {
   /**
@@ -68,7 +68,7 @@ interface WrapLayerByHeightLayer {
 }
 
 /** A renderable animation. */
-export class Sprite {
+export class Sprite implements Bitmap {
   #animator: Animator
   #bounds: I16Box
   // animator collision detection is not wrap aware

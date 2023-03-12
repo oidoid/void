@@ -16,20 +16,16 @@ export class RenderSystem<Ent extends RenderEnt>
       if ('sprites' in ent) {
         for (const sprite of ent.sprites) {
           if (!state.cam.viewport.intersects(sprite)) continue
-          state.instanceBuffer.set(index, sprite, state.time)
+          state.bitmaps.set(index, sprite, state.time)
           index++
         }
       } else {
         if (!state.cam.viewport.intersects(ent.sprite)) continue
-        state.instanceBuffer.set(index, ent.sprite, state.time)
+        state.bitmaps.set(index, ent.sprite, state.time)
         index++
       }
     }
 
-    state.rendererStateMachine.render(
-      state.time,
-      state.cam,
-      state.instanceBuffer,
-    )
+    state.renderer.render(state.time, state.cam, state.bitmaps)
   }
 }
