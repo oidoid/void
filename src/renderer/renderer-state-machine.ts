@@ -29,11 +29,11 @@ export class RendererStateMachine {
   }
 
   isContextLost(): boolean {
-    return this.#renderer.gl.isContextLost()
+    return this.#renderer.isContextLost()
   }
 
   loseContext(): void {
-    this.#renderer.loseContext?.loseContext()
+    this.#renderer.loseContext()
   }
 
   // to-do: this isn't great because we go out for loop callback then back in
@@ -43,11 +43,11 @@ export class RendererStateMachine {
     cam: Readonly<Cam>,
     instanceBuffer: InstanceBuffer,
   ): void {
-    Renderer.render(this.#renderer, time, cam, instanceBuffer)
+    this.#renderer.render(time, cam, instanceBuffer)
   }
 
   restoreContext(): void {
-    this.#renderer.loseContext?.restoreContext()
+    this.#renderer.restoreContext()
   }
 
   start(): void {
