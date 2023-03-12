@@ -5,7 +5,6 @@ const littleEndian: boolean = new Int8Array(new Int16Array([1]).buffer)[0] == 1
 
 export class BitmapBuffer {
   #view: DataView
-  #buffer: ArrayBuffer
   #size: number
   readonly #layout: ShaderLayout
 
@@ -18,8 +17,7 @@ export class BitmapBuffer {
   }
 
   constructor(layout: ShaderLayout, len: Uint = Uint(0)) {
-    this.#buffer = new ArrayBuffer(layout.perInstance.stride * len)
-    this.#view = new DataView(this.#buffer)
+    this.#view = new DataView(new ArrayBuffer(layout.perInstance.stride * len))
     this.#layout = layout
     this.#size = 0
   }
@@ -40,10 +38,9 @@ export class BitmapBuffer {
 
   #resize(minLen: number): void {
     if (minLen <= this.#view.byteLength) return
-    const prev = this.#buffer
-    this.#buffer = new ArrayBuffer(minLen * 2)
+    const buffer = new ArrayBuffer(minLen * 2)
     // Change the view to U8s for a endian-independent copy.
-    new Uint8Array(this.#buffer).set(new Uint8Array(prev))
-    this.#view = new DataView(this.#buffer)
+    new Uint8Array(buffer).set(new Uint8Array(this.#view.buffer))
+    this.#view = new DataView(buffer)
   }
 }

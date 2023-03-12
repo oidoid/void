@@ -1,5 +1,5 @@
 import { Aseprite, FilmByID } from '@/atlas-pack'
-import { BitmapBuffer, Cam, ECS, Input, RendererStateMachine } from '@/void'
+import { Cam, ECS, Input, RendererStateMachine } from '@/void'
 
 export interface RunState<
   Ent,
@@ -13,8 +13,8 @@ export interface RunState<
   /** The exact duration in milliseconds to apply on a given update step. */
   readonly tick: number
   readonly cam: Readonly<Cam>
-  readonly bitmaps: BitmapBuffer
   readonly renderer: RendererStateMachine
   pickHandled?: boolean
+
   random(): number
 }
