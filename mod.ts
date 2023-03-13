@@ -1,3 +1,4 @@
+export * from './src/assets/assets.ts'
 export * from './src/audio/Synth.ts'
 export * from './src/ecs/components/cam.ts'
 export * from './src/ecs/components/cursor-film-set.ts'
