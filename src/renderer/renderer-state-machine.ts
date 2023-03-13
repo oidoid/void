@@ -1,9 +1,9 @@
-import { BitmapBuffer, Cam, Renderer } from '@/void'
+import { Assets, BitmapBuffer, Cam, Renderer } from '@/void'
 
 export interface RendererStateMachineProps {
   readonly window: Window
   readonly canvas: HTMLCanvasElement
-  newRenderer(): Renderer
+  readonly assets: Assets
   /** Difference in milliseconds. */
   onFrame(delta: number): void
   onPause(): void
@@ -12,19 +12,24 @@ export interface RendererStateMachineProps {
 export class RendererStateMachine {
   #frameID: number | undefined
   #renderer: Renderer
+  readonly #assets: Assets
   readonly #canvas: HTMLCanvasElement
-  readonly #newRenderer: () => Renderer
   readonly #onFrame: (delta: number) => void
   readonly #onPause: () => void
   readonly #window: Window
 
   constructor(props: RendererStateMachineProps) {
+    this.#assets = props.assets
     this.#canvas = props.canvas
     this.#frameID = undefined
-    this.#newRenderer = props.newRenderer
     this.#onFrame = props.onFrame
     this.#onPause = props.onPause
-    this.#renderer = props.newRenderer()
+    this.#renderer = Renderer.new(
+      this.#canvas,
+      this.#assets.atlas,
+      this.#assets.shaderLayout,
+      this.#assets.atlasMeta,
+    )
     this.#window = props.window
   }
 
@@ -69,7 +74,12 @@ export class RendererStateMachine {
   #onEvent = (event: Event): void => {
     event.preventDefault()
     if (event.type == 'webglcontextrestored') {
-      this.#renderer = this.#newRenderer()
+      this.#renderer = Renderer.new(
+        this.#canvas,
+        this.#assets.atlas,
+        this.#assets.shaderLayout,
+        this.#assets.atlasMeta,
+      )
     }
 
     if (!this.isContextLost() && this.#isDocumentVisible()) this.#resume()
