@@ -22,7 +22,7 @@ export class PointerPoller {
     return this.#xy
   }
 
-  constructor(cam: Cam) {
+  constructor(cam: Readonly<Cam>) {
     this.#buttons = 0n
     this.#cam = cam
   }

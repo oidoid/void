@@ -3,17 +3,13 @@ import {
   assert,
   assertNonNull,
   BoxJSON,
-  I16,
   I16Box,
   NonNull,
-  NumXY,
-  U16XY,
   U8,
   Uint,
   XY,
 } from '@/ooz'
 import {
-  Cam,
   CursorFilmSet,
   FilmLUT,
   FollowCamConfig,
@@ -53,13 +49,7 @@ export interface CursorFilmSetJSON {
   readonly point: string
 }
 
-export interface CamJSON {
-  readonly xy?: Partial<XY<number>>
-  readonly minViewport: Partial<XY<number>>
-}
-
 export interface VoidEntJSON {
-  readonly cam?: CamJSON
   readonly cursor?: CursorFilmSetJSON
   readonly followCam?: FollowCamJSON
   readonly followPoint?: Record<never, never>
@@ -82,8 +72,6 @@ export namespace LevelParser {
     val: unknown,
   ): VoidEnt[keyof VoidEntJSON] | undefined {
     switch (key) { // to-do: fail when missing types.
-      case 'cam':
-        return parseCam(val as CamJSON)
       case 'cursor':
         return parseCursorFilmSet(lut, val as CursorFilmSetJSON)
       case 'followCam':
@@ -112,17 +100,6 @@ export namespace LevelParser {
       U8(json.layer ?? Layer.Top),
       json.str ?? '',
     )
-  }
-
-  export function parseCam(json: CamJSON): Cam {
-    return {
-      // Avoid possible division by zero by specifying nonzero width and height.
-      viewport: new I16Box(json.xy?.x ?? 0, json.xy?.y ?? 0, 1, 1),
-      clientViewportWH: new NumXY(1, 1),
-      nativeViewportWH: new U16XY(1, 1),
-      minViewport: new U16XY(json.minViewport.x ?? 1, json.minViewport?.y ?? 1),
-      scale: I16(1),
-    }
   }
 
   export function parseFollowCam(json: FollowCamJSON): FollowCamConfig {

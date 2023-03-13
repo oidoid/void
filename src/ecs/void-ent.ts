@@ -1,5 +1,4 @@
 import {
-  CamEnt,
   CursorEnt,
   FollowCamEnt,
   FollowPointEnt,
@@ -9,10 +8,9 @@ import {
 } from '@/void'
 
 export type VoidEnt =
-  & Required<CursorEnt>
-  & Required<FollowCamEnt>
-  & Required<CamEnt>
-  & Required<FPSEnt>
-  & Required<TextEnt>
-  & Required<FollowPointEnt>
-  & Required<RenderEnt>
+  & CursorEnt
+  & FollowCamEnt
+  & FPSEnt
+  & TextEnt
+  & FollowPointEnt
+  & RenderEnt

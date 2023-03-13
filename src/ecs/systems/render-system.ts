@@ -8,6 +8,7 @@ import {
 } from '@/void'
 
 export type RenderEnt = QueryEnt<
+  // to-do: should these be Bitmap?
   { sprite: Sprite; sprites: Sprite[] },
   typeof query
 >

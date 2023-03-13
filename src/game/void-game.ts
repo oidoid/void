@@ -1,12 +1,13 @@
 import { Aseprite, FilmByID } from '@/atlas-pack'
+import { U16XY } from '@/ooz'
 import { Assets, Cam, ECS, Game, Input, RendererStateMachine } from '@/void'
 
 export abstract class VoidGame<Ent, FilmID extends Aseprite.FileTag>
   implements Game<Ent, FilmID> {
-  abstract readonly cam: Readonly<Cam>
+  readonly cam: Cam
   readonly ecs: ECS<Ent> = new ECS()
   readonly filmByID: FilmByID<FilmID>
-  abstract readonly input: Input
+  readonly input: Input
   pickHandled: boolean = false
   readonly renderer: RendererStateMachine
 
@@ -17,8 +18,12 @@ export abstract class VoidGame<Ent, FilmID extends Aseprite.FileTag>
   constructor(
     assets: Assets<FilmID>,
     canvas: HTMLCanvasElement,
+    minViewport: U16XY,
     random: () => number,
+    window: Window,
   ) {
+    this.cam = new Cam(minViewport, window)
+    this.input = new Input(this.cam)
     this.filmByID = assets.atlasMeta.filmByID
     this.renderer = new RendererStateMachine({
       assets,
@@ -65,6 +70,8 @@ export abstract class VoidGame<Ent, FilmID extends Aseprite.FileTag>
     this.pickHandled = false
 
     this.input.preupdate()
+
+    this.cam.resize()
 
     this.ecs.run(this)
 
