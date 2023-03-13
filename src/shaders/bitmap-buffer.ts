@@ -39,7 +39,7 @@ export class BitmapBuffer {
   #resize(minLen: number): void {
     if (minLen <= this.#view.byteLength) return
     const buffer = new ArrayBuffer(minLen * 2)
-    // Change the view to U8s for a endian-independent copy.
+    // Set the view to U8s for an endian-independent copy.
     new Uint8Array(buffer).set(new Uint8Array(this.#view.buffer))
     this.#view = new DataView(buffer)
   }

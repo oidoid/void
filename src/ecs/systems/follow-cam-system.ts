@@ -1,12 +1,5 @@
 import { I16, I16XY } from '@/ooz'
-import {
-  Cam,
-  FollowCamConfig,
-  QueryEnt,
-  RunState,
-  Sprite,
-  System,
-} from '@/void'
+import { Cam, FollowCamConfig, Game, QueryEnt, Sprite, System } from '@/void'
 
 export type FollowCamEnt = QueryEnt<
   { followCam: FollowCamConfig; sprite: Sprite },
@@ -17,24 +10,24 @@ const query = 'followCam & sprite'
 
 export class FollowCamSystem implements System<FollowCamEnt> {
   readonly query = query
-  runEnt(ent: FollowCamEnt, state: RunState<FollowCamEnt>): void {
+  runEnt(ent: FollowCamEnt, game: Game<FollowCamEnt>): void {
     const { followCam, sprite } = ent
     const pad = new I16XY(followCam.pad?.x ?? 0, followCam.pad?.y ?? 0)
     sprite.bounds.sizeTo(
       I16(
         followCam.fill == 'X' || followCam.fill == 'XY'
-          ? (state.cam.viewport.w - pad.x * 2)
+          ? (game.cam.viewport.w - pad.x * 2)
           : sprite.w,
       ),
       I16(
         followCam.fill == 'Y' || followCam.fill == 'XY'
-          ? (state.cam.viewport.h - pad.y * 2)
+          ? (game.cam.viewport.h - pad.y * 2)
           : sprite.h,
       ),
     )
     sprite.bounds.moveTo(
-      computeX(sprite, state.cam, followCam),
-      computeY(sprite, state.cam, followCam),
+      computeX(sprite, game.cam, followCam),
+      computeY(sprite, game.cam, followCam),
     )
   }
 }

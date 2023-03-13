@@ -1,12 +1,5 @@
 import { assert, Exact, NonNull } from '@/ooz'
-import {
-  EQL,
-  parseQuerySet,
-  QueryEnt,
-  QuerySet,
-  RunState,
-  System,
-} from '@/void'
+import { EQL, Game, parseQuerySet, QueryEnt, QuerySet, System } from '@/void'
 
 // Map a tuple of partial ents to an exact tuple of partial ents.
 type PartialEntsToExact<Ent, Tuple> = Tuple extends
@@ -167,12 +160,12 @@ export class ECS<Ent> {
     return ents[0]!
   }
 
-  run(state: RunState<Ent>): void {
+  run(game: Game<Ent>): void {
     for (const system of this.#systemByOrder) {
       const ents = this.#systemEnts(system)
-      system.run?.(ents, state)
+      system.run?.(ents, game)
       if (system.runEnt != null) {
-        for (const ent of ents) system.runEnt(ent, state)
+        for (const ent of ents) system.runEnt(ent, game)
       }
     }
     this.patch()

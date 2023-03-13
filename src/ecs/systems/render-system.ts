@@ -1,7 +1,7 @@
 import {
   BitmapBuffer,
+  Game,
   QueryEnt,
-  RunState,
   ShaderLayout,
   Sprite,
   System,
@@ -23,22 +23,22 @@ export class RenderSystem<Ent extends RenderEnt>
     this.#bitmaps = new BitmapBuffer(layout)
   }
 
-  run(ents: ReadonlySet<RenderEnt>, state: RunState<Ent>): void {
+  run(ents: ReadonlySet<RenderEnt>, game: Game<Ent>): void {
     let index = 0
     for (const ent of ents) {
       if ('sprites' in ent) {
         for (const sprite of ent.sprites) {
-          if (!state.cam.viewport.intersects(sprite)) continue
-          this.#bitmaps.set(index, sprite, state.time)
+          if (!game.cam.viewport.intersects(sprite)) continue
+          this.#bitmaps.set(index, sprite, game.time)
           index++
         }
       } else {
-        if (!state.cam.viewport.intersects(ent.sprite)) continue
-        this.#bitmaps.set(index, ent.sprite, state.time)
+        if (!game.cam.viewport.intersects(ent.sprite)) continue
+        this.#bitmaps.set(index, ent.sprite, game.time)
         index++
       }
     }
 
-    state.renderer.render(state.time, state.cam, this.#bitmaps)
+    game.renderer.render(game.time, game.cam, this.#bitmaps)
   }
 }

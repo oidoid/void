@@ -1,4 +1,4 @@
-import { CursorFilmSet, QueryEnt, RunState, Sprite, System } from '@/void'
+import { CursorFilmSet, Game, QueryEnt, Sprite, System } from '@/void'
 
 export type CursorEnt = QueryEnt<
   { cursor: CursorFilmSet; sprite: Sprite },
@@ -10,12 +10,12 @@ const query = 'cursor & sprite'
 export class CursorSystem implements System<CursorEnt> {
   readonly query = query
 
-  runEnt(ent: CursorEnt, state: RunState<CursorEnt>): void {
+  runEnt(ent: CursorEnt, game: Game<CursorEnt>): void {
     const { cursor, sprite } = ent
-    if (state.input.isOnStart('Action')) {
-      sprite.animate(state.time, cursor.pick)
-    } else if (state.input.isOffStart('Action')) {
-      sprite.animate(state.time, cursor.point)
+    if (game.input.isOnStart('Action')) {
+      sprite.animate(game.time, cursor.pick)
+    } else if (game.input.isOffStart('Action')) {
+      sprite.animate(game.time, cursor.point)
     }
   }
 }

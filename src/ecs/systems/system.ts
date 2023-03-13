@@ -1,4 +1,4 @@
-import { RunState } from '@/void'
+import { Game } from '@/void'
 
 export interface System<out PartialEnt, Ent extends PartialEnt = PartialEnt> {
   /**
@@ -9,7 +9,7 @@ export interface System<out PartialEnt, Ent extends PartialEnt = PartialEnt> {
   readonly query: string
   run?(
     ents: ReadonlySet<Readonly<PartialEnt & Partial<Ent>>>,
-    state: RunState<Ent>,
+    game: Game<Ent>,
   ): void
-  runEnt?(ent: Readonly<PartialEnt & Partial<Ent>>, state: RunState<Ent>): void
+  runEnt?(ent: Readonly<PartialEnt & Partial<Ent>>, game: Game<Ent>): void
 }

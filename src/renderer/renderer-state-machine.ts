@@ -38,11 +38,7 @@ export class RendererStateMachine {
 
   // to-do: this isn't great because we go out for loop callback then back in
   // to render.
-  render(
-    time: number,
-    cam: Readonly<Cam>,
-    bitmaps: BitmapBuffer,
-  ): void {
+  render(time: number, cam: Readonly<Cam>, bitmaps: BitmapBuffer): void {
     this.#renderer.render(time, cam, bitmaps)
   }
 
