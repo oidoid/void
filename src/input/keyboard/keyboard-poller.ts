@@ -1,14 +1,15 @@
+import { Uint } from '@/ooz'
 import { Button, keyboardMap } from '@/void'
 
 export class KeyboardPoller {
-  #buttons: bigint = 0n
+  #buttons: Uint = Uint(0)
 
-  get sample(): bigint {
+  get sample(): Uint {
     return this.#buttons
   }
 
   reset(): void {
-    this.#buttons = 0n
+    this.#buttons = Uint(0)
   }
 
   register(op: 'add' | 'remove'): void {
@@ -23,7 +24,7 @@ export class KeyboardPoller {
   #onBlurEvent = (): void => {
     // keyup is not received if window loses focus first. This is like
     // pointercancel.
-    this.#buttons = 0n
+    this.#buttons = Uint(0)
   }
 
   #onKeyEvent = (ev: KeyboardEvent): void => {
@@ -56,9 +57,10 @@ function eventToKeys(ev: Readonly<KeyboardEvent>): Set<string> {
   ])
 }
 
-function keyToButton(buttons: bigint, key: string, on: boolean): bigint {
+function keyToButton(buttons: Uint, key: string, on: boolean): Uint {
   const fn = keyboardMap[key]
   if (fn == null) return buttons
   const bit = Button.Bit[fn]
-  return on ? (buttons | bit) : (buttons & ~bit)
+  // to-do: use Uint-safe or / and / complement.
+  return on ? Uint(buttons | bit) : Uint(buttons & ~bit)
 }

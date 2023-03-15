@@ -1,4 +1,4 @@
-import { I16XY } from '@/ooz'
+import { I16XY, Uint } from '@/ooz'
 import {
   Cam,
   GamepadPoller,
@@ -16,8 +16,11 @@ export class InputPoller {
     return this.#pointer.pointerType
   }
 
-  get sample(): bigint {
-    return this.#gamepad.sample | this.#keyboard.sample | this.#pointer.sample
+  get sample(): Uint {
+    // to-do: use Uint-safe or.
+    return Uint(
+      this.#gamepad.sample | this.#keyboard.sample | this.#pointer.sample,
+    )
   }
 
   get xy(): Readonly<I16XY> | undefined {

@@ -1,4 +1,4 @@
-import { I16XY } from '@/ooz'
+import { I16XY, Uint } from '@/ooz'
 import { Button, Cam, InputPoller, PointerType } from '@/void'
 
 export class Input {
@@ -15,13 +15,13 @@ export class Input {
   /**
    * The previous button state, possible 0, but not necessarily a combo member.
    */
-  #prevButtons: bigint = 0n
+  #prevButtons: Uint = Uint(0)
 
   /**
    * A sequence of nonzero buttons ordered from oldest (first) to latest (last).
    * Combos are terminated only by expiration.
    */
-  readonly #combo: bigint[] = []
+  readonly #combo: Uint[] = []
 
   /** The maximum duration in milliseconds permitted between combo inputs. */
   #maxInterval: number
@@ -29,7 +29,7 @@ export class Input {
   /** The minimum duration in milliseconds for an input to be considered held. */
   #minHeld: number
 
-  get buttons(): bigint {
+  get buttons(): Uint {
     return this.#poller.sample
   }
 
@@ -129,7 +129,7 @@ export class Input {
     this.#poller.preupdate()
     if (
       this.#duration > this.#maxInterval &&
-      (this.buttons == 0n || this.buttons != this.#prevButtons)
+      (this.buttons == Uint(0) || this.buttons != this.#prevButtons)
     ) {
       // Expired.
       this.#duration = 0
@@ -137,8 +137,8 @@ export class Input {
     } else if (this.buttons != this.#prevButtons) {
       // Some button state has changed and at least one button is still pressed.
       this.#duration = 0
-      if (this.buttons != 0n) this.#combo.push(this.buttons)
-    } else if (this.buttons != 0n && this.buttons == this.#prevButtons) {
+      if (this.buttons != 0) this.#combo.push(this.buttons)
+    } else if (this.buttons != 0 && this.buttons == this.#prevButtons) {
       // Held. Update combo with the latest buttons.
       this.#combo.pop()
       this.#combo.push(this.buttons)

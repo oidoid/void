@@ -1,14 +1,8 @@
-import { I16, I16Box, NumXY, U16XY } from '@/ooz'
+import { U16XY } from '@/ooz'
 import { Button, Cam, Input } from '@/void'
 import { assertEquals } from 'std/testing/asserts.ts'
 
-const cam: Cam = {
-  clientViewportWH: new NumXY(1, 1),
-  minViewport: new U16XY(1, 1),
-  nativeViewportWH: new U16XY(1, 1),
-  scale: I16(1),
-  viewport: new I16Box(0, 0, 1, 1),
-}
+const cam: Cam = new Cam(new U16XY(1, 1), undefined as unknown as Window)
 
 Deno.test('Buttons are initially inactive.', () => {
   const input = new Input(cam)

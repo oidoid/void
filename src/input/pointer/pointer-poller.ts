@@ -1,9 +1,9 @@
-import { I16XY, NumXY } from '@/ooz'
+import { I16XY, NumXY, Uint } from '@/ooz'
 import { Button, Cam, pointerMap, PointerType, Viewport } from '@/void'
 
 export class PointerPoller {
   /** The button state of the most recent pointer. */
-  #buttons: bigint
+  #buttons: Uint
   #cam: Readonly<Cam>
   /** The pointer type of the most recent pointer. Undefined when canceled. */
   #pointerType?: PointerType | undefined
@@ -14,7 +14,7 @@ export class PointerPoller {
     return this.#pointerType
   }
 
-  get sample(): bigint {
+  get sample(): Uint {
     return this.#buttons
   }
 
@@ -23,7 +23,7 @@ export class PointerPoller {
   }
 
   constructor(cam: Readonly<Cam>) {
-    this.#buttons = 0n
+    this.#buttons = Uint(0)
     this.#cam = cam
   }
 
@@ -31,7 +31,7 @@ export class PointerPoller {
     // pointerdown, pointermove, and pointerup events are all treated as
     // pointing but there's no event to clear the pointing state. If there's no
     // other button on, consider pointing off.
-    if (this.#buttons == 0n || this.#buttons == Button.Bit.Point) this.reset()
+    if (this.#buttons == 0 || this.#buttons == Button.Bit.Point) this.reset()
   }
 
   register(op: 'add' | 'remove'): void {
@@ -45,7 +45,7 @@ export class PointerPoller {
   }
 
   reset = (): void => {
-    this.#buttons = 0n
+    this.#buttons = Uint(0)
     this.#pointerType = undefined
     this.#xy = undefined
   }
@@ -68,13 +68,14 @@ export class PointerPoller {
   }
 }
 
-function pointerButtonsToButton(buttons: number): bigint {
-  let mapped: bigint = Button.Bit.Point // All events are points.
+function pointerButtonsToButton(buttons: number): Uint {
+  let mapped: Uint = Button.Bit.Point // All events are points.
+  // to-do: use Uint-safe left-shift-assign.
   for (let button = 1; button <= buttons; button <<= 1) {
     if ((button & buttons) != button) continue
     const fn = pointerMap[button]
     if (fn == null) continue
-    mapped |= Button.Bit[fn]
+    mapped = Uint(mapped | Button.Bit[fn]) // to-do: use Uint-safe or-assign.
   }
   return mapped
 }

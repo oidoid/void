@@ -1,4 +1,4 @@
-import { Immutable } from '@/ooz'
+import { Immutable, Uint } from '@/ooz'
 
 export type Button = Parameters<typeof Button.values['has']>[0]
 
@@ -21,35 +21,39 @@ export namespace Button {
     ),
   )
 
-  export function fromBits(bits: bigint): Button[] {
+  export function fromBits(bits: Uint): Button[] {
     return [...Button.values].filter((button) =>
       (bits & Button.Bit[button]) == Button.Bit[button]
     )
   }
 
-  export function toBits(...buttons: readonly Button[]): bigint {
-    return buttons.reduce((sum, button) => sum | Button.Bit[button], 0n)
+  export function toBits(...buttons: readonly Button[]): Uint {
+    // to-do: use Uint-safe OR.
+    return buttons.reduce(
+      (sum, button) => Uint(sum | Button.Bit[button]),
+      Uint(0),
+    )
   }
 
   // No relationship to PointerButton.toBit.
   export const Bit = Immutable(
     // deno-fmt-ignore
     {
-      Left:             0b000_0000_0001n,
-      Right:            0b000_0000_0010n,
-      Up:               0b000_0000_0100n,
-      Down:             0b000_0000_1000n,
-      Point:            0b000_0001_0000n,
-      Action:           0b000_0010_0000n,
-      Menu:             0b000_0100_0000n,
-      DebugContextLoss: 0b000_1000_0000n,
-      ScaleReset:       0b001_0000_0000n,
-      ScaleIncrease:    0b010_0000_0000n,
-      ScaleDecrease:    0b100_0000_0000n,
+      Left:             Uint(0b000_0000_0001),
+      Right:            Uint(0b000_0000_0010),
+      Up:               Uint(0b000_0000_0100),
+      Down:             Uint(0b000_0000_1000),
+      Point:            Uint(0b000_0001_0000),
+      Action:           Uint(0b000_0010_0000),
+      Menu:             Uint(0b000_0100_0000),
+      DebugContextLoss: Uint(0b000_1000_0000),
+      ScaleReset:       Uint(0b001_0000_0000),
+      ScaleIncrease:    Uint(0b010_0000_0000),
+      ScaleDecrease:    Uint(0b100_0000_0000),
     } as const,
-  ) satisfies Record<Button, bigint>
+  ) satisfies Record<Button, Uint>
 
-  export const InvertBit: Partial<Record<Button, bigint>> = Immutable(
+  export const InvertBit: Partial<Record<Button, Uint>> = Immutable(
     { Left: Bit.Right, Right: Bit.Left, Up: Bit.Down, Down: Bit.Up },
   )
 }

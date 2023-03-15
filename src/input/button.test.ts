@@ -1,7 +1,8 @@
+import { Uint } from '@/ooz'
 import { Button } from '@/void'
 import { assertEquals } from 'std/testing/asserts.ts'
 
-const bits: readonly bigint[] = Object.freeze(Object.values(Button.Bit))
+const bits: readonly Uint[] = Object.freeze(Object.values(Button.Bit))
 
 for (const [button, bit] of Object.entries(Button.Bit)) {
   Deno.test(
