@@ -4,16 +4,24 @@ import {
   I16,
   I16Box,
   I16XY,
-  I4,
   I4XY,
   Immutable,
-  NumUtil,
   NumXY,
   U16,
   U8,
   XY,
 } from '@/ooz'
 import { Bitmap, LayerByHeightFlag, LayerMask } from '@/void'
+import {
+  LayerByHeightMask,
+  LayerByHeightShift,
+  LayerByOriginFlag,
+  LayerShift,
+  WrapXMask,
+  WrapXShift,
+  WrapYMask,
+  WrapYShift,
+} from './layer.ts'
 
 export interface SpriteProps {
   /**
@@ -459,10 +467,11 @@ export class Sprite implements Bitmap {
 function parseWrapLayerByHeightLayer(
   wrapLayerByHeightLayer: U16,
 ): WrapLayerByHeightLayer {
-  const wrapX = I4.mod(NumUtil.ushift(wrapLayerByHeightLayer, 12) & 0xf)
-  const wrapY = I4.mod(NumUtil.ushift(wrapLayerByHeightLayer, 8) & 0xf)
-  const layerByHeight = NumUtil.ushift(wrapLayerByHeightLayer, 7) & 1
-  const layer = U8(wrapLayerByHeightLayer & LayerMask)
+  const wrapX = (wrapLayerByHeightLayer >> WrapXShift) & WrapXMask
+  const wrapY = (wrapLayerByHeightLayer >> WrapYShift) & WrapYMask
+  const layerByHeight = (wrapLayerByHeightLayer >> LayerByHeightShift) &
+    LayerByHeightMask
+  const layer = U8((wrapLayerByHeightLayer >> LayerShift) & LayerMask)
   return {
     wrap: new I4XY(wrapX, wrapY),
     layerByHeight: layerByHeight == LayerByHeightFlag,
@@ -475,8 +484,10 @@ function serializeWrapLayerByHeightLayer(
   layerByHeight: boolean,
   layer: U8,
 ): U16 {
-  // this is dangerous
-  const wrap = NumUtil.lshift(wrapXY.x & 0xf, 12) |
-    NumUtil.lshift(wrapXY.y & 0xf, 8)
-  return U16(wrap | (layerByHeight ? 0 : LayerByHeightFlag) | layer)
+  const wrap = (wrapXY.x & WrapXMask) << WrapXShift |
+    (wrapXY.y & WrapYMask) << WrapYShift
+  const layerByHeightFlag = layerByHeight
+    ? LayerByOriginFlag
+    : LayerByHeightFlag
+  return U16(wrap | (layerByHeightFlag << LayerByHeightShift) | layer)
 }

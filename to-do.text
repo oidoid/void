@@ -1,4 +1,4 @@
-Rework layers and bitmasks at the num level. Explore mul / div by 2 ** power for shifting and masking the lower 31/32 bits.
+Make Game implement all the wrapper functions? This could be bad for Super Patience which doesn't use the class implementation.
 Explore a more compact sprite representation on the GPU.
   Right now, we specify target XYWH. This is nice for conceptualizing.
     To not specify XY, we have to assume instance position corresponds to screen position. This kind of only works for exact grid alignment like background tiles, not character sprites that might be in-between tiles.
