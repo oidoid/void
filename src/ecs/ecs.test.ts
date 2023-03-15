@@ -1,7 +1,6 @@
 import { Int, NumXY, U8XY } from '@/ooz'
-import { ECS, parseQuerySet, System } from '@/void'
+import { ECS, Game, parseQuerySet, System } from '@/void'
 import { assertEquals } from 'std/testing/asserts.ts'
-import { RunState } from './run-state.ts'
 
 class Sprite {
   constructor(public img: string) {}
@@ -49,7 +48,7 @@ Deno.test('ECS processes system in push order.', () => {
     { query: '', run: () => order.push('B') },
     { query: '', run: () => order.push('C') },
   )
-  ecs.run({ ecs } as RunState<Ent>)
+  ecs.run({ ecs } as Game<Ent>)
   assertEquals(order, ['A', 'B', 'C'])
 })
 
@@ -59,7 +58,7 @@ Deno.test('ECS processes system in shift order.', () => {
   ecs.insertSystem(0, { query: '', run: () => order.push('A') })
   ecs.insertSystem(0, { query: '', run: () => order.push('B') })
   ecs.insertSystem(0, { query: '', run: () => order.push('C') })
-  ecs.run({ ecs } as RunState<Ent>)
+  ecs.run({ ecs } as Game<Ent>)
   assertEquals(order, ['C', 'B', 'A'])
 })
 
@@ -73,9 +72,9 @@ Deno.test('Ent additions are patched.', () => {
     },
   })
   ecs.addEnt({ text: 'abc' })
-  ecs.run({ ecs } as RunState<Ent>)
+  ecs.run({ ecs } as Game<Ent>)
   assertEquals(sys.ents, [])
-  ecs.run({ ecs } as RunState<Ent>)
+  ecs.run({ ecs } as Game<Ent>)
   assertEquals(sys.ents, [{ text: 'abc' }])
 })
 
@@ -127,8 +126,8 @@ Deno.test('Systems can have state.', () => {
     { sprite: new Sprite('A'), text: 'a', hidden: true },
     { sprite: new Sprite('B'), text: 'b' },
   )
-  ecs.run({ ecs } as RunState<Ent>)
+  ecs.run({ ecs } as Game<Ent>)
   assertEquals(sys.str, '')
-  ecs.run({ ecs } as RunState<Ent>)
+  ecs.run({ ecs } as Game<Ent>)
   assertEquals(sys.str, 'B: b ')
 })
