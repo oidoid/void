@@ -53,7 +53,6 @@ export abstract class VoidGame<Ent, FilmID extends Aseprite.FileTag>
   stop(): void {
     this.input.register('remove')
     this.renderer.stop()
-    // win.close()
   }
 
   get tick(): number {

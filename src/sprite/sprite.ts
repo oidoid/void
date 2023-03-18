@@ -4,6 +4,7 @@ import {
   I16,
   I16Box,
   I16XY,
+  I4,
   I4XY,
   Immutable,
   NumXY,
@@ -11,17 +12,19 @@ import {
   U8,
   XY,
 } from '@/ooz'
-import { Bitmap, LayerByHeightFlag, LayerMask } from '@/void'
 import {
+  Bitmap,
+  LayerByHeightFlag,
   LayerByHeightMask,
   LayerByHeightShift,
   LayerByOriginFlag,
+  LayerMask,
   LayerShift,
   WrapXMask,
   WrapXShift,
   WrapYMask,
   WrapYShift,
-} from './layer.ts'
+} from '@/void'
 
 export interface SpriteProps {
   /**
@@ -75,12 +78,21 @@ interface WrapLayerByHeightLayer {
   readonly layer: U8
 }
 
-/** A renderable animation. */
+/**
+ * A renderable animation.
+ *
+ * A good portion of this class wraps the render bounds. Few mutable methods for
+ * the render bounds are offered as they can impact rendering and collision
+ * detection in surprising ways. Reach into bounds directly (and carefully) as
+ * needed.
+ *
+ * Collision detection can be against the render bounds or against the render
+ * bounds AND animation state (Cel.slices). Collision detection is not aware of
+ * texture offset (wrap).
+ */
 export class Sprite implements Bitmap {
   #animator: Animator
   #bounds: I16Box
-  // animator collision detection is not wrap aware
-  // 4b signed x wrap, 4b signed y wrap, 1b layer by start, 7b layer
   #wrapLayerByHeightLayer: U16
 
   constructor(film: Film, layer: U8, props?: SpriteProps) {
@@ -110,7 +122,7 @@ export class Sprite implements Bitmap {
     this.#animator.reset(start, film)
   }
 
-  /** Width (w) × height (h) (may be negative if flipped). */
+  /** Rendered width (w) × height (h) (may be negative if flipped). */
   get area(): I16 {
     return this.#bounds.area
   }
@@ -123,11 +135,15 @@ export class Sprite implements Bitmap {
     return this.#bounds.areaNum
   }
 
+  /**
+   * The rendered size. This bounds usually matches Cel.bounds but may be
+   * smaller or larger. When differing, bounds may affect collision detection.
+   */
   get bounds(): I16Box {
     return this.#bounds
   }
 
-  /** @return The active film cel. */
+  /** The active film cel. */
   cel(time: number): Cel {
     return this.#animator.cel(time)
   }
@@ -158,7 +174,10 @@ export class Sprite implements Bitmap {
   }
 
   // to-do: keep in sync with shader
-  // order from top to bottom
+  /**
+   * Compare a sprite's elevation to another in descending order
+   * (top-to-bottom).
+   */
   compareDepth(sprite: this): number {
     const { layerByHeight: lhsLayerByHeight, layer: lhsLayer } =
       parseWrapLayerByHeightLayer(
@@ -191,7 +210,10 @@ export class Sprite implements Bitmap {
     return this.#animator.film
   }
 
-  /** Returns true if boxed is flipped along either or both axes. Doesn't impact rendering. */
+  /**
+   * True if boxed is flipped along either or both axes. Doesn't impact
+   * rendering.
+   */
   get flipped(): boolean {
     return this.#bounds.flipped
   }
@@ -199,11 +221,6 @@ export class Sprite implements Bitmap {
   /** Height (negative when flipped). */
   get h(): I16 {
     return this.#bounds.h
-  }
-
-  /** True if this is in front of sprite. */
-  isAbove(sprite: this): boolean {
-    return this.compareDepth(sprite) < 0
   }
 
   intersects(box: Readonly<Box<number>>, time: number): boolean
@@ -256,13 +273,18 @@ export class Sprite implements Bitmap {
       return this.intersects(sprite.bounds, time)
     }
 
-    const box = new I16Box(cel.sliceBounds).moveBy(sprite.bounds.xy)
+    const box = cel.sliceBounds.copy().moveBy(sprite.bounds.xy)
     if (!this.intersects(box, time)) return false
     for (const slice of cel.slices) {
-      const box = new I16Box(slice).moveBy(sprite.bounds.xy)
+      const box = slice.copy().moveBy(sprite.bounds.xy)
       if (this.intersects(box, time)) return true
     }
     return false
+  }
+
+  /** True if this is in front of sprite. */
+  isAbove(sprite: Readonly<this>): boolean {
+    return this.compareDepth(sprite) < 0
   }
 
   get layer(): U8 {
@@ -464,7 +486,8 @@ export class Sprite implements Bitmap {
   }
 }
 
-function parseWrapLayerByHeightLayer(
+/** @internal */
+export function parseWrapLayerByHeightLayer(
   wrapLayerByHeightLayer: U16,
 ): WrapLayerByHeightLayer {
   const wrapX = (wrapLayerByHeightLayer >> WrapXShift) & WrapXMask
@@ -473,21 +496,25 @@ function parseWrapLayerByHeightLayer(
     LayerByHeightMask
   const layer = U8((wrapLayerByHeightLayer >> LayerShift) & LayerMask)
   return {
-    wrap: new I4XY(wrapX, wrapY),
+    wrap: new I4XY(I4.mod(wrapX), I4.mod(wrapY)),
     layerByHeight: layerByHeight == LayerByHeightFlag,
     layer,
   }
 }
 
-function serializeWrapLayerByHeightLayer(
+/** @internal */
+export function serializeWrapLayerByHeightLayer(
   wrapXY: I4XY,
   layerByHeight: boolean,
   layer: U8,
 ): U16 {
-  const wrap = (wrapXY.x & WrapXMask) << WrapXShift |
-    (wrapXY.y & WrapYMask) << WrapYShift
+  const wrap = ((wrapXY.x & WrapXMask) << WrapXShift) |
+    ((wrapXY.y & WrapYMask) << WrapYShift)
   const layerByHeightFlag = layerByHeight
-    ? LayerByOriginFlag
-    : LayerByHeightFlag
-  return U16(wrap | (layerByHeightFlag << LayerByHeightShift) | layer)
+    ? LayerByHeightFlag
+    : LayerByOriginFlag
+  return U16(
+    wrap | (layerByHeightFlag << LayerByHeightShift) |
+      ((layer & LayerMask) << LayerShift),
+  )
 }

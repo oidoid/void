@@ -2,7 +2,7 @@ import { I16, I16Box, NumXY, U16XY } from '@/ooz'
 import { Viewport } from '@/void'
 import { assertEquals } from 'std/testing/asserts.ts'
 
-Deno.test('okokokokok', () => {
+Deno.test('Viewport', () => {
   const clientViewportWH = new NumXY(162.1999969482422, 88.80000305175781)
   const devicePixelRatio = 5
   const minViewportWH = new U16XY(400, 128)

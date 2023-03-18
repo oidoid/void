@@ -38,11 +38,12 @@ in ivec4 iTarget;
 
 in uint iWrapLayerByHeightLayer;
 
+// to-do: make this style match Bitmap
 const uint LayerByHeightFlag = 1u << 7;
 const uint LayerMask = 0x007fu;
 const uint LayerByHeightMask = LayerByHeightFlag;
-const uint LayerByHeightFlagStart = LayerByHeightMask & LayerByHeightFlag;
-const uint LayerByHeightFlagEnd = LayerByHeightMask & ~LayerByHeightFlag;
+const uint LayerByHeightFlagStart = LayerByHeightMask & ~LayerByHeightFlag; // to-do: use consistent terminology
+const uint LayerByHeightFlagEnd = LayerByHeightMask & LayerByHeightFlag;
 
 // Only care about layer, height, and y. See
 // https://www.patternsgameprog.com/opengl-2d-facade-25-get-the-z-of-a-pixel.

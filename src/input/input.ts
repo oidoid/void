@@ -13,7 +13,7 @@ export class Input {
   readonly #poller: InputPoller
 
   /**
-   * The previous button state, possible 0, but not necessarily a combo member.
+   * The previous button state, possibly 0, but not necessarily a combo member.
    */
   #prevButtons: Uint = Uint(0)
 
