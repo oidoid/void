@@ -37,11 +37,14 @@ export class PointerPoller {
   register(op: 'add' | 'remove'): void {
     const fn = `${op}EventListener` as const
     window[fn]('pointercancel', this.reset, { capture: true, passive: true })
-    const types = ['contextmenu', 'pointerdown', 'pointermove', 'pointerup']
-    for (const type of types) {
-      const passive = type != 'contextmenu' && type != 'pointerdown'
-      window[fn](type, this.#onPointEvent, { capture: true, passive })
+    for (const type of ['pointerdown', 'pointermove', 'pointerup'] as const) {
+      window[fn](
+        type,
+        this.#onPointEvent as EventListenerOrEventListenerObject,
+        { capture: true, passive: type != 'pointerdown' },
+      )
     }
+    window[fn]('contextmenu', this.#onContextMenuEvent, { capture: true })
   }
 
   reset = (): void => {
@@ -50,21 +53,27 @@ export class PointerPoller {
     this.#xy = undefined
   }
 
-  #onPointEvent = (ev: PointerEvent | Event): void => {
-    if (ev.type != 'contextmenu') {
-      const pointer = <PointerEvent> ev
-      this.#buttons = pointerButtonsToButton(pointer.buttons)
-      this.#pointerType = PointerType.parse(pointer.pointerType)
-      const clientXY = new NumXY(pointer.clientX, pointer.clientY)
-      this.#xy = Viewport.toLevelXY(
-        clientXY,
-        this.#cam.clientViewportWH,
-        this.#cam.viewport,
-      )
-    }
+  #onContextMenuEvent = (ev: Event): void => ev.preventDefault()
 
-    const active = ev.type == 'contextmenu' || ev.type == 'pointerdown'
-    if (active) ev.preventDefault()
+  #onPointEvent = (ev: PointerEvent): void => {
+    // Pointer poller represents one device so only singular point events are
+    // supported. If multiple were allowed, an input on one side of the screen
+    // may be immediately followed by an input on the other causing a
+    // significant hop. When dragging, for example, this can cause the dragged
+    // item to flicker between the two points.
+    if (!ev.isPrimary) return
+
+    this.#buttons = pointerButtonsToButton(ev.buttons)
+    this.#pointerType = PointerType.parse(ev.pointerType)
+    const clientXY = new NumXY(ev.clientX, ev.clientY)
+    this.#xy = Viewport.toLevelXY(
+      clientXY,
+      this.#cam.clientViewportWH,
+      this.#cam.viewport,
+    )
+
+    const passive = ev.type != 'pointerdown'
+    if (!passive) ev.preventDefault()
   }
 }
 
