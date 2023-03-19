@@ -119,7 +119,7 @@ export class ECS<Ent> {
     if (system.query in this.#entsByQuery) return system
     this.#setByQuery[system.query] = parseQuerySet(system.query)
     this.#entsByQuery[system.query] = new Set(
-      this.query(system.query as EQL<Ent, ''>),
+      this.#uncachedQuery(system.query as EQL<Ent, ''>),
     ) as Set<Partial<Ent>>
     return system
   }
@@ -141,14 +141,11 @@ export class ECS<Ent> {
     this.#patchByEnt.clear()
   }
 
-  /** Uncached query. */
+  /** One-off query. Does not write to cache (but may read). */
   query<Query>(query: EQL<Ent, Query>): QueryEnt<Ent, Query>[] {
-    const ents = []
-    const querySet = this.#setByQuery[query] ?? parseQuerySet(query)
-    for (const ent of this.#ents) {
-      if (this.#queryEnt(ent, querySet)) ents.push(ent)
-    }
-    return ents as QueryEnt<Ent, Query>[]
+    const cache = this.#entsByQuery[query]
+    if (cache != null) return [...cache] as QueryEnt<Ent, Query>[]
+    return this.#uncachedQuery<Query>(query)
   }
 
   queryOne<Query>(query: EQL<Ent, Query>): QueryEnt<Ent, Query> {
@@ -158,17 +155,6 @@ export class ECS<Ent> {
       `Expected exactly one ent for "${query}" query, got ${ents.length}.`,
     )
     return ents[0]!
-  }
-
-  run(game: Game<Ent>): void {
-    for (const system of this.#systemByOrder) {
-      const ents = this.#systemEnts(system)
-      system.run?.(ents, game)
-      if (system.runEnt != null) {
-        for (const ent of ents) system.runEnt(ent, game)
-      }
-    }
-    this.patch()
   }
 
   /** Enqueue components for removal. */
@@ -194,6 +180,17 @@ export class ECS<Ent> {
   /** Enqueue an ent for removal. */
   removeEnt(ent: Partial<Ent>): void {
     this.#patchByEnt.set(ent, undefined)
+  }
+
+  run(game: Game<Ent>): void {
+    for (const system of this.#systemByOrder) {
+      const ents = this.#systemEnts(system)
+      system.run?.(ents, game)
+      if (system.runEnt != null) {
+        for (const ent of ents) system.runEnt(ent, game)
+      }
+    }
+    this.patch()
   }
 
   /**
@@ -253,5 +250,15 @@ export class ECS<Ent> {
     return this.#entsByQuery[system.query] as ReadonlySet<
       unknown
     > as ReadonlySet<Ent>
+  }
+
+  /** Neither read nor modifies cache. */
+  #uncachedQuery<Query>(query: EQL<Ent, Query>): QueryEnt<Ent, Query>[] {
+    const ents = []
+    const querySet = parseQuerySet(query)
+    for (const ent of this.#ents) {
+      if (this.#queryEnt(ent, querySet)) ents.push(ent)
+    }
+    return ents as QueryEnt<Ent, Query>[]
   }
 }
