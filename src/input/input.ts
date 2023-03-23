@@ -29,22 +29,14 @@ export class Input {
   /** The minimum duration in milliseconds for an input to be considered held. */
   #minHeld: number
 
-  get buttons(): Uint {
-    return this.#poller.sample
-  }
-
-  get pointerType(): PointerType | undefined {
-    return this.#poller.pointerType
-  }
-
-  get xy(): Readonly<I16XY> | undefined {
-    return this.#poller.xy
-  }
-
   constructor(cam: Readonly<Cam>, minHeld = 300, maxInterval: number = 300) {
     this.#poller = new InputPoller(cam)
     this.#minHeld = minHeld
     this.#maxInterval = maxInterval
+  }
+
+  get buttons(): Uint {
+    return this.#poller.sample
   }
 
   isAnyOn(...buttons: readonly Button[]): boolean {
@@ -125,6 +117,10 @@ export class Input {
     return this.#duration >= this.#minHeld
   }
 
+  get pointerType(): PointerType | undefined {
+    return this.#poller.pointerType
+  }
+
   preupdate(): void {
     this.#poller.preupdate()
     if (
@@ -182,5 +178,9 @@ export class Input {
       `combo: ${combo.map((buttons) => buttons.join('+')).join(', ')}`,
       `combo start: ${comboStart}`,
     ].join('\n')
+  }
+
+  get xy(): Readonly<I16XY> | undefined {
+    return this.#poller.xy
   }
 }

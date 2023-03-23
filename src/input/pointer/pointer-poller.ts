@@ -10,21 +10,13 @@ export class PointerPoller {
   /** The level position of the most recent pointer. Undefined when canceled. */
   #xy?: I16XY | undefined
 
-  get pointerType(): PointerType | undefined {
-    return this.#pointerType
-  }
-
-  get sample(): Uint {
-    return this.#buttons
-  }
-
-  get xy(): I16XY | undefined {
-    return this.#xy
-  }
-
   constructor(cam: Readonly<Cam>) {
     this.#buttons = Uint(0)
     this.#cam = cam
+  }
+
+  get pointerType(): PointerType | undefined {
+    return this.#pointerType
   }
 
   postupdate(): void {
@@ -36,21 +28,32 @@ export class PointerPoller {
 
   register(op: 'add' | 'remove'): void {
     const fn = `${op}EventListener` as const
-    window[fn]('pointercancel', this.reset, { capture: true, passive: true })
+    globalThis[fn]('pointercancel', this.reset, {
+      capture: true,
+      passive: true,
+    })
     for (const type of ['pointerdown', 'pointermove', 'pointerup'] as const) {
-      window[fn](
+      globalThis[fn](
         type,
         this.#onPointEvent as EventListenerOrEventListenerObject,
         { capture: true, passive: type != 'pointerdown' },
       )
     }
-    window[fn]('contextmenu', this.#onContextMenuEvent, { capture: true })
+    globalThis[fn]('contextmenu', this.#onContextMenuEvent, { capture: true })
   }
 
   reset = (): void => {
     this.#buttons = Uint(0)
     this.#pointerType = undefined
     this.#xy = undefined
+  }
+
+  get sample(): Uint {
+    return this.#buttons
+  }
+
+  get xy(): I16XY | undefined {
+    return this.#xy
   }
 
   #onContextMenuEvent = (ev: Event): void => ev.preventDefault()

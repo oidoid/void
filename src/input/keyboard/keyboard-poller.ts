@@ -4,14 +4,6 @@ import { Button, keyboardMap } from '@/void'
 export class KeyboardPoller {
   #buttons: Uint = Uint(0)
 
-  get sample(): Uint {
-    return this.#buttons
-  }
-
-  reset(): void {
-    this.#buttons = Uint(0)
-  }
-
   register(op: 'add' | 'remove'): void {
     const fn = `${op}EventListener` as const
     globalThis[fn]('blur', this.#onBlurEvent, { capture: true, passive: true })
@@ -19,6 +11,14 @@ export class KeyboardPoller {
       const callback = <EventListenerOrEventListenerObject> this.#onKeyEvent
       globalThis[fn](type, callback, { capture: true, passive: true })
     }
+  }
+
+  reset(): void {
+    this.#buttons = Uint(0)
+  }
+
+  get sample(): Uint {
+    return this.#buttons
   }
 
   #onBlurEvent = (): void => {

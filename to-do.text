@@ -26,3 +26,4 @@ Add virtual joystick pattern.
     Provides input based on current UI state. Can hopefully be provided same frame pointer input received.
   UI part is a system that depends on an ent with a `sprite` and maybe `virtualJoystick`. It's optional.
 Limit max viewport size in demo, use infinite for solitaire.
+Favor globalThis to window.
