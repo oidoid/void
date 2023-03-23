@@ -65,7 +65,7 @@ export namespace Viewport {
     clientViewportWH: Readonly<NumXY>,
     cam: Readonly<I16Box>,
   ): I16XY {
-    return I16XY.trunc(
+    return I16XY.clamp(
       cam.x + (point.x / clientViewportWH.x) * cam.w,
       cam.y + (point.y / clientViewportWH.y) * cam.h,
     )

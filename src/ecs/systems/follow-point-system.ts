@@ -18,7 +18,7 @@ export class FollowPointSystem implements System<FollowPointEnt> {
       setCursorLayer(sprite, game)
     } else {
       // to-do: limit to screen area.
-      const speed = I16.trunc(Math.max(1, game.tick / 4))
+      const speed = I16.clamp(Math.max(1, game.tick / 4))
       if (game.input.isOn('Left')) sprite.moveBy(new I16XY(-speed, 0)) // to-do: support XYArgs here.
       if (game.input.isOn('Right')) sprite.moveBy(new I16XY(speed, 0))
       if (game.input.isOn('Up')) sprite.moveBy(new I16XY(0, -speed))

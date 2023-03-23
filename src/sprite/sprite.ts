@@ -169,8 +169,8 @@ export class Sprite implements Bitmap {
     return this.#bounds.centerRound
   }
 
-  get centerTrunc(): I16XY {
-    return this.#bounds.centerTrunc
+  get centerClamp(): I16XY {
+    return this.#bounds.centerClamp
   }
 
   // to-do: keep in sync with shader
@@ -357,10 +357,10 @@ export class Sprite implements Bitmap {
     return this
   }
 
-  moveByTrunc(x: number, y: number): this
-  moveByTrunc(xy: Readonly<XY<number>>): this
-  moveByTrunc(xXY: number | Readonly<XY<number>>, y?: number): this {
-    this.bounds.moveByTrunc(xXY as number, y!)
+  moveByClamp(x: number, y: number): this
+  moveByClamp(xy: Readonly<XY<number>>): this
+  moveByClamp(xXY: number | Readonly<XY<number>>, y?: number): this {
+    this.bounds.moveByClamp(xXY as number, y!)
     return this
   }
 
@@ -393,10 +393,10 @@ export class Sprite implements Bitmap {
     return this
   }
 
-  moveToTrunc(x: number, y: number): this
-  moveToTrunc(xy: Readonly<XY<number>>): this
-  moveToTrunc(xXY: number | Readonly<XY<number>>, y?: number): this {
-    this.bounds.moveToTrunc(xXY as number, y!)
+  moveToClamp(x: number, y: number): this
+  moveToClamp(xy: Readonly<XY<number>>): this
+  moveToClamp(xXY: number | Readonly<XY<number>>, y?: number): this {
+    this.bounds.moveToClamp(xXY as number, y!)
     return this
   }
 
@@ -429,10 +429,10 @@ export class Sprite implements Bitmap {
     return this
   }
 
-  moveCenterToTrunc(x: number, y: number): this
-  moveCenterToTrunc(xy: Readonly<XY<number>>): this
-  moveCenterToTrunc(xXY: number | Readonly<XY<number>>, y?: number): this {
-    this.bounds.moveCenterToTrunc(xXY as number, y!)
+  moveCenterToClamp(x: number, y: number): this
+  moveCenterToClamp(xy: Readonly<XY<number>>): this
+  moveCenterToClamp(xXY: number | Readonly<XY<number>>, y?: number): this {
+    this.bounds.moveCenterToClamp(xXY as number, y!)
     return this
   }
 

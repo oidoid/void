@@ -26,7 +26,7 @@ export class Text {
     layer: U8,
   ): Sprite[] {
     const layout = TextLayout.layout(this.#font, this.#str, this.#bounds.w)
-    this.#bounds.h = I16.trunc(layout.cursor.y + this.#font.lineHeight)
+    this.#bounds.h = I16.clamp(layout.cursor.y + this.#font.lineHeight)
     const sprites = []
     for (const [i, char] of layout.chars.entries()) {
       if (char == null) continue
@@ -34,7 +34,7 @@ export class Text {
       const sprite = new Sprite(
         filmByID[filmID],
         layer,
-        this.#bounds.xy.copy().addTrunc(char.xy),
+        this.#bounds.xy.copy().addClamp(char.xy),
       )
       sprites.push(sprite)
     }

@@ -7,6 +7,7 @@ Explore a more compact sprite representation on the GPU.
 Explore adding isOnScreen component with a BSP tree / quadtree implementation. It won't have an effect until next loop but will be 25% larger on each side so don't care. This could happen at end of frame as the last system to run so it has updated positions and any deleted ents are removed.
   https://github.com/straker/kontra/blob/main/src/quadtree.js
   https://en.wikipedia.org/wiki/Quadtree#Polygonal_map_quadtree
+  i could have a dirty tolerance flag for how long / how far something can stray before updating the quadtree
 Add UI components like buttons and forms.
 Implement 9-patch https://en.wikipedia.org/wiki/9-slice_scaling. Is this a single sprite with 9 areas or 9 sprites? I think the former sounds simpler but will probably still require a shader transform.
 Implement autotile/automap.
@@ -19,3 +20,9 @@ Review ~/tmp/heap, ~/tmp/set interfaces, sort-map, and how they differ from Deno
 How can I make apps offline / local-first?
   Make it installable; https://web.dev/codelab-make-installable/ https://web.dev/learn/pwa/
 Add Uint / Int-safe bitwise ops.
+Add virtual joystick pattern.
+  Non-UI input adapter is not a system. It does not depend on an ent. It has no knowledge of ents. It's just a pointer adapter that is updated each frame like the gamepad poller (but it accepts a pointer).
+    Consumes pointer input.
+    Provides input based on current UI state. Can hopefully be provided same frame pointer input received.
+  UI part is a system that depends on an ent with a `sprite` and maybe `virtualJoystick`. It's optional.
+Limit max viewport size in demo, use infinite for solitaire.
