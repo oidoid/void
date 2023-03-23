@@ -142,14 +142,18 @@ export class ECS<Ent> {
   }
 
   /** One-off query. Does not write to cache (but may read). */
-  query<Query>(query: EQL<Ent, Query>): QueryEnt<Ent, Query>[] {
+  *query<Query>(
+    query: EQL<Ent, Query>,
+  ): IterableIterator<QueryEnt<Ent, Query>> {
     const cache = this.#entsByQuery[query]
-    if (cache != null) return [...cache] as QueryEnt<Ent, Query>[]
-    return this.#uncachedQuery<Query>(query)
+    if (cache != null) {
+      return yield* cache.values() as IterableIterator<QueryEnt<Ent, Query>>
+    }
+    yield* this.#uncachedQuery<Query>(query)
   }
 
   queryOne<Query>(query: EQL<Ent, Query>): QueryEnt<Ent, Query> {
-    const ents = this.query(query)
+    const ents = [...this.query(query)]
     assert(
       ents.length == 1,
       `Expected exactly one ent for "${query}" query, got ${ents.length}.`,
@@ -253,12 +257,12 @@ export class ECS<Ent> {
   }
 
   /** Neither read nor modifies cache. */
-  #uncachedQuery<Query>(query: EQL<Ent, Query>): QueryEnt<Ent, Query>[] {
-    const ents = []
+  *#uncachedQuery<Query>(
+    query: EQL<Ent, Query>,
+  ): IterableIterator<QueryEnt<Ent, Query>> {
     const querySet = parseQuerySet(query)
     for (const ent of this.#ents) {
-      if (this.#queryEnt(ent, querySet)) ents.push(ent)
+      if (this.#queryEnt(ent, querySet)) yield ent as QueryEnt<Ent, Query>
     }
-    return ents as QueryEnt<Ent, Query>[]
   }
 }
