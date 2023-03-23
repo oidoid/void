@@ -8,7 +8,7 @@ export interface Font<T extends number = I16> extends FontMeta<T> {
 }
 
 export namespace Font {
-  export function charToFilmID<FilmID extends Aseprite.FileTag>(
+  export function charToFilmID<const FilmID extends Aseprite.FileTag>(
     self: Font,
     char: string,
   ): FilmID {

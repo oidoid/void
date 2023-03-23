@@ -51,7 +51,7 @@ export class ECS<Ent> {
 
   /** Enqueue ents. */
   addEnt<PartialEnt>(ent: Exact<Partial<Ent>, PartialEnt>): PartialEnt
-  addEnt<Tuple>(
+  addEnt<const Tuple>(
     ...ents:
       & Tuple
       & readonly [
@@ -69,7 +69,7 @@ export class ECS<Ent> {
   }
 
   addSystem<T>(system: T & System<Partial<Ent>>): T
-  addSystem<Tuple>(
+  addSystem<const Tuple>(
     ...systems:
       & Tuple
       & readonly [System<Partial<Ent>>, ...System<Partial<Ent>>[]]
@@ -142,7 +142,7 @@ export class ECS<Ent> {
   }
 
   /** One-off query. Does not write to cache (but may read). */
-  *query<Query>(
+  *query<const Query>(
     query: EQL<Ent, Query>,
   ): IterableIterator<QueryEnt<Ent, Query>> {
     const cache = this.#entsByQuery[query]
@@ -152,7 +152,7 @@ export class ECS<Ent> {
     yield* this.#uncachedQuery<Query>(query)
   }
 
-  queryOne<Query>(query: EQL<Ent, Query>): QueryEnt<Ent, Query> {
+  queryOne<const Query>(query: EQL<Ent, Query>): QueryEnt<Ent, Query> {
     const ents = [...this.query(query)]
     assert(
       ents.length == 1,
