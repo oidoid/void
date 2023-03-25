@@ -43,7 +43,7 @@ export class Text {
   }
 
   set str(str: string) {
-    if (this.#str == str) return
+    if (this.#str === str) return
     this.#str = str
     this.#rendered = false
   }

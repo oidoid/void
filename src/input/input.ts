@@ -51,15 +51,15 @@ export class Input {
    * Combos only test button on state.
    */
   isCombo(...combo: readonly (readonly Button[])[]): boolean {
-    if (combo.length != this.#combo.length) return false
+    if (combo.length !== this.#combo.length) return false
     for (const [i, buttons] of combo.entries()) {
       const mask = Button.toBits(...buttons)
-      if (this.#combo[i] != mask) return false
+      if (this.#combo[i] !== mask) return false
 
       // combo is a historical record of buttons. Whenever buttons changes, a
       // new entry is pushed. Make sure the current entry is the current state
       // and that the last entry's buttons haven't been released.
-      if (i == (combo.length - 1) && mask != this.buttons) return false
+      if (i === (combo.length - 1) && mask !== this.buttons) return false
     }
     return true
   }
@@ -83,7 +83,7 @@ export class Input {
    */
   isOn(...buttons: readonly Button[]): boolean {
     const bits = Button.toBits(...buttons)
-    return (this.buttons & bits) == bits
+    return (this.buttons & bits) === bits
   }
 
   isOnStart(...buttons: readonly Button[]): boolean {
@@ -109,7 +109,7 @@ export class Input {
   /** True if triggered on or off. */
   isStart(...buttons: readonly Button[]): boolean {
     const bits = Button.toBits(...buttons)
-    return (this.buttons & bits) != (this.#prevButtons & bits)
+    return (this.buttons & bits) !== (this.#prevButtons & bits)
   }
 
   /** True if held on or off. */
@@ -125,16 +125,16 @@ export class Input {
     this.#poller.preupdate()
     if (
       this.#duration > this.#maxInterval &&
-      (this.buttons == Uint(0) || this.buttons != this.#prevButtons)
+      (this.buttons === Uint(0) || this.buttons !== this.#prevButtons)
     ) {
       // Expired.
       this.#duration = 0
       this.#combo.length = 0
-    } else if (this.buttons != this.#prevButtons) {
+    } else if (this.buttons !== this.#prevButtons) {
       // Some button state has changed and at least one button is still pressed.
       this.#duration = 0
-      if (this.buttons != 0) this.#combo.push(this.buttons)
-    } else if (this.buttons != 0 && this.buttons == this.#prevButtons) {
+      if (this.buttons !== 0) this.#combo.push(this.buttons)
+    } else if (this.buttons !== 0 && this.buttons === this.#prevButtons) {
       // Held. Update combo with the latest buttons.
       this.#combo.pop()
       this.#combo.push(this.buttons)

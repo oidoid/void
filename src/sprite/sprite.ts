@@ -98,8 +98,8 @@ export class Sprite implements Bitmap {
   constructor(film: Film, layer: U8, props?: SpriteProps) {
     this.#animator = new Animator(film, props?.time)
     const flip = new I16XY(
-      (props?.flip == 'X' || props?.flip == 'XY') ? -1 : 1,
-      (props?.flip == 'Y' || props?.flip == 'XY') ? -1 : 1,
+      (props?.flip === 'X' || props?.flip === 'XY') ? -1 : 1,
+      (props?.flip === 'Y' || props?.flip === 'XY') ? -1 : 1,
     )
     this.#bounds = new I16Box(
       props?.xy?.x ?? props?.x ?? 0,
@@ -187,7 +187,7 @@ export class Sprite implements Bitmap {
       parseWrapLayerByHeightLayer(
         sprite.#wrapLayerByHeightLayer,
       )
-    return lhsLayer == rhsLayer
+    return lhsLayer === rhsLayer
       ? (sprite.bounds[rhsLayerByHeight ? 'xy' : 'endNum'].y -
         this.bounds[lhsLayerByHeight ? 'xy' : 'endNum'].y)
       : lhsLayer - rhsLayer
@@ -232,7 +232,7 @@ export class Sprite implements Bitmap {
     if (!this.intersectsBounds(<XY<number>> xyOrBox)) return false
 
     const cel = this.cel(time)
-    if (cel.slices.length == 0) return true // No slices.
+    if (cel.slices.length === 0) return true // No slices.
 
     const box = 'w' in xyOrBox
       ? I16Box.round(xyOrBox)
@@ -259,7 +259,7 @@ export class Sprite implements Bitmap {
     w?: number,
     h?: number,
   ): boolean {
-    if (typeof xXYBoxSprite == 'object' && 'bounds' in xXYBoxSprite) {
+    if (typeof xXYBoxSprite === 'object' && 'bounds' in xXYBoxSprite) {
       return this.bounds.intersects(xXYBoxSprite.bounds)
     }
     return this.bounds.intersects(xXYBoxSprite as number, yWH as number, w!, h!)
@@ -269,7 +269,7 @@ export class Sprite implements Bitmap {
     if (!this.intersectsBounds(sprite)) return false
 
     const cel = sprite.cel(time)
-    if (cel.slices.length == 0) {
+    if (cel.slices.length === 0) {
       return this.intersects(sprite.bounds, time)
     }
 
@@ -497,7 +497,7 @@ export function parseWrapLayerByHeightLayer(
   const layer = U8((wrapLayerByHeightLayer >> LayerShift) & LayerMask)
   return {
     wrap: new I4XY(I4.mod(wrapX), I4.mod(wrapY)),
-    layerByHeight: layerByHeight == LayerByHeightFlag,
+    layerByHeight: layerByHeight === LayerByHeightFlag,
     layer,
   }
 }

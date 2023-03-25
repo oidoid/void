@@ -187,7 +187,7 @@ Deno.test('A long combo is active and triggered.', () => {
   for (const [i, key] of keys.entries()) {
     dispatchKeyEvent('keydown', key)
     input.preupdate()
-    if (i == (keys.length - 1)) break
+    if (i === (keys.length - 1)) break
     input.postupdate(16)
 
     dispatchKeyEvent('keyup', key)
@@ -222,7 +222,7 @@ Deno.test('Around-the-world combo is active and triggered.', () => {
       dispatchKeyEvent('keydown', button)
     }
     input.preupdate()
-    if (i == (keyCombo.length - 1)) break
+    if (i === (keyCombo.length - 1)) break
     input.postupdate(16)
 
     for (const button of buttons) {

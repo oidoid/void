@@ -15,12 +15,12 @@ export class FollowCamSystem implements System<FollowCamEnt> {
     const pad = new I16XY(followCam.pad?.x ?? 0, followCam.pad?.y ?? 0)
     sprite.bounds.sizeTo(
       I16(
-        followCam.fill == 'X' || followCam.fill == 'XY'
+        followCam.fill === 'X' || followCam.fill === 'XY'
           ? (game.cam.viewport.w - pad.x * 2)
           : sprite.w,
       ),
       I16(
-        followCam.fill == 'Y' || followCam.fill == 'XY'
+        followCam.fill === 'Y' || followCam.fill === 'XY'
           ? (game.cam.viewport.h - pad.y * 2)
           : sprite.h,
       ),

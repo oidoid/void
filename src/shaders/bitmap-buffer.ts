@@ -1,7 +1,7 @@
 import { Uint } from '@/ooz'
 import { Bitmap, ShaderLayout } from '@/void'
 
-const littleEndian: boolean = new Int8Array(new Int16Array([1]).buffer)[0] == 1
+const littleEndian: boolean = new Int8Array(new Int16Array([1]).buffer)[0] === 1
 
 export class BitmapBuffer {
   #view: DataView

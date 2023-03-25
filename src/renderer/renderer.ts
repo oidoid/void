@@ -196,8 +196,8 @@ export class Renderer {
     const nativeCanvasWH = Viewport.nativeCanvasWH(cam.viewport.wh, cam.scale)
 
     if (
-      this.#gl.canvas.width != nativeCanvasWH.x ||
-      this.#gl.canvas.height != nativeCanvasWH.y
+      this.#gl.canvas.width !== nativeCanvasWH.x ||
+      this.#gl.canvas.height !== nativeCanvasWH.y
     ) {
       this.#gl.canvas.width = nativeCanvasWH.x
       this.#gl.canvas.height = nativeCanvasWH.y

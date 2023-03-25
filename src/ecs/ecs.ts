@@ -65,7 +65,7 @@ export class ECS<Ent> {
     // itself. This is a bit redundant since the ent already has these
     // components set but patching uses it to invalidate the relevant queries.
     for (const ent of ents) this.#patchByEnt.set(ent, ent)
-    return ents.length == 1 ? ents[0]! : ents
+    return ents.length === 1 ? ents[0]! : ents
   }
 
   addSystem<T>(system: T & System<Partial<Ent>>): T
@@ -79,7 +79,7 @@ export class ECS<Ent> {
     ...systems: System<Partial<Ent>, Ent>[]
   ): System<Partial<Ent>, Ent> | System<Partial<Ent>, Ent>[] {
     for (const system of systems) this.insertSystem(-0, system)
-    return systems.length == 1 ? systems[0]! : systems
+    return systems.length === 1 ? systems[0]! : systems
   }
 
   get entSize(): number {
@@ -155,7 +155,7 @@ export class ECS<Ent> {
   queryOne<const Query>(query: EQL<Ent, Query>): QueryEnt<Ent, Query> {
     const ents = [...this.query(query)]
     assert(
-      ents.length == 1,
+      ents.length === 1,
       `Expected exactly one ent for "${query}" query, got ${ents.length}.`,
     )
     return ents[0]!
@@ -177,7 +177,7 @@ export class ECS<Ent> {
       if (key in ent) patch[key] = undefined // Remove.
       else delete patch[key] // Nothing to remove.
     }
-    if (Object.keys(patch).length == 0) this.#patchByEnt.delete(ent) // Nothing to do.
+    if (Object.keys(patch).length === 0) this.#patchByEnt.delete(ent) // Nothing to do.
     else this.#patchByEnt.set(ent, patch)
   }
 
@@ -210,7 +210,7 @@ export class ECS<Ent> {
     if (pending == null) return // Deleted.
 
     Object.assign(pending, patch)
-    if (Object.keys(pending).length == 0) this.#patchByEnt.delete(ent) // Nothing to do.
+    if (Object.keys(pending).length === 0) this.#patchByEnt.delete(ent) // Nothing to do.
     else this.#patchByEnt.set(ent, pending)
   }
 
@@ -237,7 +237,7 @@ export class ECS<Ent> {
   #queryEnt(ent: Partial<Ent>, query: QuerySet<Ent>): boolean {
     return query.some((keys) =>
       [...keys].every((key) =>
-        key[0] == '!' ? !(key.slice(1) in ent) : key in ent
+        key[0] === '!' ? !(key.slice(1) in ent) : key in ent
       )
     )
   }

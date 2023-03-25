@@ -23,7 +23,7 @@ export class PointerPoller {
     // pointerdown, pointermove, and pointerup events are all treated as
     // pointing but there's no event to clear the pointing state. If there's no
     // other button on, consider pointing off.
-    if (this.#buttons == 0 || this.#buttons == Button.Bit.Point) this.reset()
+    if (this.#buttons === 0 || this.#buttons === Button.Bit.Point) this.reset()
   }
 
   register(op: 'add' | 'remove'): void {
@@ -36,7 +36,7 @@ export class PointerPoller {
       globalThis[fn](
         type,
         this.#onPointEvent as EventListenerOrEventListenerObject,
-        { capture: true, passive: type != 'pointerdown' },
+        { capture: true, passive: type !== 'pointerdown' },
       )
     }
     globalThis[fn]('contextmenu', this.#onContextMenuEvent, { capture: true })
@@ -75,7 +75,7 @@ export class PointerPoller {
       this.#cam.viewport,
     )
 
-    const passive = ev.type != 'pointerdown'
+    const passive = ev.type !== 'pointerdown'
     if (!passive) ev.preventDefault()
   }
 }
@@ -84,7 +84,7 @@ function pointerButtonsToButton(buttons: number): Uint {
   let mapped: Uint = Button.Bit.Point // All events are points.
   // to-do: use Uint-safe left-shift-assign.
   for (let button = 1; button <= buttons; button <<= 1) {
-    if ((button & buttons) != button) continue
+    if ((button & buttons) !== button) continue
     const fn = pointerMap[button]
     if (fn == null) continue
     mapped = Uint(mapped | Button.Bit[fn]) // to-do: use Uint-safe or-assign.

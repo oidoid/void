@@ -23,7 +23,7 @@ export namespace Button {
 
   export function fromBits(bits: Uint): Button[] {
     return [...Button.values].filter((button) =>
-      (bits & Button.Bit[button]) == Button.Bit[button]
+      (bits & Button.Bit[button]) === Button.Bit[button]
     )
   }
 

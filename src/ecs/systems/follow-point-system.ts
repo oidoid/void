@@ -31,9 +31,9 @@ export class FollowPointSystem implements System<FollowPointEnt> {
 }
 
 function setCursorLayer(sprite: Sprite, game: Game<FollowPointEnt>): void {
-  if (game.input.pointerType == null || game.input.pointerType == 'Mouse') {
+  if (game.input.pointerType == null || game.input.pointerType === 'Mouse') {
     sprite.layer = Layer.Cursor
   } else if (
-    game.input.pointerType == 'Pen' || game.input.pointerType == 'Touch'
+    game.input.pointerType === 'Pen' || game.input.pointerType === 'Touch'
   ) sprite.layer = Layer.Bottom
 }

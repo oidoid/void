@@ -28,7 +28,7 @@ export class KeyboardPoller {
   }
 
   #onKeyEvent = (ev: KeyboardEvent): void => {
-    const on = ev.type == 'keydown'
+    const on = ev.type === 'keydown'
     for (const key of eventToKeys(ev)) {
       this.#buttons = keyToButton(this.#buttons, key, on)
     }
@@ -42,7 +42,7 @@ function eventToKeys(ev: Readonly<KeyboardEvent>): Set<string> {
   const shift = ev.shiftKey ? 'Shift+' : ''
 
   // There is only one key per keydown event.
-  if (ev.type == 'keydown') {
+  if (ev.type === 'keydown') {
     return new Set([meta + ctrl + alt + shift + ev.key])
   }
 

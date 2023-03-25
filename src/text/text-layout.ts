@@ -15,7 +15,7 @@ export namespace TextLayout {
     let cursor = new I16XY(0, 0)
     for (let i = 0, char = str[i]; char != null; char = str[i]) {
       let layout
-      if (char == '\n') layout = layoutNewline(font, cursor)
+      if (char === '\n') layout = layoutNewline(font, cursor)
       else if (Str.isBlank(char)) {
         layout = layoutSpace(
           font,
@@ -25,7 +25,7 @@ export namespace TextLayout {
         )
       } else {
         layout = layoutWord(font, cursor, width, str, Uint(i))
-        if (cursor.x > 0 && layout.cursor.y == nextLine(font, cursor.y).y) {
+        if (cursor.x > 0 && layout.cursor.y === nextLine(font, cursor.y).y) {
           const word_width = width - cursor.x + layout.cursor.x
           if (word_width <= width) {
             // Word can fit on one line if cursor is reset to the start of the

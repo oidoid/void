@@ -62,7 +62,7 @@ export class RendererStateMachine {
   }
 
   #isDocumentVisible(): boolean {
-    return this.#window.document.visibilityState == 'visible'
+    return this.#window.document.visibilityState === 'visible'
   }
 
   #requestAnimationFrame(then: number | undefined): void {
@@ -73,7 +73,7 @@ export class RendererStateMachine {
 
   #onEvent = (event: Event): void => {
     event.preventDefault()
-    if (event.type == 'webglcontextrestored') {
+    if (event.type === 'webglcontextrestored') {
       this.#renderer = Renderer.new(
         this.#canvas,
         this.#assets.atlas,
