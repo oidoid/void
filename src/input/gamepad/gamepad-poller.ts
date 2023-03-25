@@ -1,22 +1,33 @@
 import { Uint } from '@/ooz'
 import { Button, gamepadMap } from '@/void'
 
+export interface GamepadHub extends Pick<Navigator, 'getGamepads'> {}
+export interface SecureContext
+  extends Pick<WindowOrWorkerGlobalScope, 'isSecureContext'> {}
+
 export class GamepadPoller {
   #buttons: Uint = Uint(0)
+  #hub: GamepadHub
+  #security: SecureContext
 
-  get sample(): Uint {
-    return this.#buttons
+  constructor(hub: GamepadHub, security: SecureContext) {
+    this.#hub = hub
+    this.#security = security
+  }
+
+  preupdate(): void {
+    if (!this.#security.isSecureContext) return
+    const gamepads = this.#hub.getGamepads()
+    // OR all gamepad button states into one.
+    this.#buttons = gamepads.reduce(reduceGamepads, Uint(0))
   }
 
   reset(): void {
     this.#buttons = Uint(0)
   }
 
-  preupdate(): void {
-    if (!globalThis.isSecureContext) return
-    const gamepads = Array.from(navigator.getGamepads())
-    // OR all gamepad button states into one.
-    this.#buttons = gamepads.reduce(reduceGamepads, Uint(0))
+  get sample(): Uint {
+    return this.#buttons
   }
 }
 

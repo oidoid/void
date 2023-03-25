@@ -1,11 +1,41 @@
 import { U16XY } from '@/ooz'
-import { Button, Cam, Input } from '@/void'
+import {
+  Button,
+  Cam,
+  GamepadHub,
+  Input,
+  PointerEventPub,
+  PointerLock,
+  SecureContext,
+} from '@/void'
 import { assertEquals } from 'std/testing/asserts.ts'
 
+// to-do: require specific API, not Window.
 const cam: Cam = new Cam(new U16XY(1, 1), undefined as unknown as Window)
+const gamepadHub: GamepadHub = {
+  getGamepads: () => [],
+}
+const pointerLock: PointerLock = {
+  pointerLockElement: null,
+}
+const pointerEventPub: PointerEventPub = {
+  addEventListener() {},
+  removeEventListener() {},
+  requestPointerLock() {},
+}
+const security: SecureContext = {
+  isSecureContext: false,
+}
 
 Deno.test('Buttons are initially inactive.', () => {
-  const input = new Input(cam)
+  const input = new Input(
+    cam,
+    gamepadHub,
+    globalThis,
+    pointerLock,
+    pointerEventPub,
+    security,
+  )
   input.register('add')
   input.preupdate()
   assertEquals(input.isOn('Up'), false)
@@ -21,7 +51,14 @@ Deno.test('Buttons are initially inactive.', () => {
 })
 
 Deno.test('Pressed buttons are active and triggered.', () => {
-  const input = new Input(cam)
+  const input = new Input(
+    cam,
+    gamepadHub,
+    globalThis,
+    pointerLock,
+    pointerEventPub,
+    security,
+  )
   input.register('add')
   dispatchKeyEvent('keydown', 'ArrowUp')
   input.preupdate()
@@ -38,7 +75,15 @@ Deno.test('Pressed buttons are active and triggered.', () => {
 })
 
 Deno.test('Held buttons are active but not triggered.', () => {
-  const input = new Input(cam, 16)
+  const input = new Input(
+    cam,
+    gamepadHub,
+    globalThis,
+    pointerLock,
+    pointerEventPub,
+    security,
+    16,
+  )
   input.register('add')
   dispatchKeyEvent('keydown', 'ArrowUp')
   input.preupdate()
@@ -57,7 +102,14 @@ Deno.test('Held buttons are active but not triggered.', () => {
 })
 
 Deno.test('Releases buttons are off and triggered.', () => {
-  const input = new Input(cam)
+  const input = new Input(
+    cam,
+    gamepadHub,
+    globalThis,
+    pointerLock,
+    pointerEventPub,
+    security,
+  )
   input.register('add')
   dispatchKeyEvent('keydown', 'ArrowUp')
   input.preupdate()
@@ -80,7 +132,14 @@ Deno.test('Releases buttons are off and triggered.', () => {
 })
 
 Deno.test('Combos are exact in length.', () => {
-  const input = new Input(cam)
+  const input = new Input(
+    cam,
+    gamepadHub,
+    globalThis,
+    pointerLock,
+    pointerEventPub,
+    security,
+  )
   input.register('add')
 
   dispatchKeyEvent('keydown', 'ArrowUp')
@@ -111,7 +170,14 @@ Deno.test('Combos are exact in length.', () => {
 })
 
 Deno.test('Simultaneously pressed buttons are active and triggered.', () => {
-  const input = new Input(cam)
+  const input = new Input(
+    cam,
+    gamepadHub,
+    globalThis,
+    pointerLock,
+    pointerEventPub,
+    security,
+  )
   input.register('add')
   dispatchKeyEvent('keydown', 'ArrowUp')
   dispatchKeyEvent('keydown', 'ArrowDown')
@@ -138,7 +204,14 @@ Deno.test('Simultaneously pressed buttons are active and triggered.', () => {
 })
 
 Deno.test('Combos buttons are exact.', () => {
-  const input = new Input(cam)
+  const input = new Input(
+    cam,
+    gamepadHub,
+    globalThis,
+    pointerLock,
+    pointerEventPub,
+    security,
+  )
   input.register('add')
 
   dispatchKeyEvent('keydown', 'ArrowUp')
@@ -171,7 +244,14 @@ Deno.test('Combos buttons are exact.', () => {
 })
 
 Deno.test('A long combo is active and triggered.', () => {
-  const input = new Input(cam)
+  const input = new Input(
+    cam,
+    gamepadHub,
+    globalThis,
+    pointerLock,
+    pointerEventPub,
+    security,
+  )
   input.register('add')
 
   const keys = [
@@ -204,7 +284,14 @@ Deno.test('A long combo is active and triggered.', () => {
 })
 
 Deno.test('Around-the-world combo is active and triggered.', () => {
-  const input = new Input(cam)
+  const input = new Input(
+    cam,
+    gamepadHub,
+    globalThis,
+    pointerLock,
+    pointerEventPub,
+    security,
+  )
   input.register('add')
 
   const keyCombo = [
@@ -243,7 +330,14 @@ Deno.test('Around-the-world combo is active and triggered.', () => {
 })
 
 Deno.test('Combo expired.', () => {
-  const input = new Input(cam)
+  const input = new Input(
+    cam,
+    gamepadHub,
+    globalThis,
+    pointerLock,
+    pointerEventPub,
+    security,
+  )
   input.register('add')
 
   dispatchKeyEvent('keydown', 'ArrowUp')
@@ -274,7 +368,14 @@ Deno.test('Combo expired.', () => {
 })
 
 Deno.test('Long-pressed combo is active and held.', () => {
-  const input = new Input(cam)
+  const input = new Input(
+    cam,
+    gamepadHub,
+    globalThis,
+    pointerLock,
+    pointerEventPub,
+    security,
+  )
   input.register('add')
 
   dispatchKeyEvent('keydown', 'ArrowUp')
@@ -308,7 +409,14 @@ Deno.test('Long-pressed combo is active and held.', () => {
 })
 
 Deno.test('Combo after long-pressed combo is active.', () => {
-  const input = new Input(cam)
+  const input = new Input(
+    cam,
+    gamepadHub,
+    globalThis,
+    pointerLock,
+    pointerEventPub,
+    security,
+  )
   input.register('add')
 
   dispatchKeyEvent('keydown', 'ArrowUp')

@@ -1,19 +1,33 @@
 import { I16XY, Uint } from '@/ooz'
 import {
   Cam,
+  GamepadHub,
   GamepadPoller,
+  GlobalEventPub,
   KeyboardPoller,
+  PointerEventPub,
+  PointerLock,
   PointerPoller,
   PointerType,
+  SecureContext,
 } from '@/void'
 
 export class InputPoller {
-  readonly #gamepad: GamepadPoller = new GamepadPoller()
-  readonly #keyboard: KeyboardPoller = new KeyboardPoller()
+  readonly #gamepad: GamepadPoller
+  readonly #keyboard: KeyboardPoller
   readonly #pointer: PointerPoller
 
-  constructor(cam: Readonly<Cam>) {
-    this.#pointer = new PointerPoller(cam)
+  constructor(
+    cam: Readonly<Cam>,
+    gamepadHub: GamepadHub,
+    globalEventPub: GlobalEventPub,
+    lock: PointerLock,
+    pointerEventPub: PointerEventPub,
+    security: SecureContext,
+  ) {
+    this.#gamepad = new GamepadPoller(gamepadHub, security)
+    this.#keyboard = new KeyboardPoller(globalEventPub)
+    this.#pointer = new PointerPoller(cam, lock, pointerEventPub)
   }
 
   get pointerType(): PointerType | undefined {

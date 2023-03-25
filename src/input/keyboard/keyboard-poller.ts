@@ -1,15 +1,22 @@
 import { Uint } from '@/ooz'
 import { Button, keyboardMap } from '@/void'
+import { GlobalEventPub } from '../global-event-pub.ts' // https://github.com/denoland/deno/issues/11286
 
 export class KeyboardPoller {
   #buttons: Uint = Uint(0)
+  #pub: GlobalEventPub
+
+  constructor(pub: GlobalEventPub) {
+    this.#pub = pub
+  }
 
   register(op: 'add' | 'remove'): void {
+    this.#pub.addEventListener
     const fn = `${op}EventListener` as const
-    globalThis[fn]('blur', this.#onBlurEvent, { capture: true, passive: true })
+    this.#pub[fn]('blur', this.#onBlurEvent, { capture: true, passive: true })
     for (const type of ['keydown', 'keyup']) {
       const callback = <EventListenerOrEventListenerObject> this.#onKeyEvent
-      globalThis[fn](type, callback, { capture: true, passive: true })
+      this.#pub[fn](type, callback, { capture: true, passive: true })
     }
   }
 

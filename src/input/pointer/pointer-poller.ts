@@ -1,18 +1,34 @@
 import { I16XY, NumXY, Uint } from '@/ooz'
 import { Button, Cam, pointerMap, PointerType, Viewport } from '@/void'
 
+export interface PointerEventPub extends
+  Pick<
+    HTMLCanvasElement,
+    'addEventListener' | 'removeEventListener' | 'requestPointerLock'
+  > {
+  requestPointerLock(options?: { unadjustedMovement: true }): void
+}
+export interface PointerLock
+  extends Pick<DocumentOrShadowRoot, 'pointerLockElement'> {}
+
 export class PointerPoller {
   /** The button state of the most recent pointer. */
   #buttons: Uint
   #cam: Readonly<Cam>
+  /** The raw position of the most recenter pointer. */
+  readonly #clientXY: NumXY = new NumXY(0, 0)
+  readonly #pub: PointerEventPub
+  readonly #lock: PointerLock
   /** The pointer type of the most recent pointer. Undefined when canceled. */
   #pointerType?: PointerType | undefined
   /** The level position of the most recent pointer. Undefined when canceled. */
   #xy?: I16XY | undefined
 
-  constructor(cam: Readonly<Cam>) {
+  constructor(cam: Readonly<Cam>, lock: PointerLock, pub: PointerEventPub) {
     this.#buttons = Uint(0)
     this.#cam = cam
+    this.#lock = lock
+    this.#pub = pub
   }
 
   get pointerType(): PointerType | undefined {
@@ -28,18 +44,15 @@ export class PointerPoller {
 
   register(op: 'add' | 'remove'): void {
     const fn = `${op}EventListener` as const
-    globalThis[fn]('pointercancel', this.reset, {
-      capture: true,
-      passive: true,
-    })
-    for (const type of ['pointerdown', 'pointermove', 'pointerup'] as const) {
-      globalThis[fn](
+    this.#pub[fn]('pointercancel', this.reset, { capture: true, passive: true })
+    for (const type of ['pointerdown', 'pointermove', 'pointerup']) {
+      this.#pub[fn](
         type,
         this.#onPointEvent as EventListenerOrEventListenerObject,
         { capture: true, passive: type !== 'pointerdown' },
       )
     }
-    globalThis[fn]('contextmenu', this.#onContextMenuEvent, { capture: true })
+    this.#pub[fn]('contextmenu', this.#onContextMenuEvent, { capture: true })
   }
 
   reset = (): void => {
@@ -56,9 +69,18 @@ export class PointerPoller {
     return this.#xy
   }
 
+  #locked(): boolean {
+    return this.#lock.pointerLockElement === this.#pub
+  }
+
   #onContextMenuEvent = (ev: Event): void => ev.preventDefault()
 
   #onPointEvent = (ev: PointerEvent): void => {
+    if (ev.type === 'pointerdown' && !this.#locked()) {
+      // Disable adjusted movement--this breaks my Wacom pen.
+      this.#pub.requestPointerLock({ unadjustedMovement: true })
+    }
+
     // Pointer poller represents one device so only singular point events are
     // supported. If multiple were allowed, an input on one side of the screen
     // may be immediately followed by an input on the other causing a
@@ -66,11 +88,13 @@ export class PointerPoller {
     // item to flicker between the two points.
     if (!ev.isPrimary) return
 
+    if (this.#locked()) this.#clientXY.addClamp(ev.movementX, ev.movementY)
+    else this.#clientXY.setClamp(ev.clientX, ev.clientY)
+
     this.#buttons = pointerButtonsToButton(ev.buttons)
     this.#pointerType = PointerType.parse(ev.pointerType)
-    const clientXY = new NumXY(ev.clientX, ev.clientY)
     this.#xy = Viewport.toLevelXY(
-      clientXY,
+      this.#clientXY,
       this.#cam.clientViewportWH,
       this.#cam.viewport,
     )

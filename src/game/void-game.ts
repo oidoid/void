@@ -23,7 +23,14 @@ export abstract class VoidGame<Ent, FilmID extends Aseprite.FileTag>
     window: Window,
   ) {
     this.cam = new Cam(minViewport, window)
-    this.input = new Input(this.cam)
+    this.input = new Input(
+      this.cam,
+      window.navigator,
+      window,
+      window.document,
+      canvas,
+      window,
+    )
     this.filmByID = assets.atlasMeta.filmByID
     this.renderer = new RendererStateMachine({
       assets,

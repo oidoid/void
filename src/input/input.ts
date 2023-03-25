@@ -1,5 +1,15 @@
 import { I16XY, Uint } from '@/ooz'
-import { Button, Cam, InputPoller, PointerType } from '@/void'
+import {
+  Button,
+  Cam,
+  GamepadHub,
+  GlobalEventPub,
+  InputPoller,
+  PointerEventPub,
+  PointerLock,
+  PointerType,
+  SecureContext,
+} from '@/void'
 
 export class Input {
   /** The time in milliseconds since the input changed. */
@@ -29,8 +39,24 @@ export class Input {
   /** The minimum duration in milliseconds for an input to be considered held. */
   #minHeld: number
 
-  constructor(cam: Readonly<Cam>, minHeld = 300, maxInterval: number = 300) {
-    this.#poller = new InputPoller(cam)
+  constructor(
+    cam: Readonly<Cam>,
+    gamepadHub: GamepadHub,
+    globalEventPub: GlobalEventPub,
+    lock: PointerLock,
+    pointerEventPub: PointerEventPub,
+    security: SecureContext,
+    minHeld = 300,
+    maxInterval: number = 300,
+  ) {
+    this.#poller = new InputPoller(
+      cam,
+      gamepadHub,
+      globalEventPub,
+      lock,
+      pointerEventPub,
+      security,
+    )
     this.#minHeld = minHeld
     this.#maxInterval = maxInterval
   }
