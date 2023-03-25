@@ -1,4 +1,4 @@
-import { CursorFilmSet, Game, QueryEnt, Sprite, System } from '@/void'
+import { CursorFilmSet, Game, Layer, QueryEnt, Sprite, System } from '@/void'
 
 export type CursorEnt = QueryEnt<
   { cursor: CursorFilmSet; sprite: Sprite },
@@ -11,11 +11,24 @@ export class CursorSystem implements System<CursorEnt> {
   readonly query = query
 
   runEnt(ent: CursorEnt, game: Game<CursorEnt>): void {
-    const { cursor, sprite } = ent
     if (game.input.isOnStart('Action')) {
-      sprite.animate(game.time, cursor.pick)
+      ent.sprite.animate(game.time, ent.cursor.pick)
     } else if (game.input.isOffStart('Action')) {
-      sprite.animate(game.time, cursor.point)
+      ent.sprite.animate(game.time, ent.cursor.point)
     }
+
+    if (
+      game.input.xy != null || // Pointer moved.
+      // Directional button movement.
+      game.input.isAnyOnStart('Left', 'Right', 'Up', 'Down')
+    ) setLayer(ent.sprite, game)
   }
+}
+
+function setLayer(sprite: Sprite, game: Game<CursorEnt>): void {
+  if (game.input.pointerType == null || game.input.pointerType === 'Mouse') {
+    sprite.layer = Layer.Cursor
+  } else if (
+    game.input.pointerType === 'Pen' || game.input.pointerType === 'Touch'
+  ) sprite.layer = Layer.Bottom
 }
