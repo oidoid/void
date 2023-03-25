@@ -16,6 +16,7 @@ const gamepadHub: GamepadHub = {
   getGamepads: () => [],
 }
 const pointerLock: PointerLock = {
+  exitPointerLock() {},
   pointerLockElement: null,
 }
 const pointerEventPub: PointerEventPub = {

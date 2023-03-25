@@ -6,10 +6,12 @@ export interface PointerEventPub extends
     HTMLCanvasElement,
     'addEventListener' | 'removeEventListener' | 'requestPointerLock'
   > {
-  requestPointerLock(options?: { unadjustedMovement: true }): void
+  requestPointerLock(
+    options?: { unadjustedMovement: true },
+  ): Promise<void> | void
 }
 export interface PointerLock
-  extends Pick<DocumentOrShadowRoot, 'pointerLockElement'> {}
+  extends Pick<Document, 'exitPointerLock' | 'pointerLockElement'> {}
 
 export class PointerPoller {
   /** The button state of the most recent pointer. */
@@ -69,16 +71,19 @@ export class PointerPoller {
     return this.#xy
   }
 
-  #locked(): boolean {
+  get #locked(): boolean {
     return this.#lock.pointerLockElement === this.#pub
   }
 
   #onContextMenuEvent = (ev: Event): void => ev.preventDefault()
 
   #onPointEvent = (ev: PointerEvent): void => {
-    if (ev.type === 'pointerdown' && !this.#locked()) {
-      // Disable adjusted movement--this breaks my Wacom pen.
-      this.#pub.requestPointerLock({ unadjustedMovement: true })
+    if (
+      ev.pointerType === 'mouse' && ev.type === 'pointerdown' && !this.#locked
+    ) this.#pub.requestPointerLock()
+    else if (ev.pointerType !== 'mouse' && this.#locked) {
+      // PointerLock is squirrely on my tablet. Unlock if not a mouse.
+      this.#lock.exitPointerLock()
     }
 
     // Pointer poller represents one device so only singular point events are
@@ -88,7 +93,7 @@ export class PointerPoller {
     // item to flicker between the two points.
     if (!ev.isPrimary) return
 
-    if (this.#locked()) this.#clientXY.addClamp(ev.movementX, ev.movementY)
+    if (this.#locked) this.#clientXY.addClamp(ev.movementX, ev.movementY)
     else this.#clientXY.setClamp(ev.clientX, ev.clientY)
 
     this.#buttons = pointerButtonsToButton(ev.buttons)
