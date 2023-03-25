@@ -65,8 +65,30 @@ export class Input {
     return this.#poller.sample
   }
 
+  isAnyOff(...buttons: readonly Button[]): boolean {
+    return buttons.some((button) => this.isOff(button))
+  }
+
+  /** Like is isAnyOff() but only true if at least one button has started. */
+  isAnyOffStart(...buttons: readonly Button[]): boolean {
+    return buttons.some((button) => this.isOffStart(button))
+  }
+
+  isAnyOffHeld(...buttons: readonly Button[]): boolean {
+    return buttons.some((button) => this.isOffHeld(button))
+  }
+
   isAnyOn(...buttons: readonly Button[]): boolean {
     return buttons.some((button) => this.isOn(button))
+  }
+
+  /** Like is isAnyOn() but only true if at least one button has started. */
+  isAnyOnStart(...buttons: readonly Button[]): boolean {
+    return buttons.some((button) => this.isOnStart(button))
+  }
+
+  isAnyOnHeld(...buttons: readonly Button[]): boolean {
+    return buttons.some((button) => this.isOnHeld(button))
   }
 
   /**
