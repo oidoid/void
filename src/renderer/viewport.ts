@@ -14,8 +14,9 @@ export namespace Viewport {
 
   // returns wh of body in css px
   export function clientViewportWH(window: Window): NumXY {
-    const { width, height } = window.document.body.getBoundingClientRect()
-    return new NumXY(width, height)
+    // window.document.body.getBoundingClientRect() returns incorrectly large
+    // sizing on mobile that includes the address bar.
+    return new NumXY(window.innerWidth, window.innerHeight)
   }
 
   // physical pixels
