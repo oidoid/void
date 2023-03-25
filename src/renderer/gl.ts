@@ -59,8 +59,8 @@ export namespace GL {
     gl.linkProgram(program)
     gl.useProgram(program)
 
-    const log = gl.getProgramInfoLog(program)
-    if (log) console.info(log)
+    const log = gl.getProgramInfoLog(program)?.slice(0, -1)
+    if (log) console.warn(log)
 
     // Mark shaders for deletion when unused.
     gl.detachShader(program, fragmentShader)
@@ -82,8 +82,8 @@ export namespace GL {
     gl.shaderSource(shader, source.trim())
     gl.compileShader(shader)
 
-    const log = gl.getShaderInfoLog(shader)
-    if (log) console.info(log)
+    const log = gl.getShaderInfoLog(shader)?.slice(0, -1)
+    if (log) console.warn(log)
 
     return shader
   }
