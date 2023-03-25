@@ -93,8 +93,10 @@ export class PointerPoller {
     // item to flicker between the two points.
     if (!ev.isPrimary) return
 
-    if (this.#locked) this.#clientXY.addClamp(ev.movementX, ev.movementY)
-    else this.#clientXY.setClamp(ev.clientX, ev.clientY)
+    if (this.#locked) {
+      this.#clientXY.addClamp(ev.movementX, ev.movementY).maxClamp(0, 0)
+        .minClamp(window.innerWidth, window.innerHeight) // to-do: pass in window.
+    } else this.#clientXY.setClamp(ev.clientX, ev.clientY)
 
     this.#buttons = pointerButtonsToButton(ev.buttons)
     this.#pointerType = PointerType.parse(ev.pointerType)
