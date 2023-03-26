@@ -13,9 +13,9 @@
     "options": { "semiColons": false, "singleQuote": true }
   },
   "imports": {
-    "@/atlas-pack": "https://deno.land/x/atlas_pack@v7.0.0/mod.ts",
+    "@/atlas-pack": "https://deno.land/x/atlas_pack@v7.1.0/mod.ts",
     "@/mem": "https://deno.land/x/mem@v9.0.0/mod.ts",
-    "@/ooz": "https://deno.land/x/ooz@v0.0.14/mod.ts",
+    "@/ooz": "https://deno.land/x/ooz@v0.0.16/mod.ts",
     "@/void": "./mod.ts",
     "std/": "https://deno.land/std@0.179.0/"
   },
