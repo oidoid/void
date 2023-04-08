@@ -24,6 +24,7 @@ export class Renderer {
   ): Renderer {
     const gl = canvas.getContext('webgl2', {
       antialias: false,
+      // Note: desynchronization breaks FPS rendering stats.
       // https://developer.chrome.com/blog/desynchronized
       desynchronized: true,
       preserveDrawingBuffer: false,
@@ -39,11 +40,11 @@ export class Renderer {
     gl.enable(gl.BLEND)
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
-    //enables the Z-Buffer
+    // Enable z-buffer.
     gl.enable(gl.DEPTH_TEST)
-    //  lowest Z value is 0 and the highest one is 1
+    // z-value is is in [0, 1].
     gl.depthRange(0, 1)
-    // defines the Z-order: the highest values are in the background while the lowest ones are in the front.
+    // Define z-order: high values are background, low values are foreground.
     gl.depthFunc(gl.LESS)
     //  the value used by glClear() to clear the Z-Buffer. A value of 1.0 is the highest Z value, OpenGL renders all tiles. If we choose 0.0, OpenGL does not draw any tiles.
     gl.clearDepth(1)
@@ -78,7 +79,7 @@ export class Renderer {
         attr,
       )
     }
-    GL.bufferData(gl, perVertexBuffer, uv, gl.STATIC_READ)
+    GL.bufferData(gl, perVertexBuffer, uv, gl.STATIC_DRAW)
 
     const perInstanceBuffer = gl.createBuffer()
     for (const attr of layout.perInstance.attributes) {
@@ -173,7 +174,7 @@ export class Renderer {
       this.#gl,
       this.#perInstanceBuffer,
       bitmaps.buffer,
-      this.#gl.DYNAMIC_READ,
+      this.#gl.STREAM_DRAW,
     )
     this.#gl.drawArraysInstanced(
       this.#gl.TRIANGLE_STRIP,
