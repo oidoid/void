@@ -1,13 +1,21 @@
-import { Aseprite, AtlasMeta } from '@/atlas-pack'
-import { assertNonNull, Color, NonNull, U32 } from '@/ooz'
+import { AsepriteFileTag, AtlasMeta } from '@/atlas-pack'
+import { assertNonNull, colorIntToFloats, NonNull } from '@/ooz'
 import {
   BitmapBuffer,
+  bufferGLData,
   Cam,
+  clientCanvasWH,
   fragmentGLSL,
-  GL,
+  getGLAttributeLocations,
+  getGLUniformLocation,
+  getGLUniformLocations,
+  initGLAttribute,
+  loadGLDataTexture,
+  loadGLProgram,
+  loadGLTexture,
+  nativeCanvasWH,
   ShaderLayout,
   vertexGLSL,
-  Viewport,
 } from '@/void'
 
 const uv: Uint16Array = new Uint16Array(
@@ -20,7 +28,7 @@ export class Renderer {
     canvas: HTMLCanvasElement,
     atlas: HTMLImageElement,
     layout: ShaderLayout,
-    atlasMeta: AtlasMeta<Aseprite.FileTag>,
+    atlasMeta: AtlasMeta<AsepriteFileTag>,
   ): Renderer {
     const gl = canvas.getContext('webgl2', {
       antialias: false,
@@ -32,7 +40,7 @@ export class Renderer {
     assertNonNull(gl, 'WebGL 2 unsupported.')
 
     // Avoid initial color flash by matching the background. [palette][theme]
-    const [r, g, b, a] = Color.intToFloats(U32(0x0a1a1a_ff)) // to-do: parameterize.
+    const [r, g, b, a] = colorIntToFloats(0x0a1a1a_ff) // to-do: parameterize.
     gl.clearColor(r, g, b, a)
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
@@ -52,25 +60,25 @@ export class Renderer {
     // Disable image colorspace conversions. The default is browser dependent.
     gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, false)
 
-    const program = GL.loadProgram(gl, vertexGLSL, fragmentGLSL)
-    const uniforms = GL.uniformLocations(gl, program)
+    const program = loadGLProgram(gl, vertexGLSL, fragmentGLSL)
+    const uniforms = getGLUniformLocations(gl, program)
 
-    gl.uniform1i(GL.uniformLocation(layout, uniforms, 'uAtlas'), 0)
-    gl.uniform1i(GL.uniformLocation(layout, uniforms, 'uSourceByCelID'), 1) // should be keyof shader layout
+    gl.uniform1i(getGLUniformLocation(layout, uniforms, 'uAtlas'), 0)
+    gl.uniform1i(getGLUniformLocation(layout, uniforms, 'uSourceByCelID'), 1) // should be keyof shader layout
     gl.uniform2ui(
-      GL.uniformLocation(layout, uniforms, 'uAtlasSize'),
+      getGLUniformLocation(layout, uniforms, 'uAtlasSize'),
       atlas.naturalWidth,
       atlas.naturalHeight,
     )
 
-    const attributes = GL.attributeLocations(gl, program)
+    const attributes = getGLAttributeLocations(gl, program)
 
     const vertexArray = gl.createVertexArray()
     gl.bindVertexArray(vertexArray)
 
     const perVertexBuffer = gl.createBuffer()
     for (const attr of layout.perVertex.attributes) {
-      GL.initAttribute(
+      initGLAttribute(
         gl,
         layout.perVertex.stride,
         layout.perVertex.divisor,
@@ -79,11 +87,11 @@ export class Renderer {
         attr,
       )
     }
-    GL.bufferData(gl, perVertexBuffer, uv, gl.STATIC_DRAW)
+    bufferGLData(gl, perVertexBuffer, uv, gl.STATIC_DRAW)
 
     const perInstanceBuffer = gl.createBuffer()
     for (const attr of layout.perInstance.attributes) {
-      GL.initAttribute(
+      initGLAttribute(
         gl,
         layout.perInstance.stride,
         layout.perInstance.divisor,
@@ -95,13 +103,13 @@ export class Renderer {
 
     // Leave vertexArray bound.
 
-    GL.loadTexture(gl, gl.TEXTURE0, atlas)
+    loadGLTexture(gl, gl.TEXTURE0, atlas)
 
     const dat = new Uint16Array(
       atlasMeta.celBoundsByID.flatMap((box) => [box.x, box.y, box.w, box.h]),
     )
 
-    GL.loadDataTexture(
+    loadGLDataTexture(
       gl,
       gl.TEXTURE1,
       gl.RGBA16UI,
@@ -170,7 +178,7 @@ export class Renderer {
     //   GL.uniformLocation(this.#layout, this.#uniforms, 'time'),
     //   time,
     // );
-    GL.bufferData(
+    bufferGLData(
       this.#gl,
       this.#perInstanceBuffer,
       bitmaps.buffer,
@@ -194,19 +202,19 @@ export class Renderer {
   #resize(cam: Readonly<Cam>): void {
     // Always <= native. These are level pixels.
     // Always >= native. These are physical pixels.
-    const nativeCanvasWH = Viewport.nativeCanvasWH(cam.viewport.wh, cam.scale)
+    const nativeWH = nativeCanvasWH(cam.viewport.wh, cam.scale)
 
     if (
-      this.#gl.canvas.width !== nativeCanvasWH.x ||
-      this.#gl.canvas.height !== nativeCanvasWH.y
+      this.#gl.canvas.width !== nativeWH.x ||
+      this.#gl.canvas.height !== nativeWH.y
     ) {
-      this.#gl.canvas.width = nativeCanvasWH.x
-      this.#gl.canvas.height = nativeCanvasWH.y
+      this.#gl.canvas.width = nativeWH.x
+      this.#gl.canvas.height = nativeWH.y
 
-      this.#gl.viewport(0, 0, nativeCanvasWH.x, nativeCanvasWH.y)
+      this.#gl.viewport(0, 0, nativeWH.x, nativeWH.y)
 
       console.debug(
-        `Canvas resized to ${nativeCanvasWH.x}×${nativeCanvasWH.y} native ` +
+        `Canvas resized to ${nativeWH.x}×${nativeWH.y} native ` +
           `pixels with ${cam.viewport.w}×${cam.viewport.h} cam (level ` +
           `pixels) at a ${cam.scale}x scale.`,
       )
@@ -216,7 +224,7 @@ export class Renderer {
     if (this.#gl.canvas instanceof HTMLCanvasElement) {
       // No constraints. These pixels may be greater than, less than, or equal to
       // native.
-      const clientWH = Viewport.clientCanvasWH(window, nativeCanvasWH) // to-do: pass in devicePixelRatio.
+      const clientWH = clientCanvasWH(window, nativeWH) // to-do: pass in devicePixelRatio.
       const diffW =
         Number.parseFloat(this.#gl.canvas.style.width.slice(0, -2)) -
         clientWH.x
@@ -241,7 +249,7 @@ export class Renderer {
 
     this.#projection.set(project(cam))
     this.#gl.uniformMatrix4fv(
-      GL.uniformLocation(this.#layout, this.#uniforms, 'uProjection'),
+      getGLUniformLocation(this.#layout, this.#uniforms, 'uProjection'),
       false,
       this.#projection,
     )

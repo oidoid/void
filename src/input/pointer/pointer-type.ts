@@ -1,16 +1,13 @@
-import { Immutable, Str } from '@/ooz'
+import { capitalize } from '@/ooz'
 
-export type PointerType = Parameters<typeof PointerType.values['has']>[0]
+export type PointerType = Parameters<typeof PointerTypeSet['has']>[0]
+export const PointerTypeSet = new Set(['Mouse', 'Pen', 'Touch'] as const)
 
-export namespace PointerType {
-  export const values = Immutable(new Set(['Mouse', 'Pen', 'Touch'] as const))
-
-  export function parse(type: string): PointerType | undefined {
-    const pointerType = Str.capitalize(type)
-    return isPointerType(pointerType) ? pointerType : undefined
-  }
+export function parsePointerType(type: string): PointerType | undefined {
+  const pointerType = capitalize(type)
+  return isPointerType(pointerType) ? pointerType : undefined
 }
 
 function isPointerType(type: string): type is PointerType {
-  return PointerType.values.has(type as PointerType)
+  return PointerTypeSet.has(type as PointerType)
 }

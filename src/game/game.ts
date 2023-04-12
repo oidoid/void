@@ -1,9 +1,9 @@
-import { Aseprite, FilmByID } from '@/atlas-pack'
+import { AsepriteFileTag, FilmByID } from '@/atlas-pack'
 import { Cam, ECS, Input, RendererStateMachine } from '@/void'
 
 export interface Game<
   Ent,
-  in FilmID extends Aseprite.FileTag = Aseprite.FileTag,
+  in FilmID extends AsepriteFileTag = AsepriteFileTag,
 > {
   // to-do: extend ECS and Input and RendererStateMachine.
   readonly cam: Readonly<Cam>

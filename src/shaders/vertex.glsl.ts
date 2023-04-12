@@ -1,6 +1,6 @@
 export default `#version 300 es
-#pragma debug(${GL.debug ? 'on' : 'off'})
-#pragma optimize(${GL.debug ? 'off' : 'on'})
+#pragma debug(${debugGL ? 'on' : 'off'})
+#pragma optimize(${debugGL ? 'off' : 'on'})
 
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#essl300_minimum_requirements_webgl_2
 // todo: int is currently I32 but should be mediump (I16). However, that broke
@@ -73,4 +73,4 @@ void main() {
   vWrapXY= ivec2((iWrapLayerByHeightLayer >> 12)& 0xfu, (iWrapLayerByHeightLayer >> 8)& 0xfu);
 }`
 
-import { GL } from '@/void'
+import { debugGL } from '@/void'

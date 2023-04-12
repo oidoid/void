@@ -1,5 +1,3 @@
-import { Immutable, U8 } from '@/ooz'
-
 /**
  * The render order.
  *
@@ -12,9 +10,9 @@ import { Immutable, U8 } from '@/ooz'
  * See Bitmap and zDepth() in vertex.glsl.
  */
 // to-do: can we increase to 127 or does this cause fighting?
-export const Layer = Immutable({
-  Top: U8(0x01), // So that shader subtraction keeps layer >= 0.
-  Cursor: U8(0x01),
-  Bottom: U8(0x40), // Hidden
-}) satisfies { [name: string]: U8 }
+export const Layer = {
+  Top: 0x01, // So that shader subtraction keeps layer >= 0.
+  Cursor: 0x01,
+  Bottom: 0x40, // Hidden
+} satisfies { [name: string]: number }
 export type Layer = keyof typeof Layer

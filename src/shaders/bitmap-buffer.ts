@@ -1,4 +1,3 @@
-import { Uint } from '@/ooz'
 import { Bitmap, ShaderLayout } from '@/void'
 
 const littleEndian: boolean = new Int8Array(new Int16Array([1]).buffer)[0] === 1
@@ -16,7 +15,7 @@ export class BitmapBuffer {
     return this.#size
   }
 
-  constructor(layout: ShaderLayout, len: Uint = Uint(0)) {
+  constructor(layout: ShaderLayout, len: number = 0) {
     this.#view = new DataView(new ArrayBuffer(layout.perInstance.stride * len))
     this.#layout = layout
     this.#size = 0

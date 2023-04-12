@@ -1,3 +1,6 @@
+Think about `await RAF` or generator. What are the actual performance costs (including latency)?
+If I didn't need callbacks, or maybe even if I do, creating a base void Context object has a lot of appeal over subclassing.
+  https://github.com/rxi/kit/blob/master/demo/main.c
 Make Game implement all the wrapper functions? This could be bad for Super Patience which doesn't use the class implementation.
 Explore a more compact sprite representation on the GPU.
   Right now, we specify target XYWH. This is nice for conceptualizing.

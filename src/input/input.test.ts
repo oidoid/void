@@ -1,4 +1,4 @@
-import { U16XY } from '@/ooz'
+import { XY } from '@/ooz'
 import {
   Button,
   Cam,
@@ -11,7 +11,7 @@ import {
 import { assertEquals } from 'std/testing/asserts.ts'
 
 // to-do: require specific API, not Window.
-const cam: Cam = new Cam(new U16XY(1, 1), undefined as unknown as Window)
+const cam: Cam = new Cam(new XY(1, 1), undefined as unknown as Window)
 const gamepadHub: GamepadHub = {
   getGamepads: () => [],
 }

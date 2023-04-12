@@ -1,4 +1,4 @@
-import { Int, NumXY, U8XY } from '@/ooz'
+import { XY } from '@/ooz'
 import { ECS, Game, parseQuerySet, System } from '@/void'
 import { assertEquals } from 'std/testing/asserts.ts'
 
@@ -31,9 +31,9 @@ for (
   Deno.test(`Parse query: ${index}.`, () => {
     interface Ent {
       readonly name: string
-      readonly position: NumXY
-      readonly bags: Int
-      readonly wh: U8XY
+      readonly position: XY
+      readonly bags: number
+      readonly wh: XY
       readonly items: string[]
     }
     assertEquals(parseQuerySet<Ent>(queryStr), query)

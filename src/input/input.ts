@@ -1,6 +1,9 @@
-import { I16XY, Uint } from '@/ooz'
+import { XY } from '@/ooz'
 import {
   Button,
+  ButtonSet,
+  buttonsFromBits,
+  buttonsToBits,
   Cam,
   GamepadHub,
   GlobalEventPub,
@@ -13,7 +16,7 @@ import {
 
 export class Input {
   /** The time in milliseconds since the input changed. */
-  #duration: number = 0
+  #duration = 0
 
   /**
    * The current state and prospective combo member. A zero value can never be a
@@ -25,13 +28,13 @@ export class Input {
   /**
    * The previous button state, possibly 0, but not necessarily a combo member.
    */
-  #prevButtons: Uint = Uint(0)
+  #prevButtons = 0
 
   /**
    * A sequence of nonzero buttons ordered from oldest (first) to latest (last).
    * Combos are terminated only by expiration.
    */
-  readonly #combo: Uint[] = []
+  readonly #combo: number[] = []
 
   /** The maximum duration in milliseconds permitted between combo inputs. */
   #maxInterval: number
@@ -61,7 +64,7 @@ export class Input {
     this.#maxInterval = maxInterval
   }
 
-  get buttons(): Uint {
+  get buttons(): number {
     return this.#poller.sample
   }
 
@@ -101,7 +104,7 @@ export class Input {
   isCombo(...combo: readonly (readonly Button[])[]): boolean {
     if (combo.length !== this.#combo.length) return false
     for (const [i, buttons] of combo.entries()) {
-      const mask = Button.toBits(...buttons)
+      const mask = buttonsToBits(...buttons)
       if (this.#combo[i] !== mask) return false
 
       // combo is a historical record of buttons. Whenever buttons changes, a
@@ -130,7 +133,7 @@ export class Input {
    * pressed.
    */
   isOn(...buttons: readonly Button[]): boolean {
-    const bits = Button.toBits(...buttons)
+    const bits = buttonsToBits(...buttons)
     return (this.buttons & bits) === bits
   }
 
@@ -156,7 +159,7 @@ export class Input {
 
   /** True if triggered on or off. */
   isStart(...buttons: readonly Button[]): boolean {
-    const bits = Button.toBits(...buttons)
+    const bits = buttonsToBits(...buttons)
     return (this.buttons & bits) !== (this.#prevButtons & bits)
   }
 
@@ -173,7 +176,7 @@ export class Input {
     this.#poller.preupdate()
     if (
       this.#duration > this.#maxInterval &&
-      (this.buttons === Uint(0) || this.buttons !== this.#prevButtons)
+      (this.buttons === 0 || this.buttons !== this.#prevButtons)
     ) {
       // Expired.
       this.#duration = 0
@@ -211,12 +214,12 @@ export class Input {
   toString(): string {
     const on = []
     const start = []
-    for (const button of Button.values) {
+    for (const button of ButtonSet) {
       if (this.isOn(button)) on.push(button)
       if (this.isStart(button)) start.push(button)
     }
     const combo: Button[][] = []
-    for (const buttons of this.#combo) combo.push(Button.fromBits(buttons))
+    for (const buttons of this.#combo) combo.push([...buttonsFromBits(buttons)])
     const last = combo.at(-1)
     const comboStart = last == null ? false : this.isOnStart(...last)
     return [
@@ -228,7 +231,11 @@ export class Input {
     ].join('\n')
   }
 
-  get xy(): Readonly<I16XY> | undefined {
+  /**
+   * The fractional level position of the most recent pointer. Undefined when
+   * canceled.
+   */
+  get xy(): Readonly<XY> | undefined {
     return this.#poller.xy
   }
 }

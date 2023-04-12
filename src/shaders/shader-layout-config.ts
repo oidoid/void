@@ -1,13 +1,11 @@
 export interface ShaderLayoutConfig {
   readonly uniforms: Readonly<Record<string, string>>
-  readonly perVertex: readonly ShaderLayoutConfig.Attribute[]
-  readonly perInstance: readonly ShaderLayoutConfig.Attribute[]
+  readonly perVertex: readonly ShaderLayoutConfigAttribute[]
+  readonly perInstance: readonly ShaderLayoutConfigAttribute[]
 }
 
-export namespace ShaderLayoutConfig {
-  export interface Attribute {
-    readonly type: GLDataType | string
-    readonly name: string
-    readonly len: number
-  }
+export interface ShaderLayoutConfigAttribute {
+  readonly type: GLDataType | string
+  readonly name: string
+  readonly len: number
 }

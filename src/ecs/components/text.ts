@@ -1,15 +1,15 @@
-import { Aseprite, FilmByID } from '@/atlas-pack'
-import { I16, I16Box, U8 } from '@/ooz'
-import { Font, Sprite, TextLayout } from '@/void'
+import { AsepriteFileTag, FilmByID } from '@/atlas-pack'
+import { Box } from '@/ooz'
+import { Font, fontCharToFilmID, layoutText, Sprite } from '@/void'
 
 export class Text {
-  readonly #bounds: I16Box
+  readonly #bounds: Box
   readonly #font: Font
-  readonly #layer: U8
+  readonly #layer: number
   #str: string
   #rendered: boolean
 
-  constructor(bounds: I16Box, font: Font, layer: U8, str: string) {
+  constructor(bounds: Box, font: Font, layer: number, str: string) {
     this.#bounds = bounds
     this.#font = font
     this.#layer = layer
@@ -17,24 +17,24 @@ export class Text {
     this.#rendered = false
   }
 
-  get layer(): U8 {
+  get layer(): number {
     return this.#layer
   }
 
-  render<const FilmID extends Aseprite.FileTag>(
+  render<const FilmID extends AsepriteFileTag>(
     filmByID: FilmByID<FilmID>,
-    layer: U8,
+    layer: number,
   ): Sprite[] {
-    const layout = TextLayout.layout(this.#font, this.#str, this.#bounds.w)
-    this.#bounds.h = I16.clamp(layout.cursor.y + this.#font.lineHeight)
+    const layout = layoutText(this.#font, this.#str, this.#bounds.w)
+    this.#bounds.h = layout.cursor.y + this.#font.lineHeight
     const sprites = []
     for (const [i, char] of layout.chars.entries()) {
       if (char == null) continue
-      const filmID = Font.charToFilmID<FilmID>(this.#font, this.#str[i]!)
+      const filmID = fontCharToFilmID<FilmID>(this.#font, this.#str[i]!)
       const sprite = new Sprite(
         filmByID[filmID],
         layer,
-        this.#bounds.xy.copy().addClamp(char.xy),
+        this.#bounds.xy.copy().add(char.xy),
       )
       sprites.push(sprite)
     }

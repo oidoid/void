@@ -1,8 +1,11 @@
 import { Cel } from '@/atlas-pack'
-import { Box, I16, U16 } from '@/ooz'
 
 /** Tightly coupled to ShaderLayout and GLSL. */
-export interface Bitmap extends Box<I16> {
+export interface Bitmap {
+  x: number
+  y: number
+  w: number
+  h: number
   cel(time: number): Cel
   /**
    * From left-to-right:
@@ -11,18 +14,20 @@ export interface Bitmap extends Box<I16> {
    * - 1b layer by start.
    * - 7b layer.
    */
-  readonly wrapLayerByHeightLayer: U16
+  readonly wrapLayerByHeightLayer: number
 }
 
-export const WrapXMask: U16 = U16(0b1111)
-export const WrapXShift: number = 12
-export const WrapYMask: U16 = U16(0b1111)
-export const WrapYShift: number = 8
+export const WrapXMask = 0b1111
+export const WrapXShift = 12
+export const WrapXWidth = 4
+export const WrapYMask = 0b1111
+export const WrapYShift = 8
+export const WrapYWidth = 4
 
-export const LayerShift: number = 0
-export const LayerMask: U16 = U16(0b111_1111)
+export const LayerShift = 0
+export const LayerMask = 0b111_1111
 
-export const LayerByHeightShift: number = 7
-export const LayerByHeightFlag: U16 = U16(0b1)
-export const LayerByOriginFlag: U16 = U16(0b0)
-export const LayerByHeightMask: U16 = U16(0b1)
+export const LayerByHeightShift = 7
+export const LayerByHeightFlag = 0b1
+export const LayerByOriginFlag = 0b0
+export const LayerByHeightMask = 0b1

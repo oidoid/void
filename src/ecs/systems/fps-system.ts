@@ -1,4 +1,3 @@
-import { Uint } from '@/ooz'
 import { FPS, QueryEnt, System, Text } from '@/void'
 
 export type FPSEnt = QueryEnt<{ fps: FPS; text: Text }, typeof query>
@@ -12,9 +11,9 @@ export class FPSSystem implements System<FPSEnt> {
     const now = performance.now()
     if ((now - ent.fps.next.created) >= 1000) {
       ent.fps.prev = ent.fps.next.frames
-      ent.fps.next = { created: now, frames: Uint(0) }
+      ent.fps.next = { created: now, frames: 0 }
     }
-    ent.fps.next.frames = Uint(ent.fps.next.frames + 1)
+    ent.fps.next.frames++
     ent.text.str = ent.fps.prev.toString().padStart(3, '0')
   }
 }

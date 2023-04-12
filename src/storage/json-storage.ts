@@ -1,24 +1,22 @@
 import { JSONValue } from '@/ooz'
 
-export namespace JSONStorage {
-  export function clear(storage: Storage): void {
-    storage.clear()
+export class JSONStorage {
+  #storage: Storage
+  constructor(storage: Storage) {
+    this.#storage = storage
   }
 
-  export function get<T>(
-    self: Storage,
-    key: string,
-  ): T & JSONValue | undefined {
-    const val = self.getItem(key)
+  clear(): void {
+    this.#storage.clear()
+  }
+
+  get<T>(key: string): T & JSONValue | undefined {
+    const val = this.#storage.getItem(key)
     return val == null ? undefined : JSON.parse(val)
   }
 
-  export function put(
-    self: Storage,
-    key: string,
-    val: JSONValue | undefined,
-  ): void {
-    if (val == null) self.removeItem(key)
-    else self.setItem(key, JSON.stringify(val))
+  put(key: string, val: JSONValue | undefined): void {
+    if (val == null) this.#storage.removeItem(key)
+    else this.#storage.setItem(key, JSON.stringify(val))
   }
 }

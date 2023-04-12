@@ -1,17 +1,5 @@
 import { Animator, Cel, Film } from '@/atlas-pack'
-import {
-  Box,
-  I16,
-  I16Box,
-  I16XY,
-  I4,
-  I4XY,
-  Immutable,
-  NumXY,
-  U16,
-  U8,
-  XY,
-} from '@/ooz'
+import { Box, PartialXY, wrapNum, XY } from '@/ooz'
 import {
   Bitmap,
   LayerByHeightFlag,
@@ -22,8 +10,10 @@ import {
   LayerShift,
   WrapXMask,
   WrapXShift,
+  WrapXWidth,
   WrapYMask,
   WrapYShift,
+  WrapYWidth,
 } from '@/void'
 
 export interface SpriteProps {
@@ -32,12 +22,12 @@ export interface SpriteProps {
    *
    * Ents that are repositioned by other systems like FollowCam don't care.
    */
-  readonly xy?: Partial<XY<number>> | undefined
+  readonly xy?: PartialXY | undefined
   readonly x?: number | undefined
   readonly y?: number | undefined
 
   /** The dimensions of the sprite. Defaults to animation size. */
-  readonly wh?: Partial<XY<number>> | undefined
+  readonly wh?: PartialXY | undefined
   readonly w?: number | undefined
   readonly h?: number | undefined
 
@@ -48,7 +38,7 @@ export interface SpriteProps {
    */
   readonly layerByHeight?: boolean | undefined
   /** Offset sprite. Capped to I4. */
-  readonly wrap?: Partial<XY<number>> | undefined
+  readonly wrap?: PartialXY | undefined
   /** Mirror sprite. Defaults to unflipped. to-do: add intersection support. */
   readonly flip?: SpriteFlip | undefined
 
@@ -56,26 +46,22 @@ export interface SpriteProps {
   readonly time?: number
 }
 
-export type SpriteFlip = Parameters<typeof SpriteFlip.values['has']>[0]
-export namespace SpriteFlip {
-  export const values = Immutable(
-    new Set(
-      [
-        /** Flip horizontally. */
-        'X',
-        /** Flip vertically. */
-        'Y',
-        /** Flip horizontally and vertically. */
-        'XY',
-      ] as const,
-    ),
-  )
-}
+export type SpriteFlip = Parameters<typeof SpriteFlipSet['has']>[0]
+export const SpriteFlipSet = new Set(
+  [
+    /** Flip horizontally. */
+    'X',
+    /** Flip vertically. */
+    'Y',
+    /** Flip horizontally and vertically. */
+    'XY',
+  ] as const,
+)
 
 interface WrapLayerByHeightLayer {
-  readonly wrap: I4XY
+  readonly wrap: XY
   readonly layerByHeight: boolean
-  readonly layer: U8
+  readonly layer: number
 }
 
 /**
@@ -92,23 +78,23 @@ interface WrapLayerByHeightLayer {
  */
 export class Sprite implements Bitmap {
   #animator: Animator
-  #bounds: I16Box
-  #wrapLayerByHeightLayer: U16
+  #bounds: Box
+  #wrapLayerByHeightLayer: number
 
-  constructor(film: Film, layer: U8, props?: SpriteProps) {
+  constructor(film: Film, layer: number, props?: SpriteProps) {
     this.#animator = new Animator(film, props?.time)
-    const flip = new I16XY(
+    const flip = new XY(
       (props?.flip === 'X' || props?.flip === 'XY') ? -1 : 1,
       (props?.flip === 'Y' || props?.flip === 'XY') ? -1 : 1,
     )
-    this.#bounds = new I16Box(
+    this.#bounds = new Box(
       props?.xy?.x ?? props?.x ?? 0,
       props?.xy?.y ?? props?.y ?? 0,
       (props?.wh?.x ?? props?.w ?? film.wh.x) * flip.x,
       (props?.wh?.y ?? props?.h ?? film.wh.y) * flip.y,
     )
     this.#wrapLayerByHeightLayer = serializeWrapLayerByHeightLayer(
-      new I4XY(props?.wrap?.x ?? 0, props?.wrap?.y ?? 0),
+      new XY(props?.wrap?.x ?? 0, props?.wrap?.y ?? 0),
       props?.layerByHeight ?? false,
       layer,
     )
@@ -123,23 +109,15 @@ export class Sprite implements Bitmap {
   }
 
   /** Rendered width (w) × height (h) (may be negative if flipped). */
-  get area(): I16 {
+  get area(): number {
     return this.#bounds.area
-  }
-
-  get areaClamp(): I16 {
-    return this.#bounds.areaClamp
-  }
-
-  get areaNum(): number {
-    return this.#bounds.areaNum
   }
 
   /**
    * The rendered size. This bounds usually matches Cel.bounds but may be
    * smaller or larger. When differing, bounds may affect collision detection.
    */
-  get bounds(): I16Box {
+  get bounds(): Box {
     return this.#bounds
   }
 
@@ -149,28 +127,8 @@ export class Sprite implements Bitmap {
   }
 
   /** The center coordinate. */
-  get center(): I16XY {
+  get center(): XY {
     return this.#bounds.center
-  }
-
-  get centerNum(): NumXY {
-    return this.#bounds.centerNum
-  }
-
-  get centerCeil(): I16XY {
-    return this.#bounds.centerCeil
-  }
-
-  get centerFloor(): I16XY {
-    return this.#bounds.centerFloor
-  }
-
-  get centerRound(): I16XY {
-    return this.#bounds.centerRound
-  }
-
-  get centerClamp(): I16XY {
-    return this.#bounds.centerClamp
   }
 
   // to-do: keep in sync with shader
@@ -188,98 +146,110 @@ export class Sprite implements Bitmap {
         sprite.#wrapLayerByHeightLayer,
       )
     return lhsLayer === rhsLayer
-      ? (sprite.bounds[rhsLayerByHeight ? 'xy' : 'endNum'].y -
-        this.bounds[lhsLayerByHeight ? 'xy' : 'endNum'].y)
+      ? (sprite.bounds[rhsLayerByHeight ? 'xy' : 'end'].y -
+        this.#bounds[lhsLayerByHeight ? 'xy' : 'end'].y)
       : lhsLayer - rhsLayer
   }
 
   /** The starting coordinate plus dimensions. */
-  get end(): I16XY {
+  get end(): XY {
     return this.#bounds.end
-  }
-
-  get endClamp(): I16XY {
-    return this.#bounds.endClamp
-  }
-
-  get endNum(): NumXY {
-    return this.#bounds.endNum
   }
 
   get film(): Film {
     return this.#animator.film
   }
 
-  /**
-   * True if boxed is flipped along either or both axes. Doesn't impact
-   * rendering.
-   */
-  get flipped(): boolean {
-    return this.#bounds.flipped
+  get flipX(): boolean {
+    return this.#bounds.w < 0
+  }
+
+  set flipX(flip: boolean) {
+    this.#bounds.w = Math.abs(this.#bounds.w) * (flip ? -1 : 1)
+  }
+
+  get flipY(): boolean {
+    return this.#bounds.h < 0
+  }
+
+  set flipY(flip: boolean) {
+    this.#bounds.h = Math.abs(this.#bounds.h) * (flip ? -1 : 1)
   }
 
   /** Height (negative when flipped). */
-  get h(): I16 {
+  get h(): number {
     return this.#bounds.h
   }
 
-  intersects(box: Readonly<Box<number>>, time: number): boolean
-  intersects(xy: Readonly<XY<number>>, time: number): boolean
+  set h(h: number) {
+    this.#bounds.h = h
+  }
+
+  /** Intersect by slices if present, bounds if not. */
+  intersects(xy: Readonly<XY>, time: number): boolean
+  intersects(box: Readonly<Box>, time: number): boolean
+  intersects(sprite: Readonly<Sprite>, time: number): boolean
   intersects(
-    xyOrBox: Readonly<Box<number> | XY<number>>,
+    xyBoxSprite: Readonly<Box | Sprite | XY>,
     time: number,
   ): boolean {
-    if (!this.intersectsBounds(<XY<number>> xyOrBox)) return false
+    // 1: does this bounds intersect with args?
+    if (!this.intersectsBounds(<XY> xyBoxSprite)) return false
 
+    // 2: this bounds intersects; are slices specified?
     const cel = this.cel(time)
     if (cel.slices.length === 0) return true // No slices.
 
-    const box = 'w' in xyOrBox
-      ? I16Box.round(xyOrBox)
-      : I16Box.round(xyOrBox.x, xyOrBox.y, 0, 0)
-    box.moveBy(-this.x, -this.y)
-    if (!cel.sliceBounds.intersects(box)) return false
-    for (const slice of cel.slices) if (slice.intersects(box)) return true
+    // 3: slices are specified; do the superset and any one of them collide with
+    // args?
+
+    // 3.a: args is Box or XY.
+    if (xyBoxSprite instanceof Box || xyBoxSprite instanceof XY) {
+      const box = xyBoxSprite instanceof Box
+        ? xyBoxSprite.copy()
+        : new Box(xyBoxSprite.x, xyBoxSprite.y, 0, 0)
+      box.xy.add(-this.x, -this.y)
+
+      // 3.a.i superset.
+      if (!cel.sliceBounds.intersects(box)) return false
+
+      // 3.a.i any.
+      return cel.slices.some((slice) => slice.intersects(box))
+    }
+
+    // 3.b: args is sprite; we already know this bounds collides with sprite
+    // bounds.
+    const sprite = <Sprite> xyBoxSprite
+
+    // 3.b.i are sprite slices specified?
+    const spriteCel = sprite.cel(time)
+    if (spriteCel.slices.length === 0) return true // No slices.
+
+    // 3.b.ii this superset intersect sprite superset?
+    if (!cel.sliceBounds.intersects(spriteCel.sliceBounds)) return false
+
+    // 3.b.iii any of these slices intersect any of sprite's slices?
+    for (const slice of cel.slices) {
+      for (const spriteSlice of spriteCel.slices) {
+        if (slice.intersects(spriteSlice)) return true
+      }
+    }
+
     return false
   }
 
   /**
-   * Return true if self and box are overlapping, false if only touching or
-   * independent.
+   * Return true if bounds and arguments are overlapping, false if only touching
+   * or independent.
    */
-  intersectsBounds(x: number, y: number): boolean
-  intersectsBounds(xy: Readonly<XY<number>>): boolean
-  intersectsBounds(x: number, y: number, w: number, h: number): boolean
-  intersectsBounds(xy: Readonly<XY<number>>, wh: Readonly<XY<number>>): boolean
-  intersectsBounds(box: Readonly<Box<number>>): boolean
-  intersectsBounds(sprite: Readonly<Sprite>): boolean
-  intersectsBounds(
-    xXYBoxSprite: number | Readonly<XY<number> | Box<number> | Sprite>,
-    yWH?: number | Readonly<XY<number>>,
-    w?: number,
-    h?: number,
-  ): boolean {
-    if (typeof xXYBoxSprite === 'object' && 'bounds' in xXYBoxSprite) {
-      return this.bounds.intersects(xXYBoxSprite.bounds)
+  intersectsBounds(xy: Readonly<XY>): boolean
+  intersectsBounds(box: Readonly<Box>): boolean
+  intersectsBounds(sprite: Readonly<this>): boolean
+  intersectsBounds(xyBoxSprite: Readonly<XY | Box | this>): boolean {
+    if (xyBoxSprite instanceof Sprite) {
+      return this.#bounds.intersects(xyBoxSprite.bounds)
     }
-    return this.bounds.intersects(xXYBoxSprite as number, yWH as number, w!, h!)
-  }
-
-  intersectsSprite(sprite: Readonly<Sprite>, time: number): boolean {
-    if (!this.intersectsBounds(sprite)) return false
-
-    const cel = sprite.cel(time)
-    if (cel.slices.length === 0) {
-      return this.intersects(sprite.bounds, time)
-    }
-
-    const box = cel.sliceBounds.copy().moveBy(sprite.bounds.xy)
-    if (!this.intersects(box, time)) return false
-    for (const slice of cel.slices) {
-      const box = slice.copy().moveBy(sprite.bounds.xy)
-      if (this.intersects(box, time)) return true
-    }
-    return false
+    return this.#bounds.intersects(xyBoxSprite as Readonly<Box>)
   }
 
   /** True if this is in front of sprite. */
@@ -287,11 +257,11 @@ export class Sprite implements Bitmap {
     return this.compareDepth(sprite) < 0
   }
 
-  get layer(): U8 {
+  get layer(): number {
     return parseWrapLayerByHeightLayer(this.#wrapLayerByHeightLayer).layer
   }
 
-  set layer(layer: U8) {
+  set layer(layer: number) {
     const { wrap, layerByHeight } = parseWrapLayerByHeightLayer(
       this.#wrapLayerByHeightLayer,
     )
@@ -303,200 +273,81 @@ export class Sprite implements Bitmap {
   }
 
   /** The greatest coordinate of this box. */
-  get max(): I16XY {
+  get max(): XY {
     return this.#bounds.max
   }
 
-  get maxClamp(): I16XY {
-    return this.#bounds.maxClamp
-  }
-
-  get maxNum(): NumXY {
-    return this.#bounds.maxNum
-  }
-
   /** The least coordinate of this box. */
-  get min(): I16XY {
+  get min(): XY {
     return this.#bounds.min
-  }
-
-  get minClamp(): I16XY {
-    return this.#bounds.minClamp
-  }
-
-  get minNum(): NumXY {
-    return this.#bounds.minNum
-  }
-
-  /** Reposition the box by arguments. */
-  moveBy(x: number, y: number): this
-  moveBy(xy: Readonly<XY<number>>): this
-  moveBy(xXY: number | Readonly<XY<number>>, y?: number): this {
-    this.bounds.moveBy(xXY as number, y!)
-    return this
-  }
-
-  moveByCeil(x: number, y: number): this
-  moveByCeil(xy: Readonly<XY<number>>): this
-  moveByCeil(xXY: number | Readonly<XY<number>>, y?: number): this {
-    this.bounds.moveByCeil(xXY as number, y!)
-    return this
-  }
-
-  moveByFloor(x: number, y: number): this
-  moveByFloor(xy: Readonly<XY<number>>): this
-  moveByFloor(xXY: number | Readonly<XY<number>>, y?: number): this {
-    this.bounds.moveByFloor(xXY as number, y!)
-    return this
-  }
-
-  moveByRound(x: number, y: number): this
-  moveByRound(xy: Readonly<XY<number>>): this
-  moveByRound(xXY: number | Readonly<XY<number>>, y?: number): this {
-    this.bounds.moveByRound(xXY as number, y!)
-    return this
-  }
-
-  moveByClamp(x: number, y: number): this
-  moveByClamp(xy: Readonly<XY<number>>): this
-  moveByClamp(xXY: number | Readonly<XY<number>>, y?: number): this {
-    this.bounds.moveByClamp(xXY as number, y!)
-    return this
-  }
-
-  /** Reposition the box to arguments. */
-  moveTo(x: number, y: number): this
-  moveTo(xy: Readonly<XY<number>>): this
-  moveTo(xXY: number | Readonly<XY<number>>, y?: number): this {
-    this.bounds.moveTo(xXY as number, y!)
-    return this
-  }
-
-  moveToCeil(x: number, y: number): this
-  moveToCeil(xy: Readonly<XY<number>>): this
-  moveToCeil(xXY: number | Readonly<XY<number>>, y?: number): this {
-    this.bounds.moveToCeil(xXY as number, y!)
-    return this
-  }
-
-  moveToFloor(x: number, y: number): this
-  moveToFloor(xy: Readonly<XY<number>>): this
-  moveToFloor(xXY: number | Readonly<XY<number>>, y?: number): this {
-    this.bounds.moveToFloor(xXY as number, y!)
-    return this
-  }
-
-  moveToRound(x: number, y: number): this
-  moveToRound(xy: Readonly<XY<number>>): this
-  moveToRound(xXY: number | Readonly<XY<number>>, y?: number): this {
-    this.bounds.moveToRound(xXY as number, y!)
-    return this
-  }
-
-  moveToClamp(x: number, y: number): this
-  moveToClamp(xy: Readonly<XY<number>>): this
-  moveToClamp(xXY: number | Readonly<XY<number>>, y?: number): this {
-    this.bounds.moveToClamp(xXY as number, y!)
-    return this
-  }
-
-  /** Center the box on arguments. */
-  moveCenterTo(x: number, y: number): this
-  moveCenterTo(xy: Readonly<XY<number>>): this
-  moveCenterTo(xXY: number | Readonly<XY<number>>, y?: number): this {
-    this.bounds.moveCenterTo(xXY as number, y!)
-    return this
-  }
-
-  moveCenterToCeil(x: number, y: number): this
-  moveCenterToCeil(xy: Readonly<XY<number>>): this
-  moveCenterToCeil(xXY: number | Readonly<XY<number>>, y?: number): this {
-    this.bounds.moveCenterToCeil(xXY as number, y!)
-    return this
-  }
-
-  moveCenterToFloor(x: number, y: number): this
-  moveCenterToFloor(xy: Readonly<XY<number>>): this
-  moveCenterToFloor(xXY: number | Readonly<XY<number>>, y?: number): this {
-    this.bounds.moveCenterToFloor(xXY as number, y!)
-    return this
-  }
-
-  moveCenterToRound(x: number, y: number): this
-  moveCenterToRound(xy: Readonly<XY<number>>): this
-  moveCenterToRound(xXY: number | Readonly<XY<number>>, y?: number): this {
-    this.bounds.moveCenterToRound(xXY as number, y!)
-    return this
-  }
-
-  moveCenterToClamp(x: number, y: number): this
-  moveCenterToClamp(xy: Readonly<XY<number>>): this
-  moveCenterToClamp(xXY: number | Readonly<XY<number>>, y?: number): this {
-    this.bounds.moveCenterToClamp(xXY as number, y!)
-    return this
-  }
-
-  /**
-   * Recomputes as a front-facing Box range with coordinates reordered such that
-   * each component of start is less than or equal to end. The result is always
-   * unflipped.
-   */
-  order(): this {
-    this.#bounds.order()
-    return this
-  }
-
-  orderClamp(): this {
-    this.#bounds.orderClamp()
-    return this
   }
 
   toString(): string {
     const wlbhl = parseWrapLayerByHeightLayer(this.#wrapLayerByHeightLayer)
-    return `Sprite {id=${this.film.id} box=${this.bounds.toString()} ` +
+    return `Sprite {id=${this.film.id} box=${this.#bounds} ` +
       `layer=${wlbhl.layer} layerByHeight=${wlbhl.layerByHeight} ` +
-      `wrap=${wlbhl.wrap.toString()}}`
+      `wrap=${wlbhl.wrap}}`
   }
 
   /** Width (negative when flipped). */
-  get w(): I16 {
+  get w(): number {
     return this.#bounds.w
   }
 
+  set w(w: number) {
+    this.#bounds.w = w
+  }
+
   /** The box dimensions. */
-  get wh(): I16XY {
+  get wh(): XY {
     return this.#bounds.wh
   }
 
-  get wrapLayerByHeightLayer(): U16 {
+  get wrapLayerByHeightLayer(): number {
     return this.#wrapLayerByHeightLayer
   }
 
   /** The box coordinates. */
-  get xy(): I16XY {
+  get xy(): XY {
     return this.#bounds.xy
   }
 
-  get x(): I16 {
+  get x(): number {
     return this.#bounds.x
   }
 
-  get y(): I16 {
+  set x(x: number) {
+    this.#bounds.x = x
+  }
+
+  get y(): number {
     return this.#bounds.y
+  }
+
+  set y(y: number) {
+    this.#bounds.y = y
   }
 }
 
 /** @internal */
 export function parseWrapLayerByHeightLayer(
-  wrapLayerByHeightLayer: U16,
+  wrapLayerByHeightLayer: number,
 ): WrapLayerByHeightLayer {
-  const wrapX = (wrapLayerByHeightLayer >> WrapXShift) & WrapXMask
-  const wrapY = (wrapLayerByHeightLayer >> WrapYShift) & WrapYMask
+  const wrapX = wrapNum(
+    (wrapLayerByHeightLayer >> WrapXShift) & WrapXMask,
+    -(2 ** (WrapXWidth - 1)),
+    2 ** (WrapXWidth - 1),
+  )
+  const wrapY = wrapNum(
+    (wrapLayerByHeightLayer >> WrapYShift) & WrapYMask,
+    -(2 ** (WrapYWidth - 1)),
+    2 ** (WrapYWidth - 1),
+  )
   const layerByHeight = (wrapLayerByHeightLayer >> LayerByHeightShift) &
     LayerByHeightMask
-  const layer = U8((wrapLayerByHeightLayer >> LayerShift) & LayerMask)
+  const layer = (wrapLayerByHeightLayer >> LayerShift) & LayerMask
   return {
-    wrap: new I4XY(I4.mod(wrapX), I4.mod(wrapY)),
+    wrap: new XY(wrapX, wrapY),
     layerByHeight: layerByHeight === LayerByHeightFlag,
     layer,
   }
@@ -504,17 +355,15 @@ export function parseWrapLayerByHeightLayer(
 
 /** @internal */
 export function serializeWrapLayerByHeightLayer(
-  wrapXY: I4XY,
+  wrapXY: XY,
   layerByHeight: boolean,
-  layer: U8,
-): U16 {
+  layer: number,
+): number {
   const wrap = ((wrapXY.x & WrapXMask) << WrapXShift) |
     ((wrapXY.y & WrapYMask) << WrapYShift)
   const layerByHeightFlag = layerByHeight
     ? LayerByHeightFlag
     : LayerByOriginFlag
-  return U16(
-    wrap | (layerByHeightFlag << LayerByHeightShift) |
-      ((layer & LayerMask) << LayerShift),
-  )
+  return wrap | (layerByHeightFlag << LayerByHeightShift) |
+    ((layer & LayerMask) << LayerShift)
 }

@@ -1,24 +1,36 @@
-import { Aseprite, FilmByID } from '@/atlas-pack'
-import { U16XY } from '@/ooz'
-import { Assets, Cam, ECS, Game, Input, RendererStateMachine } from '@/void'
+import { AsepriteFileTag, FilmByID } from '@/atlas-pack'
+import { XY } from '@/ooz'
+import {
+  Assets,
+  BitmapBuffer,
+  Cam,
+  ECS,
+  Game,
+  Input,
+  RendererStateMachine,
+  VoidEnt,
+} from '@/void'
 
-export abstract class VoidGame<Ent, FilmID extends Aseprite.FileTag>
-  implements Game<Ent, FilmID> {
+export abstract class VoidGame<
+  Ent extends VoidEnt,
+  FilmID extends AsepriteFileTag,
+> implements Game<Ent, FilmID> {
   readonly cam: Cam
   readonly ecs: ECS<Ent> = new ECS()
   readonly filmByID: FilmByID<FilmID>
   readonly input: Input
-  pickHandled: boolean = false
+  pickHandled = false
   readonly renderer: RendererStateMachine
 
+  readonly #bitmaps: BitmapBuffer
   readonly #random: () => number
-  #time: number = 0
-  #tick: number = 1
+  #time = 0
+  #tick = 1
 
   constructor(
     assets: Assets<FilmID>,
     canvas: HTMLCanvasElement,
-    minViewport: U16XY,
+    minViewport: XY,
     random: () => number,
     window: Window,
   ) {
@@ -32,6 +44,7 @@ export abstract class VoidGame<Ent, FilmID extends Aseprite.FileTag>
       window,
     )
     this.filmByID = assets.atlasMeta.filmByID
+    this.#bitmaps = new BitmapBuffer(assets.shaderLayout)
     this.renderer = new RendererStateMachine({
       assets,
       window,
@@ -80,6 +93,26 @@ export abstract class VoidGame<Ent, FilmID extends Aseprite.FileTag>
     this.cam.resize()
 
     this.ecs.run(this)
+
+    // to-do: rework.
+    // so this works well but it's hard to get notified of new sprites being
+    // made and old removed. for grid, how can i make sure that moved sprites
+    // get invalidated. is there a big sprite movement mgmt system?
+    let index = 0
+    for (const ent of this.ecs.query('sprite | sprites' as any)) {
+      if (ent.sprite != null) {
+        this.#bitmaps.set(index, ent.sprite, this.time)
+        index++
+      }
+      if (ent.sprites != null) {
+        for (const sprite of ent.sprites) {
+          this.#bitmaps.set(index, sprite, this.time)
+          index++
+        }
+      }
+    }
+
+    this.renderer.render(this.time, this.cam, this.#bitmaps)
 
     this.onFrame()
 

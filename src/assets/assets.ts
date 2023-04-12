@@ -1,7 +1,7 @@
-import { Aseprite, AtlasMeta } from '@/atlas-pack'
+import { AsepriteFileTag, AtlasMeta } from '@/atlas-pack'
 import { ShaderLayout } from '@/void'
 
-export interface Assets<FilmID extends Aseprite.FileTag = Aseprite.FileTag> {
+export interface Assets<FilmID extends AsepriteFileTag = AsepriteFileTag> {
   readonly atlas: Readonly<HTMLImageElement>
   readonly atlasMeta: Readonly<AtlasMeta<FilmID>>
   readonly shaderLayout: ShaderLayout

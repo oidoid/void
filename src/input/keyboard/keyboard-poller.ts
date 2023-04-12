@@ -1,9 +1,8 @@
-import { Uint } from '@/ooz'
-import { Button, keyboardMap } from '@/void'
+import { ButtonBit, keyboardMap } from '@/void'
 import { GlobalEventPub } from '../global-event-pub.ts' // https://github.com/denoland/deno/issues/11286
 
 export class KeyboardPoller {
-  #buttons: Uint = Uint(0)
+  #buttons = 0
   #pub: GlobalEventPub
 
   constructor(pub: GlobalEventPub) {
@@ -21,17 +20,17 @@ export class KeyboardPoller {
   }
 
   reset(): void {
-    this.#buttons = Uint(0)
+    this.#buttons = 0
   }
 
-  get sample(): Uint {
+  get sample(): number {
     return this.#buttons
   }
 
   #onBlurEvent = (): void => {
     // keyup is not received if window loses focus first. This is like
     // pointercancel.
-    this.#buttons = Uint(0)
+    this.#buttons = 0
   }
 
   #onKeyEvent = (ev: KeyboardEvent): void => {
@@ -64,10 +63,9 @@ function eventToKeys(ev: Readonly<KeyboardEvent>): Set<string> {
   ])
 }
 
-function keyToButton(buttons: Uint, key: string, on: boolean): Uint {
+function keyToButton(buttons: number, key: string, on: boolean): number {
   const fn = keyboardMap[key]
   if (fn == null) return buttons
-  const bit = Button.Bit[fn]
-  // to-do: use Uint-safe or / and / complement.
-  return on ? Uint(buttons | bit) : Uint(buttons & ~bit)
+  const bit = ButtonBit[fn]
+  return on ? (buttons | bit) : (buttons & ~bit)
 }

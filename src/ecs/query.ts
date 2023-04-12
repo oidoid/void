@@ -1,4 +1,4 @@
-import { Str } from '@/ooz'
+import { compareEn } from '@/ooz'
 
 /** Map Query to a subset of Ent and a Partial<T>. */
 export type QueryEnt<Ent, Query> = Readonly<
@@ -37,8 +37,6 @@ export type QuerySet<T> = readonly ReadonlySet<
 >[]
 
 export function parseQuerySet<Ent>(query: string): QuerySet<Ent> {
-  return query.split(' | ').sort(Str.compareEn)
-    .map((and) => new Set(and.split(' & ').sort(Str.compareEn))) as QuerySet<
-      Ent
-    >
+  return query.split(' | ').sort(compareEn)
+    .map((and) => new Set(and.split(' & ').sort(compareEn))) as QuerySet<Ent>
 }

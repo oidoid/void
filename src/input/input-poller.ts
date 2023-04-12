@@ -1,4 +1,4 @@
-import { I16XY, Uint } from '@/ooz'
+import { XY } from '@/ooz'
 import {
   Cam,
   GamepadHub,
@@ -53,14 +53,15 @@ export class InputPoller {
     this.#pointer.reset()
   }
 
-  get sample(): Uint {
-    // to-do: use Uint-safe or.
-    return Uint(
-      this.#gamepad.sample | this.#keyboard.sample | this.#pointer.sample,
-    )
+  get sample(): number {
+    return this.#gamepad.sample | this.#keyboard.sample | this.#pointer.sample
   }
 
-  get xy(): Readonly<I16XY> | undefined {
+  /**
+   * The fractional level position of the most recent pointer. Undefined when
+   * canceled.
+   */
+  get xy(): Readonly<XY> | undefined {
     return this.#pointer.xy
   }
 }

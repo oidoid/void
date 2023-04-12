@@ -3,7 +3,7 @@ import {
   FollowCamEnt,
   FollowPointEnt,
   FPSEnt,
-  RenderEnt,
+  Sprite,
   TextEnt,
 } from '@/void'
 
@@ -13,4 +13,4 @@ export type VoidEnt =
   & FPSEnt
   & TextEnt
   & FollowPointEnt
-  & RenderEnt
+  & { sprite: Sprite; sprites: Sprite[] }

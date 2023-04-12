@@ -1,5 +1,12 @@
-import { I16XY, NumXY, Uint } from '@/ooz'
-import { Button, Cam, pointerMap, PointerType, Viewport } from '@/void'
+import { XY } from '@/ooz'
+import {
+  ButtonBit,
+  Cam,
+  parsePointerType,
+  pointerMap,
+  PointerType,
+  viewportToLevelXY,
+} from '@/void'
 
 export interface PointerEventPub extends
   Pick<
@@ -15,19 +22,18 @@ export interface PointerLock
 
 export class PointerPoller {
   /** The button state of the most recent pointer. */
-  #buttons: Uint
+  #buttons: number
   #cam: Readonly<Cam>
   /** The raw position of the most recenter pointer. */
-  readonly #clientXY: NumXY = new NumXY(0, 0)
+  readonly #clientXY: XY = new XY(0, 0)
   readonly #pub: PointerEventPub
   readonly #lock: PointerLock
   /** The pointer type of the most recent pointer. Undefined when canceled. */
   #pointerType?: PointerType | undefined
-  /** The level position of the most recent pointer. Undefined when canceled. */
-  #xy?: I16XY | undefined
+  #xy?: XY | undefined
 
   constructor(cam: Readonly<Cam>, lock: PointerLock, pub: PointerEventPub) {
-    this.#buttons = Uint(0)
+    this.#buttons = 0
     this.#cam = cam
     this.#lock = lock
     this.#pub = pub
@@ -41,7 +47,7 @@ export class PointerPoller {
     // pointerdown, pointermove, and pointerup events are all treated as
     // pointing but there's no event to clear the pointing state. If there's no
     // other button on, consider pointing off.
-    if (this.#buttons === 0 || this.#buttons === Button.Bit.Point) this.reset()
+    if (this.#buttons === 0 || this.#buttons === ButtonBit.Point) this.reset()
   }
 
   register(op: 'add' | 'remove'): void {
@@ -58,16 +64,20 @@ export class PointerPoller {
   }
 
   reset = (): void => {
-    this.#buttons = Uint(0)
+    this.#buttons = 0
     this.#pointerType = undefined
     this.#xy = undefined
   }
 
-  get sample(): Uint {
+  get sample(): number {
     return this.#buttons
   }
 
-  get xy(): I16XY | undefined {
+  /**
+   * The fractional level position of the most recent pointer. Undefined when
+   * canceled.
+   */
+  get xy(): XY | undefined {
     return this.#xy
   }
 
@@ -94,13 +104,13 @@ export class PointerPoller {
     if (!ev.isPrimary) return
 
     if (this.#locked) {
-      this.#clientXY.addClamp(ev.movementX, ev.movementY).maxClamp(0, 0)
-        .minClamp(window.innerWidth, window.innerHeight) // to-do: pass in window.
-    } else this.#clientXY.setClamp(ev.clientX, ev.clientY)
+      this.#clientXY.add(ev.movementX, ev.movementY).max(0, 0)
+        .min(window.innerWidth, window.innerHeight) // to-do: pass in window.
+    } else this.#clientXY.set(ev.clientX, ev.clientY)
 
     this.#buttons = pointerButtonsToButton(ev.buttons)
-    this.#pointerType = PointerType.parse(ev.pointerType)
-    this.#xy = Viewport.toLevelXY(
+    this.#pointerType = parsePointerType(ev.pointerType)
+    this.#xy = viewportToLevelXY(
       this.#clientXY,
       this.#cam.clientViewportWH,
       this.#cam.viewport,
@@ -111,14 +121,13 @@ export class PointerPoller {
   }
 }
 
-function pointerButtonsToButton(buttons: number): Uint {
-  let mapped: Uint = Button.Bit.Point // All events are points.
-  // to-do: use Uint-safe left-shift-assign.
+function pointerButtonsToButton(buttons: number): number {
+  let mapped: number = ButtonBit.Point // All events are points.
   for (let button = 1; button <= buttons; button <<= 1) {
     if ((button & buttons) !== button) continue
     const fn = pointerMap[button]
     if (fn == null) continue
-    mapped = Uint(mapped | Button.Bit[fn]) // to-do: use Uint-safe or-assign.
+    mapped = mapped | ButtonBit[fn]
   }
   return mapped
 }
