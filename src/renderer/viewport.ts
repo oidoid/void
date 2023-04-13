@@ -61,15 +61,17 @@ export function clientCanvasWH(
  *            usually new XY(event.clientX, event.clientY).
  * @arg cam The coordinates and dimensions of the camera the input was made
  *          through in level pixels.
- * @return The fractional position in level coordinates.
+ * @return The integral position in level coordinates.
  */
 export function viewportToLevelXY(
   point: Readonly<XY>,
   clientViewportWH: Readonly<XY>,
   cam: Readonly<Box>,
 ): XY {
+  // There's not much gain in returning fractional values here and it's a major
+  // input into the system that can create a lot of bugs.
   return new XY(
     cam.x + (point.x / clientViewportWH.x) * cam.w,
     cam.y + (point.y / clientViewportWH.y) * cam.h,
-  )
+  ).round()
 }

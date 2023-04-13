@@ -44,6 +44,6 @@ Deno.test('Viewport', () => {
     clientViewportWH,
     new Box(0, 0, cWH.x, cWH.y),
   )
-  assertEquals(xy.x, 343.0764781434776)
-  assertEquals(xy.y, 120.99999965633359)
+  assertEquals(xy.x, 343)
+  assertEquals(xy.y, 121)
 })

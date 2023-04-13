@@ -74,7 +74,7 @@ export class PointerPoller {
   }
 
   /**
-   * The fractional level position of the most recent pointer. Undefined when
+   * The integral level position of the most recent pointer. Undefined when
    * canceled.
    */
   get xy(): XY | undefined {

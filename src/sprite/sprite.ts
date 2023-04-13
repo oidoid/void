@@ -77,8 +77,8 @@ interface WrapLayerByHeightLayer {
  * texture offset (wrap).
  */
 export class Sprite implements Bitmap {
-  #animator: Animator
-  #bounds: Box
+  readonly #animator: Animator
+  readonly #bounds: Box
   #wrapLayerByHeightLayer: number
 
   constructor(film: Film, layer: number, props?: SpriteProps) {
@@ -131,12 +131,18 @@ export class Sprite implements Bitmap {
     return this.#bounds.center
   }
 
+  collision(time: number): Box {
+    const collision = this.cel(time).slices[0]?.copy()
+    collision?.xy.set(this.#bounds.xy)
+    return collision ?? this.#bounds
+  }
+
   // to-do: keep in sync with shader
   /**
    * Compare a sprite's elevation to another in descending order
    * (top-to-bottom).
    */
-  compareDepth(sprite: this): number {
+  compareDepth(sprite: Sprite): number {
     const { layerByHeight: lhsLayerByHeight, layer: lhsLayer } =
       parseWrapLayerByHeightLayer(
         this.#wrapLayerByHeightLayer,
@@ -185,75 +191,21 @@ export class Sprite implements Bitmap {
     this.#bounds.h = h
   }
 
-  /** Intersect by slices if present, bounds if not. */
   intersects(xy: Readonly<XY>, time: number): boolean
   intersects(box: Readonly<Box>, time: number): boolean
   intersects(sprite: Readonly<Sprite>, time: number): boolean
-  intersects(
-    xyBoxSprite: Readonly<Box | Sprite | XY>,
-    time: number,
-  ): boolean {
-    // 1: does this bounds intersect with args?
-    if (!this.intersectsBounds(<XY> xyBoxSprite)) return false
-
-    // 2: this bounds intersects; are slices specified?
-    const cel = this.cel(time)
-    if (cel.slices.length === 0) return true // No slices.
-
-    // 3: slices are specified; do the superset and any one of them collide with
-    // args?
-
-    // 3.a: args is Box or XY.
+  intersects(xyBoxSprite: Readonly<Box | Sprite | XY>, time: number): boolean {
+    const collision = this.collision(time)
     if (xyBoxSprite instanceof Box || xyBoxSprite instanceof XY) {
-      const box = xyBoxSprite instanceof Box
-        ? xyBoxSprite.copy()
-        : new Box(xyBoxSprite.x, xyBoxSprite.y, 0, 0)
-      box.xy.add(-this.x, -this.y)
-
-      // 3.a.i superset.
-      if (!cel.sliceBounds.intersects(box)) return false
-
-      // 3.a.i any.
-      return cel.slices.some((slice) => slice.intersects(box))
+      return collision.intersects(<XY> xyBoxSprite)
     }
 
-    // 3.b: args is sprite; we already know this bounds collides with sprite
-    // bounds.
     const sprite = <Sprite> xyBoxSprite
-
-    // 3.b.i are sprite slices specified?
-    const spriteCel = sprite.cel(time)
-    if (spriteCel.slices.length === 0) return true // No slices.
-
-    // 3.b.ii this superset intersect sprite superset?
-    if (!cel.sliceBounds.intersects(spriteCel.sliceBounds)) return false
-
-    // 3.b.iii any of these slices intersect any of sprite's slices?
-    for (const slice of cel.slices) {
-      for (const spriteSlice of spriteCel.slices) {
-        if (slice.intersects(spriteSlice)) return true
-      }
-    }
-
-    return false
-  }
-
-  /**
-   * Return true if bounds and arguments are overlapping, false if only touching
-   * or independent.
-   */
-  intersectsBounds(xy: Readonly<XY>): boolean
-  intersectsBounds(box: Readonly<Box>): boolean
-  intersectsBounds(sprite: Readonly<this>): boolean
-  intersectsBounds(xyBoxSprite: Readonly<XY | Box | this>): boolean {
-    if (xyBoxSprite instanceof Sprite) {
-      return this.#bounds.intersects(xyBoxSprite.bounds)
-    }
-    return this.#bounds.intersects(xyBoxSprite as Readonly<Box>)
+    return collision.intersects(sprite.collision(time))
   }
 
   /** True if this is in front of sprite. */
-  isAbove(sprite: Readonly<this>): boolean {
+  isAbove(sprite: Sprite): boolean {
     return this.compareDepth(sprite) < 0
   }
 

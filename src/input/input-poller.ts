@@ -58,7 +58,7 @@ export class InputPoller {
   }
 
   /**
-   * The fractional level position of the most recent pointer. Undefined when
+   * The integral level position of the most recent pointer. Undefined when
    * canceled.
    */
   get xy(): Readonly<XY> | undefined {
