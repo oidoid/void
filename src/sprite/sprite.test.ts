@@ -30,7 +30,7 @@ Deno.test('parseWrapLayerByHeightLayer', () => {
   )
 })
 
-Deno.test('intersects', () => {
+Deno.test('hits', () => {
   const film: Film = {
     id: 'filename--Tag',
     wh: new XY(3, 4),
@@ -39,10 +39,11 @@ Deno.test('intersects', () => {
         id: <CelID> 0,
         bounds: new Box(1, 2, 3, 4),
         duration: 1,
-        sliceBounds: new Box(1, 1, -1, -1),
-        slices: [],
+        sliceBounds: new Box(0, 0, 2, 2),
+        slices: [new Box(0, 0, 2, 2)],
       },
     ],
+    sliceBounds: new Box(0, 0, 2, 2),
     period: 1,
     duration: 1,
     direction: 'Forward',
@@ -52,18 +53,18 @@ Deno.test('intersects', () => {
   sprite.x = 10
   sprite.y = 100
 
-  assertEquals(sprite.intersects(new XY(11, 101), 0), true)
-  assertEquals(sprite.intersects(new XY(15, 101), 0), false)
+  assertEquals(sprite.hits(new XY(11, 101)), true)
+  assertEquals(sprite.hits(new XY(15, 101)), false)
 
-  assertEquals(sprite.intersects(new Box(11, 101, 1, 1), 0), true)
-  assertEquals(sprite.intersects(new Box(15, 101, 1, 1), 0), false)
+  assertEquals(sprite.hits(new Box(11, 101, 1, 1)), true)
+  assertEquals(sprite.hits(new Box(15, 101, 1, 1)), false)
 
   const other = new Sprite(film, 0)
   other.x = 11
   other.y = 101
-  assertEquals(sprite.intersects(other, 0), true)
-  assertEquals(other.intersects(sprite, 0), true)
+  assertEquals(sprite.hits(other), true)
+  assertEquals(other.hits(sprite), true)
   other.x = 15
-  assertEquals(sprite.intersects(other, 0), false)
-  assertEquals(other.intersects(sprite, 0), false)
+  assertEquals(sprite.hits(other), false)
+  assertEquals(other.hits(sprite), false)
 })

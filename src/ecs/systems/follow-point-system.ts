@@ -10,7 +10,7 @@ const query = 'followPoint & sprite'
 export class FollowPointSystem implements System<FollowPointEnt> {
   readonly query = query
   runEnt(ent: FollowPointEnt, game: Game<FollowPointEnt>): void {
-    if (game.input.xy != null) ent.sprite.xy.set(game.input.xy)
+    if (game.input.xy != null) ent.sprite.move(game.input.xy)
     else {
       // to-do: limit to screen area if ent says so.
       const speed = game.tick / 4 // to-do: move speed to ent.

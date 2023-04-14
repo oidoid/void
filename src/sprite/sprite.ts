@@ -64,21 +64,11 @@ interface WrapLayerByHeightLayer {
   readonly layer: number
 }
 
-/**
- * A renderable animation.
- *
- * A good portion of this class wraps the render bounds. Few mutable methods for
- * the render bounds are offered as they can impact rendering and collision
- * detection in surprising ways. Reach into bounds directly (and carefully) as
- * needed.
- *
- * Collision detection can be against the render bounds or against the render
- * bounds AND animation state (Cel.slices). Collision detection is not aware of
- * texture offset (wrap).
- */
+/** A renderable animation. */
 export class Sprite implements Bitmap {
   readonly #animator: Animator
   readonly #bounds: Box
+  readonly #hitbox: Box
   #wrapLayerByHeightLayer: number
 
   constructor(film: Film, layer: number, props?: SpriteProps) {
@@ -93,6 +83,8 @@ export class Sprite implements Bitmap {
       (props?.wh?.x ?? props?.w ?? film.wh.x) * flip.x,
       (props?.wh?.y ?? props?.h ?? film.wh.y) * flip.y,
     )
+    this.#hitbox = film.sliceBounds.copy()
+    this.#hitbox.xy.add(this.#bounds.xy)
     this.#wrapLayerByHeightLayer = serializeWrapLayerByHeightLayer(
       new XY(props?.wrap?.x ?? 0, props?.wrap?.y ?? 0),
       props?.layerByHeight ?? false,
@@ -106,6 +98,9 @@ export class Sprite implements Bitmap {
    */
   animate(start: number, film?: Film): void {
     this.#animator.reset(start, film)
+    const hitbox = this.#animator.film.sliceBounds.copy()
+    this.#hitbox.xy.set(hitbox.xy).add(this.#bounds.xy)
+    this.#hitbox.wh.set(hitbox.wh)
   }
 
   /** Rendered width (w) × height (h) (may be negative if flipped). */
@@ -115,7 +110,7 @@ export class Sprite implements Bitmap {
 
   /**
    * The rendered size. This bounds usually matches Cel.bounds but may be
-   * smaller or larger. When differing, bounds may affect collision detection.
+   * smaller or larger.
    */
   get bounds(): Box {
     return this.#bounds
@@ -131,12 +126,6 @@ export class Sprite implements Bitmap {
     return this.#bounds.center
   }
 
-  collision(time: number): Box {
-    const collision = this.cel(time).slices[0]?.copy()
-    collision?.xy.set(this.#bounds.xy)
-    return collision ?? this.#bounds
-  }
-
   // to-do: keep in sync with shader
   /**
    * Compare a sprite's elevation to another in descending order
@@ -144,13 +133,9 @@ export class Sprite implements Bitmap {
    */
   compareDepth(sprite: Sprite): number {
     const { layerByHeight: lhsLayerByHeight, layer: lhsLayer } =
-      parseWrapLayerByHeightLayer(
-        this.#wrapLayerByHeightLayer,
-      )
+      parseWrapLayerByHeightLayer(this.#wrapLayerByHeightLayer)
     const { layerByHeight: rhsLayerByHeight, layer: rhsLayer } =
-      parseWrapLayerByHeightLayer(
-        sprite.#wrapLayerByHeightLayer,
-      )
+      parseWrapLayerByHeightLayer(sprite.#wrapLayerByHeightLayer)
     return lhsLayer === rhsLayer
       ? (sprite.bounds[rhsLayerByHeight ? 'xy' : 'end'].y -
         this.#bounds[lhsLayerByHeight ? 'xy' : 'end'].y)
@@ -172,6 +157,7 @@ export class Sprite implements Bitmap {
 
   set flipX(flip: boolean) {
     this.#bounds.w = Math.abs(this.#bounds.w) * (flip ? -1 : 1)
+    this.#hitbox.w = Math.abs(this.#hitbox.w) * (flip ? -1 : 1)
   }
 
   get flipY(): boolean {
@@ -180,6 +166,7 @@ export class Sprite implements Bitmap {
 
   set flipY(flip: boolean) {
     this.#bounds.h = Math.abs(this.#bounds.h) * (flip ? -1 : 1)
+    this.#hitbox.h = Math.abs(this.#hitbox.h) * (flip ? -1 : 1)
   }
 
   /** Height (negative when flipped). */
@@ -191,17 +178,20 @@ export class Sprite implements Bitmap {
     this.#bounds.h = h
   }
 
-  intersects(xy: Readonly<XY>, time: number): boolean
-  intersects(box: Readonly<Box>, time: number): boolean
-  intersects(sprite: Readonly<Sprite>, time: number): boolean
-  intersects(xyBoxSprite: Readonly<Box | Sprite | XY>, time: number): boolean {
-    const collision = this.collision(time)
+  get hitbox(): Box {
+    return this.#hitbox
+  }
+
+  hits(xy: Readonly<XY>): boolean
+  hits(box: Readonly<Box>): boolean
+  hits(sprite: Readonly<Sprite>): boolean
+  hits(xyBoxSprite: Readonly<Box | Sprite | XY>): boolean {
     if (xyBoxSprite instanceof Box || xyBoxSprite instanceof XY) {
-      return collision.intersects(<XY> xyBoxSprite)
+      return this.#hitbox.intersects(<XY> xyBoxSprite)
     }
 
     const sprite = <Sprite> xyBoxSprite
-    return collision.intersects(sprite.collision(time))
+    return this.#hitbox.intersects(sprite.hitbox)
   }
 
   /** True if this is in front of sprite. */
@@ -234,6 +224,11 @@ export class Sprite implements Bitmap {
     return this.#bounds.min
   }
 
+  move(xy: Readonly<XY>): void {
+    this.x = xy.x
+    this.y = xy.y
+  }
+
   toString(): string {
     const wlbhl = parseWrapLayerByHeightLayer(this.#wrapLayerByHeightLayer)
     return `Sprite {id=${this.film.id} box=${this.#bounds} ` +
@@ -250,7 +245,6 @@ export class Sprite implements Bitmap {
     this.#bounds.w = w
   }
 
-  /** The box dimensions. */
   get wh(): XY {
     return this.#bounds.wh
   }
@@ -259,16 +253,12 @@ export class Sprite implements Bitmap {
     return this.#wrapLayerByHeightLayer
   }
 
-  /** The box coordinates. */
-  get xy(): XY {
-    return this.#bounds.xy
-  }
-
   get x(): number {
     return this.#bounds.x
   }
 
   set x(x: number) {
+    this.#hitbox.x += x - this.#bounds.x
     this.#bounds.x = x
   }
 
@@ -277,6 +267,7 @@ export class Sprite implements Bitmap {
   }
 
   set y(y: number) {
+    this.#hitbox.y += y - this.#bounds.y
     this.#bounds.y = y
   }
 }
