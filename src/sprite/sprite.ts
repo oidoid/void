@@ -238,7 +238,7 @@ export class Sprite implements Bitmap {
     return this.#bounds.min
   }
 
-  move(xy: Readonly<XY>): void {
+  setXY(xy: Readonly<XY>): void {
     this.x = xy.x
     this.y = xy.y
   }

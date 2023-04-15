@@ -13,7 +13,7 @@ export function fontCharToFilmID<const FilmID extends AsepriteFileTag>(
 ): FilmID {
   let pt = char.codePointAt(0)
   if (pt == null || pt > 0xff) pt = 63 // ?
-  return `${self.id}--${pt.toString(16)}` as FilmID
+  return `${self.id}--${pt.toString(16).padStart(2, '0')}` as FilmID
 }
 
 /** @arg rhs Undefined means end of line. */

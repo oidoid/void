@@ -1,12 +1,5 @@
 import { Film } from '@/atlas-pack'
-import {
-  assert,
-  assertNonNull,
-  Box,
-  NonNull,
-  PartialBox,
-  PartialXY,
-} from '@/ooz'
+import { assert, assertNonNull, NonNull, PartialXY } from '@/ooz'
 import {
   CursorFilmSet,
   FilmLUT,
@@ -56,14 +49,14 @@ export interface VoidEntJSON {
   readonly followCam?: FollowCamJSON
   readonly followPoint?: Record<never, never>
   readonly fps?: Record<never, never>
-  readonly sprite?: SpriteJSON
   readonly sprites?: SpriteJSON[]
   readonly text?: TextJSON
 }
 
-export interface TextJSON extends PartialBox {
-  layer?: number
-  str?: string
+export interface TextJSON {
+  readonly layer?: number
+  readonly str?: string
+  readonly w?: number
 }
 
 export function parseComponent(
@@ -84,8 +77,6 @@ export function parseComponent(
         prev: 0,
         next: { created: performance.now(), frames: 0 },
       }
-    case 'sprite':
-      return parseSprite(lut, val as SpriteJSON)
     case 'sprites':
       return (val as SpriteJSON[]).map((v) => parseSprite(lut, v))
     case 'text':
@@ -96,10 +87,10 @@ export function parseComponent(
 
 export function parseText(font: Font, json: TextJSON): Text {
   return new Text(
-    Box.fromJSON(json),
     font,
     json.layer ?? Layer.Top,
     json.str ?? '',
+    json.w ?? 0,
   )
 }
 

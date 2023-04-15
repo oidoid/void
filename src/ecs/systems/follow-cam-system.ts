@@ -2,26 +2,43 @@ import { XY } from '@/ooz'
 import { Cam, FollowCamConfig, Game, QueryEnt, Sprite, System } from '@/void'
 
 export type FollowCamEnt = QueryEnt<
-  { followCam: FollowCamConfig; sprite: Sprite },
+  { followCam: FollowCamConfig; sprites: [Sprite, ...Sprite[]] },
   typeof query
 >
 
-const query = 'followCam & sprite'
+const query = 'followCam & sprites'
 
 export class FollowCamSystem implements System<FollowCamEnt> {
   readonly query = query
   runEnt(ent: FollowCamEnt, game: Game<FollowCamEnt>): void {
-    const { followCam, sprite } = ent
-    const pad = new XY(followCam.pad?.x ?? 0, followCam.pad?.y ?? 0)
-    if (followCam.fill === 'X' || followCam.fill === 'XY') {
-      sprite.w = game.cam.viewport.w - pad.x * 2
+    const sprites = ent.sprites.values()
+    const sprite = sprites.next().value
+    const xy = sprite.bounds.xy.copy()
+    follow(ent.followCam, sprite, game)
+
+    // to-do: this should probably handle WH.
+    const diff = sprite.bounds.xy.copy().sub(xy)
+    for (const sprite of sprites) {
+      sprite.x += diff.x
+      sprite.y += diff.y
     }
-    if (followCam.fill === 'Y' || followCam.fill === 'XY') {
-      sprite.h = game.cam.viewport.h - pad.y * 2
-    }
-    sprite.x = computeX(sprite, game.cam, followCam)
-    sprite.y = computeY(sprite, game.cam, followCam)
   }
+}
+
+function follow(
+  followCam: FollowCamConfig,
+  sprite: Sprite,
+  game: Game<FollowCamEnt>,
+): void {
+  const pad = new XY(followCam.pad?.x ?? 0, followCam.pad?.y ?? 0)
+  if (followCam.fill === 'X' || followCam.fill === 'XY') {
+    sprite.w = game.cam.viewport.w - pad.x * 2
+  }
+  if (followCam.fill === 'Y' || followCam.fill === 'XY') {
+    sprite.h = game.cam.viewport.h - pad.y * 2
+  }
+  sprite.x = computeX(sprite, game.cam, followCam)
+  sprite.y = computeY(sprite, game.cam, followCam)
 }
 
 function computeX(

@@ -99,16 +99,10 @@ export abstract class VoidGame<
     // made and old removed. for grid, how can i make sure that moved sprites
     // get invalidated. is there a big sprite movement mgmt system?
     let index = 0
-    for (const ent of this.ecs.query('sprite | sprites' as any)) {
-      if (ent.sprite != null) {
-        this.#bitmaps.set(index, ent.sprite, this.time)
+    for (const ent of this.ecs.query('sprites' as any)) {
+      for (const sprite of ent.sprites!) {
+        this.#bitmaps.set(index, sprite, this.time)
         index++
-      }
-      if (ent.sprites != null) {
-        for (const sprite of ent.sprites) {
-          this.#bitmaps.set(index, sprite, this.time)
-          index++
-        }
       }
     }
 

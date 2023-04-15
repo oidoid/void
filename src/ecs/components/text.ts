@@ -1,20 +1,20 @@
 import { AsepriteFileTag, FilmByID } from '@/atlas-pack'
-import { Box } from '@/ooz'
+import { XY } from '@/ooz'
 import { Font, fontCharToFilmID, layoutText, Sprite } from '@/void'
 
 export class Text {
-  readonly #bounds: Box
   readonly #font: Font
   readonly #layer: number
   #str: string
   #rendered: boolean
+  #w: number
 
-  constructor(bounds: Box, font: Font, layer: number, str: string) {
-    this.#bounds = bounds
+  constructor(font: Font, layer: number, str: string, w: number) {
     this.#font = font
     this.#layer = layer
     this.#str = str
     this.#rendered = false
+    this.#w = w
   }
 
   get layer(): number {
@@ -22,20 +22,18 @@ export class Text {
   }
 
   render<const FilmID extends AsepriteFileTag>(
+    xy: Readonly<XY>,
     filmByID: FilmByID<FilmID>,
     layer: number,
   ): Sprite[] {
-    const layout = layoutText(this.#font, this.#str, this.#bounds.w)
-    this.#bounds.h = layout.cursor.y + this.#font.lineHeight
+    // Always ensure sprites is nonzero length to meet typing requirements.
+    const str = this.#str.length === 0 ? '\0' : this.#str
+    const layout = layoutText(this.#font, str, this.#w)
     const sprites = []
     for (const [i, char] of layout.chars.entries()) {
       if (char == null) continue
-      const filmID = fontCharToFilmID<FilmID>(this.#font, this.#str[i]!)
-      const sprite = new Sprite(
-        filmByID[filmID],
-        layer,
-        this.#bounds.xy.copy().add(char.xy),
-      )
+      const filmID = fontCharToFilmID<FilmID>(this.#font, str[i]!)
+      const sprite = new Sprite(filmByID[filmID], layer, char.xy.add(xy))
       sprites.push(sprite)
     }
     this.#rendered = true
