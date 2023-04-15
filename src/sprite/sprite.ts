@@ -84,7 +84,10 @@ export class Sprite implements Bitmap {
       (props?.wh?.y ?? props?.h ?? film.wh.y) * flip.y,
     )
     this.#hitbox = film.sliceBounds.copy()
-    this.#hitbox.xy.add(this.#bounds.xy)
+    this.#hitbox.x = this.#bounds.x +
+      (this.flipX ? (this.#hitbox.w - this.#hitbox.x) : this.#hitbox.x)
+    this.#hitbox.y = this.#bounds.y +
+      (this.flipY ? (this.#hitbox.h - this.#hitbox.y) : this.#hitbox.y)
     this.#wrapLayerByHeightLayer = serializeWrapLayerByHeightLayer(
       new XY(props?.wrap?.x ?? 0, props?.wrap?.y ?? 0),
       props?.layerByHeight ?? false,
@@ -98,8 +101,15 @@ export class Sprite implements Bitmap {
    */
   animate(start: number, film?: Film): void {
     this.#animator.reset(start, film)
-    const hitbox = this.#animator.film.sliceBounds.copy()
-    this.#hitbox.xy.set(hitbox.xy).add(this.#bounds.xy)
+    if (film == null) return
+    this.#bounds.w = Math.abs(this.#bounds.w) * (this.flipX ? -1 : 1)
+    this.#bounds.h = Math.abs(this.#bounds.h) * (this.flipY ? -1 : 1)
+
+    const hitbox = this.#animator.film.sliceBounds
+    this.#hitbox.x = this.#bounds.x +
+      (this.flipX ? (hitbox.w - hitbox.x) : hitbox.x)
+    this.#hitbox.y = this.#bounds.y +
+      (this.flipY ? (hitbox.h - hitbox.y) : hitbox.y)
     this.#hitbox.wh.set(hitbox.wh)
   }
 
@@ -156,8 +166,10 @@ export class Sprite implements Bitmap {
   }
 
   set flipX(flip: boolean) {
+    if (this.flipX === flip) return
     this.#bounds.w = Math.abs(this.#bounds.w) * (flip ? -1 : 1)
-    this.#hitbox.w = Math.abs(this.#hitbox.w) * (flip ? -1 : 1)
+    const hitbox = this.#animator.film.sliceBounds
+    this.#hitbox.x = this.#bounds.x + (flip ? (hitbox.w - hitbox.x) : hitbox.x)
   }
 
   get flipY(): boolean {
@@ -165,8 +177,10 @@ export class Sprite implements Bitmap {
   }
 
   set flipY(flip: boolean) {
+    if (this.flipY === flip) return
     this.#bounds.h = Math.abs(this.#bounds.h) * (flip ? -1 : 1)
-    this.#hitbox.h = Math.abs(this.#hitbox.h) * (flip ? -1 : 1)
+    const hitbox = this.#animator.film.sliceBounds
+    this.#hitbox.y = this.#bounds.y + (flip ? (hitbox.h - hitbox.y) : hitbox.y)
   }
 
   /** Height (negative when flipped). */
