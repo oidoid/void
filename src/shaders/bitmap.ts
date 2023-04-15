@@ -9,25 +9,31 @@ export interface Bitmap {
   cel(time: number): Cel
   /**
    * From left-to-right:
+   * - 1b flip x
+   * - 1b flip y
    * - 4b signed x texture offset (wrap).
    * - 4b signed y texture offset (wrap).
-   * - 1b layer by start.
+   * - 1b layer anchor.
    * - 7b layer.
    */
-  readonly wrapLayerByHeightLayer: number
+  readonly flipWrapAnchorLayer: number
 }
 
-export const WrapXMask = 0b1111
-export const WrapXShift = 12
-export const WrapXWidth = 4
-export const WrapYMask = 0b1111
-export const WrapYShift = 8
-export const WrapYWidth = 4
+export const BitmapFlipXMask = 0b1
+export const BitmapFlipXShift = 17
 
-export const LayerShift = 0
-export const LayerMask = 0b111_1111
+export const BitmapFlipYMask = 0b1
+export const BitmapFlipYShift = 16
 
-export const LayerByHeightShift = 7
-export const LayerByHeightFlag = 0b1
-export const LayerByOriginFlag = 0b0
-export const LayerByHeightMask = 0b1
+export const BitmapWrapXMask = 0b1111
+export const BitmapWrapXShift = 12
+export const BitmapWrapXWidth = 4
+export const BitmapWrapYMask = 0b1111
+export const BitmapWrapYShift = 8
+export const BitmapWrapYWidth = 4
+
+export const BitmapLayerAnchorEndMask = 0b1
+export const BitmapLayerAnchorEndShift = 7
+
+export const BitmapLayerMask = 0b111_1111
+export const BitmapLayerShift = 0

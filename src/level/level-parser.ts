@@ -125,7 +125,7 @@ export function parseSprite(lut: FilmLUT, json: SpriteJSON): Sprite {
     y: json.y,
     w: json.w,
     h: json.h,
-    layerByHeight: json.layerByHeight,
+    anchorEnd: json.layerByHeight,
   }
   return new Sprite(film, layer, props)
 }

@@ -2,18 +2,20 @@ import { Animator, Cel, Film } from '@/atlas-pack'
 import { Box, PartialXY, wrapNum, XY } from '@/ooz'
 import {
   Bitmap,
-  LayerByHeightFlag,
-  LayerByHeightMask,
-  LayerByHeightShift,
-  LayerByOriginFlag,
-  LayerMask,
-  LayerShift,
-  WrapXMask,
-  WrapXShift,
-  WrapXWidth,
-  WrapYMask,
-  WrapYShift,
-  WrapYWidth,
+  BitmapFlipXMask,
+  BitmapFlipXShift,
+  BitmapFlipYMask,
+  BitmapFlipYShift,
+  BitmapLayerAnchorEndMask,
+  BitmapLayerAnchorEndShift,
+  BitmapLayerMask,
+  BitmapLayerShift,
+  BitmapWrapXMask,
+  BitmapWrapXShift,
+  BitmapWrapXWidth,
+  BitmapWrapYMask,
+  BitmapWrapYShift,
+  BitmapWrapYWidth,
 } from '@/void'
 
 export interface SpriteProps {
@@ -36,10 +38,10 @@ export interface SpriteProps {
    * default), this sprite compares with `y`. When true, this sprite compares
    * with `y + h`.
    */
-  readonly layerByHeight?: boolean | undefined
+  readonly anchorEnd?: boolean | undefined
   /** Offset sprite. Capped to I4. */
   readonly wrap?: PartialXY | undefined
-  /** Mirror sprite. Defaults to unflipped. to-do: add intersection support. */
+  /** Mirror sprite  (render + hitbox). Defaults to unflipped. */
   readonly flip?: SpriteFlip | undefined
 
   /** The animation starting time. */
@@ -58,59 +60,59 @@ export const SpriteFlipSet = new Set(
   ] as const,
 )
 
-interface WrapLayerByHeightLayer {
-  readonly wrap: XY
-  readonly layerByHeight: boolean
-  readonly layer: number
-}
-
 /** A renderable animation. */
 export class Sprite implements Bitmap {
   readonly #animator: Animator
   readonly #bounds: Box
   readonly #hitbox: Box
-  #wrapLayerByHeightLayer: number
+  #flipWrapAnchorLayer: number
 
   constructor(film: Film, layer: number, props?: SpriteProps) {
     this.#animator = new Animator(film, props?.time)
-    const flip = new XY(
-      (props?.flip === 'X' || props?.flip === 'XY') ? -1 : 1,
-      (props?.flip === 'Y' || props?.flip === 'XY') ? -1 : 1,
-    )
+    const flipX = props?.flip === 'X' || props?.flip === 'XY'
+    const flipY = props?.flip === 'Y' || props?.flip === 'XY'
     this.#bounds = new Box(
       props?.xy?.x ?? props?.x ?? 0,
       props?.xy?.y ?? props?.y ?? 0,
-      (props?.wh?.x ?? props?.w ?? film.wh.x) * flip.x,
-      (props?.wh?.y ?? props?.h ?? film.wh.y) * flip.y,
+      props?.wh?.x ?? props?.w ?? film.wh.x,
+      props?.wh?.y ?? props?.h ?? film.wh.y,
     )
     this.#hitbox = film.sliceBounds.copy()
     this.#hitbox.x = this.#bounds.x +
-      (this.flipX ? (this.#hitbox.w - this.#hitbox.x) : this.#hitbox.x)
+      (flipX ? (this.#hitbox.w - this.#hitbox.x) : this.#hitbox.x)
     this.#hitbox.y = this.#bounds.y +
-      (this.flipY ? (this.#hitbox.h - this.#hitbox.y) : this.#hitbox.y)
-    this.#wrapLayerByHeightLayer = serializeWrapLayerByHeightLayer(
-      new XY(props?.wrap?.x ?? 0, props?.wrap?.y ?? 0),
-      props?.layerByHeight ?? false,
-      layer,
-    )
+      (flipY ? (this.#hitbox.h - this.#hitbox.y) : this.#hitbox.y)
+
+    this.#flipWrapAnchorLayer = 0
+    this.flipX = flipX
+    this.flipY = flipY
+    this.wrapX = props?.wrap?.x ?? 0
+    this.wrapY = props?.wrap?.y ?? 0
+    this.anchorEnd = props?.anchorEnd ?? false
+    this.layer = layer
+  }
+
+  get anchorEnd(): boolean {
+    return !!((this.#flipWrapAnchorLayer >> BitmapLayerAnchorEndShift) &
+      BitmapLayerAnchorEndMask)
+  }
+
+  set anchorEnd(end: boolean) {
+    if (end) this.#flipWrapAnchorLayer |= 1 << BitmapLayerAnchorEndShift
+    else this.#flipWrapAnchorLayer &= ~(1 << BitmapLayerAnchorEndShift)
   }
 
   /**
    * Clear the start time (set the animation to the starting cel) and optionally
    * change the film. This is useful to reset the active film or switch films.
+   *
+   * Changing the film does not change size but may change hitbox.
    */
   animate(start: number, film?: Film): void {
     this.#animator.reset(start, film)
     if (film == null) return
-    this.#bounds.w = Math.abs(this.#bounds.w) * (this.flipX ? -1 : 1)
-    this.#bounds.h = Math.abs(this.#bounds.h) * (this.flipY ? -1 : 1)
-
-    const hitbox = this.#animator.film.sliceBounds
-    this.#hitbox.x = this.#bounds.x +
-      (this.flipX ? (hitbox.w - hitbox.x) : hitbox.x)
-    this.#hitbox.y = this.#bounds.y +
-      (this.flipY ? (hitbox.h - hitbox.y) : hitbox.y)
-    this.#hitbox.wh.set(hitbox.wh)
+    this.flipX = !!this.flipX
+    this.flipY = !!this.flipY
   }
 
   /** Rendered width (w) × height (h) (may be negative if flipped). */
@@ -142,13 +144,13 @@ export class Sprite implements Bitmap {
    * (top-to-bottom).
    */
   compareDepth(sprite: Sprite): number {
-    const { layerByHeight: lhsLayerByHeight, layer: lhsLayer } =
-      parseWrapLayerByHeightLayer(this.#wrapLayerByHeightLayer)
-    const { layerByHeight: rhsLayerByHeight, layer: rhsLayer } =
-      parseWrapLayerByHeightLayer(sprite.#wrapLayerByHeightLayer)
+    const lhsAnchorEnd = this.anchorEnd
+    const lhsLayer = this.layer
+    const rhsAnchorEnd = sprite.anchorEnd
+    const rhsLayer = sprite.layer
     return lhsLayer === rhsLayer
-      ? (sprite.bounds[rhsLayerByHeight ? 'xy' : 'end'].y -
-        this.#bounds[lhsLayerByHeight ? 'xy' : 'end'].y)
+      ? (sprite.bounds[rhsAnchorEnd ? 'xy' : 'end'].y -
+        this.#bounds[lhsAnchorEnd ? 'xy' : 'end'].y)
       : lhsLayer - rhsLayer
   }
 
@@ -161,24 +163,30 @@ export class Sprite implements Bitmap {
     return this.#animator.film
   }
 
+  get flipWrapAnchorLayer(): number {
+    return this.#flipWrapAnchorLayer
+  }
+
   get flipX(): boolean {
-    return this.#bounds.w < 0
+    return !!((this.#flipWrapAnchorLayer >> BitmapFlipXShift) &
+      BitmapFlipXMask)
   }
 
   set flipX(flip: boolean) {
-    if (this.flipX === flip) return
-    this.#bounds.w = Math.abs(this.#bounds.w) * (flip ? -1 : 1)
+    if (flip) this.#flipWrapAnchorLayer |= 1 << BitmapFlipXShift
+    else this.#flipWrapAnchorLayer &= ~(1 << BitmapFlipXShift)
     const hitbox = this.#animator.film.sliceBounds
     this.#hitbox.x = this.#bounds.x + (flip ? (hitbox.w - hitbox.x) : hitbox.x)
   }
 
   get flipY(): boolean {
-    return this.#bounds.h < 0
+    return !!((this.#flipWrapAnchorLayer >> BitmapFlipYShift) &
+      BitmapFlipYMask)
   }
 
   set flipY(flip: boolean) {
-    if (this.flipY === flip) return
-    this.#bounds.h = Math.abs(this.#bounds.h) * (flip ? -1 : 1)
+    if (flip) this.#flipWrapAnchorLayer |= 1 << BitmapFlipYShift
+    else this.#flipWrapAnchorLayer &= ~(1 << BitmapFlipYShift)
     const hitbox = this.#animator.film.sliceBounds
     this.#hitbox.y = this.#bounds.y + (flip ? (hitbox.h - hitbox.y) : hitbox.y)
   }
@@ -214,18 +222,12 @@ export class Sprite implements Bitmap {
   }
 
   get layer(): number {
-    return parseWrapLayerByHeightLayer(this.#wrapLayerByHeightLayer).layer
+    return (this.#flipWrapAnchorLayer >> BitmapLayerShift) & BitmapLayerMask
   }
 
   set layer(layer: number) {
-    const { wrap, layerByHeight } = parseWrapLayerByHeightLayer(
-      this.#wrapLayerByHeightLayer,
-    )
-    this.#wrapLayerByHeightLayer = serializeWrapLayerByHeightLayer(
-      wrap,
-      layerByHeight,
-      layer,
-    )
+    this.#flipWrapAnchorLayer &= ~(BitmapLayerMask << BitmapLayerShift)
+    this.#flipWrapAnchorLayer |= (layer & BitmapLayerMask) << BitmapLayerShift
   }
 
   /** The greatest coordinate of this box. */
@@ -244,10 +246,16 @@ export class Sprite implements Bitmap {
   }
 
   toString(): string {
-    const wlbhl = parseWrapLayerByHeightLayer(this.#wrapLayerByHeightLayer)
-    return `Sprite {id=${this.film.id} box=${this.#bounds} ` +
-      `layer=${wlbhl.layer} layerByHeight=${wlbhl.layerByHeight} ` +
-      `wrap=${wlbhl.wrap}}`
+    const flip = this.flipX && this.flipY
+      ? 'XY'
+      : this.flipX
+      ? 'X'
+      : this.flipY
+      ? 'Y'
+      : 'no'
+    return `Sprite {id=${this.film.id} box=${this.#bounds} flip=${flip} ` +
+      `layer=${this.layer} anchor=${this.anchorEnd ? 'End' : 'Start'} ` +
+      `wrap=${new XY(this.wrapX, this.wrapY)}}`
   }
 
   /** Width (negative when flipped). */
@@ -263,8 +271,30 @@ export class Sprite implements Bitmap {
     return this.#bounds.wh
   }
 
-  get wrapLayerByHeightLayer(): number {
-    return this.#wrapLayerByHeightLayer
+  get wrapX(): number {
+    return wrapNum(
+      (this.#flipWrapAnchorLayer >> BitmapWrapXShift) & BitmapWrapXMask,
+      -(2 ** (BitmapWrapXWidth - 1)),
+      2 ** (BitmapWrapXWidth - 1),
+    )
+  }
+
+  set wrapX(wrap: number) {
+    this.#flipWrapAnchorLayer &= ~(BitmapWrapXMask << BitmapWrapXShift)
+    this.#flipWrapAnchorLayer |= (wrap & BitmapWrapXMask) << BitmapWrapXShift
+  }
+
+  get wrapY(): number {
+    return wrapNum(
+      (this.#flipWrapAnchorLayer >> BitmapWrapYShift) & BitmapWrapYMask,
+      -(2 ** (BitmapWrapYWidth - 1)),
+      2 ** (BitmapWrapYWidth - 1),
+    )
+  }
+
+  set wrapY(wrap: number) {
+    this.#flipWrapAnchorLayer &= ~(BitmapWrapYMask << BitmapWrapYShift)
+    this.#flipWrapAnchorLayer |= (wrap & BitmapWrapYMask) << BitmapWrapYShift
   }
 
   get x(): number {
@@ -284,43 +314,4 @@ export class Sprite implements Bitmap {
     this.#hitbox.y += y - this.#bounds.y
     this.#bounds.y = y
   }
-}
-
-/** @internal */
-export function parseWrapLayerByHeightLayer(
-  wrapLayerByHeightLayer: number,
-): WrapLayerByHeightLayer {
-  const wrapX = wrapNum(
-    (wrapLayerByHeightLayer >> WrapXShift) & WrapXMask,
-    -(2 ** (WrapXWidth - 1)),
-    2 ** (WrapXWidth - 1),
-  )
-  const wrapY = wrapNum(
-    (wrapLayerByHeightLayer >> WrapYShift) & WrapYMask,
-    -(2 ** (WrapYWidth - 1)),
-    2 ** (WrapYWidth - 1),
-  )
-  const layerByHeight = (wrapLayerByHeightLayer >> LayerByHeightShift) &
-    LayerByHeightMask
-  const layer = (wrapLayerByHeightLayer >> LayerShift) & LayerMask
-  return {
-    wrap: new XY(wrapX, wrapY),
-    layerByHeight: layerByHeight === LayerByHeightFlag,
-    layer,
-  }
-}
-
-/** @internal */
-export function serializeWrapLayerByHeightLayer(
-  wrapXY: XY,
-  layerByHeight: boolean,
-  layer: number,
-): number {
-  const wrap = ((wrapXY.x & WrapXMask) << WrapXShift) |
-    ((wrapXY.y & WrapYMask) << WrapYShift)
-  const layerByHeightFlag = layerByHeight
-    ? LayerByHeightFlag
-    : LayerByOriginFlag
-  return wrap | (layerByHeightFlag << LayerByHeightShift) |
-    ((layer & LayerMask) << LayerShift)
 }

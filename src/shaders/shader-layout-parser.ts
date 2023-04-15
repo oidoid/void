@@ -36,7 +36,9 @@ function parseAttributes(
     0,
   )
   const lastAttrib = attribs.at(-1)
-  const size = lastAttrib == null ? 0 : nextAttribOffset(lastAttrib)
+  const size = lastAttrib == null
+    ? 0
+    : nextAttribOffset(lastAttrib, lastAttrib.type)
   return {
     len: attribs.reduce((sum, { len }) => sum + len, 0),
     stride: ceilMultiple(maxDataTypeSize, size),
@@ -51,13 +53,19 @@ function reduceAttribVariable(
   index: number,
 ): readonly ShaderLayoutAttribute[] {
   const attrib = attribs[index - 1]
-  const offset = attrib == null ? 0 : nextAttribOffset(attrib)
+  const offset = attrib == null ? 0 : nextAttribOffset(attrib, type)
   assert(isGLDataType(type), `${type} is not a GLDataType.`)
   return attribs.concat({ type, name, len, offset })
 }
 
-function nextAttribOffset(attrib: ShaderLayoutAttribute): number {
-  return attrib.offset + GLDataTypeSize[attrib.type] * attrib.len
+function nextAttribOffset(
+  attrib: ShaderLayoutAttribute,
+  type: GLDataType | string,
+): number {
+  return ceilMultiple(
+    GLDataTypeSize[type as GLDataType],
+    attrib.offset + GLDataTypeSize[attrib.type] * attrib.len,
+  )
 }
 
 function isGLDataType(type: string): type is GLDataType {

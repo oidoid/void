@@ -36,14 +36,20 @@ in uint iCelID;
 // negative when flipped.
 in ivec4 iTarget;
 
-in uint iWrapLayerByHeightLayer;
+in uint iFlipWrapAnchorLayer;
 
-// to-do: make this style match Bitmap
-const uint LayerByHeightFlag = 1u << 7;
-const uint LayerMask = 0x007fu;
-const uint LayerByHeightMask = LayerByHeightFlag;
-const uint LayerByHeightFlagStart = LayerByHeightMask & ~LayerByHeightFlag; // to-do: use consistent terminology
-const uint LayerByHeightFlagEnd = LayerByHeightMask & LayerByHeightFlag;
+const uint FlipXMask = 1u;
+const uint FlipXShift = 17u;
+const uint FlipYMask = 1u;
+const uint FlipYShift = 16u;
+const uint WrapXMask = 0xfu;
+const uint WrapXShift = 12u;
+const uint WrapYMask = 0xfu;
+const uint WrapYShift = 8u;
+const uint LayerAnchorEndMask = 1u;
+const uint LayerAnchorEndShift = 7u;
+const uint LayerMask = 0x7fu;
+const uint LayerShift = 0u;
 
 // Only care about layer, height, and y. See
 // https://www.patternsgameprog.com/opengl-2d-facade-25-get-the-z-of-a-pixel.
@@ -51,10 +57,10 @@ float zDepth() {
   const float maxLayer = 64.;
   const float maxY = 16. * 1024.;
   const float maxDepth = maxLayer * maxY;
-  bool layerByHeight =
-    (iWrapLayerByHeightLayer & LayerByHeightMask) == LayerByHeightFlagStart;
-  float depth = float(iWrapLayerByHeightLayer & LayerMask) * maxY
-    - float(iTarget.y + (layerByHeight ? iTarget.w : 0));
+  bool anchorEnd =
+    ((iFlipWrapAnchorLayer >> LayerAnchorEndShift) & LayerAnchorEndMask) != 0u;
+  float depth = float((iFlipWrapAnchorLayer >> LayerShift) & LayerMask) * maxY
+    - float(iTarget.y + (anchorEnd ? 0 : iTarget.w));
   return depth / maxDepth;
 }
 
@@ -64,13 +70,15 @@ flat out ivec2 vWrapXY;
 
 void main() {
   uvec4 sourceXYWH = texelFetch(uSourceByCelID, ivec2(0, iCelID), 0);
+  bool flipX = ((iFlipWrapAnchorLayer >> FlipXShift) & FlipXMask)!= 0u;
+  bool flipY = ((iFlipWrapAnchorLayer >> FlipYShift) & FlipYMask)!= 0u;
 
   ivec2 targetWH = ivec2(vUV) * iTarget.zw;
-  gl_Position = vec4(iTarget.xy + abs(targetWH), zDepth(), 1) * uProjection;
-  vTargetWH = vec2(targetWH);
+  gl_Position = vec4(iTarget.xy + targetWH, zDepth(), 1) * uProjection;
+  vTargetWH = vec2(targetWH.x * (flipX ? -1 : 1), targetWH.y * (flipY ? -1 : 1));
   vSourceXYWH = vec4(sourceXYWH);
 
-  vWrapXY= ivec2((iWrapLayerByHeightLayer >> 12)& 0xfu, (iWrapLayerByHeightLayer >> 8)& 0xfu);
+  vWrapXY= ivec2((iFlipWrapAnchorLayer >> WrapXShift) & WrapXMask, (iFlipWrapAnchorLayer >> WrapYShift)& WrapYMask);
 }`
 
 import { debugGL } from '@/void'

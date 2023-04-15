@@ -9,6 +9,6 @@
   "perInstance": [
     { "name": "iCelID", "type": "UNSIGNED_SHORT", "len": 1 },
     { "name": "iTarget", "type": "SHORT", "len": 4 },
-    { "name": "iWrapLayerByHeightLayer", "type": "UNSIGNED_SHORT", "len": 1 }
+    { "name": "iFlipWrapAnchorLayer", "type": "UNSIGNED_INT", "len": 1 }
   ]
 }

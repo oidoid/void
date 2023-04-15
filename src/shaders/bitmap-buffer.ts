@@ -31,7 +31,7 @@ export class BitmapBuffer {
     this.#view.setInt16(i + 4, bmp.y, littleEndian)
     this.#view.setInt16(i + 6, bmp.w, littleEndian)
     this.#view.setInt16(i + 8, bmp.h, littleEndian)
-    this.#view.setUint16(i + 10, bmp.wrapLayerByHeightLayer, littleEndian)
+    this.#view.setUint32(i + 12, bmp.flipWrapAnchorLayer, littleEndian)
     this.#size = index + 1
   }
 
