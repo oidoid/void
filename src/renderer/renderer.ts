@@ -1,4 +1,4 @@
-import { AsepriteFileTag, AtlasMeta } from '@/atlas-pack'
+import { AsepriteFileTag, Atlas } from '@/atlas-pack'
 import { assertNonNull, colorIntToFloats, NonNull } from '@/ooz'
 import {
   BitmapBuffer,
@@ -18,17 +18,15 @@ import {
   vertexGLSL,
 } from '@/void'
 
-const uv: Uint16Array = new Uint16Array(
-  Object.freeze([1, 1, 0, 1, 1, 0, 0, 0]),
-)
+const uv: Uint16Array = new Uint16Array([1, 1, 0, 1, 1, 0, 0, 0])
 const uvLen: number = uv.length / 2 // dimensions
 
 export class Renderer {
   static new(
     canvas: HTMLCanvasElement,
-    atlas: HTMLImageElement,
+    spritesheet: HTMLImageElement,
     layout: ShaderLayout,
-    atlasMeta: AtlasMeta<AsepriteFileTag>,
+    atlas: Atlas<AsepriteFileTag>,
   ): Renderer {
     const gl = canvas.getContext('webgl2', {
       antialias: false,
@@ -67,8 +65,8 @@ export class Renderer {
     gl.uniform1i(getGLUniformLocation(layout, uniforms, 'uSourceByCelID'), 1) // should be keyof shader layout
     gl.uniform2ui(
       getGLUniformLocation(layout, uniforms, 'uAtlasSize'),
-      atlas.naturalWidth,
-      atlas.naturalHeight,
+      spritesheet.naturalWidth,
+      spritesheet.naturalHeight,
     )
 
     const attributes = getGLAttributeLocations(gl, program)
@@ -103,10 +101,10 @@ export class Renderer {
 
     // Leave vertexArray bound.
 
-    loadGLTexture(gl, gl.TEXTURE0, atlas)
+    loadGLTexture(gl, gl.TEXTURE0, spritesheet)
 
     const dat = new Uint16Array(
-      atlasMeta.celBoundsByID.flatMap((box) => [box.x, box.y, box.w, box.h]),
+      atlas.celBoundsByID.flatMap((box) => [box.x, box.y, box.w, box.h]),
     )
 
     loadGLDataTexture(

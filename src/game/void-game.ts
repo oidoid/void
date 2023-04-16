@@ -43,7 +43,7 @@ export abstract class VoidGame<
       canvas,
       window,
     )
-    this.filmByID = assets.atlasMeta.filmByID
+    this.filmByID = assets.atlas.filmByID
     this.#bitmaps = new BitmapBuffer(assets.shaderLayout)
     this.renderer = new RendererStateMachine({
       assets,

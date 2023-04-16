@@ -26,9 +26,9 @@ export class RendererStateMachine {
     this.#onPause = props.onPause
     this.#renderer = Renderer.new(
       this.#canvas,
-      this.#assets.atlas,
+      this.#assets.spritesheet,
       this.#assets.shaderLayout,
-      this.#assets.atlasMeta,
+      this.#assets.atlas,
     )
     this.#window = props.window
   }
@@ -76,9 +76,9 @@ export class RendererStateMachine {
     if (event.type === 'webglcontextrestored') {
       this.#renderer = Renderer.new(
         this.#canvas,
-        this.#assets.atlas,
+        this.#assets.spritesheet,
         this.#assets.shaderLayout,
-        this.#assets.atlasMeta,
+        this.#assets.atlas,
       )
     }
 
