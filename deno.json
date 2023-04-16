@@ -26,5 +26,5 @@
   "lock": false,
   "name": "void",
   "test": { "files": { "exclude": ["dist"] } },
-  "version": "0.0.9"
+  "version": "0.0.10"
 }
