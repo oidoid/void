@@ -22,7 +22,7 @@ export interface SpriteJSON {
   readonly flip?: string
   readonly id: string
   readonly layer: string
-  readonly layerByHeight?: boolean
+  readonly layerAnchorEnd?: boolean
   readonly wh?: PartialXY
   readonly wrap?: PartialXY
   readonly xy?: PartialXY
@@ -125,7 +125,7 @@ export function parseSprite(lut: FilmLUT, json: SpriteJSON): Sprite {
     y: json.y,
     w: json.w,
     h: json.h,
-    anchorEnd: json.layerByHeight,
+    anchorEnd: json.layerAnchorEnd,
   }
   return new Sprite(film, layer, props)
 }

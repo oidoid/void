@@ -3,7 +3,7 @@
  *
  * Sprites are rendered in the following order:
  * - Least layer (Layer.Top).
- * - Greatest y. When LayerByHeightFlag is set, height is included in this
+ * - Greatest y. When BitmapLayerAnchorEnd is set, height is included in this
  *   calculation (`y + h`). The default is to exclude height.
  * - Render instance position.
  *

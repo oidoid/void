@@ -1,3 +1,7 @@
+A thin loop + context. A thin loop that calls an update loop and layer aware renderer.
+  https://alex.miller.garden/notes/gridtoy
+  https://github.com/rxi/kit
+Keep stripping down Sprite, Box, and XY. Think about C.
 Think about `await RAF` or generator. What are the actual performance costs (including latency)?
 If I didn't need callbacks, or maybe even if I do, creating a base void Context object has a lot of appeal over subclassing.
   https://github.com/rxi/kit/blob/master/demo/main.c
@@ -7,22 +11,15 @@ Explore a more compact sprite representation on the GPU.
     To not specify XY, we have to assume instance position corresponds to screen position. This kind of only works for exact grid alignment like background tiles, not character sprites that might be in-between tiles.
     To not specify WH, we can use the source CelID today no issues for 1:1 sprites. For scaled sprites, we need a few magic bits like 8**(bit) (would I ever use a small number?). This is only needed for backgrounds.
   There's not a nice way to zap a full screen of background tiles in a minimum of bytes. It'd be nice if we treated static background resources differently so they occupied a single ent named GiantBitmap in ECS. It's a giant 2D array. This is how sprites would come from most level editors--they have no concept of stretching (but maybe stretching is still useful for UI). Position is implied since every tile space is filled. If I limit the number of possible CelIDs possible for background tiles, I could put them in nibbles and really pack it tight maybe. Maybe the first couple bytes specify the region so you don't have to fill the entire screen.
-Explore adding isOnScreen component with a BSP tree / quadtree implementation. It won't have an effect until next loop but will be 25% larger on each side so don't care. This could happen at end of frame as the last system to run so it has updated positions and any deleted ents are removed.
-  https://github.com/straker/kontra/blob/main/src/quadtree.js
-  https://en.wikipedia.org/wiki/Quadtree#Polygonal_map_quadtree
-  i could have a dirty tolerance flag for how long / how far something can stray before updating the quadtree
 Add UI components like buttons and forms.
 Implement 9-patch https://en.wikipedia.org/wiki/9-slice_scaling. Is this a single sprite with 9 areas or 9 sprites? I think the former sounds simpler but will probably still require a shader transform.
 Implement autotile/automap.
 Add input profiler debug pane; avg, min, max, now.
-Not really sure how to group the background with the FPS meter. Text needs to be able to blow away at that full array on text change to get rid of any old character sprites. It doesn't know there is other stuff in there.
-Add support for input order to ECS. I think this has to be update order but also have no notion of handling.
 How to do system-to-system communication for a given ent?
 Make input keymaps customizable.
 Review ~/tmp/heap, ~/tmp/set interfaces, sort-map, and how they differ from Deno std https://deno.land/std.
 How can I make apps offline / local-first?
   Make it installable; https://web.dev/codelab-make-installable/ https://web.dev/learn/pwa/
-Add Uint / Int-safe bitwise ops.
 Add virtual joystick pattern.
   Non-UI input adapter is not a system. It does not depend on an ent. It has no knowledge of ents. It's just a pointer adapter that is updated each frame like the gamepad poller (but it accepts a pointer).
     Consumes pointer input.
@@ -30,3 +27,4 @@ Add virtual joystick pattern.
   UI part is a system that depends on an ent with a `sprite` and maybe `virtualJoystick`. It's optional.
 Limit max viewport size in demo, use infinite for solitaire.
 Favor globalThis to window.
+Don't require ECS components to be objects. I think this was just for parsing or confusion over ent vs component?

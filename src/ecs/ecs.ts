@@ -103,7 +103,7 @@ export class ECS<Ent> {
    *   -0 → the last system.
    *    0 → the first system.
    *    1 → the second system.
-   *    1 → the third system.
+   *    2 → the third system.
    *
    * Order does not need to be contiguous. Inserting at an existing index
    * splices before the existing element.
@@ -216,7 +216,7 @@ export class ECS<Ent> {
 
   #invalidateSystemEnts(ent: Partial<Ent>): void {
     for (const [query, ents] of Object.entries(this.#entsByQuery)) {
-      if (this.#queryEnt(ent, this.#setByQuery[query]!)) ents.add(ent)
+      if (queryEnt(ent, this.#setByQuery[query]!)) ents.add(ent)
       else ents.delete(ent)
     }
   }
@@ -231,15 +231,6 @@ export class ECS<Ent> {
         this.#entByComponent.set(ent[key]!, ent)
       }
     }
-  }
-
-  /** Test whether an ent matches query. */
-  #queryEnt(ent: Partial<Ent>, query: QuerySet<Ent>): boolean {
-    return query.some((keys) =>
-      [...keys].every((key) =>
-        key[0] === '!' ? !(key.slice(1) in ent) : key in ent
-      )
-    )
   }
 
   /** Remove all references to an ent. */
@@ -262,7 +253,16 @@ export class ECS<Ent> {
   ): IterableIterator<QueryEnt<Ent, Query>> {
     const querySet = parseQuerySet(query)
     for (const ent of this.#ents) {
-      if (this.#queryEnt(ent, querySet)) yield ent as QueryEnt<Ent, Query>
+      if (queryEnt(ent, querySet)) yield ent as QueryEnt<Ent, Query>
     }
   }
+}
+
+/** Test whether an ent matches query. */
+function queryEnt<Ent>(ent: Partial<Ent>, query: QuerySet<Ent>): boolean {
+  return query.some((keys) =>
+    [...keys].every((key) =>
+      key[0] === '!' ? !(key.slice(1) in ent) : key in ent
+    )
+  )
 }

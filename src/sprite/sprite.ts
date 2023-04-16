@@ -138,7 +138,6 @@ export class Sprite implements Bitmap {
     return this.#bounds.center
   }
 
-  // to-do: keep in sync with shader
   /**
    * Compare a sprite's elevation to another in descending order
    * (top-to-bottom).
