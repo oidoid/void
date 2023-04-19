@@ -19,8 +19,7 @@ export class FollowCamSystem implements System<FollowCamEnt> {
     // to-do: this should probably handle WH.
     const diff = sprite.bounds.xy.copy().sub(xy)
     for (const sprite of sprites) {
-      sprite.x += diff.x
-      sprite.y += diff.y
+      sprite.setXY(sprite.x + diff.x, sprite.y + diff.y)
     }
   }
 }
@@ -37,8 +36,10 @@ function follow(
   if (followCam.fill === 'Y' || followCam.fill === 'XY') {
     sprite.h = game.cam.viewport.h - pad.y * 2
   }
-  sprite.x = computeX(sprite, game.cam, followCam)
-  sprite.y = computeY(sprite, game.cam, followCam)
+  sprite.setXY(
+    computeX(sprite, game.cam, followCam),
+    computeY(sprite, game.cam, followCam),
+  )
 }
 
 function computeX(

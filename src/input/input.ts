@@ -197,9 +197,9 @@ export class Input {
    * primes the poller to collect input for the next frame so it should occur
    * towards the end of the game update loop *after* entity processing.
    */
-  postupdate(delta: number): void {
+  postupdate(tick: number): void {
     this.#poller.postupdate()
-    this.#duration += delta
+    this.#duration += tick
     this.#prevButtons = this.buttons
   }
 

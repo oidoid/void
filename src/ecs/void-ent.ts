@@ -4,12 +4,12 @@ import {
   FollowDpadEnt,
   FollowPointEnt,
   FPSEnt,
-  Sprite,
   TextEnt,
 } from '@/void'
+import { SpriteEnt } from './sprite-ent.ts'
 
 export type VoidEnt =
-  & { sprites: [Sprite, ...Sprite[]] }
+  & SpriteEnt
   & CursorEnt
   & FollowCamEnt
   & FollowDpadEnt

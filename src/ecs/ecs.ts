@@ -1,5 +1,14 @@
-import { assert, Exact, NonNull } from '@/ooz'
-import { EQL, Game, parseQuerySet, QueryEnt, QuerySet, System } from '@/void'
+import { assert, Box, Exact, NonNull, XY } from '@/ooz'
+import {
+  EntGrid,
+  EQL,
+  Game,
+  parseQuerySet,
+  QueryEnt,
+  QuerySet,
+  SpriteEnt,
+  System,
+} from '@/void'
 
 // Map a tuple of partial ents to an exact tuple of partial ents.
 type PartialEntsToExact<Ent, Tuple> = Tuple extends
@@ -7,13 +16,14 @@ type PartialEntsToExact<Ent, Tuple> = Tuple extends
   ? [Exact<Partial<Ent>, PartialEnt>, ...PartialEntsToExact<Ent, Rest>]
   : []
 
-export class ECS<Ent> {
+export class ECS<Ent extends SpriteEnt> {
   /** May be sparse. */
   readonly #systemByOrder: System<Partial<Ent>, Ent>[] = []
   readonly #ents: Set<Partial<Ent>> = new Set()
   readonly #entsByQuery: { [query: string]: Set<Partial<Ent>> } = {}
   readonly #entByComponent: Map<Ent[keyof Ent], Partial<Ent>> = new Map()
-
+  readonly #grid: EntGrid
+  #visible: Set<Ent> = new Set()
   /**
    * The transition-to state. Editing existing components occurs synchronously
    * but adding, removing, or replacing components, or adding or deleting an
@@ -48,6 +58,10 @@ export class ECS<Ent> {
     Partial<Ent> | Partial<Record<keyof Ent, undefined>> | undefined
   > = new Map()
   readonly #setByQuery: { [query: string]: QuerySet<Ent> } = {}
+
+  constructor(bounds: Readonly<Box>, cellWH: Readonly<XY>) {
+    this.#grid = new EntGrid(bounds, cellWH)
+  }
 
   /** Enqueue ents. */
   addEnt<PartialEnt>(ent: Exact<Partial<Ent>, PartialEnt>): PartialEnt
@@ -124,6 +138,15 @@ export class ECS<Ent> {
     return system
   }
 
+  removeSpritesFromGrid(ent: Ent): void {
+    ent.sprites[0].setCallback(() => {})
+    this.#grid.remove(ent)
+  }
+
+  addSprite(ent: Ent): void {
+    this.#grid.add(ent)
+  }
+
   /**
    * Called by ECS after run. May also be used at initialization, before or
    * after a run, between system runs, or even between ent loops but not
@@ -161,13 +184,25 @@ export class ECS<Ent> {
     return ents[0]!
   }
 
+  *querySpriteEnts(bounds: Readonly<Box>): IterableIterator<Ent> {
+    const visible = new Set()
+    for (const ent of this.#grid.query(bounds)) {
+      visible.add(ent)
+      if (this.#visible.has(<Ent> ent)) this.#visible.delete(<Ent> ent)
+      else this.setEnt(<Ent> ent, <Partial<Ent>> { visible: true })
+      yield (<Ent> ent)
+    }
+    for (const ent of this.#visible) this.removeKey(ent, 'visible')
+    this.#visible = <Set<Ent>> visible
+  }
+
   /** Enqueue components for removal. */
-  removeKeys(
+  removeKey(
     ent: Partial<Ent>,
     ...keys: readonly [keyof Ent, ...(keyof Ent)[]]
   ): void
-  removeKeys(ent: Partial<Ent>, ...keys: readonly (keyof Ent)[]): void
-  removeKeys(ent: Partial<Ent>, ...keys: readonly (keyof Ent)[]): void {
+  removeKey(ent: Partial<Ent>, ...keys: readonly (keyof Ent)[]): void
+  removeKey(ent: Partial<Ent>, ...keys: readonly (keyof Ent)[]): void {
     const patch: Partial<Ent> | undefined = this.#patchByEnt.has(ent)
       ? this.#patchByEnt.get(ent)
       : {}
@@ -222,6 +257,10 @@ export class ECS<Ent> {
   }
 
   #patchEnt(ent: Partial<Ent>, patch: Partial<Ent>): void {
+    if ('sprites' in patch && ent.sprites != null) {
+      this.#grid.remove(<SpriteEnt> ent)
+    }
+
     for (const key in patch) {
       if (patch[key] == null) {
         this.#entByComponent.delete(ent[key]!)
@@ -231,10 +270,18 @@ export class ECS<Ent> {
         this.#entByComponent.set(ent[key]!, ent)
       }
     }
+    if (patch.sprites != null) {
+      patch.sprites[0].setCallback((action) => {
+        if (action === 'Add') this.#grid.add(<Ent> ent)
+        else this.#grid.remove(<Ent> ent)
+      })
+      this.#grid.add(<SpriteEnt> ent)
+    }
   }
 
   /** Remove all references to an ent. */
   #removeEntImmediately(ent: Partial<Ent>): void {
+    if (ent.sprites != null) this.#grid.remove(<SpriteEnt> ent)
     for (const ents of Object.values(this.#entsByQuery)) ents.delete(ent)
     for (const key in ent) this.#entByComponent.delete(ent[key]!)
     this.#ents.delete(ent)

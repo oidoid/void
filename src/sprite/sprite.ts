@@ -44,7 +44,10 @@ export interface SpriteProps {
   /** Mirror sprite  (render + hitbox). Defaults to unflipped. */
   readonly flip?: SpriteFlip | undefined
 
-  /** The animation starting time. */
+  /**
+   * The animation starting time.  Can be negative but never greater than
+   * actual.
+   */
   readonly time?: number
 }
 
@@ -66,6 +69,7 @@ export class Sprite implements Bitmap {
   readonly #bounds: Box
   readonly #hitbox: Box
   #flipWrapAnchorLayer: number
+  #callback: (action: 'Add' | 'Remove') => void = () => {}
 
   constructor(film: Film, layer: number, props?: SpriteProps) {
     this.#animator = new Animator(film, props?.time)
@@ -239,9 +243,23 @@ export class Sprite implements Bitmap {
     return this.#bounds.min
   }
 
-  setXY(xy: Readonly<XY>): void {
-    this.x = xy.x
-    this.y = xy.y
+  setCallback(callback: (action: 'Add' | 'Remove') => void): void {
+    this.#callback = callback
+  }
+
+  setXY(x: number, y: number): void
+  setXY(xy: Readonly<XY>): void
+  setXY(xXY: number | Readonly<XY>, y?: number): void {
+    const x = typeof xXY === 'number' ? xXY : xXY.x
+    y = typeof xXY === 'number' ? y! : xXY.y
+    if (x === this.x && y === this.y) return
+    this.#hitbox.x += x - this.#bounds.x
+    this.#hitbox.y += y - this.#bounds.y
+    this.#callback('Remove')
+    this.#bounds.x = x
+    this.#bounds.y = y
+    this.#callback('Add')
+    // to-do: probably want to handle WH and XYWH the same way
   }
 
   toString(): string {
@@ -300,17 +318,7 @@ export class Sprite implements Bitmap {
     return this.#bounds.x
   }
 
-  set x(x: number) {
-    this.#hitbox.x += x - this.#bounds.x
-    this.#bounds.x = x
-  }
-
   get y(): number {
     return this.#bounds.y
-  }
-
-  set y(y: number) {
-    this.#hitbox.y += y - this.#bounds.y
-    this.#bounds.y = y
   }
 }

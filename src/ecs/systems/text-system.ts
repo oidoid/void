@@ -21,8 +21,9 @@ export class TextSystem implements System<TextEnt> {
     const xy = sprites?.[0]?.bounds.xy ?? new XY(0, 0)
     if (ent.sprites == null) {
       game.ecs.setEnt(ent, { sprites: <[Sprite]> sprites })
-    }
+    } else game.ecs.removeSpritesFromGrid(ent)
     sprites.length = 0
     sprites.push(...ent.text.render(xy, game.filmByID, ent.text.layer))
+    if (ent.sprites != null) game.ecs.addSprite(ent)
   }
 }

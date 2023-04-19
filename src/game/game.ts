@@ -1,8 +1,8 @@
 import { AsepriteFileTag, FilmByID } from '@/atlas-pack'
-import { Cam, ECS, Input, RendererStateMachine } from '@/void'
+import { Cam, ECS, Input, RendererStateMachine, SpriteEnt } from '@/void'
 
 export interface Game<
-  Ent,
+  Ent extends SpriteEnt,
   in FilmID extends AsepriteFileTag = AsepriteFileTag,
 > {
   // to-do: extend ECS and Input and RendererStateMachine.

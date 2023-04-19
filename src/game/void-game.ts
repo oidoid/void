@@ -1,5 +1,5 @@
 import { AsepriteFileTag, FilmByID } from '@/atlas-pack'
-import { XY } from '@/ooz'
+import { Box, XY } from '@/ooz'
 import {
   Assets,
   BitmapBuffer,
@@ -16,7 +16,7 @@ export abstract class VoidGame<
   FilmID extends AsepriteFileTag,
 > implements Game<Ent, FilmID> {
   readonly cam: Cam
-  readonly ecs: ECS<Ent> = new ECS()
+  readonly ecs: ECS<Ent>
   readonly filmByID: FilmByID<FilmID>
   readonly input: Input
   pickHandled = false
@@ -33,7 +33,10 @@ export abstract class VoidGame<
     minViewport: XY,
     random: () => number,
     window: Window,
+    bounds: Readonly<Box>,
+    cellWH: Readonly<XY>,
   ) {
+    this.ecs = new ECS(bounds, cellWH)
     this.cam = new Cam(minViewport, window)
     this.input = new Input(
       this.cam,
@@ -94,13 +97,10 @@ export abstract class VoidGame<
 
     this.ecs.run(this)
 
-    // to-do: rework.
-    // so this works well but it's hard to get notified of new sprites being
-    // made and old removed. for grid, how can i make sure that moved sprites
-    // get invalidated. is there a big sprite movement mgmt system?
     let index = 0
-    for (const ent of this.ecs.query('sprites' as any)) {
-      for (const sprite of ent.sprites!) {
+    for (const ent of this.ecs.querySpriteEnts(this.cam.viewport)) {
+      for (const sprite of ent.sprites) {
+        if (!sprite.bounds.intersects(this.cam.viewport)) continue
         this.#bitmaps.set(index, sprite, this.time)
         index++
       }

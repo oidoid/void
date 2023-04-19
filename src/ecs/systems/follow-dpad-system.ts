@@ -12,9 +12,11 @@ export class FollowDpadSystem implements System<FollowDpadEnt> {
   runEnt(ent: FollowDpadEnt, game: Game<FollowDpadEnt>): void {
     // to-do: limit to screen area if ent says so.
     const speed = game.tick / 4 // to-do: move speed to ent.
-    if (game.input.isOn('Left')) ent.sprites[0].x -= speed
-    if (game.input.isOn('Right')) ent.sprites[0].x += speed
-    if (game.input.isOn('Up')) ent.sprites[0].y -= speed
-    if (game.input.isOn('Down')) ent.sprites[0].y += speed
+    let { x, y } = ent.sprites[0]
+    if (game.input.isOn('Left')) x -= speed
+    if (game.input.isOn('Right')) x += speed
+    if (game.input.isOn('Up')) y -= speed
+    if (game.input.isOn('Down')) y += speed
+    ent.sprites[0].setXY(x, y)
   }
 }
