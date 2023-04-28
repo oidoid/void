@@ -1,3 +1,4 @@
+Load a level
 Know what sprites are colliding with what other sprites
   use a collision LUT for static sprites and invert as needed (eg, on hill layer vs ground); these could be layer flags
 A thin loop + context. A thin loop that calls an update loop and layer aware renderer.
@@ -23,7 +24,7 @@ Add input profiler debug pane; avg, min, max, now.
 Make input keymaps customizable.
 Review ~/tmp/heap, ~/tmp/set interfaces, sort-map, and how they differ from Deno std https://deno.land/std.
 How can I make apps offline / local-first?
-  Make it installable; https://web.dev/codelab-make-installable/ https://web.dev/learn/pwa/
+  Make it installable; https://web.dev/codelab-make-installable/ https://web.dev/learn/pwa/ https://news.ycombinator.com/item?id=35635430
 Add virtual joystick pattern.
   Non-UI input adapter is not a system. It does not depend on an ent. It has no knowledge of ents. It's just a pointer adapter that is updated each frame like the gamepad poller (but it accepts a pointer).
     Consumes pointer input.
