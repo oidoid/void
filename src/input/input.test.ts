@@ -1,258 +1,169 @@
-import { XY } from '@/ooz'
-import {
-  Button,
-  Cam,
-  GamepadHub,
-  Input,
-  PointerEventPub,
-  PointerLock,
-  SecureContext,
-} from '@/void'
 import { assertEquals } from 'std/testing/asserts.ts'
+import { Cam } from '../graphics/cam.ts'
+import { Input, StandardButton } from './input.ts'
 
-// to-do: require specific API, not Window.
-const cam: Cam = new Cam(new XY(1, 1), undefined as unknown as Window)
-const gamepadHub: GamepadHub = {
-  getGamepads: () => [],
-}
-const pointerLock: PointerLock = {
-  exitPointerLock() {},
-  pointerLockElement: null,
-}
-const pointerEventPub: PointerEventPub = {
+const cam = new Cam()
+const canvas = {
   addEventListener() {},
   removeEventListener() {},
   requestPointerLock() {},
-}
-const security: SecureContext = {
-  isSecureContext: false,
-}
+} as unknown as HTMLCanvasElement
+globalThis.isSecureContext = true
+globalThis.navigator.getGamepads = () => []
 
-Deno.test('Buttons are initially inactive.', () => {
-  const input = new Input(
-    cam,
-    gamepadHub,
-    globalThis,
-    pointerLock,
-    pointerEventPub,
-    security,
-  )
+Deno.test('buttons are initially inactive', () => {
+  const input = new Input(cam, canvas)
+  input.mapStandard()
   input.register('add')
-  input.preupdate()
-  assertEquals(input.isOn('Up'), false)
-  assertEquals(input.isOnStart('Up'), false)
-  assertEquals(input.isOnHeld('Up'), false)
-  assertEquals(input.isOff('Up'), true)
-  assertEquals(input.isOffStart('Up'), false)
-  assertEquals(input.isOffHeld('Up'), false)
-  assertEquals(input.isCombo(['Up']), false)
-  assertEquals(input.isComboStart(['Up']), false)
-  assertEquals(input.isComboHeld(['Up']), false)
+  assertEquals(input.isOn('U'), false)
+  assertEquals(input.isOnStart('U'), false)
+  assertEquals(input.isHeld(), false)
+  assertEquals(input.isOffStart('U'), false)
+  assertEquals(input.isCombo(['U']), false)
+  assertEquals(input.isComboStart(['U']), false)
   input.register('remove')
 })
 
-Deno.test('Pressed buttons are active and triggered.', () => {
-  const input = new Input(
-    cam,
-    gamepadHub,
-    globalThis,
-    pointerLock,
-    pointerEventPub,
-    security,
-  )
+Deno.test('pressed buttons are active and triggered', () => {
+  const input = new Input(cam, canvas)
+  input.mapStandard()
   input.register('add')
   dispatchKeyEvent('keydown', 'ArrowUp')
-  input.preupdate()
-  assertEquals(input.isOn('Up'), true)
-  assertEquals(input.isOnStart('Up'), true)
-  assertEquals(input.isOnHeld('Up'), false)
-  assertEquals(input.isOff('Up'), false)
-  assertEquals(input.isOffStart('Up'), false)
-  assertEquals(input.isOffHeld('Up'), false)
-  assertEquals(input.isCombo(['Up']), true)
-  assertEquals(input.isComboStart(['Up']), true)
-  assertEquals(input.isComboHeld(['Up']), false)
+  input.poll(16)
+  assertEquals(input.isOn('U'), true)
+  assertEquals(input.isOnStart('U'), true)
+  assertEquals(input.isHeld(), false)
+  assertEquals(input.isOffStart('U'), false)
+  assertEquals(input.isCombo(['U']), true)
+  assertEquals(input.isComboStart(['U']), true)
   input.register('remove')
 })
 
-Deno.test('Held buttons are active but not triggered.', () => {
-  const input = new Input(
-    cam,
-    gamepadHub,
-    globalThis,
-    pointerLock,
-    pointerEventPub,
-    security,
-    16,
-  )
+Deno.test('held buttons are active but not triggered', () => {
+  const input = new Input(cam, canvas)
+  input.mapStandard()
   input.register('add')
   dispatchKeyEvent('keydown', 'ArrowUp')
-  input.preupdate()
-  input.postupdate(16)
-  input.preupdate()
-  assertEquals(input.isOn('Up'), true)
-  assertEquals(input.isOnStart('Up'), false)
-  assertEquals(input.isOnHeld('Up'), true)
-  assertEquals(input.isOff('Up'), false)
-  assertEquals(input.isOffStart('Up'), false)
-  assertEquals(input.isOffHeld('Up'), false)
-  assertEquals(input.isCombo(['Up']), true)
-  assertEquals(input.isComboStart(['Up']), false)
-  assertEquals(input.isComboHeld(['Up']), true)
+  input.poll(300)
+  input.poll(16)
+  assertEquals(input.isOn('U'), true)
+  assertEquals(input.isOnStart('U'), false)
+  assertEquals(input.isHeld(), true)
+  assertEquals(input.isOffStart('U'), false)
+  assertEquals(input.isCombo(['U']), true)
+  assertEquals(input.isComboStart(['U']), false)
   input.register('remove')
 })
 
-Deno.test('Releases buttons are off and triggered.', () => {
-  const input = new Input(
-    cam,
-    gamepadHub,
-    globalThis,
-    pointerLock,
-    pointerEventPub,
-    security,
-  )
+Deno.test('released buttons are off and triggered', () => {
+  const input = new Input(cam, canvas)
+  input.mapStandard()
   input.register('add')
   dispatchKeyEvent('keydown', 'ArrowUp')
-  input.preupdate()
-  input.postupdate(16)
+  input.poll(16)
 
   dispatchKeyEvent('keyup', 'ArrowUp')
-  input.preupdate()
+  input.poll(16)
 
-  assertEquals(input.isOn('Up'), false)
-  assertEquals(input.isOnStart('Up'), false)
-  assertEquals(input.isOnHeld('Up'), false)
-  assertEquals(input.isOff('Up'), true)
-  assertEquals(input.isOffStart('Up'), true)
-  assertEquals(input.isOffHeld('Up'), false)
-  assertEquals(input.isCombo(['Up']), false)
-  assertEquals(input.isComboStart(['Up']), false)
-  assertEquals(input.isComboHeld(['Up']), false)
+  assertEquals(input.isOn('U'), false)
+  assertEquals(input.isOnStart('U'), false)
+  assertEquals(input.isHeld(), false)
+  assertEquals(input.isOffStart('U'), true)
+  assertEquals(input.isCombo(['U']), false)
+  assertEquals(input.isComboStart(['U']), false)
 
   input.register('remove')
 })
 
-Deno.test('Combos are exact in length.', () => {
-  const input = new Input(
-    cam,
-    gamepadHub,
-    globalThis,
-    pointerLock,
-    pointerEventPub,
-    security,
-  )
+Deno.test('combos are exact in length', () => {
+  const input = new Input(cam, canvas)
+  input.mapStandard()
   input.register('add')
 
   dispatchKeyEvent('keydown', 'ArrowUp')
-  input.preupdate()
-  assertEquals(input.isCombo(['Up']), true)
-  input.postupdate(16)
+  input.poll(16)
+  assertEquals(input.isCombo(['U']), true)
   dispatchKeyEvent('keyup', 'ArrowUp')
+  input.poll(16)
 
   dispatchKeyEvent('keydown', 'ArrowDown')
-  input.preupdate()
-  assertEquals(input.isCombo(['Up']), false)
-  assertEquals(input.isCombo(['Down']), false)
-  assertEquals(input.isCombo(['Up'], ['Down']), true)
-  input.postupdate(16)
+  input.poll(16)
+  assertEquals(input.isCombo(['U']), false)
+  assertEquals(input.isCombo(['D']), false)
+  assertEquals(input.isCombo(['U'], ['D']), true)
   dispatchKeyEvent('keyup', 'ArrowDown')
 
   dispatchKeyEvent('keydown', 'ArrowRight')
-  input.preupdate()
-  assertEquals(input.isCombo(['Up']), false)
-  assertEquals(input.isCombo(['Down']), false)
-  assertEquals(input.isCombo(['Right']), false)
-  assertEquals(input.isCombo(['Down'], ['Right']), false)
-  assertEquals(input.isCombo(['Up'], ['Down'], ['Right']), true)
-  input.postupdate(16)
+  input.poll(16)
+  assertEquals(input.isCombo(['U']), false)
+  assertEquals(input.isCombo(['D']), false)
+  assertEquals(input.isCombo(['R']), false)
+  assertEquals(input.isCombo(['D'], ['R']), false)
+  assertEquals(input.isCombo(['U'], ['D'], ['R']), true)
   dispatchKeyEvent('keyup', 'ArrowRight')
+  input.poll(16)
 
   input.register('remove')
 })
 
-Deno.test('Simultaneously pressed buttons are active and triggered.', () => {
-  const input = new Input(
-    cam,
-    gamepadHub,
-    globalThis,
-    pointerLock,
-    pointerEventPub,
-    security,
-  )
+Deno.test('simultaneously pressed buttons are active and triggered', () => {
+  const input = new Input(cam, canvas)
+  input.mapStandard()
   input.register('add')
   dispatchKeyEvent('keydown', 'ArrowUp')
   dispatchKeyEvent('keydown', 'ArrowDown')
-  input.preupdate()
+  input.poll(16)
 
-  assertEquals(input.isOn('Up', 'Down'), true)
-  assertEquals(input.isOnStart('Up', 'Down'), true)
-  assertEquals(input.isOnHeld('Up', 'Down'), false)
-  assertEquals(input.isOff('Up', 'Down'), false)
-  assertEquals(input.isOffStart('Up', 'Down'), false)
-  assertEquals(input.isOffHeld('Up', 'Down'), false)
+  assertEquals(input.isOn('U', 'D'), true)
+  assertEquals(input.isOnStart('U', 'D'), true)
+  assertEquals(input.isHeld(), false)
+  assertEquals(input.isOffStart('U', 'D'), false)
 
-  assertEquals(input.isCombo(['Up']), false)
-  assertEquals(input.isComboStart(['Up']), false)
-  assertEquals(input.isComboHeld(['Up']), false)
-  assertEquals(input.isCombo(['Down']), false)
-  assertEquals(input.isComboStart(['Down']), false)
-  assertEquals(input.isComboHeld(['Down']), false)
-  assertEquals(input.isCombo(['Up', 'Down']), true)
-  assertEquals(input.isComboStart(['Up', 'Down']), true)
-  assertEquals(input.isComboHeld(['Up', 'Down']), false)
+  assertEquals(input.isCombo(['U']), false)
+  assertEquals(input.isComboStart(['U']), false)
+  assertEquals(input.isCombo(['D']), false)
+  assertEquals(input.isComboStart(['D']), false)
+  assertEquals(input.isCombo(['U', 'D']), true)
+  assertEquals(input.isComboStart(['U', 'D']), true)
 
   input.register('remove')
 })
 
-Deno.test('Combos buttons are exact.', () => {
-  const input = new Input(
-    cam,
-    gamepadHub,
-    globalThis,
-    pointerLock,
-    pointerEventPub,
-    security,
-  )
+Deno.test('combos buttons are exact', () => {
+  const input = new Input(cam, canvas)
+  input.mapStandard()
   input.register('add')
 
   dispatchKeyEvent('keydown', 'ArrowUp')
-  input.preupdate()
-  assertEquals(input.isCombo(['Up']), true)
-  input.postupdate(16)
+  input.poll(16)
+  assertEquals(input.isCombo(['U']), true)
   dispatchKeyEvent('keyup', 'ArrowUp')
 
   dispatchKeyEvent('keydown', 'ArrowDown')
   dispatchKeyEvent('keydown', 'ArrowLeft')
-  input.preupdate()
-  assertEquals(input.isCombo(['Up']), false)
-  assertEquals(input.isCombo(['Down']), false)
-  assertEquals(input.isCombo(['Up'], ['Down']), false)
-  input.postupdate(16)
+  input.poll(16)
+  assertEquals(input.isCombo(['U']), false)
+  assertEquals(input.isCombo(['D']), false)
+  assertEquals(input.isCombo(['U'], ['D']), false)
   dispatchKeyEvent('keyup', 'ArrowDown')
   dispatchKeyEvent('keyup', 'ArrowLeft')
 
   dispatchKeyEvent('keydown', 'ArrowRight')
-  input.preupdate()
-  assertEquals(input.isCombo(['Up']), false)
-  assertEquals(input.isCombo(['Down']), false)
-  assertEquals(input.isCombo(['Right']), false)
-  assertEquals(input.isCombo(['Down'], ['Right']), false)
-  assertEquals(input.isCombo(['Up'], ['Down'], ['Right']), false)
-  input.postupdate(16)
+  input.poll(16)
+  assertEquals(input.isCombo(['U']), false)
+  assertEquals(input.isCombo(['D']), false)
+  assertEquals(input.isCombo(['R']), false)
+  assertEquals(input.isCombo(['D'], ['R']), false)
+  assertEquals(input.isCombo(['U'], ['D'], ['R']), false)
   dispatchKeyEvent('keyup', 'ArrowRight')
+  input.poll(16)
 
   input.register('remove')
 })
 
-Deno.test('A long combo is active and triggered.', () => {
-  const input = new Input(
-    cam,
-    gamepadHub,
-    globalThis,
-    pointerLock,
-    pointerEventPub,
-    security,
-  )
+Deno.test('a long combo is active and triggered', () => {
+  const input = new Input(cam, canvas)
+  input.mapStandard()
   input.register('add')
 
   const keys = [
@@ -267,32 +178,26 @@ Deno.test('A long combo is active and triggered.', () => {
   ] as const
   for (const [i, key] of keys.entries()) {
     dispatchKeyEvent('keydown', key)
-    input.preupdate()
+    input.poll(16)
     if (i === (keys.length - 1)) break
-    input.postupdate(16)
 
     dispatchKeyEvent('keyup', key)
-    input.preupdate()
-    input.postupdate(16)
+    input.poll(16)
   }
 
-  const combo = keys.map((key) => [key.replace('Arrow', '') as Button])
+  const combo = keys.map((
+    key,
+  ) => [key.replace(/Arrow(.).+/, '$1') as StandardButton])
   assertEquals(input.isCombo(...combo), true)
   assertEquals(input.isComboStart(...combo), true)
-  assertEquals(input.isComboHeld(...combo), false)
+  assertEquals(input.isHeld(), false)
 
   input.register('remove')
 })
 
-Deno.test('Around-the-world combo is active and triggered.', () => {
-  const input = new Input(
-    cam,
-    gamepadHub,
-    globalThis,
-    pointerLock,
-    pointerEventPub,
-    security,
-  )
+Deno.test('around-the-world combo is active and triggered', () => {
+  const input = new Input(cam, canvas)
+  input.mapStandard()
   input.register('add')
 
   const keyCombo = [
@@ -309,159 +214,130 @@ Deno.test('Around-the-world combo is active and triggered.', () => {
     for (const button of buttons) {
       dispatchKeyEvent('keydown', button)
     }
-    input.preupdate()
+    input.poll(16)
     if (i === (keyCombo.length - 1)) break
-    input.postupdate(16)
 
     for (const button of buttons) {
       dispatchKeyEvent('keyup', button)
     }
-    input.preupdate()
-    input.postupdate(16)
+    input.poll(16)
   }
 
   const combo = keyCombo.map((
     keys,
-  ) => keys.map((key) => key.replace('Arrow', '') as Button))
+  ) => keys.map((key) => key.replace(/Arrow(.).+/, '$1') as StandardButton))
   assertEquals(input.isCombo(...combo), true)
   assertEquals(input.isComboStart(...combo), true)
-  assertEquals(input.isComboHeld(...combo), false)
+  assertEquals(input.isHeld(), false)
 
   input.register('remove')
 })
 
-Deno.test('Combo expired.', () => {
-  const input = new Input(
-    cam,
-    gamepadHub,
-    globalThis,
-    pointerLock,
-    pointerEventPub,
-    security,
-  )
+Deno.test('combo expired', () => {
+  const input = new Input(cam, canvas)
+  input.mapStandard()
   input.register('add')
 
   dispatchKeyEvent('keydown', 'ArrowUp')
-  input.preupdate()
-  assertEquals(input.isCombo(['Up']), true)
-  input.postupdate(16)
+  input.poll(16)
+  assertEquals(input.isCombo(['U']), true)
   dispatchKeyEvent('keyup', 'ArrowUp')
 
   dispatchKeyEvent('keydown', 'ArrowDown')
-  input.preupdate()
-  assertEquals(input.isCombo(['Up']), false)
-  assertEquals(input.isCombo(['Down']), false)
-  assertEquals(input.isCombo(['Up'], ['Down']), true)
-  input.postupdate(1000)
+  input.poll(16)
+  assertEquals(input.isCombo(['U']), false)
+  assertEquals(input.isCombo(['D']), false)
+  assertEquals(input.isCombo(['U'], ['D']), true)
+  dispatchKeyEvent('keyup', 'ArrowDown')
+  input.poll(1000)
+
+  dispatchKeyEvent('keydown', 'ArrowRight')
+  input.poll(16)
+  assertEquals(input.isCombo(['U']), false)
+  assertEquals(input.isCombo(['D']), false)
+  assertEquals(input.isCombo(['R']), false)
+  assertEquals(input.isCombo(['D'], ['R']), false)
+  assertEquals(input.isCombo(['U'], ['D'], ['R']), false)
+  dispatchKeyEvent('keyup', 'ArrowRight')
+  input.poll(16)
+
+  input.register('remove')
+})
+
+Deno.test('long-pressed combo is active and held', () => {
+  const input = new Input(cam, canvas)
+  input.mapStandard()
+  input.register('add')
+
+  dispatchKeyEvent('keydown', 'ArrowUp')
+  input.poll(16)
+  assertEquals(input.isCombo(['U']), true)
+  dispatchKeyEvent('keyup', 'ArrowUp')
+
+  dispatchKeyEvent('keydown', 'ArrowDown')
+  input.poll(16)
+  assertEquals(input.isCombo(['U']), false)
+  assertEquals(input.isCombo(['D']), false)
+  assertEquals(input.isCombo(['U'], ['D']), true)
   dispatchKeyEvent('keyup', 'ArrowDown')
 
   dispatchKeyEvent('keydown', 'ArrowRight')
-  input.preupdate()
-  assertEquals(input.isCombo(['Up']), false)
-  assertEquals(input.isCombo(['Down']), false)
-  assertEquals(input.isCombo(['Right']), false)
-  assertEquals(input.isCombo(['Down'], ['Right']), false)
-  assertEquals(input.isCombo(['Up'], ['Down'], ['Right']), false)
-  input.postupdate(16)
+  input.poll(16)
+  assertEquals(input.isCombo(['U']), false)
+  assertEquals(input.isCombo(['D']), false)
+  assertEquals(input.isCombo(['R']), false)
+  assertEquals(input.isCombo(['D'], ['R']), false)
+  assertEquals(input.isCombo(['U'], ['D'], ['R']), true)
+  input.poll(1000)
+  input.poll(16)
+
+  assertEquals(input.isCombo(['U'], ['D'], ['R']), true)
+  assertEquals(input.isHeld(), true)
+
+  input.register('remove')
+})
+
+Deno.test('combo after long-pressed combo is active', () => {
+  const input = new Input(cam, canvas)
+  input.mapStandard()
+  input.register('add')
+
+  dispatchKeyEvent('keydown', 'ArrowUp')
+  input.poll(16)
+  assertEquals(input.isCombo(['U']), true)
+  dispatchKeyEvent('keyup', 'ArrowUp')
+
+  dispatchKeyEvent('keydown', 'ArrowDown')
+  input.poll(16)
+  assertEquals(input.isCombo(['U']), false)
+  assertEquals(input.isCombo(['D']), false)
+  assertEquals(input.isCombo(['U'], ['D']), true)
+  dispatchKeyEvent('keyup', 'ArrowDown')
+
+  dispatchKeyEvent('keydown', 'ArrowRight')
+  input.poll(16)
+  assertEquals(input.isCombo(['U']), false)
+  assertEquals(input.isCombo(['D']), false)
+  assertEquals(input.isCombo(['R']), false)
+  assertEquals(input.isCombo(['D'], ['R']), false)
+  assertEquals(input.isCombo(['U'], ['D'], ['R']), true)
+  input.poll(1000)
   dispatchKeyEvent('keyup', 'ArrowRight')
 
-  input.register('remove')
-})
-
-Deno.test('Long-pressed combo is active and held.', () => {
-  const input = new Input(
-    cam,
-    gamepadHub,
-    globalThis,
-    pointerLock,
-    pointerEventPub,
-    security,
-  )
-  input.register('add')
-
-  dispatchKeyEvent('keydown', 'ArrowUp')
-  input.preupdate()
-  assertEquals(input.isCombo(['Up']), true)
-  input.postupdate(16)
-  dispatchKeyEvent('keyup', 'ArrowUp')
-
-  dispatchKeyEvent('keydown', 'ArrowDown')
-  input.preupdate()
-  assertEquals(input.isCombo(['Up']), false)
-  assertEquals(input.isCombo(['Down']), false)
-  assertEquals(input.isCombo(['Up'], ['Down']), true)
-  input.postupdate(16)
-  dispatchKeyEvent('keyup', 'ArrowDown')
-
-  dispatchKeyEvent('keydown', 'ArrowRight')
-  input.preupdate()
-  assertEquals(input.isCombo(['Up']), false)
-  assertEquals(input.isCombo(['Down']), false)
-  assertEquals(input.isCombo(['Right']), false)
-  assertEquals(input.isCombo(['Down'], ['Right']), false)
-  assertEquals(input.isCombo(['Up'], ['Down'], ['Right']), true)
-  input.postupdate(1000)
-
-  input.preupdate()
-  assertEquals(input.isCombo(['Up'], ['Down'], ['Right']), true)
-  assertEquals(input.isComboHeld(['Up'], ['Down'], ['Right']), true)
-
-  input.register('remove')
-})
-
-Deno.test('Combo after long-pressed combo is active.', () => {
-  const input = new Input(
-    cam,
-    gamepadHub,
-    globalThis,
-    pointerLock,
-    pointerEventPub,
-    security,
-  )
-  input.register('add')
-
-  dispatchKeyEvent('keydown', 'ArrowUp')
-  input.preupdate()
-  assertEquals(input.isCombo(['Up']), true)
-  input.postupdate(16)
-  dispatchKeyEvent('keyup', 'ArrowUp')
-
-  dispatchKeyEvent('keydown', 'ArrowDown')
-  input.preupdate()
-  assertEquals(input.isCombo(['Up']), false)
-  assertEquals(input.isCombo(['Down']), false)
-  assertEquals(input.isCombo(['Up'], ['Down']), true)
-  input.postupdate(16)
-  dispatchKeyEvent('keyup', 'ArrowDown')
-
-  dispatchKeyEvent('keydown', 'ArrowRight')
-  input.preupdate()
-  assertEquals(input.isCombo(['Up']), false)
-  assertEquals(input.isCombo(['Down']), false)
-  assertEquals(input.isCombo(['Right']), false)
-  assertEquals(input.isCombo(['Down'], ['Right']), false)
-  assertEquals(input.isCombo(['Up'], ['Down'], ['Right']), true)
-  input.postupdate(1000)
-  dispatchKeyEvent('keyup', 'ArrowRight')
-
-  input.preupdate()
-  input.postupdate(16)
+  input.poll(16)
 
   dispatchKeyEvent('keydown', 'ArrowLeft')
-  input.preupdate()
-  input.postupdate(16)
+  input.poll(16)
   dispatchKeyEvent('keyup', 'ArrowLeft')
 
   dispatchKeyEvent('keydown', 'ArrowDown')
-  input.preupdate()
-  input.postupdate(16)
+  input.poll(16)
   dispatchKeyEvent('keyup', 'ArrowDown')
 
   dispatchKeyEvent('keydown', 'ArrowUp')
-  input.preupdate()
-  input.postupdate(16)
+  input.poll(16)
 
-  assertEquals(input.isCombo(['Left'], ['Down'], ['Up']), true)
+  assertEquals(input.isCombo(['L'], ['D'], ['U']), true)
 
   input.register('remove')
 })

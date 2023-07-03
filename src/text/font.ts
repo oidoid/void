@@ -1,19 +1,10 @@
-import { AsepriteFileTag } from '@/atlas-pack'
-import { FontMeta } from '@/mem'
-import { isBlank } from '@/ooz'
+import { Font } from '@/mem'
+import { AnimTag } from '../atlas/aseprite.ts'
 
-export interface Font extends FontMeta {
-  /** `cellHeight + leading`. */
-  readonly lineHeight: number
-}
-
-export function fontCharToFilmID<const FilmID extends AsepriteFileTag>(
-  self: Font,
-  char: string,
-): FilmID {
+export function fontCharToTag(self: Font, char: string): AnimTag {
   let pt = char.codePointAt(0)
   if (pt == null || pt > 0xff) pt = 63 // ?
-  return `${self.id}--${pt.toString(16).padStart(2, '0')}` as FilmID
+  return `${self.id}--${pt.toString(16).padStart(2, '0')}`
 }
 
 /** @arg rhs Undefined means end of line. */
@@ -23,7 +14,7 @@ export function fontKerning(
   rhs: string | undefined,
 ): number {
   if (rhs == null) return self.endOfLineKerning
-  if (isBlank(lhs) || isBlank(rhs)) return self.whitespaceKerning
+  if (/^\s*$/.test(lhs) || /^\s*$/.test(rhs)) return self.whitespaceKerning
   return self.kerning[lhs + rhs] ?? self.defaultKerning
 }
 

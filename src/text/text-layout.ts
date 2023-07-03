@@ -1,40 +1,30 @@
-import { Box, isBlank, XY } from '@/ooz'
-import { Font, fontCharWidth, fontKerning } from '@/void'
+import { Font } from '@/mem'
+import { Box, XY } from '../types/2d.ts'
+import { fontCharWidth, fontKerning } from './font.ts'
 
-export interface TextLayout {
+export type TextLayout = Readonly<{
   /** The length of this array matches the string length. */
-  readonly chars: (Readonly<Box> | undefined)[]
+  chars: (Readonly<Box> | undefined)[]
   /** The offset in pixels. todo: should this be passed in? */
-  readonly cursor: Readonly<XY>
-}
+  cursor: Readonly<XY>
+}>
 
-/** @arg width The allowed layout width in pixels. */
-export function layoutText(
-  font: Font,
-  str: string,
-  width: number,
-): TextLayout {
+export function layoutText(font: Font, str: string, maxW: number): TextLayout {
   const chars = []
-  let cursor = new XY(0, 0)
+  let cursor = { x: 0, y: 0 }
   for (let i = 0, char = str[i]; char != null; char = str[i]) {
     let layout
     if (char === '\n') layout = layoutNewline(font, cursor)
-    else if (isBlank(char)) {
-      layout = layoutSpace(
-        font,
-        cursor,
-        width,
-        tracking(font, char, str[i + 1]),
-      )
+    else if (/^\s*$/.test(char)) {
+      layout = layoutSpace(font, cursor, maxW, tracking(font, char, str[i + 1]))
     } else {
-      layout = layoutWord(font, cursor, width, str, i)
+      layout = layoutWord(font, cursor, maxW, str, i)
       if (cursor.x > 0 && layout.cursor.y === nextLine(font, cursor.y).y) {
-        const word_width = width - cursor.x + layout.cursor.x
-        if (word_width <= width) {
-          // Word can fit on one line if cursor is reset to the start of the
-          // line.
+        const wordW = maxW - cursor.x + layout.cursor.x
+        if (wordW <= maxW) {
+          // Word can fit on one line if cursor is reset to the start of line.
           cursor = nextLine(font, cursor.y)
-          layout = layoutWord(font, cursor, width, str, i)
+          layout = layoutWord(font, cursor, maxW, str, i)
         }
       }
     }
@@ -46,15 +36,10 @@ export function layoutText(
   return { chars, cursor }
 }
 
-/**
- * @arg cursor The cursor offset in pixels.
- * @arg width The allowed layout width in pixels.
- * @internal
- */
 export function layoutWord(
   font: Font,
   cursor: Readonly<XY>,
-  width: number,
+  maxW: number,
   word: string,
   index: number,
 ): TextLayout {
@@ -62,51 +47,46 @@ export function layoutWord(
   let { x, y } = cursor
   for (;;) {
     const char = word[index]
-    if (char == null || isBlank(char)) break
+    if (!char || /^\s*$/.test(char)) break
 
     const span = tracking(font, char, word[index + 1])
-    if (x > 0 && (x + span) > width) ({ x, y } = nextLine(font, y))
+    if (x > 0 && (x + span) > maxW) ({ x, y } = nextLine(font, y))
 
     // Width is not span since, with kerning, that may exceed the actual
     // width of the character's sprite. For example, if w has the maximal
     // character width of five pixels and a one pixel kerning for a given pair
     // of characters, it will have a span of six pixels which is greater than
     // the maximal five pixel sprite that can be rendered.
-    const w = fontCharWidth(font, char)
-    const h = font.cellHeight
-    chars.push(new Box(x, y, w, h))
+    chars.push({ x, y, w: fontCharWidth(font, char), h: font.cellHeight })
     x += span
 
     index++
   }
-  return { chars, cursor: new XY(x, y) }
+  return { chars, cursor: { x, y } }
 }
 
 function nextLine(font: Font, y: number): XY {
-  return new XY(0, y + font.lineHeight)
+  return { x: 0, y: y + font.lineHeight }
 }
 
-/** @arg cursor The cursor offset in pixels. */
-function layoutNewline(font: Font, { y }: Readonly<XY>): TextLayout {
-  return { chars: [undefined], cursor: nextLine(font, y) }
+function layoutNewline(font: Font, cursor: Readonly<XY>): TextLayout {
+  return { chars: [undefined], cursor: nextLine(font, cursor.y) }
 }
 
 /**
- * @arg xy The cursor offset in pixels.
- * @arg width The allowed layout width in pixels.
  * @arg span  The distance in pixels from the start of the current character to
  *            the start of the next including scale.
  */
 function layoutSpace(
   font: Font,
-  xy: Readonly<XY>,
+  cursor: Readonly<XY>,
   width: number,
   span: number,
 ): TextLayout {
-  const cursor = (xy.x > 0 && (xy.x + span) >= width)
-    ? nextLine(font, xy.y)
-    : new XY(xy.x + span, xy.y)
-  return { chars: [undefined], cursor }
+  const nextCursor = (cursor.x > 0 && (cursor.x + span) >= width)
+    ? nextLine(font, cursor.y)
+    : { x: cursor.x + span, y: cursor.y }
+  return { chars: [undefined], cursor: nextCursor }
 }
 
 /** Returns the distance in pixels from the start of lhs to the start of rhs. */

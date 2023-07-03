@@ -1,324 +1,195 @@
-import { Animator, Cel, Film } from '@/atlas-pack'
-import { Box, PartialXY, wrapNum, XY } from '@/ooz'
-import {
-  Bitmap,
-  BitmapFlipXMask,
-  BitmapFlipXShift,
-  BitmapFlipYMask,
-  BitmapFlipYShift,
-  BitmapLayerAnchorEndMask,
-  BitmapLayerAnchorEndShift,
-  BitmapLayerMask,
-  BitmapLayerShift,
-  BitmapWrapXMask,
-  BitmapWrapXShift,
-  BitmapWrapXWidth,
-  BitmapWrapYMask,
-  BitmapWrapYShift,
-  BitmapWrapYWidth,
-} from '@/void'
+import { AnimTag } from '../atlas/aseprite.ts'
+import { Anim, Atlas } from '../atlas/atlas.ts'
+import { Bitmap } from '../graphics/bitmap.ts'
+import { Box, WH, XY } from '../types/2d.ts'
 
-export interface SpriteProps {
-  /**
-   * The origin of the sprite in level coordinates. Defaults to (0, 0).
-   *
-   * Ents that are repositioned by other systems like FollowCam don't care.
-   */
-  readonly xy?: PartialXY | undefined
-  readonly x?: number | undefined
-  readonly y?: number | undefined
-
-  /** The dimensions of the sprite. Defaults to animation size. */
-  readonly wh?: PartialXY | undefined
-  readonly w?: number | undefined
-  readonly h?: number | undefined
-
-  /**
-   * How to resolve render order for sprites on same layer. When false (the
-   * default), this sprite compares with `y`. When true, this sprite compares
-   * with `y + h`.
-   */
-  readonly anchorEnd?: boolean | undefined
-  /** Offset sprite. Capped to I4. */
-  readonly wrap?: PartialXY | undefined
-  /** Mirror sprite  (render + hitbox). Defaults to unflipped. */
-  readonly flip?: SpriteFlip | undefined
-
-  /**
-   * The animation starting time.  Can be negative but never greater than
-   * actual.
-   */
-  readonly time?: number
+export type SpriteJSON = {
+  cel?: number
+  flip?: string
+  tag: string
+  x?: number
+  y?: number
+  z?: number
+  w?: number
+  h?: number
+  zend?: boolean
 }
 
-export type SpriteFlip = Parameters<typeof SpriteFlipSet['has']>[0]
-export const SpriteFlipSet = new Set(
-  [
-    /** Flip horizontally. */
-    'X',
-    /** Flip vertically. */
-    'Y',
-    /** Flip horizontally and vertically. */
-    'XY',
-  ] as const,
-)
-
-/** A renderable animation. */
-export class Sprite implements Bitmap {
-  readonly #animator: Animator
-  readonly #bounds: Box
-  readonly #hitbox: Box
-  #flipWrapAnchorLayer: number
-  #callback: (action: 'Add' | 'Remove') => void = () => {}
-
-  constructor(film: Film, layer: number, props?: SpriteProps) {
-    this.#animator = new Animator(film, props?.time)
-    const flipX = props?.flip === 'X' || props?.flip === 'XY'
-    const flipY = props?.flip === 'Y' || props?.flip === 'XY'
-    this.#bounds = new Box(
-      props?.xy?.x ?? props?.x ?? 0,
-      props?.xy?.y ?? props?.y ?? 0,
-      props?.wh?.x ?? props?.w ?? film.wh.x,
-      props?.wh?.y ?? props?.h ?? film.wh.y,
-    )
-    this.#hitbox = film.sliceBounds.copy()
-    this.#hitbox.x = this.#bounds.x +
-      (flipX ? (this.#hitbox.w - this.#hitbox.x) : this.#hitbox.x)
-    this.#hitbox.y = this.#bounds.y +
-      (flipY ? (this.#hitbox.h - this.#hitbox.y) : this.#hitbox.y)
-
-    this.#flipWrapAnchorLayer = 0
-    this.flipX = flipX
-    this.flipY = flipY
-    this.wrapX = props?.wrap?.x ?? 0
-    this.wrapY = props?.wrap?.y ?? 0
-    this.anchorEnd = props?.anchorEnd ?? false
-    this.layer = layer
+export class Sprite<T extends AnimTag = AnimTag> implements Bitmap, Box {
+  static parse<T extends AnimTag = AnimTag>(
+    atlas: Atlas<T>,
+    json: Readonly<SpriteJSON>,
+  ): Sprite<T> {
+    if (!(json.tag in atlas)) throw Error(`atlas missing tag "${json.tag}"`)
+    const sprite = new Sprite(atlas, json.tag as T)
+    sprite.cel = json.cel ?? 0
+    sprite.flipX = json.flip === 'X' || json.flip === 'XY'
+    sprite.flipY = json.flip === 'Y' || json.flip === 'XY'
+    sprite.x = json.x ?? 0
+    sprite.y = json.y ?? 0
+    sprite.z = json.z ?? 0
+    sprite.zend = json.zend ?? false
+    if (json.w != null) sprite.w = json.w
+    if (json.h != null) sprite.h = json.h
+    return sprite
   }
 
-  get anchorEnd(): boolean {
-    return !!((this.#flipWrapAnchorLayer >> BitmapLayerAnchorEndShift) &
-      BitmapLayerAnchorEndMask)
+  readonly hitbox: Box = { x: 0, y: 0, w: 0, h: 0 }
+
+  _iffzz = 0
+  _xy = 0
+  _wh = 0
+
+  #anim: Anim<T> = {} as unknown as Anim<T>
+  #atlas: Atlas<T>
+
+  constructor(atlas: Atlas<T>, tag: T) {
+    this.#atlas = atlas
+    this.tag = tag
   }
 
-  set anchorEnd(end: boolean) {
-    if (end) this.#flipWrapAnchorLayer |= 1 << BitmapLayerAnchorEndShift
-    else this.#flipWrapAnchorLayer &= ~(1 << BitmapLayerAnchorEndShift)
+  above(sprite: Readonly<Sprite>): boolean {
+    const compare = this.z === sprite.z
+      ? ((sprite.zend ? (sprite.y + sprite.h) : sprite.y) -
+        (this.zend ? (this.y + this.h) : this.y))
+      : (this.z - sprite.z)
+    return compare < 0
   }
 
-  /**
-   * Clear the start time (set the animation to the starting cel) and optionally
-   * change the film. This is useful to reset the active film or switch films.
-   *
-   * Changing the film does not change size but may change hitbox.
-   */
-  animate(start: number, film?: Film): void {
-    this.#animator.reset(start, film)
-    if (film == null) return
-    this.flipX = !!this.flipX
-    this.flipY = !!this.flipY
+  get cel(): number {
+    return (this._iffzz >> 6) & 0xf
   }
 
-  /** Rendered width (w) × height (h) (may be negative if flipped). */
-  get area(): number {
-    return this.#bounds.area
-  }
-
-  /**
-   * The rendered size. This bounds usually matches Cel.bounds but may be
-   * smaller or larger.
-   */
-  get bounds(): Box {
-    return this.#bounds
-  }
-
-  /** The active film cel. */
-  cel(time: number): Cel {
-    return this.#animator.cel(time)
-  }
-
-  /** The center coordinate. */
-  get center(): XY {
-    return this.#bounds.center
-  }
-
-  /**
-   * Compare a sprite's elevation to another in descending order
-   * (top-to-bottom).
-   */
-  compareDepth(sprite: Sprite): number {
-    const lhsAnchorEnd = this.anchorEnd
-    const lhsLayer = this.layer
-    const rhsAnchorEnd = sprite.anchorEnd
-    const rhsLayer = sprite.layer
-    return lhsLayer === rhsLayer
-      ? (sprite.bounds[rhsAnchorEnd ? 'xy' : 'end'].y -
-        this.#bounds[lhsAnchorEnd ? 'xy' : 'end'].y)
-      : lhsLayer - rhsLayer
-  }
-
-  /** The starting coordinate plus dimensions. */
-  get end(): XY {
-    return this.#bounds.end
-  }
-
-  get film(): Film {
-    return this.#animator.film
-  }
-
-  get flipWrapAnchorLayer(): number {
-    return this.#flipWrapAnchorLayer
+  /** Set to frame number to start at the beginning. */
+  set cel(cel: number) {
+    this._iffzz = this._iffzz & 0xfffffc3f | ((cel & 0xf) << 6)
   }
 
   get flipX(): boolean {
-    return !!((this.#flipWrapAnchorLayer >> BitmapFlipXShift) &
-      BitmapFlipXMask)
+    return !!(this._iffzz & 0x20)
   }
 
   set flipX(flip: boolean) {
-    if (flip) this.#flipWrapAnchorLayer |= 1 << BitmapFlipXShift
-    else this.#flipWrapAnchorLayer &= ~(1 << BitmapFlipXShift)
-    const hitbox = this.#animator.film.sliceBounds
-    this.#hitbox.x = this.#bounds.x + (flip ? (hitbox.w - hitbox.x) : hitbox.x)
+    if (this.flipX === flip) return
+    if (flip) {
+      this._iffzz |= 0x20
+      const diff = this.hitbox.x - this.x
+      this.hitbox.x = this.x + this.hitbox.w - diff
+    } else {
+      this._iffzz &= 0xffffffdf
+      const diff = this.hitbox.x - this.hitbox.w
+      this.hitbox.x = this.x + diff
+    }
   }
 
   get flipY(): boolean {
-    return !!((this.#flipWrapAnchorLayer >> BitmapFlipYShift) &
-      BitmapFlipYMask)
+    return !!(this._iffzz & 0x10)
   }
 
   set flipY(flip: boolean) {
-    if (flip) this.#flipWrapAnchorLayer |= 1 << BitmapFlipYShift
-    else this.#flipWrapAnchorLayer &= ~(1 << BitmapFlipYShift)
-    const hitbox = this.#animator.film.sliceBounds
-    this.#hitbox.y = this.#bounds.y + (flip ? (hitbox.h - hitbox.y) : hitbox.y)
+    if (this.flipY === flip) return
+    if (flip) {
+      this._iffzz |= 0x10
+      const diff = this.hitbox.y - this.y
+      this.hitbox.y = this.y + this.hitbox.h - diff
+    } else {
+      this._iffzz &= 0xffffffef
+      const diff = this.hitbox.y - this.hitbox.h
+      this.hitbox.y = this.y + diff
+    }
   }
 
-  /** Height (negative when flipped). */
   get h(): number {
-    return this.#bounds.h
+    return this._wh & 0xfff
   }
 
   set h(h: number) {
-    this.#bounds.h = h
+    this._wh = this._wh & 0xfffff000 | h & 0xfff
   }
 
-  get hitbox(): Box {
-    return this.#hitbox
+  hits(box: Readonly<XY & Partial<WH>>): boolean {
+    if (this.hitbox.w === 0) return false
+    if (box instanceof Sprite) box = box.hitbox
+    return this.hitbox.x < (box.x + (box.w ?? 0)) &&
+      (this.hitbox.x + this.hitbox.w) > box.x &&
+      this.hitbox.y < (box.y + (box.h ?? 0)) &&
+      (this.hitbox.y + this.hitbox.h) > box.y
   }
 
-  hits(xy: Readonly<XY>): boolean
-  hits(box: Readonly<Box>): boolean
-  hits(sprite: Readonly<Sprite>): boolean
-  hits(xyBoxSprite: Readonly<Box | Sprite | XY>): boolean {
-    if (xyBoxSprite instanceof Box || xyBoxSprite instanceof XY) {
-      return this.#hitbox.intersects(<XY> xyBoxSprite)
-    }
-
-    const sprite = <Sprite> xyBoxSprite
-    return this.#hitbox.intersects(sprite.hitbox)
+  overlaps(box: Readonly<XY & Partial<WH>>): boolean {
+    return this.x < (box.x + (box.w ?? 0)) && (this.x + this.w) > box.x &&
+      this.y < (box.y + (box.h ?? 0)) && (this.y + this.h) > box.y
   }
 
-  /** True if this is in front of sprite. */
-  isAbove(sprite: Sprite): boolean {
-    return this.compareDepth(sprite) < 0
+  get tag(): T {
+    return this.#anim.tag
   }
 
-  get layer(): number {
-    return (this.#flipWrapAnchorLayer >> BitmapLayerShift) & BitmapLayerMask
-  }
-
-  set layer(layer: number) {
-    this.#flipWrapAnchorLayer &= ~(BitmapLayerMask << BitmapLayerShift)
-    this.#flipWrapAnchorLayer |= (layer & BitmapLayerMask) << BitmapLayerShift
-  }
-
-  /** The greatest coordinate of this box. */
-  get max(): XY {
-    return this.#bounds.max
-  }
-
-  /** The least coordinate of this box. */
-  get min(): XY {
-    return this.#bounds.min
-  }
-
-  setCallback(callback: (action: 'Add' | 'Remove') => void): void {
-    this.#callback = callback
-  }
-
-  setXY(x: number, y: number): void
-  setXY(xy: Readonly<XY>): void
-  setXY(xXY: number | Readonly<XY>, y?: number): void {
-    const x = typeof xXY === 'number' ? xXY : xXY.x
-    y = typeof xXY === 'number' ? y! : xXY.y
-    if (x === this.x && y === this.y) return
-    this.#hitbox.x += x - this.#bounds.x
-    this.#hitbox.y += y - this.#bounds.y
-    this.#callback('Remove')
-    this.#bounds.x = x
-    this.#bounds.y = y
-    this.#callback('Add')
-    // to-do: probably want to handle WH and XYWH the same way
+  set tag(tag: T) {
+    if (tag === this.#anim.tag) return
+    this.#anim = this.#atlas[tag]
+    const { hitbox } = this.#anim
+    this.hitbox.x = this.x + (this.flipX ? (hitbox.w - hitbox.x) : hitbox.x)
+    this.hitbox.y = this.y + (this.flipY ? (hitbox.h - hitbox.y) : hitbox.y)
+    this.hitbox.w = this.#anim.hitbox.w
+    this.hitbox.h = this.#anim.hitbox.h
+    this.w = this.#anim.w
+    this.h = this.#anim.h
+    this._iffzz = this._iffzz & 0xfffe0003f | (this.#anim.id << 6)
   }
 
   toString(): string {
-    const flip = this.flipX && this.flipY
-      ? 'XY'
-      : this.flipX
-      ? 'X'
-      : this.flipY
-      ? 'Y'
-      : 'no'
-    return `Sprite {id=${this.film.id} box=${this.#bounds} flip=${flip} ` +
-      `layer=${this.layer} anchor=${this.anchorEnd ? 'End' : 'Start'} ` +
-      `wrap=${new XY(this.wrapX, this.wrapY)}}`
+    return `${this.tag} (${this.x}, ${this.y}) ${this.w}×${this.h}`
   }
 
-  /** Width (negative when flipped). */
   get w(): number {
-    return this.#bounds.w
+    return (this._wh >> 12) & 0xfff
   }
 
   set w(w: number) {
-    this.#bounds.w = w
-  }
-
-  get wh(): XY {
-    return this.#bounds.wh
-  }
-
-  get wrapX(): number {
-    return wrapNum(
-      (this.#flipWrapAnchorLayer >> BitmapWrapXShift) & BitmapWrapXMask,
-      -(2 ** (BitmapWrapXWidth - 1)),
-      2 ** (BitmapWrapXWidth - 1),
-    )
-  }
-
-  set wrapX(wrap: number) {
-    this.#flipWrapAnchorLayer &= ~(BitmapWrapXMask << BitmapWrapXShift)
-    this.#flipWrapAnchorLayer |= (wrap & BitmapWrapXMask) << BitmapWrapXShift
-  }
-
-  get wrapY(): number {
-    return wrapNum(
-      (this.#flipWrapAnchorLayer >> BitmapWrapYShift) & BitmapWrapYMask,
-      -(2 ** (BitmapWrapYWidth - 1)),
-      2 ** (BitmapWrapYWidth - 1),
-    )
-  }
-
-  set wrapY(wrap: number) {
-    this.#flipWrapAnchorLayer &= ~(BitmapWrapYMask << BitmapWrapYShift)
-    this.#flipWrapAnchorLayer |= (wrap & BitmapWrapYMask) << BitmapWrapYShift
+    this._wh = this._wh & 0xff000fff | ((w & 0xfff) << 12)
   }
 
   get x(): number {
-    return this.#bounds.x
+    return (this._xy >> 16) / 8
+  }
+
+  set x(x: number) {
+    const diff = x - this.x
+    this._xy = this._xy & 0x0000ffff | (((8 * x) & 0xffff) << 16)
+    this.hitbox.x += diff
+  }
+
+  set xy(xy: Readonly<XY>) {
+    this.x = xy.x
+    this.y = xy.y
   }
 
   get y(): number {
-    return this.#bounds.y
+    return ((this._xy << 16) >> 16) / 8
+  }
+
+  set y(y: number) {
+    const diff = y - this.y
+    this._xy = this._xy & 0xffff0000 | (8 * y) & 0xffff
+    this.hitbox.y += diff
+  }
+
+  get z(): number {
+    return this._iffzz & 7
+  }
+
+  /** Greater is further. */
+  set z(z: number) {
+    this._iffzz = this._iffzz & 0xfffffff8 | (z & 0x7)
+  }
+
+  get zend(): boolean {
+    return !!(this._iffzz & 0x8)
+  }
+
+  set zend(end: boolean) {
+    if (end) this._iffzz |= 0x8
+    else this._iffzz &= 0xfffffff7
   }
 }

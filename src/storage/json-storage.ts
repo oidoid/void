@@ -1,22 +1,11 @@
-import { JSONValue } from '@/ooz'
-
 export class JSONStorage {
-  #storage: Storage
-  constructor(storage: Storage) {
-    this.#storage = storage
-  }
-
-  clear(): void {
-    this.#storage.clear()
-  }
-
-  get<T>(key: string): T & JSONValue | undefined {
-    const val = this.#storage.getItem(key)
+  get<T>(key: string): T | undefined {
+    const val = localStorage.getItem(key)
     return val == null ? undefined : JSON.parse(val)
   }
 
-  put(key: string, val: JSONValue | undefined): void {
-    if (val == null) this.#storage.removeItem(key)
-    else this.#storage.setItem(key, JSON.stringify(val))
+  put<T>(key: string, val: T): void {
+    if (val == null) localStorage.removeItem(key)
+    else localStorage.setItem(key, JSON.stringify(val))
   }
 }

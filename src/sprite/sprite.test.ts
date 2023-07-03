@@ -1,87 +1,94 @@
-import { CelID, Film } from '@/atlas-pack'
-import { Box, XY } from '@/ooz'
-import { Layer, Sprite } from '@/void'
 import { assertEquals } from 'std/testing/asserts.ts'
+import { Anim } from '../atlas/atlas.ts'
+import { Sprite } from './sprite.ts'
 
 Deno.test('bits', () => {
-  const film: Film = {
-    id: 'filename--Tag',
-    wh: new XY(3, 4),
-    cels: [
-      {
-        id: <CelID> 0,
-        bounds: new Box(1, 2, 3, 4),
-        duration: 1,
-        sliceBounds: new Box(0, 0, 2, 2),
-        slices: [new Box(0, 0, 2, 2)],
-      },
-    ],
-    sliceBounds: new Box(0, 0, 2, 2),
-    period: 1,
-    duration: 1,
-    direction: 'Forward',
-    loops: 1,
+  const anim: Anim = {
+    id: 0x7ff0,
+    w: 1,
+    h: 2,
+    cels: [{ x: 1, y: 2 }],
+    hitbox: { x: 0, y: 0, w: 2, h: 2 },
+    tag: 'file--Tag',
   }
-  const sprite = new Sprite(film, 0)
+  const sprite = new Sprite({ 'file--Tag': anim }, 'file--Tag')
+  assertEquals(sprite._iffzz, 0b111111111110000_0_0_0_000)
+
+  assertEquals(sprite.flipX, false)
   sprite.flipX = true
   assertEquals(sprite.flipX, true)
+  assertEquals(sprite._iffzz, 0b111111111110000_1_0_0_000)
+
+  assertEquals(sprite.flipY, false)
   sprite.flipY = true
   assertEquals(sprite.flipY, true)
-  sprite.wrapX = 1
-  assertEquals(sprite.wrapX, 1)
-  sprite.wrapY = 2
-  assertEquals(sprite.wrapY, 2)
-  sprite.anchorEnd = true
-  assertEquals(sprite.anchorEnd, true)
-  sprite.layer = Layer.Bottom
-  assertEquals(sprite.layer, Layer.Bottom)
-  assertEquals(sprite.flipWrapAnchorLayer, 0b1_1_0001_0010_1_1000000)
+  assertEquals(sprite._iffzz, 0b111111111110000_1_1_0_000)
 
-  sprite.flipX = false
-  assertEquals(sprite.flipX, false)
-  sprite.flipY = false
-  assertEquals(sprite.flipY, false)
-  sprite.wrapX = -1
-  assertEquals(sprite.wrapX, -1)
-  sprite.wrapY = -2
-  assertEquals(sprite.wrapY, -2)
-  sprite.anchorEnd = false
-  assertEquals(sprite.anchorEnd, false)
-  sprite.layer = Layer.Top
-  assertEquals(sprite.layer, Layer.Top)
-  assertEquals(sprite.flipWrapAnchorLayer, 0b0_0_1111_1110_0_0000001)
+  assertEquals(sprite.cel, 0)
+  sprite.cel = 0xf
+  assertEquals(sprite.cel, 0xf)
+  assertEquals(sprite._iffzz, 0b111111111111111_1_1_0_000)
+
+  assertEquals(sprite.zend, false)
+  sprite.zend = true
+  assertEquals(sprite.zend, true)
+  assertEquals(sprite._iffzz, 0b111111111111111_1_1_1_000)
+
+  assertEquals(sprite.z, 0)
+  sprite.z = 7
+  assertEquals(sprite.z, 7)
+  assertEquals(sprite._iffzz, 0b111111111111111_1_1_1_111)
+
+  assertEquals(sprite.x, 0)
+  sprite.x = 1
+  assertEquals(sprite.x, 1)
+  sprite.x = 5
+  assertEquals(sprite.x, 5)
+  assertEquals(sprite._xy >>> 0, 0b0000000000101000_0000000000000000)
+  sprite.x = -1
+  assertEquals(sprite.x, -1)
+  assertEquals(sprite._xy >>> 0, 0b1111111111111000_0000000000000000)
+  sprite.x = -2
+  assertEquals(sprite.x, -2)
+  assertEquals(sprite._xy >>> 0, 0b1111111111110000_0000000000000000)
+
+  assertEquals(sprite.y, 0)
+  sprite.y = 1
+  assertEquals(sprite.y, 1)
+  sprite.y = -1
+  assertEquals(sprite.y, -1)
+  assertEquals(sprite._xy >>> 0, 0b1111111111110000_1111111111111000)
+
+  for (let x = -4096; x <= 4095; x += .125) {
+    sprite.x = x
+    assertEquals(sprite.x, x)
+  }
+  for (let y = -4096; y <= 4095; y += .125) {
+    sprite.y = y
+    assertEquals(sprite.y, y)
+  }
 })
 
 Deno.test('hits', () => {
-  const film: Film = {
-    id: 'filename--Tag',
-    wh: new XY(3, 4),
-    cels: [
-      {
-        id: <CelID> 0,
-        bounds: new Box(1, 2, 3, 4),
-        duration: 1,
-        sliceBounds: new Box(0, 0, 2, 2),
-        slices: [new Box(0, 0, 2, 2)],
-      },
-    ],
-    sliceBounds: new Box(0, 0, 2, 2),
-    period: 1,
-    duration: 1,
-    direction: 'Forward',
-    loops: 1,
+  const anim: Anim = {
+    id: 0x7ff0,
+    w: 3,
+    h: 4,
+    cels: [{ x: 1, y: 2 }],
+    hitbox: { x: 0, y: 0, w: 2, h: 2 },
+    tag: 'file--Tag',
   }
-  const sprite = new Sprite(film, 0)
+  const sprite = new Sprite({ 'file--Tag': anim }, 'file--Tag')
   sprite.x = 10
   sprite.y = 100
 
-  assertEquals(sprite.hits(new XY(11, 101)), true)
-  assertEquals(sprite.hits(new XY(15, 101)), false)
+  assertEquals(sprite.hits({ x: 11, y: 101 }), true)
+  assertEquals(sprite.hits({ x: 15, y: 101 }), false)
 
-  assertEquals(sprite.hits(new Box(11, 101, 1, 1)), true)
-  assertEquals(sprite.hits(new Box(15, 101, 1, 1)), false)
+  assertEquals(sprite.hits({ x: 11, y: 101, w: 1, h: 1 }), true)
+  assertEquals(sprite.hits({ x: 15, y: 101, w: 1, h: 1 }), false)
 
-  const other = new Sprite(film, 0)
+  const other = new Sprite({ 'file--Tag': anim }, 'file--Tag')
   other.x = 11
   other.y = 101
   assertEquals(sprite.hits(other), true)
