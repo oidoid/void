@@ -17,5 +17,5 @@
   "tasks": {
     "test": "deno check mod.ts && deno test --allow-read=. && deno lint && deno fmt --check"
   },
-  "version": "0.0.10"
+  "version": "0.0.11"
 }
