@@ -14,6 +14,7 @@ const opts = parse(Deno.args, {
 const inPath = NonNull(opts.in, 'missing source entry')
 const title = NonNull(opts.title, 'missing title')
 const favicon = NonNull(opts.favicon, 'missing favicon')
+const origin = NonNull(opts.origin, 'missing origin')
 const outPath = NonNull(opts.out, 'missing HTML output')
 let serveDir = opts.watch?.replace(/^--watch=?/, '')
 if (serveDir != null) serveDir ||= '.'
@@ -52,7 +53,7 @@ const manifest = {
   background_color: '#00000000',
   display: 'fullscreen',
   orientation: 'any',
-  start_url: '/',
+  start_url: origin,
   icons: [
     { src: faviconURIs[0], sizes: '16x16', type: 'image/png' },
     { src: faviconURIs[1], sizes: '32x32', type: 'image/png' },
