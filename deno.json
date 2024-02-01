@@ -3,6 +3,8 @@
     "exactOptionalPropertyTypes": true,
     "noImplicitOverride": true,
     "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "lib": ["deno.ns", "dom"]
   },
   "fmt": { "semiColons": false, "singleQuote": true },
@@ -12,10 +14,11 @@
     "esbuild_deno_loader": "https://deno.land/x/esbuild_deno_loader@0.8.5/mod.ts",
     "std/": "https://deno.land/std@0.213.0/"
   },
+  "lint": { "rules": { "exclude": ["no-inferrable-types"] } },
   "lock": false,
   "name": "void",
   "tasks": {
-    "test": "deno check mod.ts && deno test --allow-read=. && deno lint && deno fmt --check"
+    "test": "deno check mod.ts && deno test --allow-read=. --reporter=dot && deno lint && deno fmt --check"
   },
   "version": "0.0.11"
 }
