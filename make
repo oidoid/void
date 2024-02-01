@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno --quiet run --allow-env --allow-net --allow-read --allow-run --allow-write --ext ts
 import * as esbuild from 'esbuild'
 import { denoPlugins } from 'esbuild_deno_loader'
-import { encode } from 'std/encoding/base64.ts'
+import { encodeBase64 } from 'std/encoding/base64.ts'
 import { parse } from 'std/flags/mod.ts'
 import * as path from 'std/path/mod.ts'
 import { parseAtlas } from './src/atlas/atlas.ts'
@@ -40,13 +40,13 @@ for (const scale of [1, 2, 3, 4, 12, 32]) {
     `aseprite ${favicon} --batch --color-mode=indexed --scale=${scale} --save-as=${faviconPNG}`,
   )
   faviconURIs.push(
-    `data:image/png;base64,${encode(await Deno.readFile(faviconPNG))}`,
+    `data:image/png;base64,${encodeBase64(await Deno.readFile(faviconPNG))}`,
   )
 }
 
 const atlasJSON = JSON.stringify(parseAtlas(JSON.parse(ase)))
 const atlasURI = await `data:image/png;base64,${
-  encode(await Deno.readFile(atlasPNGFilename))
+  encodeBase64(await Deno.readFile(atlasPNGFilename))
 }`
 const manifest = {
   name: title,
