@@ -5,7 +5,7 @@ import { Cam } from './cam.ts'
 import { fragGLSL } from './frag.glsl.ts'
 import { vertGLSL } from './vert.glsl.ts'
 
-type GLUniforms = Readonly<{ [name: string]: WebGLUniformLocation | null }>
+type GLUniforms = { readonly [name: string]: WebGLUniformLocation | null }
 type GL = WebGL2RenderingContext
 type GLProgram = WebGLProgram | null
 

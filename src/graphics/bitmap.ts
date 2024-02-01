@@ -1,11 +1,11 @@
-export type Bitmap = Readonly<{
+export type Bitmap = {
   /** 8x: i16, 8y: i16 */
-  _xy: number
+  readonly _xy: number
   /** w: u12, h: u12 */
-  _wh: number
+  readonly _wh: number
   /** id+cel: u15, flipX: b1, flipY: b1, zend: b1, z: u3 */
-  _iffzz: number
-}>
+  readonly _iffzz: number
+}
 
 export class BitmapBuffer {
   readonly buffer: Uint32Array

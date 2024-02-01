@@ -1,21 +1,21 @@
 import { Box, WH } from '../types/2d.ts'
 
 /** https://github.com/aseprite/aseprite/blob/master/docs/ase-file-specs.md */
-export type Aseprite = Readonly<{
-  meta: AsepriteMeta
-  frames: AsepriteFrameMap
-}>
+export type Aseprite = {
+  readonly meta: AsepriteMeta
+  readonly frames: AsepriteFrameMap
+}
 
 export type AsepriteFrameMap = Readonly<
   Record<AsepriteAnimTagFrame, AsepriteFrame>
 >
 
-export type AsepriteMeta = Readonly<{
+export type AsepriteMeta = {
   /** `--list-tags`. */
-  frameTags: readonly AsepriteTagSpan[]
+  readonly frameTags: readonly AsepriteTagSpan[]
   /** `--list-slices`. */
-  slices: readonly AsepriteSlice[]
-}>
+  readonly slices: readonly AsepriteSlice[]
+}
 
 /** `--filename-format='{title}--{tag}--{frame}'`. */
 export type AsepriteAnimTagFrame = `${AnimTag}--${bigint}`
@@ -23,21 +23,21 @@ export type AsepriteAnimTagFrame = `${AnimTag}--${bigint}`
 /** `--tagname-format={title}--{tag}`. */
 export type AnimTag = `${string}--${string}`
 
-export type AsepriteFrame = Readonly<{
+export type AsepriteFrame = {
   /** Bounds including padding. */
-  frame: Readonly<Box>
+  readonly frame: Readonly<Box>
   /** WH without padding. */
-  sourceSize: Readonly<WH>
-}>
+  readonly sourceSize: Readonly<WH>
+}
 
-export type AsepriteTagSpan = Readonly<{
-  name: AnimTag | string
-  from: number
+export type AsepriteTagSpan = {
+  readonly name: AnimTag | string
+  readonly from: number
   /** The inclusive ending index, possibly equal to from. */
-  to: number
-}>
+  readonly to: number
+}
 
-export type AsepriteSlice = Readonly<{
-  name: AnimTag | string
-  keys: readonly { readonly bounds: Readonly<Box> }[]
-}>
+export type AsepriteSlice = {
+  readonly name: AnimTag | string
+  readonly keys: readonly { readonly bounds: Readonly<Box> }[]
+}

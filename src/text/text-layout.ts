@@ -2,12 +2,12 @@ import { Font } from '@/mem'
 import { Box, XY } from '../types/2d.ts'
 import { fontCharWidth, fontKerning } from './font.ts'
 
-export type TextLayout = Readonly<{
+export type TextLayout = {
   /** The length of this array matches the string length. */
-  chars: (Readonly<Box> | undefined)[]
+  readonly chars: (Readonly<Box> | undefined)[]
   /** The offset in pixels. todo: should this be passed in? */
-  cursor: Readonly<XY>
-}>
+  readonly cursor: Readonly<XY>
+}
 
 export function layoutText(font: Font, str: string, maxW: number): TextLayout {
   const chars = []
