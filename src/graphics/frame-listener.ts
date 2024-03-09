@@ -43,9 +43,9 @@ export class FrameListener {
   register(op: 'add' | 'remove'): void {
     const fn = `${op}EventListener` as const
     for (const type of ['webglcontextrestored', 'webglcontextlost']) {
-      this.#canvas[fn](type, this.#onEvent)
+      this.#canvas[fn](type, this.#onEvent, true)
     }
-    globalThis[fn]('visibilitychange', this.#onEvent)
+    globalThis[fn]('visibilitychange', this.#onEvent, true)
     if (op === 'add') this.#renderer.initGL()
     this.#input.register(op)
   }
