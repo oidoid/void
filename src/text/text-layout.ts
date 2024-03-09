@@ -5,14 +5,16 @@ import { fontCharWidth, fontKerning } from './font.ts'
 export type TextLayout = {
   /** The length of this array matches the string length. */
   readonly chars: (Readonly<Box> | undefined)[]
-  /** The offset in pixels. todo: should this be passed in? */
+  /** The offset in pixels. to-do: should this be passed in? */
   readonly cursor: Readonly<XY>
 }
 
 export function layoutText(font: Font, str: string, maxW: number): TextLayout {
   const chars = []
   let cursor = { x: 0, y: 0 }
-  for (let i = 0, char = str[i]; char != null; char = str[i]) {
+  while (chars.length < str.length) {
+    const i = chars.length
+    const char = str[i]!
     let layout
     if (char === '\n') layout = layoutNewline(font, cursor)
     else if (/^\s*$/.test(char)) {
@@ -28,7 +30,6 @@ export function layoutText(font: Font, str: string, maxW: number): TextLayout {
         }
       }
     }
-    i += layout.chars.length
     chars.push(...layout.chars)
     cursor.x = layout.cursor.x
     cursor.y = layout.cursor.y
