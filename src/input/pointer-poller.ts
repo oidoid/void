@@ -53,34 +53,16 @@ export class PointerPoller {
     return this.#xy
   }
 
-  get #locked(): boolean {
-    return document.pointerLockElement === this.#canvas
-  }
-
   #onContextMenuEvent = (ev: Event): void => ev.preventDefault()
 
   #onPointEvent = (ev: PointerEvent): void => {
-    if (
-      ev.pointerType === 'mouse' && ev.type === 'pointerdown' && !this.#locked
-    ) this.#canvas.requestPointerLock()
-    else if (ev.pointerType !== 'mouse' && this.#locked) {
-      // PointerLock is squirrely on my tablet. Unlock if not a mouse.
-      document.exitPointerLock()
-    }
-
     // Ignore non-primary inputs to avoid flickering between distant points.
     if (!ev.isPrimary) return
 
-    if (this.#locked) {
-      this.#clientXY.x = Math.min(
-        Math.max(this.#clientXY.x + ev.movementX, 0),
-        innerWidth,
-      )
-      this.#clientXY.y = Math.min(
-        Math.max(this.#clientXY.y + ev.movementY, 0),
-        innerHeight,
-      )
-    } else ({ clientX: this.#clientXY.x, clientY: this.#clientXY.y } = ev)
+    if (
+      ev.type === 'pointerdown' && ev.currentTarget instanceof Element
+    ) ev.currentTarget.setPointerCapture(ev.pointerId)
+    ;({ clientX: this.#clientXY.x, clientY: this.#clientXY.y } = ev)
 
     this.#bits = this.#evButtonsToBits(ev.buttons)
     this.#pointerType =

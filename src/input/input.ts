@@ -4,12 +4,11 @@ import { GamepadPoller } from './gamepad-poller.ts'
 import { KeyboardPoller } from './keyboard-poller.ts'
 import { PointerPoller } from './pointer-poller.ts'
 
-/** C is primary, B is secondary, A is tertiary. */
 // deno-fmt-ignore
 export type StandardButton =
-  'L' | 'R' | 'U' | 'D' |
-  'C' | 'B' | 'A' |
-  'S'
+  'L' | 'R' | 'U' | 'D' | // Dpad.
+  'C' | 'B' | 'A' | // Primary, secondary, tertiary.
+  'S' // Start.
 
 export class Input<Button extends string = StandardButton> {
   handled = false
