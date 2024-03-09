@@ -138,7 +138,7 @@ export class Input<Button extends string = StandardButton> {
   }
 
   get pointType(): 'mouse' | 'touch' | 'pen' | undefined {
-    return this.#pointer.pointerType
+    return this.#pointer.type
   }
 
   poll(tick: number): void {

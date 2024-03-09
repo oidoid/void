@@ -7,7 +7,7 @@ export class PointerPoller {
   readonly #cam: Readonly<Cam>
   readonly #canvas: HTMLCanvasElement
   readonly #clientXY: XY = { x: 0, y: 0 }
-  #pointerType?: 'mouse' | 'touch' | 'pen' | undefined
+  #type?: 'mouse' | 'touch' | 'pen' | undefined
   #xy?: Readonly<XY> | undefined
 
   constructor(cam: Readonly<Cam>, canvas: HTMLCanvasElement) {
@@ -23,8 +23,8 @@ export class PointerPoller {
     this.#bitByButton[button] = bit
   }
 
-  get pointerType(): 'mouse' | 'touch' | 'pen' | undefined {
-    return this.#pointerType
+  get type(): 'mouse' | 'touch' | 'pen' | undefined {
+    return this.#type
   }
 
   register(op: 'add' | 'remove'): void {
@@ -45,7 +45,7 @@ export class PointerPoller {
 
   reset = (): void => {
     this.#bits = 0
-    this.#pointerType = undefined
+    this.#type = undefined
     this.#xy = undefined
   }
 
@@ -59,16 +59,13 @@ export class PointerPoller {
     // Ignore non-primary inputs to avoid flickering between distant points.
     if (!ev.isPrimary) return
 
-    if (
-      ev.type === 'pointerdown' && ev.currentTarget instanceof Element
-    ) ev.currentTarget.setPointerCapture(ev.pointerId)
+    if (ev.type === 'pointerdown') this.#canvas.setPointerCapture(ev.pointerId)
     ;({ clientX: this.#clientXY.x, clientY: this.#clientXY.y } = ev)
 
     this.#bits = this.#evButtonsToBits(ev.buttons)
-    this.#pointerType =
-      (['mouse', 'touch', 'pen'] as const).filter((type) =>
-        type === ev.pointerType
-      )[0]
+    this.#type = (['mouse', 'touch', 'pen'] as const).find((type) =>
+      type === ev.pointerType
+    )
     this.#xy = this.#cam.toLevelXY(this.#clientXY)
 
     const passive = ev.type !== 'pointerdown'
