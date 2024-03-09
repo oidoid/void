@@ -1,4 +1,4 @@
-import { assertEquals } from 'std/testing/asserts.ts'
+import { assertEquals, assertStrictEquals } from 'std/testing/asserts.ts'
 import { Cam } from './cam.ts'
 
 Deno.test('Cam', () => {
@@ -10,9 +10,9 @@ Deno.test('Cam', () => {
   cam.minWH.h = 128
   cam.resize()
 
-  assertEquals(cam.scale, 2)
-  assertEquals(cam.w, 405)
-  assertEquals(cam.h, 222)
+  assertStrictEquals(cam.scale, 2)
+  assertStrictEquals(cam.w, 405)
+  assertStrictEquals(cam.h, 222)
 
   assertEquals(
     cam.toLevelXY({ x: 137.40000915527344, y: 48.400001525878906 }),
