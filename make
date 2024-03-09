@@ -51,7 +51,7 @@ const atlasURI = await `data:image/png;base64,${
 const manifest = {
   name: title,
   background_color: '#00000000',
-  display: 'fullscreen',
+  display: 'standalone',
   orientation: 'any',
   start_url: origin,
   icons: [
@@ -103,6 +103,7 @@ ${result.outputFiles?.map((file) => file.text).join('') ?? ''}
       },
     },
   ],
+  target: 'es2022', // https://esbuild.github.io/content-types/#tsconfig-json
   write: false,
 }
 
