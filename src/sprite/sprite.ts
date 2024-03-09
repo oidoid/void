@@ -108,7 +108,7 @@ export class Sprite<T extends AnimTag = AnimTag> implements Bitmap, Box {
   }
 
   hits(box: Readonly<XY & Partial<WH>>): boolean {
-    if (this.hitbox.w === 0) return false
+    if (!this.hitbox.w || !this.hitbox.h) return false
     if (box instanceof Sprite) box = box.hitbox
     return this.hitbox.x < (box.x + (box.w ?? 0)) &&
       (this.hitbox.x + this.hitbox.w) > box.x &&
