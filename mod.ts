@@ -15,7 +15,6 @@ export type { Atlas } from './src/atlas/atlas.ts'
 export { Sprite } from './src/sprite/sprite.ts'
 export type { SpriteJSON } from './src/sprite/sprite.ts'
 export type { Box, WH, XY } from './src/types/2d.ts'
-export { NonNull } from './src/types/nonnull.ts'
 
 declare const atlas: Atlas
 declare const atlasURI: string

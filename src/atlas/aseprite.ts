@@ -6,9 +6,9 @@ export type Aseprite = {
   readonly frames: AsepriteFrameMap
 }
 
-export type AsepriteFrameMap = Readonly<
-  Record<AsepriteAnimTagFrame, AsepriteFrame>
->
+export type AsepriteFrameMap = {
+  readonly [key: AsepriteAnimTagFrame]: AsepriteFrame
+}
 
 export type AsepriteMeta = {
   /** `--list-tags`. */

@@ -1,5 +1,5 @@
+import { Font, memProp5x5 } from '@/mem'
 import { assertEquals } from 'std/testing/asserts.ts'
-import { Font, memProp5x5 } from '../../../mem/mod.ts'
 import { layoutText, layoutWord } from './text-layout.ts'
 
 const font: Font = memProp5x5

@@ -1,5 +1,4 @@
 import { Anim, Atlas, maxAnimCels } from '../atlas/atlas.ts'
-import { NonNull } from '../types/nonnull.ts'
 import { BitmapBuffer } from './bitmap.ts'
 import { Cam } from './cam.ts'
 import { fragGLSL } from './frag.glsl.ts'
@@ -41,14 +40,12 @@ export class Renderer {
   }
 
   initGL(): void {
-    const gl = NonNull(
-      this.#canvas.getContext('webgl2', {
-        antialias: false,
-        desynchronized: true, // breaks render stats
-        powerPreference: 'high-performance',
-      }),
-      'WebGL v2 unsupported',
-    )
+    const gl = this.#canvas.getContext('webgl2', {
+      antialias: false,
+      desynchronized: true, // breaks render stats
+      powerPreference: 'high-performance',
+    })
+    if (!gl) throw Error('WebGL v2 unsupported')
     this.#gl = gl
 
     // Allow transparent textures to be layered.
@@ -202,7 +199,8 @@ export class Renderer {
 }
 
 function compileShader(gl: GL, type: number, src: string): WebGLShader {
-  const shader = NonNull(gl.createShader(type), 'shader creation failed')
+  const shader = gl.createShader(type)
+  if (!shader) throw Error('shader creation failed')
   gl.shaderSource(shader, src.trim())
   gl.compileShader(shader)
 

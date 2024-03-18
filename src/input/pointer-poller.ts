@@ -2,7 +2,7 @@ import { Cam } from '../graphics/cam.ts'
 import { XY } from '../types/2d.ts'
 
 export class PointerPoller {
-  readonly #bitByButton: Record<number, number> = {}
+  readonly #bitByButton: { [btn: number]: number } = {}
   #bits = 0
   readonly #cam: Readonly<Cam>
   readonly #canvas: HTMLCanvasElement

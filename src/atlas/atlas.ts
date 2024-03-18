@@ -1,5 +1,4 @@
 import { Box, WH, XY } from '../types/2d.ts'
-import { NonNull } from '../types/nonnull.ts'
 import {
   AnimTag,
   Aseprite,
@@ -69,7 +68,9 @@ function* parseAnimFrames(
 ): IterableIterator<AsepriteFrame> {
   for (let i = span.from; i <= span.to && (i - span.from) < maxAnimCels; i++) {
     const animTagFrame = `${span.name}--${i}` as AsepriteAnimTagFrame
-    yield NonNull(map[animTagFrame], `missing frame "${animTagFrame}"`)
+    const frame = map[animTagFrame]
+    if (!frame) throw Error(`missing frame "${animTagFrame}"`)
+    yield frame
   }
 }
 
