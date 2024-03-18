@@ -3,7 +3,7 @@ import { XY } from '../types/2d.ts'
 
 export class PointerPoller {
   readonly #bitByButton: { [btn: number]: number } = {}
-  #bits = 0
+  #bits: number = 0
   readonly #cam: Readonly<Cam>
   readonly #canvas: HTMLCanvasElement
   readonly #clientXY: XY = { x: 0, y: 0 }

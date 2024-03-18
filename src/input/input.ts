@@ -27,7 +27,7 @@ export class Input<Button extends string = StandardButton> {
    */
   readonly #combo: number[] = []
   /** Logical button to bit. */
-  readonly #bitByButton = {} as Record<Button, number>
+  readonly #bitByButton = <{ [btn in Button]: number }> {}
   readonly #gamepad = new GamepadPoller()
   readonly #keyboard = new KeyboardPoller()
   readonly #pointer: PointerPoller

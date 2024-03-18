@@ -9,16 +9,16 @@ import {
   AsepriteTagSpan,
 } from './aseprite.ts'
 
-export type Atlas<T extends AnimTag = AnimTag> = Readonly<Record<T, Anim<T>>>
-export type Anim<T extends AnimTag = AnimTag> = Readonly<
-  WH & {
-    cels: readonly Readonly<XY>[]
-    hitbox: Readonly<Box>
-    /** A multiple of 16 (maxAnimCels). */
-    id: number
-    tag: T
-  }
->
+export type Atlas<T extends AnimTag = AnimTag> = {
+  readonly [tag in T]: Anim<T>
+}
+export type Anim<T extends AnimTag = AnimTag> = {
+  readonly cels: readonly Readonly<XY>[]
+  readonly hitbox: Readonly<Box>
+  /** A multiple of 16 (maxAnimCels). */
+  readonly id: number
+  readonly tag: T
+} & Readonly<WH>
 
 export const maxAnimCels = 16
 
@@ -34,7 +34,7 @@ export function parseAtlas(ase: Aseprite): Atlas {
   const extraSlices = ase.meta.slices.filter((slice) =>
     !atlas.has(parseTag(slice.name))
   )
-  if (extraSlices.length !== 0) {
+  if (extraSlices.length) {
     throw Error(
       'unknown hitbox tags in atlas: ' +
         `${extraSlices.map((slice) => slice.name).join(', ')}`,

@@ -1,7 +1,7 @@
 export class GamepadPoller {
   #bits = 0
-  readonly #bitByAxis: Record<number, [less: number, more: number]> = {}
-  readonly #bitByButton: Record<number, number> = {}
+  readonly #bitByAxis: { [axis: number]: [less: number, more: number] } = {}
+  readonly #bitByButton: { [btn: number]: number } = {}
 
   get bits(): number {
     return this.#bits

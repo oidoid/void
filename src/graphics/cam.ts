@@ -1,6 +1,6 @@
 import { Box, WH, XY } from '../types/2d.ts'
 
-export class Cam {
+export class Cam implements Box {
   minWH: WH = { w: 256, h: 256 }
   minScale = 1
   x = 0

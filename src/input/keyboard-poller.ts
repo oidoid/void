@@ -1,6 +1,6 @@
 export class KeyboardPoller {
   #bits = 0
-  readonly #bitByKey: Record<string, number> = {}
+  readonly #bitByKey: { [key: string]: number } = {}
 
   get bits(): number {
     return this.#bits
