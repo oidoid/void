@@ -47,6 +47,9 @@
     "singleQuote": true,
     "trailingComma": "none"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/oidoid/void.git"
