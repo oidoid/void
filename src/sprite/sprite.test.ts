@@ -1,99 +1,99 @@
-import { assertStrictEquals } from 'std/testing/asserts.ts'
-import { Anim } from '../atlas/atlas.ts'
-import { Sprite } from './sprite.ts'
+import {expect, test} from 'vitest'
+import type {Anim} from '../atlas/atlas.js'
+import {Sprite} from './sprite.js'
 
-Deno.test('bits', () => {
+test('bits', () => {
   const anim: Anim = {
     id: 0x7ff0,
     w: 1,
     h: 2,
-    cels: [{ x: 1, y: 2 }],
-    hitbox: { x: 0, y: 0, w: 2, h: 2 },
-    tag: 'file--Tag',
+    cels: [{x: 1, y: 2}],
+    hitbox: {x: 0, y: 0, w: 2, h: 2},
+    tag: 'file--Tag'
   }
-  const sprite = new Sprite({ 'file--Tag': anim }, 'file--Tag')
-  assertStrictEquals(sprite._iffzz, 0b111111111110000_0_0_0_000)
+  const sprite = new Sprite({'file--Tag': anim}, 'file--Tag')
+  expect(sprite._iffzz).toBe(0b111111111110000_0_0_0_000)
 
-  assertStrictEquals(sprite.flipX, false)
+  expect(sprite.flipX).toBe(false)
   sprite.flipX = true
-  assertStrictEquals(sprite.flipX, true)
-  assertStrictEquals(sprite._iffzz, 0b111111111110000_1_0_0_000)
+  expect(sprite.flipX).toBe(true)
+  expect(sprite._iffzz).toBe(0b111111111110000_1_0_0_000)
 
-  assertStrictEquals(sprite.flipY, false)
+  expect(sprite.flipY).toBe(false)
   sprite.flipY = true
-  assertStrictEquals(sprite.flipY, true)
-  assertStrictEquals(sprite._iffzz, 0b111111111110000_1_1_0_000)
+  expect(sprite.flipY).toBe(true)
+  expect(sprite._iffzz).toBe(0b111111111110000_1_1_0_000)
 
-  assertStrictEquals(sprite.cel, 0)
+  expect(sprite.cel).toBe(0)
   sprite.cel = 0xf
-  assertStrictEquals(sprite.cel, 0xf)
-  assertStrictEquals(sprite._iffzz, 0b111111111111111_1_1_0_000)
+  expect(sprite.cel).toBe(0xf)
+  expect(sprite._iffzz).toBe(0b111111111111111_1_1_0_000)
 
-  assertStrictEquals(sprite.zend, false)
+  expect(sprite.zend).toBe(false)
   sprite.zend = true
-  assertStrictEquals(sprite.zend, true)
-  assertStrictEquals(sprite._iffzz, 0b111111111111111_1_1_1_000)
+  expect(sprite.zend).toBe(true)
+  expect(sprite._iffzz).toBe(0b111111111111111_1_1_1_000)
 
-  assertStrictEquals(sprite.z, 0)
+  expect(sprite.z).toBe(0)
   sprite.z = 7
-  assertStrictEquals(sprite.z, 7)
-  assertStrictEquals(sprite._iffzz, 0b111111111111111_1_1_1_111)
+  expect(sprite.z).toBe(7)
+  expect(sprite._iffzz).toBe(0b111111111111111_1_1_1_111)
 
-  assertStrictEquals(sprite.x, 0)
+  expect(sprite.x).toBe(0)
   sprite.x = 1
-  assertStrictEquals(sprite.x, 1)
+  expect(sprite.x).toBe(1)
   sprite.x = 5
-  assertStrictEquals(sprite.x, 5)
-  assertStrictEquals(sprite._xy >>> 0, 0b0000000000101000_0000000000000000)
+  expect(sprite.x).toBe(5)
+  expect(sprite._xy >>> 0).toBe(0b0000000000101000_0000000000000000)
   sprite.x = -1
-  assertStrictEquals(sprite.x, -1)
-  assertStrictEquals(sprite._xy >>> 0, 0b1111111111111000_0000000000000000)
+  expect(sprite.x).toBe(-1)
+  expect(sprite._xy >>> 0).toBe(0b1111111111111000_0000000000000000)
   sprite.x = -2
-  assertStrictEquals(sprite.x, -2)
-  assertStrictEquals(sprite._xy >>> 0, 0b1111111111110000_0000000000000000)
+  expect(sprite.x).toBe(-2)
+  expect(sprite._xy >>> 0).toBe(0b1111111111110000_0000000000000000)
 
-  assertStrictEquals(sprite.y, 0)
+  expect(sprite.y).toBe(0)
   sprite.y = 1
-  assertStrictEquals(sprite.y, 1)
+  expect(sprite.y).toBe(1)
   sprite.y = -1
-  assertStrictEquals(sprite.y, -1)
-  assertStrictEquals(sprite._xy >>> 0, 0b1111111111110000_1111111111111000)
+  expect(sprite.y).toBe(-1)
+  expect(sprite._xy >>> 0).toBe(0b1111111111110000_1111111111111000)
 
-  for (let x = -4096; x <= 4095; x += .125) {
+  for (let x = -4096; x <= 4095; x += 0.125) {
     sprite.x = x
-    assertStrictEquals(sprite.x, x)
+    expect(sprite.x).toBe(x)
   }
-  for (let y = -4096; y <= 4095; y += .125) {
+  for (let y = -4096; y <= 4095; y += 0.125) {
     sprite.y = y
-    assertStrictEquals(sprite.y, y)
+    expect(sprite.y).toBe(y)
   }
 })
 
-Deno.test('hits', () => {
+test('hits', () => {
   const anim: Anim = {
     id: 0x7ff0,
     w: 3,
     h: 4,
-    cels: [{ x: 1, y: 2 }],
-    hitbox: { x: 0, y: 0, w: 2, h: 2 },
-    tag: 'file--Tag',
+    cels: [{x: 1, y: 2}],
+    hitbox: {x: 0, y: 0, w: 2, h: 2},
+    tag: 'file--Tag'
   }
-  const sprite = new Sprite({ 'file--Tag': anim }, 'file--Tag')
+  const sprite = new Sprite({'file--Tag': anim}, 'file--Tag')
   sprite.x = 10
   sprite.y = 100
 
-  assertStrictEquals(sprite.hits({ x: 11, y: 101 }), true)
-  assertStrictEquals(sprite.hits({ x: 15, y: 101 }), false)
+  expect(sprite.hits({x: 11, y: 101})).toBe(true)
+  expect(sprite.hits({x: 15, y: 101})).toBe(false)
 
-  assertStrictEquals(sprite.hits({ x: 11, y: 101, w: 1, h: 1 }), true)
-  assertStrictEquals(sprite.hits({ x: 15, y: 101, w: 1, h: 1 }), false)
+  expect(sprite.hits({x: 11, y: 101, w: 1, h: 1})).toBe(true)
+  expect(sprite.hits({x: 15, y: 101, w: 1, h: 1})).toBe(false)
 
-  const other = new Sprite({ 'file--Tag': anim }, 'file--Tag')
+  const other = new Sprite({'file--Tag': anim}, 'file--Tag')
   other.x = 11
   other.y = 101
-  assertStrictEquals(sprite.hits(other), true)
-  assertStrictEquals(other.hits(sprite), true)
+  expect(sprite.hits(other)).toBe(true)
+  expect(other.hits(sprite)).toBe(true)
   other.x = 15
-  assertStrictEquals(sprite.hits(other), false)
-  assertStrictEquals(other.hits(sprite), false)
+  expect(sprite.hits(other)).toBe(false)
+  expect(other.hits(sprite)).toBe(false)
 })

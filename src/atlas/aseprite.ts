@@ -1,4 +1,4 @@
-import { Box, WH } from '../types/2d.ts'
+import type {Box, WH} from '../types/2d.js'
 
 /** https://github.com/aseprite/aseprite/blob/master/docs/ase-file-specs.md */
 export type Aseprite = {
@@ -39,5 +39,5 @@ export type AsepriteTagSpan = {
 
 export type AsepriteSlice = {
   readonly name: AnimTag | string
-  readonly keys: readonly { readonly bounds: Readonly<Box> }[]
+  readonly keys: readonly {readonly bounds: Readonly<Box>}[]
 }

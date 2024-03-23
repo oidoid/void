@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+# ase --sheet=<file.png> [--data=<file.json>] [options] [files]
+set -eu
+exec aseprite \
+  --batch \
+  --color-mode=indexed \
+  --filename-format={title}--{tag}--{frame} \
+  --ignore-empty \
+  --list-slices \
+  --list-tags \
+  --merge-duplicates \
+  --sheet-pack \
+  --tagname-format={title}--{tag} \
+  "$@"

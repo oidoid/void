@@ -1,5 +1,5 @@
-import { Font } from '@/mem'
-import { AnimTag } from '../atlas/aseprite.ts'
+import type {Font} from 'mem-font'
+import type {AnimTag} from '../atlas/aseprite.js'
 
 export function fontCharToTag(self: Font, char: string): AnimTag {
   let pt = char.codePointAt(0)
@@ -11,7 +11,7 @@ export function fontCharToTag(self: Font, char: string): AnimTag {
 export function fontKerning(
   self: Font,
   lhs: string,
-  rhs: string | undefined,
+  rhs: string | undefined
 ): number {
   if (rhs == null) return self.endOfLineKerning
   if (/^\s*$/.test(lhs) || /^\s*$/.test(rhs)) return self.whitespaceKerning

@@ -1,61 +1,65 @@
-import { assertStrictEquals } from 'std/testing/asserts.ts'
-import { Cam } from '../graphics/cam.ts'
-import { Input, StandardButton } from './input.ts'
+import {expect, test} from 'vitest'
+import {Cam} from '../graphics/cam.js'
+import {Input, type StandardButton} from './input.js'
 
 const cam = new Cam()
-const canvas = {
+const canvas = <HTMLCanvasElement>(<unknown>{
   addEventListener() {},
   removeEventListener() {},
-  requestPointerLock() {},
-} as unknown as HTMLCanvasElement
+  requestPointerLock() {}
+})
 globalThis.isSecureContext = true
-navigator.getGamepads = () => []
+globalThis.navigator = <Navigator>(<unknown>{getGamepads: () => []})
+const target = new EventTarget()
+globalThis.addEventListener = target.addEventListener.bind(target)
+globalThis.removeEventListener = target.removeEventListener.bind(target)
+globalThis.dispatchEvent = target.dispatchEvent.bind(target)
 
-Deno.test('buttons are initially inactive', () => {
+test('buttons are initially inactive', () => {
   const input = new Input(cam, canvas)
   input.mapStandard()
   input.register('add')
-  assertStrictEquals(input.isOn('U'), false)
-  assertStrictEquals(input.isOnStart('U'), false)
-  assertStrictEquals(input.isHeld(), false)
-  assertStrictEquals(input.isOffStart('U'), false)
-  assertStrictEquals(input.isCombo(['U']), false)
-  assertStrictEquals(input.isComboStart(['U']), false)
+  expect(input.isOn('U')).toBe(false)
+  expect(input.isOnStart('U')).toBe(false)
+  expect(input.isHeld()).toBe(false)
+  expect(input.isOffStart('U')).toBe(false)
+  expect(input.isCombo(['U'])).toBe(false)
+  expect(input.isComboStart(['U'])).toBe(false)
   input.register('remove')
 })
 
-Deno.test('pressed buttons are active and triggered', () => {
+test('pressed buttons are active and triggered', () => {
   const input = new Input(cam, canvas)
   input.mapStandard()
   input.register('add')
   dispatchKeyEvent('keydown', 'ArrowUp')
   input.poll(16)
-  assertStrictEquals(input.isOn('U'), true)
-  assertStrictEquals(input.isOnStart('U'), true)
-  assertStrictEquals(input.isHeld(), false)
-  assertStrictEquals(input.isOffStart('U'), false)
-  assertStrictEquals(input.isCombo(['U']), true)
-  assertStrictEquals(input.isComboStart(['U']), true)
+  expect(input.isOn('U')).toBe(true)
+  expect(input.isOnStart('U')).toBe(true)
+  expect(input.isHeld()).toBe(false)
+  expect(input.isOffStart('U')).toBe(false)
+  expect(input.isCombo(['U'])).toBe(true)
+  expect(input.isComboStart(['U'])).toBe(true)
   input.register('remove')
 })
 
-Deno.test('held buttons are active but not triggered', () => {
+test('held buttons are active but not triggered', () => {
   const input = new Input(cam, canvas)
   input.mapStandard()
   input.register('add')
   dispatchKeyEvent('keydown', 'ArrowUp')
   input.poll(300)
   input.poll(16)
-  assertStrictEquals(input.isOn('U'), true)
-  assertStrictEquals(input.isOnStart('U'), false)
-  assertStrictEquals(input.isHeld(), true)
-  assertStrictEquals(input.isOffStart('U'), false)
-  assertStrictEquals(input.isCombo(['U']), true)
-  assertStrictEquals(input.isComboStart(['U']), false)
+  expect(input.isOn('U')).toBe(true)
+  expect(input.isOnStart('U')).toBe(false)
+  expect(input.isHeld()).toBe(true)
+  expect(input.isOffStart('U')).toBe(false)
+  expect(input.isCombo(['U'])).toBe(true)
+  expect(input.isComboStart(['U'])).toBe(false)
   input.register('remove')
 })
 
-Deno.test('released buttons are off and triggered', () => {
+test('released buttons are off and triggered', () => {
   const input = new Input(cam, canvas)
   input.mapStandard()
   input.register('add')
@@ -65,48 +69,48 @@ Deno.test('released buttons are off and triggered', () => {
   dispatchKeyEvent('keyup', 'ArrowUp')
   input.poll(16)
 
-  assertStrictEquals(input.isOn('U'), false)
-  assertStrictEquals(input.isOnStart('U'), false)
-  assertStrictEquals(input.isHeld(), false)
-  assertStrictEquals(input.isOffStart('U'), true)
-  assertStrictEquals(input.isCombo(['U']), false)
-  assertStrictEquals(input.isComboStart(['U']), false)
+  expect(input.isOn('U')).toBe(false)
+  expect(input.isOnStart('U')).toBe(false)
+  expect(input.isHeld()).toBe(false)
+  expect(input.isOffStart('U')).toBe(true)
+  expect(input.isCombo(['U'])).toBe(false)
+  expect(input.isComboStart(['U'])).toBe(false)
 
   input.register('remove')
 })
 
-Deno.test('combos are exact in length', () => {
+test('combos are exact in length', () => {
   const input = new Input(cam, canvas)
   input.mapStandard()
   input.register('add')
 
   dispatchKeyEvent('keydown', 'ArrowUp')
   input.poll(16)
-  assertStrictEquals(input.isCombo(['U']), true)
+  expect(input.isCombo(['U'])).toBe(true)
   dispatchKeyEvent('keyup', 'ArrowUp')
   input.poll(16)
 
   dispatchKeyEvent('keydown', 'ArrowDown')
   input.poll(16)
-  assertStrictEquals(input.isCombo(['U']), false)
-  assertStrictEquals(input.isCombo(['D']), false)
-  assertStrictEquals(input.isCombo(['U'], ['D']), true)
+  expect(input.isCombo(['U'])).toBe(false)
+  expect(input.isCombo(['D'])).toBe(false)
+  expect(input.isCombo(['U'], ['D'])).toBe(true)
   dispatchKeyEvent('keyup', 'ArrowDown')
 
   dispatchKeyEvent('keydown', 'ArrowRight')
   input.poll(16)
-  assertStrictEquals(input.isCombo(['U']), false)
-  assertStrictEquals(input.isCombo(['D']), false)
-  assertStrictEquals(input.isCombo(['R']), false)
-  assertStrictEquals(input.isCombo(['D'], ['R']), false)
-  assertStrictEquals(input.isCombo(['U'], ['D'], ['R']), true)
+  expect(input.isCombo(['U'])).toBe(false)
+  expect(input.isCombo(['D'])).toBe(false)
+  expect(input.isCombo(['R'])).toBe(false)
+  expect(input.isCombo(['D'], ['R'])).toBe(false)
+  expect(input.isCombo(['U'], ['D'], ['R'])).toBe(true)
   dispatchKeyEvent('keyup', 'ArrowRight')
   input.poll(16)
 
   input.register('remove')
 })
 
-Deno.test('simultaneously pressed buttons are active and triggered', () => {
+test('simultaneously pressed buttons are active and triggered', () => {
   const input = new Input(cam, canvas)
   input.mapStandard()
   input.register('add')
@@ -114,54 +118,54 @@ Deno.test('simultaneously pressed buttons are active and triggered', () => {
   dispatchKeyEvent('keydown', 'ArrowDown')
   input.poll(16)
 
-  assertStrictEquals(input.isOn('U', 'D'), true)
-  assertStrictEquals(input.isOnStart('U', 'D'), true)
-  assertStrictEquals(input.isHeld(), false)
-  assertStrictEquals(input.isOffStart('U', 'D'), false)
+  expect(input.isOn('U', 'D')).toBe(true)
+  expect(input.isOnStart('U', 'D')).toBe(true)
+  expect(input.isHeld()).toBe(false)
+  expect(input.isOffStart('U', 'D')).toBe(false)
 
-  assertStrictEquals(input.isCombo(['U']), false)
-  assertStrictEquals(input.isComboStart(['U']), false)
-  assertStrictEquals(input.isCombo(['D']), false)
-  assertStrictEquals(input.isComboStart(['D']), false)
-  assertStrictEquals(input.isCombo(['U', 'D']), true)
-  assertStrictEquals(input.isComboStart(['U', 'D']), true)
+  expect(input.isCombo(['U'])).toBe(false)
+  expect(input.isComboStart(['U'])).toBe(false)
+  expect(input.isCombo(['D'])).toBe(false)
+  expect(input.isComboStart(['D'])).toBe(false)
+  expect(input.isCombo(['U', 'D'])).toBe(true)
+  expect(input.isComboStart(['U', 'D'])).toBe(true)
 
   input.register('remove')
 })
 
-Deno.test('combos buttons are exact', () => {
+test('combos buttons are exact', () => {
   const input = new Input(cam, canvas)
   input.mapStandard()
   input.register('add')
 
   dispatchKeyEvent('keydown', 'ArrowUp')
   input.poll(16)
-  assertStrictEquals(input.isCombo(['U']), true)
+  expect(input.isCombo(['U'])).toBe(true)
   dispatchKeyEvent('keyup', 'ArrowUp')
 
   dispatchKeyEvent('keydown', 'ArrowDown')
   dispatchKeyEvent('keydown', 'ArrowLeft')
   input.poll(16)
-  assertStrictEquals(input.isCombo(['U']), false)
-  assertStrictEquals(input.isCombo(['D']), false)
-  assertStrictEquals(input.isCombo(['U'], ['D']), false)
+  expect(input.isCombo(['U'])).toBe(false)
+  expect(input.isCombo(['D'])).toBe(false)
+  expect(input.isCombo(['U'], ['D'])).toBe(false)
   dispatchKeyEvent('keyup', 'ArrowDown')
   dispatchKeyEvent('keyup', 'ArrowLeft')
 
   dispatchKeyEvent('keydown', 'ArrowRight')
   input.poll(16)
-  assertStrictEquals(input.isCombo(['U']), false)
-  assertStrictEquals(input.isCombo(['D']), false)
-  assertStrictEquals(input.isCombo(['R']), false)
-  assertStrictEquals(input.isCombo(['D'], ['R']), false)
-  assertStrictEquals(input.isCombo(['U'], ['D'], ['R']), false)
+  expect(input.isCombo(['U'])).toBe(false)
+  expect(input.isCombo(['D'])).toBe(false)
+  expect(input.isCombo(['R'])).toBe(false)
+  expect(input.isCombo(['D'], ['R'])).toBe(false)
+  expect(input.isCombo(['U'], ['D'], ['R'])).toBe(false)
   dispatchKeyEvent('keyup', 'ArrowRight')
   input.poll(16)
 
   input.register('remove')
 })
 
-Deno.test('a long combo is active and triggered', () => {
+test('a long combo is active and triggered', () => {
   const input = new Input(cam, canvas)
   input.mapStandard()
   input.register('add')
@@ -174,28 +178,28 @@ Deno.test('a long combo is active and triggered', () => {
     'ArrowLeft',
     'ArrowRight',
     'ArrowLeft',
-    'ArrowRight',
-  ] as const
+    'ArrowRight'
+  ]
   for (const [i, key] of keys.entries()) {
     dispatchKeyEvent('keydown', key)
     input.poll(16)
-    if (i === (keys.length - 1)) break
+    if (i === keys.length - 1) break
 
     dispatchKeyEvent('keyup', key)
     input.poll(16)
   }
 
-  const combo = keys.map((
-    key,
-  ) => [key.replace(/Arrow(.).+/, '$1') as StandardButton])
-  assertStrictEquals(input.isCombo(...combo), true)
-  assertStrictEquals(input.isComboStart(...combo), true)
-  assertStrictEquals(input.isHeld(), false)
+  const combo = keys.map(key => [
+    <StandardButton>key.replace(/Arrow(.).+/, '$1')
+  ])
+  expect(input.isCombo(...combo)).toBe(true)
+  expect(input.isComboStart(...combo)).toBe(true)
+  expect(input.isHeld()).toBe(false)
 
   input.register('remove')
 })
 
-Deno.test('around-the-world combo is active and triggered', () => {
+test('around-the-world combo is active and triggered', () => {
   const input = new Input(cam, canvas)
   input.mapStandard()
   input.register('add')
@@ -208,14 +212,14 @@ Deno.test('around-the-world combo is active and triggered', () => {
     ['ArrowDown'],
     ['ArrowDown', 'ArrowRight'],
     ['ArrowRight'],
-    ['ArrowUp', 'ArrowRight'],
-  ] as const
+    ['ArrowUp', 'ArrowRight']
+  ]
   for (const [i, buttons] of keyCombo.entries()) {
     for (const button of buttons) {
       dispatchKeyEvent('keydown', button)
     }
     input.poll(16)
-    if (i === (keyCombo.length - 1)) break
+    if (i === keyCombo.length - 1) break
 
     for (const button of buttons) {
       dispatchKeyEvent('keyup', button)
@@ -223,104 +227,104 @@ Deno.test('around-the-world combo is active and triggered', () => {
     input.poll(16)
   }
 
-  const combo = keyCombo.map((
-    keys,
-  ) => keys.map((key) => key.replace(/Arrow(.).+/, '$1') as StandardButton))
-  assertStrictEquals(input.isCombo(...combo), true)
-  assertStrictEquals(input.isComboStart(...combo), true)
-  assertStrictEquals(input.isHeld(), false)
+  const combo = keyCombo.map(keys =>
+    keys.map(key => <StandardButton>key.replace(/Arrow(.).+/, '$1'))
+  )
+  expect(input.isCombo(...combo)).toBe(true)
+  expect(input.isComboStart(...combo)).toBe(true)
+  expect(input.isHeld()).toBe(false)
 
   input.register('remove')
 })
 
-Deno.test('combo expired', () => {
+test('combo expired', () => {
   const input = new Input(cam, canvas)
   input.mapStandard()
   input.register('add')
 
   dispatchKeyEvent('keydown', 'ArrowUp')
   input.poll(16)
-  assertStrictEquals(input.isCombo(['U']), true)
+  expect(input.isCombo(['U'])).toBe(true)
   dispatchKeyEvent('keyup', 'ArrowUp')
 
   dispatchKeyEvent('keydown', 'ArrowDown')
   input.poll(16)
-  assertStrictEquals(input.isCombo(['U']), false)
-  assertStrictEquals(input.isCombo(['D']), false)
-  assertStrictEquals(input.isCombo(['U'], ['D']), true)
+  expect(input.isCombo(['U'])).toBe(false)
+  expect(input.isCombo(['D'])).toBe(false)
+  expect(input.isCombo(['U'], ['D'])).toBe(true)
   dispatchKeyEvent('keyup', 'ArrowDown')
   input.poll(1000)
 
   dispatchKeyEvent('keydown', 'ArrowRight')
   input.poll(16)
-  assertStrictEquals(input.isCombo(['U']), false)
-  assertStrictEquals(input.isCombo(['D']), false)
-  assertStrictEquals(input.isCombo(['R']), false)
-  assertStrictEquals(input.isCombo(['D'], ['R']), false)
-  assertStrictEquals(input.isCombo(['U'], ['D'], ['R']), false)
+  expect(input.isCombo(['U'])).toBe(false)
+  expect(input.isCombo(['D'])).toBe(false)
+  expect(input.isCombo(['R'])).toBe(false)
+  expect(input.isCombo(['D'], ['R'])).toBe(false)
+  expect(input.isCombo(['U'], ['D'], ['R'])).toBe(false)
   dispatchKeyEvent('keyup', 'ArrowRight')
   input.poll(16)
 
   input.register('remove')
 })
 
-Deno.test('long-pressed combo is active and held', () => {
+test('long-pressed combo is active and held', () => {
   const input = new Input(cam, canvas)
   input.mapStandard()
   input.register('add')
 
   dispatchKeyEvent('keydown', 'ArrowUp')
   input.poll(16)
-  assertStrictEquals(input.isCombo(['U']), true)
+  expect(input.isCombo(['U'])).toBe(true)
   dispatchKeyEvent('keyup', 'ArrowUp')
 
   dispatchKeyEvent('keydown', 'ArrowDown')
   input.poll(16)
-  assertStrictEquals(input.isCombo(['U']), false)
-  assertStrictEquals(input.isCombo(['D']), false)
-  assertStrictEquals(input.isCombo(['U'], ['D']), true)
+  expect(input.isCombo(['U'])).toBe(false)
+  expect(input.isCombo(['D'])).toBe(false)
+  expect(input.isCombo(['U'], ['D'])).toBe(true)
   dispatchKeyEvent('keyup', 'ArrowDown')
 
   dispatchKeyEvent('keydown', 'ArrowRight')
   input.poll(16)
-  assertStrictEquals(input.isCombo(['U']), false)
-  assertStrictEquals(input.isCombo(['D']), false)
-  assertStrictEquals(input.isCombo(['R']), false)
-  assertStrictEquals(input.isCombo(['D'], ['R']), false)
-  assertStrictEquals(input.isCombo(['U'], ['D'], ['R']), true)
+  expect(input.isCombo(['U'])).toBe(false)
+  expect(input.isCombo(['D'])).toBe(false)
+  expect(input.isCombo(['R'])).toBe(false)
+  expect(input.isCombo(['D'], ['R'])).toBe(false)
+  expect(input.isCombo(['U'], ['D'], ['R'])).toBe(true)
   input.poll(1000)
   input.poll(16)
 
-  assertStrictEquals(input.isCombo(['U'], ['D'], ['R']), true)
-  assertStrictEquals(input.isHeld(), true)
+  expect(input.isCombo(['U'], ['D'], ['R'])).toBe(true)
+  expect(input.isHeld()).toBe(true)
 
   input.register('remove')
 })
 
-Deno.test('combo after long-pressed combo is active', () => {
+test('combo after long-pressed combo is active', () => {
   const input = new Input(cam, canvas)
   input.mapStandard()
   input.register('add')
 
   dispatchKeyEvent('keydown', 'ArrowUp')
   input.poll(16)
-  assertStrictEquals(input.isCombo(['U']), true)
+  expect(input.isCombo(['U'])).toBe(true)
   dispatchKeyEvent('keyup', 'ArrowUp')
 
   dispatchKeyEvent('keydown', 'ArrowDown')
   input.poll(16)
-  assertStrictEquals(input.isCombo(['U']), false)
-  assertStrictEquals(input.isCombo(['D']), false)
-  assertStrictEquals(input.isCombo(['U'], ['D']), true)
+  expect(input.isCombo(['U'])).toBe(false)
+  expect(input.isCombo(['D'])).toBe(false)
+  expect(input.isCombo(['U'], ['D'])).toBe(true)
   dispatchKeyEvent('keyup', 'ArrowDown')
 
   dispatchKeyEvent('keydown', 'ArrowRight')
   input.poll(16)
-  assertStrictEquals(input.isCombo(['U']), false)
-  assertStrictEquals(input.isCombo(['D']), false)
-  assertStrictEquals(input.isCombo(['R']), false)
-  assertStrictEquals(input.isCombo(['D'], ['R']), false)
-  assertStrictEquals(input.isCombo(['U'], ['D'], ['R']), true)
+  expect(input.isCombo(['U'])).toBe(false)
+  expect(input.isCombo(['D'])).toBe(false)
+  expect(input.isCombo(['R'])).toBe(false)
+  expect(input.isCombo(['D'], ['R'])).toBe(false)
+  expect(input.isCombo(['U'], ['D'], ['R'])).toBe(true)
   input.poll(1000)
   dispatchKeyEvent('keyup', 'ArrowRight')
 
@@ -337,11 +341,11 @@ Deno.test('combo after long-pressed combo is active', () => {
   dispatchKeyEvent('keydown', 'ArrowUp')
   input.poll(16)
 
-  assertStrictEquals(input.isCombo(['L'], ['D'], ['U']), true)
+  expect(input.isCombo(['L'], ['D'], ['U'])).toBe(true)
 
   input.register('remove')
 })
 
 function dispatchKeyEvent(type: 'keydown' | 'keyup', key: string): void {
-  dispatchEvent(Object.assign(new CustomEvent(type), { key }))
+  dispatchEvent(Object.assign(new Event(type), {key}))
 }

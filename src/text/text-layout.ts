@@ -1,6 +1,6 @@
-import { Font } from '@/mem'
-import { Box, XY } from '../types/2d.ts'
-import { fontCharWidth, fontKerning } from './font.ts'
+import type {Font} from 'mem-font'
+import type {Box, XY} from '../types/2d.js'
+import {fontCharWidth, fontKerning} from './font.js'
 
 export type TextLayout = {
   /** The length of this array matches the string length. */
@@ -11,7 +11,7 @@ export type TextLayout = {
 
 export function layoutText(font: Font, str: string, maxW: number): TextLayout {
   const chars = []
-  let cursor = { x: 0, y: 0 }
+  let cursor = {x: 0, y: 0}
   while (chars.length < str.length) {
     const i = chars.length
     const char = str[i]!
@@ -34,44 +34,45 @@ export function layoutText(font: Font, str: string, maxW: number): TextLayout {
     cursor.x = layout.cursor.x
     cursor.y = layout.cursor.y
   }
-  return { chars, cursor }
+  return {chars, cursor}
 }
 
+/** @internal */
 export function layoutWord(
   font: Font,
   cursor: Readonly<XY>,
   maxW: number,
   word: string,
-  index: number,
+  index: number
 ): TextLayout {
   const chars = []
-  let { x, y } = cursor
+  let {x, y} = cursor
   for (;;) {
     const char = word[index]
     if (!char || /^\s*$/.test(char)) break
 
     const span = tracking(font, char, word[index + 1])
-    if (x > 0 && (x + span) > maxW) ({ x, y } = nextLine(font, y))
+    if (x > 0 && x + span > maxW) ({x, y} = nextLine(font, y))
 
     // Width is not span since, with kerning, that may exceed the actual
     // width of the character's sprite. For example, if w has the maximal
     // character width of five pixels and a one pixel kerning for a given pair
     // of characters, it will have a span of six pixels which is greater than
     // the maximal five pixel sprite that can be rendered.
-    chars.push({ x, y, w: fontCharWidth(font, char), h: font.cellHeight })
+    chars.push({x, y, w: fontCharWidth(font, char), h: font.cellHeight})
     x += span
 
     index++
   }
-  return { chars, cursor: { x, y } }
+  return {chars, cursor: {x, y}}
 }
 
 function nextLine(font: Font, y: number): XY {
-  return { x: 0, y: y + font.lineHeight }
+  return {x: 0, y: y + font.lineHeight}
 }
 
 function layoutNewline(font: Font, cursor: Readonly<XY>): TextLayout {
-  return { chars: [undefined], cursor: nextLine(font, cursor.y) }
+  return {chars: [undefined], cursor: nextLine(font, cursor.y)}
 }
 
 /**
@@ -82,12 +83,13 @@ function layoutSpace(
   font: Font,
   cursor: Readonly<XY>,
   width: number,
-  span: number,
+  span: number
 ): TextLayout {
-  const nextCursor = (cursor.x > 0 && (cursor.x + span) >= width)
-    ? nextLine(font, cursor.y)
-    : { x: cursor.x + span, y: cursor.y }
-  return { chars: [undefined], cursor: nextCursor }
+  const nextCursor =
+    cursor.x > 0 && cursor.x + span >= width
+      ? nextLine(font, cursor.y)
+      : {x: cursor.x + span, y: cursor.y}
+  return {chars: [undefined], cursor: nextCursor}
 }
 
 /** Returns the distance in pixels from the start of lhs to the start of rhs. */

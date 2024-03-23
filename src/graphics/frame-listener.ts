@@ -1,7 +1,7 @@
-import { Input } from '../input/input.ts'
-import { BitmapBuffer } from './bitmap.ts'
-import { Cam } from './cam.ts'
-import { Renderer } from './renderer.ts'
+import {Input} from '../input/input.js'
+import {BitmapBuffer} from './bitmap.js'
+import {Cam} from './cam.js'
+import {Renderer} from './renderer.js'
 
 export class FrameListener {
   /** The running lifetime in milliseconds. */
@@ -19,7 +19,7 @@ export class FrameListener {
   constructor(
     canvas: HTMLCanvasElement,
     input: Input<string>,
-    renderer: Renderer,
+    renderer: Renderer
   ) {
     this.#canvas = canvas
     this.#input = input
@@ -41,7 +41,7 @@ export class FrameListener {
   }
 
   register(op: 'add' | 'remove'): void {
-    const fn = `${op}EventListener` as const
+    const fn = <const>`${op}EventListener`
     for (const type of ['webglcontextrestored', 'webglcontextlost']) {
       this.#canvas[fn](type, this.#onEvent, true)
     }

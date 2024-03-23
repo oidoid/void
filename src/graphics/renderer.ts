@@ -1,10 +1,10 @@
-import { Anim, Atlas, maxAnimCels } from '../atlas/atlas.ts'
-import { BitmapBuffer } from './bitmap.ts'
-import { Cam } from './cam.ts'
-import { fragGLSL } from './frag.glsl.ts'
-import { vertGLSL } from './vert.glsl.ts'
+import {maxAnimCels, type Anim, type Atlas} from '../atlas/atlas.js'
+import {BitmapBuffer} from './bitmap.js'
+import {Cam} from './cam.js'
+import {fragGLSL} from './frag.glsl.js'
+import {vertGLSL} from './vert.glsl.js'
 
-type GLUniforms = { readonly [name: string]: WebGLUniformLocation | null }
+type GLUniforms = {readonly [name: string]: WebGLUniformLocation | null}
 type GL = WebGL2RenderingContext
 type GLProgram = WebGLProgram | null
 
@@ -23,7 +23,7 @@ export class Renderer {
   constructor(
     atlas: Atlas,
     canvas: HTMLCanvasElement,
-    spritesheet: HTMLImageElement,
+    spritesheet: HTMLImageElement
   ) {
     this.#canvas = canvas
     this.#spritesheet = spritesheet
@@ -35,7 +35,7 @@ export class Renderer {
       ((rgba >>> 24) & 0xff) / 0xff,
       ((rgba >>> 16) & 0xff) / 0xff,
       ((rgba >>> 8) & 0xff) / 0xff,
-      ((rgba >>> 0) & 0xff) / 0xff,
+      ((rgba >>> 0) & 0xff) / 0xff
     )
   }
 
@@ -43,7 +43,7 @@ export class Renderer {
     const gl = this.#canvas.getContext('webgl2', {
       antialias: false,
       desynchronized: true, // breaks render stats
-      powerPreference: 'high-performance',
+      powerPreference: 'high-performance'
     })
     if (!gl) throw Error('WebGL v2 unsupported')
     this.#gl = gl
@@ -67,7 +67,7 @@ export class Renderer {
     gl.uniform2ui(
       this.#uniforms.uSpritesheetSize!,
       this.#spritesheet.naturalWidth,
-      this.#spritesheet.naturalHeight,
+      this.#spritesheet.naturalHeight
     )
 
     this.#vertArray = gl.createVertexArray()
@@ -113,7 +113,7 @@ export class Renderer {
       0,
       gl.RGBA_INTEGER,
       gl.UNSIGNED_SHORT,
-      this.#cels,
+      this.#cels
     )
 
     gl.uniform1i(this.#uniforms.uSpritesheet!, 1)
@@ -128,7 +128,7 @@ export class Renderer {
       gl.RGBA,
       gl.RGBA,
       gl.UNSIGNED_BYTE,
-      this.#spritesheet,
+      this.#spritesheet
     )
 
     this.#loseContext = gl.getExtension('WEBGL_lose_context')
@@ -145,7 +145,7 @@ export class Renderer {
   render(
     cam: Readonly<Cam>,
     frame: number,
-    bmps: Readonly<BitmapBuffer>,
+    bmps: Readonly<BitmapBuffer>
   ): void {
     this.#resize(cam)
     this.#gl.clear(this.#gl.COLOR_BUFFER_BIT | this.#gl.DEPTH_BUFFER_BIT)
@@ -159,7 +159,7 @@ export class Renderer {
     this.#gl.bufferData(
       this.#gl.ARRAY_BUFFER,
       bmps.buffer,
-      this.#gl.STREAM_DRAW,
+      this.#gl.STREAM_DRAW
     )
     this.#gl.bindBuffer(this.#gl.ARRAY_BUFFER, null)
 
@@ -167,7 +167,7 @@ export class Renderer {
       this.#gl.TRIANGLE_STRIP,
       0,
       uv.length / 2, // d
-      bmps.size,
+      bmps.size
     )
 
     this.#gl.bindVertexArray(null)
@@ -175,7 +175,7 @@ export class Renderer {
 
   #resize(cam: Readonly<Cam>): void {
     const canvas = this.#canvas
-    const nativeWH = { w: cam.w * cam.scale, h: cam.h * cam.scale }
+    const nativeWH = {w: cam.w * cam.scale, h: cam.h * cam.scale}
 
     if (canvas.width !== nativeWH.w || canvas.height !== nativeWH.h) {
       canvas.width = nativeWH.w
@@ -189,8 +189,10 @@ export class Renderer {
     const diffW = Number.parseFloat(canvas.style.width.slice(0, -2)) - clientW
     const diffH = Number.parseFloat(canvas.style.height.slice(0, -2)) - clientH
     if (
-      !Number.isFinite(diffW) || Math.abs(diffW) >= .5 ||
-      !Number.isFinite(diffH) || Math.abs(diffH) >= .5
+      !Number.isFinite(diffW) ||
+      Math.abs(diffW) >= 0.5 ||
+      !Number.isFinite(diffH) ||
+      Math.abs(diffH) >= 0.5
     ) {
       canvas.style.width = `${clientW}px`
       canvas.style.height = `${clientH}px`
@@ -213,7 +215,7 @@ function compileShader(gl: GL, type: number, src: string): WebGLShader {
 function getUniformLocations(gl: GL, pgm: GLProgram): GLUniforms {
   if (!pgm) return {}
   const len = gl.getProgramParameter(pgm, gl.ACTIVE_UNIFORMS)
-  const locations: { [name: string]: WebGLUniformLocation | null } = {}
+  const locations: {[name: string]: WebGLUniformLocation | null} = {}
   for (let i = 0; i < len; ++i) {
     const uniform = gl.getActiveUniform(pgm, i)
     if (uniform == null) throw Error(`missing shader uniform at index ${i}`)

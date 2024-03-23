@@ -1,13 +1,13 @@
-import { Box, WH, XY } from '../types/2d.ts'
-import {
+import type {Box, WH, XY} from '../types/2d.js'
+import type {
   AnimTag,
   Aseprite,
   AsepriteAnimTagFrame,
   AsepriteFrame,
   AsepriteFrameMap,
   AsepriteSlice,
-  AsepriteTagSpan,
-} from './aseprite.ts'
+  AsepriteTagSpan
+} from './aseprite.js'
 
 export type Atlas<T extends AnimTag = AnimTag> = {
   readonly [tag in T]: Anim<T>
@@ -31,13 +31,13 @@ export function parseAtlas(ase: Aseprite): Atlas {
     atlas.set(tag, parseAnim(id, span, ase.frames, ase.meta.slices))
   }
 
-  const extraSlices = ase.meta.slices.filter((slice) =>
-    !atlas.has(parseTag(slice.name))
+  const extraSlices = ase.meta.slices.filter(
+    slice => !atlas.has(parseTag(slice.name))
   )
   if (extraSlices.length) {
     throw Error(
       'unknown hitbox tags in atlas: ' +
-        `${extraSlices.map((slice) => slice.name).join(', ')}`,
+        `${extraSlices.map(slice => slice.name).join(', ')}`
     )
   }
 
@@ -49,7 +49,7 @@ export function parseAnim(
   id: number,
   span: AsepriteTagSpan,
   map: AsepriteFrameMap,
-  slices: readonly AsepriteSlice[],
+  slices: readonly AsepriteSlice[]
 ): Anim {
   const frames = [...parseAnimFrames(span, map)]
   return {
@@ -58,15 +58,15 @@ export function parseAnim(
     h: frames[0]!.sourceSize.h,
     cels: frames.map(parseCel),
     hitbox: parseHitbox(span, slices),
-    tag: parseTag(span.name),
+    tag: parseTag(span.name)
   }
 }
 
 function* parseAnimFrames(
   span: AsepriteTagSpan,
-  map: AsepriteFrameMap,
+  map: AsepriteFrameMap
 ): IterableIterator<AsepriteFrame> {
-  for (let i = span.from; i <= span.to && (i - span.from) < maxAnimCels; i++) {
+  for (let i = span.from; i <= span.to && i - span.from < maxAnimCels; i++) {
     const animTagFrame = `${span.name}--${i}` as AsepriteAnimTagFrame
     const frame = map[animTagFrame]
     if (!frame) throw Error(`missing frame "${animTagFrame}"`)
@@ -78,26 +78,29 @@ function* parseAnimFrames(
 export function parseCel(frame: AsepriteFrame): Readonly<XY> {
   return {
     x: frame.frame.x + (frame.frame.w - frame.sourceSize.w) / 2,
-    y: frame.frame.y + (frame.frame.h - frame.sourceSize.h) / 2,
+    y: frame.frame.y + (frame.frame.h - frame.sourceSize.h) / 2
   }
 }
 
 /** @internal */
 export function parseHitbox(
   span: AsepriteTagSpan,
-  slices: readonly AsepriteSlice[],
+  slices: readonly AsepriteSlice[]
 ): Readonly<Box> {
-  const tagSlices = slices.filter((slice) => slice.name === span.name)
+  const tagSlices = slices.filter(slice => slice.name === span.name)
   if (tagSlices.length > 1) {
     throw Error(`tag "${span.name}" has multiple hitboxes`)
   }
-  const box = tagSlices[0]?.keys[0]?.bounds ?? { x: 0, y: 0, w: 0, h: 0 }
+  const box = tagSlices[0]?.keys[0]?.bounds ?? {x: 0, y: 0, w: 0, h: 0}
   // https://github.com/aseprite/aseprite/issues/3524
   for (const key of tagSlices[0]?.keys ?? []) {
     if (
-      key.bounds.x !== box.x || key.bounds.y !== box.y ||
-      key.bounds.w !== box.w || key.bounds.h !== box.h
-    ) throw Error(`tag "${span.name}" hitbox varies across frames`)
+      key.bounds.x !== box.x ||
+      key.bounds.y !== box.y ||
+      key.bounds.w !== box.w ||
+      key.bounds.h !== box.h
+    )
+      throw Error(`tag "${span.name}" hitbox varies across frames`)
   }
   return box
 }

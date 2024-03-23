@@ -1,0 +1,70 @@
+{
+  "author": "Stephen Niedzielski <stephen@oidoid.com> (https://oidoid.com)",
+  "bin": {
+    "ase": "bin/ase",
+    "void": "bin/void"
+  },
+  "bugs": "https://github.com/oidoid/void/issues",
+  "description": "Tiny 2D game engine.",
+  "devDependencies": {
+    "@ampproject/filesize": "4.3.0",
+    "@types/jsdom": "21.1.6",
+    "@types/node": "20.11.30",
+    "esbuild": "0.20.2",
+    "jsdom": "24.0.0",
+    "mem-font": "11.0.0-2",
+    "prettier": "3.2.5",
+    "typescript": "5.4.3",
+    "vitest": "1.4.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "dist",
+    "!dist/**/tsconfig.tsbuildinfo"
+  ],
+  "filesize": {
+    "dist/void.js": {
+      "none": "16.7 KB",
+      "gzip": "6.3 KB"
+    }
+  },
+  "homepage": "https://github.com/oidoid/void",
+  "keywords": [
+    "game engine",
+    "webgl"
+  ],
+  "license": "AGPL-3.0-only",
+  "main": "dist/index.js",
+  "name": "@oidoid/void",
+  "prettier": {
+    "arrowParens": "avoid",
+    "bracketSpacing": false,
+    "jsxSingleQuote": true,
+    "proseWrap": "always",
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "none"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oidoid/void.git"
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "rm -rf dist",
+    "format": "npm run formatter -- --write",
+    "formatter": "prettier --cache --log-level warn './**/*.{css,html,js,json,md,ts,yaml}'",
+    "preversion": "[ -z \"$(git status -z)\" ]",
+    "prepublishOnly": "! git symbolic-ref --quiet HEAD || git push --follow-tags origin \"$(git branch --show-current)\"",
+    "test": "npm run test:format && npm run test:unit && npm run build && npm run test:size",
+    "test:format": "npm run formatter -- --check",
+    "test:size": "npx esbuild --bundle --format=esm --metafile=dist/void.meta.json --minify --outfile=dist/void.js --sourcemap=linked --target=es2022 src/index.ts && filesize",
+    "test:unit": "vitest --config=tools/vitest.config.ts run",
+    "version": "npm test"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "version": "0.0.11"
+}

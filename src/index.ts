@@ -1,36 +1,39 @@
-// ─── oidoid >°──
-import { AnimTag } from './src/atlas/aseprite.ts'
-import { Atlas } from './src/atlas/atlas.ts'
-import { Synth } from './src/audio/synth.ts'
-import { Bitmap, BitmapBuffer } from './src/graphics/bitmap.ts'
-import { Cam } from './src/graphics/cam.ts'
-import { FrameListener } from './src/graphics/frame-listener.ts'
-import { Renderer } from './src/graphics/renderer.ts'
-import { Input, StandardButton } from './src/input/input.ts'
-import { Sprite } from './src/sprite/sprite.ts'
-import { JSONStorage } from './src/storage/json-storage.ts'
+// ───oidoid>°──
+import type {AnimTag} from './atlas/aseprite.js'
+import type {Atlas} from './atlas/atlas.js'
+import {Synth} from './audio/synth.js'
+import {BitmapBuffer, type Bitmap} from './graphics/bitmap.js'
+import {Cam} from './graphics/cam.js'
+import {FrameListener} from './graphics/frame-listener.js'
+import {Renderer} from './graphics/renderer.js'
+import {Input, type StandardButton} from './input/input.js'
+import {Sprite} from './sprite/sprite.js'
+import {JSONStorage} from './storage/json-storage.js'
 
-export type { AnimTag } from './src/atlas/aseprite.ts'
-export type { Atlas } from './src/atlas/atlas.ts'
-export { Sprite } from './src/sprite/sprite.ts'
-export type { SpriteJSON } from './src/sprite/sprite.ts'
-export type { Box, WH, XY } from './src/types/2d.ts'
+export type {Font} from 'mem-font'
+export type {AnimTag} from './atlas/aseprite.js'
+export type {Atlas} from './atlas/atlas.js'
+export {Sprite} from './sprite/sprite.js'
+export type {SpriteJSON} from './sprite/sprite.js'
+export {fontCharToTag} from './text/font.js'
+export {layoutText, type TextLayout} from './text/text-layout.js'
+export type {Box, WH, XY} from './types/2d.js'
 
 declare const atlas: Atlas
 declare const atlasURI: string
 
 export class Void<
   Tag extends AnimTag = AnimTag,
-  Button extends string = StandardButton,
+  Button extends string = StandardButton
 > {
   static async new<
     Tag extends AnimTag = AnimTag,
-    Button extends string = StandardButton,
+    Button extends string = StandardButton
   >(): Promise<Void<Tag, Button>> {
     return new Void(await loadImage(atlasURI))
   }
 
-  readonly atlas: Atlas<Tag> = atlas as Atlas<Tag>
+  readonly atlas: Atlas<Tag> = <Atlas<Tag>>atlas
   readonly cam: Cam = new Cam()
   readonly ctrl: Input<Button>
   readonly kv = new JSONStorage()

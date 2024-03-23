@@ -4,10 +4,11 @@ All of my free time goes into void.
 
 ## Installation
 
-void is a Deno TypeScript project. Add `https://deno.land/x/oid/mod.ts` to your
-import modules and reference the `https://deno.land/x/oid/mods.json` import map.
+```
+npm install --save @oidoid/void
+```
 
-## License
+## Copyright and License
 
 © oidoid.
 

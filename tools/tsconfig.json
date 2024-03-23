@@ -1,0 +1,19 @@
+{
+  "extends": "./base-tsconfig.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+
+    // tsc is only used for type-checking.
+    "noEmit": true,
+
+    "lib": ["ES2023"],
+
+    "rootDir": "..",
+
+    "tsBuildInfoFile": "../dist/tools/tsconfig.tsbuildinfo",
+
+    "types": ["node"]
+  },
+  "include": ["**/*", "../package.json"]
+}

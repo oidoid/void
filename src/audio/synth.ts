@@ -5,7 +5,7 @@ export class Synth {
     type: OscillatorType,
     startHz: number,
     endHz: number,
-    duration: number, // why can't this be short?
+    duration: number // why can't this be short?
   ): void {
     this.#context ??= new AudioContext()
     const now = this.#context.currentTime

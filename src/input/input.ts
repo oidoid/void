@@ -1,10 +1,10 @@
-import { Cam } from '../graphics/cam.ts'
-import { XY } from '../types/2d.ts'
-import { GamepadPoller } from './gamepad-poller.ts'
-import { KeyboardPoller } from './keyboard-poller.ts'
-import { PointerPoller } from './pointer-poller.ts'
+import {Cam} from '../graphics/cam.js'
+import type {XY} from '../types/2d.js'
+import {GamepadPoller} from './gamepad-poller.js'
+import {KeyboardPoller} from './keyboard-poller.js'
+import {PointerPoller} from './pointer-poller.js'
 
-// deno-fmt-ignore
+// prettier-ignore
 export type StandardButton =
   'L' | 'R' | 'U' | 'D' | // Dpad.
   'C' | 'B' | 'A' | // Primary, secondary, tertiary.
@@ -27,7 +27,7 @@ export class Input<Button extends string = StandardButton> {
    */
   readonly #combo: number[] = []
   /** Logical button to bit. */
-  readonly #bitByButton = <{ [btn in Button]: number }> {}
+  readonly #bitByButton = <{[btn in Button]: number}>{}
   readonly #gamepad = new GamepadPoller()
   readonly #keyboard = new KeyboardPoller()
   readonly #pointer: PointerPoller
@@ -57,8 +57,10 @@ export class Input<Button extends string = StandardButton> {
 
   /** Like isOnCombo() but test if the last button set is triggered. */
   isComboStart(...combo: readonly (readonly Button[])[]): boolean {
-    return this.isCombo(...combo) &&
-      !!combo.at(-1)?.every((button) => this.isOnStart(button))
+    return (
+      this.isCombo(...combo) &&
+      !!combo.at(-1)?.every(button => this.isOnStart(button))
+    )
   }
 
   /** True if held on or off. */
@@ -107,26 +109,26 @@ export class Input<Button extends string = StandardButton> {
   }
 
   mapStandard(): void {
-    this.mapKey('L' as Button, 'ArrowLeft', 'a')
-    this.mapKey('R' as Button, 'ArrowRight', 'd')
-    this.mapKey('U' as Button, 'ArrowUp', 'w')
-    this.mapKey('D' as Button, 'ArrowDown', 's')
-    this.mapKey('C' as Button, 'z')
-    this.mapKey('B' as Button, 'x')
-    this.mapKey('A' as Button, 'c')
-    this.mapKey('S' as Button, 'Enter', 'Escape')
+    this.mapKey(<Button>'L', 'ArrowLeft', 'a')
+    this.mapKey(<Button>'R', 'ArrowRight', 'd')
+    this.mapKey(<Button>'U', 'ArrowUp', 'w')
+    this.mapKey(<Button>'D', 'ArrowDown', 's')
+    this.mapKey(<Button>'C', 'z')
+    this.mapKey(<Button>'B', 'x')
+    this.mapKey(<Button>'A', 'c')
+    this.mapKey(<Button>'S', 'Enter', 'Escape')
 
     // https://w3c.github.io/gamepad/#remapping
-    this.mapAxis('L' as Button, 'R' as Button, 0, 2)
-    this.mapAxis('U' as Button, 'D' as Button, 1, 3)
-    this.mapButton('L' as Button, 14)
-    this.mapButton('R' as Button, 15)
-    this.mapButton('U' as Button, 12)
-    this.mapButton('D' as Button, 13)
-    this.mapButton('A' as Button, 0)
-    this.mapButton('S' as Button, 9)
+    this.mapAxis(<Button>'L', <Button>'R', 0, 2)
+    this.mapAxis(<Button>'U', <Button>'D', 1, 3)
+    this.mapButton(<Button>'L', 14)
+    this.mapButton(<Button>'R', 15)
+    this.mapButton(<Button>'U', 12)
+    this.mapButton(<Button>'D', 13)
+    this.mapButton(<Button>'A', 0)
+    this.mapButton(<Button>'S', 9)
 
-    this.mapClick('A' as Button, 1)
+    this.mapClick(<Button>'A', 1)
   }
 
   mapKey(button: Button, ...keys: readonly string[]): void {
@@ -196,7 +198,7 @@ export class Input<Button extends string = StandardButton> {
   }
 
   #map(button: Button): number {
-    return this.#bitByButton[button] ??= 1 <<
-      Object.keys(this.#bitByButton).length
+    return (this.#bitByButton[button] ??=
+      1 << Object.keys(this.#bitByButton).length)
   }
 }
