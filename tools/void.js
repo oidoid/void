@@ -1,23 +1,31 @@
-#!/usr/bin/env node
+#!/usr/bin/env -S node --no-warnings
 // Bundles sources into a single HTML file for distribution and development.
 //
-// void [--watch] <input> <output>
-// <input> HTML input filename.
-// <output> HTML output directory.
+// void --html=file --out=dir [--watch] sprite...
 // --watch  Run development server. Serve on http://localhost:1234 and reload on
 //          code change.
+//
+// --no-warnings shebang works around JSON import warnings. See
+// https://github.com/nodejs/node/issues/27355 and
+// https://github.com/nodejs/node/issues/40940.
 
+import {execFile} from 'child_process'
 import esbuild from 'esbuild'
 import {JSDOM} from 'jsdom'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import pkg from '../package.json' assert {type: 'json'}
+import {parseAtlas} from '../src/atlas/atlas-parser.js'
 
-const watch = process.argv.includes('--watch')
-const _inFilename = process.argv.at(-2)
-if (!_inFilename) throw Error('missing input')
-const inFilename = _inFilename
-const outDir = process.argv.at(-1)
+const args = process.argv.filter(arg => !arg.startsWith('--'))
+const opts = Object.fromEntries(
+  process.argv.filter(arg => arg.startsWith('--')).map(arg => arg.split('='))
+)
+
+const watch = '--watch' in opts
+const inFilename = opts['--html']
+if (!inFilename) throw Error('missing input')
+const outDir = opts['--out']
 if (!outDir) throw Error('missing output')
 const doc = new JSDOM(await fs.readFile(inFilename, 'utf8')).window.document
 let srcFilename = /** @type {HTMLScriptElement|null} */ (
@@ -25,6 +33,35 @@ let srcFilename = /** @type {HTMLScriptElement|null} */ (
 )?.src
 if (!srcFilename) throw Error('missing script source')
 srcFilename = `${path.dirname(inFilename)}/${srcFilename}`
+const sprites = args.splice(2)
+if (!sprites.length) throw Error('missing sprites')
+
+const atlasPNGFilename = `${await fs.mkdtemp('/tmp/', {encoding: 'utf8'})}/atlas.png`
+const [err, stdout, stderr] = await new Promise(resolve =>
+  execFile(
+    'aseprite',
+    [
+      '--batch',
+      '--color-mode=indexed',
+      '--filename-format={title}--{tag}--{frame}',
+      // '--ignore-empty', Breaks --tagname-format.
+      '--list-slices',
+      '--list-tags',
+      '--merge-duplicates',
+      `--sheet=${atlasPNGFilename}`,
+      '--sheet-pack',
+      '--tagname-format={title}--{tag}',
+      ...sprites
+    ],
+    (err, stdout, stderr) => resolve([err, stdout, stderr])
+  )
+)
+process.stderr.write(stderr)
+if (err) throw err
+
+const atlasJSON = JSON.stringify(parseAtlas(JSON.parse(stdout)))
+const atlasURI =
+  await `data:image/png;base64,${(await fs.readFile(atlasPNGFilename)).toString('base64')}`
 
 /** @type {Parameters<esbuild.PluginBuild['onEnd']>[0]} */
 async function pluginOnEnd(result) {
@@ -72,7 +109,11 @@ async function pluginOnEnd(result) {
   )
   if (!scriptEl) throw Error('missing script')
   scriptEl.removeAttribute('src')
-  scriptEl.textContent = js
+  scriptEl.textContent = `
+  const atlasURI = '${atlasURI}'
+  const atlas = ${atlasJSON}
+  ${js}
+`
   const outFilename = `${outDir}/${
     watch ? 'index' : `${path.basename(inFilename, '.html')}-v${pkg.version}`
   }.html`
@@ -84,7 +125,7 @@ async function pluginOnEnd(result) {
 }
 
 /** @type {esbuild.BuildOptions} */
-const opts = {
+const buildOpts = {
   bundle: true,
   entryPoints: [srcFilename],
   format: 'esm',
@@ -97,6 +138,6 @@ const opts = {
   write: false // Written by plugin.
 }
 if (watch) {
-  const ctx = await esbuild.context(opts)
+  const ctx = await esbuild.context(buildOpts)
   await Promise.race([ctx.watch(), ctx.serve({port: 1234, servedir: 'dist'})])
-} else await esbuild.build(opts)
+} else await esbuild.build(buildOpts)

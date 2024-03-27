@@ -11,13 +11,12 @@ import {Sprite} from './sprite/sprite.js'
 import {JSONStorage} from './storage/json-storage.js'
 
 export type {Font} from 'mem-font'
-export type {AnimTag} from './atlas/aseprite.js'
-export type {Atlas} from './atlas/atlas.js'
-export {Sprite} from './sprite/sprite.js'
 export type {SpriteJSON} from './sprite/sprite.js'
 export {fontCharToTag} from './text/font.js'
 export {layoutText, type TextLayout} from './text/text-layout.js'
 export type {Box, WH, XY} from './types/2d.js'
+export {Sprite}
+export type {AnimTag, Atlas}
 
 declare const atlas: Atlas
 declare const atlasURI: string

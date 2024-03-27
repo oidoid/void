@@ -2,6 +2,8 @@
 {
   "extends": "../../tools/base-tsconfig.json",
   "compilerOptions": {
+    "checkJs": true,
+
     "lib": ["DOM", "ES2023"],
 
     // tsc is only used for type-checking.

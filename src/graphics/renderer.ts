@@ -1,4 +1,5 @@
-import {maxAnimCels, type Anim, type Atlas} from '../atlas/atlas.js'
+import {maxAnimCels} from '../atlas/atlas-parser.js'
+import {type Anim, type Atlas} from '../atlas/atlas.js'
 import {BitmapBuffer} from './bitmap.js'
 import {Cam} from './cam.js'
 import {fragGLSL} from './frag.glsl.js'

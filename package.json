@@ -58,7 +58,7 @@
     "build": "tsc --build",
     "clean": "rm -rf dist",
     "format": "npm run formatter -- --write",
-    "formatter": "prettier --cache --log-level warn './**/*.{css,html,js,json,md,ts,yaml}'",
+    "formatter": "prettier --cache --log-level warn './**/*.{js,json,md,ts,yaml}'",
     "preversion": "[ -z \"$(git status -z)\" ]",
     "prepublishOnly": "! git symbolic-ref --quiet HEAD || git push --follow-tags origin \"$(git branch --show-current)\"",
     "test": "npm run test:format && npm run test:unit && npm run build && npm run test:size",

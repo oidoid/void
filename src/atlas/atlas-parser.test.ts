@@ -1,6 +1,6 @@
 import {describe, expect, test} from 'vitest'
 import type {AsepriteTagSpan} from './aseprite.js'
-import {parseAnim, parseAtlas, parseCel, parseHitbox} from './atlas.js'
+import {parseAnim, parseAtlas, parseCel, parseHitbox} from './atlas-parser.js'
 
 describe('parseAtlas()', () => {
   test('parses empty', () => {
