@@ -1,7 +1,7 @@
 {
   "author": "Stephen Niedzielski <stephen@oidoid.com> (https://oidoid.com)",
   "bin": {
-    "void": "bin/void"
+    "void": "tools/void.js"
   },
   "bugs": "https://github.com/oidoid/void/issues",
   "description": "Tiny 2D game engine.",
