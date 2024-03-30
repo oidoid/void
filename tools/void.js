@@ -15,7 +15,7 @@ import {JSDOM} from 'jsdom'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import pkg from '../package.json' assert {type: 'json'}
-import {parseAtlas} from '../src/atlas/atlas-parser.js'
+import {parseAtlas} from './atlas-parser.js'
 
 const args = process.argv.filter(arg => !arg.startsWith('--'))
 const opts = Object.fromEntries(

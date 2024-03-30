@@ -1,5 +1,5 @@
-import type {AnimTag} from '../atlas/aseprite.js'
-import type {Anim, Atlas} from '../atlas/atlas.js'
+import type {Anim, AnimTag} from '../atlas/anim.js'
+import type {Atlas} from '../atlas/atlas.js'
 import type {Bitmap} from '../graphics/bitmap.js'
 import type {Box, WH, XY} from '../types/2d.js'
 

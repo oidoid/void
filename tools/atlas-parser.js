@@ -1,17 +1,16 @@
-/** @typedef {import('./aseprite.js').AnimTag} AnimTag */
 /** @typedef {import('./aseprite.js').Aseprite} Aseprite */
 /** @typedef {import('./aseprite.js').AsepriteAnimTagFrame} AsepriteAnimTagFrame */
 /** @typedef {import('./aseprite.js').AsepriteFrame} AsepriteFrame */
 /** @typedef {import('./aseprite.js').AsepriteFrameMap} AsepriteFrameMap */
 /** @typedef {import('./aseprite.js').AsepriteSlice} AsepriteSlice */
 /** @typedef {import('./aseprite.js').AsepriteTagSpan} AsepriteTagSpan */
-/** @typedef {import('./atlas.js').Anim} Anim */
-/** @typedef {import('./atlas.js').Atlas} Atlas */
-/** @typedef {import('../types/2d.js').Box} Box */
-/** @typedef {import('../types/2d.js').WH} WH */
-/** @typedef {import('../types/2d.js').XY} XY */
-
-export const maxAnimCels = 16
+/** @typedef {import('../src/atlas/anim.js').Anim<AnimTag>} Anim */
+/** @typedef {import('../src/atlas/anim.js').AnimTag} AnimTag */
+/** @typedef {import('../src/atlas/atlas.js').Atlas} Atlas */
+/** @typedef {import('../src/types/2d.js').Box} Box */
+/** @typedef {import('../src/types/2d.js').WH} WH */
+/** @typedef {import('../src/types/2d.js').XY} XY */
+import {maxAnimCels} from '../src/atlas/anim.js'
 
 /**
  * @arg {Aseprite} ase

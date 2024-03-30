@@ -1,5 +1,5 @@
-import {maxAnimCels} from '../atlas/atlas-parser.js'
-import {type Anim, type Atlas} from '../atlas/atlas.js'
+import {maxAnimCels, type Anim} from '../atlas/anim.js'
+import type {AnimTag, Atlas} from '../index.js'
 import {BitmapBuffer} from './bitmap.js'
 import {Cam} from './cam.js'
 import {fragGLSL} from './frag.glsl.js'
@@ -250,7 +250,7 @@ function loadProgram(gl: GL, vertGLSL: string, fragGLSL: string): GLProgram {
 /** XYWH ordered by ID and padded to 16-cel blocks. */
 function newCels(atlas: Atlas): readonly number[] {
   const cels = []
-  for (const anim of Object.values<Anim>(atlas)) {
+  for (const anim of Object.values<Anim<AnimTag>>(atlas)) {
     // Animations are inserted in ID order.
     for (const cel of anim.cels) cels.push(cel.x, cel.y, anim.w, anim.h)
     for (let i = anim.cels.length; i < maxAnimCels; i++) {

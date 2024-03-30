@@ -1,4 +1,5 @@
-import type {Box, WH} from '../types/2d.js'
+import type {AnimTag} from '../src/atlas/anim.js'
+import type {Box, WH} from '../src/types/2d.js'
 
 /** https://github.com/aseprite/aseprite/blob/master/docs/ase-file-specs.md */
 export type Aseprite = {
@@ -19,9 +20,6 @@ export type AsepriteMeta = {
 
 /** `--filename-format='{title}--{tag}--{frame}'`. */
 export type AsepriteAnimTagFrame = `${AnimTag}--${bigint}`
-
-/** `--tagname-format={title}--{tag}`. */
-export type AnimTag = `${string}--${string}`
 
 export type AsepriteFrame = {
   /** Bounds including padding. */
