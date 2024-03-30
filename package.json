@@ -1,7 +1,6 @@
 {
   "author": "Stephen Niedzielski <stephen@oidoid.com> (https://oidoid.com)",
   "bin": {
-    "ase": "bin/ase",
     "void": "bin/void"
   },
   "bugs": "https://github.com/oidoid/void/issues",
