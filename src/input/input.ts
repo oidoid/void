@@ -109,13 +109,13 @@ export class Input<Button extends string = StandardButton> {
   }
 
   mapStandard(): void {
-    this.mapKey(<Button>'L', 'ArrowLeft', 'a')
-    this.mapKey(<Button>'R', 'ArrowRight', 'd')
-    this.mapKey(<Button>'U', 'ArrowUp', 'w')
-    this.mapKey(<Button>'D', 'ArrowDown', 's')
-    this.mapKey(<Button>'C', 'z')
-    this.mapKey(<Button>'B', 'x')
-    this.mapKey(<Button>'A', 'c')
+    this.mapKey(<Button>'L', 'ArrowLeft', 'a', 'A')
+    this.mapKey(<Button>'R', 'ArrowRight', 'd', 'D')
+    this.mapKey(<Button>'U', 'ArrowUp', 'w', 'W')
+    this.mapKey(<Button>'D', 'ArrowDown', 's', 'S')
+    this.mapKey(<Button>'C', 'z', 'Z')
+    this.mapKey(<Button>'B', 'x', 'X')
+    this.mapKey(<Button>'A', 'c', 'C')
     this.mapKey(<Button>'S', 'Enter', 'Escape')
 
     // https://w3c.github.io/gamepad/#remapping
@@ -131,6 +131,7 @@ export class Input<Button extends string = StandardButton> {
     this.mapClick(<Button>'A', 1)
   }
 
+  /** @arg keys Union of case-sensitive KeyboardEvent.key. */
   mapKey(button: Button, ...keys: readonly string[]): void {
     for (const key of keys) this.#keyboard.map(key, this.#map(button))
   }
