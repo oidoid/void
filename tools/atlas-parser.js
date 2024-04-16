@@ -5,7 +5,7 @@
 /** @typedef {import('./aseprite.js').AsepriteSlice} AsepriteSlice */
 /** @typedef {import('./aseprite.js').AsepriteTagSpan} AsepriteTagSpan */
 /** @typedef {import('../src/atlas/anim.js').Anim<AnimTag>} Anim */
-/** @typedef {import('../src/atlas/anim.js').AnimTag} AnimTag */
+/** @typedef {import('../src/atlas/anim.js').AnimTagFormat} AnimTag */
 /** @typedef {import('../src/atlas/atlas.js').Atlas} Atlas */
 /** @typedef {import('../src/types/2d.js').Box} Box */
 /** @typedef {import('../src/types/2d.js').WH} WH */

@@ -1,5 +1,5 @@
 // ───oidoid>°──
-import type {Anim, AnimTag} from './atlas/anim.js'
+import type {Anim, AnimTagFormat} from './atlas/anim.js'
 import type {Atlas} from './atlas/atlas.js'
 import {Synth} from './audio/synth.js'
 import {BitmapBuffer, type Bitmap} from './graphics/bitmap.js'
@@ -16,17 +16,17 @@ export {fontCharToTag} from './text/font.js'
 export {layoutText, type TextLayout} from './text/text-layout.js'
 export type {Box, WH, XY} from './types/2d.js'
 export {Sprite}
-export type {Anim, AnimTag, Atlas}
+export type {Anim, AnimTagFormat, Atlas}
 
 declare const atlas: Atlas
 declare const atlasURI: string
 
 export class Void<
-  Tag extends AnimTag = AnimTag,
+  Tag extends AnimTagFormat,
   Button extends string = StandardButton
 > {
   static async new<
-    Tag extends AnimTag = AnimTag,
+    Tag extends AnimTagFormat = AnimTagFormat,
     Button extends string = StandardButton
   >(): Promise<Void<Tag, Button>> {
     return new Void(await loadImage(atlasURI))

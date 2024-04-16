@@ -1,4 +1,4 @@
-import type {AnimTag} from '../src/atlas/anim.js'
+import type {AnimTagFormat} from '../src/atlas/anim.js'
 import type {Box, WH} from '../src/types/2d.js'
 
 /** https://github.com/aseprite/aseprite/blob/master/docs/ase-file-specs.md */
@@ -19,7 +19,7 @@ export type AsepriteMeta = {
 }
 
 /** `--filename-format='{title}--{tag}--{frame}'`. */
-export type AsepriteAnimTagFrame = `${AnimTag}--${bigint}`
+export type AsepriteAnimTagFrame = `${AnimTagFormat}--${bigint}`
 
 export type AsepriteFrame = {
   /** Bounds including padding. */
@@ -29,13 +29,13 @@ export type AsepriteFrame = {
 }
 
 export type AsepriteTagSpan = {
-  readonly name: AnimTag | string
+  readonly name: AnimTagFormat | string
   readonly from: number
   /** The inclusive ending index, possibly equal to from. */
   readonly to: number
 }
 
 export type AsepriteSlice = {
-  readonly name: AnimTag | string
+  readonly name: AnimTagFormat | string
   readonly keys: readonly {readonly bounds: Readonly<Box>}[]
 }

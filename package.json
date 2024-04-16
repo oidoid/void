@@ -29,8 +29,8 @@
   ],
   "filesize": {
     "dist/void.js": {
-      "none": "16.7 KB",
-      "gzip": "6.3 KB"
+      "none": "16.8 KB",
+      "gzip": "6.4 KB"
     }
   },
   "homepage": "https://github.com/oidoid/void",

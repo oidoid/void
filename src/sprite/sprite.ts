@@ -1,4 +1,4 @@
-import type {Anim, AnimTag} from '../atlas/anim.js'
+import type {Anim, AnimTagFormat} from '../atlas/anim.js'
 import type {Atlas} from '../atlas/atlas.js'
 import type {Bitmap} from '../graphics/bitmap.js'
 import type {Box, WH, XY} from '../types/2d.js'
@@ -15,8 +15,8 @@ export type SpriteJSON = {
   zend?: boolean
 }
 
-export class Sprite<T extends AnimTag = AnimTag> implements Bitmap, Box {
-  static parse<T extends AnimTag = AnimTag>(
+export class Sprite<T extends AnimTagFormat> implements Bitmap, Box {
+  static parse<T extends AnimTagFormat = AnimTagFormat>(
     atlas: Atlas<T>,
     json: Readonly<SpriteJSON>
   ): Sprite<T> {
@@ -45,10 +45,10 @@ export class Sprite<T extends AnimTag = AnimTag> implements Bitmap, Box {
 
   constructor(atlas: Atlas<T>, tag: T) {
     this.#atlas = atlas
-    this.tag = tag
+    this.tag = tag // Inits hitbox.
   }
 
-  above(sprite: Readonly<Sprite>): boolean {
+  above(sprite: Readonly<Sprite<T>>): boolean {
     const compare =
       this.z === sprite.z
         ? (sprite.zend ? sprite.y + sprite.h : sprite.y) -

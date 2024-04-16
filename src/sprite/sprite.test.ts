@@ -1,9 +1,9 @@
 import {expect, test} from 'vitest'
-import type {Anim, AnimTag} from '../atlas/anim.js'
+import type {Anim, AnimTagFormat} from '../atlas/anim.js'
 import {Sprite} from './sprite.js'
 
 test('bits', () => {
-  const anim: Anim<AnimTag> = {
+  const anim: Anim<AnimTagFormat> = {
     id: 0x7ff0,
     w: 1,
     h: 2,
@@ -70,7 +70,7 @@ test('bits', () => {
 })
 
 test('hits', () => {
-  const anim: Anim<AnimTag> = {
+  const anim: Anim<AnimTagFormat> = {
     id: 0x7ff0,
     w: 3,
     h: 4,
