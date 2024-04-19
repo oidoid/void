@@ -34,6 +34,7 @@ export class Sprite<T extends AnimTagFormat> implements Bitmap, Box {
     return sprite
   }
 
+  debug?: unknown
   readonly hitbox: Box = {x: 0, y: 0, w: 0, h: 0}
 
   _iffzz = 0
@@ -41,7 +42,7 @@ export class Sprite<T extends AnimTagFormat> implements Bitmap, Box {
   _wh = 0
 
   #anim: Anim<T> = <Anim<T>>{}
-  #atlas: Atlas<T>
+  readonly #atlas: Atlas<T>
 
   constructor(atlas: Atlas<T>, tag: T) {
     this.#atlas = atlas

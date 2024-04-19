@@ -5,11 +5,13 @@ export type Bitmap = {
   readonly _wh: number
   /** id+cel: u15, flipX: b1, flipY: b1, zend: b1, z: u3 */
   readonly _iffzz: number
+  /** User hint. */
+  readonly debug?: unknown
 }
 
 export class BitmapBuffer {
   readonly buffer: Uint32Array
-  size = 0
+  size: number = 0
 
   constructor(capacity: number) {
     this.buffer = new Uint32Array(capacity * 3)
