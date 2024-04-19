@@ -64,6 +64,7 @@
     "formatter": "prettier --cache --log-level warn './**/*.{js,json,md,ts,yaml}'",
     "preversion": "[ -z \"$(git status -z)\" ]",
     "prepublishOnly": "! git symbolic-ref --quiet HEAD || git push --follow-tags origin \"$(git branch --show-current)\"",
+    "start": "npm run build -- --watch",
     "test": "npm run test:format && npm run test:unit && npm run build && npm run test:size",
     "test:format": "npm run formatter -- --check",
     "test:size": "npx esbuild --bundle --format=esm --metafile=dist/void.meta.json --minify --outfile=dist/void.js --sourcemap=linked --target=es2022 src/index.ts && filesize",
