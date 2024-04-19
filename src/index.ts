@@ -9,6 +9,7 @@ import {Renderer} from './graphics/renderer.js'
 import {Input, type StandardButton} from './input/input.js'
 import {Sprite} from './sprite/sprite.js'
 import {JSONStorage} from './storage/json-storage.js'
+import {debug} from './types/debug.js'
 
 export type {Font} from 'mem-font'
 export type {SpriteJSON} from './sprite/sprite.js'
@@ -33,6 +34,7 @@ export class Void<
   }
 
   readonly atlas: Atlas<Tag> = <Atlas<Tag>>atlas
+  readonly debug: boolean = debug
   readonly cam: Cam = new Cam()
   readonly ctrl: Input<Button>
   readonly kv = new JSONStorage()

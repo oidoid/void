@@ -1,5 +1,6 @@
 import {maxAnimCels, type Anim, type AnimTagFormat} from '../atlas/anim.js'
 import type {Atlas} from '../atlas/atlas.js'
+import {debug} from '../types/debug.js'
 import {BitmapBuffer} from './bitmap.js'
 import {Cam} from './cam.js'
 import {fragGLSL} from './frag.glsl.js'
@@ -9,7 +10,7 @@ type GLUniforms = {readonly [name: string]: WebGLUniformLocation | null}
 type GL = WebGL2RenderingContext
 type GLProgram = WebGLProgram | null
 
-const uv: Readonly<Int8Array> = new Int8Array([1, 1, 0, 1, 1, 0, 0, 0])
+const uv: Readonly<Int8Array> = new Int8Array([1, 1, 0, 1, 1, 0, 0, 0]) // texcoords
 
 export class Renderer {
   #bmpBuffer: Readonly<WebGLBuffer> | null = null
@@ -43,7 +44,7 @@ export class Renderer {
   initGL(): void {
     const gl = this.#canvas.getContext('webgl2', {
       antialias: false,
-      desynchronized: true, // breaks render stats
+      desynchronized: !debug, // Breaks render stats.
       powerPreference: 'high-performance'
     })
     if (!gl) throw Error('WebGL v2 unsupported')
