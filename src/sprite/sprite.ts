@@ -73,15 +73,9 @@ export class Sprite<T extends AnimTagFormat> implements Bitmap, Box {
 
   set flipX(flip: boolean) {
     if (this.flipX === flip) return
-    if (flip) {
-      this._iffzz |= 0x20
-      const diff = this.hitbox.x - this.x
-      this.hitbox.x = this.x + this.hitbox.w - diff
-    } else {
-      this._iffzz &= 0xffffffdf
-      const diff = this.hitbox.x - this.hitbox.w
-      this.hitbox.x = this.x + diff
-    }
+    this._iffzz = flip ? this._iffzz | 0x20 : this._iffzz & 0xffffffdf
+    const {hitbox} = this.#anim
+    this.hitbox.x = this.x + (flip ? hitbox.w - hitbox.x : hitbox.x)
   }
 
   get flipY(): boolean {
@@ -90,15 +84,9 @@ export class Sprite<T extends AnimTagFormat> implements Bitmap, Box {
 
   set flipY(flip: boolean) {
     if (this.flipY === flip) return
-    if (flip) {
-      this._iffzz |= 0x10
-      const diff = this.hitbox.y - this.y
-      this.hitbox.y = this.y + this.hitbox.h - diff
-    } else {
-      this._iffzz &= 0xffffffef
-      const diff = this.hitbox.y - this.hitbox.h
-      this.hitbox.y = this.y + diff
-    }
+    const {hitbox} = this.#anim
+    this._iffzz = flip ? this._iffzz | 0x10 : this._iffzz & 0xffffffef
+    this.hitbox.y = this.y + (flip ? hitbox.h - hitbox.y : hitbox.y)
   }
 
   get h(): number {
@@ -120,6 +108,7 @@ export class Sprite<T extends AnimTagFormat> implements Bitmap, Box {
     )
   }
 
+  /** Test if bitmap intersects. */
   overlaps(box: Readonly<XY & Partial<WH>>): boolean {
     return (
       this.x < box.x + (box.w ?? 0) &&
@@ -163,9 +152,10 @@ export class Sprite<T extends AnimTagFormat> implements Bitmap, Box {
   }
 
   set x(x: number) {
-    const diff = x - this.x
+    if (x === this.x) return
     this._xy = (this._xy & 0x0000ffff) | (((8 * x) & 0xffff) << 16)
-    this.hitbox.x += diff
+    const {hitbox} = this.#anim
+    this.hitbox.x = this.x + (this.flipX ? hitbox.w - hitbox.x : hitbox.x)
   }
 
   set xy(xy: Readonly<XY>) {
@@ -178,9 +168,10 @@ export class Sprite<T extends AnimTagFormat> implements Bitmap, Box {
   }
 
   set y(y: number) {
-    const diff = y - this.y
+    if (y === this.y) return
     this._xy = (this._xy & 0xffff0000) | ((8 * y) & 0xffff)
-    this.hitbox.y += diff
+    const {hitbox} = this.#anim
+    this.hitbox.y = this.y + (this.flipY ? hitbox.h - hitbox.y : hitbox.y)
   }
 
   get z(): number {
