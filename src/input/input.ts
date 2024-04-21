@@ -10,29 +10,29 @@ export type StandardButton =
   'C' | 'B' | 'A' | // Primary, secondary, tertiary.
   'S' // Start.
 
-export class Input<Button extends string = StandardButton> {
-  handled = false
+export class Input<Button extends string> {
+  /** User hint as to whether to consider input or not. */
+  handled: boolean = false
   /** The maximum duration in milliseconds permitted between combo inputs. */
-  maxInterval = 300
+  maxInterval: number = 300
   /** The minimum duration in milliseconds for an input to be considered held. */
-  minHeld = 300
+  minHeld: number = 300
 
-  /** The time in milliseconds since the input changed. */
-  #duration = 0
-  /** Prior button state, possibly 0, but not necessarily a combo member. */
-  #prevBits = 0
+  /** Logical button to bit. */
+  readonly #bitByButton = <{[btn in Button]: number}>{}
   /**
    * A sequence of nonzero buttons ordered from oldest (first) to latest (last).
    * Combos are terminated only by expiration.
    */
   readonly #combo: number[] = []
-  /** Logical button to bit. */
-  readonly #bitByButton = <{[btn in Button]: number}>{}
-  readonly #gamepad = new GamepadPoller()
-  readonly #keyboard = new KeyboardPoller()
+  /** The time in milliseconds since the input changed. */
+  #duration: number = 0
+  readonly #gamepad: GamepadPoller = new GamepadPoller()
+  readonly #keyboard: KeyboardPoller = new KeyboardPoller()
   readonly #pointer: PointerPoller
-  #pollBits = 0
-  #pollTick = 0
+  /** Prior button samples independent of combo. Index 0 is current loop. */
+  readonly #prevBits: [number, number] = [0, 0]
+  #prevTick: number = 0
 
   constructor(cam: Readonly<Cam>, canvas: HTMLCanvasElement) {
     this.#pointer = new PointerPoller(cam, canvas)
@@ -63,13 +63,13 @@ export class Input<Button extends string = StandardButton> {
     )
   }
 
-  /** True if held on or off. */
+  /** True if any button is held on or off. */
   isHeld(): boolean {
     return this.#duration >= this.minHeld
   }
 
   isOffStart(...buttons: readonly Button[]): boolean {
-    return !this.isOn(...buttons) && this.isStart(...buttons)
+    return !this.isOn(...buttons) && this.isAnyStart(...buttons)
   }
 
   /**
@@ -83,13 +83,13 @@ export class Input<Button extends string = StandardButton> {
   }
 
   isOnStart(...buttons: readonly Button[]): boolean {
-    return this.isOn(...buttons) && this.isStart(...buttons)
+    return this.isOn(...buttons) && this.isAnyStart(...buttons)
   }
 
-  /** True if triggered on or off. */
-  isStart(...buttons: readonly Button[]): boolean {
+  /** True if any button triggered on or off. */
+  isAnyStart(...buttons: readonly Button[]): boolean {
     const bits = this.#buttonsToBits(buttons)
-    return (this.#bits & bits) !== (this.#prevBits & bits)
+    return (this.#bits & bits) !== (this.#prevBits[1] & bits)
   }
 
   mapAxis(less: Button, more: Button, ...axes: readonly number[]): void {
@@ -146,29 +146,28 @@ export class Input<Button extends string = StandardButton> {
 
   poll(tick: number): void {
     this.handled = false
-    this.#duration += this.#pollTick
-    this.#prevBits = this.#pollBits
+    this.#duration += this.#prevTick
+    this.#prevTick = tick
+    this.#prevBits[1] = this.#prevBits[0]
+    this.#prevBits[0] = this.#bits
 
     this.#gamepad.poll()
     if (
       this.#duration > this.maxInterval &&
-      (this.#bits === 0 || this.#bits !== this.#prevBits)
+      (this.#bits === 0 || this.#bits !== this.#prevBits[1])
     ) {
       // Expired.
       this.#duration = 0
       this.#combo.length = 0
-    } else if (this.#bits !== this.#prevBits) {
+    } else if (this.#bits !== this.#prevBits[1]) {
       // Some button state has changed and at least one button is still pressed.
       this.#duration = 0
       if (this.#bits !== 0) this.#combo.push(this.#bits)
-    } else if (this.#bits !== 0 && this.#bits === this.#prevBits) {
+    } else if (this.#bits !== 0 && this.#bits === this.#prevBits[1]) {
       // Held. Update combo with the latest buttons.
       this.#combo.pop()
       this.#combo.push(this.#bits)
     }
-
-    this.#pollTick = tick
-    this.#pollBits = this.#bits
   }
 
   register(op: 'add' | 'remove'): void {

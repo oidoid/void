@@ -13,7 +13,7 @@ export class FrameListener {
   #frame?: number | undefined
   #loop?: (() => void) | undefined
   #time?: number | undefined
-  readonly #input: Input
+  readonly #input: Input<string>
   readonly #renderer: Renderer
 
   constructor(
