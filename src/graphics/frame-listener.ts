@@ -37,7 +37,7 @@ export class FrameListener {
 
   get frame(): number {
     // Assume 60 FPS so games can scale to this number regardless of actual.
-    return Math.trunc(this.age / 16.666666666666668)
+    return Math.trunc(this.age / (1000 / 60))
   }
 
   register(op: 'add' | 'remove'): void {

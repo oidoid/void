@@ -57,6 +57,7 @@ export class Void<
     document.body.style.overflow = 'hidden'
 
     const canvas = document.createElement('canvas')
+    canvas.width = 0 // Guarantee Renderer.#resize().
     canvas.style.cursor = 'none'
     canvas.style.display = 'block' // No line height spacing.
     canvas.style.imageRendering = 'pixelated'

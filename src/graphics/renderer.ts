@@ -15,8 +15,9 @@ const uv: Readonly<Int8Array> = new Int8Array([1, 1, 0, 1, 1, 0, 0, 0]) // texco
 export class Renderer {
   #bmpBuffer: Readonly<WebGLBuffer> | null = null
   readonly #canvas: HTMLCanvasElement
+  #clearColor: number = 0x000000ff // rgba
   readonly #cels: Readonly<Uint16Array>
-  #gl!: GL
+  #gl?: GL
   #loseContext: Readonly<WEBGL_lose_context | null> = null
   readonly #spritesheet: HTMLImageElement
   #uniforms: Readonly<GLUniforms> = {}
@@ -33,7 +34,8 @@ export class Renderer {
   }
 
   clearColor(rgba: number): void {
-    this.#gl.clearColor(
+    this.#clearColor = rgba
+    this.#gl?.clearColor(
       ((rgba >>> 24) & 0xff) / 0xff,
       ((rgba >>> 16) & 0xff) / 0xff,
       ((rgba >>> 8) & 0xff) / 0xff,
@@ -49,6 +51,8 @@ export class Renderer {
     })
     if (!gl) throw Error('WebGL v2 unsupported')
     this.#gl = gl
+
+    this.clearColor(this.#clearColor)
 
     // Allow transparent textures to be layered.
     gl.enable(gl.BLEND)
@@ -141,7 +145,7 @@ export class Renderer {
   }
 
   hasContext(): boolean {
-    return !this.#gl.isContextLost()
+    return !this.#gl?.isContextLost()
   }
 
   render(
@@ -149,6 +153,7 @@ export class Renderer {
     frame: number,
     bmps: Readonly<BitmapBuffer>
   ): void {
+    if (!this.#gl) throw Error('no GL context')
     this.#resize(cam)
     this.#gl.clear(this.#gl.COLOR_BUFFER_BIT | this.#gl.DEPTH_BUFFER_BIT)
 
@@ -161,7 +166,7 @@ export class Renderer {
     this.#gl.bufferData(
       this.#gl.ARRAY_BUFFER,
       bmps.buffer,
-      this.#gl.STREAM_DRAW
+      this.#gl.DYNAMIC_DRAW
     )
     this.#gl.bindBuffer(this.#gl.ARRAY_BUFFER, null)
 
@@ -176,29 +181,14 @@ export class Renderer {
   }
 
   #resize(cam: Readonly<Cam>): void {
-    const canvas = this.#canvas
-    const nativeWH = {w: cam.w * cam.scale, h: cam.h * cam.scale}
+    if (this.#canvas.width === cam.w && this.#canvas.height === cam.h) return
+    this.#canvas.width = cam.w
+    this.#canvas.height = cam.h
+    this.#gl!.viewport(0, 0, cam.w, cam.h)
 
-    if (canvas.width !== nativeWH.w || canvas.height !== nativeWH.h) {
-      canvas.width = nativeWH.w
-      canvas.height = nativeWH.h
-      this.#gl.viewport(0, 0, nativeWH.w, nativeWH.h)
-    }
-
-    // These pixels may be greater than, less than, or equal to native.
-    const clientW = nativeWH.w / devicePixelRatio
-    const clientH = nativeWH.h / devicePixelRatio
-    const diffW = Number.parseFloat(canvas.style.width.slice(0, -2)) - clientW
-    const diffH = Number.parseFloat(canvas.style.height.slice(0, -2)) - clientH
-    if (
-      !Number.isFinite(diffW) ||
-      Math.abs(diffW) >= 0.5 ||
-      !Number.isFinite(diffH) ||
-      Math.abs(diffH) >= 0.5
-    ) {
-      canvas.style.width = `${clientW}px`
-      canvas.style.height = `${clientH}px`
-    }
+    // These pixels may be greater than, less than, or equal to cam.
+    this.#canvas.style.width = `${(cam.w * cam.scale) / devicePixelRatio}px`
+    this.#canvas.style.height = `${(cam.h * cam.scale) / devicePixelRatio}px`
   }
 }
 
