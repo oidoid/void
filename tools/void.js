@@ -1,7 +1,7 @@
 #!/usr/bin/env -S node --no-warnings
 // Bundles sources into a single HTML file for distribution and development.
 //
-// void --html=file --out=dir [--watch] sprite...
+// void [--watch] assets.json
 // --watch  Run development server. Serve on http://localhost:1234 and reload on
 //          code change.
 //
@@ -16,52 +16,56 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import pkg from '../package.json' assert {type: 'json'}
 import {parseAtlas} from './atlas-parser.js'
+/** @typedef {import('../src/atlas/config.js').Config} Config */
 
-const args = process.argv.filter(arg => !arg.startsWith('--'))
-const opts = Object.fromEntries(
-  process.argv.filter(arg => arg.startsWith('--')).map(arg => arg.split('='))
+const watch = process.argv.includes('--watch')
+const configFilename =
+  process.argv.slice(2).filter(arg => !arg.startsWith('--'))[0] ?? '/dev/null'
+/** @type {Config} */ const config = JSON.parse(
+  await fs.readFile(configFilename, 'utf8')
 )
 
-const watch = '--watch' in opts
-const inFilename = opts['--html']
-if (!inFilename) throw Error('missing input')
-const outDir = opts['--out']
-if (!outDir) throw Error('missing output')
-const doc = new JSDOM(await fs.readFile(inFilename, 'utf8')).window.document
+if (!config.atlas) throw Error('no atlas input')
+if (!config.html) throw Error('no HTML input')
+if (!config.out) throw Error('no output directory')
+if (!config.tags) throw Error('no tags')
+
+const configDir = path.dirname(configFilename)
+
+const htmlInFilename = path.resolve(configDir, config.html)
+const htmlInDir = path.dirname(htmlInFilename)
+
+const doc = new JSDOM(await fs.readFile(htmlInFilename, 'utf8')).window.document
 let srcFilename = /** @type {HTMLScriptElement|null} */ (
   doc.querySelector('script[type="module"][src]')
 )?.src
 if (!srcFilename) throw Error('missing script source')
-srcFilename = `${path.dirname(inFilename)}/${srcFilename}`
-const sprites = args.splice(2)
-if (!sprites.length) throw Error('missing sprites')
+srcFilename = path.resolve(htmlInDir, srcFilename)
 
-const atlasPNGFilename = `${await fs.mkdtemp('/tmp/', {encoding: 'utf8'})}/atlas.png`
-const [err, stdout, stderr] = await new Promise(resolve =>
-  execFile(
-    'aseprite',
-    [
-      '--batch',
-      '--color-mode=indexed',
-      '--filename-format={title}--{tag}--{frame}',
-      // '--ignore-empty', Breaks --tagname-format.
-      '--list-slices',
-      '--list-tags',
-      '--merge-duplicates',
-      `--sheet=${atlasPNGFilename}`,
-      '--sheet-pack',
-      '--tagname-format={title}--{tag}',
-      ...sprites
-    ],
-    (err, stdout, stderr) => resolve([err, stdout, stderr])
-  )
+const outDir = path.resolve(configDir, config.out)
+
+const atlasDir = path.resolve(configDir, config.atlas)
+const atlasFilenames = (await fs.readdir(atlasDir))
+  .filter(name => name.endsWith('.aseprite'))
+  .map(name => path.resolve(atlasDir, name))
+const atlasImageFilename = `${await fs.mkdtemp('/tmp/', {encoding: 'utf8'})}/atlas.png`
+const atlasAse = await execAse(
+  '--batch',
+  '--color-mode=indexed',
+  '--filename-format={title}--{tag}--{frame}',
+  // '--ignore-empty', Breaks --tagname-format.
+  '--list-slices',
+  '--list-tags',
+  '--merge-duplicates',
+  `--sheet=${atlasImageFilename}`,
+  '--sheet-pack',
+  '--tagname-format={title}--{tag}',
+  ...atlasFilenames
 )
-process.stderr.write(stderr)
-if (err) throw err
 
-const atlasJSON = JSON.stringify(parseAtlas(JSON.parse(stdout)))
+const atlasJSON = JSON.stringify(parseAtlas(JSON.parse(atlasAse), config.tags))
 const atlasURI =
-  await `data:image/png;base64,${(await fs.readFile(atlasPNGFilename)).toString('base64')}`
+  await `data:image/png;base64,${(await fs.readFile(atlasImageFilename)).toString('base64')}`
 
 /** @type {Parameters<esbuild.PluginBuild['onEnd']>[0]} */
 async function pluginOnEnd(result) {
@@ -69,8 +73,9 @@ async function pluginOnEnd(result) {
   const manifestEl = /** @type {HTMLLinkElement|null} */ (
     copy.querySelector('link[href][rel="manifest"]')
   )
+  let manifestFilename
   if (manifestEl) {
-    const manifestFilename = `${path.dirname(inFilename)}/${manifestEl.href}`
+    manifestFilename = path.resolve(htmlInDir, manifestEl.href)
     const manifest = JSON.parse(await fs.readFile(manifestFilename, 'utf8'))
     for (const icon of manifest.icons) {
       if (!icon.src) throw Error('missing manifest icon src')
@@ -90,7 +95,9 @@ async function pluginOnEnd(result) {
     copy.querySelector('link[href][rel="icon"][type]')
   )
   if (iconEl) {
-    const file = await fs.readFile(`${path.dirname(inFilename)}/${iconEl.href}`)
+    const file = await fs.readFile(
+      path.resolve(path.dirname(manifestFilename ?? ''), iconEl.href)
+    )
     iconEl.href = `data:${iconEl.type};base64,${file.toString('base64')}`
   }
 
@@ -110,12 +117,12 @@ async function pluginOnEnd(result) {
   if (!scriptEl) throw Error('missing script')
   scriptEl.removeAttribute('src')
   scriptEl.textContent = `
-  const atlasURI = '${atlasURI}'
   const atlas = ${atlasJSON}
+  const atlasURI = '${atlasURI}'
   ${js}
 `
   const outFilename = `${outDir}/${
-    watch ? 'index' : `${path.basename(inFilename, '.html')}-v${pkg.version}`
+    watch ? 'index' : `${path.basename(config.html, '.html')}-v${pkg.version}`
   }.html`
   await fs.mkdir(path.dirname(outFilename), {recursive: true})
   await fs.writeFile(
@@ -141,3 +148,18 @@ if (watch) {
   const ctx = await esbuild.context(buildOpts)
   await Promise.race([ctx.watch(), ctx.serve({port: 1234, servedir: 'dist'})])
 } else await esbuild.build(buildOpts)
+
+/**
+ * @arg {readonly string[]} args
+ * @return {Promise<string>}
+ */
+async function execAse(...args) {
+  const [err, stdout, stderr] = await new Promise(resolve =>
+    execFile('aseprite', args, (err, stdout, stderr) =>
+      resolve([err, stdout, stderr])
+    )
+  )
+  process.stderr.write(stderr)
+  if (err) throw err
+  return stdout
+}

@@ -24,13 +24,12 @@
   "files": [
     "dist",
     "!dist/**/tsconfig.tsbuildinfo",
-    "src/atlas/anim.js",
     "tools/atlas-parser.js"
   ],
   "filesize": {
     "dist/void.js": {
-      "none": "16.8 KB",
-      "gzip": "6.4 KB"
+      "none": "16.7 KB",
+      "gzip": "6.3 KB"
     }
   },
   "homepage": "https://github.com/oidoid/void",

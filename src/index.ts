@@ -1,5 +1,5 @@
 // ───oidoid>°──
-import type {Anim, AnimTagFormat} from './atlas/anim.js'
+import type {Anim, TagFormat} from './atlas/anim.js'
 import type {Atlas} from './atlas/atlas.js'
 import {Synth} from './audio/synth.js'
 import {BitmapBuffer, type Bitmap} from './graphics/bitmap.js'
@@ -12,25 +12,22 @@ import {JSONStorage} from './storage/json-storage.js'
 import {debug} from './types/debug.js'
 
 export type {Font} from 'mem-font'
+export type {Config} from './atlas/config.js'
 export type {SpriteJSON} from './sprite/sprite.js'
 export {fontCharToTag} from './text/font.js'
 export {layoutText, type TextLayout} from './text/text-layout.js'
 export type {Box, WH, XY} from './types/2d.js'
 export {Sprite}
-export type {Anim, AnimTagFormat, Atlas}
+export type {Anim, Atlas, StandardButton, TagFormat}
 
-declare const atlas: Atlas
+declare const atlas: Atlas<TagFormat>
 declare const atlasURI: string
 
-export class Void<
-  Tag extends AnimTagFormat,
-  Button extends string = StandardButton
-> {
-  static async new<
-    Tag extends AnimTagFormat = AnimTagFormat,
-    Button extends string = StandardButton
-  >(): Promise<Void<Tag, Button>> {
-    return new Void(await loadImage(atlasURI))
+export class Void<Tag extends TagFormat, Button extends string> {
+  static async new<Tag extends TagFormat, Button extends string>(): Promise<
+    Void<Tag, Button>
+  > {
+    return new Void(<Atlas<Tag>>atlas, await loadImage(atlasURI))
   }
 
   readonly atlas: Atlas<Tag> = <Atlas<Tag>>atlas
@@ -44,7 +41,7 @@ export class Void<
   readonly #framer: FrameListener
   readonly #renderer: Renderer
 
-  constructor(spritesheet: HTMLImageElement) {
+  constructor(atlas: Atlas<Tag>, atlasImage: HTMLImageElement) {
     const meta = document.createElement('meta')
     meta.name = 'viewport'
     // Don't wait for double-tap scaling on mobile.
@@ -66,7 +63,7 @@ export class Void<
     document.body.append(canvas)
 
     this.ctrl = new Input(this.cam, canvas)
-    this.#renderer = new Renderer(atlas, canvas, spritesheet)
+    this.#renderer = new Renderer(atlas, canvas, atlasImage)
     this.#framer = new FrameListener(canvas, this.ctrl, this.#renderer)
     this.#framer.register('add')
     this.background = 0x000000ff

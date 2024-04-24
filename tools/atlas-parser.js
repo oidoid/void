@@ -1,39 +1,41 @@
 /** @typedef {import('./aseprite.js').Aseprite} Aseprite */
-/** @typedef {import('./aseprite.js').AsepriteAnimTagFrame} AsepriteAnimTagFrame */
+/** @typedef {import('./aseprite.js').AsepriteFrameTag} AsepriteFrameTag */
 /** @typedef {import('./aseprite.js').AsepriteFrame} AsepriteFrame */
 /** @typedef {import('./aseprite.js').AsepriteFrameMap} AsepriteFrameMap */
 /** @typedef {import('./aseprite.js').AsepriteSlice} AsepriteSlice */
 /** @typedef {import('./aseprite.js').AsepriteTagSpan} AsepriteTagSpan */
-/** @typedef {import('../src/atlas/anim.js').Anim<AnimTag>} Anim */
-/** @typedef {import('../src/atlas/anim.js').AnimTagFormat} AnimTag */
-/** @typedef {import('../src/atlas/atlas.js').Atlas} Atlas */
+/** @typedef {import('../src/atlas/anim.js').Anim<TagFormat>} Anim */
+/** @typedef {import('../src/atlas/anim.js').TagFormat} TagFormat */
 /** @typedef {import('../src/types/2d.js').Box} Box */
-/** @typedef {import('../src/types/2d.js').WH} WH */
 /** @typedef {import('../src/types/2d.js').XY} XY */
-import {maxAnimCels} from '../src/atlas/anim.js'
+
+const maxAnimCels = 16
 
 /**
+ * @template T
  * @arg {Aseprite} ase
- * @return {Atlas}
+ * @arg {{readonly [tag: string]: null}} tags
+ * @return {import('../src/atlas/atlas.js').Atlas<T>}
  */
-export function parseAtlas(ase) {
-  const atlas = new Map()
+export function parseAtlas(ase, tags) {
+  const anims = new Map()
+  const cels = []
   for (const span of ase.meta.frameTags) {
     const tag = parseTag(span.name)
-    if (atlas.has(tag)) throw Error(`duplicate tag "${tag}" in atlas`)
-    const id = atlas.size * maxAnimCels
-    atlas.set(tag, parseAnim(id, span, ase.frames, ase.meta.slices))
+    if (!(tag in tags)) throw Error(`unknown tag "${tag}"`)
+    if (anims.has(tag)) throw Error(`duplicate tag "${tag}"`)
+    const id = anims.size * maxAnimCels
+    const anim = parseAnim(id, span, ase.frames, ase.meta.slices)
+    anims.set(tag, anim)
+    for (const cel of [...parseAnimFrames(span, ase.frames)].map(parseCel))
+      cels.push(cel.x, cel.y, anim.w, anim.h)
   }
-
-  const extraSlices = ase.meta.slices.filter(
-    slice => !atlas.has(parseTag(slice.name))
-  )
-  if (extraSlices.length)
-    throw Error(
-      `unknown hitbox tags in atlas: ${extraSlices.map(slice => slice.name).join(', ')}`
-    )
-
-  return Object.fromEntries(atlas)
+  for (const tag in tags)
+    if (!anims.has(tag)) throw Error(`no animation with tag "${tag}"`)
+  for (const slice of ase.meta.slices)
+    if (!anims.has(parseTag(slice.name)))
+      throw Error(`hitbox "${slice.name}" has no animation`)
+  return {anim: Object.fromEntries(anims), cels}
 }
 
 /**
@@ -45,15 +47,14 @@ export function parseAtlas(ase) {
  * @internal
  */
 export function parseAnim(id, span, map, slices) {
-  const frames = [...parseAnimFrames(span, map)]
-  if (!frames[0]) throw Error('animation missing frames')
+  const frame = parseAnimFrames(span, map).next().value
+  if (!frame) throw Error('animation missing frames')
   return {
-    id,
-    w: frames[0].sourceSize.w,
-    h: frames[0].sourceSize.h,
-    cels: frames.map(parseCel),
+    h: frame.sourceSize.h,
     hitbox: parseHitbox(span, slices),
-    tag: parseTag(span.name)
+    id,
+    tag: parseTag(span.name),
+    w: frame.sourceSize.w
   }
 }
 
@@ -64,11 +65,18 @@ export function parseAnim(id, span, map, slices) {
  */
 function* parseAnimFrames(span, map) {
   for (let i = span.from; i <= span.to && i - span.from < maxAnimCels; i++) {
-    const animTagFrame = /** @type {AsepriteAnimTagFrame} */ (
-      `${span.name}--${i}`
+    const frameTag = /** @type {AsepriteFrameTag} */ (`${span.name}--${i}`)
+    const frame = map[frameTag]
+    if (!frame) throw Error(`missing frame "${frameTag}"`)
+    yield frame
+  }
+  // Pad remaining.
+  for (let i = span.to + 1; i < span.from + maxAnimCels; i++) {
+    const frameTag = /** @type {AsepriteFrameTag} */ (
+      `${span.name}--${span.from + (i % (span.to + 1 - span.from))}`
     )
-    const frame = map[animTagFrame]
-    if (!frame) throw Error(`missing frame "${animTagFrame}"`)
+    const frame = map[frameTag]
+    if (!frame) throw Error(`missing frame "${frameTag}"`)
     yield frame
   }
 }
@@ -93,9 +101,8 @@ export function parseCel(frame) {
  */
 export function parseHitbox(span, slices) {
   const tagSlices = slices.filter(slice => slice.name === span.name)
-  if (tagSlices.length > 1) {
+  if (tagSlices.length > 1)
     throw Error(`tag "${span.name}" has multiple hitboxes`)
-  }
   const box = tagSlices[0]?.keys[0]?.bounds ?? {x: 0, y: 0, w: 0, h: 0}
   // https://github.com/aseprite/aseprite/issues/3524
   for (const key of tagSlices[0]?.keys ?? []) {
@@ -112,9 +119,10 @@ export function parseHitbox(span, slices) {
 
 /**
  * @arg {string} tag
- * @return {AnimTag}
+ * @return {TagFormat}
  */
 function parseTag(tag) {
-  if (!tag.includes('--')) throw Error(`tag "${tag}" is malformed`)
-  return /** @type {AnimTag} */ (tag)
+  if (!tag.includes('--'))
+    throw Error(`tag "${tag}" not in <filestem>--<animation> format`)
+  return /** @type {TagFormat} */ (tag)
 }

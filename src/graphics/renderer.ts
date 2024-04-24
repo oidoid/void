@@ -1,4 +1,4 @@
-import {maxAnimCels, type Anim, type AnimTagFormat} from '../atlas/anim.js'
+import type {TagFormat} from '../atlas/anim.js'
 import type {Atlas} from '../atlas/atlas.js'
 import {debug} from '../types/debug.js'
 import {BitmapBuffer} from './bitmap.js'
@@ -19,18 +19,18 @@ export class Renderer {
   readonly #cels: Readonly<Uint16Array>
   #gl?: GL
   #loseContext: Readonly<WEBGL_lose_context | null> = null
-  readonly #spritesheet: HTMLImageElement
+  readonly #atlasImage: HTMLImageElement
   #uniforms: Readonly<GLUniforms> = {}
   #vertArray: WebGLVertexArrayObject | null = null
 
   constructor(
-    atlas: Atlas,
+    atlas: Atlas<TagFormat>,
     canvas: HTMLCanvasElement,
-    spritesheet: HTMLImageElement
+    atlasImage: HTMLImageElement
   ) {
     this.#canvas = canvas
-    this.#spritesheet = spritesheet
-    this.#cels = new Uint16Array(newCels(atlas))
+    this.#cels = new Uint16Array(atlas.cels)
+    this.#atlasImage = atlasImage
   }
 
   clearColor(rgba: number): void {
@@ -71,9 +71,9 @@ export class Renderer {
     this.#uniforms = getUniformLocations(gl, pgm)
 
     gl.uniform2ui(
-      this.#uniforms.uSpritesheetSize!,
-      this.#spritesheet.naturalWidth,
-      this.#spritesheet.naturalHeight
+      this.#uniforms.uAtlasWH!,
+      this.#atlasImage.naturalWidth,
+      this.#atlasImage.naturalHeight
     )
 
     this.#vertArray = gl.createVertexArray()
@@ -122,10 +122,10 @@ export class Renderer {
       this.#cels
     )
 
-    gl.uniform1i(this.#uniforms.uSpritesheet!, 1)
+    gl.uniform1i(this.#uniforms.uAtlas!, 1)
     gl.activeTexture(gl.TEXTURE1)
-    const spritesheetTex = gl.createTexture()
-    gl.bindTexture(gl.TEXTURE_2D, spritesheetTex)
+    const atlasTex = gl.createTexture()
+    gl.bindTexture(gl.TEXTURE_2D, atlasTex)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
     gl.texImage2D(
@@ -134,7 +134,7 @@ export class Renderer {
       gl.RGBA,
       gl.RGBA,
       gl.UNSIGNED_BYTE,
-      this.#spritesheet
+      this.#atlasImage
     )
 
     this.#loseContext = gl.getExtension('WEBGL_lose_context')
@@ -236,18 +236,4 @@ function loadProgram(gl: GL, vertGLSL: string, fragGLSL: string): GLProgram {
   gl.deleteShader(vert)
 
   return pgm
-}
-
-/** XYWH ordered by ID and padded to 16-cel blocks. */
-function newCels(atlas: Atlas): readonly number[] {
-  const cels = []
-  for (const anim of Object.values<Anim<AnimTagFormat>>(atlas)) {
-    // Animations are inserted in ID order.
-    for (const cel of anim.cels) cels.push(cel.x, cel.y, anim.w, anim.h)
-    for (let i = anim.cels.length; i < maxAnimCels; i++) {
-      const cel = anim.cels[i % anim.cels.length]!
-      cels.push(cel.x, cel.y, anim.w, anim.h)
-    }
-  }
-  return cels
 }

@@ -1,7 +1,7 @@
 import type {Font} from 'mem-font'
-import type {AnimTagFormat} from '../atlas/anim.js'
+import type {TagFormat} from '../atlas/anim.js'
 
-export function fontCharToTag(self: Font, char: string): AnimTagFormat {
+export function fontCharToTag(self: Font, char: string): TagFormat {
   let pt = char.codePointAt(0)
   if (pt == null || pt > 0xff) pt = 63 // ?
   return `${self.id}--${pt.toString(16).padStart(2, '0')}`

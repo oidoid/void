@@ -1,4 +1,4 @@
-import type {Anim, AnimTagFormat} from '../atlas/anim.js'
+import type {Anim, TagFormat} from '../atlas/anim.js'
 import type {Atlas} from '../atlas/atlas.js'
 import type {Bitmap} from '../graphics/bitmap.js'
 import type {Box, WH, XY} from '../types/2d.js'
@@ -15,12 +15,13 @@ export type SpriteJSON = {
   zend?: boolean
 }
 
-export class Sprite<T extends AnimTagFormat> implements Bitmap, Box {
-  static parse<T extends AnimTagFormat = AnimTagFormat>(
+export class Sprite<T extends TagFormat> implements Bitmap, Box {
+  static parse<T extends TagFormat>(
     atlas: Atlas<T>,
     json: Readonly<SpriteJSON>
   ): Sprite<T> {
-    if (!(json.tag in atlas)) throw Error(`atlas missing tag "${json.tag}"`)
+    if (!(json.tag in atlas.anim))
+      throw Error(`atlas missing tag "${json.tag}"`)
     const sprite = new Sprite(atlas, <T>json.tag)
     sprite.cel = json.cel ?? 0
     sprite.flipX = json.flip === 'X' || json.flip === 'XY'
@@ -124,7 +125,7 @@ export class Sprite<T extends AnimTagFormat> implements Bitmap, Box {
 
   set tag(tag: T) {
     if (tag === this.#anim.tag) return
-    this.#anim = this.#atlas[tag]
+    this.#anim = this.#atlas.anim[tag]
     const {hitbox} = this.#anim
     this.hitbox.x = this.x + (this.flipX ? hitbox.w - hitbox.x : hitbox.x)
     this.hitbox.y = this.y + (this.flipY ? hitbox.h - hitbox.y : hitbox.y)

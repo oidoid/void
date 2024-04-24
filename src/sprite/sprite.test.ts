@@ -1,17 +1,16 @@
 import {expect, test} from 'vitest'
-import type {Anim, AnimTagFormat} from '../atlas/anim.js'
+import type {Anim, TagFormat} from '../atlas/anim.js'
 import {Sprite} from './sprite.js'
 
 test('bits', () => {
-  const anim: Anim<AnimTagFormat> = {
+  const anim: Anim<TagFormat> = {
     id: 0x7ff0,
     w: 1,
     h: 2,
-    cels: [{x: 1, y: 2}],
     hitbox: {x: 0, y: 0, w: 2, h: 2},
     tag: 'file--Tag'
   }
-  const sprite = new Sprite({'file--Tag': anim}, 'file--Tag')
+  const sprite = new Sprite({anim: {'file--Tag': anim}, cels: []}, 'file--Tag')
   expect(sprite._iffzz).toBe(0b111111111110000_0_0_0_000)
 
   expect(sprite.flipX).toBe(false)
@@ -70,15 +69,14 @@ test('bits', () => {
 })
 
 test('hits', () => {
-  const anim: Anim<AnimTagFormat> = {
+  const anim: Anim<TagFormat> = {
     id: 0x7ff0,
     w: 3,
     h: 4,
-    cels: [{x: 1, y: 2}],
     hitbox: {x: 0, y: 0, w: 2, h: 2},
     tag: 'file--Tag'
   }
-  const sprite = new Sprite({'file--Tag': anim}, 'file--Tag')
+  const sprite = new Sprite({anim: {'file--Tag': anim}, cels: []}, 'file--Tag')
   sprite.x = 10
   sprite.y = 100
 
@@ -88,7 +86,7 @@ test('hits', () => {
   expect(sprite.hits({x: 11, y: 101, w: 1, h: 1})).toBe(true)
   expect(sprite.hits({x: 15, y: 101, w: 1, h: 1})).toBe(false)
 
-  const other = new Sprite({'file--Tag': anim}, 'file--Tag')
+  const other = new Sprite({anim: {'file--Tag': anim}, cels: []}, 'file--Tag')
   other.x = 11
   other.y = 101
   expect(sprite.hits(other)).toBe(true)

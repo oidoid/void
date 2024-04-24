@@ -5,8 +5,14 @@ import {parseAnim, parseAtlas, parseCel, parseHitbox} from './atlas-parser.js'
 describe('parseAtlas()', () => {
   test('parses empty', () => {
     expect(
-      parseAtlas({meta: {frameTags: [], slices: []}, frames: {}})
-    ).toStrictEqual({})
+      parseAtlas(
+        {
+          meta: {frameTags: [], slices: []},
+          frames: {}
+        },
+        {}
+      )
+    ).toStrictEqual({anim: {}, cels: []})
   })
 
   test('parses nonempty', () => {
@@ -64,39 +70,53 @@ describe('parseAtlas()', () => {
         keys: [{frame: 0, bounds: {x: 7, y: 9, w: 3, h: 6}}]
       }
     ]
-    expect(parseAtlas({meta: {frameTags, slices}, frames})).toStrictEqual({
-      'scenery--Cloud': {
-        id: 0x00,
-        tag: 'scenery--Cloud',
-        w: 16,
-        h: 16,
-        cels: [{x: 221, y: 19}],
-        hitbox: {x: 8, y: 12, w: 2, h: 3}
+    expect(
+      parseAtlas(
+        {meta: {frameTags, slices}, frames},
+        {
+          'palette--red': null,
+          'scenery--Cloud': null,
+          'scenery--Conifer': null,
+          'scenery--ConiferShadow': null
+        }
+      )
+    ).toStrictEqual({
+      anim: {
+        'scenery--Cloud': {
+          id: 0x00,
+          tag: 'scenery--Cloud',
+          w: 16,
+          h: 16,
+          hitbox: {x: 8, y: 12, w: 2, h: 3}
+        },
+        'palette--red': {
+          id: 0x10,
+          tag: 'palette--red',
+          w: 16,
+          h: 16,
+          hitbox: {x: 7, y: 11, w: 3, h: 4}
+        },
+        'scenery--Conifer': {
+          id: 0x20,
+          tag: 'scenery--Conifer',
+          w: 16,
+          h: 16,
+          hitbox: {x: 7, y: 10, w: 3, h: 5}
+        },
+        'scenery--ConiferShadow': {
+          id: 0x30,
+          tag: 'scenery--ConiferShadow',
+          w: 16,
+          h: 16,
+          hitbox: {x: 7, y: 9, w: 3, h: 6}
+        }
       },
-      'palette--red': {
-        id: 0x10,
-        tag: 'palette--red',
-        w: 16,
-        h: 16,
-        cels: [{x: 91, y: 55}],
-        hitbox: {x: 7, y: 11, w: 3, h: 4}
-      },
-      'scenery--Conifer': {
-        id: 0x20,
-        tag: 'scenery--Conifer',
-        w: 16,
-        h: 16,
-        cels: [{x: 73, y: 55}],
-        hitbox: {x: 7, y: 10, w: 3, h: 5}
-      },
-      'scenery--ConiferShadow': {
-        id: 0x30,
-        tag: 'scenery--ConiferShadow',
-        w: 16,
-        h: 16,
-        cels: [{x: 55, y: 55}],
-        hitbox: {x: 7, y: 9, w: 3, h: 6}
-      }
+      cels: [
+        ...Array(16).fill([221, 19, 16, 16]),
+        ...Array(16).fill([91, 55, 16, 16]),
+        ...Array(16).fill([73, 55, 16, 16]),
+        ...Array(16).fill([55, 55, 16, 16])
+      ].flat()
     })
   })
 
@@ -120,7 +140,12 @@ describe('parseAtlas()', () => {
         duration: 65535
       }
     }
-    expect(() => parseAtlas({meta: {frameTags, slices: []}, frames})).toThrow()
+    expect(() =>
+      parseAtlas(
+        {meta: {frameTags, slices: []}, frames},
+        {'palette--red': null, 'scenery--Cloud': null}
+      )
+    ).toThrow()
   })
 })
 
@@ -172,7 +197,6 @@ describe('parseAnim()', async () => {
       id: 16,
       w: 16,
       h: 16,
-      cels: [{x: 185, y: 37}],
       hitbox: {x: 4, y: 11, w: 9, h: 4},
       tag: 'cloud--s'
     })
