@@ -181,14 +181,31 @@ export class Renderer {
   }
 
   #resize(cam: Readonly<Cam>): void {
-    if (this.#canvas.width === cam.w && this.#canvas.height === cam.h) return
-    this.#canvas.width = cam.w
-    this.#canvas.height = cam.h
-    this.#gl!.viewport(0, 0, cam.w, cam.h)
+    const canvas = this.#canvas
 
-    // These pixels may be greater than, less than, or equal to cam.
-    this.#canvas.style.width = `${(cam.w * cam.scale) / devicePixelRatio}px`
-    this.#canvas.style.height = `${(cam.h * cam.scale) / devicePixelRatio}px`
+    if (canvas.width !== cam.w || canvas.height !== cam.h) {
+      console.log('set canvas')
+      canvas.width = cam.w
+      canvas.height = cam.h
+      this.#gl!.viewport(0, 0, cam.w, cam.h)
+    }
+
+    // these pixels may be greater than, less than, or equal to cam. ratio
+    // may change independent of canvas size.
+    const clientW = (cam.w * cam.scale) / devicePixelRatio
+    const clientH = (cam.h * cam.scale) / devicePixelRatio
+    const diffW = Number.parseFloat(canvas.style.width.slice(0, -2)) - clientW
+    const diffH = Number.parseFloat(canvas.style.height.slice(0, -2)) - clientH
+    if (
+      !Number.isFinite(diffW) ||
+      Math.abs(diffW) >= 0.5 ||
+      !Number.isFinite(diffH) ||
+      Math.abs(diffH) >= 0.5
+    ) {
+      console.log('set style')
+      canvas.style.width = `${clientW}px`
+      canvas.style.height = `${clientH}px`
+    }
   }
 }
 
