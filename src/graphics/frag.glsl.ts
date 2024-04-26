@@ -1,6 +1,6 @@
 import {debug} from '../types/debug.js'
 
-export const fragGLSL = `#version 300 es
+export const fragGLSL: string = `#version 300 es
 #pragma debug(${debug ? 'on' : 'off'})
 #pragma optimize(${debug ? 'off' : 'on'})
 uniform mediump sampler2D uAtlas;

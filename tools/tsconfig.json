@@ -1,11 +1,10 @@
 {
   "extends": "./base-tsconfig.json",
   "compilerOptions": {
-    "allowJs": true,
     "checkJs": true,
+    "isolatedDeclarations": false, // incompatible with allowJS.
 
-    // tsc is only used for type-checking.
-    "noEmit": true,
+    "noEmit": true, // tsc is only used for type-checking.
 
     "lib": ["ES2023"],
 

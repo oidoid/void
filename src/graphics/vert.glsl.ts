@@ -1,6 +1,6 @@
 import {debug} from '../types/debug.js'
 
-export const vertGLSL = `#version 300 es
+export const vertGLSL: string = `#version 300 es
 #pragma debug(${debug ? 'on' : 'off'})
 #pragma optimize(${debug ? 'off' : 'on'})
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#essl300_minimum_requirements_webgl_2

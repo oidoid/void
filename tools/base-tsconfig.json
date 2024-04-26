@@ -18,8 +18,9 @@
     "resolveJsonModule": true,
     "strict": true,
 
-    // Projects add types needed.
-    "types": [],
+    "types": [], // projects add types needed.
+
+    "isolatedDeclarations": true, // require explicit types.
 
     // Improve compatibility with compilers that aren't type system aware.
     "isolatedModules": true,

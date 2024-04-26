@@ -1,13 +1,13 @@
-/** @typedef {import('./aseprite.js').Aseprite} Aseprite */
-/** @typedef {import('./aseprite.js').AsepriteFrameTag} AsepriteFrameTag */
-/** @typedef {import('./aseprite.js').AsepriteFrame} AsepriteFrame */
-/** @typedef {import('./aseprite.js').AsepriteFrameMap} AsepriteFrameMap */
-/** @typedef {import('./aseprite.js').AsepriteSlice} AsepriteSlice */
-/** @typedef {import('./aseprite.js').AsepriteTagSpan} AsepriteTagSpan */
-/** @typedef {import('../src/atlas/anim.js').Anim<TagFormat>} Anim */
-/** @typedef {import('../src/atlas/anim.js').TagFormat} TagFormat */
-/** @typedef {import('../src/types/2d.js').Box} Box */
-/** @typedef {import('../src/types/2d.js').XY} XY */
+/** @import {Aseprite} from './aseprite.js' */
+/** @import {AsepriteFrameTag} from './aseprite.js' */
+/** @import {AsepriteFrame} from './aseprite.js' */
+/** @import {AsepriteFrameMap} from './aseprite.js' */
+/** @import {AsepriteSlice} from './aseprite.js' */
+/** @import {AsepriteTagSpan} from './aseprite.js' */
+/** @import {Anim} from '../src/atlas/anim.js' */
+/** @import {TagFormat} from '../src/atlas/anim.js' */
+/** @import {Box} from '../src/types/2d.js' */
+/** @import {XY} from '../src/types/2d.js' */
 
 const maxAnimCels = 16
 
@@ -43,7 +43,7 @@ export function parseAtlas(ase, tags) {
  * @arg {AsepriteTagSpan} span
  * @arg {AsepriteFrameMap} map
  * @arg {readonly AsepriteSlice[]} slices
- * @return {Anim}
+ * @return {Anim<TagFormat>}
  * @internal
  */
 export function parseAnim(id, span, map, slices) {

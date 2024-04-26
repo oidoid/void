@@ -16,7 +16,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import pkg from '../package.json' assert {type: 'json'}
 import {parseAtlas} from './atlas-parser.js'
-/** @typedef {import('../src/atlas/config.js').Config} Config */
+/** @import {Config} from '../src/atlas/config.js' */
 
 const watch = process.argv.includes('--watch')
 const configFilename =

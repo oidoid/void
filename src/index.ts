@@ -34,8 +34,8 @@ export class Void<Tag extends TagFormat, Button extends string> {
   readonly debug: boolean = debug
   readonly cam: Cam = new Cam()
   readonly ctrl: Input<Button>
-  readonly kv = new JSONStorage()
-  readonly synth = new Synth()
+  readonly kv: JSONStorage = new JSONStorage()
+  readonly synth: Synth = new Synth()
 
   readonly #bitmaps: BitmapBuffer = new BitmapBuffer(1_000_000)
   readonly #framer: FrameListener
