@@ -5,9 +5,9 @@ import {Renderer} from './renderer.js'
 
 export class FrameListener {
   /** The running lifetime in milliseconds. */
-  age = 0
+  age: number = 0
   /** The exact duration in milliseconds to apply on a given update step. */
-  tick = 0
+  tick: number = 0
 
   readonly #canvas: HTMLCanvasElement
   #frame?: number | undefined
@@ -52,20 +52,16 @@ export class FrameListener {
 
   render(cam: Readonly<Cam>, buffer: BitmapBuffer, loop?: () => void): void {
     this.#loop = loop
-    if (!this.#isVisible() || !this.#renderer.hasContext()) return
+    if (document.hidden || !this.#renderer.hasContext()) return
     if (this.#loop) this.#frame ??= requestAnimationFrame(this.#onFrame)
     this.#renderer.render(cam, this.frame, buffer)
-  }
-
-  #isVisible(): boolean {
-    return document.visibilityState === 'visible'
   }
 
   #onEvent = (event: Event): void => {
     event.preventDefault()
     if (event.type === 'webglcontextrestored') this.#renderer.initGL()
 
-    if (this.#renderer.hasContext() && this.#isVisible()) {
+    if (this.#renderer.hasContext() && !document.hidden) {
       if (this.#loop) this.#frame ??= requestAnimationFrame(this.#onFrame)
     } else {
       if (this.#frame != null) cancelAnimationFrame(this.#frame)
