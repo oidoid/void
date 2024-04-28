@@ -20,17 +20,19 @@ export type {Box, WH, XY} from './types/2d.js'
 export {Sprite}
 export type {Anim, Atlas, StandardButton, TagFormat}
 
-declare const atlas: Atlas<TagFormat>
-declare const atlasURI: string
+declare const assets: {
+  readonly atlas: Atlas<TagFormat>
+  readonly atlasURI: string
+}
 
 export class Void<Tag extends TagFormat, Button extends string> {
   static async new<Tag extends TagFormat, Button extends string>(): Promise<
     Void<Tag, Button>
   > {
-    return new Void(<Atlas<Tag>>atlas, await loadImage(atlasURI))
+    return new Void(await loadImage(assets.atlasURI))
   }
 
-  readonly atlas: Atlas<Tag> = <Atlas<Tag>>atlas
+  readonly atlas: Atlas<Tag> = <Atlas<Tag>>assets.atlas
   readonly debug: boolean = debug
   readonly cam: Cam = new Cam()
   readonly ctrl: Input<Button>
@@ -41,7 +43,7 @@ export class Void<Tag extends TagFormat, Button extends string> {
   readonly #framer: FrameListener
   readonly #renderer: Renderer
 
-  constructor(atlas: Atlas<Tag>, atlasImage: HTMLImageElement) {
+  constructor(atlasImage: HTMLImageElement) {
     const meta = document.createElement('meta')
     meta.name = 'viewport'
     // Don't wait for double-tap scaling on mobile.
@@ -63,7 +65,7 @@ export class Void<Tag extends TagFormat, Button extends string> {
     document.body.append(canvas)
 
     this.ctrl = new Input(this.cam, canvas)
-    this.#renderer = new Renderer(atlas, canvas, atlasImage)
+    this.#renderer = new Renderer(this.atlas, atlasImage, canvas)
     this.#framer = new FrameListener(canvas, this.ctrl, this.#renderer)
     this.#framer.register('add')
     this.background = 0x000000ff

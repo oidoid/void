@@ -49,7 +49,7 @@ const atlasFilenames = (await fs.readdir(atlasDir))
   .filter(name => name.endsWith('.aseprite'))
   .map(name => path.resolve(atlasDir, name))
 const atlasImageFilename = `${await fs.mkdtemp('/tmp/', {encoding: 'utf8'})}/atlas.png`
-const atlasAse = await execAse(
+const atlasAse = await ase(
   '--batch',
   '--color-mode=indexed',
   '--filename-format={title}--{tag}--{frame}',
@@ -62,8 +62,7 @@ const atlasAse = await execAse(
   '--tagname-format={title}--{tag}',
   ...atlasFilenames
 )
-
-const atlasJSON = JSON.stringify(parseAtlas(JSON.parse(atlasAse), config.tags))
+const atlas = JSON.stringify(parseAtlas(JSON.parse(atlasAse), config.tags))
 const atlasURI =
   await `data:image/png;base64,${(await fs.readFile(atlasImageFilename)).toString('base64')}`
 
@@ -109,18 +108,14 @@ async function pluginOnEnd(result) {
   const outFiles =
     result.outputFiles?.filter(file => file.path.endsWith('.js')) ?? []
   if (outFiles.length > 1) throw Error('cannot concatenate JavaScript files')
-  if (outFiles[0]) js += outFiles[0].text
+  js += outFiles[0]?.text ?? ''
 
   const scriptEl = /** @type {HTMLScriptElement|null} */ (
     copy.querySelector('script[type="module"][src]')
   )
   if (!scriptEl) throw Error('missing script')
   scriptEl.removeAttribute('src')
-  scriptEl.textContent = `
-  const atlas = ${atlasJSON}
-  const atlasURI = '${atlasURI}'
-  ${js}
-`
+  scriptEl.textContent = js
   const outFilename = `${outDir}/${
     watch ? 'index' : `${path.basename(config.html, '.html')}-v${pkg.version}`
   }.html`
@@ -134,6 +129,10 @@ async function pluginOnEnd(result) {
 /** @type {esbuild.BuildOptions} */
 const buildOpts = {
   bundle: true,
+  define: {
+    'assets.atlas': atlas,
+    'assets.atlasURI': `'${atlasURI}'`
+  },
   entryPoints: [srcFilename],
   format: 'esm',
   logLevel: `info`, // Print the port and build demarcations.
@@ -153,7 +152,7 @@ if (watch) {
  * @arg {readonly string[]} args
  * @return {Promise<string>}
  */
-async function execAse(...args) {
+async function ase(...args) {
   const [err, stdout, stderr] = await new Promise(resolve =>
     execFile('aseprite', args, (err, stdout, stderr) =>
       resolve([err, stdout, stderr])

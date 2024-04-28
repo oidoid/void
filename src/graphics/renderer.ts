@@ -25,12 +25,12 @@ export class Renderer {
 
   constructor(
     atlas: Atlas<TagFormat>,
-    canvas: HTMLCanvasElement,
-    atlasImage: HTMLImageElement
+    atlasImage: HTMLImageElement,
+    canvas: HTMLCanvasElement
   ) {
+    this.#atlasImage = atlasImage
     this.#canvas = canvas
     this.#cels = new Uint16Array(atlas.cels)
-    this.#atlasImage = atlasImage
   }
 
   clearColor(rgba: number): void {
@@ -184,7 +184,6 @@ export class Renderer {
     const canvas = this.#canvas
 
     if (canvas.width !== cam.w || canvas.height !== cam.h) {
-      console.log('set canvas')
       canvas.width = cam.w
       canvas.height = cam.h
       this.#gl!.viewport(0, 0, cam.w, cam.h)
@@ -194,15 +193,14 @@ export class Renderer {
     // may change independent of canvas size.
     const clientW = (cam.w * cam.scale) / devicePixelRatio
     const clientH = (cam.h * cam.scale) / devicePixelRatio
-    const diffW = Number.parseFloat(canvas.style.width.slice(0, -2)) - clientW
-    const diffH = Number.parseFloat(canvas.style.height.slice(0, -2)) - clientH
+    const dw = Number.parseFloat(canvas.style.width.slice(0, -2)) - clientW
+    const dh = Number.parseFloat(canvas.style.height.slice(0, -2)) - clientH
     if (
-      !Number.isFinite(diffW) ||
-      Math.abs(diffW) >= 0.5 ||
-      !Number.isFinite(diffH) ||
-      Math.abs(diffH) >= 0.5
+      !Number.isFinite(dw) ||
+      Math.abs(dw) > 0.1 ||
+      !Number.isFinite(dh) ||
+      Math.abs(dh) > 0.1
     ) {
-      console.log('set style')
       canvas.style.width = `${clientW}px`
       canvas.style.height = `${clientH}px`
     }
