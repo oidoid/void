@@ -1,6 +1,6 @@
 import type {Bitmap} from '../renderer/bitmap.js'
-import type {Box, WH, XY} from '../types/2d.js'
-import type {Anim, TagFormat} from './anim.js'
+import {type Box, type WH, type XY} from '../types/2d.js'
+import type {Anim} from './anim.js'
 import type {Atlas} from './atlas.js'
 
 export type SpriteJSON = {
@@ -15,14 +15,11 @@ export type SpriteJSON = {
   zend?: boolean
 }
 
-export class Sprite<T extends TagFormat> implements Bitmap, Box {
-  static parse<T extends TagFormat>(
-    atlas: Atlas<T>,
-    json: Readonly<SpriteJSON>
-  ): Sprite<T> {
+export class Sprite<T> implements Bitmap, Box {
+  static parse<T>(atlas: Atlas<T>, json: Readonly<SpriteJSON>): Sprite<T> {
     if (!(json.tag in atlas.anim))
       throw Error(`atlas missing tag "${json.tag}"`)
-    const sprite = new Sprite(atlas, <T>json.tag)
+    const sprite = new Sprite(atlas, <T & string>json.tag)
     sprite.cel = json.cel ?? 0
     sprite.flipX = json.flip === 'X' || json.flip === 'XY'
     sprite.flipY = json.flip === 'Y' || json.flip === 'XY'
@@ -38,16 +35,16 @@ export class Sprite<T extends TagFormat> implements Bitmap, Box {
   debug?: unknown
   readonly hitbox: Box = {x: 0, y: 0, w: 0, h: 0}
 
-  _iffzz = 0
-  _xy = 0
-  _wh = 0
+  _iffzz: number = 0
+  _xy: number = 0
+  _wh: number = 0
 
-  #anim: Anim<T> = <Anim<T>>{}
+  #anim: Anim<T> = <Anim<T>>{} // init'd by tag.
   readonly #atlas: Atlas<T>
 
-  constructor(atlas: Atlas<T>, tag: T) {
+  constructor(atlas: Atlas<T>, tag: T & string) {
     this.#atlas = atlas
-    this.tag = tag // Inits hitbox.
+    this.tag = tag // inits #anim and hitbox.
   }
 
   above(sprite: Readonly<Sprite<T>>): boolean {
@@ -123,7 +120,7 @@ export class Sprite<T extends TagFormat> implements Bitmap, Box {
     return this.#anim.tag
   }
 
-  set tag(tag: T) {
+  set tag(tag: T & string) {
     if (tag === this.#anim.tag) return
     this.#anim = this.#atlas.anim[tag]
     const {hitbox} = this.#anim
@@ -176,7 +173,7 @@ export class Sprite<T extends TagFormat> implements Bitmap, Box {
   }
 
   get z(): number {
-    return this._iffzz & 7
+    return this._iffzz & 0x7
   }
 
   /** Greater is further. */

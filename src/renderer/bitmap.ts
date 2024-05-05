@@ -1,5 +1,5 @@
 export type Bitmap = {
-  /** 8x: i16, 8y: i16 */
+  /** 8x fixed-point XY: i16, 8y: i16; 1b sign, 12b int, 3b fraction. */
   readonly _xy: number
   /** w: u12, h: u12 */
   readonly _wh: number

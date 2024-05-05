@@ -2,15 +2,15 @@ import {expect, test} from 'vitest'
 import {Cam} from '../renderer/cam.js'
 import {Input, type StandardButton} from './input.js'
 
-const cam = new Cam()
-const canvas = <HTMLCanvasElement>(<unknown>{
+const cam: Cam = new Cam()
+const canvas: HTMLCanvasElement = <HTMLCanvasElement>(<unknown>{
   addEventListener() {},
   removeEventListener() {},
   requestPointerLock() {}
 })
 globalThis.isSecureContext = true
 globalThis.navigator = <Navigator>(<unknown>{getGamepads: () => []})
-const target = new EventTarget()
+const target: EventTarget = new EventTarget()
 globalThis.addEventListener = target.addEventListener.bind(target)
 globalThis.removeEventListener = target.removeEventListener.bind(target)
 globalThis.dispatchEvent = target.dispatchEvent.bind(target)

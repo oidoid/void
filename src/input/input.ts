@@ -10,7 +10,7 @@ export type StandardButton =
   'C' | 'B' | 'A' | // Primary, secondary, tertiary.
   'S' // Start.
 
-export class Input<Button extends string> {
+export class Input<T extends string> {
   /** User hint as to whether to consider input or not. */
   handled: boolean = false
   /** The maximum duration in milliseconds permitted between combo inputs. */
@@ -19,7 +19,7 @@ export class Input<Button extends string> {
   minHeld: number = 300
 
   /** Logical button to bit. */
-  readonly #bitByButton = <{[btn in Button]: number}>{}
+  readonly #bitByButton = <{[button in T]: number}>{}
   /**
    * A sequence of nonzero buttons ordered from oldest (first) to latest (last).
    * Combos are terminated only by expiration.
@@ -43,7 +43,7 @@ export class Input<Button extends string> {
    * will not match up and down the way `isOn('Up')` will) and sequence (order
    * and length). Combos only test button on state.
    */
-  isCombo(...combo: readonly (readonly Button[])[]): boolean {
+  isCombo(...combo: readonly (readonly T[])[]): boolean {
     if (combo.length !== this.#combo.length) return false
     for (const [i, buttons] of combo.entries()) {
       const bits = this.#buttonsToBits(buttons)
@@ -56,7 +56,7 @@ export class Input<Button extends string> {
   }
 
   /** Like isOnCombo() but test if the last button set is triggered. */
-  isComboStart(...combo: readonly (readonly Button[])[]): boolean {
+  isComboStart(...combo: readonly (readonly T[])[]): boolean {
     return (
       this.isCombo(...combo) &&
       !!combo.at(-1)?.every(button => this.isOnStart(button))
@@ -68,7 +68,7 @@ export class Input<Button extends string> {
     return this.#duration >= this.minHeld
   }
 
-  isOffStart(...buttons: readonly Button[]): boolean {
+  isOffStart(...buttons: readonly T[]): boolean {
     return !this.isOn(...buttons) && this.isAnyStart(...buttons)
   }
 
@@ -77,62 +77,62 @@ export class Input<Button extends string> {
    * whether other buttons are pressed. Eg, `isOn('Up')` will return true when
    * up is pressed or when up and down are pressed.
    */
-  isOn(...buttons: readonly Button[]): boolean {
+  isOn(...buttons: readonly T[]): boolean {
     const bits = this.#buttonsToBits(buttons)
     return (this.#bits & bits) === bits
   }
 
-  isOnStart(...buttons: readonly Button[]): boolean {
+  isOnStart(...buttons: readonly T[]): boolean {
     return this.isOn(...buttons) && this.isAnyStart(...buttons)
   }
 
   /** True if any button triggered on or off. */
-  isAnyStart(...buttons: readonly Button[]): boolean {
+  isAnyStart(...buttons: readonly T[]): boolean {
     const bits = this.#buttonsToBits(buttons)
     return (this.#bits & bits) !== (this.#prevBits[1] & bits)
   }
 
-  mapAxis(less: Button, more: Button, ...axes: readonly number[]): void {
+  mapAxis(less: T, more: T, ...axes: readonly number[]): void {
     for (const axis of axes) {
       this.#gamepad.mapAxis(axis, this.#map(less), this.#map(more))
     }
   }
 
-  mapButton(button: Button, ...indices: readonly number[]): void {
+  mapButton(button: T, ...indices: readonly number[]): void {
     for (const index of indices) {
       this.#gamepad.mapButton(index, this.#map(button))
     }
   }
 
-  mapClick(button: Button, ...clicks: readonly number[]): void {
+  mapClick(button: T, ...clicks: readonly number[]): void {
     for (const click of clicks) this.#pointer.map(click, this.#map(button))
   }
 
   mapStandard(): void {
-    this.mapKey(<Button>'L', 'ArrowLeft', 'a', 'A')
-    this.mapKey(<Button>'R', 'ArrowRight', 'd', 'D')
-    this.mapKey(<Button>'U', 'ArrowUp', 'w', 'W')
-    this.mapKey(<Button>'D', 'ArrowDown', 's', 'S')
-    this.mapKey(<Button>'C', 'z', 'Z')
-    this.mapKey(<Button>'B', 'x', 'X')
-    this.mapKey(<Button>'A', 'c', 'C')
-    this.mapKey(<Button>'S', 'Enter', 'Escape')
+    this.mapKey(<T>'L', 'ArrowLeft', 'a', 'A')
+    this.mapKey(<T>'R', 'ArrowRight', 'd', 'D')
+    this.mapKey(<T>'U', 'ArrowUp', 'w', 'W')
+    this.mapKey(<T>'D', 'ArrowDown', 's', 'S')
+    this.mapKey(<T>'C', 'c', 'C')
+    this.mapKey(<T>'B', 'x', 'X')
+    this.mapKey(<T>'A', 'z', 'Z')
+    this.mapKey(<T>'S', 'Enter', 'Escape')
 
     // https://w3c.github.io/gamepad/#remapping
-    this.mapAxis(<Button>'L', <Button>'R', 0, 2)
-    this.mapAxis(<Button>'U', <Button>'D', 1, 3)
-    this.mapButton(<Button>'L', 14)
-    this.mapButton(<Button>'R', 15)
-    this.mapButton(<Button>'U', 12)
-    this.mapButton(<Button>'D', 13)
-    this.mapButton(<Button>'A', 0)
-    this.mapButton(<Button>'S', 9)
+    this.mapAxis(<T>'L', <T>'R', 0, 2)
+    this.mapAxis(<T>'U', <T>'D', 1, 3)
+    this.mapButton(<T>'L', 14)
+    this.mapButton(<T>'R', 15)
+    this.mapButton(<T>'U', 12)
+    this.mapButton(<T>'D', 13)
+    this.mapButton(<T>'A', 0)
+    this.mapButton(<T>'S', 9)
 
-    this.mapClick(<Button>'A', 1)
+    this.mapClick(<T>'A', 1)
   }
 
   /** @arg keys Union of case-sensitive KeyboardEvent.key. */
-  mapKey(button: Button, ...keys: readonly string[]): void {
+  mapKey(button: T, ...keys: readonly string[]): void {
     for (const key of keys) this.#keyboard.map(key, this.#map(button))
   }
 
@@ -191,13 +191,13 @@ export class Input<Button extends string> {
     return this.#gamepad.bits | this.#keyboard.bits | this.#pointer.bits
   }
 
-  #buttonsToBits(buttons: readonly Button[]): number {
+  #buttonsToBits(buttons: readonly T[]): number {
     let bits = 0
     for (const button of buttons) bits |= this.#bitByButton[button] ?? 0
     return bits
   }
 
-  #map(button: Button): number {
+  #map(button: T): number {
     return (this.#bitByButton[button] ??=
       1 << Object.keys(this.#bitByButton).length)
   }

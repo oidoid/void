@@ -1,5 +1,5 @@
 export class GamepadPoller {
-  bits = 0
+  bits: number = 0
   readonly #bitByAxis: {[axis: number]: [less: number, more: number]} = {}
   readonly #bitByButton: {[btn: number]: number} = {}
 

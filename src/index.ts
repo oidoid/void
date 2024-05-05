@@ -21,21 +21,19 @@ export {Sprite}
 export type {Anim, Atlas, StandardButton, TagFormat}
 
 declare const assets: {
-  readonly atlas: Atlas<TagFormat>
+  readonly atlas: Atlas<unknown>
   readonly atlasURI: string
 }
 
-export class Void<Tag extends TagFormat, Button extends string> {
-  static async new<Tag extends TagFormat, Button extends string>(): Promise<
-    Void<Tag, Button>
-  > {
+export class Void<Tag, Button> {
+  static async new<Tag, Button>(): Promise<Void<Tag, Button>> {
     return new Void(await loadImage(assets.atlasURI))
   }
 
   readonly atlas: Atlas<Tag> = <Atlas<Tag>>assets.atlas
   readonly debug: boolean = debug
   readonly cam: Cam = new Cam()
-  readonly ctrl: Input<Button>
+  readonly ctrl: Input<Button & string>
   readonly kv: JSONStorage = new JSONStorage()
   readonly synth: Synth = new Synth()
 
@@ -90,7 +88,7 @@ export class Void<Tag extends TagFormat, Button extends string> {
     this.#bitmaps.size = 0
   }
 
-  sprite(tag: Tag): Sprite<Tag> {
+  sprite(tag: Tag & string): Sprite<Tag> {
     return new Sprite<Tag>(this.atlas, tag)
   }
 

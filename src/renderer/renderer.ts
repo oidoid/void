@@ -1,4 +1,3 @@
-import type {TagFormat} from '../graphics/anim.js'
 import type {Atlas} from '../graphics/atlas.js'
 import {debug} from '../types/debug.js'
 import {BitmapBuffer} from './bitmap.js'
@@ -24,7 +23,7 @@ export class Renderer {
   #vertArray: WebGLVertexArrayObject | null = null
 
   constructor(
-    atlas: Atlas<TagFormat>,
+    atlas: Atlas<unknown>,
     atlasImage: HTMLImageElement,
     canvas: HTMLCanvasElement
   ) {
