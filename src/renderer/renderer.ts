@@ -43,6 +43,7 @@ export class Renderer {
   }
 
   initGL(): void {
+    if (this.hasContext()) return
     const gl = this.#canvas.getContext('webgl2', {
       antialias: false,
       desynchronized: !debug, // Breaks render stats.
@@ -144,7 +145,7 @@ export class Renderer {
   }
 
   hasContext(): boolean {
-    return !this.#gl?.isContextLost()
+    return this.#gl != null && !this.#gl.isContextLost()
   }
 
   render(
