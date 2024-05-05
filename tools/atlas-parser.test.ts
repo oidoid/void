@@ -280,9 +280,9 @@ describe('parseHitbox()', async () => {
     expect(() => parseHitbox(span, slices)).toThrow()
   })
 
-  test('defaults to empty hitbox', () => {
+  test('defaults to flipped hitbox', () => {
     const span: AsepriteTagSpan = {name: 'stem--foo', from: 0, to: 0}
-    expect(parseHitbox(span, [])).toStrictEqual({x: 0, y: 0, w: 0, h: 0})
+    expect(parseHitbox(span, [])).toStrictEqual({x: 0, y: 0, w: -1, h: -1})
   })
 
   test('throws on multiple hitboxes', () => {

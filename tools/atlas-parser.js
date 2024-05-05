@@ -67,7 +67,7 @@ function* parseAnimFrames(span, map) {
   for (let i = span.from; i <= span.to && i - span.from < maxAnimCels; i++) {
     const frameTag = /** @type {AsepriteFrameTag} */ (`${span.name}--${i}`)
     const frame = map[frameTag]
-    if (!frame) throw Error(`missing frame "${frameTag}"`)
+    if (!frame) throw Error(`no frame "${frameTag}"`)
     yield frame
   }
   // Pad remaining.
@@ -76,7 +76,7 @@ function* parseAnimFrames(span, map) {
       `${span.name}--${span.from + (i % (span.to + 1 - span.from))}`
     )
     const frame = map[frameTag]
-    if (!frame) throw Error(`missing frame "${frameTag}"`)
+    if (!frame) throw Error(`no frame "${frameTag}"`)
     yield frame
   }
 }
@@ -103,7 +103,7 @@ export function parseHitbox(span, slices) {
   const tagSlices = slices.filter(slice => slice.name === span.name)
   if (tagSlices.length > 1)
     throw Error(`tag "${span.name}" has multiple hitboxes`)
-  const box = tagSlices[0]?.keys[0]?.bounds ?? {x: 0, y: 0, w: 0, h: 0}
+  const box = tagSlices[0]?.keys[0]?.bounds ?? {x: 0, y: 0, w: -1, h: -1}
   // https://github.com/aseprite/aseprite/issues/3524
   for (const key of tagSlices[0]?.keys ?? []) {
     if (

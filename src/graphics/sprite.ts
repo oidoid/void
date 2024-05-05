@@ -1,5 +1,5 @@
 import type {Bitmap} from '../renderer/bitmap.js'
-import {type Box, type WH, type XY} from '../types/2d.js'
+import {boxHits, type Box, type WH, type XY} from '../types/2d.js'
 import type {Anim} from './anim.js'
 import type {Atlas} from './atlas.js'
 
@@ -65,6 +65,11 @@ export class Sprite<T> implements Bitmap, Box {
     this._iffzz = (this._iffzz & 0xfffffc3f) | ((cel & 0xf) << 6)
   }
 
+  /** test if either bitmap overlaps box or sprite (bitmap). */
+  clips(box: Readonly<XY & Partial<WH>>): boolean {
+    return boxHits(this, box)
+  }
+
   get flipX(): boolean {
     return !!(this._iffzz & 0x20)
   }
@@ -96,24 +101,7 @@ export class Sprite<T> implements Bitmap, Box {
   }
 
   hits(box: Readonly<XY & Partial<WH>>): boolean {
-    if (!this.hitbox.w || !this.hitbox.h) return false
-    if (box instanceof Sprite) box = box.hitbox
-    return (
-      this.hitbox.x < box.x + (box.w ?? 0) &&
-      this.hitbox.x + this.hitbox.w > box.x &&
-      this.hitbox.y < box.y + (box.h ?? 0) &&
-      this.hitbox.y + this.hitbox.h > box.y
-    )
-  }
-
-  /** Test if bitmap intersects. */
-  overlaps(box: Readonly<XY & Partial<WH>>): boolean {
-    return (
-      this.x < box.x + (box.w ?? 0) &&
-      this.x + this.w > box.x &&
-      this.y < box.y + (box.h ?? 0) &&
-      this.y + this.h > box.y
-    )
+    return boxHits(this.hitbox, box instanceof Sprite ? box.hitbox : box)
   }
 
   get tag(): T {
