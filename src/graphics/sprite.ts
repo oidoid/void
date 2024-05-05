@@ -1,7 +1,7 @@
-import type {Anim, TagFormat} from '../atlas/anim.js'
-import type {Atlas} from '../atlas/atlas.js'
-import type {Bitmap} from '../graphics/bitmap.js'
+import type {Bitmap} from '../renderer/bitmap.js'
 import type {Box, WH, XY} from '../types/2d.js'
+import type {Anim, TagFormat} from './anim.js'
+import type {Atlas} from './atlas.js'
 
 export type SpriteJSON = {
   cel?: number

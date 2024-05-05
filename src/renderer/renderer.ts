@@ -1,5 +1,5 @@
-import type {TagFormat} from '../atlas/anim.js'
-import type {Atlas} from '../atlas/atlas.js'
+import type {TagFormat} from '../graphics/anim.js'
+import type {Atlas} from '../graphics/atlas.js'
 import {debug} from '../types/debug.js'
 import {BitmapBuffer} from './bitmap.js'
 import {Cam} from './cam.js'

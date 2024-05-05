@@ -1,5 +1,5 @@
 import type {Font} from 'mem-font'
-import type {TagFormat} from '../atlas/anim.js'
+import type {TagFormat} from '../graphics/anim.js'
 
 export function fontCharToTag(self: Font, char: string): TagFormat {
   let pt = char.codePointAt(0)

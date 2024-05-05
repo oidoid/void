@@ -1,22 +1,22 @@
 // ───oidoid>°──
-import type {Anim, TagFormat} from './atlas/anim.js'
-import type {Atlas} from './atlas/atlas.js'
-import {Synth} from './audio/synth.js'
-import {BitmapBuffer, type Bitmap} from './graphics/bitmap.js'
-import {Cam} from './graphics/cam.js'
-import {FrameListener} from './graphics/frame-listener.js'
-import {Renderer} from './graphics/renderer.js'
+import type {Anim, TagFormat} from './graphics/anim.js'
+import type {Atlas} from './graphics/atlas.js'
+import {Sprite} from './graphics/sprite.js'
 import {Input, type StandardButton} from './input/input.js'
-import {Sprite} from './sprite/sprite.js'
+import {BitmapBuffer, type Bitmap} from './renderer/bitmap.js'
+import {Cam} from './renderer/cam.js'
+import {FrameListener} from './renderer/frame-listener.js'
+import {Renderer} from './renderer/renderer.js'
 import {JSONStorage} from './storage/json-storage.js'
+import {Synth} from './synth/synth.js'
 import {debug} from './types/debug.js'
 
 export type {Font} from 'mem-font'
-export type {Config} from './atlas/config.js'
-export type {SpriteJSON} from './sprite/sprite.js'
+export type {SpriteJSON} from './graphics/sprite.js'
 export {fontCharToTag} from './text/font.js'
 export {layoutText, type TextLayout} from './text/text-layout.js'
 export type {Box, WH, XY} from './types/2d.js'
+export type {Config} from './types/config.js'
 export {Sprite}
 export type {Anim, Atlas, StandardButton, TagFormat}
 

@@ -1,4 +1,4 @@
-import {Cam} from '../graphics/cam.js'
+import {Cam} from '../renderer/cam.js'
 import type {XY} from '../types/2d.js'
 
 export class PointerPoller {

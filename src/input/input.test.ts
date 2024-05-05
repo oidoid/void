@@ -1,5 +1,5 @@
 import {expect, test} from 'vitest'
-import {Cam} from '../graphics/cam.js'
+import {Cam} from '../renderer/cam.js'
 import {Input, type StandardButton} from './input.js'
 
 const cam = new Cam()

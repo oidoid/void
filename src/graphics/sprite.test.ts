@@ -1,5 +1,5 @@
 import {expect, test} from 'vitest'
-import type {Anim, TagFormat} from '../atlas/anim.js'
+import type {Anim, TagFormat} from './anim.js'
 import {Sprite} from './sprite.js'
 
 test('bits', () => {

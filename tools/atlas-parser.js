@@ -4,8 +4,8 @@
 /** @import {AsepriteFrameMap} from './aseprite.js' */
 /** @import {AsepriteSlice} from './aseprite.js' */
 /** @import {AsepriteTagSpan} from './aseprite.js' */
-/** @import {Anim} from '../src/atlas/anim.js' */
-/** @import {TagFormat} from '../src/atlas/anim.js' */
+/** @import {Anim} from '../src/graphics/anim.js' */
+/** @import {TagFormat} from '../src/graphics/anim.js' */
 /** @import {Box} from '../src/types/2d.js' */
 /** @import {XY} from '../src/types/2d.js' */
 
@@ -15,7 +15,7 @@ const maxAnimCels = 16
  * @template T
  * @arg {Aseprite} ase
  * @arg {{readonly [tag: string]: null}} tags
- * @return {import('../src/atlas/atlas.js').Atlas<T>}
+ * @return {import('../src/graphics/atlas.js').Atlas<T>}
  */
 export function parseAtlas(ase, tags) {
   const anims = new Map()
