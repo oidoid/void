@@ -6,7 +6,7 @@
   "bugs": "https://github.com/oidoid/void/issues",
   "description": "Tiny 2D game engine.",
   "dependencies": {
-    "esbuild": "0.20.2",
+    "esbuild": "0.21.1",
     "jsdom": "24.0.0"
   },
   "devDependencies": {
@@ -16,7 +16,7 @@
     "mem-font": "11.0.0-2",
     "prettier": "3.2.5",
     "typescript": "5.5.0-beta",
-    "vitest": "1.5.2"
+    "vitest": "1.6.0"
   },
   "engines": {
     "node": ">=18"
