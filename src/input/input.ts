@@ -7,7 +7,7 @@ import {PointerPoller} from './pointer-poller.js'
 // prettier-ignore
 export type StandardButton =
   'L' | 'R' | 'U' | 'D' | // Dpad.
-  'C' | 'B' | 'A' | // Primary, secondary, tertiary.
+  'A' | 'B' | 'C' | // Primary, secondary, tertiary.
   'S' // Start.
 
 export class Input<T extends string> {
@@ -72,6 +72,10 @@ export class Input<T extends string> {
     return !this.isOn(...buttons) && this.isAnyStart(...buttons)
   }
 
+  // isAnyOn(...buttons: readonly Button[]): boolean {
+  //   return buttons.some(btn => this.isOn(btn))
+  // }
+
   /**
    * Test if all buttons are on. True if the buttons are pressed regardless of
    * whether other buttons are pressed. Eg, `isOn('Up')` will return true when
@@ -113,9 +117,9 @@ export class Input<T extends string> {
     this.mapKey(<T>'R', 'ArrowRight', 'd', 'D')
     this.mapKey(<T>'U', 'ArrowUp', 'w', 'W')
     this.mapKey(<T>'D', 'ArrowDown', 's', 'S')
-    this.mapKey(<T>'C', 'c', 'C')
+    this.mapKey(<T>'A', 'c', 'C')
     this.mapKey(<T>'B', 'x', 'X')
-    this.mapKey(<T>'A', 'z', 'Z')
+    this.mapKey(<T>'C', 'z', 'Z')
     this.mapKey(<T>'S', 'Enter', 'Escape')
 
     // https://w3c.github.io/gamepad/#remapping
