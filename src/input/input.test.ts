@@ -1,110 +1,98 @@
 import {expect, test} from 'vitest'
 import {Cam} from '../renderer/cam.js'
-import {Input, type StandardButton} from './input.js'
+import {Input} from './input.js'
 
+type Button = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15
 const cam: Cam = new Cam()
-const canvas: HTMLCanvasElement = <HTMLCanvasElement>(<unknown>{
-  addEventListener() {},
-  removeEventListener() {},
-  requestPointerLock() {}
-})
-globalThis.isSecureContext = true
-globalThis.navigator = <Navigator>(<unknown>{getGamepads: () => []})
 const target: EventTarget = new EventTarget()
-globalThis.addEventListener = target.addEventListener.bind(target)
-globalThis.removeEventListener = target.removeEventListener.bind(target)
-globalThis.dispatchEvent = target.dispatchEvent.bind(target)
+const canvas: HTMLCanvasElement = <HTMLCanvasElement>(<unknown>target)
+canvas.setPointerCapture = () => {}
 
 test('buttons are initially inactive', () => {
   const input = new Input(cam, canvas)
-  input.mapStandard()
   input.register('add')
-  expect(input.isOn('U')).toBe(false)
-  expect(input.isOnStart('U')).toBe(false)
+  expect(input.isOn(1)).toBe(false)
+  expect(input.isOnStart(1)).toBe(false)
   expect(input.isHeld()).toBe(false)
-  expect(input.isOffStart('U')).toBe(false)
-  expect(input.isCombo(['U'])).toBe(false)
-  expect(input.isComboStart(['U'])).toBe(false)
+  expect(input.isOffStart(1)).toBe(false)
+  expect(input.isCombo(1)).toBe(false)
+  expect(input.isComboStart(1)).toBe(false)
   input.register('remove')
 })
 
 test('pressed buttons are active and triggered', () => {
   const input = new Input(cam, canvas)
-  input.mapStandard()
   input.register('add')
-  dispatchKeyEvent('keydown', 'ArrowUp')
+  dispatchPointerEvent('pointerdown', 1)
   input.poll(16)
-  expect(input.isOn('U')).toBe(true)
-  expect(input.isOnStart('U')).toBe(true)
+  expect(input.isOn(1)).toBe(true)
+  expect(input.isOnStart(1)).toBe(true)
   expect(input.isHeld()).toBe(false)
-  expect(input.isOffStart('U')).toBe(false)
-  expect(input.isCombo(['U'])).toBe(true)
-  expect(input.isComboStart(['U'])).toBe(true)
+  expect(input.isOffStart(1)).toBe(false)
+  expect(input.isCombo(1)).toBe(true)
+  expect(input.isComboStart(1)).toBe(true)
   input.register('remove')
 })
 
 test('held buttons are active but not triggered', () => {
   const input = new Input(cam, canvas)
-  input.mapStandard()
   input.register('add')
-  dispatchKeyEvent('keydown', 'ArrowUp')
+  dispatchPointerEvent('pointerdown', 1)
   input.poll(300)
   input.poll(16)
-  expect(input.isOn('U')).toBe(true)
-  expect(input.isOnStart('U')).toBe(false)
+  expect(input.isOn(1)).toBe(true)
+  expect(input.isOnStart(1)).toBe(false)
   expect(input.isHeld()).toBe(true)
-  expect(input.isOffStart('U')).toBe(false)
-  expect(input.isCombo(['U'])).toBe(true)
-  expect(input.isComboStart(['U'])).toBe(false)
+  expect(input.isOffStart(1)).toBe(false)
+  expect(input.isCombo(1)).toBe(true)
+  expect(input.isComboStart(1)).toBe(false)
   input.register('remove')
 })
 
 test('released buttons are off and triggered', () => {
   const input = new Input(cam, canvas)
-  input.mapStandard()
   input.register('add')
-  dispatchKeyEvent('keydown', 'ArrowUp')
+  dispatchPointerEvent('pointerdown', 1)
   input.poll(16)
 
-  dispatchKeyEvent('keyup', 'ArrowUp')
+  dispatchPointerEvent('pointerup', 1)
   input.poll(16)
 
-  expect(input.isOn('U')).toBe(false)
-  expect(input.isOnStart('U')).toBe(false)
+  expect(input.isOn(1)).toBe(false)
+  expect(input.isOnStart(1)).toBe(false)
   expect(input.isHeld()).toBe(false)
-  expect(input.isOffStart('U')).toBe(true)
-  expect(input.isCombo(['U'])).toBe(false)
-  expect(input.isComboStart(['U'])).toBe(false)
+  expect(input.isOffStart(1)).toBe(true)
+  expect(input.isCombo(1)).toBe(false)
+  expect(input.isComboStart(1)).toBe(false)
 
   input.register('remove')
 })
 
 test('combos are exact in length', () => {
-  const input = new Input(cam, canvas)
-  input.mapStandard()
+  const input = new Input<Button>(cam, canvas)
   input.register('add')
 
-  dispatchKeyEvent('keydown', 'ArrowUp')
+  dispatchPointerEvent('pointerdown', 1)
   input.poll(16)
-  expect(input.isCombo(['U'])).toBe(true)
-  dispatchKeyEvent('keyup', 'ArrowUp')
+  expect(input.isCombo(1)).toBe(true)
+  dispatchPointerEvent('pointerup', 1)
   input.poll(16)
 
-  dispatchKeyEvent('keydown', 'ArrowDown')
+  dispatchPointerEvent('pointerdown', 2)
   input.poll(16)
-  expect(input.isCombo(['U'])).toBe(false)
-  expect(input.isCombo(['D'])).toBe(false)
-  expect(input.isCombo(['U'], ['D'])).toBe(true)
-  dispatchKeyEvent('keyup', 'ArrowDown')
+  expect(input.isCombo(1)).toBe(false)
+  expect(input.isCombo(2)).toBe(false)
+  expect(input.isCombo(1, 2)).toBe(true)
+  dispatchPointerEvent('pointerup', 2)
 
-  dispatchKeyEvent('keydown', 'ArrowRight')
+  dispatchPointerEvent('pointerdown', 4)
   input.poll(16)
-  expect(input.isCombo(['U'])).toBe(false)
-  expect(input.isCombo(['D'])).toBe(false)
-  expect(input.isCombo(['R'])).toBe(false)
-  expect(input.isCombo(['D'], ['R'])).toBe(false)
-  expect(input.isCombo(['U'], ['D'], ['R'])).toBe(true)
-  dispatchKeyEvent('keyup', 'ArrowRight')
+  expect(input.isCombo(1)).toBe(false)
+  expect(input.isCombo(2)).toBe(false)
+  expect(input.isCombo(4)).toBe(false)
+  expect(input.isCombo(2, 4)).toBe(false)
+  expect(input.isCombo(1, 2, 4)).toBe(true)
+  dispatchPointerEvent('pointerup', 4)
   input.poll(16)
 
   input.register('remove')
@@ -112,240 +100,213 @@ test('combos are exact in length', () => {
 
 test('simultaneously pressed buttons are active and triggered', () => {
   const input = new Input(cam, canvas)
-  input.mapStandard()
   input.register('add')
-  dispatchKeyEvent('keydown', 'ArrowUp')
-  dispatchKeyEvent('keydown', 'ArrowDown')
+  dispatchPointerEvent('pointerdown', 1)
+  dispatchPointerEvent('pointerdown', 2)
   input.poll(16)
 
-  expect(input.isOn('U', 'D')).toBe(true)
-  expect(input.isOnStart('U', 'D')).toBe(true)
+  expect(input.isOn(3)).toBe(true)
+  expect(input.isOnStart(3)).toBe(true)
   expect(input.isHeld()).toBe(false)
-  expect(input.isOffStart('U', 'D')).toBe(false)
+  expect(input.isOffStart(3)).toBe(false)
 
-  expect(input.isCombo(['U'])).toBe(false)
-  expect(input.isComboStart(['U'])).toBe(false)
-  expect(input.isCombo(['D'])).toBe(false)
-  expect(input.isComboStart(['D'])).toBe(false)
-  expect(input.isCombo(['U', 'D'])).toBe(true)
-  expect(input.isComboStart(['U', 'D'])).toBe(true)
+  expect(input.isCombo(1)).toBe(false)
+  expect(input.isComboStart(1)).toBe(false)
+  expect(input.isCombo(2)).toBe(false)
+  expect(input.isComboStart(2)).toBe(false)
+  expect(input.isCombo(3)).toBe(true)
+  expect(input.isComboStart(3)).toBe(true)
 
   input.register('remove')
 })
 
 test('combos buttons are exact', () => {
-  const input = new Input(cam, canvas)
-  input.mapStandard()
+  const input = new Input<Button>(cam, canvas)
   input.register('add')
 
-  dispatchKeyEvent('keydown', 'ArrowUp')
+  dispatchPointerEvent('pointerdown', 1)
   input.poll(16)
-  expect(input.isCombo(['U'])).toBe(true)
-  dispatchKeyEvent('keyup', 'ArrowUp')
+  expect(input.isCombo(1)).toBe(true)
+  dispatchPointerEvent('pointerup', 1)
 
-  dispatchKeyEvent('keydown', 'ArrowDown')
-  dispatchKeyEvent('keydown', 'ArrowLeft')
+  dispatchPointerEvent('pointerdown', 2)
+  dispatchPointerEvent('pointerdown', 8)
   input.poll(16)
-  expect(input.isCombo(['U'])).toBe(false)
-  expect(input.isCombo(['D'])).toBe(false)
-  expect(input.isCombo(['U'], ['D'])).toBe(false)
-  dispatchKeyEvent('keyup', 'ArrowDown')
-  dispatchKeyEvent('keyup', 'ArrowLeft')
+  expect(input.isCombo(1)).toBe(false)
+  expect(input.isCombo(2)).toBe(false)
+  expect(input.isCombo(1, 2)).toBe(false)
+  dispatchPointerEvent('pointerup', 2)
+  dispatchPointerEvent('pointerup', 8)
 
-  dispatchKeyEvent('keydown', 'ArrowRight')
+  dispatchPointerEvent('pointerdown', 4)
   input.poll(16)
-  expect(input.isCombo(['U'])).toBe(false)
-  expect(input.isCombo(['D'])).toBe(false)
-  expect(input.isCombo(['R'])).toBe(false)
-  expect(input.isCombo(['D'], ['R'])).toBe(false)
-  expect(input.isCombo(['U'], ['D'], ['R'])).toBe(false)
-  dispatchKeyEvent('keyup', 'ArrowRight')
+  expect(input.isCombo(1)).toBe(false)
+  expect(input.isCombo(2)).toBe(false)
+  expect(input.isCombo(4)).toBe(false)
+  expect(input.isCombo(2, 4)).toBe(false)
+  expect(input.isCombo(1, 2, 4)).toBe(false)
+  dispatchPointerEvent('pointerup', 4)
   input.poll(16)
 
   input.register('remove')
 })
 
 test('a long combo is active and triggered', () => {
-  const input = new Input(cam, canvas)
-  input.mapStandard()
+  const input = new Input<Button>(cam, canvas)
   input.register('add')
 
-  const keys = [
-    'ArrowUp',
-    'ArrowUp',
-    'ArrowDown',
-    'ArrowDown',
-    'ArrowLeft',
-    'ArrowRight',
-    'ArrowLeft',
-    'ArrowRight'
-  ]
+  const keys = <const>[1, 1, 2, 2, 8, 4, 8, 4]
   for (const [i, key] of keys.entries()) {
-    dispatchKeyEvent('keydown', key)
+    dispatchPointerEvent('pointerdown', key)
     input.poll(16)
     if (i === keys.length - 1) break
 
-    dispatchKeyEvent('keyup', key)
+    dispatchPointerEvent('pointerup', key)
     input.poll(16)
   }
 
-  const combo = keys.map(key => [
-    <StandardButton>key.replace(/Arrow(.).+/, '$1')
-  ])
-  expect(input.isCombo(...combo)).toBe(true)
-  expect(input.isComboStart(...combo)).toBe(true)
+  expect(input.isCombo(...keys)).toBe(true)
+  expect(input.isComboStart(...keys)).toBe(true)
   expect(input.isHeld()).toBe(false)
 
   input.register('remove')
 })
 
 test('around-the-world combo is active and triggered', () => {
-  const input = new Input(cam, canvas)
-  input.mapStandard()
+  const input = new Input<Button>(cam, canvas)
   input.register('add')
 
-  const keyCombo = [
-    ['ArrowUp'],
-    ['ArrowUp', 'ArrowLeft'],
-    ['ArrowLeft'],
-    ['ArrowLeft', 'ArrowDown'],
-    ['ArrowDown'],
-    ['ArrowDown', 'ArrowRight'],
-    ['ArrowRight'],
-    ['ArrowUp', 'ArrowRight']
-  ]
+  const keyCombo = <const>[1, 9, 8, 10, 2, 6, 4, 5]
   for (const [i, buttons] of keyCombo.entries()) {
-    for (const button of buttons) {
-      dispatchKeyEvent('keydown', button)
-    }
+    dispatchPointerEvent('pointerdown', buttons)
     input.poll(16)
     if (i === keyCombo.length - 1) break
 
-    for (const button of buttons) {
-      dispatchKeyEvent('keyup', button)
-    }
+    dispatchPointerEvent('pointerup', buttons)
     input.poll(16)
   }
 
-  const combo = keyCombo.map(keys =>
-    keys.map(key => <StandardButton>key.replace(/Arrow(.).+/, '$1'))
-  )
-  expect(input.isCombo(...combo)).toBe(true)
-  expect(input.isComboStart(...combo)).toBe(true)
+  expect(input.isCombo(...keyCombo)).toBe(true)
+  expect(input.isComboStart(...keyCombo)).toBe(true)
   expect(input.isHeld()).toBe(false)
 
   input.register('remove')
 })
 
 test('combo expired', () => {
-  const input = new Input(cam, canvas)
-  input.mapStandard()
+  const input = new Input<Button>(cam, canvas)
   input.register('add')
 
-  dispatchKeyEvent('keydown', 'ArrowUp')
+  dispatchPointerEvent('pointerdown', 1)
   input.poll(16)
-  expect(input.isCombo(['U'])).toBe(true)
-  dispatchKeyEvent('keyup', 'ArrowUp')
+  expect(input.isCombo(1)).toBe(true)
+  dispatchPointerEvent('pointerup', 1)
 
-  dispatchKeyEvent('keydown', 'ArrowDown')
+  dispatchPointerEvent('pointerdown', 2)
   input.poll(16)
-  expect(input.isCombo(['U'])).toBe(false)
-  expect(input.isCombo(['D'])).toBe(false)
-  expect(input.isCombo(['U'], ['D'])).toBe(true)
-  dispatchKeyEvent('keyup', 'ArrowDown')
+  expect(input.isCombo(1)).toBe(false)
+  expect(input.isCombo(2)).toBe(false)
+  expect(input.isCombo(1, 2)).toBe(true)
+  dispatchPointerEvent('pointerup', 2)
   input.poll(1000)
 
-  dispatchKeyEvent('keydown', 'ArrowRight')
+  dispatchPointerEvent('pointerdown', 4)
   input.poll(16)
-  expect(input.isCombo(['U'])).toBe(false)
-  expect(input.isCombo(['D'])).toBe(false)
-  expect(input.isCombo(['R'])).toBe(false)
-  expect(input.isCombo(['D'], ['R'])).toBe(false)
-  expect(input.isCombo(['U'], ['D'], ['R'])).toBe(false)
-  dispatchKeyEvent('keyup', 'ArrowRight')
+  expect(input.isCombo(1)).toBe(false)
+  expect(input.isCombo(2)).toBe(false)
+  expect(input.isCombo(4)).toBe(false)
+  expect(input.isCombo(2, 4)).toBe(false)
+  expect(input.isCombo(1, 2, 4)).toBe(false)
+  dispatchPointerEvent('pointerup', 4)
   input.poll(16)
 
   input.register('remove')
 })
 
 test('long-pressed combo is active and held', () => {
-  const input = new Input(cam, canvas)
-  input.mapStandard()
+  const input = new Input<Button>(cam, canvas)
   input.register('add')
 
-  dispatchKeyEvent('keydown', 'ArrowUp')
+  dispatchPointerEvent('pointerdown', 1)
   input.poll(16)
-  expect(input.isCombo(['U'])).toBe(true)
-  dispatchKeyEvent('keyup', 'ArrowUp')
+  expect(input.isCombo(1)).toBe(true)
+  dispatchPointerEvent('pointerup', 1)
 
-  dispatchKeyEvent('keydown', 'ArrowDown')
+  dispatchPointerEvent('pointerdown', 2)
   input.poll(16)
-  expect(input.isCombo(['U'])).toBe(false)
-  expect(input.isCombo(['D'])).toBe(false)
-  expect(input.isCombo(['U'], ['D'])).toBe(true)
-  dispatchKeyEvent('keyup', 'ArrowDown')
+  expect(input.isCombo(1)).toBe(false)
+  expect(input.isCombo(2)).toBe(false)
+  expect(input.isCombo(1, 2)).toBe(true)
+  dispatchPointerEvent('pointerup', 2)
 
-  dispatchKeyEvent('keydown', 'ArrowRight')
+  dispatchPointerEvent('pointerdown', 4)
   input.poll(16)
-  expect(input.isCombo(['U'])).toBe(false)
-  expect(input.isCombo(['D'])).toBe(false)
-  expect(input.isCombo(['R'])).toBe(false)
-  expect(input.isCombo(['D'], ['R'])).toBe(false)
-  expect(input.isCombo(['U'], ['D'], ['R'])).toBe(true)
+  expect(input.isCombo(1)).toBe(false)
+  expect(input.isCombo(2)).toBe(false)
+  expect(input.isCombo(4)).toBe(false)
+  expect(input.isCombo(2, 4)).toBe(false)
+  expect(input.isCombo(1, 2, 4)).toBe(true)
   input.poll(1000)
   input.poll(16)
 
-  expect(input.isCombo(['U'], ['D'], ['R'])).toBe(true)
+  expect(input.isCombo(1, 2, 4)).toBe(true)
   expect(input.isHeld()).toBe(true)
 
   input.register('remove')
 })
 
 test('combo after long-pressed combo is active', () => {
-  const input = new Input(cam, canvas)
-  input.mapStandard()
+  const input = new Input<Button>(cam, canvas)
   input.register('add')
 
-  dispatchKeyEvent('keydown', 'ArrowUp')
+  dispatchPointerEvent('pointerdown', 1)
   input.poll(16)
-  expect(input.isCombo(['U'])).toBe(true)
-  dispatchKeyEvent('keyup', 'ArrowUp')
+  expect(input.isCombo(1)).toBe(true)
+  dispatchPointerEvent('pointerup', 1)
 
-  dispatchKeyEvent('keydown', 'ArrowDown')
+  dispatchPointerEvent('pointerdown', 2)
   input.poll(16)
-  expect(input.isCombo(['U'])).toBe(false)
-  expect(input.isCombo(['D'])).toBe(false)
-  expect(input.isCombo(['U'], ['D'])).toBe(true)
-  dispatchKeyEvent('keyup', 'ArrowDown')
+  expect(input.isCombo(1)).toBe(false)
+  expect(input.isCombo(2)).toBe(false)
+  expect(input.isCombo(1, 2)).toBe(true)
+  dispatchPointerEvent('pointerup', 2)
 
-  dispatchKeyEvent('keydown', 'ArrowRight')
+  dispatchPointerEvent('pointerdown', 4)
   input.poll(16)
-  expect(input.isCombo(['U'])).toBe(false)
-  expect(input.isCombo(['D'])).toBe(false)
-  expect(input.isCombo(['R'])).toBe(false)
-  expect(input.isCombo(['D'], ['R'])).toBe(false)
-  expect(input.isCombo(['U'], ['D'], ['R'])).toBe(true)
+  expect(input.isCombo(1)).toBe(false)
+  expect(input.isCombo(2)).toBe(false)
+  expect(input.isCombo(4)).toBe(false)
+  expect(input.isCombo(2, 4)).toBe(false)
+  expect(input.isCombo(1, 2, 4)).toBe(true)
   input.poll(1000)
-  dispatchKeyEvent('keyup', 'ArrowRight')
+  dispatchPointerEvent('pointerup', 4)
 
   input.poll(16)
 
-  dispatchKeyEvent('keydown', 'ArrowLeft')
+  dispatchPointerEvent('pointerdown', 8)
   input.poll(16)
-  dispatchKeyEvent('keyup', 'ArrowLeft')
+  dispatchPointerEvent('pointerup', 8)
 
-  dispatchKeyEvent('keydown', 'ArrowDown')
+  dispatchPointerEvent('pointerdown', 2)
   input.poll(16)
-  dispatchKeyEvent('keyup', 'ArrowDown')
+  dispatchPointerEvent('pointerup', 2)
 
-  dispatchKeyEvent('keydown', 'ArrowUp')
+  dispatchPointerEvent('pointerdown', 1)
   input.poll(16)
 
-  expect(input.isCombo(['L'], ['D'], ['U'])).toBe(true)
+  expect(input.isCombo(8, 2, 1)).toBe(true)
 
   input.register('remove')
 })
 
-function dispatchKeyEvent(type: 'keydown' | 'keyup', key: string): void {
-  dispatchEvent(Object.assign(new Event(type), {key}))
+function dispatchPointerEvent(
+  type: 'pointerdown' | 'pointerup',
+  buttons: Button
+): void {
+  target.dispatchEvent(
+    Object.assign(new Event(type), {
+      buttons,
+      isPrimary: true
+    } satisfies Partial<PointerEvent>)
+  )
 }
