@@ -2,7 +2,7 @@
 import type {Anim, TagFormat} from './graphics/anim.js'
 import type {Atlas} from './graphics/atlas.js'
 import {Sprite} from './graphics/sprite.js'
-import {Input} from './input/input.js'
+import {Input, type StandardButton} from './input/input.js'
 import {BitmapBuffer, type Bitmap} from './renderer/bitmap.js'
 import {Cam} from './renderer/cam.js'
 import {FrameListener} from './renderer/frame-listener.js'
@@ -18,22 +18,22 @@ export {layoutText, type TextLayout} from './text/text-layout.js'
 export type {Box, WH, XY} from './types/2d.js'
 export type {Config} from './types/config.js'
 export {Sprite}
-export type {Anim, Atlas, TagFormat}
+export type {Anim, Atlas, StandardButton, TagFormat}
 
 declare const assets: {
   readonly atlas: Atlas<unknown>
   readonly atlasURI: string
 }
 
-export class Void<Tag> {
-  static async new<Tag>(): Promise<Void<Tag>> {
+export class Void<Tag, Button> {
+  static async new<Tag, Button>(): Promise<Void<Tag, Button>> {
     return new Void(await loadImage(assets.atlasURI))
   }
 
   readonly atlas: Atlas<Tag> = <Atlas<Tag>>assets.atlas
   readonly debug: boolean = debug
   readonly cam: Cam = new Cam()
-  readonly ctrl: Input
+  readonly ctrl: Input<Button & string>
   readonly kv: JSONStorage = new JSONStorage()
   readonly synth: Synth = new Synth()
 

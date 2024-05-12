@@ -13,10 +13,14 @@ export class FrameListener {
   #frame?: number | undefined
   #loop?: (() => void) | undefined
   #time?: number | undefined
-  readonly #input: Input
+  readonly #input: Input<string>
   readonly #renderer: Renderer
 
-  constructor(canvas: HTMLCanvasElement, input: Input, renderer: Renderer) {
+  constructor(
+    canvas: HTMLCanvasElement,
+    input: Input<string>,
+    renderer: Renderer
+  ) {
     this.#canvas = canvas
     this.#input = input
     this.#renderer = renderer
