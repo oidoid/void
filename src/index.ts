@@ -88,7 +88,7 @@ export class Void<Tag, Button> {
     this.#bitmaps.size = 0
   }
 
-  sprite(tag: Tag & string): Sprite<Tag> {
+  sprite(tag: Tag & TagFormat): Sprite<Tag> {
     return new Sprite<Tag>(this.atlas, tag)
   }
 

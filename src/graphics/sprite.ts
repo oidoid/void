@@ -1,6 +1,6 @@
 import type {Bitmap} from '../renderer/bitmap.js'
 import {boxHits, type Box, type WH, type XY} from '../types/2d.js'
-import type {Anim} from './anim.js'
+import type {Anim, TagFormat} from './anim.js'
 import type {Atlas} from './atlas.js'
 
 export type SpriteJSON = {
@@ -19,7 +19,7 @@ export class Sprite<T> implements Bitmap, Box {
   static parse<T>(atlas: Atlas<T>, json: Readonly<SpriteJSON>): Sprite<T> {
     if (!(json.tag in atlas.anim))
       throw Error(`atlas missing tag "${json.tag}"`)
-    const sprite = new Sprite(atlas, <T & string>json.tag)
+    const sprite = new Sprite(atlas, <T & TagFormat>json.tag)
     sprite.cel = json.cel ?? 0
     sprite.flipX = json.flip === 'X' || json.flip === 'XY'
     sprite.flipY = json.flip === 'Y' || json.flip === 'XY'
@@ -42,7 +42,7 @@ export class Sprite<T> implements Bitmap, Box {
   #anim: Anim<T> = <Anim<T>>{} // init'd by tag.
   readonly #atlas: Atlas<T>
 
-  constructor(atlas: Atlas<T>, tag: T & string) {
+  constructor(atlas: Atlas<T>, tag: T & TagFormat) {
     this.#atlas = atlas
     this.tag = tag // inits #anim and hitbox.
   }
@@ -108,7 +108,8 @@ export class Sprite<T> implements Bitmap, Box {
     return this.#anim.tag
   }
 
-  set tag(tag: T & string) {
+  /** sets animation and hitbox. */
+  set tag(tag: T & TagFormat) {
     if (tag === this.#anim.tag) return
     this.#anim = this.#atlas.anim[tag]
     const {hitbox} = this.#anim
@@ -122,7 +123,8 @@ export class Sprite<T> implements Bitmap, Box {
   }
 
   toString(): string {
-    return `${this.tag} (${this.x}, ${this.y}) ${this.w}×${this.h}`
+    const debug = this.debug == null ? '' : `${JSON.stringify(this.debug)} `
+    return `${this.tag} ${debug}(${this.x}, ${this.y}) ${this.w}×${this.h}`
   }
 
   get w(): number {
