@@ -3,6 +3,7 @@ import type {Anim, TagFormat} from './graphics/anim.js'
 import type {Atlas} from './graphics/atlas.js'
 import {Sprite} from './graphics/sprite.js'
 import {Input, type StandardButton} from './input/input.js'
+import {Random} from './random.js'
 import {BitmapBuffer, type Bitmap} from './renderer/bitmap.js'
 import {Cam} from './renderer/cam.js'
 import {FrameListener} from './renderer/frame-listener.js'
@@ -17,7 +18,7 @@ export {fontCharToTag} from './text/font.js'
 export {layoutText, type TextLayout} from './text/text-layout.js'
 export type {Box, WH, XY} from './types/2d.js'
 export type {Config} from './types/config.js'
-export {Sprite}
+export {Random, Sprite}
 export type {Anim, Atlas, StandardButton, TagFormat}
 
 declare const assets: {
@@ -35,6 +36,7 @@ export class Void<Tag, Button> {
   readonly cam: Cam = new Cam()
   readonly ctrl: Input<Button & string>
   readonly kv: JSONStorage = new JSONStorage()
+  readonly rnd: Random = new Random(0)
   readonly synth: Synth = new Synth()
 
   readonly #bitmaps: BitmapBuffer = new BitmapBuffer(1_000_000)
