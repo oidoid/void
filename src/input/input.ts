@@ -72,10 +72,6 @@ export class Input<T extends string> {
     return !this.isOn(...buttons) && this.isAnyStart(...buttons)
   }
 
-  // isAnyOn(...buttons: readonly Button[]): boolean {
-  //   return buttons.some(btn => this.isOn(btn))
-  // }
-
   /**
    * Test if all buttons are on. True if the buttons are pressed regardless of
    * whether other buttons are pressed. Eg, `isOn('Up')` will return true when

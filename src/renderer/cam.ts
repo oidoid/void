@@ -8,9 +8,9 @@ export class Cam implements Box {
   lvl: Box = {x: -4096, y: -4096, w: 8191, h: 8191}
 
   readonly #clientWH: WH = {w: 1, h: 1}
-  #scale = 1
-  #w = this.minWH.w
-  #h = this.minWH.h
+  #scale: number = 1
+  #w: number = this.minWH.w
+  #h: number = this.minWH.h
 
   get h(): number {
     return this.#h
@@ -29,7 +29,7 @@ export class Cam implements Box {
     this.#scale = Math.max(
       this.minScale,
       Math.floor(Math.min(nativeW / this.minWH.w, nativeH / this.minWH.h)) -
-        (zoomOut ?? 0) // Default is to zoom in as much as possible.
+        (zoomOut ?? 0) // default is to zoom in as much as possible.
     )
     this.#w = Math.floor(nativeW / this.#scale)
     this.#h = Math.floor(nativeH / this.#scale)
