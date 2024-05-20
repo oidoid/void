@@ -14,6 +14,7 @@ export type AsepriteFrameMap = {
 export type AsepriteMeta = {
   /** `--list-tags`. */
   readonly frameTags: readonly AsepriteTagSpan[]
+  readonly size: Readonly<WH>
   /** `--list-slices`. */
   readonly slices: readonly AsepriteSlice[]
 }

@@ -1,10 +1,15 @@
+/** build config. */
 export type Config = {
-  /** Atlas Aseprite directory. */
+  /** atlas Aseprite directory. */
   readonly atlas: string
   /** HTML template input. */
   readonly html: string
-  /** Output directory. */
+  /** output directory. */
   readonly out: string
-  /** Atlas tags. */
+  /** atlas tags. */
   readonly tags: {readonly [tag: string]: null}
+  /** tileset tiles. */
+  readonly tiles: {readonly [tile: string]: null}
+  /** tileset Aseprite file. */
+  readonly tileset: string
 }

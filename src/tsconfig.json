@@ -2,6 +2,9 @@
 {
   "extends": "../tools/base-tsconfig.json",
   "compilerOptions": {
+    "checkJs": true,
+    "isolatedDeclarations": false, // incompatible with allowJS.
+
     "lib": ["DOM", "ES2023"],
 
     "outDir": "../dist",

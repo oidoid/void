@@ -24,12 +24,13 @@
   "files": [
     "dist",
     "!dist/**/tsconfig.tsbuildinfo",
-    "tools/atlas-parser.js"
+    "tools/atlas-parser.js",
+    "tools/tileset-parser.js"
   ],
   "filesize": {
     "dist/void.js": {
-      "none": "17.0 KB",
-      "gzip": "6.5 KB"
+      "none": "20.3 KB",
+      "gzip": "7.0 KB"
     }
   },
   "homepage": "https://github.com/oidoid/void",

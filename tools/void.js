@@ -16,6 +16,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import pkg from '../package.json' assert {type: 'json'}
 import {parseAtlas} from './atlas-parser.js'
+import {parseTileset} from './tileset-parser.js'
 /** @import {Config} from '../src/types/config.js' */
 
 const watch = process.argv.includes('--watch')
@@ -39,7 +40,7 @@ const doc = new JSDOM(await fs.readFile(htmlInFilename, 'utf8')).window.document
 let srcFilename = /** @type {HTMLScriptElement|null} */ (
   doc.querySelector('script[type="module"][src]')
 )?.src
-if (!srcFilename) throw Error('missing script source')
+if (!srcFilename) throw Error('no script source')
 srcFilename = path.resolve(htmlInDir, srcFilename)
 
 const outDir = path.resolve(configDir, config.out)
@@ -66,6 +67,21 @@ const atlas = JSON.stringify(parseAtlas(JSON.parse(atlasAse), config.tags))
 const atlasURI =
   await `data:image/png;base64,${(await fs.readFile(atlasImageFilename)).toString('base64')}`
 
+let tileset = 'null'
+let tilesetURI = ''
+if (config.tileset) {
+  if (!config.tiles) throw Error('no tiles')
+  const tilesetImageFilename = `${await fs.mkdtemp('/tmp/', {encoding: 'utf8'})}/tileset.png`
+  const tilesetAse = await ase(
+    '--batch',
+    '--color-mode=indexed',
+    '--list-slices',
+    `--sheet=${tilesetImageFilename}`,
+    path.resolve(configDir, config.tileset)
+  )
+  tileset = JSON.stringify(parseTileset(JSON.parse(tilesetAse), config.tiles))
+  tilesetURI = `data:image/png;base64,${(await fs.readFile(tilesetImageFilename)).toString('base64')}`
+}
 /** @type {Parameters<esbuild.PluginBuild['onEnd']>[0]} */
 async function pluginOnEnd(result) {
   const copy = /** @type {Document} */ (doc.cloneNode(true))
@@ -77,8 +93,8 @@ async function pluginOnEnd(result) {
     manifestFilename = path.resolve(htmlInDir, manifestEl.href)
     const manifest = JSON.parse(await fs.readFile(manifestFilename, 'utf8'))
     for (const icon of manifest.icons) {
-      if (!icon.src) throw Error('missing manifest icon src')
-      if (!icon.type) throw Error('missing manifest icon type')
+      if (!icon.src) throw Error('no manifest icon src')
+      if (!icon.type) throw Error('no manifest icon type')
       const file = await fs.readFile(
         `${path.dirname(manifestFilename)}/${icon.src}`
       )
@@ -113,7 +129,7 @@ async function pluginOnEnd(result) {
   const scriptEl = /** @type {HTMLScriptElement|null} */ (
     copy.querySelector('script[type="module"][src]')
   )
-  if (!scriptEl) throw Error('missing script')
+  if (!scriptEl) throw Error('no script')
   scriptEl.removeAttribute('src')
   scriptEl.textContent = js
   const outFilename = `${outDir}/${
@@ -131,7 +147,9 @@ const buildOpts = {
   bundle: true,
   define: {
     'assets.atlas': atlas,
-    'assets.atlasURI': `'${atlasURI}'`
+    'assets.atlasURI': `'${atlasURI}'`,
+    'assets.tileset': tileset,
+    'assets.tilesetURI': `'${tilesetURI}'`
   },
   entryPoints: [srcFilename],
   format: 'esm',

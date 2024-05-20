@@ -1,5 +1,5 @@
 import {Input} from '../input/input.js'
-import {BitmapBuffer} from './bitmap.js'
+import type {AttribBuffer} from './attrib-buffer.js'
 import {Cam} from './cam.js'
 import {Renderer} from './renderer.js'
 
@@ -50,11 +50,16 @@ export class FrameListener {
     this.#input.register(op)
   }
 
-  render(cam: Readonly<Cam>, buffer: BitmapBuffer, loop?: () => void): void {
+  render(
+    cam: Readonly<Cam>,
+    bmps: Readonly<AttribBuffer>,
+    tiles: Readonly<AttribBuffer>,
+    loop?: () => void
+  ): void {
     this.#loop = loop
     if (document.hidden || !this.#renderer.hasContext()) return
     if (this.#loop) this.#frame ??= requestAnimationFrame(this.#onFrame)
-    this.#renderer.render(cam, this.frame, buffer)
+    this.#renderer.render(cam, this.frame, bmps, tiles)
   }
 
   #onEvent = (event: Event): void => {

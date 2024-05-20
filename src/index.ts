@@ -2,9 +2,11 @@
 import type {Anim, TagFormat} from './graphics/anim.js'
 import type {Atlas} from './graphics/atlas.js'
 import {Sprite} from './graphics/sprite.js'
+import type {Tileset} from './graphics/tileset.js'
 import {Input, type StandardButton} from './input/input.js'
 import {Random} from './random.js'
-import {BitmapBuffer, type Bitmap} from './renderer/bitmap.js'
+import {BitmapAttribBuffer, TileAttribBuffer} from './renderer/attrib-buffer.js'
+import {type Bitmap} from './renderer/bitmap.js'
 import {Cam} from './renderer/cam.js'
 import {FrameListener} from './renderer/frame-listener.js'
 import {Renderer} from './renderer/renderer.js'
@@ -24,11 +26,17 @@ export type {Anim, Atlas, StandardButton, TagFormat}
 declare const assets: {
   readonly atlas: Atlas<unknown>
   readonly atlasURI: string
+  readonly tileset: Tileset<unknown>
+  readonly tilesetURI: string
 }
 
-export class Void<Tag, Button> {
-  static async new<Tag, Button>(): Promise<Void<Tag, Button>> {
-    return new Void(await loadImage(assets.atlasURI))
+export class Void<Tag, Button, Tile> {
+  static async new<Tag, Button, Tile>(): Promise<Void<Tag, Button, Tile>> {
+    const [atlasImage, tilesetImage] = await Promise.all([
+      loadImage(assets.atlasURI),
+      assets.tilesetURI ? loadImage(assets.tilesetURI) : undefined
+    ])
+    return new Void(atlasImage, tilesetImage)
   }
 
   readonly atlas: Atlas<Tag> = <Atlas<Tag>>assets.atlas
@@ -38,12 +46,17 @@ export class Void<Tag, Button> {
   readonly kv: JSONStorage = new JSONStorage()
   readonly rnd: Random = new Random(0)
   readonly synth: Synth = new Synth()
+  readonly tileset: Tileset<Tile> = <Tileset<Tile>>assets.tileset
 
-  readonly #bitmaps: BitmapBuffer = new BitmapBuffer(1_000_000)
+  readonly #bmps: BitmapAttribBuffer = new BitmapAttribBuffer(1_000_000)
   readonly #framer: FrameListener
   readonly #renderer: Renderer
+  readonly #tiles: TileAttribBuffer = new TileAttribBuffer(1_000_000) // cam sized.
 
-  constructor(atlasImage: HTMLImageElement) {
+  constructor(
+    atlasImage: HTMLImageElement,
+    tilesetImage: HTMLImageElement | undefined
+  ) {
     const meta = document.createElement('meta')
     meta.name = 'viewport'
     // Don't wait for double-tap scaling on mobile.
@@ -65,7 +78,7 @@ export class Void<Tag, Button> {
     document.body.append(canvas)
 
     this.ctrl = new Input(this.cam, canvas)
-    this.#renderer = new Renderer(this.atlas, atlasImage, canvas)
+    this.#renderer = new Renderer(this.atlas, atlasImage, canvas, tilesetImage)
     this.#framer = new FrameListener(canvas, this.ctrl, this.#renderer)
     this.#framer.register('add')
     this.background = 0x000000ff
@@ -76,8 +89,12 @@ export class Void<Tag, Button> {
     this.#renderer.clearColor(rgba)
   }
 
-  blit(bmp: Readonly<Bitmap>): void {
-    this.#bitmaps.push(bmp)
+  blitBitmap(bmp: Readonly<Bitmap>): void {
+    this.#bmps.push(bmp)
+  }
+
+  blitTile(id: number): void {
+    this.#tiles.push(id)
   }
 
   get frame(): number {
@@ -86,8 +103,9 @@ export class Void<Tag, Button> {
 
   render(loop?: () => void): void {
     this.cam.resize()
-    this.#framer.render(this.cam, this.#bitmaps, loop)
-    this.#bitmaps.size = 0
+    this.#framer.render(this.cam, this.#bmps, this.#tiles, loop)
+    this.#bmps.size = 0
+    this.#tiles.size = 0 // to-do: this isn't needed if cam hasn't changed.
   }
 
   sprite(tag: Tag & TagFormat): Sprite<Tag> {

@@ -7,7 +7,7 @@ describe('parseAtlas()', () => {
     expect(
       parseAtlas(
         {
-          meta: {frameTags: [], slices: []},
+          meta: {frameTags: [], size: {w: 0, h: 0}, slices: []},
           frames: {}
         },
         {}
@@ -72,7 +72,7 @@ describe('parseAtlas()', () => {
     ]
     expect(
       parseAtlas(
-        {meta: {frameTags, slices}, frames},
+        {meta: {frameTags, size: {w: 0, h: 0}, slices}, frames},
         {
           'palette--red': null,
           'scenery--Cloud': null,
@@ -142,7 +142,7 @@ describe('parseAtlas()', () => {
     }
     expect(() =>
       parseAtlas(
-        {meta: {frameTags, slices: []}, frames},
+        {meta: {frameTags, size: {w: 0, h: 0}, slices: []}, frames},
         {'palette--red': null, 'scenery--Cloud': null}
       )
     ).toThrow()

@@ -1,11 +1,9 @@
-import {debug} from '../types/debug.js'
-
-export const vertGLSL: string = `#version 300 es
+export const spriteVertGLSL: string = `#version 300 es
 #pragma debug(${debug ? 'on' : 'off'})
 #pragma optimize(${debug ? 'off' : 'on'})
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#essl300_minimum_requirements_webgl_2
-uniform lowp usampler2D uCels;
 uniform mediump ivec4 uCam;
+uniform lowp usampler2D uCels;
 uniform highp uint uFrame;
 
 layout (location=0) in lowp ivec2 iUV;
@@ -47,3 +45,5 @@ void main() {
   vTexXYWH = ivec4(texXYWH);
   vDstWH = vec2(targetWH * ivec2(flipX ? -1 : 1, flipY ? -1 : 1));
 }`
+
+import {debug} from '../types/debug.js'
