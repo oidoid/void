@@ -19,7 +19,7 @@ export class Random {
   }
 
   /** Returns a fraction in [0, 1). */
-  get val(): number {
+  get num(): number {
     this.#seed = (this.#seed * 16_807) % 0x7fff_ffff
     return (this.#seed - 1) / 0x7fff_fffe
   }
