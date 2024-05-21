@@ -1,7 +1,5 @@
 export const tileVertGLSL: string = `#version 300 es
 // aligned to sprite-vert.
-#pragma debug(${debug ? 'on' : 'off'})
-#pragma optimize(${debug ? 'off' : 'on'})
 uniform mediump ivec4 uCam;
 uniform mediump uvec2 uTexWH;
 uniform lowp uint uTileSide;
@@ -33,5 +31,3 @@ void main() {
   vTexXYWH = ivec4(texX, texY, uTileSide, uTileSide);
   vDstWH = vec2(wh);
 }`
-
-import {debug} from '../types/debug.js'

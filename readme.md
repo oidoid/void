@@ -1,7 +1,5 @@
 # void
 
-All of my free time goes into void.
-
 ## Installation
 
 ```

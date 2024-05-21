@@ -5,6 +5,4 @@ export type Bitmap = {
   readonly _wh: number
   /** id+cel: u15, flipX: b1, flipY: b1, zend: b1, z: u3 */
   readonly _iffzz: number
-  /** User hint. */
-  readonly debug?: unknown
 }

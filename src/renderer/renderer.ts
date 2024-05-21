@@ -1,5 +1,4 @@
 import type {Atlas} from '../graphics/atlas.js'
-import {debug} from '../types/debug.js'
 import type {AttribBuffer} from './attrib-buffer.js'
 import {Cam} from './cam.js'
 import {fragGLSL} from './frag.glsl.js'
@@ -46,7 +45,6 @@ export class Renderer {
     if (this.hasContext()) return
     const gl = this.#canvas.getContext('webgl2', {
       antialias: false,
-      desynchronized: !debug, // Breaks render stats.
       powerPreference: 'high-performance'
     })
     if (!gl) throw Error('WebGL v2 unsupported')

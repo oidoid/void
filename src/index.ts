@@ -12,7 +12,6 @@ import {FrameListener} from './renderer/frame-listener.js'
 import {Renderer} from './renderer/renderer.js'
 import {JSONStorage} from './storage/json-storage.js'
 import {Synth} from './synth/synth.js'
-import {debug} from './types/debug.js'
 
 export type {Font} from 'mem-font'
 export type {SpriteJSON} from './graphics/sprite.js'
@@ -40,7 +39,6 @@ export class Void<Tag, Button, Tile> {
   }
 
   readonly atlas: Atlas<Tag> = <Atlas<Tag>>assets.atlas
-  readonly debug: boolean = debug
   readonly cam: Cam = new Cam()
   readonly ctrl: Input<Button & string>
   readonly kv: JSONStorage = new JSONStorage()

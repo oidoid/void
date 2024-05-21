@@ -1,6 +1,4 @@
 export const fragGLSL: string = `#version 300 es
-#pragma debug(${debug ? 'on' : 'off'})
-#pragma optimize(${debug ? 'off' : 'on'})
 uniform mediump sampler2D uTex;
 uniform mediump uvec2 uTexWH;
 
@@ -14,5 +12,3 @@ void main() {
   oFrag = texture(uTex, px / vec2(uTexWH));
   if(oFrag.a < 1.) discard;
 }`
-
-import {debug} from '../types/debug.js'
