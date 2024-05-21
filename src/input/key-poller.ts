@@ -1,4 +1,4 @@
-export class KeyboardPoller {
+export class KeyPoller {
   bits: number = 0
   readonly #bitByKey: {[key: string]: number} = {}
 

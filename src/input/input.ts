@@ -1,7 +1,7 @@
 import {Cam} from '../renderer/cam.js'
 import type {XY} from '../types/2d.js'
-import {GamepadPoller} from './gamepad-poller.js'
-import {KeyboardPoller} from './keyboard-poller.js'
+import {KeyPoller} from './key-poller.js'
+import {PadPoller} from './pad-poller.js'
 import {PointerPoller} from './pointer-poller.js'
 
 // prettier-ignore
@@ -27,8 +27,8 @@ export class Input<T extends string> {
   readonly #combo: number[] = []
   /** The time in milliseconds since the input changed. */
   #duration: number = 0
-  readonly #gamepad: GamepadPoller = new GamepadPoller()
-  readonly #keyboard: KeyboardPoller = new KeyboardPoller()
+  readonly #gamepad: PadPoller = new PadPoller()
+  readonly #keyboard: KeyPoller = new KeyPoller()
   readonly #pointer: PointerPoller
   /** Prior button samples independent of combo. Index 0 is current loop. */
   readonly #prevBits: [number, number] = [0, 0]
