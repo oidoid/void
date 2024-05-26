@@ -49,7 +49,7 @@
     "build": "tsc --build",
     "clean": "rm -rf dist",
     "format": "npm run formatter -- --apply",
-    "formatter": "biome check --error-on-warnings .",
+    "formatter": "biome check --config-path=tools --error-on-warnings .",
     "preversion": "[ -z \"$(git status -z)\" ]",
     "prepublishOnly": "! git symbolic-ref --quiet HEAD || git push --follow-tags origin \"$(git branch --show-current)\"",
     "start": "npm run build -- --watch",
