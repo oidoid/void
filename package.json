@@ -4,7 +4,7 @@
     "void": "tools/void.js"
   },
   "bugs": "https://github.com/oidoid/void/issues",
-  "description": "Tiny 2D game engine.",
+  "description": "basic 2D game library.",
   "dependencies": {
     "esbuild": "0.21.1",
     "jsdom": "24.0.0"

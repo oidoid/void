@@ -1,5 +1,7 @@
 # void
 
+basic 2D game library.
+
 ## Installation
 
 ```
