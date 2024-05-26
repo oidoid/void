@@ -17,8 +17,7 @@
     "parser": { "allowComments": true }
   },
   "linter": {
-    "rules": {
-      "style": { "noInferrableTypes": "off", "noNonNullAssertion": "off" }
+    "rules": {      "style": { "noInferrableTypes": "off", "noNonNullAssertion": "off" }
     }
   },
   "vcs": { "enabled": true, "clientKind": "git" }
