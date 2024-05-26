@@ -1,4 +1,4 @@
-import {memProp5x5, type Font} from 'mem-font'
+import {type Font, memProp5x5} from 'mem-font'
 import {describe, expect, test} from 'vitest'
 import {layoutText, layoutWord} from './text-layout.js'
 
@@ -608,7 +608,7 @@ describe('layoutWord()', () => {
       }
     ]
   ]).entries()) {
-    test(`case ${caseNumber}: xy=${(xy.x, xy.y)}, width=${width}, string="${string}", index=${index}.`, () =>
+    test(`case ${caseNumber}: xy=(${xy.x}, ${xy.y}), width=${width}, string="${string}", index=${index}.`, () =>
       expect(layoutWord(font, xy, width, string, index)).toStrictEqual(
         expected
       ))

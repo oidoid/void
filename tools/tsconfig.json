@@ -15,5 +15,5 @@
     "types": ["node"]
   },
   "include": ["**/*", "../package.json"],
-  "references": [{"path": "../src"}]
+  "references": [{ "path": "../src" }]
 }

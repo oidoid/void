@@ -15,7 +15,7 @@ export function layoutText(font: Font, str: string, maxW: number): TextLayout {
   while (chars.length < str.length) {
     const i = chars.length
     const char = str[i]!
-    let layout
+    let layout: TextLayout
     if (char === '\n') layout = layoutNewline(font, cursor)
     else if (/^\s*$/.test(char)) {
       layout = layoutSpace(font, cursor, maxW, tracking(font, char, str[i + 1]))
@@ -54,14 +54,15 @@ export function layoutWord(
     const span = tracking(font, char, word[index + 1])
     if (x > 0 && x + span > maxW) ({x, y} = nextLine(font, y))
 
-    // Width is not span since, with kerning, that may exceed the actual
-    // width of the character's sprite. For example, if w has the maximal
+    // width is not span since, with kerning, that may exceed the actual
+    // width of the character's sprite. for example, if w has the maximal
     // character width of five pixels and a one pixel kerning for a given pair
     // of characters, it will have a span of six pixels which is greater than
     // the maximal five pixel sprite that can be rendered.
     chars.push({x, y, w: fontCharWidth(font, char), h: font.cellHeight})
     x += span
 
+    // biome-ignore lint/style/noParameterAssign:
     index++
   }
   return {chars, cursor: {x, y}}
@@ -76,7 +77,7 @@ function layoutNewline(font: Font, cursor: Readonly<XY>): TextLayout {
 }
 
 /**
- * @arg span  The distance in pixels from the start of the current character to
+ * @arg span  the distance in pixels from the start of the current character to
  *            the start of the next including scale.
  */
 function layoutSpace(
@@ -92,7 +93,7 @@ function layoutSpace(
   return {chars: [undefined], cursor: nextCursor}
 }
 
-/** Returns the distance in pixels from the start of lhs to the start of rhs. */
+/** @return the distance in pixels from the start of lhs to the start of rhs. */
 function tracking(font: Font, lhs: string, rhs: string | undefined): number {
   return fontCharWidth(font, lhs) + fontKerning(font, lhs, rhs)
 }

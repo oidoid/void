@@ -1,8 +1,8 @@
 import type {Atlas} from '../graphics/atlas.js'
 import type {AttribBuffer} from './attrib-buffer.js'
-import {Cam} from './cam.js'
+import type {Cam} from './cam.js'
 import {fragGLSL} from './frag.glsl.js'
-import {Shader, type GL} from './shader.js'
+import {type GL, Shader} from './shader.js'
 import {spriteVertGLSL} from './sprite-vert.glsl.js'
 import {tileVertGLSL} from './tile-vert.glsl.js'
 

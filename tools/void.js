@@ -1,19 +1,19 @@
 #!/usr/bin/env -S node --no-warnings
-// Bundles sources into a single HTML file for distribution and development.
+// bundles sources into a single HTML file for distribution and development.
 //
 // void [--watch] assets.json
-// --watch  Run development server. Serve on http://localhost:1234 and reload on
+// --watch  run development server. Serve on http://localhost:1234 and reload on
 //          code change.
 //
-// --no-warnings shebang works around JSON import warnings. See
+// --no-warnings shebang works around JSON import warnings. see
 // https://github.com/nodejs/node/issues/27355 and
 // https://github.com/nodejs/node/issues/40940.
 
-import {execFile} from 'child_process'
-import esbuild from 'esbuild'
-import {JSDOM} from 'jsdom'
+import {execFile} from 'node:child_process'
 import fs from 'node:fs/promises'
 import path from 'node:path'
+import esbuild from 'esbuild'
+import {JSDOM} from 'jsdom'
 import pkg from '../package.json' assert {type: 'json'}
 import {parseAtlas} from './atlas-parser.js'
 import {parseTileset} from './tileset-parser.js'
@@ -49,12 +49,14 @@ const atlasDir = path.resolve(configDir, config.atlas)
 const atlasFilenames = (await fs.readdir(atlasDir))
   .filter(name => name.endsWith('.aseprite'))
   .map(name => path.resolve(atlasDir, name))
-const atlasImageFilename = `${await fs.mkdtemp('/tmp/', {encoding: 'utf8'})}/atlas.png`
+const atlasImageFilename = `${await fs.mkdtemp('/tmp/', {
+  encoding: 'utf8'
+})}/atlas.png`
 const atlasAse = await ase(
   '--batch',
   '--color-mode=indexed',
   '--filename-format={title}--{tag}--{frame}',
-  // '--ignore-empty', Breaks --tagname-format.
+  // '--ignore-empty', breaks --tagname-format.
   '--list-slices',
   '--list-tags',
   '--merge-duplicates',
@@ -64,14 +66,17 @@ const atlasAse = await ase(
   ...atlasFilenames
 )
 const atlas = JSON.stringify(parseAtlas(JSON.parse(atlasAse), config.tags))
-const atlasURI =
-  await `data:image/png;base64,${(await fs.readFile(atlasImageFilename)).toString('base64')}`
+const atlasURI = await `data:image/png;base64,${(
+  await fs.readFile(atlasImageFilename)
+).toString('base64')}`
 
 let tileset = 'null'
 let tilesetURI = ''
 if (config.tileset) {
   if (!config.tiles) throw Error('no tiles')
-  const tilesetImageFilename = `${await fs.mkdtemp('/tmp/', {encoding: 'utf8'})}/tileset.png`
+  const tilesetImageFilename = `${await fs.mkdtemp('/tmp/', {
+    encoding: 'utf8'
+  })}/tileset.png`
   const tilesetAse = await ase(
     '--batch',
     '--color-mode=indexed',
@@ -80,7 +85,9 @@ if (config.tileset) {
     path.resolve(configDir, config.tileset)
   )
   tileset = JSON.stringify(parseTileset(JSON.parse(tilesetAse), config.tiles))
-  tilesetURI = `data:image/png;base64,${(await fs.readFile(tilesetImageFilename)).toString('base64')}`
+  tilesetURI = `data:image/png;base64,${(
+    await fs.readFile(tilesetImageFilename)
+  ).toString('base64')}`
 }
 /** @type {Parameters<esbuild.PluginBuild['onEnd']>[0]} */
 async function pluginOnEnd(result) {
@@ -153,13 +160,13 @@ const buildOpts = {
   },
   entryPoints: [srcFilename],
   format: 'esm',
-  logLevel: `info`, // Print the port and build demarcations.
+  logLevel: 'info', // print the port and build demarcations.
   minify: !watch,
   outdir: outDir,
   plugins: [{name: 'void', setup: build => build.onEnd(pluginOnEnd)}],
   sourcemap: 'linked',
   target: 'es2022', // https://esbuild.github.io/content-types/#tsconfig-json
-  write: false // Written by plugin.
+  write: false // written by plugin.
 }
 if (watch) {
   const ctx = await esbuild.context(buildOpts)

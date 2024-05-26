@@ -14,5 +14,5 @@
     "tsBuildInfoFile": "../../dist/test/tsconfig.tsbuildinfo"
   },
   "include": ["**/*", "../**/*.test.ts"],
-  "references": [{"path": ".."}]
+  "references": [{ "path": ".." }]
 }

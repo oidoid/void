@@ -1,10 +1,10 @@
-import {Cam} from '../renderer/cam.js'
+import type {Cam} from '../renderer/cam.js'
 import type {XY} from '../types/2d.js'
 import {KeyPoller} from './key-poller.js'
 import {PadPoller} from './pad-poller.js'
 import {PointerPoller} from './pointer-poller.js'
 
-// prettier-ignore
+// biome-ignore format:
 export type StandardButton =
   'L' | 'R' | 'U' | 'D' | // Dpad.
   'A' | 'B' | 'C' | // Primary, secondary, tertiary.
@@ -198,7 +198,7 @@ export class Input<T extends string> {
   }
 
   #map(button: T): number {
-    return (this.#bitByButton[button] ??=
-      1 << Object.keys(this.#bitByButton).length)
+    this.#bitByButton[button] ??= 1 << Object.keys(this.#bitByButton).length
+    return this.#bitByButton[button]
   }
 }

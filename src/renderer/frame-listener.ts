@@ -1,7 +1,7 @@
-import {Input} from '../input/input.js'
+import type {Input} from '../input/input.js'
 import type {AttribBuffer} from './attrib-buffer.js'
-import {Cam} from './cam.js'
-import {Renderer} from './renderer.js'
+import type {Cam} from './cam.js'
+import type {Renderer} from './renderer.js'
 
 export class FrameListener {
   /** The running lifetime in milliseconds. */
