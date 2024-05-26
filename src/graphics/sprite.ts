@@ -16,9 +16,19 @@ export type SpriteJSON = {
 }
 
 export class Sprite<T> implements Bitmap, Box {
+  // to-do: move to super patience if i'm not going to populate sprites with
+  // JSON.
   static parse<T>(atlas: Atlas<T>, json: Readonly<SpriteJSON>): Sprite<T> {
     if (!(json.tag in atlas.anim))
       throw Error(`atlas missing tag "${json.tag}"`)
+    // to-do: add validation logic if keeping in void.
+    // if (
+    //   json.flip != null &&
+    //   json.flip !== 'X' &&
+    //   json.flip !== 'Y' &&
+    //   json.flip !== 'XY'
+    // )
+    //   throw Error(`invalid flip "${json.flip}"`)
     const sprite = new Sprite(atlas, <T & TagFormat>json.tag)
     sprite.cel = json.cel ?? 0
     sprite.flipX = json.flip === 'X' || json.flip === 'XY'
@@ -59,7 +69,7 @@ export class Sprite<T> implements Bitmap, Box {
     return (this._iffzz >> 6) & 0xf
   }
 
-  /** Set to frame number to start at the beginning. */
+  /** set to Void.frame to start at the beginning. */
   set cel(cel: number) {
     this._iffzz = (this._iffzz & 0xfffffc3f) | ((cel & 0xf) << 6)
   }
@@ -164,7 +174,7 @@ export class Sprite<T> implements Bitmap, Box {
     return this._iffzz & 0x7
   }
 
-  /** Greater is further. */
+  /** greater is further. */
   set z(z: number) {
     this._iffzz = (this._iffzz & 0xfffffff8) | (z & 0x7)
   }

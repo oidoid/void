@@ -23,7 +23,7 @@ export type AsepriteMeta = {
 export type AsepriteFrameTag = `${TagFormat}--${bigint}`
 
 export type AsepriteFrame = {
-  /** Bounds including padding. */
+  /** bounds including padding. */
   readonly frame: Readonly<Box>
   /** WH without padding. */
   readonly sourceSize: Readonly<WH>
@@ -32,7 +32,7 @@ export type AsepriteFrame = {
 export type AsepriteTagSpan = {
   readonly name: TagFormat | string
   readonly from: number
-  /** The inclusive ending index, possibly equal to from. */
+  /** the inclusive ending index, possibly equal to from. */
   readonly to: number
 }
 

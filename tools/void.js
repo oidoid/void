@@ -2,7 +2,7 @@
 // bundles sources into a single HTML file for distribution and development.
 //
 // void [--watch] assets.json
-// --watch  run development server. Serve on http://localhost:1234 and reload on
+// --watch  run development server. serve on http://localhost:1234 and reload on
 //          code change.
 //
 // --no-warnings shebang works around JSON import warnings. see

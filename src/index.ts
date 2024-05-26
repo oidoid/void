@@ -57,7 +57,7 @@ export class Void<Tag, Button, Tile> {
   ) {
     const meta = document.createElement('meta')
     meta.name = 'viewport'
-    // Don't wait for double-tap scaling on mobile.
+    // don't wait for double-tap scaling on mobile.
     meta.content = 'maximum-scale=1, minimum-scale=1, user-scalable=no'
     document.head.appendChild(meta)
 
@@ -67,11 +67,11 @@ export class Void<Tag, Button, Tile> {
     document.body.style.overflow = 'hidden'
 
     const canvas = document.createElement('canvas')
-    canvas.width = 0 // Guarantee Renderer.#resize().
+    canvas.width = 0 // guarantee Renderer.#resize().
     canvas.style.cursor = 'none'
-    canvas.style.display = 'block' // No line height spacing.
+    canvas.style.display = 'block' // no line height spacing.
     canvas.style.imageRendering = 'pixelated'
-    // Update on each pointermove *touch* Event like *mouse* Events.
+    // update on each pointermove *touch* Event like *mouse* Events.
     canvas.style.touchAction = 'none'
     document.body.append(canvas)
 

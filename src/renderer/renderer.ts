@@ -52,17 +52,17 @@ export class Renderer {
 
     this.clearColor(this.#clearColor)
 
-    // Allow transparent textures to be layered.
+    // allow transparent textures to be layered.
     gl.enable(gl.BLEND)
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
-    // Enable z-buffer for [0, 1] ([foreground, background]).
+    // enable z-buffer for [0, 1] ([foreground, background]).
     gl.enable(gl.DEPTH_TEST)
     gl.depthRange(0, 1)
     gl.clearDepth(1)
     gl.depthFunc(gl.LESS)
 
-    // Disable image colorspace conversions. The default is browser dependent.
+    // disable image colorspace conversions. the default is browser dependent.
     gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, false)
 
     this.#loseContext = gl.getExtension('WEBGL_lose_context')

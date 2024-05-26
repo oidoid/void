@@ -3,10 +3,10 @@
   "$schema": "https://json.schemastore.org/tsconfig.json",
 
   "compilerOptions": {
-    // Enable incremental builds.
+    // enable incremental builds.
     "composite": true,
 
-    // Maximize type checking.
+    // maximize type checking.
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "exactOptionalPropertyTypes": true,
@@ -22,14 +22,14 @@
 
     "isolatedDeclarations": true, // require explicit types.
 
-    // Improve compatibility with compilers that aren't type system aware.
+    // improve compatibility with compilers that aren't type system aware.
     "isolatedModules": true,
 
-    // Allow JSON type-checking and imports.
+    // allow JSON type-checking and imports.
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
 
-    // Assume library types are checked and compatible.
+    // assume library types are checked and compatible.
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
 
@@ -37,7 +37,7 @@
 
     "target": "ES2022",
 
-    // Don't transform type-only imports.
+    // don't transform type-only imports.
     "verbatimModuleSyntax": true
   },
   // https://github.com/microsoft/TypeScript/wiki/Performance#misconfigured-include-and-exclude

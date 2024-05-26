@@ -4,9 +4,9 @@ import type {Cam} from './cam.js'
 import type {Renderer} from './renderer.js'
 
 export class FrameListener {
-  /** The running lifetime in milliseconds. */
+  /** the running lifetime in milliseconds. */
   age: number = 0
-  /** The exact duration in milliseconds to apply on a given update step. */
+  /** the exact duration in milliseconds to apply on a given update step. */
   tick: number = 0
 
   readonly #canvas: HTMLCanvasElement
@@ -36,7 +36,7 @@ export class FrameListener {
   }
 
   get frame(): number {
-    // Assume 60 FPS so games can scale to this number regardless of actual.
+    // assume 60 FPS so games can scale to this number regardless of actual.
     return Math.trunc(this.age / (1000 / 60))
   }
 

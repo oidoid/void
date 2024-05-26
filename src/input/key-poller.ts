@@ -2,7 +2,7 @@ export class KeyPoller {
   bits: number = 0
   readonly #bitByKey: {[key: string]: number} = {}
 
-  /** @arg key Case-sensitive KeyboardEvent.key. */
+  /** @arg key case-sensitive KeyboardEvent.key. */
   map(key: string, bit: number): void {
     this.#bitByKey[key] = bit
   }

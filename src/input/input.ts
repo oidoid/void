@@ -6,31 +6,31 @@ import {PointerPoller} from './pointer-poller.js'
 
 // biome-ignore format:
 export type StandardButton =
-  'L' | 'R' | 'U' | 'D' | // Dpad.
-  'A' | 'B' | 'C' | // Primary, secondary, tertiary.
-  'S' // Start.
+  'L' | 'R' | 'U' | 'D' | // dpad.
+  'A' | 'B' | 'C' | // primary, secondary, tertiary.
+  'S' // start.
 
 export class Input<T extends string> {
-  /** User hint as to whether to consider input or not. */
+  /** user hint as to whether to consider input or not. */
   handled: boolean = false
-  /** The maximum duration in milliseconds permitted between combo inputs. */
+  /** the maximum duration in milliseconds permitted between combo inputs. */
   maxInterval: number = 300
-  /** The minimum duration in milliseconds for an input to be considered held. */
+  /** the minimum duration in milliseconds for an input to be considered held. */
   minHeld: number = 300
 
-  /** Logical button to bit. */
+  /** logical button to bit. */
   readonly #bitByButton = <{[button in T]: number}>{}
   /**
-   * A sequence of nonzero buttons ordered from oldest (first) to latest (last).
-   * Combos are terminated only by expiration.
+   * a sequence of nonzero buttons ordered from oldest (first) to latest (last).
+   * combos are terminated only by expiration.
    */
   readonly #combo: number[] = []
-  /** The time in milliseconds since the input changed. */
+  /** the time in milliseconds since the input changed. */
   #duration: number = 0
   readonly #gamepad: PadPoller = new PadPoller()
   readonly #keyboard: KeyPoller = new KeyPoller()
   readonly #pointer: PointerPoller
-  /** Prior button samples independent of combo. Index 0 is current loop. */
+  /** prior button samples independent of combo. index 0 is current loop. */
   readonly #prevBits: [number, number] = [0, 0]
   #prevTick: number = 0
 
@@ -39,9 +39,9 @@ export class Input<T extends string> {
   }
 
   /**
-   * Combos are interpreted exactly both in buttons pressed per tick (eg, up
+   * combos are interpreted exactly both in buttons pressed per tick (eg, up
    * will not match up and down the way `isOn('Up')` will) and sequence (order
-   * and length). Combos only test button on state.
+   * and length). combos only test button on state.
    */
   isCombo(...combo: readonly (readonly T[])[]): boolean {
     if (combo.length !== this.#combo.length) return false
@@ -50,12 +50,12 @@ export class Input<T extends string> {
       if (this.#combo[i] !== bits) return false
     }
     // #combo is a historical record of buttons. Whenever buttons changes, a new
-    // entry is pushed. Make sure the current entry is the current state and
+    // entry is pushed. make sure the current entry is the current state and
     // that the last entry's buttons haven't been released.
     return this.#combo[combo.length - 1] === this.#bits
   }
 
-  /** Like isOnCombo() but test if the last button set is triggered. */
+  /** like isOnCombo() but test if the last button set is triggered. */
   isComboStart(...combo: readonly (readonly T[])[]): boolean {
     return (
       this.isCombo(...combo) &&
@@ -63,7 +63,7 @@ export class Input<T extends string> {
     )
   }
 
-  /** True if any button is held on or off. */
+  /** true if any button is held on or off. */
   isHeld(): boolean {
     return this.#duration >= this.minHeld
   }
@@ -73,8 +73,8 @@ export class Input<T extends string> {
   }
 
   /**
-   * Test if all buttons are on. True if the buttons are pressed regardless of
-   * whether other buttons are pressed. Eg, `isOn('Up')` will return true when
+   * test if all buttons are on. true if the buttons are pressed regardless of
+   * whether other buttons are pressed. eg, `isOn('Up')` will return true when
    * up is pressed or when up and down are pressed.
    */
   isOn(...buttons: readonly T[]): boolean {
@@ -86,7 +86,7 @@ export class Input<T extends string> {
     return this.isOn(...buttons) && this.isAnyStart(...buttons)
   }
 
-  /** True if any button triggered on or off. */
+  /** true if any button triggered on or off. */
   isAnyStart(...buttons: readonly T[]): boolean {
     const bits = this.#buttonsToBits(buttons)
     return (this.#bits & bits) !== (this.#prevBits[1] & bits)
@@ -131,7 +131,7 @@ export class Input<T extends string> {
     this.mapClick(<T>'A', 1)
   }
 
-  /** @arg keys Union of case-sensitive KeyboardEvent.key. */
+  /** @arg keys union of case-sensitive KeyboardEvent.key. */
   mapKey(button: T, ...keys: readonly string[]): void {
     for (const key of keys) this.#keyboard.map(key, this.#map(button))
   }
@@ -156,15 +156,15 @@ export class Input<T extends string> {
       this.#duration > this.maxInterval &&
       (this.#bits === 0 || this.#bits !== this.#prevBits[1])
     ) {
-      // Expired.
+      // expired.
       this.#duration = 0
       this.#combo.length = 0
     } else if (this.#bits !== this.#prevBits[1]) {
-      // Some button state has changed and at least one button is still pressed.
+      // some button state has changed and at least one button is still pressed.
       this.#duration = 0
       if (this.#bits !== 0) this.#combo.push(this.#bits)
     } else if (this.#bits !== 0 && this.#bits === this.#prevBits[1]) {
-      // Held. Update combo with the latest buttons.
+      // held. update combo with the latest buttons.
       this.#combo.pop()
       this.#combo.push(this.#bits)
     }
@@ -183,7 +183,7 @@ export class Input<T extends string> {
   }
 
   /**
-   * The current state and prospective combo member. A zero value can never be a
+   * the current state and prospective combo member. a zero value can never be a
    * combo member but is necessary to persist in previous to distinguish the off
    * state between repeated button presses like up, up.
    */

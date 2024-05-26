@@ -16,14 +16,14 @@ export class Cam implements Box {
     return this.#h
   }
 
-  /** Fill or just barely not fill the viewport in scaled pixels. */
+  /** fill or just barely not fill the viewport in scaled pixels. */
   resize(zoomOut?: number): void {
     // WH of body in CSS px; document.body.getBoundingClientRect() returns
     // incorrectly large sizing on mobile that includes the address bar
     this.#clientWH.w = innerWidth
     this.#clientWH.h = innerHeight
 
-    const nativeW = Math.round(this.#clientWH.w * devicePixelRatio) // physical
+    const nativeW = Math.round(this.#clientWH.w * devicePixelRatio) // physical.
     const nativeH = Math.round(this.#clientWH.h * devicePixelRatio)
 
     this.#scale = Math.max(
@@ -39,7 +39,7 @@ export class Cam implements Box {
     return this.#scale
   }
 
-  /** Returns the integral position in level coordinates. */
+  /** @return integral position in level coordinates. */
   toLevelXY(clientXY: Readonly<XY>): XY {
     return {
       x: Math.round(this.x + (clientXY.x / this.#clientWH.w) * this.#w),

@@ -3,9 +3,9 @@ import type {Box, XY} from '../types/2d.js'
 import {fontCharWidth, fontKerning} from './font.js'
 
 export type TextLayout = {
-  /** The length of this array matches the string length. */
+  /** the length of this array matches the string length. */
   readonly chars: (Readonly<Box> | undefined)[]
-  /** The offset in pixels. to-do: should this be passed in? */
+  /** the offset in pixels. to-do: should this be passed in? */
   readonly cursor: Readonly<XY>
 }
 
@@ -24,7 +24,7 @@ export function layoutText(font: Font, str: string, maxW: number): TextLayout {
       if (cursor.x > 0 && layout.cursor.y === nextLine(font, cursor.y).y) {
         const wordW = maxW - cursor.x + layout.cursor.x
         if (wordW <= maxW) {
-          // Word can fit on one line if cursor is reset to the start of line.
+          // word can fit on one line if cursor is reset to the start of line.
           cursor = nextLine(font, cursor.y)
           layout = layoutWord(font, cursor, maxW, str, i)
         }
@@ -55,10 +55,10 @@ export function layoutWord(
     if (x > 0 && x + span > maxW) ({x, y} = nextLine(font, y))
 
     // width is not span since, with kerning, that may exceed the actual
-    // width of the character's sprite. for example, if w has the maximal
-    // character width of five pixels and a one pixel kerning for a given pair
-    // of characters, it will have a span of six pixels which is greater than
-    // the maximal five pixel sprite that can be rendered.
+    // width of the character's sprite. eg, if w has the maximal character width
+    // of five pixels and a one pixel kerning for a given pair of characters, it
+    // will have a span of six pixels which is greater than the maximal five
+    // pixel sprite that can be rendered.
     chars.push({x, y, w: fontCharWidth(font, char), h: font.cellHeight})
     x += span
 

@@ -1,6 +1,6 @@
 /** http://www.firstpr.com.au/dsp/rand31. */
 export class Random {
-  /** Only [1, 0x7fff_fffe] is valid. */
+  /** only [1, 0x7fff_fffe] is valid. */
   #seed: number
 
   constructor(seed: number) {
@@ -18,7 +18,7 @@ export class Random {
     return this.#seed
   }
 
-  /** Returns a fraction in [0, 1). */
+  /** @return a fraction in [0, 1). */
   get num(): number {
     this.#seed = (this.#seed * 16_807) % 0x7fff_ffff
     return (this.#seed - 1) / 0x7fff_fffe

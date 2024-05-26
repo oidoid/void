@@ -7,7 +7,7 @@ export function fontCharToTag(self: Font, char: string): TagFormat {
   return `${self.id}--${pt.toString(16).padStart(2, '0')}`
 }
 
-/** @arg rhs Undefined means end of line. */
+/** @arg rhs undefined means end of line. */
 export function fontKerning(
   self: Font,
   lhs: string,
