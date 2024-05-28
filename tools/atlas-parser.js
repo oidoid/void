@@ -4,8 +4,8 @@
 /** @import {AsepriteFrameMap} from './aseprite.js' */
 /** @import {AsepriteSlice} from './aseprite.js' */
 /** @import {AsepriteTagSpan} from './aseprite.js' */
-/** @import {Anim} from '../src/graphics/anim.js' */
-/** @import {TagFormat} from '../src/graphics/anim.js' */
+/** @import {Anim} from '../src/graphics/atlas.js' */
+/** @import {TagFormat} from '../src/graphics/atlas.js' */
 /** @import {Box} from '../src/types/2d.js' */
 /** @import {XY} from '../src/types/2d.js' */
 

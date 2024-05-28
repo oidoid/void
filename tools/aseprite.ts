@@ -1,4 +1,4 @@
-import type {TagFormat} from '../src/graphics/anim.js'
+import type {TagFormat} from '../src/graphics/atlas.js'
 import type {Box, WH} from '../src/types/2d.js'
 
 /** https://github.com/aseprite/aseprite/blob/master/docs/ase-file-specs.md */

@@ -1,6 +1,5 @@
 // ───oidoid>°──
-import type {Anim, TagFormat} from './graphics/anim.js'
-import type {Atlas} from './graphics/atlas.js'
+import type {Anim, Atlas, TagFormat} from './graphics/atlas.js'
 import {Sprite} from './graphics/sprite.js'
 import type {Tileset} from './graphics/tileset.js'
 import {Input, type StandardButton} from './input/input.js'
