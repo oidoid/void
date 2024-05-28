@@ -1,16 +1,17 @@
 import type {Box, WH, XY} from '../types/2d.js'
 
 export class Cam implements Box {
+  valid: boolean = false
   minWH: WH = {w: 256, h: 256}
   minScale: number = 1
-  x: number = 0 //xy?
-  y: number = 0
   lvl: Box = {x: -4096, y: -4096, w: 8191, h: 8191}
 
   readonly #clientWH: WH = {w: 1, h: 1}
+  #h: number = this.minWH.h
   #scale: number = 1
   #w: number = this.minWH.w
-  #h: number = this.minWH.h
+  #x: number = 0
+  #y: number = 0
 
   get h(): number {
     return this.#h
@@ -31,8 +32,12 @@ export class Cam implements Box {
       Math.floor(Math.min(nativeW / this.minWH.w, nativeH / this.minWH.h)) -
         (zoomOut ?? 0) // default is to zoom in as much as possible.
     )
-    this.#w = Math.floor(nativeW / this.#scale)
-    this.#h = Math.floor(nativeH / this.#scale)
+    const w = Math.floor(nativeW / this.#scale)
+    const h = Math.floor(nativeH / this.#scale)
+    if (w === this.#w && h === this.#h) return
+    this.#w = w
+    this.#h = h
+    this.valid = false
   }
 
   get scale(): number {
@@ -42,12 +47,32 @@ export class Cam implements Box {
   /** @return integral position in level coordinates. */
   toLevelXY(clientXY: Readonly<XY>): XY {
     return {
-      x: Math.round(this.x + (clientXY.x / this.#clientWH.w) * this.#w),
-      y: Math.round(this.y + (clientXY.y / this.#clientWH.h) * this.#h)
+      x: Math.round(this.#x + (clientXY.x / this.#clientWH.w) * this.#w),
+      y: Math.round(this.#y + (clientXY.y / this.#clientWH.h) * this.#h)
     }
   }
 
   get w(): number {
     return this.#w
+  }
+
+  get x(): number {
+    return this.#x
+  }
+
+  set x(x: number) {
+    if (this.#x === x) return
+    this.#x = x
+    this.valid = false
+  }
+
+  get y(): number {
+    return this.#y
+  }
+
+  set y(y: number) {
+    if (this.#y === y) return
+    this.#y = y
+    this.valid = false
   }
 }

@@ -94,9 +94,9 @@ export class Void<Tag, Button, Tile> {
   }
 
   render(loop: (() => void) | undefined): void {
-    this.cam.resize()
     this.#framer.render(this.cam, this.bmps, this.tiles, loop)
     this.bmps.size = 0
+    this.cam.valid = true
   }
 
   sprite(tag: Tag & TagFormat): Sprite<Tag> {
