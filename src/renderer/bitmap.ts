@@ -1,3 +1,6 @@
+// to-do: what broke when doing divisional shifting to get 53b access? maybe the
+// 32b sign bit was cumbersome?
+// to-do: will levels support negative XY?
 export type Bitmap = {
   /** 8x fixed-point XY: i16, 8y: i16; 1b sign, 12b int, 3b fraction. */
   readonly _xy: number

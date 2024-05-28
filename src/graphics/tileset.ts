@@ -7,11 +7,11 @@
  * limited to tile granularity.
  */
 export type Tileset<T> = {
-  /** Height in pixels. */
+  /** height in pixels. */
   readonly h: number
-  /** Tile dimensions in pixels. */
+  /** tile dimensions in pixels. */
   readonly side: number
   readonly tile: readonly (T | undefined)[]
-  /** Width in pixels. */
+  /** width in pixels. */
   readonly w: number
 }

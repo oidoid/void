@@ -6,7 +6,6 @@ import type {Tileset} from './graphics/tileset.js'
 import {Input, type StandardButton} from './input/input.js'
 import {Random} from './random.js'
 import {BitmapAttribBuffer, TileAttribBuffer} from './renderer/attrib-buffer.js'
-import type {Bitmap} from './renderer/bitmap.js'
 import {Cam} from './renderer/cam.js'
 import {FrameListener} from './renderer/frame-listener.js'
 import {Renderer} from './renderer/renderer.js'
@@ -27,6 +26,7 @@ declare const assets: {
   readonly atlasURI: string
   readonly tileset: Tileset<unknown>
   readonly tilesetURI: string
+  // to-do: provide trimmed down optimized level here.
 }
 
 export class Void<Tag, Button, Tile> {
@@ -39,17 +39,19 @@ export class Void<Tag, Button, Tile> {
   }
 
   readonly atlas: Atlas<Tag> = <Atlas<Tag>>assets.atlas
+  /** cleared each frame. */
+  readonly bmps: BitmapAttribBuffer = new BitmapAttribBuffer(1_000_000)
   readonly cam: Cam = new Cam()
   readonly ctrl: Input<Button & string>
   readonly kv: JSONStorage = new JSONStorage()
   readonly rnd: Random = new Random(0)
   readonly synth: Synth = new Synth()
+  /** cleared by user. */
+  readonly tiles: TileAttribBuffer = new TileAttribBuffer(1_000_000) // cam sized.
   readonly tileset: Tileset<Tile> = <Tileset<Tile>>assets.tileset
 
-  readonly #bmps: BitmapAttribBuffer = new BitmapAttribBuffer(1_000_000)
   readonly #framer: FrameListener
   readonly #renderer: Renderer
-  readonly #tiles: TileAttribBuffer = new TileAttribBuffer(1_000_000) // cam sized.
 
   constructor(
     atlasImage: HTMLImageElement,
@@ -87,23 +89,14 @@ export class Void<Tag, Button, Tile> {
     this.#renderer.clearColor(rgba)
   }
 
-  blitBitmap(bmp: Readonly<Bitmap>): void {
-    this.#bmps.push(bmp)
-  }
-
-  blitTile(id: number): void {
-    this.#tiles.push(id)
-  }
-
   get frame(): number {
     return this.#framer.frame
   }
 
   render(loop: (() => void) | undefined): void {
     this.cam.resize()
-    this.#framer.render(this.cam, this.#bmps, this.#tiles, loop)
-    this.#bmps.size = 0
-    this.#tiles.size = 0 // to-do: this isn't needed if cam hasn't changed.
+    this.#framer.render(this.cam, this.bmps, this.tiles, loop)
+    this.bmps.size = 0
   }
 
   sprite(tag: Tag & TagFormat): Sprite<Tag> {
