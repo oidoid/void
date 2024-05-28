@@ -54,7 +54,7 @@ export class FrameListener {
     cam: Readonly<Cam>,
     bmps: Readonly<AttribBuffer>,
     tiles: Readonly<AttribBuffer>,
-    loop?: () => void
+    loop: (() => void) | undefined
   ): void {
     this.#loop = loop
     if (document.hidden || !this.#renderer.hasContext()) return

@@ -99,7 +99,7 @@ export class Void<Tag, Button, Tile> {
     return this.#framer.frame
   }
 
-  render(loop?: () => void): void {
+  render(loop: (() => void) | undefined): void {
     this.cam.resize()
     this.#framer.render(this.cam, this.#bmps, this.#tiles, loop)
     this.#bmps.size = 0
