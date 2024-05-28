@@ -29,8 +29,10 @@ declare const assets: {
   // to-do: provide trimmed down optimized level here.
 }
 
-export class Void<Tag, Button, Tile> {
-  static async new<Tag, Button, Tile>(): Promise<Void<Tag, Button, Tile>> {
+export class Void<Tag, Button, Tile = unknown> {
+  static async new<Tag, Button, Tile = unknown>(): Promise<
+    Void<Tag, Button, Tile>
+  > {
     const [atlasImage, tilesetImage] = await Promise.all([
       loadImage(assets.atlasURI),
       assets.tilesetURI ? loadImage(assets.tilesetURI) : undefined

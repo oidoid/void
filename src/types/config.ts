@@ -9,7 +9,7 @@ export type Config = {
   /** atlas tags. */
   readonly tags: {readonly [tag: string]: null}
   /** tileset tiles. */
-  readonly tiles: {readonly [tile: string]: null}
+  readonly tiles?: {readonly [tile: string]: null} | undefined
   /** tileset Aseprite file. */
-  readonly tileset: string
+  readonly tileset?: string | undefined
 }
