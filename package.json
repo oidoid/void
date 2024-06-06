@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@ampproject/filesize": "4.3.0",
-    "@biomejs/biome": "1.7.3",
+    "@biomejs/biome": "1.8.0",
     "@types/jsdom": "21.1.6",
     "@types/node": "18.19.31",
     "mem-font": "11.0.0-2",
@@ -48,8 +48,8 @@
   "scripts": {
     "build": "tsc --build",
     "clean": "rm -rf dist",
-    "format": "npm run formatter -- --apply",
-    "formatter": "biome check --error-on-warnings .",
+    "format": "npm run formatter -- --fix",
+    "formatter": "biome check --error-on-warnings",
     "preversion": "[ -z \"$(git status -z)\" ]",
     "prepublishOnly": "! git symbolic-ref --quiet HEAD || git push --follow-tags origin \"$(git branch --show-current)\"",
     "start": "npm run build -- --watch",

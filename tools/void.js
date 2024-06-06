@@ -66,9 +66,8 @@ const atlasAse = await ase(
   ...atlasFilenames
 )
 const atlas = JSON.stringify(parseAtlas(JSON.parse(atlasAse), config.tags))
-const atlasURI = await `data:image/png;base64,${(
-  await fs.readFile(atlasImageFilename)
-).toString('base64')}`
+const atlasURI =
+  await `data:image/png;base64,${(await fs.readFile(atlasImageFilename)).toString('base64')}`
 
 let tileset = 'null'
 let tilesetURI = ''
@@ -85,9 +84,7 @@ if (config.tileset) {
     path.resolve(configDir, config.tileset)
   )
   tileset = JSON.stringify(parseTileset(JSON.parse(tilesetAse), config.tiles))
-  tilesetURI = `data:image/png;base64,${(
-    await fs.readFile(tilesetImageFilename)
-  ).toString('base64')}`
+  tilesetURI = `data:image/png;base64,${(await fs.readFile(tilesetImageFilename)).toString('base64')}`
 }
 /** @type {Parameters<esbuild.PluginBuild['onEnd']>[0]} */
 async function pluginOnEnd(result) {
