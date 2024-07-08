@@ -108,7 +108,7 @@ export class Input<T extends string> {
     for (const click of clicks) this.#pointer.map(click, this.#map(button))
   }
 
-  mapStandard(): void {
+  mapDefault(): void {
     this.mapKey(<T>'L', 'ArrowLeft', 'a', 'A')
     this.mapKey(<T>'R', 'ArrowRight', 'd', 'D')
     this.mapKey(<T>'U', 'ArrowUp', 'w', 'W')

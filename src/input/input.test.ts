@@ -17,7 +17,7 @@ globalThis.dispatchEvent = target.dispatchEvent.bind(target)
 
 test('buttons are initially inactive', () => {
   const input = new Input(cam, canvas)
-  input.mapStandard()
+  input.mapDefault()
   input.register('add')
   expect(input.isOn('U')).toBe(false)
   expect(input.isOnStart('U')).toBe(false)
@@ -30,7 +30,7 @@ test('buttons are initially inactive', () => {
 
 test('pressed buttons are active and triggered', () => {
   const input = new Input(cam, canvas)
-  input.mapStandard()
+  input.mapDefault()
   input.register('add')
   dispatchKeyEvent('keydown', 'ArrowUp')
   input.poll(16)
@@ -45,7 +45,7 @@ test('pressed buttons are active and triggered', () => {
 
 test('held buttons are active but not triggered', () => {
   const input = new Input(cam, canvas)
-  input.mapStandard()
+  input.mapDefault()
   input.register('add')
   dispatchKeyEvent('keydown', 'ArrowUp')
   input.poll(300)
@@ -61,7 +61,7 @@ test('held buttons are active but not triggered', () => {
 
 test('released buttons are off and triggered', () => {
   const input = new Input(cam, canvas)
-  input.mapStandard()
+  input.mapDefault()
   input.register('add')
   dispatchKeyEvent('keydown', 'ArrowUp')
   input.poll(16)
@@ -81,7 +81,7 @@ test('released buttons are off and triggered', () => {
 
 test('combos are exact in length', () => {
   const input = new Input(cam, canvas)
-  input.mapStandard()
+  input.mapDefault()
   input.register('add')
 
   dispatchKeyEvent('keydown', 'ArrowUp')
@@ -112,7 +112,7 @@ test('combos are exact in length', () => {
 
 test('simultaneously pressed buttons are active and triggered', () => {
   const input = new Input(cam, canvas)
-  input.mapStandard()
+  input.mapDefault()
   input.register('add')
   dispatchKeyEvent('keydown', 'ArrowUp')
   dispatchKeyEvent('keydown', 'ArrowDown')
@@ -135,7 +135,7 @@ test('simultaneously pressed buttons are active and triggered', () => {
 
 test('combos buttons are exact', () => {
   const input = new Input(cam, canvas)
-  input.mapStandard()
+  input.mapDefault()
   input.register('add')
 
   dispatchKeyEvent('keydown', 'ArrowUp')
@@ -167,7 +167,7 @@ test('combos buttons are exact', () => {
 
 test('a long combo is active and triggered', () => {
   const input = new Input(cam, canvas)
-  input.mapStandard()
+  input.mapDefault()
   input.register('add')
 
   const keys = [
@@ -201,7 +201,7 @@ test('a long combo is active and triggered', () => {
 
 test('around-the-world combo is active and triggered', () => {
   const input = new Input(cam, canvas)
-  input.mapStandard()
+  input.mapDefault()
   input.register('add')
 
   const keyCombo = [
@@ -239,7 +239,7 @@ test('around-the-world combo is active and triggered', () => {
 
 test('combo expired', () => {
   const input = new Input(cam, canvas)
-  input.mapStandard()
+  input.mapDefault()
   input.register('add')
 
   dispatchKeyEvent('keydown', 'ArrowUp')
@@ -270,7 +270,7 @@ test('combo expired', () => {
 
 test('long-pressed combo is active and held', () => {
   const input = new Input(cam, canvas)
-  input.mapStandard()
+  input.mapDefault()
   input.register('add')
 
   dispatchKeyEvent('keydown', 'ArrowUp')
@@ -303,7 +303,7 @@ test('long-pressed combo is active and held', () => {
 
 test('combo after long-pressed combo is active', () => {
   const input = new Input(cam, canvas)
-  input.mapStandard()
+  input.mapDefault()
   input.register('add')
 
   dispatchKeyEvent('keydown', 'ArrowUp')
