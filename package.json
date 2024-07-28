@@ -56,7 +56,7 @@
     "test": "npm run test:format && npm run test:unit && npm run build && npm run test:size",
     "test:format": "npm run formatter",
     "test:size": "npx esbuild --bundle --format=esm --metafile=dist/void.meta.json --minify --outfile=dist/void.js --sourcemap=linked --target=es2022 src/index.ts && filesize",
-    "test:unit": "vitest --config=tools/vitest.config.ts run",
+    "test:unit": "vitest run",
     "version": "npm test"
   },
   "type": "module",
