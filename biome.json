@@ -26,7 +26,8 @@
   },
   "linter": {
     "rules": {
-      "style": { "noInferrableTypes": "off", "noNonNullAssertion": "off" }
+      "style": { "noInferrableTypes": "off", "noNonNullAssertion": "off" },
+      "suspicious": { "noImplicitAnyLet": "off" }
     }
   },
   "vcs": { "enabled": true, "clientKind": "git" }
