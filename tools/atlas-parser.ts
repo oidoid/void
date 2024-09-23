@@ -1,23 +1,20 @@
-/** @import {Aseprite} from './aseprite.js' */
-/** @import {AsepriteFrameTag} from './aseprite.js' */
-/** @import {AsepriteFrame} from './aseprite.js' */
-/** @import {AsepriteFrameMap} from './aseprite.js' */
-/** @import {AsepriteSlice} from './aseprite.js' */
-/** @import {AsepriteTagSpan} from './aseprite.js' */
-/** @import {Anim} from '../src/graphics/atlas.js' */
-/** @import {TagFormat} from '../src/graphics/atlas.js' */
-/** @import {Box} from '../src/types/2d.js' */
-/** @import {XY} from '../src/types/2d.js' */
+import type {Anim, Atlas} from '../src/graphics/atlas.js'
+import type {TagFormat} from '../src/graphics/atlas.js'
+import type {Box} from '../src/types/2d.ts'
+import type {XY} from '../src/types/2d.ts'
+import type {Aseprite} from './aseprite.js'
+import type {AsepriteFrameTag} from './aseprite.js'
+import type {AsepriteFrame} from './aseprite.js'
+import type {AsepriteFrameMap} from './aseprite.js'
+import type {AsepriteSlice} from './aseprite.js'
+import type {AsepriteTagSpan} from './aseprite.js'
 
 const maxAnimCels = 16
 
-/**
- * @template T
- * @arg {Aseprite} ase
- * @arg {{readonly [tag: string]: null}} tags
- * @return {import('../src/graphics/atlas.js').Atlas<T>}
- */
-export function parseAtlas(ase, tags) {
+export function parseAtlas<T>(
+  ase: Aseprite,
+  tags: {readonly [tag: string]: null}
+): Atlas<T> {
   const anims = new Map()
   const cels = []
   for (const span of ase.meta.frameTags) {
@@ -38,15 +35,13 @@ export function parseAtlas(ase, tags) {
   return {anim: Object.fromEntries(anims), cels}
 }
 
-/**
- * @arg {number} id
- * @arg {AsepriteTagSpan} span
- * @arg {AsepriteFrameMap} map
- * @arg {readonly AsepriteSlice[]} slices
- * @return {Anim<TagFormat>}
- * @internal
- */
-export function parseAnim(id, span, map, slices) {
+/** @internal */
+export function parseAnim(
+  id: number,
+  span: AsepriteTagSpan,
+  map: AsepriteFrameMap,
+  slices: readonly AsepriteSlice[]
+): Anim<TagFormat> {
   const frame = parseAnimFrames(span, map).next().value
   if (!frame) throw Error('animation missing frames')
   return {
@@ -58,48 +53,38 @@ export function parseAnim(id, span, map, slices) {
   }
 }
 
-/**
- * @arg {AsepriteTagSpan} span
- * @arg {AsepriteFrameMap} map
- * @return {IterableIterator<AsepriteFrame>}
- */
-function* parseAnimFrames(span, map) {
+function* parseAnimFrames(
+  span: AsepriteTagSpan,
+  map: AsepriteFrameMap
+): IterableIterator<AsepriteFrame> {
   for (let i = span.from; i <= span.to && i - span.from < maxAnimCels; i++) {
-    const frameTag = /** @type {AsepriteFrameTag} */ (`${span.name}--${i}`)
+    const frameTag = `${span.name}--${i}` as AsepriteFrameTag
     const frame = map[frameTag]
     if (!frame) throw Error(`no frame "${frameTag}"`)
     yield frame
   }
   // Pad remaining.
   for (let i = span.to + 1; i < span.from + maxAnimCels; i++) {
-    const frameTag = /** @type {AsepriteFrameTag} */ (
-      `${span.name}--${span.from + (i % (span.to + 1 - span.from))}`
-    )
+    const frameTag =
+      `${span.name}--${span.from + (i % (span.to + 1 - span.from))}` as AsepriteFrameTag
     const frame = map[frameTag]
     if (!frame) throw Error(`no frame "${frameTag}"`)
     yield frame
   }
 }
 
-/**
- * @arg {AsepriteFrame} frame
- * @return {Readonly<XY>}
- * @internal
- */
-export function parseCel(frame) {
+export function parseCel(frame: AsepriteFrame): Readonly<XY> {
   return {
     x: frame.frame.x + (frame.frame.w - frame.sourceSize.w) / 2,
     y: frame.frame.y + (frame.frame.h - frame.sourceSize.h) / 2
   }
 }
 
-/**
- * @arg {AsepriteTagSpan} span
- * @arg {readonly AsepriteSlice[]} slices
- * @return {Readonly<Box>}
- * @internal
- */
-export function parseHitbox(span, slices) {
+/** @internal */
+export function parseHitbox(
+  span: AsepriteTagSpan,
+  slices: readonly AsepriteSlice[]
+): Readonly<Box> {
   const tagSlices = slices.filter(slice => slice.name === span.name)
   if (tagSlices.length > 1)
     throw Error(`tag "${span.name}" has multiple hitboxes`)
@@ -117,12 +102,8 @@ export function parseHitbox(span, slices) {
   return box
 }
 
-/**
- * @arg {string} tag
- * @return {TagFormat}
- */
-function parseTag(tag) {
+function parseTag(tag: string): TagFormat {
   if (!tag.includes('--'))
     throw Error(`tag "${tag}" not in <filestem>--<animation> format`)
-  return /** @type {TagFormat} */ (tag)
+  return tag as TagFormat
 }

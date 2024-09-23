@@ -1,13 +1,11 @@
-/** @typedef {XY & WH} Box */
-/** @typedef {{w: number, h: number}} WH */
-/** @typedef {{x: number, y: number}} XY */
+export type Box = XY & WH
+export type WH = {w: number; h: number}
+export type XY = {x: number; y: number}
 
-/**
- * @arg {Readonly<Box>} lhs
- * @arg {Readonly<XY & Partial<WH>>} rhs
- * @return {boolean}
- */
-export function boxHits(lhs, rhs) {
+export function boxHits(
+  lhs: Readonly<Box>,
+  rhs: Readonly<XY & Partial<WH>>
+): boolean {
   const rw = rhs.w ?? 0 // point.
   const rh = rhs.h ?? 0
   // rhs may be a point or a box. comparison is commutative.

@@ -1,30 +1,25 @@
-#!/usr/bin/env -S node --no-warnings
+#!/usr/bin/env -S node --experimental-strip-types --no-warnings=ExperimentalWarning
 // bundles sources into a single HTML file for distribution and development.
 //
 // void [--watch] assets.json
 // --watch  run development server. serve on http://localhost:1234 and reload on
 //          code change.
-//
-// --no-warnings shebang works around JSON import warnings. see
-// https://github.com/nodejs/node/issues/27355 and
-// https://github.com/nodejs/node/issues/40940.
 
-import {execFile} from 'node:child_process'
+import {type ExecFileException, execFile} from 'node:child_process'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import esbuild from 'esbuild'
+import type {BuildOptions, BuildResult} from 'esbuild'
 import {JSDOM} from 'jsdom'
-import pkg from '../package.json' assert {type: 'json'}
-import {parseAtlas} from './atlas-parser.js'
-import {parseTileset} from './tileset-parser.js'
-/** @import {Config} from '../src/types/config.js' */
+import pkg from '../package.json' with {type: 'json'}
+import type {Config} from '../src/types/config.js'
+import {parseAtlas} from './atlas-parser.ts'
+import {parseTileset} from './tileset-parser.ts'
 
 const watch = process.argv.includes('--watch')
 const configFilename =
   process.argv.slice(2).filter(arg => !arg.startsWith('--'))[0] ?? '/dev/null'
-/** @type {Config} */ const config = JSON.parse(
-  await fs.readFile(configFilename, 'utf8')
-)
+const config: Config = JSON.parse(await fs.readFile(configFilename, 'utf8'))
 
 if (!config.atlas) throw Error('no atlas input')
 if (!config.html) throw Error('no HTML input')
@@ -37,8 +32,8 @@ const htmlInFilename = path.resolve(configDir, config.html)
 const htmlInDir = path.dirname(htmlInFilename)
 
 const doc = new JSDOM(await fs.readFile(htmlInFilename, 'utf8')).window.document
-let srcFilename = /** @type {HTMLScriptElement|null} */ (
-  doc.querySelector('script[type="module"][src]')
+let srcFilename = doc.querySelector<HTMLScriptElement>(
+  'script[type="module"][src]'
 )?.src
 if (!srcFilename) throw Error('no script source')
 srcFilename = path.resolve(htmlInDir, srcFilename)
@@ -66,16 +61,15 @@ const atlasAse = await ase(
   ...atlasFilenames
 )
 const atlas = JSON.stringify(parseAtlas(JSON.parse(atlasAse), config.tags))
-const atlasURI =
-  await `data:image/png;base64,${(await fs.readFile(atlasImageFilename)).toString('base64')}`
+const atlasImage = await fs.readFile(atlasImageFilename)
+const atlasURI = `data:image/png;base64,${atlasImage.toString('base64')}`
 
 let tileset = 'null'
 let tilesetURI = ''
 if (config.tileset) {
   if (!config.tiles) throw Error('no tiles')
-  const tilesetImageFilename = `${await fs.mkdtemp('/tmp/', {
-    encoding: 'utf8'
-  })}/tileset.png`
+  const tmp = await fs.mkdtemp('/tmp/', {encoding: 'utf8'})
+  const tilesetImageFilename = `${tmp}/tileset.png`
   const tilesetAse = await ase(
     '--batch',
     '--color-mode=indexed',
@@ -86,11 +80,11 @@ if (config.tileset) {
   tileset = JSON.stringify(parseTileset(JSON.parse(tilesetAse), config.tiles))
   tilesetURI = `data:image/png;base64,${(await fs.readFile(tilesetImageFilename)).toString('base64')}`
 }
-/** @type {Parameters<esbuild.PluginBuild['onEnd']>[0]} */
-async function pluginOnEnd(result) {
-  const copy = /** @type {Document} */ (doc.cloneNode(true))
-  const manifestEl = /** @type {HTMLLinkElement|null} */ (
-    copy.querySelector('link[href][rel="manifest"]')
+
+async function pluginOnEnd(result: BuildResult): Promise<void> {
+  const copy = doc.cloneNode(true) as Document
+  const manifestEl = copy.querySelector<HTMLLinkElement>(
+    'link[href][rel="manifest"]'
   )
   let manifestFilename
   if (manifestEl) {
@@ -110,8 +104,8 @@ async function pluginOnEnd(result) {
       JSON.stringify(manifest)
     )}`
   }
-  const iconEl = /** @type {HTMLLinkElement|null} */ (
-    copy.querySelector('link[href][rel="icon"][type]')
+  const iconEl = copy.querySelector<HTMLLinkElement>(
+    'link[href][rel="icon"][type]'
   )
   if (iconEl) {
     const file = await fs.readFile(
@@ -130,8 +124,8 @@ async function pluginOnEnd(result) {
   if (outFiles.length > 1) throw Error('cannot concatenate JavaScript files')
   js += outFiles[0]?.text ?? ''
 
-  const scriptEl = /** @type {HTMLScriptElement|null} */ (
-    copy.querySelector('script[type="module"][src]')
+  const scriptEl = copy.querySelector<HTMLScriptElement>(
+    'script[type="module"][src]'
   )
   if (!scriptEl) throw Error('no script')
   scriptEl.removeAttribute('src')
@@ -146,8 +140,7 @@ async function pluginOnEnd(result) {
   )
 }
 
-/** @type {esbuild.BuildOptions} */
-const buildOpts = {
+const buildOpts: BuildOptions = {
   bundle: true,
   define: {
     'assets.atlas': atlas,
@@ -170,12 +163,10 @@ if (watch) {
   await Promise.race([ctx.watch(), ctx.serve({port: 1234, servedir: 'dist'})])
 } else await esbuild.build(buildOpts)
 
-/**
- * @arg {readonly string[]} args
- * @return {Promise<string>}
- */
-async function ase(...args) {
-  const [err, stdout, stderr] = await new Promise(resolve =>
+async function ase(...args: readonly string[]): Promise<string> {
+  const [err, stdout, stderr] = await new Promise<
+    [ExecFileException | null, string, string]
+  >(resolve =>
     execFile('aseprite', args, (err, stdout, stderr) =>
       resolve([err, stdout, stderr])
     )

@@ -1,8 +1,7 @@
 {
   "extends": "./base-tsconfig.json",
   "compilerOptions": {
-    "checkJs": true,
-    "isolatedDeclarations": false, // incompatible with allowJS.
+    "allowImportingTsExtensions": true,
 
     "noEmit": true, // tsc is only used for type-checking.
 

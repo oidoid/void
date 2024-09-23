@@ -1,17 +1,11 @@
-import {boxHits} from '../src/types/2d.js'
-/** @typedef {import('./aseprite.js').Aseprite} Aseprite */
-/** @typedef {import('../src/graphics/tileset.js').Tileset<string>} Tileset */
-/** @typedef {import('../src/types/2d.js').Box} Box */
-// to-do: /** @import {Aseprite} from './aseprite.js' */
-// to-do: /** @import {Tileset} from '../src/atlas/tileset.js' */
-// to-do: /** @import {Box} from '../src/types/2d.js' */
+import type {Tileset} from '../src/graphics/tileset.js'
+import {boxHits} from '../src/types/2d.ts'
+import type {Aseprite} from './aseprite.js'
 
-/**
- * @arg {Aseprite} ase
- * @arg {{readonly [tile: string]: null}} tiles
- * @return {Tileset}
- */
-export function parseTileset(ase, tiles) {
+export function parseTileset(
+  ase: Aseprite,
+  tiles: {readonly [tile: string]: null}
+): Tileset<string> {
   for (const tile in tiles)
     if (!ase.meta.slices.some(slice => slice.name === tile))
       throw Error(`no tile "${tile}"`)

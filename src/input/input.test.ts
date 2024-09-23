@@ -9,7 +9,7 @@ const canvas: HTMLCanvasElement = <HTMLCanvasElement>(<unknown>{
   requestPointerLock() {}
 })
 globalThis.isSecureContext = true
-globalThis.navigator = <Navigator>(<unknown>{getGamepads: () => []})
+Object.defineProperty(globalThis, 'navigator', {value: {getGamepads: () => []}})
 const target: EventTarget = new EventTarget()
 globalThis.addEventListener = target.addEventListener.bind(target)
 globalThis.removeEventListener = target.removeEventListener.bind(target)

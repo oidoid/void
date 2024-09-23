@@ -18,6 +18,8 @@
     "resolveJsonModule": true,
     "strict": true,
 
+    // "jsx": "preserve", // forbid <> casts incompatible with type-stripping.
+
     "types": [], // projects add types needed.
 
     "isolatedDeclarations": true, // require explicit types.
