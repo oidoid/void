@@ -1,0 +1,39 @@
+{
+  "name": "@oid/v",
+  "exports": {},
+  "compilerOptions": {
+    "erasableSyntaxOnly": true,
+
+    // Typing.
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    // Don't transform type-only imports.
+    "verbatimModuleSyntax": true,
+
+    "lib": ["deno.ns", "dom", "es2023"]
+  },
+  "fmt": {
+    "jsx.multiLineParens": "never",
+    "jsx.bracketPosition": "sameLine",
+    "quoteProps": "asNeeded",
+    "singleBodyPosition": "sameLine",
+    "semiColons": false,
+    "singleQuote": true,
+    "spaceSurroundingProperties": false,
+    "trailingCommas": "never",
+    "typeLiteral.separatorKind": "comma",
+    "useBraces": "preferNone"
+  },
+  "imports": {
+    "@std/assert": "jsr:@std/assert@1.0.13"
+  },
+  "lint": { "rules": { "exclude": ["getter-return"] } },
+  "tasks": {
+    "test": "deno task test:types && deno task test:unit && deno lint && deno fmt --check",
+    "test:unit": "deno test --allow-read=.",
+    "test:types": "deno check --doc"
+  }
+}
