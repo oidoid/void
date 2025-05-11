@@ -85,17 +85,17 @@ export class Cam {
    * position relative canvas top-left in level scale (like level xy but no cam
    * offset). often used for UI that is fixed within the cam.
    */
-  toCanvasXY(clientXY: Readonly<XY>): XY {
+  toLocalXY(client: Readonly<XY>): XY {
     return {
-      x: (clientXY.x / this.#clientWH.w) * this.#w,
-      y: (clientXY.y / this.#clientWH.h) * this.#h
+      x: (client.x / this.#clientWH.w) * this.#w,
+      y: (client.y / this.#clientWH.h) * this.#h
     }
   }
 
   /** position in fractional level coordinates. */
-  toXY(clientXY: Readonly<XY>): XY {
-    const canvasXY = this.toCanvasXY(clientXY)
-    return {x: this.#x + canvasXY.x, y: this.#y + canvasXY.y}
+  toXY(client: Readonly<XY>): XY {
+    const local = this.toLocalXY(client)
+    return {x: this.#x + local.x, y: this.#y + local.y}
   }
 
   update(): void {

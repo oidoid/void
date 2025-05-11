@@ -19,7 +19,7 @@ Deno.test('cam', () => {
     {x: 343.9235805586467, y: 121.54504469983058}
   )
   assertEquals(
-    cam.toCanvasXY(clientXY),
+    cam.toLocalXY(clientXY),
     {x: 343.9235805586467, y: 121.54504469983058}
   )
 
@@ -30,7 +30,7 @@ Deno.test('cam', () => {
     {x: 353.9235805586467, y: 221.54504469983058}
   )
   assertEquals(
-    cam.toCanvasXY(clientXY),
+    cam.toLocalXY(clientXY),
     {x: 343.9235805586467, y: 121.54504469983058}
   )
 })
