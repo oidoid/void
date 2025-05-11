@@ -1,4 +1,3 @@
-import type { Cam } from '../cam.ts'
 import { type XY, xyAddTo, xyDiv } from '../types/2d.ts'
 
 export type PointType =
@@ -7,11 +6,6 @@ export type PointType =
 type PointEvent = {
   /** Aggregate on buttons. */
   bits: number,
-  /**
-   * Position relative canvas top-left in level scale (like level xy but no cam
-   * offset) within cam at capture time.
-   */
-  canvasXY: XY,
   /** Event position relative canvas top-left (in DPI scale). */
   clientXY: XY,
   ev: typeof pointEvents[number],
@@ -25,9 +19,7 @@ type PointEvent = {
    * distant points. Inputs may all be secondaries.
    */
   primary: boolean,
-  type: PointType | undefined,
-  /** Level position within cam at capture time. */
-  xy: XY
+  type: PointType | undefined
 }
 
 const pointTypeByPointerType = {
@@ -45,36 +37,23 @@ const pointEvents = [
 export class Pointer {
   readonly bitByButton: {[btn: number]: number} = {}
   primary: Readonly<PointEvent> | undefined
-  readonly #cam: Readonly<Cam>
   #frameNum: number = 0
   readonly secondary: Readonly<PointEvent>[] = []
   readonly #target: EventTarget
 
-  constructor(cam: Readonly<Cam>, target: EventTarget) {
-    this.#cam = cam
+  constructor(target: EventTarget) {
     this.#target = target
   }
 
-  get center(): {canvasXY: XY, clientXY: XY, xy: XY} | undefined {
-    const sum = {
-      canvasXY: {x: 0, y: 0},
-      clientXY: {x: 0, y: 0},
-      xy: {x: 0, y: 0}
-    }
+  get clientCenter(): XY | undefined {
+    const sum = {x: 0, y: 0}
     let pts = 0
     for (const pt of [this.primary, ...this.secondary]) {
       if (!pt?.bits) continue
       pts++
-      xyAddTo(sum.canvasXY, pt.canvasXY)
-      xyAddTo(sum.clientXY, pt.clientXY)
-      xyAddTo(sum.xy, pt.xy)
+      xyAddTo(sum, pt.clientXY)
     }
-    if (!pts) return
-    return {
-      canvasXY: xyDiv(sum.canvasXY, {x: pts, y: pts}),
-      clientXY: xyDiv(sum.clientXY, {x: pts, y: pts}),
-      xy: xyDiv(sum.xy, {x: pts, y: pts})
-    }
+    return pts ? xyDiv(sum, {x: pts, y: pts}) : undefined
   }
 
   register(op: 'add' | 'remove'): this {
@@ -110,8 +89,6 @@ export class Pointer {
     if (!globalThis.Deno && this.#target instanceof Element)
       this.#target.setPointerCapture(ev.pointerId)
     const clientXY = {x: ev.offsetX, y: ev.offsetY}
-    const canvasXY = this.#cam.toCanvasXY(clientXY)
-    const xy = this.#cam.toXY(clientXY)
     const bits = this.#evButtonsToBits(ev.buttons)
     const evType = ev.type as typeof pointEvents[number]
     const type = pointTypeByPointerType[
@@ -120,14 +97,12 @@ export class Pointer {
 
     const pt = {
       bits,
-      canvasXY,
       clientXY,
       ev: evType,
       frameNum: this.#frameNum,
       id: ev.pointerId,
       primary: ev.isPrimary,
-      type,
-      xy
+      type
     }
     if (ev.isPrimary) this.primary = pt
     else this.secondary.push(pt)
