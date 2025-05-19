@@ -1,22 +1,17 @@
-import { type XY, xyAddTo, xyDiv } from '../types/2d.ts'
+import { type XY, xyAddTo, xyDiv } from '../types/geo.ts'
 
 export type PointType =
   (typeof pointTypeByPointerType)[keyof typeof pointTypeByPointerType]
 
 type PointEvent = {
-  /** Aggregate on buttons. */
   bits: number,
-  /** Event position relative canvas top-left (in DPI scale). */
   clientXY: XY,
   ev: typeof pointEvents[number],
-  /** Frame number event was recorded. */
-  frameNum: number,
   id: number,
   // key: {alt: boolean, ctrl: boolean, meta: boolean, shift: boolean}
-  // clicks (detail)
   /**
-   * Cursors should only use the primary inputs to avoid flickering between
-   * distant points. Inputs may all be secondaries.
+   * cursors should only use the primary inputs to avoid flickering between
+   * distant points. inputs may all be secondaries.
    */
   primary: boolean,
   type: PointType | undefined
@@ -37,12 +32,17 @@ const pointEvents = [
 export class Pointer {
   readonly bitByButton: {[btn: number]: number} = {}
   primary: Readonly<PointEvent> | undefined
-  #frameNum: number = 0
   readonly secondary: Readonly<PointEvent>[] = []
   readonly #target: EventTarget
 
   constructor(target: EventTarget) {
     this.#target = target
+  }
+
+  /** aggregate on buttons. */
+  get bits(): number {
+    return (this.primary?.bits ?? 0)
+      | this.secondary.reduce((sum, {bits}) => sum | bits, 0)
   }
 
   get clientCenter(): XY | undefined {
@@ -58,19 +58,13 @@ export class Pointer {
 
   register(op: 'add' | 'remove'): this {
     const fn = this.#target[`${op}EventListener`].bind(this.#target)
-    for (const ev of pointEvents)
-      fn(ev, this.#onInput as EventListener, {capture: true, passive: true})
+    for (const ev of pointEvents) fn(ev, this.#onInput as EventListener)
     return this
   }
 
   reset(): void {
     this.primary = undefined
     this.secondary.length = 0
-    this.#frameNum = 0
-  }
-
-  update(frameNum: number): void {
-    this.#frameNum = frameNum
   }
 
   [Symbol.dispose](): void {
@@ -86,25 +80,30 @@ export class Pointer {
 
   #onInput = (ev: PointerEvent): void => {
     if (!ev.isTrusted && !globalThis.Deno) return
+    ev.preventDefault()
     if (!globalThis.Deno && this.#target instanceof Element)
       this.#target.setPointerCapture(ev.pointerId)
+
     const clientXY = {x: ev.offsetX, y: ev.offsetY}
     const bits = this.#evButtonsToBits(ev.buttons)
     const evType = ev.type as typeof pointEvents[number]
     const type = pointTypeByPointerType[
       ev.pointerType as keyof typeof pointTypeByPointerType
     ]
-
     const pt = {
       bits,
       clientXY,
       ev: evType,
-      frameNum: this.#frameNum,
       id: ev.pointerId,
       primary: ev.isPrimary,
       type
     }
-    if (ev.isPrimary) this.primary = pt
-    else this.secondary.push(pt)
+    const canceled = ev.type === 'pointercancel'
+    if (ev.isPrimary) this.primary = canceled ? undefined : pt
+    else if (canceled) {
+      const i = this.secondary.findIndex((pt) => pt.id === ev.pointerId)
+      if (i !== -1) this.secondary.splice(i, 1)
+    }
+    else { this.secondary.push(pt) }
   }
 }

@@ -1,5 +1,5 @@
 export class ContextMenu {
-  enableMenu: boolean = false
+  enable: boolean = false
   readonly #target: EventTarget
 
   constructor(target: EventTarget) {
@@ -8,9 +8,9 @@ export class ContextMenu {
 
   register(op: 'add' | 'remove'): this {
     const fn = this.#target[`${op}EventListener`].bind(this.#target)
-    fn('contextmenu', this.#onContextMenu, {capture: true})
+    fn('contextmenu', this.#onContextMenu)
     // disable long press vibration. nonpassive must be explicit for touchstart.
-    fn('touchstart', this.#onContextMenu, {capture: true, passive: false})
+    fn('touchstart', this.#onContextMenu, {passive: false}) // to-do: do I need this if my pointer is doing prevent default?
     return this
   }
 
@@ -20,6 +20,6 @@ export class ContextMenu {
 
   #onContextMenu = (ev: Event): void => {
     if (!ev.isTrusted && !globalThis.Deno) return
-    if (!this.enableMenu) ev.preventDefault()
+    if (!this.enable) ev.preventDefault()
   }
 }

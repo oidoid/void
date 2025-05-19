@@ -1,4 +1,4 @@
-import type { WH, XY } from './types/2d.ts'
+import type { WH, XY } from './types/geo.ts'
 
 /** given a min WH and scale, size the camera to the max WH. */
 export class Cam {
@@ -15,7 +15,7 @@ export class Cam {
   #zoomOut: number = 0
 
   /**
-   * positive int dimensions in client px of canvas (often
+   * positive int dimensions in client px (DPI scale) of canvas (often
    * `canvas.parentElement!.clientWidth/Height` since the canvas is resized)
    * which is assumed to be max WH.
    */
@@ -48,7 +48,7 @@ export class Cam {
 
   /**
    * positive int or infinite min dimensions. set to
-   * `{w: Infinity, h: Infinity}` to always use min scale.
+   * `{w: Infinity, h: Infinity}` or `clientWH` to always use min scale.
    */
   get minWH(): Readonly<WH> {
     return this.#minWH
@@ -71,7 +71,7 @@ export class Cam {
     this.#invalidateWH()
   }
 
-  /** positive int. */
+  /** positive int in level px. */
   get h(): number {
     return this.#h
   }
@@ -102,7 +102,7 @@ export class Cam {
     this.#invalid = false
   }
 
-  /** positive int. */
+  /** positive int in level px. */
   get w(): number {
     return this.#w
   }

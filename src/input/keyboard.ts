@@ -10,9 +10,12 @@ export class Keyboard {
 
   register(op: 'add' | 'remove'): this {
     const fn = this.#target[`${op}EventListener`].bind(this.#target)
-    for (const ev of ['keydown', 'keyup'])
-      fn(ev, this.#onKey as EventListener, {capture: true, passive: true})
+    for (const ev of ['keydown', 'keyup']) fn(ev, this.#onKey as EventListener)
     return this
+  }
+
+  reset(): void {
+    this.bits = 0
   }
 
   [Symbol.dispose](): void {
@@ -23,6 +26,7 @@ export class Keyboard {
     if (!ev.isTrusted && !globalThis.Deno) return
     const bit = this.bitByKey[ev.key]
     if (bit == null) return
+    ev.preventDefault()
     this.bits = ev.type === 'keydown' ? this.bits | bit : this.bits & ~bit
   }
 }

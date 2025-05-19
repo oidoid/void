@@ -1,5 +1,5 @@
 import { assertEquals } from '@std/assert'
-import { xyAddTo, xyDiv } from './2d.ts'
+import { xyAddTo, xyDiv } from './geo.ts'
 
 Deno.test('xyAddTo()', () => {
   const xy = {x: 1, y: 2}

@@ -1,4 +1,4 @@
-type XYZ = {x: number, y: number, z: number}
+import type { XYZ } from '../types/geo.ts'
 
 export class Wheel {
   clientDelta: Readonly<XYZ> | undefined
@@ -10,7 +10,7 @@ export class Wheel {
 
   register(op: 'add' | 'remove'): this {
     const fn = this.#target[`${op}EventListener`].bind(this.#target)
-    fn('wheel', this.#onInput as EventListener, {capture: true, passive: false})
+    fn('wheel', this.#onInput as EventListener, {passive: false})
     return this
   }
 

@@ -14,7 +14,7 @@ Deno.test('ContextMenu', async (test) => {
   })
 
   await test.step('enabled', () => {
-    menu.enableMenu = true
+    menu.enable = true
     let blocked = 0
     target.dispatchEvent(MenuEvent('contextmenu', () => blocked++))
     assertEquals(blocked, 0)

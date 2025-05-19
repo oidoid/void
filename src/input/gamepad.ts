@@ -1,5 +1,7 @@
 export class Gamepad {
   bits: number = 0
+  // to-do: support analog button values, expose connected status and vibration.
+  //        would be nice if vibration could merge with navigator.vibrate().
   readonly bitByAxis: {[axis: number]: [less: number, more: number]} = {}
   readonly bitByButton: {[btn: number]: number} = {}
 
@@ -7,7 +9,6 @@ export class Gamepad {
     this.bits = 0
   }
 
-  // this update() must be called before processing ents.
   update(): void {
     if (!isSecureContext) return
     this.bits = 0

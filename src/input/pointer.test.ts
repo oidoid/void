@@ -21,6 +21,7 @@ Deno.test('Pointer', async (test) => {
       isPrimary: true
     })
     target.dispatchEvent(ev)
+    assertEquals(pointer.bits, 1)
     assertEquals(pointer.primary?.bits, 1)
     assertEquals(pointer.primary?.clientXY, {x: 10, y: 40})
     assertEquals(pointer.secondary, [])
@@ -35,6 +36,7 @@ Deno.test('Pointer', async (test) => {
       isPrimary: false
     })
     target.dispatchEvent(ev)
+    assertEquals(pointer.bits, 3)
     assertEquals(pointer.primary?.bits, 1)
     assertEquals(pointer.primary?.clientXY, {x: 10, y: 40})
     assertEquals(pointer.secondary[0]?.bits, 2)
@@ -50,6 +52,7 @@ Deno.test('Pointer', async (test) => {
       isPrimary: true
     })
     target.dispatchEvent(ev)
+    assertEquals(pointer.bits, 2)
     assertEquals(pointer.primary?.bits, 0)
     assertEquals(pointer.primary?.clientXY, {x: 11, y: 41})
     assertEquals(pointer.secondary[0]?.bits, 2)

@@ -1,5 +1,6 @@
 export type WH = {w: number, h: number}
 export type XY = {x: number, y: number}
+export type XYZ = {x: number, y: number, z: number}
 
 export function xyAddTo(lhs: XY, rhs: Readonly<XY>): void {
   lhs.x += rhs.x
