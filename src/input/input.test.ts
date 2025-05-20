@@ -1,6 +1,10 @@
 import { assertEquals } from '@std/assert'
 import { type Combo, type DefaultButton, DefaultInput } from './input.ts'
 import { Cam } from '../cam.ts'
+import {
+  KeyTestEvent,
+  PointerTestEvent
+} from '../test/test-event.ts'
 
 globalThis.devicePixelRatio = 1
 globalThis.isSecureContext = false
@@ -11,7 +15,7 @@ Deno.test('init', async (test) => {
 
   await test.step('no update', () => {
     assertEquals(input.handled, false)
-    assertEquals(input.isEverOn(), false)
+    assertEquals(input.gestured, false)
     assertEquals(input.isHeld(), false)
     assertButton(input, 'U', 'Off')
     assertCombo(input, [['U']], 'Unequal')
@@ -21,7 +25,7 @@ Deno.test('init', async (test) => {
     input.update(16)
 
     assertEquals(input.handled, false)
-    assertEquals(input.isEverOn(), false)
+    assertEquals(input.gestured, false)
     assertEquals(input.isHeld(), false)
     assertButton(input, 'U', 'Off')
     assertCombo(input, [['U']], 'Unequal')
@@ -34,7 +38,7 @@ Deno.test('held off', () => {
 
   input.update(input.maxIntervalMillis + 1)
 
-  assertEquals(input.isEverOn(), false)
+  assertEquals(input.gestured, false)
   assertEquals(input.isHeld(), true)
   assertButton(input, 'U', 'Off')
   assertCombo(input, [['U']], 'Unequal')
@@ -45,17 +49,17 @@ Deno.test('pressed buttons', async (test) => {
   using input = DefaultInput(DefaultCam(), target).register('add')
 
   await test.step('pressed are active and triggered', () => {
-    target.dispatchEvent(KeyEvent('keydown', {key: 'ArrowUp'}))
+    target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowUp'}))
     input.update(16)
 
-    assertEquals(input.isEverOn(), true)
+    assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertButton(input, 'U', 'On', 'Start')
     assertCombo(input, [['U']], 'Equal', 'Start')
   })
 
   await test.step('unpressed are inactive and not triggered', () => {
-    assertEquals(input.isEverOn(), true)
+    assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertButton(input, 'D', 'Off')
     assertCombo(input, [['D']], 'Unequal')
@@ -66,27 +70,27 @@ Deno.test('pressed buttons', async (test) => {
   await test.step('pressed are triggered for one frame only', () => {
     input.update(16)
 
-    assertEquals(input.isEverOn(), true)
+    assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertButton(input, 'U', 'On')
     assertCombo(input, [['U']], 'Equal')
   })
 
   await test.step('released are off and triggered', () => {
-    target.dispatchEvent(KeyEvent('keyup', {key: 'ArrowUp'}))
+    target.dispatchEvent(KeyTestEvent('keyup', {key: 'ArrowUp'}))
     input.update(16)
 
-    assertEquals(input.isEverOn(), true)
+    assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertButton(input, 'U', 'Off', 'Start')
     assertCombo(input, [['U']], 'Unequal')
   })
 
   await test.step('pressed are held on', () => {
-    target.dispatchEvent(KeyEvent('keydown', {key: 'ArrowUp'}))
+    target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowUp'}))
     input.update(input.minHeldMillis)
 
-    assertEquals(input.isEverOn(), true)
+    assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), true)
     assertButton(input, 'U', 'On', 'Start')
     assertCombo(input, [['U']], 'EndsWith', 'Start')
@@ -96,7 +100,7 @@ Deno.test('pressed buttons', async (test) => {
   await test.step('expired allow current combo to stay on but discontinue next', () => {
     input.update(input.maxIntervalMillis + 1)
 
-    assertEquals(input.isEverOn(), true)
+    assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), true)
     assertButton(input, 'U', 'On')
     assertCombo(input, [['U']], 'EndsWith')
@@ -104,12 +108,12 @@ Deno.test('pressed buttons', async (test) => {
   })
 
   await test.step('expired start new combo', () => {
-    target.dispatchEvent(KeyEvent('keyup', {key: 'ArrowUp'}))
+    target.dispatchEvent(KeyTestEvent('keyup', {key: 'ArrowUp'}))
     input.update(16)
-    target.dispatchEvent(KeyEvent('keydown', {key: 'ArrowUp'}))
+    target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowUp'}))
     input.update(16)
 
-    assertEquals(input.isEverOn(), true)
+    assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertButton(input, 'U', 'On', 'Start')
     assertCombo(input, [['U']], 'Equal', 'Start')
@@ -123,10 +127,10 @@ Deno.test('combos require releases between presses', async (test) => {
   using input = DefaultInput(DefaultCam(), target).register('add')
 
   await test.step('Up', () => {
-    target.dispatchEvent(KeyEvent('keydown', {key: 'ArrowUp'}))
+    target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowUp'}))
     input.update(16)
 
-    assertEquals(input.isEverOn(), true)
+    assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertButton(input, 'U', 'On', 'Start')
     assertButton(input, 'D', 'Off')
@@ -136,12 +140,12 @@ Deno.test('combos require releases between presses', async (test) => {
   })
 
   await test.step('Up, Down', () => {
-    target.dispatchEvent(KeyEvent('keyup', {key: 'ArrowUp'}))
+    target.dispatchEvent(KeyTestEvent('keyup', {key: 'ArrowUp'}))
     input.update(16)
-    target.dispatchEvent(KeyEvent('keydown', {key: 'ArrowDown'}))
+    target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowDown'}))
     input.update(16)
 
-    assertEquals(input.isEverOn(), true)
+    assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertButton(input, 'U', 'Off')
     assertButton(input, 'D', 'On', 'Start')
@@ -151,11 +155,11 @@ Deno.test('combos require releases between presses', async (test) => {
   })
 
   await test.step('Up, Down, Up', () => {
-    target.dispatchEvent(KeyEvent('keyup', {key: 'ArrowDown'}))
-    target.dispatchEvent(KeyEvent('keydown', {key: 'ArrowUp'}))
+    target.dispatchEvent(KeyTestEvent('keyup', {key: 'ArrowDown'}))
+    target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowUp'}))
     input.update(16)
 
-    assertEquals(input.isEverOn(), true)
+    assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertButton(input, 'U', 'On', 'Start')
     assertButton(input, 'D', 'Off', 'Start')
@@ -181,9 +185,9 @@ Deno.test('around-the-world combo', () => {
   ]
   for (const set of sets) {
     input.update(16)
-    for (const key of set) target.dispatchEvent(KeyEvent('keydown', {key}))
+    for (const key of set) target.dispatchEvent(KeyTestEvent('keydown', {key}))
     input.update(16)
-    for (const key of set) target.dispatchEvent(KeyEvent('keyup', {key}))
+    for (const key of set) target.dispatchEvent(KeyTestEvent('keyup', {key}))
   }
 
   assertCombo(
@@ -202,10 +206,10 @@ Deno.test('Up, Up, Down, Down, Left', async (test) => {
   using input = DefaultInput(DefaultCam(), target).register('add')
 
   await test.step('Up', () => {
-    target.dispatchEvent(KeyEvent('keydown', {key: 'ArrowUp'}))
+    target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowUp'}))
     input.update(16)
 
-    assertEquals(input.isEverOn(), true)
+    assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertButton(input, 'U', 'On', 'Start')
     assertButton(input, 'D', 'Off')
@@ -218,12 +222,12 @@ Deno.test('Up, Up, Down, Down, Left', async (test) => {
   })
 
   await test.step('Up, Up', () => {
-    target.dispatchEvent(KeyEvent('keyup', {key: 'ArrowUp'}))
+    target.dispatchEvent(KeyTestEvent('keyup', {key: 'ArrowUp'}))
     input.update(16)
-    target.dispatchEvent(KeyEvent('keydown', {key: 'ArrowUp'}))
+    target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowUp'}))
     input.update(16)
 
-    assertEquals(input.isEverOn(), true)
+    assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertButton(input, 'U', 'On', 'Start')
     assertButton(input, 'D', 'Off')
@@ -236,12 +240,12 @@ Deno.test('Up, Up, Down, Down, Left', async (test) => {
   })
 
   await test.step('Up, Up, Down', () => {
-    target.dispatchEvent(KeyEvent('keyup', {key: 'ArrowUp'}))
+    target.dispatchEvent(KeyTestEvent('keyup', {key: 'ArrowUp'}))
     input.update(16)
-    target.dispatchEvent(KeyEvent('keydown', {key: 'ArrowDown'}))
+    target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowDown'}))
     input.update(16)
 
-    assertEquals(input.isEverOn(), true)
+    assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertButton(input, 'U', 'Off')
     assertButton(input, 'D', 'On', 'Start')
@@ -254,12 +258,12 @@ Deno.test('Up, Up, Down, Down, Left', async (test) => {
   })
 
   await test.step('Up, Up, Down, Down', () => {
-    target.dispatchEvent(KeyEvent('keyup', {key: 'ArrowDown'}))
+    target.dispatchEvent(KeyTestEvent('keyup', {key: 'ArrowDown'}))
     input.update(16)
-    target.dispatchEvent(KeyEvent('keydown', {key: 'ArrowDown'}))
+    target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowDown'}))
     input.update(16)
 
-    assertEquals(input.isEverOn(), true)
+    assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertButton(input, 'U', 'Off')
     assertButton(input, 'D', 'On', 'Start')
@@ -272,12 +276,12 @@ Deno.test('Up, Up, Down, Down, Left', async (test) => {
   })
 
   await test.step('Up, Up, Down, Down, Left', () => {
-    target.dispatchEvent(KeyEvent('keyup', {key: 'ArrowDown'}))
+    target.dispatchEvent(KeyTestEvent('keyup', {key: 'ArrowDown'}))
     input.update(16)
-    target.dispatchEvent(KeyEvent('keydown', {key: 'ArrowLeft'}))
+    target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowLeft'}))
     input.update(16)
 
-    assertEquals(input.isEverOn(), true)
+    assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertButton(input, 'U', 'Off')
     assertButton(input, 'D', 'Off')
@@ -295,14 +299,14 @@ Deno.test('held combos stay active past expiry', async (test) => {
   using input = DefaultInput(DefaultCam(), target).register('add')
 
   await test.step('Up, Up', () => {
-    target.dispatchEvent(KeyEvent('keydown', {key: 'ArrowUp'}))
+    target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowUp'}))
     input.update(16)
-    target.dispatchEvent(KeyEvent('keyup', {key: 'ArrowUp'}))
+    target.dispatchEvent(KeyTestEvent('keyup', {key: 'ArrowUp'}))
     input.update(16)
-    target.dispatchEvent(KeyEvent('keydown', {key: 'ArrowUp'}))
+    target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowUp'}))
     input.update(16)
 
-    assertEquals(input.isEverOn(), true)
+    assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertButton(input, 'U', 'On', 'Start')
     assertCombo(input, [['U']], 'EndsWith', 'Start')
@@ -312,7 +316,7 @@ Deno.test('held combos stay active past expiry', async (test) => {
   await test.step('held', () => {
     input.update(input.maxIntervalMillis + 1)
 
-    assertEquals(input.isEverOn(), true)
+    assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), true)
     assertButton(input, 'U', 'On')
     assertCombo(input, [['U']], 'EndsWith')
@@ -325,11 +329,11 @@ Deno.test('combo sequences can have multiple buttons', async (test) => {
   using input = DefaultInput(DefaultCam(), target).register('add')
 
   await test.step('Up Left', () => {
-    target.dispatchEvent(KeyEvent('keydown', {key: 'ArrowUp'}))
-    target.dispatchEvent(KeyEvent('keydown', {key: 'ArrowLeft'}))
+    target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowUp'}))
+    target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowLeft'}))
     input.update(16)
 
-    assertEquals(input.isEverOn(), true)
+    assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertButton(input, 'U', 'On', 'Start')
     assertButton(input, 'D', 'Off')
@@ -345,14 +349,14 @@ Deno.test('combo sequences can have multiple buttons', async (test) => {
   })
 
   await test.step('Up Left, Down Right', () => {
-    target.dispatchEvent(KeyEvent('keyup', {key: 'ArrowUp'}))
-    target.dispatchEvent(KeyEvent('keyup', {key: 'ArrowLeft'}))
+    target.dispatchEvent(KeyTestEvent('keyup', {key: 'ArrowUp'}))
+    target.dispatchEvent(KeyTestEvent('keyup', {key: 'ArrowLeft'}))
     input.update(16)
-    target.dispatchEvent(KeyEvent('keydown', {key: 'ArrowDown'}))
-    target.dispatchEvent(KeyEvent('keydown', {key: 'ArrowRight'}))
+    target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowDown'}))
+    target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowRight'}))
     input.update(16)
 
-    assertEquals(input.isEverOn(), true)
+    assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertButton(input, 'U', 'Off')
     assertButton(input, 'D', 'On', 'Start')
@@ -372,10 +376,34 @@ Deno.test('handled', () => {
   const target = new EventTarget()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
-  target.dispatchEvent(KeyEvent('keydown', {key: 'ArrowUp'}))
+  assertEquals(input.gestured, false)
+  assertEquals(input.isHeld(), false)
+
+  assertButton(input, 'U', 'Off')
+  assertCombo(input, [['U']], 'Unequal')
+
+  input.handled = true
+
+  assertEquals(input.gestured, false)
+  assertEquals(input.isHeld(), false)
+
+  assertEquals(input.isAnyStart('U'), false)
+  assertEquals(input.isAnyOn('U'), false)
+  assertEquals(input.isAnyOnStart('U'), false)
+  assertEquals(input.isOn('U'), false)
+  assertEquals(input.isOnStart('U'), false)
+  assertEquals(input.isOff('U'), false)
+  assertEquals(input.isOffStart('U'), false)
+
+  assertEquals(input.isComboEndsWith(['U']), false)
+  assertEquals(input.isComboEndsWithStart(['U']), false)
+  assertEquals(input.isCombo(['U']), false)
+  assertEquals(input.isComboStart(['U']), false)
+
+  target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowUp'}))
   input.update(input.minHeldMillis)
 
-  assertEquals(input.isEverOn(), true)
+  assertEquals(input.gestured, true)
   assertEquals(input.isHeld(), true)
 
   assertButton(input, 'U', 'On', 'Start')
@@ -383,7 +411,7 @@ Deno.test('handled', () => {
 
   input.handled = true
 
-  assertEquals(input.isEverOn(), true)
+  assertEquals(input.gestured, true)
   assertEquals(input.isHeld(), false)
 
   assertEquals(input.isAnyStart('U'), false)
@@ -404,7 +432,7 @@ Deno.test('isAny', () => {
   const target = new EventTarget()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
-  target.dispatchEvent(KeyEvent('keydown', {key: 'ArrowUp'}))
+  target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowUp'}))
   input.update(16)
 
   assertEquals(input.isAnyStart('U'), true)
@@ -463,8 +491,4 @@ function DefaultCam(): Cam {
   const cam = new Cam()
   cam.clientWH = {w: 1000, h: 1000}
   return cam
-}
-
-function KeyEvent(type: string, init: Partial<KeyboardEvent>): Event {
-  return Object.assign(new Event(type), init)
 }

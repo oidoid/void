@@ -1,5 +1,6 @@
 import { Pointer } from './pointer.ts'
 import { assertEquals } from '@std/assert'
+import { PointerTestEvent } from '../test/test-event.ts'
 
 Deno.test('Pointer', async (test) => {
   const target = new EventTarget()
@@ -14,7 +15,7 @@ Deno.test('Pointer', async (test) => {
   })
 
   await test.step('primary down', () => {
-    const ev = PointerEvent('pointerdown', {
+    const ev = PointerTestEvent('pointerdown', {
       buttons: 1,
       offsetX: 10,
       offsetY: 40,
@@ -29,7 +30,7 @@ Deno.test('Pointer', async (test) => {
   })
 
   await test.step('secondary down', () => {
-    const ev = PointerEvent('pointerdown', {
+    const ev = PointerTestEvent('pointerdown', {
       buttons: 2,
       offsetX: 11,
       offsetY: 41,
@@ -45,7 +46,7 @@ Deno.test('Pointer', async (test) => {
   })
 
   await test.step('primary up', () => {
-    const ev = PointerEvent('pointerup', {
+    const ev = PointerTestEvent('pointerup', {
       buttons: 0,
       offsetX: 11,
       offsetY: 41,
@@ -60,7 +61,3 @@ Deno.test('Pointer', async (test) => {
     assertEquals(pointer.clientCenter, {x: 11, y: 41})
   })
 })
-
-function PointerEvent(type: string, init: Partial<PointerEvent>): Event {
-  return Object.assign(new Event(type), init)
-}

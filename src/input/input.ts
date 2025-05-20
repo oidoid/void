@@ -7,7 +7,7 @@ import { Pointer } from './pointer.ts'
 import { Wheel } from './wheel.ts'
 import type { PointType } from './pointer.ts'
 
-export type ButtonSet<Button> = [Button, ...Button[]]
+export type ButtonSet<Button> = [btn: Button, ...Button[]]
 export type Combo<Button> = [ButtonSet<Button>, ...ButtonSet<Button>[]]
 
 // to-do: camelCase enums vs Pascal. camel is nice in json
@@ -27,32 +27,32 @@ export type Point = {
    * position relative canvas top-left in level scale (like level xy but no cam
    * offset) within cam at capture time.
    */
-  localXY: XY,
-  type: PointType,
-  /** level position within cam at capture time. */
-  xy: XY
+  // localXY: XY,
+  type: PointType | undefined
+  // /** level position within cam at capture time. */
+  // xy: XY
 }
 // isOn, isOnStart, isOnEnd
 
 type PointerState = {
-  center: Readonly<Point> | undefined,
-  drag: boolean, // should work with super patience by having adjustable threshold to 0 or maybe 1px. be nice if it could be reset with a check against whether or not hte box is even draggable. like setdragarea, or set draggable.
-  dragStart: boolean,
-  dragEnd: boolean, // &&!hanlded
-  pinch: boolean, // && !handled
-  pinchStart: boolean, // && !handled...
-  pinchEnd: boolean,
-  primary: Readonly<Point> | undefined,
-  primaryPrev: Readonly<Point> | undefined,
-  secondary: readonly Readonly<Point>[],
-  secondaryPrev: readonly Readonly<Point>[]
+  // center: Readonly<Point> | undefined,
+  // drag: boolean, // should work with super patience by having adjustable threshold to 0 or maybe 1px. be nice if it could be reset with a check against whether or not hte box is even draggable. like setdragarea, or set draggable.
+  // dragStart: boolean,
+  // dragEnd: boolean, // &&!hanlded
+  // pinch: boolean, // && !handled
+  // pinchStart: boolean, // && !handled...
+  // pinchEnd: boolean,
+  primary: Readonly<Point> | undefined
+  // primaryPrev: Readonly<Point> | undefined,
+  // secondary: readonly Readonly<Point>[],
+  // secondaryPrev: readonly Readonly<Point>[]
   // what kind of history do i need here. I want to be able to do pinch (which is current points only) and on start / end which I htink only need one prior state
   // combo needs history of _buttons_ only. history of xy is not a thing.
 }
 
 type WheelState = {
   clientDelta: Readonly<XYZ> | undefined,
-  // level / local delta. no difference.
+  /** level / local delta. no difference. */
   delta: XY | undefined
 }
 
@@ -92,6 +92,10 @@ export function DefaultInput<Button extends DefaultButton>(
   return input as DefaultInput<Button>
 }
 
+// no control over specific devices and no two player support. just one big
+// aggregate. could do multiplayer if devices were asked for instead of searched
+// for.
+// no ability to see analog state of gamepad which seems fixable like point if I expose an axis or better return direction as a number instead of bool
 /** input device abstraction. aggregates history and merges devices. devices
  * can only tell you about current state not history or coordinate with other devices.
  * if you miss a device event, you miss it. that's the nature of polling. */
@@ -117,13 +121,13 @@ export class Input<Button extends string> {
    */
   readonly #combo: number[] = []
   readonly #contextMenu: ContextMenu
-  #everOn: boolean = false
   readonly #gamepad: Gamepad = new Gamepad()
+  #gestured: boolean = false
   /** time since buttons changed. */
   #heldMillis: number = 0
   readonly #keyboard: Keyboard
   readonly #pointer: Pointer
-  readonly #pointState: PointerState
+  readonly #pointerState: PointerState = {primary: undefined}
   /** bits last update. may not be equal to `#combo.at(-1)`. */
   #prevBits: number = 0
   /** millis last update. necessary to allow the current frame to test start. */
@@ -160,6 +164,13 @@ export class Input<Button extends string> {
    */
   get contextMenu(): {enable: boolean} {
     return this.#contextMenu
+  }
+
+  /**
+   * true if any button, key, or click was _ever_ on. doesn't consider handled.
+   */
+  get gestured(): boolean {
+    return this.#gestured
   }
 
   isAnyOn(...btns: Readonly<ButtonSet<Button>>): boolean {
@@ -209,13 +220,6 @@ export class Input<Button extends string> {
   isComboStart(...combo: Readonly<Combo<Button>>): boolean {
     return this.isOnStart(...combo.at(-1) ?? [] as unknown as ButtonSet<Button>)
       && this.isCombo(...combo)
-  }
-
-  /**
-   * true if any button, key, or click was _ever_ on. doesn't consider handled.
-   */
-  isEverOn(): boolean {
-    return this.#everOn
   }
 
   /** true if input hasn't changed. */
@@ -312,10 +316,10 @@ export class Input<Button extends string> {
     this.#bits = this.#gamepad.bits | this.#keyboard.bits | this.#pointer.bits
 
     // to-do: does this.#gamepad.bits count as a gesture? what about cursor keys?
-    this.#everOn ||= !!(this.#keyboard.bits | this.#pointer.bits)
+    this.#gestured ||= !!(this.#keyboard.bits | this.#pointer.bits)
 
     if (
-      this.#heldMillis > this.maxIntervalMillis && this.#bits !== this.#prevBits
+      millis > this.maxIntervalMillis && this.#bits !== this.#prevBits
       || (this.#heldMillis + millis) > this.maxIntervalMillis && !this.#bits
     ) { this.#combo.length = 0 }
 

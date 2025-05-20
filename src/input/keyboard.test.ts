@@ -1,5 +1,6 @@
 import { assertEquals } from '@std/assert'
 import { Keyboard } from './keyboard.ts'
+import { KeyTestEvent } from '../test/test-event.ts'
 
 Deno.test('Keyboard', async (test) => {
   const target = new EventTarget()
@@ -10,21 +11,17 @@ Deno.test('Keyboard', async (test) => {
   await test.step('init', () => assertEquals(kbd.bits, 0))
 
   await test.step('a down', () => {
-    target.dispatchEvent(KeyEvent('keydown', {key: 'a'}))
+    target.dispatchEvent(KeyTestEvent('keydown', {key: 'a'}))
     assertEquals(kbd.bits, 1)
   })
 
   await test.step('b down', () => {
-    target.dispatchEvent(KeyEvent('keydown', {key: 'b'}))
+    target.dispatchEvent(KeyTestEvent('keydown', {key: 'b'}))
     assertEquals(kbd.bits, 3)
   })
 
   await test.step('a up', () => {
-    target.dispatchEvent(KeyEvent('keyup', {key: 'a'}))
+    target.dispatchEvent(KeyTestEvent('keyup', {key: 'a'}))
     assertEquals(kbd.bits, 2)
   })
 })
-
-function KeyEvent(type: string, init: Partial<KeyboardEvent>): Event {
-  return Object.assign(new Event(type), init)
-}
