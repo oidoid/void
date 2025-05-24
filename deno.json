@@ -32,8 +32,7 @@
   },
   "lint": { "rules": { "exclude": ["getter-return"] } },
   "tasks": {
-    "test": "deno task test:types && deno task test:unit && deno lint && deno fmt --check",
-    "test:unit": "deno test --allow-read=.",
+    "test": "deno task test:types && deno test && deno lint && deno fmt --check",
     "test:types": "deno check --doc"
   }
 }
