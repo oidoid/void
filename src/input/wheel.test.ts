@@ -7,11 +7,16 @@ Deno.test('Wheel', async (test) => {
   using wheel = new Wheel(target).register('add')
 
   await test.step('init', () => {
-    assertEquals(wheel.clientDelta, undefined)
+    assertEquals(wheel.clientDelta, {x: 0, y: 0, z: 0})
   })
 
   await test.step('event', () => {
     target.dispatchEvent(WheelTestEvent({deltaX: 1, deltaY: 2, deltaZ: 3}))
     assertEquals(wheel.clientDelta, {x: 1, y: 2, z: 3})
+  })
+
+  await test.step('postupdate', () => {
+    wheel.postupdate()
+    assertEquals(wheel.clientDelta, {x: 0, y: 0, z: 0})
   })
 })
