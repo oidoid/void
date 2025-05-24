@@ -7,22 +7,22 @@ Deno.test('ContextMenu', async (test) => {
 
   await test.step('disabled', () => {
     let blocked = 0
-    target.dispatchEvent(MenuEvent('contextmenu', () => blocked++))
+    target.dispatchEvent(MenuTestEvent('contextmenu', () => blocked++))
     assertEquals(blocked, 1)
-    target.dispatchEvent(MenuEvent('touchstart', () => blocked++))
+    target.dispatchEvent(MenuTestEvent('touchstart', () => blocked++))
     assertEquals(blocked, 2)
   })
 
   await test.step('enabled', () => {
     menu.enable = true
     let blocked = 0
-    target.dispatchEvent(MenuEvent('contextmenu', () => blocked++))
+    target.dispatchEvent(MenuTestEvent('contextmenu', () => blocked++))
     assertEquals(blocked, 0)
-    target.dispatchEvent(MenuEvent('touchstart', () => blocked++))
+    target.dispatchEvent(MenuTestEvent('touchstart', () => blocked++))
     assertEquals(blocked, 0)
   })
 })
 
-function MenuEvent(type: string, preventDefault: () => void): Event {
+function MenuTestEvent(type: string, preventDefault: () => void): Event {
   return Object.assign(new Event(type), {preventDefault})
 }
