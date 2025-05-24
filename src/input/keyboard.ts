@@ -23,7 +23,7 @@ export class Keyboard {
   }
 
   #onKey = (ev: KeyboardEvent): void => {
-    if (!ev.isTrusted && !globalThis.Deno) return
+    if (!globalThis.Deno && !ev.isTrusted) return
     const bit = this.bitByKey[ev.key]
     if (bit == null) return
     ev.preventDefault()
