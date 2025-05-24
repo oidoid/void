@@ -1,5 +1,5 @@
 import type { Cam } from '../cam.ts'
-import type { XY, XYZ } from '../types/geo.ts'
+import { type XY, type XYZ } from '../types/geo.ts'
 import { ContextMenu } from './context-menu.ts'
 import { Gamepad } from './gamepad.ts'
 import { Keyboard } from './keyboard.ts'
@@ -14,13 +14,13 @@ export type Combo<Button> = [ButtonSet<Button>, ...ButtonSet<Button>[]]
 export type DefaultButton = // deno-fmt-ignore
   | 'L' | 'R' | 'U' | 'D' // dpad.
   | 'A' | 'B' | 'C' // primary, secondary, tertiary.
-  | 'Select' | 'Start'
-  | 'End'
+  | 'Menu'
 
 export type Point = {
   // i actually grab bits for combo and such outside of this type. might be nice to leave in here though so you could treat one device differently.
   /** event position relative canvas top-left (in DPI scale). */
   clientXY: XY,
+  drag: boolean,
   // /** Frame number event was recorded. */
   // frameNum: number,
   /**
@@ -51,9 +51,9 @@ type PointerState = {
 }
 
 type WheelState = {
-  clientDelta: Readonly<XYZ> | undefined,
+  clientDelta: Readonly<XYZ>
   /** level / local delta. no difference. */
-  delta: XY | undefined
+  // delta: XY
 }
 
 export type DefaultInput<Button extends DefaultButton = DefaultButton> = Input<
@@ -72,9 +72,7 @@ export function DefaultInput<Button extends DefaultButton>(
   input.mapKeyboardKey('A', 'c', 'C', ' ')
   input.mapKeyboardKey('B', 'x', 'X')
   input.mapKeyboardKey('C', 'z', 'Z')
-  input.mapKeyboardKey('Start', 'Enter')
-  input.mapKeyboardKey('Select', 'Shift')
-  input.mapKeyboardKey('End', 'Escape')
+  input.mapKeyboardKey('Menu', 'Enter', 'Escape')
 
   // https://w3c.github.io/gamepad/#remapping
   input.mapGamepadAxis('L', 'R', 0, 2)
@@ -84,8 +82,7 @@ export function DefaultInput<Button extends DefaultButton>(
   input.mapGamepadButton('U', 12)
   input.mapGamepadButton('D', 13)
   input.mapGamepadButton('A', 0)
-  input.mapGamepadButton('Start', 9)
-  input.mapGamepadButton('Select', 8)
+  input.mapGamepadButton('Menu', 9)
 
   input.mapPointerClick('A', 1)
   input.mapPointerClick('B', 2)
@@ -114,10 +111,11 @@ export class Input<Button extends string> {
   readonly #bitByButton: { [btn in Button]?: number } = {}
   readonly #buttonByBit: {[bit: number]: Button} = {}
   #bits: number = 0
+  // @ts-expect-error
   readonly #cam: Readonly<Cam>
   /**
-   * sequence of nonzero buttons ordered from oldest to latest. combos end only
-   * by expiration.
+   * sequence of nonzero bits ordered from oldest to latest. combos end only by
+   * expiration.
    */
   readonly #combo: number[] = []
   readonly #contextMenu: ContextMenu
@@ -134,7 +132,7 @@ export class Input<Button extends string> {
   // #prevUpdateMillis: number = 0
   readonly #target: EventTarget
   readonly #wheel: Wheel
-  readonly #wheelState: WheelState = {clientDelta: undefined, delta: undefined}
+  #wheelState: Readonly<WheelState> = {clientDelta: {x: 0, y: 0, z: 0}}
 
   constructor(cam: Readonly<Cam>, target: EventTarget) {
     this.#cam = cam
@@ -177,13 +175,8 @@ export class Input<Button extends string> {
     return !this.handled && !!(this.#bits & this.#mapBits(btns))
   }
 
-  isAnyStart(...btns: Readonly<ButtonSet<Button>>): boolean {
-    const bits = this.#mapBits(btns)
-    return !this.handled && (this.#bits & bits) !== (this.#prevBits & bits)
-  }
-
   isAnyOnStart(...btns: Readonly<ButtonSet<Button>>): boolean {
-    return this.isAnyStart(...btns) && this.isAnyOn(...btns)
+    return this.isStart() && this.isAnyOn(...btns)
   }
 
   /**
@@ -222,7 +215,7 @@ export class Input<Button extends string> {
       && this.isCombo(...combo)
   }
 
-  /** true if input hasn't changed. */
+  /** true if input hasn't changed for a while. */
   isHeld(): boolean {
     return !this.handled && this.#heldMillis >= this.minHeldMillis
   }
@@ -232,7 +225,10 @@ export class Input<Button extends string> {
   }
 
   isOffStart(...btns: Readonly<ButtonSet<Button>>): boolean {
-    return this.isAnyStart(...btns) && this.isOff(...btns)
+    const bits = this.#mapBits(btns)
+    const wasOn = (this.#prevBits & bits) === bits
+    // don't test !this.#bits since it might forever miss the off event.
+    return wasOn && this.isStart() && this.isOff(...btns)
   }
 
   /**
@@ -245,7 +241,12 @@ export class Input<Button extends string> {
   }
 
   isOnStart(...btns: Readonly<ButtonSet<Button>>): boolean {
-    return this.isAnyStart(...btns) && this.isOn(...btns)
+    return this.isStart() && this.isOn(...btns)
+  }
+
+  /** true if input has changed. */
+  isStart(): boolean {
+    return !this.handled && this.#bits !== this.#prevBits
   }
 
   // to-do: support analog values.
@@ -273,8 +274,14 @@ export class Input<Button extends string> {
       this.#pointer.bitByButton[click] = this.#mapButton(btn)
   }
 
-  get point(): {readonly primary: {readonly xy: Readonly<XY>} | undefined} {
-    return this.#pointState
+  // doesn't consider handled ?
+  get point(): {
+    readonly primary: {
+      readonly clientXY: Readonly<XY>,
+      readonly type: PointType | undefined
+    } | undefined
+  } {
+    return this.#pointerState
   }
 
   register(op: 'add' | 'remove'): this {
@@ -295,12 +302,11 @@ export class Input<Button extends string> {
     this.#keyboard.reset()
     this.#pointer.reset()
     this.#wheel.reset()
-    this.#pointState.drag = false
-    this.#pointState.dragEnd = false
-    this.#pointState.dragStart = false
+    // this.#pointerState.drag = false
+    // this.#pointerState.dragEnd = false
+    // this.#pointerState.dragStart = false
     // to-do: rest of pointstate
-    this.#wheelState.clientDelta = undefined
-    this.#wheelState.delta = undefined
+    this.#wheelState = {clientDelta: {x: 0, y: 0, z: 0}}
   }
 
   /**
@@ -326,16 +332,31 @@ export class Input<Button extends string> {
     if (this.#bits === this.#prevBits) this.#heldMillis += millis
     else this.#heldMillis = millis
 
-    if (this.#bits && this.#bits !== this.#prevBits) {
-      if (this.#prevBits) this.#combo.length = 0 // new button without release.
+    if (this.#bits && this.#bits !== this.#prevBits)
       this.#combo.push(this.#bits)
+
+    // can this whol thing be an assignment?
+    // let's just start with clientXY and get that working end to end
+    if (this.#pointer.primary) {
+      // don't really need specific pointer's bits. those are always aggregate.
+      this.#pointerState.primary = {
+        clientXY: this.#pointer.primary.clientXY,
+        drag: this.#pointer.primary.drag,
+        type: this.#pointer.primary.type
+      }
     }
+    else { this.#pointerState.primary = undefined }
+
+    this.#wheelState = {clientDelta: this.#wheel.clientDelta}
+    // this.#wheelState.delta = this.#wheel.delta // I think I have to record this at capture. othrewise I don't know when its changed. I also don't know how to trigger this. or does this just dissappear each frame? pointer doesn't but it also doesn;t irl
+    this.#wheel.postupdate()
   }
 
   [Symbol.dispose](): void {
     this.register('remove')
   }
 
+  /** doesn't consider handled. */
   get wheel(): Readonly<WheelState> {
     return this.#wheelState
   }

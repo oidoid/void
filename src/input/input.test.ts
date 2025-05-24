@@ -3,7 +3,8 @@ import { type Combo, type DefaultButton, DefaultInput } from './input.ts'
 import { Cam } from '../cam.ts'
 import {
   KeyTestEvent,
-  PointerTestEvent
+  PointerTestEvent,
+  WheelTestEvent
 } from '../test/test-event.ts'
 
 globalThis.devicePixelRatio = 1
@@ -17,8 +18,11 @@ Deno.test('init', async (test) => {
     assertEquals(input.handled, false)
     assertEquals(input.gestured, false)
     assertEquals(input.isHeld(), false)
+    assertEquals(input.isStart(), false)
     assertButton(input, 'U', 'Off')
     assertCombo(input, [['U']], 'Unequal')
+    assertEquals(input.point, {primary: undefined})
+    assertEquals(input.wheel, {clientDelta: {x: 0, y: 0, z: 0}})
   })
 
   await test.step('no change after update', () => {
@@ -27,8 +31,11 @@ Deno.test('init', async (test) => {
     assertEquals(input.handled, false)
     assertEquals(input.gestured, false)
     assertEquals(input.isHeld(), false)
+    assertEquals(input.isStart(), false)
     assertButton(input, 'U', 'Off')
     assertCombo(input, [['U']], 'Unequal')
+    assertEquals(input.point, {primary: undefined})
+    assertEquals(input.wheel, {clientDelta: {x: 0, y: 0, z: 0}})
   })
 })
 
@@ -40,6 +47,7 @@ Deno.test('held off', () => {
 
   assertEquals(input.gestured, false)
   assertEquals(input.isHeld(), true)
+  assertEquals(input.isStart(), false)
   assertButton(input, 'U', 'Off')
   assertCombo(input, [['U']], 'Unequal')
 })
@@ -54,13 +62,12 @@ Deno.test('pressed buttons', async (test) => {
 
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
+    assertEquals(input.isStart(), true)
     assertButton(input, 'U', 'On', 'Start')
     assertCombo(input, [['U']], 'Equal', 'Start')
   })
 
   await test.step('unpressed are inactive and not triggered', () => {
-    assertEquals(input.gestured, true)
-    assertEquals(input.isHeld(), false)
     assertButton(input, 'D', 'Off')
     assertCombo(input, [['D']], 'Unequal')
     assertCombo(input, [['D', 'U']], 'Unequal')
@@ -72,6 +79,7 @@ Deno.test('pressed buttons', async (test) => {
 
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
+    assertEquals(input.isStart(), false)
     assertButton(input, 'U', 'On')
     assertCombo(input, [['U']], 'Equal')
   })
@@ -82,6 +90,7 @@ Deno.test('pressed buttons', async (test) => {
 
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
+    assertEquals(input.isStart(), true)
     assertButton(input, 'U', 'Off', 'Start')
     assertCombo(input, [['U']], 'Unequal')
   })
@@ -92,6 +101,7 @@ Deno.test('pressed buttons', async (test) => {
 
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), true)
+    assertEquals(input.isStart(), true)
     assertButton(input, 'U', 'On', 'Start')
     assertCombo(input, [['U']], 'EndsWith', 'Start')
     assertCombo(input, [['U'], ['U']], 'Equal', 'Start')
@@ -102,6 +112,7 @@ Deno.test('pressed buttons', async (test) => {
 
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), true)
+    assertEquals(input.isStart(), false)
     assertButton(input, 'U', 'On')
     assertCombo(input, [['U']], 'EndsWith')
     assertCombo(input, [['U'], ['U']], 'Equal')
@@ -115,14 +126,15 @@ Deno.test('pressed buttons', async (test) => {
 
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
+    assertEquals(input.isStart(), true)
     assertButton(input, 'U', 'On', 'Start')
     assertCombo(input, [['U']], 'Equal', 'Start')
     assertCombo(input, [['U'], ['U']], 'Unequal')
   })
 })
 
-// in A, A+B, you cannot slide from A to B without a release.
-Deno.test('combos require releases between presses', async (test) => {
+// for "A, A+B", you can slide from A to B without a release.
+Deno.test("combos don't require gaps between presses", async (test) => {
   const target = new EventTarget()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -132,6 +144,7 @@ Deno.test('combos require releases between presses', async (test) => {
 
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
+    assertEquals(input.isStart(), true)
     assertButton(input, 'U', 'On', 'Start')
     assertButton(input, 'D', 'Off')
     assertCombo(input, [['U']], 'Equal', 'Start')
@@ -147,6 +160,7 @@ Deno.test('combos require releases between presses', async (test) => {
 
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
+    assertEquals(input.isStart(), true)
     assertButton(input, 'U', 'Off')
     assertButton(input, 'D', 'On', 'Start')
     assertCombo(input, [['U']], 'Unequal')
@@ -161,11 +175,12 @@ Deno.test('combos require releases between presses', async (test) => {
 
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
+    assertEquals(input.isStart(), true)
     assertButton(input, 'U', 'On', 'Start')
     assertButton(input, 'D', 'Off', 'Start')
-    assertCombo(input, [['U']], 'Equal', 'Start')
+    assertCombo(input, [['U']], 'EndsWith', 'Start')
     assertCombo(input, [['U'], ['D']], 'Unequal')
-    assertCombo(input, [['U'], ['D'], ['U']], 'Unequal')
+    assertCombo(input, [['U'], ['D'], ['U']], 'Equal', 'Start')
   })
 })
 
@@ -211,6 +226,7 @@ Deno.test('Up, Up, Down, Down, Left', async (test) => {
 
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
+    assertEquals(input.isStart(), true)
     assertButton(input, 'U', 'On', 'Start')
     assertButton(input, 'D', 'Off')
     assertButton(input, 'L', 'Off')
@@ -229,6 +245,7 @@ Deno.test('Up, Up, Down, Down, Left', async (test) => {
 
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
+    assertEquals(input.isStart(), true)
     assertButton(input, 'U', 'On', 'Start')
     assertButton(input, 'D', 'Off')
     assertButton(input, 'L', 'Off')
@@ -247,6 +264,7 @@ Deno.test('Up, Up, Down, Down, Left', async (test) => {
 
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
+    assertEquals(input.isStart(), true)
     assertButton(input, 'U', 'Off')
     assertButton(input, 'D', 'On', 'Start')
     assertButton(input, 'L', 'Off')
@@ -265,6 +283,7 @@ Deno.test('Up, Up, Down, Down, Left', async (test) => {
 
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
+    assertEquals(input.isStart(), true)
     assertButton(input, 'U', 'Off')
     assertButton(input, 'D', 'On', 'Start')
     assertButton(input, 'L', 'Off')
@@ -283,6 +302,7 @@ Deno.test('Up, Up, Down, Down, Left', async (test) => {
 
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
+    assertEquals(input.isStart(), true)
     assertButton(input, 'U', 'Off')
     assertButton(input, 'D', 'Off')
     assertButton(input, 'L', 'On', 'Start')
@@ -308,6 +328,7 @@ Deno.test('held combos stay active past expiry', async (test) => {
 
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
+    assertEquals(input.isStart(), true)
     assertButton(input, 'U', 'On', 'Start')
     assertCombo(input, [['U']], 'EndsWith', 'Start')
     assertCombo(input, [['U'], ['U']], 'Equal', 'Start')
@@ -318,6 +339,7 @@ Deno.test('held combos stay active past expiry', async (test) => {
 
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), true)
+    assertEquals(input.isStart(), false)
     assertButton(input, 'U', 'On')
     assertCombo(input, [['U']], 'EndsWith')
     assertCombo(input, [['U'], ['U']], 'Equal')
@@ -335,6 +357,7 @@ Deno.test('combo sequences can have multiple buttons', async (test) => {
 
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
+    assertEquals(input.isStart(), true)
     assertButton(input, 'U', 'On', 'Start')
     assertButton(input, 'D', 'Off')
     assertButton(input, 'L', 'On', 'Start')
@@ -358,6 +381,7 @@ Deno.test('combo sequences can have multiple buttons', async (test) => {
 
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
+    assertEquals(input.isStart(), true)
     assertButton(input, 'U', 'Off')
     assertButton(input, 'D', 'On', 'Start')
     assertButton(input, 'L', 'Off')
@@ -378,6 +402,7 @@ Deno.test('handled', () => {
 
   assertEquals(input.gestured, false)
   assertEquals(input.isHeld(), false)
+  assertEquals(input.isStart(), false)
 
   assertButton(input, 'U', 'Off')
   assertCombo(input, [['U']], 'Unequal')
@@ -386,8 +411,8 @@ Deno.test('handled', () => {
 
   assertEquals(input.gestured, false)
   assertEquals(input.isHeld(), false)
+  assertEquals(input.isStart(), false)
 
-  assertEquals(input.isAnyStart('U'), false)
   assertEquals(input.isAnyOn('U'), false)
   assertEquals(input.isAnyOnStart('U'), false)
   assertEquals(input.isOn('U'), false)
@@ -405,6 +430,7 @@ Deno.test('handled', () => {
 
   assertEquals(input.gestured, true)
   assertEquals(input.isHeld(), true)
+  assertEquals(input.isStart(), true)
 
   assertButton(input, 'U', 'On', 'Start')
   assertCombo(input, [['U']], 'Equal', 'Start')
@@ -413,8 +439,8 @@ Deno.test('handled', () => {
 
   assertEquals(input.gestured, true)
   assertEquals(input.isHeld(), false)
+  assertEquals(input.isStart(), false)
 
-  assertEquals(input.isAnyStart('U'), false)
   assertEquals(input.isAnyOn('U'), false)
   assertEquals(input.isAnyOnStart('U'), false)
   assertEquals(input.isOn('U'), false)
@@ -435,24 +461,159 @@ Deno.test('isAny', () => {
   target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowUp'}))
   input.update(16)
 
-  assertEquals(input.isAnyStart('U'), true)
+  assertEquals(input.isStart(), true)
+
   assertEquals(input.isAnyOn('U'), true)
   assertEquals(input.isAnyOnStart('U'), true)
 
-  assertEquals(input.isAnyStart('U', 'D'), true)
   assertEquals(input.isAnyOn('U', 'D'), true)
   assertEquals(input.isAnyOnStart('U', 'D'), true)
 
-  assertEquals(input.isAnyStart('D'), false)
   assertEquals(input.isAnyOn('D'), false)
   assertEquals(input.isAnyOnStart('D'), false)
 
-  assertEquals(input.isAnyStart('D', 'R'), false)
   assertEquals(input.isAnyOn('D', 'R'), false)
   assertEquals(input.isAnyOnStart('D', 'R'), false)
 })
 
-// to-do: pointer tests.
+Deno.test('isStart', () => {
+  const target = new EventTarget()
+  using input = DefaultInput(DefaultCam(), target).register('add')
+
+  assertEquals(input.isStart(), false)
+
+  target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowUp'}))
+  input.update(16)
+
+  assertEquals(input.isStart(), true)
+
+  input.update(16)
+  assertEquals(input.isStart(), false)
+
+  target.dispatchEvent(KeyTestEvent('keyup', {key: 'ArrowUp'}))
+  input.update(16)
+
+  assertEquals(input.isStart(), true)
+  input.update(16)
+
+  assertEquals(input.isStart(), false)
+})
+
+Deno.test('pointer movements update position', async (test) => {
+  const target = new EventTarget()
+  using input = DefaultInput(DefaultCam(), target).register('add')
+
+  await test.step('move', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointermove', {
+        isPrimary: true,
+        offsetX: 1,
+        offsetY: 2,
+        pointerType: 'mouse'
+      })
+    )
+    input.update(16)
+
+    assertEquals(input.point.primary?.clientXY, {x: 1, y: 2})
+    assertEquals(input.point.primary?.type, 'Mouse')
+  })
+
+  await test.step('and position is not lost on update', () => {
+    input.update(16)
+
+    assertEquals(input.point.primary?.clientXY, {x: 1, y: 2})
+    assertEquals(input.point.primary?.type, 'Mouse')
+  })
+})
+
+Deno.test('pointer clicks are buttons', () => {
+  const target = new EventTarget()
+  using input = DefaultInput(DefaultCam(), target).register('add')
+
+  target.dispatchEvent(
+    PointerTestEvent('pointerdown', {
+      buttons: 1,
+      isPrimary: true,
+      offsetX: 1,
+      offsetY: 2,
+      pointerType: 'mouse'
+    })
+  )
+  input.update(16)
+
+  assertButton(input, 'A', 'On', 'Start')
+  assertCombo(input, [['A']], 'Equal', 'Start')
+})
+
+Deno.test('secondary pointer clicks are buttons', () => {
+  const target = new EventTarget()
+  using input = DefaultInput(DefaultCam(), target).register('add')
+
+  target.dispatchEvent(
+    PointerTestEvent('pointerdown', {
+      buttons: 1,
+      isPrimary: false,
+      offsetX: 1,
+      offsetY: 2,
+      pointerType: 'mouse'
+    })
+  )
+  input.update(16)
+
+  assertButton(input, 'A', 'On', 'Start')
+  assertCombo(input, [['A']], 'Equal', 'Start')
+})
+
+// Deno.test('a pointer click can become a drag', async (test) => {
+//   const target = new EventTarget()
+//   using input = DefaultInput(DefaultCam(), target).register('add')
+
+//   await test.step('click', () => {
+//     target.dispatchEvent(
+//       PointerTestEvent('pointerdown', {
+//         buttons: 1,
+//         isPrimary: true,
+//         offsetX: 1,
+//         offsetY: 2,
+//         pointerType: 'mouse'
+//       })
+//     )
+//     input.update(16)
+
+//     assertButton(input, 'A', 'On', 'Start')
+//     assertCombo(input, [['A']], 'Equal', 'Start')
+//   })
+
+//   await test.step('drag', () => {
+//     target.dispatchEvent(
+//       PointerTestEvent('pointermove', {
+//         buttons: 1,
+//         isPrimary: true,
+//         offsetX: 6,
+//         offsetY: 2,
+//         pointerType: 'mouse'
+//       })
+//     )
+//     input.update(16)
+
+//     assertButton(input, 'A', 'On')
+//     assertCombo(input, [['A']], 'Equal')
+//     assertEquals(input.point.drag, true)
+//   })
+// })
+
+// review new and old pointer implementation
+
+Deno.test('wheel', () => {
+  const target = new EventTarget()
+  using input = DefaultInput(DefaultCam(), target).register('add')
+
+  target.dispatchEvent(WheelTestEvent({deltaX: 1, deltaY: 2, deltaZ: 3}))
+  input.update(16)
+
+  assertEquals(input.wheel?.clientDelta, {x: 1, y: 2, z: 3})
+  // assertEquals(input.wheel?.delta, {x: 1, y: 2})
+})
 
 function assertButton(
   input: DefaultInput,
@@ -460,7 +621,6 @@ function assertButton(
   state: 'On' | 'Off',
   edge?: 'Start'
 ): void {
-  assertEquals(input.isAnyStart(btn), edge === 'Start')
   assertEquals(input.isAnyOn(btn), state === 'On')
   assertEquals(input.isAnyOnStart(btn), state === 'On' && edge === 'Start')
   assertEquals(input.isOn(btn), state === 'On')
