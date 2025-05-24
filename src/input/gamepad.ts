@@ -1,7 +1,8 @@
 export class Gamepad {
   bits: number = 0
-  // to-do: support analog button values, expose connected status and vibration.
-  //        would be nice if vibration could merge with navigator.vibrate().
+  // to-do: support analog button values, expose connected status and vibration,
+  //        and distinct devices. would be nice if vibration could merge with
+  //        navigator.vibrate().
   readonly bitByAxis: {[axis: number]: [less: number, more: number]} = {}
   readonly bitByButton: {[btn: number]: number} = {}
 
