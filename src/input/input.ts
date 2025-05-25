@@ -37,7 +37,7 @@ type PointerState = Point & {
   drag: boolean, // should work with super patience by having adjustable threshold to 0 or maybe 1px. be nice if it could be reset with a check against whether or not hte box is even draggable. like setdragarea, or set draggable.
   dragStart: boolean,
   dragEnd: boolean,
-  /** nonnegative. */
+  /** may be negative. */
   pinchClient: number,
   /** secondary points. */
   secondary: Point[]
@@ -337,10 +337,11 @@ export class Input<Button extends string> {
   update(millis: number) {
     this.handled = false
     this.#gamepad.update()
+    this.#pointer.update()
 
     this.#prevBits = this.#bits
     this.#bits = this.#gamepad.bits | this.#keyboard.bits
-      | (this.#pointer.primary?.bits ?? 0)
+      | (this.#pointer.point.primary?.bits ?? 0)
     this.#gestured ||= !!this.#bits
 
     if (
@@ -355,15 +356,20 @@ export class Input<Button extends string> {
       this.#combo.push(this.#bits)
 
     // let's just start with xyClient and get that working end to end
-    if (this.#pointer.primary) {
+    if (this.#pointer.point.primary) {
       const pinchClient = this.#pointer.pinchClient
-      const drag = this.#pointer.primary.drag && !pinchClient
-      const secondary = this.#pointer.secondary.map((pt) => ({
-        type: pt.type,
-        xy: this.#cam.toXY(pt.xyClient),
-        xyClient: pt.xyClient,
-        xyLocal: this.#cam.toXYLocal(pt.xyClient)
-      }))
+      const drag = this.#pointer.point.primary.drag && !pinchClient
+      const secondary = []
+      for (const pt of Object.values(this.#pointer.point)) {
+        if (pt !== this.#pointer.point.primary) {
+          secondary.push({
+            type: pt.type,
+            xy: this.#cam.toXY(pt.xyClient),
+            xyClient: pt.xyClient,
+            xyLocal: this.#cam.toXYLocal(pt.xyClient)
+          })
+        }
+      }
       this.#pointerState = {
         centerClient: this.#pointer.centerClient,
         drag,
@@ -371,10 +377,10 @@ export class Input<Button extends string> {
         dragEnd: !!this.#pointerState?.drag && !drag,
         pinchClient,
         secondary,
-        type: this.#pointer.primary.type,
-        xy: this.#cam.toXY(this.#pointer.primary.xyClient),
-        xyClient: this.#pointer.primary.xyClient,
-        xyLocal: this.#cam.toXYLocal(this.#pointer.primary.xyClient)
+        type: this.#pointer.point.primary.type,
+        xy: this.#cam.toXY(this.#pointer.point.primary.xyClient),
+        xyClient: this.#pointer.point.primary.xyClient,
+        xyLocal: this.#cam.toXYLocal(this.#pointer.point.primary.xyClient)
       }
     }
     else {
