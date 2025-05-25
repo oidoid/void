@@ -14,46 +14,39 @@ export type Combo<Button> = [ButtonSet<Button>, ...ButtonSet<Button>[]]
 export type DefaultButton = // deno-fmt-ignore
   | 'L' | 'R' | 'U' | 'D' // dpad.
   | 'A' | 'B' | 'C' // primary, secondary, tertiary.
+  | 'Click' | 'Click2'
   | 'Menu'
 
 export type Point = {
-  // i actually grab bits for combo and such outside of this type. might be nice to leave in here though so you could treat one device differently.
+  type: PointType | undefined,
   /** event position relative canvas top-left (in DPI scale). */
-  clientXY: XY,
-  drag: boolean,
-  // /** Frame number event was recorded. */
-  // frameNum: number,
+  xyClient: XY,
   /**
    * position relative canvas top-left in level scale (like level xy but no cam
-   * offset) within cam at capture time.
+   * offset) within cam reevaluated each frame.
    */
-  // localXY: XY,
-  type: PointType | undefined
-  // /** level position within cam at capture time. */
-  // xy: XY
+  xyLocal: XY,
+  /** level position within cam reevaluated each frame. */
+  xy: XY
 }
-// isOn, isOnStart, isOnEnd
 
-type PointerState = {
-  // center: Readonly<Point> | undefined,
-  // drag: boolean, // should work with super patience by having adjustable threshold to 0 or maybe 1px. be nice if it could be reset with a check against whether or not hte box is even draggable. like setdragarea, or set draggable.
-  // dragStart: boolean,
-  // dragEnd: boolean, // &&!hanlded
-  // pinch: boolean, // && !handled
-  // pinchStart: boolean, // && !handled...
-  // pinchEnd: boolean,
-  primary: Readonly<Point> | undefined
-  // primaryPrev: Readonly<Point> | undefined,
-  // secondary: readonly Readonly<Point>[],
-  // secondaryPrev: readonly Readonly<Point>[]
-  // what kind of history do i need here. I want to be able to do pinch (which is current points only) and on start / end which I htink only need one prior state
-  // combo needs history of _buttons_ only. history of xy is not a thing.
+/** doesn't consider handled. */
+type PointerState = Point & {
+  centerClient: XY | undefined,
+  /** false when pinched. */
+  drag: boolean, // should work with super patience by having adjustable threshold to 0 or maybe 1px. be nice if it could be reset with a check against whether or not hte box is even draggable. like setdragarea, or set draggable.
+  dragStart: boolean,
+  dragEnd: boolean,
+  /** nonnegative. */
+  pinchClient: number,
+  /** secondary points. */
+  secondary: Point[]
 }
 
 type WheelState = {
-  clientDelta: Readonly<XYZ>
   /** level / local delta. no difference. */
-  // delta: XY
+  delta: XY,
+  deltaClient: Readonly<XYZ>
 }
 
 export type DefaultInput<Button extends DefaultButton = DefaultButton> = Input<
@@ -84,11 +77,24 @@ export function DefaultInput<Button extends DefaultButton>(
   input.mapGamepadButton('A', 0)
   input.mapGamepadButton('Menu', 9)
 
-  input.mapPointerClick('A', 1)
-  input.mapPointerClick('B', 2)
+  input.mapPointerClick('Click', 1)
+  input.mapPointerClick('Click2', 2)
   return input as DefaultInput<Button>
 }
 
+// asdsa
+// asdsa
+// asdsa
+// asdsa
+// asdsa
+// asdsa
+// asdsa
+// asdsa
+// asdsa
+// asdsa
+// asdsa
+// asdsa
+// devices just serve state up through update, not post update. so no cahce. input is responsible for making copies.
 // no control over specific devices and no two player support. just one big
 // aggregate. could do multiplayer if devices were asked for instead of searched
 // for.
@@ -111,7 +117,6 @@ export class Input<Button extends string> {
   readonly #bitByButton: { [btn in Button]?: number } = {}
   readonly #buttonByBit: {[bit: number]: Button} = {}
   #bits: number = 0
-  // @ts-expect-error
   readonly #cam: Readonly<Cam>
   /**
    * sequence of nonzero bits ordered from oldest to latest. combos end only by
@@ -125,14 +130,17 @@ export class Input<Button extends string> {
   #heldMillis: number = 0
   readonly #keyboard: Keyboard
   readonly #pointer: Pointer
-  readonly #pointerState: PointerState = {primary: undefined}
+  #pointerState: PointerState | undefined
   /** bits last update. may not be equal to `#combo.at(-1)`. */
   #prevBits: number = 0
   /** millis last update. necessary to allow the current frame to test start. */
   // #prevUpdateMillis: number = 0
   readonly #target: EventTarget
   readonly #wheel: Wheel
-  #wheelState: Readonly<WheelState> = {clientDelta: {x: 0, y: 0, z: 0}}
+  #wheelState: Readonly<WheelState> = {
+    deltaClient: {x: 0, y: 0, z: 0},
+    delta: {x: 0, y: 0}
+  }
 
   constructor(cam: Readonly<Cam>, target: EventTarget) {
     this.#cam = cam
@@ -274,14 +282,13 @@ export class Input<Button extends string> {
       this.#pointer.bitByButton[click] = this.#mapButton(btn)
   }
 
-  // doesn't consider handled ?
-  get point(): {
-    readonly primary: {
-      readonly clientXY: Readonly<XY>,
-      readonly type: PointType | undefined
-    } | undefined
-  } {
+  /** doesn't consider handled. */
+  get point(): PointerState | undefined {
     return this.#pointerState
+  }
+
+  get pointer(): {dragMinClient: number} {
+    return this.#pointer
   }
 
   register(op: 'add' | 'remove'): this {
@@ -302,11 +309,24 @@ export class Input<Button extends string> {
     this.#keyboard.reset()
     this.#pointer.reset()
     this.#wheel.reset()
+    // asdsad
+    // asdsad
+    // asdsad
+    // asdsad
+    // asdsad
+    // asdsad
+    // asdsad
+    // asdsad
+    // asdsad
+    // asdsad
+    // asdsad
+    // asdsad
+    // asdsad
     // this.#pointerState.drag = false
     // this.#pointerState.dragEnd = false
     // this.#pointerState.dragStart = false
     // to-do: rest of pointstate
-    this.#wheelState = {clientDelta: {x: 0, y: 0, z: 0}}
+    this.#wheelState = {deltaClient: {x: 0, y: 0, z: 0}, delta: {x: 0, y: 0}}
   }
 
   /**
@@ -319,10 +339,9 @@ export class Input<Button extends string> {
     this.#gamepad.update()
 
     this.#prevBits = this.#bits
-    this.#bits = this.#gamepad.bits | this.#keyboard.bits | this.#pointer.bits
-
-    // to-do: does this.#gamepad.bits count as a gesture? what about cursor keys?
-    this.#gestured ||= !!(this.#keyboard.bits | this.#pointer.bits)
+    this.#bits = this.#gamepad.bits | this.#keyboard.bits
+      | (this.#pointer.primary?.bits ?? 0)
+    this.#gestured ||= !!this.#bits
 
     if (
       millis > this.maxIntervalMillis && this.#bits !== this.#prevBits
@@ -335,20 +354,38 @@ export class Input<Button extends string> {
     if (this.#bits && this.#bits !== this.#prevBits)
       this.#combo.push(this.#bits)
 
-    // can this whol thing be an assignment?
-    // let's just start with clientXY and get that working end to end
+    // let's just start with xyClient and get that working end to end
     if (this.#pointer.primary) {
-      // don't really need specific pointer's bits. those are always aggregate.
-      this.#pointerState.primary = {
-        clientXY: this.#pointer.primary.clientXY,
-        drag: this.#pointer.primary.drag,
-        type: this.#pointer.primary.type
+      const pinchClient = this.#pointer.pinchClient
+      const drag = this.#pointer.primary.drag && !pinchClient
+      const secondary = this.#pointer.secondary.map((pt) => ({
+        type: pt.type,
+        xy: this.#cam.toXY(pt.xyClient),
+        xyClient: pt.xyClient,
+        xyLocal: this.#cam.toXYLocal(pt.xyClient)
+      }))
+      this.#pointerState = {
+        centerClient: this.#pointer.centerClient,
+        drag,
+        dragStart: !this.#pointerState?.drag && drag,
+        dragEnd: !!this.#pointerState?.drag && !drag,
+        pinchClient,
+        secondary,
+        type: this.#pointer.primary.type,
+        xy: this.#cam.toXY(this.#pointer.primary.xyClient),
+        xyClient: this.#pointer.primary.xyClient,
+        xyLocal: this.#cam.toXYLocal(this.#pointer.primary.xyClient)
       }
     }
-    else { this.#pointerState.primary = undefined }
+    else {
+      // secondary should never be set when primary isn't.
+      this.#pointerState = undefined
+    }
 
-    this.#wheelState = {clientDelta: this.#wheel.clientDelta}
-    // this.#wheelState.delta = this.#wheel.delta // I think I have to record this at capture. othrewise I don't know when its changed. I also don't know how to trigger this. or does this just dissappear each frame? pointer doesn't but it also doesn;t irl
+    this.#wheelState = {
+      deltaClient: this.#wheel.deltaClient,
+      delta: this.#cam.toXY(this.#wheel.deltaClient)
+    }
     this.#wheel.postupdate()
   }
 

@@ -9,7 +9,7 @@ Deno.test('buttons', async (test) => {
   await test.step('init', () => {
     assertEquals(pointer.primary, undefined)
     assertEquals(pointer.secondary, [])
-    assertEquals(pointer.clientCenter, undefined)
+    assertEquals(pointer.centerClient, undefined)
   })
 
   await test.step('primary down', () => {
@@ -19,11 +19,10 @@ Deno.test('buttons', async (test) => {
       offsetY: 40,
       isPrimary: true
     }))
-    assertEquals(pointer.bits, 1)
     assertEquals(pointer.primary?.bits, 1)
-    assertEquals(pointer.primary?.clientXY, {x: 10, y: 40})
+    assertEquals(pointer.primary?.xyClient, {x: 10, y: 40})
     assertEquals(pointer.secondary, [])
-    assertEquals(pointer.clientCenter, {x: 10, y: 40})
+    assertEquals(pointer.centerClient, {x: 10, y: 40})
   })
 
   await test.step('secondary down', () => {
@@ -33,12 +32,11 @@ Deno.test('buttons', async (test) => {
       offsetY: 41,
       isPrimary: false
     }))
-    assertEquals(pointer.bits, 3)
     assertEquals(pointer.primary?.bits, 1)
-    assertEquals(pointer.primary?.clientXY, {x: 10, y: 40})
+    assertEquals(pointer.primary?.xyClient, {x: 10, y: 40})
     assertEquals(pointer.secondary[0]?.bits, 2)
-    assertEquals(pointer.secondary[0]?.clientXY, {x: 11, y: 41})
-    assertEquals(pointer.clientCenter, {x: 10.5, y: 40.5})
+    assertEquals(pointer.secondary[0]?.xyClient, {x: 11, y: 41})
+    assertEquals(pointer.centerClient, {x: 10.5, y: 40.5})
   })
 
   await test.step('primary up', () => {
@@ -48,20 +46,19 @@ Deno.test('buttons', async (test) => {
       offsetY: 41,
       isPrimary: true
     }))
-    assertEquals(pointer.bits, 2)
     assertEquals(pointer.primary?.bits, 0)
-    assertEquals(pointer.primary?.clientXY, {x: 11, y: 41})
+    assertEquals(pointer.primary?.xyClient, {x: 11, y: 41})
     assertEquals(pointer.secondary[0]?.bits, 2)
-    assertEquals(pointer.secondary[0]?.clientXY, {x: 11, y: 41})
-    assertEquals(pointer.clientCenter, {x: 11, y: 41})
+    assertEquals(pointer.secondary[0]?.xyClient, {x: 11, y: 41})
+    assertEquals(pointer.centerClient, {x: 11, y: 41})
   })
 })
 
-Deno.test('clientCenter()', async (test) => {
+Deno.test('centerClient()', async (test) => {
   const target = new EventTarget()
   using pointer = DefaultPointer(target)
 
-  await test.step('init', () => assertEquals(pointer.clientCenter, undefined))
+  await test.step('init', () => assertEquals(pointer.centerClient, undefined))
 
   await test.step('primary', () => {
     target.dispatchEvent(PointerTestEvent('pointerdown', {
@@ -70,7 +67,7 @@ Deno.test('clientCenter()', async (test) => {
       offsetY: 10,
       isPrimary: true
     }))
-    assertEquals(pointer.clientCenter, {x: 10, y: 10})
+    assertEquals(pointer.centerClient, {x: 10, y: 10})
   })
 
   await test.step('primary and secondary', () => {
@@ -81,7 +78,7 @@ Deno.test('clientCenter()', async (test) => {
       isPrimary: false,
       pointerId: 2
     }))
-    assertEquals(pointer.clientCenter, {x: 15, y: 15})
+    assertEquals(pointer.centerClient, {x: 15, y: 15})
   })
 })
 
@@ -98,11 +95,9 @@ Deno.test('drag', async (test) => {
     }))
     assertEquals(pointer.primary?.bits, 1)
     assertEquals(pointer.primary?.primary, true)
-    assertEquals(pointer.primary?.clientXY, {x: 10, y: 10})
-    assertEquals(pointer.primary?.clientAnchor, {x: 10, y: 10})
+    assertEquals(pointer.primary?.xyClient, {x: 10, y: 10})
+    assertEquals(pointer.primary?.anchorClient, {x: 10, y: 10})
     assertEquals(pointer.primary?.drag, false)
-    assertEquals(pointer.primary?.dragEnd, false)
-    assertEquals(pointer.primary?.dragStart, false)
   })
 
   await test.step('move a little', () => {
@@ -114,11 +109,9 @@ Deno.test('drag', async (test) => {
     }))
     assertEquals(pointer.primary?.bits, 1)
     assertEquals(pointer.primary?.primary, true)
-    assertEquals(pointer.primary?.clientXY, {x: 12, y: 12})
-    assertEquals(pointer.primary?.clientAnchor, {x: 10, y: 10})
+    assertEquals(pointer.primary?.xyClient, {x: 12, y: 12})
+    assertEquals(pointer.primary?.anchorClient, {x: 10, y: 10})
     assertEquals(pointer.primary?.drag, false)
-    assertEquals(pointer.primary?.dragEnd, false)
-    assertEquals(pointer.primary?.dragStart, false)
   })
 
   await test.step('drag start', () => {
@@ -130,11 +123,9 @@ Deno.test('drag', async (test) => {
     }))
     assertEquals(pointer.primary?.bits, 1)
     assertEquals(pointer.primary?.primary, true)
-    assertEquals(pointer.primary?.clientXY, {x: 15, y: 15})
-    assertEquals(pointer.primary?.clientAnchor, {x: 10, y: 10})
+    assertEquals(pointer.primary?.xyClient, {x: 15, y: 15})
+    assertEquals(pointer.primary?.anchorClient, {x: 10, y: 10})
     assertEquals(pointer.primary?.drag, true)
-    assertEquals(pointer.primary?.dragEnd, false)
-    assertEquals(pointer.primary?.dragStart, true)
   })
 
   await test.step('drag move', () => {
@@ -146,11 +137,9 @@ Deno.test('drag', async (test) => {
     }))
     assertEquals(pointer.primary?.bits, 1)
     assertEquals(pointer.primary?.primary, true)
-    assertEquals(pointer.primary?.clientXY, {x: 17, y: 17})
-    assertEquals(pointer.primary?.clientAnchor, {x: 10, y: 10})
+    assertEquals(pointer.primary?.xyClient, {x: 17, y: 17})
+    assertEquals(pointer.primary?.anchorClient, {x: 10, y: 10})
     assertEquals(pointer.primary?.drag, true)
-    assertEquals(pointer.primary?.dragEnd, false)
-    assertEquals(pointer.primary?.dragStart, false)
   })
 
   await test.step('drag end', () => {
@@ -162,14 +151,10 @@ Deno.test('drag', async (test) => {
     }))
     assertEquals(pointer.primary?.bits, 0)
     assertEquals(pointer.primary?.primary, true)
-    assertEquals(pointer.primary?.clientXY, {x: 20, y: 20})
-    assertEquals(pointer.primary?.clientAnchor, {x: 10, y: 10})
+    assertEquals(pointer.primary?.xyClient, {x: 20, y: 20})
+    assertEquals(pointer.primary?.anchorClient, {x: 10, y: 10})
     assertEquals(pointer.primary?.drag, false)
-    assertEquals(pointer.primary?.dragEnd, true)
-    assertEquals(pointer.primary?.dragStart, false)
   })
-
-  // what about update? that's supopsed to clear start / stop state
 })
 
 function DefaultPointer(target: EventTarget): Pointer {

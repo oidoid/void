@@ -1,7 +1,7 @@
 import type { XYZ } from '../types/geo.ts'
 
 export class Wheel {
-  clientDelta: Readonly<XYZ> = {x: 0, y: 0, z: 0}
+  deltaClient: Readonly<XYZ> = {x: 0, y: 0, z: 0}
   readonly #target: EventTarget
 
   constructor(target: EventTarget) {
@@ -15,11 +15,11 @@ export class Wheel {
   }
 
   reset(): void {
-    this.clientDelta = {x: 0, y: 0, z: 0}
+    this.deltaClient = {x: 0, y: 0, z: 0}
   }
 
   postupdate(): void {
-    this.clientDelta = {x: 0, y: 0, z: 0}
+    this.deltaClient = {x: 0, y: 0, z: 0}
   }
 
   [Symbol.dispose](): void {
@@ -28,7 +28,7 @@ export class Wheel {
 
   #onInput = (ev: WheelEvent): void => {
     if (!globalThis.Deno && !ev.isTrusted) return
-    this.clientDelta = {x: ev.deltaX, y: ev.deltaY, z: ev.deltaZ}
+    this.deltaClient = {x: ev.deltaX, y: ev.deltaY, z: ev.deltaZ}
     ev.preventDefault() // disable scaling.
   }
 }

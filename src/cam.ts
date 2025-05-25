@@ -2,7 +2,6 @@ import type { WH, XY } from './types/geo.ts'
 
 /** given a min WH and scale, size the camera to the max WH. */
 export class Cam {
-  readonly #clientWH: WH = {w: 1, h: 1}
   #h: number = 1
   #invalid: boolean = true
   #minScale: number = 1
@@ -10,25 +9,10 @@ export class Cam {
   #mode: 'Int' | 'Fraction' = 'Fraction'
   #scale: number = 1
   #w: number = 1
+  readonly #whClient: WH = {w: 1, h: 1}
   #x: number = 0
   #y: number = 0
   #zoomOut: number = 0
-
-  /**
-   * positive int dimensions in client px (DPI scale) of canvas (often
-   * `canvas.parentElement!.clientWidth/Height` since the canvas is resized)
-   * which is assumed to be max WH.
-   */
-  get clientWH(): Readonly<WH> {
-    return this.#clientWH
-  }
-
-  set clientWH(wh: Readonly<WH>) {
-    if (this.#clientWH.w === wh.w && this.#clientWH.h === wh.h) return
-    this.#clientWH.w = wh.w
-    this.#clientWH.h = wh.h
-    this.#invalidateWH()
-  }
 
   /** true if cam moved or resized since last update. */
   get invalid(): boolean {
@@ -48,7 +32,7 @@ export class Cam {
 
   /**
    * positive int or infinite min dimensions. set to
-   * `{w: Infinity, h: Infinity}` or `clientWH` to always use min scale.
+   * `{w: Infinity, h: Infinity}` or `whClient` to always use min scale.
    */
   get minWH(): Readonly<WH> {
     return this.#minWH
@@ -81,21 +65,21 @@ export class Cam {
     return this.#scale
   }
 
+  /** position in fractional level coordinates. */
+  toXY(client: Readonly<XY>): XY {
+    const local = this.toXYLocal(client)
+    return {x: this.#x + local.x, y: this.#y + local.y}
+  }
+
   /**
    * position relative canvas top-left in level scale (like level xy but no cam
    * offset). often used for UI that is fixed within the cam.
    */
-  toLocalXY(client: Readonly<XY>): XY {
+  toXYLocal(client: Readonly<XY>): XY {
     return {
-      x: (client.x / this.#clientWH.w) * this.#w,
-      y: (client.y / this.#clientWH.h) * this.#h
+      x: (client.x / this.#whClient.w) * this.#w,
+      y: (client.y / this.#whClient.h) * this.#h
     }
-  }
-
-  /** position in fractional level coordinates. */
-  toXY(client: Readonly<XY>): XY {
-    const local = this.toLocalXY(client)
-    return {x: this.#x + local.x, y: this.#y + local.y}
   }
 
   update(): void {
@@ -105,6 +89,22 @@ export class Cam {
   /** positive int in level px. */
   get w(): number {
     return this.#w
+  }
+
+  /**
+   * positive int dimensions in client px (DPI scale) of canvas (often
+   * `canvas.parentElement!.clientWidth/Height` since the canvas is resized)
+   * which is assumed to be max WH.
+   */
+  get whClient(): Readonly<WH> {
+    return this.#whClient
+  }
+
+  set whClient(wh: Readonly<WH>) {
+    if (this.#whClient.w === wh.w && this.#whClient.h === wh.h) return
+    this.#whClient.w = wh.w
+    this.#whClient.h = wh.h
+    this.#invalidateWH()
   }
 
   /** fractional. */
@@ -141,14 +141,14 @@ export class Cam {
   #invalidateWH(): void {
     this.#invalid = true
 
-    const phyWH = {
-      w: Math.ceil(this.#clientWH.w * devicePixelRatio),
-      h: Math.ceil(this.#clientWH.h * devicePixelRatio)
+    const whPhy = {
+      w: Math.ceil(this.#whClient.w * devicePixelRatio),
+      h: Math.ceil(this.#whClient.h * devicePixelRatio)
     }
 
     let scale = Math.max(
       this.#minScale,
-      Math.min(phyWH.w / this.#minWH.w, phyWH.h / this.#minWH.h)
+      Math.min(whPhy.w / this.#minWH.w, whPhy.h / this.#minWH.h)
         - (this.#zoomOut)
     )
     // scale = Math.abs(Math.round(scale) - scale) < 0.05
@@ -156,7 +156,7 @@ export class Cam {
     //   : scale
     this.#scale = this.#mode === 'Int' ? Math.trunc(scale) : scale
 
-    this.#w = Math.ceil(phyWH.w / this.#scale)
-    this.#h = Math.ceil(phyWH.h / this.#scale)
+    this.#w = Math.ceil(whPhy.w / this.#scale)
+    this.#h = Math.ceil(whPhy.h / this.#scale)
   }
 }

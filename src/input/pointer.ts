@@ -5,24 +5,21 @@ export type PointType =
 
 type PointEvent = {
   bits: number,
-  /** position when any other pointer was first detected otherwise most recent click. */
-  clientAnchor: XY,
-  /** most recent pointer down. */
-  // clientClick: XY | undefined,
-  clientXY: XY,
-  // i either can't update end / start in the event handler or i have to update in update()
+  /**
+   * position when any other pointer was first detected otherwise most recent
+   * click.
+   */
+  anchorClient: XY,
   drag: boolean,
-  dragEnd: boolean,
-  dragStart: boolean,
   ev: typeof pointEvents[number],
   id: number,
-  // key: {alt: boolean, ctrl: boolean, meta: boolean, shift: boolean}
   /**
    * cursors should only use the primary inputs to avoid flickering between
    * distant points. inputs may be only secondaries.
    */
   primary: boolean,
-  type: PointType | undefined
+  type: PointType | undefined,
+  xyClient: XY
 }
 
 const pointTypeByPointerType = {
@@ -39,6 +36,7 @@ const pointEvents = [
 
 export class Pointer {
   readonly bitByButton: {[btn: number]: number} = {}
+  dragMinClient: number = 5
   primary: Readonly<PointEvent> | undefined
   readonly secondary: Readonly<PointEvent>[] = []
   readonly #target: EventTarget
@@ -47,21 +45,27 @@ export class Pointer {
     this.#target = target
   }
 
-  /** aggregate on buttons. */
-  get bits(): number {
-    return (this.primary?.bits ?? 0)
-      | this.secondary.reduce((sum, {bits}) => sum | bits, 0)
-  }
-
-  get clientCenter(): XY | undefined {
+  get centerClient(): XY | undefined {
+    if (!this.primary?.bits && !this.secondary.length) return
     const sum = {x: 0, y: 0}
     let pts = 0
     for (const pt of [this.primary, ...this.secondary]) {
       if (!pt?.bits) continue
       pts++
-      xyAddTo(sum, pt.clientXY)
+      xyAddTo(sum, pt.xyClient)
     }
     return pts ? xyDiv(sum, {x: pts, y: pts}) : undefined
+  }
+
+  get pinchClient(): number {
+    let distance = 0
+    let pts = 0
+    for (const pt of [this.primary, ...this.secondary]) {
+      if (!pt?.bits) continue
+      pts++
+      distance += xyDistance(pt.anchorClient, pt.xyClient)
+    }
+    return pts >= 2 ? distance / pts : 0
   }
 
   register(op: 'add' | 'remove'): this {
@@ -92,66 +96,44 @@ export class Pointer {
     if (!globalThis.Deno && this.#target instanceof Element)
       this.#target.setPointerCapture(ev.pointerId)
 
-    const clientXY = {x: ev.offsetX, y: ev.offsetY}
+    const prevPt = ev.isPrimary
+      ? this.primary
+      : this.secondary.find((pt) => ev.pointerId === pt.id)
+
     const bits = this.#evButtonsToBits(ev.buttons)
+    const xyClient = {x: ev.offsetX, y: ev.offsetY}
     const evType = ev.type as typeof pointEvents[number]
     const type = pointTypeByPointerType[
       ev.pointerType as keyof typeof pointTypeByPointerType
     ]
-    const lastPt = ev.isPrimary
-      ? this.primary
-      : this.secondary.find((secondary) => ev.pointerId === secondary.id)
-    // const clientClick = evType === 'pointerdown'
-    //   ? {x: clientXY.x, y: clientXY.y}
-    //   : lastPt?.clientClick
-    const clientDragMin = 5
-    const anchor = evType === 'pointerdown'
-      || ((this.primary && !ev.isPrimary ? 1 : 0)
-          + this.secondary.filter((point) => point.id !== ev.pointerId).length)
-        === 1
 
-    const clientAnchor = anchor || !lastPt
-      ? {x: clientXY.x, y: clientXY.y}
-      : lastPt.clientAnchor
-    // ?? (clientClick ? {x: clientClick.x, y: clientClick.y} : undefined)
+    const anchor = ((this.primary && !ev.isPrimary ? 1 : 0)
+      + this.secondary.filter((pt) => pt.id !== ev.pointerId).length)
+      === 1
+    const anchorClient = evType === 'pointerdown' || anchor || !prevPt
+      ? {x: xyClient.x, y: xyClient.y}
+      : {x: prevPt.anchorClient.x, y: prevPt.anchorClient.y}
+
+    const drag = !!bits && (
+      prevPt?.drag
+      || xyDistance(anchorClient, xyClient) >= this.dragMinClient
+    )
+
     const pt = {
+      anchorClient,
       bits,
-      clientAnchor,
-      // clientClick,
-      clientXY,
-      drag: false,
-      dragStart: false,
-      dragEnd: false,
+      drag,
       ev: evType,
       id: ev.pointerId,
       primary: ev.isPrimary,
-      type
+      type,
+      xyClient
     }
-    const canceled = ev.type === 'pointercancel'
-    if (ev.isPrimary) this.primary = canceled ? undefined : pt
-    else if (canceled || evType === 'pointerup') {
+    if (ev.isPrimary) this.primary = pt
+    else if (ev.type === 'pointercancel' || evType === 'pointerup') {
       const i = this.secondary.findIndex((pt) => pt.id === ev.pointerId)
       if (i !== -1) this.secondary.splice(i, 1)
     }
     else { this.secondary.push(pt) }
-
-    const points = this.primary
-      ? [this.primary, ...this.secondary]
-      : this.secondary
-    const pinch = points.length
-      ? points.reduce(
-        (sum, pt) => sum + xyDistance(pt.clientAnchor, pt.clientXY),
-        0
-      ) / points.length
-      : 0
-
-    // multiStart is when two or more fingers are down. pinch distance is sum(current - multiStart, fingers) / #fingers? pivot point is clientCenter
-    pt.drag = evType === 'pointermove' && !!bits && !!pinch && (
-      lastPt?.drag
-      // || !!clientClick
-      || xyDistance(clientAnchor, clientXY) >= clientDragMin
-    )
-    pt.dragStart = !lastPt?.drag && pt.drag
-    pt.dragEnd = !!lastPt?.drag && !pt.drag
   }
 }
