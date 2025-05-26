@@ -4,7 +4,10 @@ import {
   xyAddTo,
   xyDistance,
   xyDiv,
+  xyEq,
   xyMagnitude,
+  xyMax,
+  xyMin,
   xyStr,
   xySub
 } from './geo.ts'
@@ -24,7 +27,18 @@ Deno.test('xyDistance()', () =>
 Deno.test('xyDiv()', () =>
   assertEquals(xyDiv({x: 1, y: 2}, {x: 3, y: 4}), {x: 1 / 3, y: 2 / 4}))
 
+Deno.test('xyEq()', () => {
+  assertEquals(xyEq({x: 1, y: 2}, {x: 1, y: 2}), true)
+  assertEquals(xyEq({x: 1, y: 2}, {x: 3, y: 4}), false)
+})
+
 Deno.test('xyMagnitude()', () => assertEquals(xyMagnitude({x: 3, y: 4}), 5))
+
+Deno.test('xyMax()', () =>
+  assertEquals(xyMax({x: 1, y: 2}, {x: 3, y: 4}), {x: 3, y: 4}))
+
+Deno.test('xyMin()', () =>
+  assertEquals(xyMin({x: 1, y: 2}, {x: 3, y: 4}), {x: 1, y: 2}))
 
 Deno.test('xyStr()', () => assertEquals(xyStr({x: 1, y: 2}), '(1, 2)'))
 

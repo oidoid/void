@@ -9,7 +9,7 @@ Deno.test('buttons', async (test) => {
   await test.step('init', () => {
     assertEquals(pointer.point, {})
     assertEquals(pointer.centerClient, undefined)
-    assertEquals(pointer.pinchClient, 0)
+    assertEquals(pointer.pinchClient, {x: 0, y: 0})
   })
 
   await test.step('primary down', () => {
@@ -22,7 +22,7 @@ Deno.test('buttons', async (test) => {
     assertEquals(pointer.point.primary?.bits, 1)
     assertEquals(pointer.point.primary?.xyClient, {x: 10, y: 40})
     assertEquals(pointer.centerClient, {x: 10, y: 40})
-    assertEquals(pointer.pinchClient, 0)
+    assertEquals(pointer.pinchClient, {x: 0, y: 0})
   })
 
   await test.step('secondary down', () => {
@@ -38,22 +38,20 @@ Deno.test('buttons', async (test) => {
     assertEquals(pointer.point[2]?.bits, 2)
     assertEquals(pointer.point[2]?.xyClient, {x: 11, y: 41})
     assertEquals(pointer.centerClient, {x: 10.5, y: 40.5})
-    assertEquals(pointer.pinchClient, 0)
+    assertEquals(pointer.pinchClient, {x: 0, y: 0})
   })
 
   await test.step('primary up', () => {
-    target.dispatchEvent(PointerTestEvent('pointerup', {
-      buttons: 0,
-      offsetX: 11,
-      offsetY: 41
-    }))
+    target.dispatchEvent(
+      PointerTestEvent('pointerup', {offsetX: 11, offsetY: 41})
+    )
     pointer.update()
     assertEquals(pointer.point.primary?.bits, 0)
     assertEquals(pointer.point.primary?.xyClient, {x: 11, y: 41})
     assertEquals(pointer.point[2]?.bits, 2)
     assertEquals(pointer.point[2]?.xyClient, {x: 11, y: 41})
     assertEquals(pointer.centerClient, {x: 11, y: 41})
-    assertEquals(pointer.pinchClient, 0)
+    assertEquals(pointer.pinchClient, {x: 0, y: 0})
   })
 })
 
@@ -89,7 +87,7 @@ Deno.test('pinchClient()', async (test) => {
   const target = new EventTarget()
   using pointer = DefaultPointer(target)
 
-  await test.step('init', () => assertEquals(pointer.pinchClient, 0))
+  await test.step('init', () => assertEquals(pointer.pinchClient, {x: 0, y: 0}))
 
   await test.step('primary down', () => {
     target.dispatchEvent(PointerTestEvent('pointerdown', {
@@ -98,7 +96,7 @@ Deno.test('pinchClient()', async (test) => {
       offsetY: 10
     }))
     pointer.update()
-    assertEquals(pointer.pinchClient, 0)
+    assertEquals(pointer.pinchClient, {x: 0, y: 0})
   })
 
   await test.step('primary move', () => {
@@ -108,7 +106,7 @@ Deno.test('pinchClient()', async (test) => {
       offsetY: 20
     }))
     pointer.update()
-    assertEquals(pointer.pinchClient, 0)
+    assertEquals(pointer.pinchClient, {x: 0, y: 0})
   })
 
   await test.step('secondary down', () => {
@@ -119,7 +117,7 @@ Deno.test('pinchClient()', async (test) => {
       pointerId: 2
     }))
     pointer.update()
-    assertEquals(pointer.pinchClient, 0)
+    assertEquals(pointer.pinchClient, {x: 0, y: 0})
   })
 
   await test.step('secondary move', () => {
@@ -130,7 +128,7 @@ Deno.test('pinchClient()', async (test) => {
       pointerId: 2
     }))
     pointer.update()
-    assertEquals(pointer.pinchClient, 10)
+    assertEquals(pointer.pinchClient, {x: 10, y: 0})
   })
 
   await test.step('primary move again', () => {
@@ -140,7 +138,7 @@ Deno.test('pinchClient()', async (test) => {
       offsetY: 20
     }))
     pointer.update()
-    assertEquals(pointer.pinchClient, 0)
+    assertEquals(pointer.pinchClient, {x: 0, y: 0})
   })
 })
 
@@ -205,11 +203,9 @@ Deno.test('drag', async (test) => {
   })
 
   await test.step('drag end', () => {
-    target.dispatchEvent(PointerTestEvent('pointerup', {
-      buttons: 0,
-      offsetX: 20,
-      offsetY: 20
-    }))
+    target.dispatchEvent(
+      PointerTestEvent('pointerup', {offsetX: 20, offsetY: 20})
+    )
     pointer.update()
     assertEquals(pointer.point.primary?.bits, 0)
     assertEquals(pointer.point.primary?.primary, true)

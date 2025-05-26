@@ -1,4 +1,13 @@
-import { type XY, xyAddTo, xyDistance, xyDiv } from '../types/geo.ts'
+import {
+  type Box,
+  type XY,
+  xyAdd,
+  xyDistance,
+  xyEq,
+  xyMax,
+  xyMin,
+  xySub
+} from '../types/geo.ts'
 
 export type PointType =
   (typeof pointTypeByPointerType)[keyof typeof pointTypeByPointerType]
@@ -35,38 +44,41 @@ export class Pointer {
   readonly bitByButton: {[btn: number]: number} = {}
   dragMinClient: number = 5
   /**
-   * secondaries are deleted when buttons are off. secondaries are only present
-   * when primary is defined.
+   * when present, primary may be on or off. secondaries are deleted when
+   * buttons are off. secondaries are only present when primary is defined.
    */
   readonly point: {
     primary?: Readonly<PointEvent>,
     [id: number]: Readonly<PointEvent>
   } = {}
   /** nonnegative. */
-  #pinchStartClient: number = 0
+  #pinchStartClient: XY = {x: 0, y: 0}
   readonly #target: EventTarget
 
   constructor(target: EventTarget) {
     this.#target = target
   }
 
-  get centerClient(): XY | undefined {
-    const pts = Object.values(this.point)
-    const on = this.point.primary
-      ? (this.point.primary.bits ? 1 : 0) + (pts.length - 1)
-      : 0
-    const sum = {x: 0, y: 0}
-    for (const pt of pts) xyAddTo(sum, pt.xyClient)
-    return on ? xyDiv(sum, {x: on, y: on}) : undefined
+  get boundsClient(): Box | undefined {
+    if (!this.point.primary?.bits && Object.keys(this.point).length < 2) return
+    let min = {x: Infinity, y: Infinity}
+    let max = {x: -Infinity, y: -Infinity}
+    for (const pt of Object.values(this.point)) {
+      if (!pt.bits) continue
+      min = xyMin(min, pt.xyClient)
+      max = xyMax(max, pt.xyClient)
+    }
+    return {x: min.x, y: min.y, w: max.x - min.x, h: max.y - min.y}
   }
 
-  get pinchClient(): number {
-    const center = this.centerClient
-    if (!center) return 0
-    let distance = 0
-    for (const pt of Object.values(this.point))
-      if (pt.bits) distance += xyDistance(center, pt.xyClient)
-    return distance - this.#pinchStartClient
+  get centerClient(): XY | undefined {
+    const bounds = this.boundsClient
+    if (!bounds) return this.point.primary?.xyClient
+    return xyAdd(bounds, {x: bounds.w / 2, y: bounds.h / 2})
+  }
+
+  get pinchClient(): XY {
+    return xySub(this.#newPinchClient, this.#pinchStartClient)
   }
 
   register(op: 'add' | 'remove'): this {
@@ -77,17 +89,14 @@ export class Pointer {
 
   reset(): void {
     for (const pt in this.point) delete this.point[pt]
-    this.#pinchStartClient = 0
+    this.#pinchStartClient = {x: 0, y: 0}
   }
 
   update(): void {
-    const pts = Object.values(this.point)
-    const on = this.point.primary
-      ? (this.point.primary.bits ? 1 : 0) + (pts.length - 1)
-      : 0
-    this.#pinchStartClient = on >= 2
-      ? (this.#pinchStartClient || this.pinchClient)
-      : 0
+    const on = (this.point.primary?.bits ? 1 : 0)
+      + Object.values(this.point).length - 1
+    if (on < 2 || xyEq(this.#pinchStartClient, {x: 0, y: 0}))
+      this.#pinchStartClient = this.#newPinchClient
   }
 
   [Symbol.dispose](): void {
@@ -134,5 +143,14 @@ export class Pointer {
     if (ev.isPrimary) this.point.primary = pt
     else if (!bits) delete this.point[ev.pointerId]
     else this.point[ev.pointerId] = pt
+  }
+
+  get #newPinchClient(): XY {
+    if (
+      (this.point.primary?.bits ? 1 : 0)
+          + (Object.values(this.point).length - 1) < 2
+    ) { return {x: 0, y: 0} }
+    const bounds = this.boundsClient
+    return bounds ? {x: bounds.w, y: bounds.h} : {x: 0, y: 0}
   }
 }

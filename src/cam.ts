@@ -7,8 +7,10 @@ export type LevelClientLocalXY = {
    * position relative canvas top-left in level scale (like level xy but no cam
    * offset) within cam.
    */
-  local: XY
-} & XY
+  local: XY,
+  /** level position within cam. */
+  xy: XY
+}
 
 /** given a min WH and scale, size the camera to the max WH. */
 export class Cam {
@@ -156,7 +158,7 @@ export class Cam {
       h: Math.ceil(this.#whClient.h * devicePixelRatio)
     }
 
-    let scale = Math.max(
+    const scale = Math.max(
       this.#minScale,
       Math.min(whPhy.w / this.#minWH.w, whPhy.h / this.#minWH.h)
         - (this.#zoomOut)

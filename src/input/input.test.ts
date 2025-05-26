@@ -22,9 +22,9 @@ Deno.test('init', async (test) => {
     assertButton(input, 'U', 'Off')
     assertCombo(input, [['U']], 'Unequal')
     assertEquals(input.point, undefined)
-    assertEquals(input.wheel, {
-      delta: {x: 0, y: 0},
-      deltaClient: {x: 0, y: 0, z: 0}
+    assertEquals(input.wheel.delta, {
+      xy: {x: 0, y: 0},
+      client: {x: 0, y: 0, z: 0}
     })
   })
 
@@ -38,9 +38,9 @@ Deno.test('init', async (test) => {
     assertButton(input, 'U', 'Off')
     assertCombo(input, [['U']], 'Unequal')
     assertEquals(input.point, undefined)
-    assertEquals(input.wheel, {
-      delta: {x: 0, y: 0},
-      deltaClient: {x: 0, y: 0, z: 0}
+    assertEquals(input.wheel.delta, {
+      xy: {x: 0, y: 0},
+      client: {x: 0, y: 0, z: 0}
     })
   })
 })
@@ -49,7 +49,7 @@ Deno.test('held off', () => {
   const target = new EventTarget()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
-  input.update(input.maxIntervalMillis + 1)
+  input.update(input.comboMaxIntervalMillis + 1)
 
   assertEquals(input.gestured, false)
   assertEquals(input.isHeld(), true)
@@ -114,7 +114,7 @@ Deno.test('pressed buttons', async (test) => {
   })
 
   await test.step('expired allow current combo to stay on but discontinue next', () => {
-    input.update(input.maxIntervalMillis + 1)
+    input.update(input.comboMaxIntervalMillis + 1)
 
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), true)
@@ -341,7 +341,7 @@ Deno.test('held combos stay active past expiry', async (test) => {
   })
 
   await test.step('held', () => {
-    input.update(input.maxIntervalMillis + 1)
+    input.update(input.comboMaxIntervalMillis + 1)
 
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), true)
@@ -512,10 +512,8 @@ Deno.test('pointer movements update position', async (test) => {
   await test.step('move', () => {
     target.dispatchEvent(
       PointerTestEvent('pointermove', {
-        isPrimary: true,
         offsetX: 1,
-        offsetY: 2,
-        pointerType: 'mouse'
+        offsetY: 2
       })
     )
     input.update(16)
@@ -537,13 +535,7 @@ Deno.test('pointer clicks are buttons', () => {
   using input = DefaultInput(DefaultCam(), target).register('add')
 
   target.dispatchEvent(
-    PointerTestEvent('pointerdown', {
-      buttons: 1,
-      isPrimary: true,
-      offsetX: 1,
-      offsetY: 2,
-      pointerType: 'mouse'
-    })
+    PointerTestEvent('pointerdown', {buttons: 1, offsetX: 1, offsetY: 2})
   )
   input.update(16)
 
@@ -556,13 +548,7 @@ Deno.test('pointer secondary clicks are buttons', () => {
   using input = DefaultInput(DefaultCam(), target).register('add')
 
   target.dispatchEvent(
-    PointerTestEvent('pointerdown', {
-      buttons: 2,
-      isPrimary: true,
-      offsetX: 1,
-      offsetY: 2,
-      pointerType: 'mouse'
-    })
+    PointerTestEvent('pointerdown', {buttons: 2, offsetX: 1, offsetY: 2})
   )
   input.update(16)
 
@@ -574,81 +560,283 @@ Deno.test('a pointer click can become a drag', async (test) => {
   const target = new EventTarget()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
+  await test.step('init', () => {
+    assertEquals(input.point?.drag.on, undefined)
+    assertEquals(input.point?.drag.start, undefined)
+    assertEquals(input.point?.drag.end, undefined)
+    assertEquals(input.point?.click.xy, undefined)
+  })
+
   await test.step('click', () => {
     target.dispatchEvent(
-      PointerTestEvent('pointerdown', {
-        buttons: 1,
-        isPrimary: true,
-        offsetX: 1,
-        offsetY: 2,
-        pointerType: 'mouse'
-      })
+      PointerTestEvent('pointerdown', {buttons: 1, offsetX: 1, offsetY: 2})
     )
     input.update(16)
 
     assertButton(input, 'Click', 'On', 'Start')
     assertCombo(input, [['Click']], 'Equal', 'Start')
+    assertEquals(input.point?.drag.on, false)
+    assertEquals(input.point?.drag.start, false)
+    assertEquals(input.point?.drag.end, false)
+    assertEquals(input.point?.click.xy, {x: 1, y: 2})
   })
 
   await test.step('drag', () => {
     target.dispatchEvent(
-      PointerTestEvent('pointermove', {
-        buttons: 1,
-        isPrimary: true,
-        offsetX: 6,
-        offsetY: 2,
-        pointerType: 'mouse'
-      })
+      PointerTestEvent('pointermove', {buttons: 1, offsetX: 6, offsetY: 2})
     )
     input.update(16)
 
     assertButton(input, 'Click', 'On')
     assertCombo(input, [['Click']], 'Equal')
-    assertEquals(input.point?.drag, true)
+    assertEquals(input.point?.drag.on, true)
+    assertEquals(input.point?.drag.start, true)
+    assertEquals(input.point?.drag.end, false)
+    assertEquals(input.point?.click.xy, {x: 1, y: 2})
+  })
+
+  await test.step('pause', () => {
+    input.update(16)
+
+    assertButton(input, 'Click', 'On')
+    assertCombo(input, [['Click']], 'Equal')
+    assertEquals(input.point?.drag.on, true)
+    assertEquals(input.point?.drag.start, false)
+    assertEquals(input.point?.drag.end, false)
+    assertEquals(input.point?.click.xy, {x: 1, y: 2})
+  })
+
+  await test.step('move', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointermove', {buttons: 1, offsetX: 16, offsetY: 12})
+    )
+    input.update(16)
+
+    assertButton(input, 'Click', 'On')
+    assertCombo(input, [['Click']], 'Equal')
+    assertEquals(input.point?.drag.on, true)
+    assertEquals(input.point?.drag.start, false)
+    assertEquals(input.point?.drag.end, false)
+    assertEquals(input.point?.click.xy, {x: 1, y: 2})
+  })
+
+  await test.step('release', () => {
+    target.dispatchEvent(PointerTestEvent('pointerup', {}))
+    input.update(16)
+
+    assertButton(input, 'Click', 'Off', 'Start')
+    assertCombo(input, [['Click']], 'Unequal')
+    assertEquals(input.point?.drag.on, false)
+    assertEquals(input.point?.drag.start, false)
+    assertEquals(input.point?.drag.end, true)
+    assertEquals(input.point?.click.xy, {x: 1, y: 2})
+  })
+
+  await test.step('pause again', () => {
+    input.update(16)
+
+    assertButton(input, 'Click', 'Off')
+    assertCombo(input, [['Click']], 'Unequal')
+    assertEquals(input.point?.drag.on, false)
+    assertEquals(input.point?.drag.start, false)
+    assertEquals(input.point?.drag.end, false)
+    assertEquals(input.point?.click.xy, {x: 1, y: 2})
   })
 })
 
-Deno.test('a pointer click can become a drag', async (test) => {
+Deno.test('a pointer click can become a drag or a pinch', async (test) => {
   const target = new EventTarget()
   using input = DefaultInput(DefaultCam(), target).register('add')
-  input.point?.centerClient
+
+  await test.step('init', () => {
+    assertEquals(input.point?.drag.on, undefined)
+    assertEquals(input.point?.drag.start, undefined)
+    assertEquals(input.point?.drag.end, undefined)
+    assertEquals(input.point?.click.xy, undefined)
+    assertEquals(input.point?.pinch.xy, undefined)
+    assertEquals(input.point?.center.xy, undefined)
+  })
 
   await test.step('click', () => {
     target.dispatchEvent(
-      PointerTestEvent('pointerdown', {
-        buttons: 1,
-        isPrimary: true,
-        offsetX: 1,
-        offsetY: 2,
-        pointerType: 'mouse'
-      })
+      PointerTestEvent('pointerdown', {buttons: 1, offsetX: 1, offsetY: 2})
     )
     input.update(16)
 
     assertButton(input, 'Click', 'On', 'Start')
     assertCombo(input, [['Click']], 'Equal', 'Start')
+    assertEquals(input.point?.drag.on, false)
+    assertEquals(input.point?.drag.start, false)
+    assertEquals(input.point?.drag.end, false)
+    assertEquals(input.point?.click.xy, {x: 1, y: 2})
+    assertEquals(input.point?.pinch.xy, {x: 0, y: 0})
+    assertEquals(input.point?.center.xy, {x: 1, y: 2})
   })
 
   await test.step('drag', () => {
     target.dispatchEvent(
-      PointerTestEvent('pointermove', {
+      PointerTestEvent('pointermove', {buttons: 1, offsetX: 6, offsetY: 2})
+    )
+    input.update(16)
+
+    assertButton(input, 'Click', 'On')
+    assertCombo(input, [['Click']], 'Equal')
+    assertEquals(input.point?.drag.on, true)
+    assertEquals(input.point?.drag.start, true)
+    assertEquals(input.point?.drag.end, false)
+    assertEquals(input.point?.click.xy, {x: 1, y: 2})
+    assertEquals(input.point?.pinch.xy, {x: 0, y: 0})
+    assertEquals(input.point?.center.xy, {x: 6, y: 2})
+  })
+
+  await test.step('pinch', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointerdown', {
         buttons: 1,
-        isPrimary: true,
-        offsetX: 6,
-        offsetY: 2,
-        pointerType: 'mouse'
+        offsetX: 10,
+        offsetY: 10,
+        pointerId: 2
       })
     )
     input.update(16)
 
     assertButton(input, 'Click', 'On')
     assertCombo(input, [['Click']], 'Equal')
-    assertEquals(input.point?.drag, true)
+    assertEquals(input.point?.drag.on, false)
+    assertEquals(input.point?.drag.start, false)
+    assertEquals(input.point?.drag.end, true)
+    assertEquals(input.point?.click.xy, {x: 1, y: 2})
+    assertEquals(input.point?.pinch.xy, {x: 0, y: 0})
+    assertEquals(input.point?.center.xy, {x: 8, y: 6})
+  })
+
+  await test.step('expand', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointermove', {
+        buttons: 1,
+        offsetX: 20,
+        offsetY: 20,
+        pointerId: 2
+      })
+    )
+    input.update(16)
+
+    assertButton(input, 'Click', 'On')
+    assertCombo(input, [['Click']], 'Equal')
+    assertEquals(input.point?.drag.on, false)
+    assertEquals(input.point?.drag.start, false)
+    assertEquals(input.point?.drag.end, false)
+    assertEquals(input.point?.click.xy, {x: 1, y: 2})
+    assertEquals(input.point?.pinch.xy, {x: 10, y: 10})
+    assertEquals(input.point?.center.xy, {x: 13, y: 11})
   })
 })
 
-// center
-// pinch
+Deno.test('center', async (test) => {
+  const target = new EventTarget()
+  using input = DefaultInput(DefaultCam(), target).register('add')
+
+  await test.step('init', () => assertEquals(input.point?.center.xy, undefined))
+
+  await test.step('click', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointerdown', {buttons: 1, offsetX: 1, offsetY: 2})
+    )
+    input.update(16)
+
+    assertEquals(input.point?.center.xy, {x: 1, y: 2})
+  })
+
+  await test.step('drag', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointermove', {buttons: 1, offsetX: 10, offsetY: 10})
+    )
+    input.update(16)
+
+    assertEquals(input.point?.center.xy, {x: 10, y: 10})
+  })
+
+  await test.step('secondary click', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointerdown', {
+        buttons: 1,
+        offsetX: 20,
+        offsetY: 20,
+        pointerId: 2
+      })
+    )
+    input.update(16)
+
+    assertEquals(input.point?.center.xy, {x: 15, y: 15})
+  })
+
+  await test.step('primary unclick', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointerup', {offsetX: 30, offsetY: 30})
+    )
+    input.update(16)
+
+    assertEquals(input.point?.center.xy, {x: 20, y: 20})
+  })
+})
+
+Deno.test('pinch', async (test) => {
+  const target = new EventTarget()
+  using input = DefaultInput(DefaultCam(), target).register('add')
+
+  await test.step('init', () => {
+    assertEquals(input.point?.center.xy, undefined)
+    assertEquals(input.point?.pinch, undefined)
+  })
+
+  await test.step('click', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointerdown', {buttons: 1, offsetX: 10, offsetY: 10})
+    )
+    input.update(16)
+
+    assertEquals(input.point?.center.xy, {x: 10, y: 10})
+    assertEquals(input.point?.pinch.xy, {x: 0, y: 0})
+  })
+
+  await test.step('secondary click', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointerdown', {
+        buttons: 1,
+        offsetX: 20,
+        offsetY: 20,
+        pointerId: 2
+      })
+    )
+    input.update(16)
+
+    assertEquals(input.point?.center.xy, {x: 15, y: 15})
+    assertEquals(input.point?.pinch.xy, {x: 0, y: 0})
+  })
+
+  await test.step('expand', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointermove', {
+        buttons: 1,
+        offsetX: 30,
+        offsetY: 30,
+        pointerId: 2
+      })
+    )
+    input.update(16)
+
+    assertEquals(input.point?.center.xy, {x: 20, y: 20})
+    assertEquals(input.point?.pinch.xy, {x: 10, y: 10})
+  })
+
+  await test.step('release', () => {
+    target.dispatchEvent(PointerTestEvent('pointerup', {pointerId: 2}))
+    input.update(16)
+
+    assertEquals(input.point?.center.xy, {x: 10, y: 10})
+    assertEquals(input.point?.pinch.xy, {x: 0, y: 0})
+  })
+})
 
 Deno.test('wheel', () => {
   const target = new EventTarget()
@@ -657,8 +845,8 @@ Deno.test('wheel', () => {
   target.dispatchEvent(WheelTestEvent({deltaX: 1, deltaY: 2, deltaZ: 3}))
   input.update(16)
 
-  assertEquals(input.wheel?.deltaClient, {x: 1, y: 2, z: 3})
-  assertEquals(input.wheel?.delta, {x: 1, y: 2})
+  assertEquals(input.wheel.delta.client, {x: 1, y: 2, z: 3})
+  assertEquals(input.wheel.delta.xy, {x: 1, y: 2})
 })
 
 function assertButton(

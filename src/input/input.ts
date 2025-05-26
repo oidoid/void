@@ -1,5 +1,5 @@
 import type { Cam, LevelClientLocalXY } from '../cam.ts'
-import { type XY, type XYZ } from '../types/geo.ts'
+import type { XY, XYZ } from '../types/geo.ts'
 import { ContextMenu } from './context-menu.ts'
 import { Gamepad } from './gamepad.ts'
 import { Keyboard } from './keyboard.ts'
@@ -10,41 +10,48 @@ import type { PointType } from './pointer.ts'
 export type ButtonSet<Button> = [btn: Button, ...Button[]]
 export type Combo<Button> = [ButtonSet<Button>, ...ButtonSet<Button>[]]
 
-// to-do: camelCase enums vs Pascal. camel is nice in json
 export type DefaultButton = // deno-fmt-ignore
   | 'L' | 'R' | 'U' | 'D' // dpad.
-  | 'A' | 'B' | 'C' // primary, secondary, tertiary.
+  | 'A' | 'B' | 'C'       // primary, secondary, tertiary.
   | 'Click' | 'Click2'
   | 'Menu'
 
-export type Point = {  type: PointType | undefined,} & LevelClientLocalXY
+export type Point =
+  & LevelClientLocalXY
+  & {click: LevelClientLocalXY, type: PointType | undefined}
 
-
-/** doesn't consider handled. */
+/**
+ * doesn't consider handled. local and level positions are reevaluated each
+ * frame.
+ */
 type PointerState = Point & {
   center: LevelClientLocalXY,
   /** false when pinched. */
-  drag: boolean, // should work with super patience by having adjustable threshold to 0 or maybe 1px. be nice if it could be reset with a check against whether or not hte box is even draggable. like setdragarea, or set draggable.
-  dragStart: boolean,
-  dragEnd: boolean,
-  /** level / local. may be negative. */
-  pinch: number,
-  pinchClient: number,
+  drag: {on: boolean, start: boolean, end: boolean},
+  /** may be negative. */
+  pinch: {
+    client: XY,
+    /** level / local. */
+    xy: XY
+  },
   /** secondary points. */
   secondary: Point[]
 }
 
+/** triggered. */
 type WheelState = {
-  /** level / local delta. */
-  delta: XY,
-  deltaClient: Readonly<XYZ>
+  delta: {
+    client: Readonly<XYZ>,
+    /** level / local. */
+    xy: XY
+  }
 }
 
 export type DefaultInput<Button extends DefaultButton = DefaultButton> = Input<
   Button
 >
 
-export function DefaultInput<Button extends DefaultButton>(
+export function DefaultInput<Button extends DefaultButton = DefaultButton>(
   cam: Readonly<Cam>,
   target: EventTarget
 ): DefaultInput<Button> {
@@ -53,9 +60,11 @@ export function DefaultInput<Button extends DefaultButton>(
   input.mapKeyboardKey('R', 'ArrowRight', 'd', 'D')
   input.mapKeyboardKey('U', 'ArrowUp', 'w', 'W')
   input.mapKeyboardKey('D', 'ArrowDown', 's', 'S')
-  input.mapKeyboardKey('A', 'c', 'C', ' ')
-  input.mapKeyboardKey('B', 'x', 'X')
-  input.mapKeyboardKey('C', 'z', 'Z')
+  input.mapKeyboardKey('C', 'c', 'C', 'Shift')
+  // to-do: support left shift distinction
+  //        https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/location.
+  input.mapKeyboardKey('A', 'x', 'X', '.', '>', ' ')
+  input.mapKeyboardKey('B', 'z', 'Z', '/', '?')
   input.mapKeyboardKey('Menu', 'Enter', 'Escape')
 
   // https://w3c.github.io/gamepad/#remapping
@@ -66,6 +75,8 @@ export function DefaultInput<Button extends DefaultButton>(
   input.mapGamepadButton('U', 12)
   input.mapGamepadButton('D', 13)
   input.mapGamepadButton('A', 0)
+  input.mapGamepadButton('B', 2)
+  input.mapGamepadButton('C', 1)
   input.mapGamepadButton('Menu', 9)
 
   input.mapPointerClick('Click', 1)
@@ -73,29 +84,14 @@ export function DefaultInput<Button extends DefaultButton>(
   return input as DefaultInput<Button>
 }
 
-// cam dependent positions are reevaluated each frame
-// asdsa
-// asdsa
-// asdsa
-// asdsa
-// asdsa
-// asdsa
-// asdsa
-// asdsa
-// asdsa
-// asdsa
-// asdsa
-// asdsa
-// devices just serve state up through update, not post update. so no cahce. input is responsible for making copies.
-// no control over specific devices and no two player support. just one big
-// aggregate. could do multiplayer if devices were asked for instead of searched
-// for.
-// no ability to see analog state of gamepad which seems fixable like point if I expose an axis or better return direction as a number instead of bool
-/** input device abstraction. aggregates history and merges devices. devices
- * can only tell you about current state not history or coordinate with other devices.
- * if you miss a device event, you miss it. that's the nature of polling. */
 export class Input<Button extends string> {
-  /** clear input for rest of frame. */
+  /** time allowed between combo inputs. */
+  comboMaxIntervalMillis: number = 300
+  /**
+   * true if any button, key, or click was _ever_ on. doesn't consider handled.
+   */
+  gestured: boolean = false
+  /** clear buttonish inputs for rest of frame. */
   handled: boolean = false
   /**
    * minimum duration for an input to be considered held. durations are
@@ -103,8 +99,6 @@ export class Input<Button extends string> {
    * strictly as polled aggregates.
    */
   minHeldMillis: number = 300
-  /** time allowed between combo inputs. */
-  maxIntervalMillis: number = 300
 
   readonly #bitByButton: { [btn in Button]?: number } = {}
   readonly #buttonByBit: {[bit: number]: Button} = {}
@@ -117,7 +111,6 @@ export class Input<Button extends string> {
   readonly #combo: number[] = []
   readonly #contextMenu: ContextMenu
   readonly #gamepad: Gamepad = new Gamepad()
-  #gestured: boolean = false
   /** time since buttons changed. */
   #heldMillis: number = 0
   readonly #keyboard: Keyboard
@@ -125,13 +118,10 @@ export class Input<Button extends string> {
   #pointerState: PointerState | undefined
   /** bits last update. may not be equal to `#combo.at(-1)`. */
   #prevBits: number = 0
-  /** millis last update. necessary to allow the current frame to test start. */
-  // #prevUpdateMillis: number = 0
   readonly #target: EventTarget
   readonly #wheel: Wheel
   #wheelState: Readonly<WheelState> = {
-    deltaClient: {x: 0, y: 0, z: 0},
-    delta: {x: 0, y: 0}
+    delta: {client: {x: 0, y: 0, z: 0}, xy: {x: 0, y: 0}}
   }
 
   constructor(cam: Readonly<Cam>, target: EventTarget) {
@@ -143,6 +133,7 @@ export class Input<Button extends string> {
     this.#wheel = new Wheel(target)
   }
 
+  /** for debugging. */
   get combo(): Button[][] {
     const sets = []
     for (const bits of this.#combo) {
@@ -162,13 +153,6 @@ export class Input<Button extends string> {
    */
   get contextMenu(): {enable: boolean} {
     return this.#contextMenu
-  }
-
-  /**
-   * true if any button, key, or click was _ever_ on. doesn't consider handled.
-   */
-  get gestured(): boolean {
-    return this.#gestured
   }
 
   isAnyOn(...btns: Readonly<ButtonSet<Button>>): boolean {
@@ -197,7 +181,7 @@ export class Input<Button extends string> {
       const bits = this.#mapBits(btns)
       if (this.#combo.at(-combo.length + i) !== bits) return false
     }
-    // #combo is a historical record of buttons. Whenever buttons changes, a new
+    // #combo is a historical record of buttons. whenever buttons changes, a new
     // entry is pushed. make sure the current entry is the current state and
     // that the last entry's buttons haven't been released.
     return !this.handled && this.#combo.at(-1) === this.#bits
@@ -205,14 +189,13 @@ export class Input<Button extends string> {
 
   /** like isComboEndsWith() but test if the last button is triggered. */
   isComboEndsWithStart(...combo: Readonly<Combo<Button>>): boolean {
-    return this.isOnStart(...combo.at(-1) ?? [] as unknown as ButtonSet<Button>)
-      && this.isComboEndsWith(...combo)
+    // isOnStart() can handled zero-length.
+    return this.isOnStart(...combo.at(-1)!) && this.isComboEndsWith(...combo)
   }
 
   /** like isCombo() but test if the last button is triggered. */
   isComboStart(...combo: Readonly<Combo<Button>>): boolean {
-    return this.isOnStart(...combo.at(-1) ?? [] as unknown as ButtonSet<Button>)
-      && this.isCombo(...combo)
+    return this.isOnStart(...combo.at(-1)!) && this.isCombo(...combo)
   }
 
   /** true if input hasn't changed for a while. */
@@ -220,6 +203,13 @@ export class Input<Button extends string> {
     return !this.handled && this.#heldMillis >= this.minHeldMillis
   }
 
+  /*:
+   * true if any button in set is not on. this is usually what's wanted. eg:
+   * ```ts
+   * if (isOn('A', 'B')) console.log('on')
+   * if (isOff('A', 'B')) console.log('not A+B; A and/or B is off')
+   * ```
+   */
   isOff(...btns: Readonly<ButtonSet<Button>>): boolean {
     return !this.handled && !this.isOn(...btns)
   }
@@ -227,7 +217,8 @@ export class Input<Button extends string> {
   isOffStart(...btns: Readonly<ButtonSet<Button>>): boolean {
     const bits = this.#mapBits(btns)
     const wasOn = (this.#prevBits & bits) === bits
-    // don't test !this.#bits since it might forever miss the off event.
+    // don't test this.#bits === 0 since it might forever miss the off event for
+    // the specific bits.
     return wasOn && this.isStart() && this.isOff(...btns)
   }
 
@@ -297,28 +288,14 @@ export class Input<Button extends string> {
     this.#bits = 0
     this.#prevBits = 0
     this.handled = false
+    this.#heldMillis = 0
+    this.#combo.length = 0
     this.#gamepad.reset()
     this.#keyboard.reset()
     this.#pointer.reset()
+    this.#pointerState = undefined
     this.#wheel.reset()
-    // asdsad
-    // asdsad
-    // asdsad
-    // asdsad
-    // asdsad
-    // asdsad
-    // asdsad
-    // asdsad
-    // asdsad
-    // asdsad
-    // asdsad
-    // asdsad
-    // asdsad
-    // this.#pointerState.drag = false
-    // this.#pointerState.dragEnd = false
-    // this.#pointerState.dragStart = false
-    // to-do: rest of pointstate
-    this.#wheelState = {deltaClient: {x: 0, y: 0, z: 0}, delta: {x: 0, y: 0}}
+    this.#wheelState = {delta: {client: {x: 0, y: 0, z: 0}, xy: {x: 0, y: 0}}}
   }
 
   /**
@@ -334,11 +311,12 @@ export class Input<Button extends string> {
     this.#prevBits = this.#bits
     this.#bits = this.#gamepad.bits | this.#keyboard.bits
       | (this.#pointer.point.primary?.bits ?? 0)
-    this.#gestured ||= !!this.#bits
+    this.gestured ||= !!this.#bits
 
     if (
-      millis > this.maxIntervalMillis && this.#bits !== this.#prevBits
-      || (this.#heldMillis + millis) > this.maxIntervalMillis && !this.#bits
+      millis > this.comboMaxIntervalMillis && this.#bits !== this.#prevBits
+      || (this.#heldMillis + millis) > this.comboMaxIntervalMillis
+        && !this.#bits
     ) { this.#combo.length = 0 }
 
     if (this.#bits === this.#prevBits) this.#heldMillis += millis
@@ -347,29 +325,46 @@ export class Input<Button extends string> {
     if (this.#bits && this.#bits !== this.#prevBits)
       this.#combo.push(this.#bits)
 
-    // let's just start with xyClient and get that working end to end
     if (this.#pointer.point.primary) {
       const pinchClient = this.#pointer.pinchClient
-      const drag = this.#pointer.point.primary.drag && !pinchClient
+      const pinchXY = this.#cam.toXY(pinchClient)
+      const dragOn = this.#pointer.point.primary.drag
+        && Object.values(this.#pointer.point).length === 1
       const secondary = []
       for (const pt of Object.values(this.#pointer.point)) {
         if (pt !== this.#pointer.point.primary) {
           secondary.push({
             type: pt.type,
+            click: {
+              client: pt.clickClient,
+              local: this.#cam.toXYLocal(pt.clickClient),
+              xy: this.#cam.toXY(pt.clickClient)
+            },
             xy: this.#cam.toXY(pt.xyClient),
-            xyClient: pt.xyClient,
-            xyLocal: this.#cam.toXYLocal(pt.xyClient)
+            client: pt.xyClient,
+            local: this.#cam.toXYLocal(pt.xyClient)
           })
         }
       }
-      const center = {xy: this.#cam.toXY(this.#pointer.centerClient!,), xyClient: }
-      this.#pointer.centerClient
+      const centerClient = this.#pointer.centerClient!
+      const center = {
+        client: centerClient,
+        local: this.#cam.toXYLocal(centerClient),
+        xy: this.#cam.toXY(centerClient)
+      }
       this.#pointerState = {
         center,
-        drag,
-        dragStart: !this.#pointerState?.drag && drag,
-        dragEnd: !!this.#pointerState?.drag && !drag,
-        pinchClient,
+        click: {
+          client: this.#pointer.point.primary.clickClient,
+          local: this.#cam.toXYLocal(this.#pointer.point.primary.clickClient),
+          xy: this.#cam.toXY(this.#pointer.point.primary.clickClient)
+        },
+        drag: {
+          on: dragOn,
+          start: !this.#pointerState?.drag.on && dragOn,
+          end: !!this.#pointerState?.drag.on && !dragOn
+        },
+        pinch: {client: pinchClient, xy: pinchXY},
         secondary,
         type: this.#pointer.point.primary.type,
         xy: this.#cam.toXY(this.#pointer.point.primary.xyClient),
@@ -383,8 +378,10 @@ export class Input<Button extends string> {
     }
 
     this.#wheelState = {
-      deltaClient: this.#wheel.deltaClient,
-      delta: this.#cam.toXY(this.#wheel.deltaClient)
+      delta: {
+        client: this.#wheel.deltaClient,
+        xy: this.#cam.toXY(this.#wheel.deltaClient)
+      }
     }
     this.#wheel.postupdate()
   }
