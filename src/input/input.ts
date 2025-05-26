@@ -326,7 +326,7 @@ export class Input<Button extends string> {
 
     this.#prevBits = this.#bits
     this.#bits = this.#gamepad.bits | this.#keyboard.bits
-      | (this.#pointer.point.primary?.bits ?? 0)
+      | (this.#pointer.primary?.bits ?? 0)
     this.gestured ||= !!this.#bits
 
     if (
@@ -341,14 +341,13 @@ export class Input<Button extends string> {
     if (this.#bits && this.#bits !== this.#prevBits)
       this.#combo.push(this.#bits)
 
-    if (this.#pointer.point.primary) {
+    if (this.#pointer.primary) {
       const pinchClient = this.#pointer.pinchClient
       const pinchXY = this.#cam.toXY(pinchClient)
-      const dragOn = this.#pointer.point.primary.drag
-        && Object.values(this.#pointer.point).length === 1
+      const dragOn = this.#pointer.primary.drag
+        && !Object.values(this.#pointer.secondary).length
       const secondary = []
-      for (const pt of Object.values(this.#pointer.point)) {
-        if (pt === this.#pointer.point.primary) continue
+      for (const pt of Object.values(this.#pointer.secondary)) {
         secondary.push({
           type: pt.type,
           click: {
@@ -370,9 +369,9 @@ export class Input<Button extends string> {
       this.#pointerState = {
         center,
         click: {
-          client: this.#pointer.point.primary.clickClient,
-          local: this.#cam.toXYLocal(this.#pointer.point.primary.clickClient),
-          xy: this.#cam.toXY(this.#pointer.point.primary.clickClient)
+          client: this.#pointer.primary.clickClient,
+          local: this.#cam.toXYLocal(this.#pointer.primary.clickClient),
+          xy: this.#cam.toXY(this.#pointer.primary.clickClient)
         },
         drag: {
           on: dragOn,
@@ -381,10 +380,10 @@ export class Input<Button extends string> {
         },
         pinch: {client: pinchClient, xy: pinchXY},
         secondary,
-        type: this.#pointer.point.primary.type,
-        xy: this.#cam.toXY(this.#pointer.point.primary.xyClient),
-        client: this.#pointer.point.primary.xyClient,
-        local: this.#cam.toXYLocal(this.#pointer.point.primary.xyClient)
+        type: this.#pointer.primary.type,
+        xy: this.#cam.toXY(this.#pointer.primary.xyClient),
+        client: this.#pointer.primary.xyClient,
+        local: this.#cam.toXYLocal(this.#pointer.primary.xyClient)
       }
     }
     else {

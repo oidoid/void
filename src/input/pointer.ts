@@ -43,14 +43,13 @@ const pointEvents = [
 export class Pointer {
   readonly bitByButton: {[btn: number]: number} = {}
   dragMinClient: number = 5
+  /** primary may be on or off. */
+  primary: Readonly<PointEvent> | undefined
   /**
-   * when present, primary may be on or off. secondaries are deleted when
-   * buttons are off. secondaries are only present when primary is defined.
+   * secondaries are deleted when buttons are off. secondaries are only present
+   * when primary is defined.
    */
-  readonly point: {
-    primary?: Readonly<PointEvent>,
-    [id: number]: Readonly<PointEvent>
-  } = {}
+  readonly secondary: {[id: number]: Readonly<PointEvent>} = {}
   /** nonnegative. */
   #pinchStartClient: XY = {x: 0, y: 0}
   readonly #target: EventTarget
@@ -60,11 +59,11 @@ export class Pointer {
   }
 
   get boundsClient(): Box | undefined {
-    if (!this.point.primary?.bits && Object.keys(this.point).length < 2) return
+    if (!this.primary?.bits && !Object.keys(this.secondary).length) return
     let min = {x: Infinity, y: Infinity}
     let max = {x: -Infinity, y: -Infinity}
-    for (const pt of Object.values(this.point)) {
-      if (!pt.bits) continue
+    for (const pt of [this.primary, ...Object.values(this.secondary)]) {
+      if (!pt?.bits) continue
       min = xyMin(min, pt.xyClient)
       max = xyMax(max, pt.xyClient)
     }
@@ -73,7 +72,7 @@ export class Pointer {
 
   get centerClient(): XY | undefined {
     const bounds = this.boundsClient
-    if (!bounds) return this.point.primary?.xyClient
+    if (!bounds) return this.primary?.xyClient
     return xyAdd(bounds, {x: bounds.w / 2, y: bounds.h / 2})
   }
 
@@ -88,13 +87,14 @@ export class Pointer {
   }
 
   reset(): void {
-    for (const pt in this.point) delete this.point[pt]
+    this.primary = undefined
+    for (const pt in this.secondary) delete this.secondary[pt]
     this.#pinchStartClient = {x: 0, y: 0}
   }
 
   update(): void {
-    const on = (this.point.primary?.bits ? 1 : 0)
-      + Object.values(this.point).length - 1
+    const on = (this.primary?.bits ? 1 : 0)
+      + Object.values(this.secondary).length
     if (on < 2 || xyEq(this.#pinchStartClient, {x: 0, y: 0}))
       this.#pinchStartClient = this.#newPinchClient
   }
@@ -116,7 +116,7 @@ export class Pointer {
     if (!globalThis.Deno && this.#target instanceof Element)
       this.#target.setPointerCapture(ev.pointerId)
 
-    const prevPt = this.point[ev.isPrimary ? 'primary' : ev.pointerId]
+    const prevPt = ev.isPrimary ? this.primary : this.secondary[ev.pointerId]
     const bits = this.#evButtonsToBits(ev.buttons)
     const xyClient = {x: ev.offsetX, y: ev.offsetY}
     const evType = ev.type as typeof pointEvents[number]
@@ -140,15 +140,14 @@ export class Pointer {
       type,
       xyClient
     }
-    if (ev.isPrimary) this.point.primary = pt
-    else if (!bits) delete this.point[ev.pointerId]
-    else this.point[ev.pointerId] = pt
+    if (ev.isPrimary) this.primary = pt
+    else if (!bits) delete this.secondary[ev.pointerId]
+    else this.secondary[ev.pointerId] = pt
   }
 
   get #newPinchClient(): XY {
     if (
-      (this.point.primary?.bits ? 1 : 0)
-          + (Object.values(this.point).length - 1) < 2
+      ((this.primary?.bits ? 1 : 0) + Object.values(this.secondary).length) < 2
     ) { return {x: 0, y: 0} }
     const bounds = this.boundsClient
     return bounds ? {x: bounds.w, y: bounds.h} : {x: 0, y: 0}
