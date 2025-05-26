@@ -84,6 +84,22 @@ export function DefaultInput<Button extends DefaultButton = DefaultButton>(
   return input as DefaultInput<Button>
 }
 
+/**
+ * input device abstraction. aggregates devices, records history, and provides
+ * a convenient API.
+ *
+ * devices own as much device-specific detail and as little coordination (time
+ * and device) as practical. devices avoid caching state which is the
+ * responsibility of Input. devices strive to provide the current state and
+ * nothing else.
+ *
+ * if you miss reporting on a event between long updates, you just miss it.
+ * that's the nature of polling. there's no queue.
+ *
+ * to-do: expose analog state of gamepad. offer direction as a number instead of
+ *        bool.
+ * to-do: multiplayer. possible if devices were requested instead of sought.
+ */
 export class Input<Button extends string> {
   /** time allowed between combo inputs. */
   comboMaxIntervalMillis: number = 300
@@ -332,19 +348,18 @@ export class Input<Button extends string> {
         && Object.values(this.#pointer.point).length === 1
       const secondary = []
       for (const pt of Object.values(this.#pointer.point)) {
-        if (pt !== this.#pointer.point.primary) {
-          secondary.push({
-            type: pt.type,
-            click: {
-              client: pt.clickClient,
-              local: this.#cam.toXYLocal(pt.clickClient),
-              xy: this.#cam.toXY(pt.clickClient)
-            },
-            xy: this.#cam.toXY(pt.xyClient),
-            client: pt.xyClient,
-            local: this.#cam.toXYLocal(pt.xyClient)
-          })
-        }
+        if (pt === this.#pointer.point.primary) continue
+        secondary.push({
+          type: pt.type,
+          click: {
+            client: pt.clickClient,
+            local: this.#cam.toXYLocal(pt.clickClient),
+            xy: this.#cam.toXY(pt.clickClient)
+          },
+          xy: this.#cam.toXY(pt.xyClient),
+          client: pt.xyClient,
+          local: this.#cam.toXYLocal(pt.xyClient)
+        })
       }
       const centerClient = this.#pointer.centerClient!
       const center = {
