@@ -1,5 +1,15 @@
 import type { WH, XY } from './types/geo.ts'
 
+export type LevelClientLocalXY = {
+  /** position relative canvas top-left (in DPI scale). */
+  client: XY,
+  /**
+   * position relative canvas top-left in level scale (like level xy but no cam
+   * offset) within cam.
+   */
+  local: XY
+} & XY
+
 /** given a min WH and scale, size the camera to the max WH. */
 export class Cam {
   #h: number = 1

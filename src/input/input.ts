@@ -1,4 +1,4 @@
-import type { Cam } from '../cam.ts'
+import type { Cam, LevelClientLocalXY } from '../cam.ts'
 import { type XY, type XYZ } from '../types/geo.ts'
 import { ContextMenu } from './context-menu.ts'
 import { Gamepad } from './gamepad.ts'
@@ -17,34 +17,25 @@ export type DefaultButton = // deno-fmt-ignore
   | 'Click' | 'Click2'
   | 'Menu'
 
-export type Point = {
-  type: PointType | undefined,
-  /** event position relative canvas top-left (in DPI scale). */
-  xyClient: XY,
-  /**
-   * position relative canvas top-left in level scale (like level xy but no cam
-   * offset) within cam reevaluated each frame.
-   */
-  xyLocal: XY,
-  /** level position within cam reevaluated each frame. */
-  xy: XY
-}
+export type Point = {  type: PointType | undefined,} & LevelClientLocalXY
+
 
 /** doesn't consider handled. */
 type PointerState = Point & {
-  centerClient: XY | undefined,
+  center: LevelClientLocalXY,
   /** false when pinched. */
   drag: boolean, // should work with super patience by having adjustable threshold to 0 or maybe 1px. be nice if it could be reset with a check against whether or not hte box is even draggable. like setdragarea, or set draggable.
   dragStart: boolean,
   dragEnd: boolean,
-  /** may be negative. */
+  /** level / local. may be negative. */
+  pinch: number,
   pinchClient: number,
   /** secondary points. */
   secondary: Point[]
 }
 
 type WheelState = {
-  /** level / local delta. no difference. */
+  /** level / local delta. */
   delta: XY,
   deltaClient: Readonly<XYZ>
 }
@@ -82,6 +73,7 @@ export function DefaultInput<Button extends DefaultButton>(
   return input as DefaultInput<Button>
 }
 
+// cam dependent positions are reevaluated each frame
 // asdsa
 // asdsa
 // asdsa
@@ -370,8 +362,10 @@ export class Input<Button extends string> {
           })
         }
       }
+      const center = {xy: this.#cam.toXY(this.#pointer.centerClient!,), xyClient: }
+      this.#pointer.centerClient
       this.#pointerState = {
-        centerClient: this.#pointer.centerClient,
+        center,
         drag,
         dragStart: !this.#pointerState?.drag && drag,
         dragEnd: !!this.#pointerState?.drag && !drag,
@@ -379,8 +373,8 @@ export class Input<Button extends string> {
         secondary,
         type: this.#pointer.point.primary.type,
         xy: this.#cam.toXY(this.#pointer.point.primary.xyClient),
-        xyClient: this.#pointer.point.primary.xyClient,
-        xyLocal: this.#cam.toXYLocal(this.#pointer.point.primary.xyClient)
+        client: this.#pointer.point.primary.xyClient,
+        local: this.#cam.toXYLocal(this.#pointer.point.primary.xyClient)
       }
     }
     else {

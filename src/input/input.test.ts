@@ -520,14 +520,14 @@ Deno.test('pointer movements update position', async (test) => {
     )
     input.update(16)
 
-    assertEquals(input.point?.xyClient, {x: 1, y: 2})
+    assertEquals(input.point?.client, {x: 1, y: 2})
     assertEquals(input.point?.type, 'Mouse')
   })
 
   await test.step('and position is not lost on update', () => {
     input.update(16)
 
-    assertEquals(input.point?.xyClient, {x: 1, y: 2})
+    assertEquals(input.point?.client, {x: 1, y: 2})
     assertEquals(input.point?.type, 'Mouse')
   })
 })
@@ -608,7 +608,47 @@ Deno.test('a pointer click can become a drag', async (test) => {
   })
 })
 
-// review new and old pointer implementation
+Deno.test('a pointer click can become a drag', async (test) => {
+  const target = new EventTarget()
+  using input = DefaultInput(DefaultCam(), target).register('add')
+  input.point?.centerClient
+
+  await test.step('click', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointerdown', {
+        buttons: 1,
+        isPrimary: true,
+        offsetX: 1,
+        offsetY: 2,
+        pointerType: 'mouse'
+      })
+    )
+    input.update(16)
+
+    assertButton(input, 'Click', 'On', 'Start')
+    assertCombo(input, [['Click']], 'Equal', 'Start')
+  })
+
+  await test.step('drag', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointermove', {
+        buttons: 1,
+        isPrimary: true,
+        offsetX: 6,
+        offsetY: 2,
+        pointerType: 'mouse'
+      })
+    )
+    input.update(16)
+
+    assertButton(input, 'Click', 'On')
+    assertCombo(input, [['Click']], 'Equal')
+    assertEquals(input.point?.drag, true)
+  })
+})
+
+// center
+// pinch
 
 Deno.test('wheel', () => {
   const target = new EventTarget()
@@ -618,7 +658,7 @@ Deno.test('wheel', () => {
   input.update(16)
 
   assertEquals(input.wheel?.deltaClient, {x: 1, y: 2, z: 3})
-  // assertEquals(input.wheel?.delta, {x: 1, y: 2})
+  assertEquals(input.wheel?.delta, {x: 1, y: 2})
 })
 
 function assertButton(

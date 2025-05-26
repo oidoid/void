@@ -56,7 +56,7 @@ export class Pointer {
       ? (this.point.primary.bits ? 1 : 0) + (pts.length - 1)
       : 0
     const sum = {x: 0, y: 0}
-    for (const pt of pts) if (pt.bits) xyAddTo(sum, pt.xyClient)
+    for (const pt of pts) xyAddTo(sum, pt.xyClient)
     return on ? xyDiv(sum, {x: on, y: on}) : undefined
   }
 
