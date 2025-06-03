@@ -2,10 +2,16 @@ import type { XYZ } from '../types/geo.ts'
 
 export class Wheel {
   deltaClient: Readonly<XYZ> = {x: 0, y: 0, z: 0}
+  invalid: boolean = false
   readonly #target: EventTarget
 
   constructor(target: EventTarget) {
     this.#target = target
+  }
+
+  postupdate(): void {
+    this.deltaClient = {x: 0, y: 0, z: 0}
+    this.invalid = false
   }
 
   register(op: 'add' | 'remove'): this {
@@ -18,16 +24,13 @@ export class Wheel {
     this.deltaClient = {x: 0, y: 0, z: 0}
   }
 
-  postupdate(): void {
-    this.deltaClient = {x: 0, y: 0, z: 0}
-  }
-
   [Symbol.dispose](): void {
     this.register('remove')
   }
 
   #onInput = (ev: WheelEvent): void => {
     if (!globalThis.Deno && !ev.isTrusted) return
+    this.invalid = true
     this.deltaClient = {x: ev.deltaX, y: ev.deltaY, z: ev.deltaZ}
     ev.preventDefault() // disable scaling.
   }

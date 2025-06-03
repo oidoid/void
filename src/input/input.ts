@@ -109,13 +109,14 @@ export class Input<Button extends string> {
   gestured: boolean = false
   /** clear buttonish inputs for rest of frame. */
   handled: boolean = false
+  /** true if _any_ input has changed since previous update. */
+  invalid: boolean = false
   /**
    * minimum duration for an input to be considered held. durations are
    * calculated at frame boundaries, not on actual press. devices are treated
    * strictly as polled aggregates.
    */
   minHeldMillis: number = 300
-
   readonly #bitByButton: { [btn in Button]?: number } = {}
   readonly #buttonByBit: {[bit: number]: Button} = {}
   #bits: number = 0
@@ -327,6 +328,8 @@ export class Input<Button extends string> {
     this.#prevBits = this.#bits
     this.#bits = this.#gamepad.bits | this.#keyboard.bits
       | (this.#pointer.primary?.bits ?? 0)
+    this.invalid = this.#bits !== this.#prevBits || this.#pointer.invalid
+      || this.#wheel.invalid
     this.gestured ||= !!this.#bits
 
     if (
@@ -397,6 +400,7 @@ export class Input<Button extends string> {
         xy: this.#cam.toXY(this.#wheel.deltaClient)
       }
     }
+    this.#pointer.postupdate()
     this.#wheel.postupdate()
   }
 

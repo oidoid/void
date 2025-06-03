@@ -16,6 +16,7 @@ Deno.test('init', async (test) => {
 
   await test.step('no update', () => {
     assertEquals(input.handled, false)
+    assertEquals(input.invalid, false)
     assertEquals(input.gestured, false)
     assertEquals(input.isHeld(), false)
     assertEquals(input.isStart(), false)
@@ -32,6 +33,7 @@ Deno.test('init', async (test) => {
     input.update(16)
 
     assertEquals(input.handled, false)
+    assertEquals(input.invalid, false)
     assertEquals(input.gestured, false)
     assertEquals(input.isHeld(), false)
     assertEquals(input.isStart(), false)
@@ -51,6 +53,7 @@ Deno.test('held off', () => {
 
   input.update(input.comboMaxIntervalMillis + 1)
 
+  assertEquals(input.invalid, false)
   assertEquals(input.gestured, false)
   assertEquals(input.isHeld(), true)
   assertEquals(input.isStart(), false)
@@ -66,6 +69,7 @@ Deno.test('pressed buttons', async (test) => {
     target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowUp'}))
     input.update(16)
 
+    assertEquals(input.invalid, true)
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertEquals(input.isStart(), true)
@@ -83,6 +87,7 @@ Deno.test('pressed buttons', async (test) => {
   await test.step('pressed are triggered for one frame only', () => {
     input.update(16)
 
+    assertEquals(input.invalid, false)
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertEquals(input.isStart(), false)
@@ -94,6 +99,7 @@ Deno.test('pressed buttons', async (test) => {
     target.dispatchEvent(KeyTestEvent('keyup', {key: 'ArrowUp'}))
     input.update(16)
 
+    assertEquals(input.invalid, true)
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertEquals(input.isStart(), true)
@@ -105,6 +111,7 @@ Deno.test('pressed buttons', async (test) => {
     target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowUp'}))
     input.update(input.minHeldMillis)
 
+    assertEquals(input.invalid, true)
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), true)
     assertEquals(input.isStart(), true)
@@ -116,6 +123,7 @@ Deno.test('pressed buttons', async (test) => {
   await test.step('expired allow current combo to stay on but discontinue next', () => {
     input.update(input.comboMaxIntervalMillis + 1)
 
+    assertEquals(input.invalid, false)
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), true)
     assertEquals(input.isStart(), false)
@@ -130,6 +138,7 @@ Deno.test('pressed buttons', async (test) => {
     target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowUp'}))
     input.update(16)
 
+    assertEquals(input.invalid, true)
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertEquals(input.isStart(), true)
@@ -148,6 +157,7 @@ Deno.test("combos don't require gaps between presses", async (test) => {
     target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowUp'}))
     input.update(16)
 
+    assertEquals(input.invalid, true)
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertEquals(input.isStart(), true)
@@ -164,6 +174,7 @@ Deno.test("combos don't require gaps between presses", async (test) => {
     target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowDown'}))
     input.update(16)
 
+    assertEquals(input.invalid, true)
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertEquals(input.isStart(), true)
@@ -179,6 +190,7 @@ Deno.test("combos don't require gaps between presses", async (test) => {
     target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowUp'}))
     input.update(16)
 
+    assertEquals(input.invalid, true)
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertEquals(input.isStart(), true)
@@ -230,6 +242,7 @@ Deno.test('Up, Up, Down, Down, Left', async (test) => {
     target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowUp'}))
     input.update(16)
 
+    assertEquals(input.invalid, true)
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertEquals(input.isStart(), true)
@@ -249,6 +262,7 @@ Deno.test('Up, Up, Down, Down, Left', async (test) => {
     target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowUp'}))
     input.update(16)
 
+    assertEquals(input.invalid, true)
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertEquals(input.isStart(), true)
@@ -268,6 +282,7 @@ Deno.test('Up, Up, Down, Down, Left', async (test) => {
     target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowDown'}))
     input.update(16)
 
+    assertEquals(input.invalid, true)
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertEquals(input.isStart(), true)
@@ -287,6 +302,7 @@ Deno.test('Up, Up, Down, Down, Left', async (test) => {
     target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowDown'}))
     input.update(16)
 
+    assertEquals(input.invalid, true)
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertEquals(input.isStart(), true)
@@ -306,6 +322,7 @@ Deno.test('Up, Up, Down, Down, Left', async (test) => {
     target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowLeft'}))
     input.update(16)
 
+    assertEquals(input.invalid, true)
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertEquals(input.isStart(), true)
@@ -332,6 +349,7 @@ Deno.test('held combos stay active past expiry', async (test) => {
     target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowUp'}))
     input.update(16)
 
+    assertEquals(input.invalid, true)
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertEquals(input.isStart(), true)
@@ -343,6 +361,7 @@ Deno.test('held combos stay active past expiry', async (test) => {
   await test.step('held', () => {
     input.update(input.comboMaxIntervalMillis + 1)
 
+    assertEquals(input.invalid, false)
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), true)
     assertEquals(input.isStart(), false)
@@ -361,6 +380,7 @@ Deno.test('combo sequences can have multiple buttons', async (test) => {
     target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowLeft'}))
     input.update(16)
 
+    assertEquals(input.invalid, true)
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertEquals(input.isStart(), true)
@@ -385,6 +405,7 @@ Deno.test('combo sequences can have multiple buttons', async (test) => {
     target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowRight'}))
     input.update(16)
 
+    assertEquals(input.invalid, true)
     assertEquals(input.gestured, true)
     assertEquals(input.isHeld(), false)
     assertEquals(input.isStart(), true)
@@ -406,6 +427,7 @@ Deno.test('handled', () => {
   const target = new EventTarget()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
+  assertEquals(input.invalid, false)
   assertEquals(input.gestured, false)
   assertEquals(input.isHeld(), false)
   assertEquals(input.isStart(), false)
@@ -415,6 +437,7 @@ Deno.test('handled', () => {
 
   input.handled = true
 
+  assertEquals(input.invalid, false)
   assertEquals(input.gestured, false)
   assertEquals(input.isHeld(), false)
   assertEquals(input.isStart(), false)
@@ -434,6 +457,7 @@ Deno.test('handled', () => {
   target.dispatchEvent(KeyTestEvent('keydown', {key: 'ArrowUp'}))
   input.update(input.minHeldMillis)
 
+  assertEquals(input.invalid, true)
   assertEquals(input.gestured, true)
   assertEquals(input.isHeld(), true)
   assertEquals(input.isStart(), true)
@@ -443,6 +467,7 @@ Deno.test('handled', () => {
 
   input.handled = true
 
+  assertEquals(input.invalid, true)
   assertEquals(input.gestured, true)
   assertEquals(input.isHeld(), false)
   assertEquals(input.isStart(), false)

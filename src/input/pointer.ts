@@ -43,6 +43,7 @@ const pointEvents = [
 export class Pointer {
   readonly bitByButton: {[btn: number]: number} = {}
   dragMinClient: number = 5
+  invalid: boolean = false
   /** primary may be on or off. */
   primary: Readonly<PointEvent> | undefined
   /**
@@ -80,6 +81,10 @@ export class Pointer {
     return xySub(this.#newPinchClient, this.#pinchStartClient)
   }
 
+  postupdate(): void {
+    this.invalid = false
+  }
+
   register(op: 'add' | 'remove'): this {
     const fn = this.#target[`${op}EventListener`].bind(this.#target)
     for (const ev of pointEvents) fn(ev, this.#onInput as EventListener)
@@ -112,9 +117,12 @@ export class Pointer {
 
   #onInput = (ev: PointerEvent): void => {
     if (!globalThis.Deno && !ev.isTrusted) return
+    this.invalid = true
     ev.preventDefault()
-    if (!globalThis.Deno && this.#target instanceof Element)
-      this.#target.setPointerCapture(ev.pointerId)
+    if (
+      ev.type === 'pointerdown' && !globalThis.Deno
+      && this.#target instanceof Element
+    ) { this.#target.setPointerCapture(ev.pointerId) }
 
     const prevPt = ev.isPrimary ? this.primary : this.secondary[ev.pointerId]
     const bits = this.#evButtonsToBits(ev.buttons)

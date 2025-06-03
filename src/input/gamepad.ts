@@ -15,9 +15,9 @@ export class Gamepad {
     this.bits = 0
     for (const pad of navigator.getGamepads()) {
       for (const [index, axis] of pad?.axes.entries() ?? []) {
-        const bits = this.bitByAxis[index]
-        if (bits == null) continue
-        const bit = axis < 0 ? bits[0] : axis === 0 ? 0 : bits[1]
+        const lessMore = this.bitByAxis[index]
+        if (!lessMore) continue
+        const bit = axis < 0 ? lessMore[0] : axis === 0 ? 0 : lessMore[1]
         this.bits |= Math.abs(axis) >= 0.5 ? bit : 0
       }
       for (const [index, btn] of pad?.buttons.entries() ?? []) {
