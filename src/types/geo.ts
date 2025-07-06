@@ -3,6 +3,21 @@ export type WH = {w: number, h: number}
 export type XY = {x: number, y: number}
 export type XYZ = {x: number, y: number, z: number}
 
+// to-do: why do I need partial xy lhs
+export function boxHits(
+  lhs: Readonly<Partial<XY> & WH>,
+  rhs: Readonly<XY & Partial<WH>>
+): boolean {
+  const rhsWH = {w: rhs.w ?? 1, h: rhs.h ?? 1} // point? an empty box has no w/h.
+  if (!lhs.w || !lhs.h || !rhsWH.w || !rhsWH.h) return false // noncommutative.
+  return (
+    (lhs.x ?? 0) < rhs.x + rhsWH.w
+    && (lhs.x ?? 0) + lhs.w > rhs.x
+    && (lhs.y ?? 0) < rhs.y + rhsWH.h
+    && (lhs.y ?? 0) + lhs.h > rhs.y
+  )
+}
+
 /** lhs + rhs. */
 export function xyAdd(lhs: Readonly<XY>, rhs: Readonly<XY>): XY {
   return {x: lhs.x + rhs.x, y: lhs.y + rhs.y}

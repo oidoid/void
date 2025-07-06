@@ -1,1 +1,1 @@
-export const maxLayer: number = 7
+export const maxLayer: number = 15

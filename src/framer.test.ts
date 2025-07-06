@@ -28,15 +28,23 @@ Deno.test('Framer', async (test) => {
   await test.step('register', () => {
     framer.register('add')
     assertEquals(frame, 0)
+    assertEquals(framer.frame, 0)
+    assertEquals(framer.age, 0)
   })
 
   await test.step('onFrame', () => {
-    onFrame?.(0)
+    onFrame!(10)
     assertEquals(frame, 1)
-    onFrame?.(0)
+    assertEquals(framer.frame, 1)
+    assertEquals(framer.age, 10)
+    onFrame!(10)
     assertEquals(frame, 2)
-    onFrame?.(0)
+    assertEquals(framer.frame, 2)
+    assertEquals(framer.age, 20)
+    onFrame!(10)
     assertEquals(frame, 3)
+    assertEquals(framer.frame, 3)
+    assertEquals(framer.age, 30)
   })
 
   await test.step('hidden', () => {
@@ -48,7 +56,9 @@ Deno.test('Framer', async (test) => {
   await test.step('shown', () => {
     doc.hidden = false
     doc.dispatchEvent(new Event('visibilitychange'))
-    onFrame?.(0)
+    onFrame!(10)
     assertEquals(frame, 4)
+    assertEquals(framer.frame, 4)
+    assertEquals(framer.age, 40)
   })
 })
