@@ -47,11 +47,11 @@ type WheelState = {
   }
 }
 
-export type DefaultInput<Button extends DefaultButton = DefaultButton> = Input<
+export type DefaultInput<Button extends DefaultButton> = Input<
   Button
 >
 
-export function DefaultInput<Button extends DefaultButton = DefaultButton>(
+export function DefaultInput<Button extends DefaultButton>(
   cam: Readonly<Cam>,
   target: EventTarget
 ): DefaultInput<Button> {
@@ -292,8 +292,7 @@ export class Input<Button extends string> {
   }
 
   register(op: 'add' | 'remove'): this {
-    const fn = this.#target[`${op}EventListener`].bind(this.#target)
-    fn('blur', this.reset) // keyup is lost if window loses focus.
+    this.#target[`${op}EventListener`]('blur', this.reset) // keyup is lost if window loses focus.
     this.#contextMenu.register(op)
     this.#keyboard.register(op)
     this.#pointer.register(op)

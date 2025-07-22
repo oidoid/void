@@ -7,7 +7,7 @@ import {
 import { type Box, boxHits, type WH, type XY } from '../types/geo.ts'
 import type { Millis } from '../types/time.ts'
 
-export const sizeofDrawable: number = 11
+export const drawableBytes: number = 11
 
 /**
  * everything not requiring an atlas. the box is the drawn region. assume little
@@ -96,11 +96,11 @@ export abstract class Drawable implements Box {
   }
 
   get i(): number {
-    return this.#offset / sizeofDrawable
+    return this.#offset / drawableBytes
   }
 
   set i(i: number) {
-    this.#offset = i * sizeofDrawable
+    this.#offset = i * drawableBytes
   }
 
   get id(): number {
@@ -117,6 +117,10 @@ export abstract class Drawable implements Box {
       true
     )
   }
+
+  // to-do: rotate.
+  // to-do: scale.
+  // to-do: switch between AABB collisions. make rotation optional on Box.
 
   get stretch(): boolean {
     const sxyz_llll = this.#view.getUint8(this.#offset + 5)
@@ -175,7 +179,7 @@ export abstract class Drawable implements Box {
     return sxyz_llll & 0xf
   }
 
-  /** layer [0 (closest), 15 (furthest)]. */
+  /** layer [0 (closest), 14 (furthest)]; 15 is hidden. */
   set z(z: number) {
     const sxyz_llll = this.#view.getUint8(this.#offset + 5)
     this.#view.setUint8(this.#offset + 5, sxyz_llll & ~0xf | z & 0xf)
@@ -193,7 +197,7 @@ export abstract class Drawable implements Box {
   }
 }
 
-export class Sprite<T extends TagFormat = TagFormat> extends Drawable {
+export class Sprite<T extends TagFormat> extends Drawable {
   readonly #atlas: Readonly<Atlas<T>>
   readonly #framer: {readonly age: Millis}
 

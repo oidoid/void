@@ -45,7 +45,7 @@ export function xyEq(lhs: Readonly<XY>, rhs: Readonly<XY>): boolean {
 
 /** nonnegative. */
 export function xyMagnitude(xy: Readonly<XY>): number {
-  return Math.sqrt(xy.x * xy.x + xy.y * xy.y)
+  return Math.hypot(xy.x, xy.y)
 }
 
 /** the greater of each component. */

@@ -16,7 +16,7 @@ export class Wheel {
 
   register(op: 'add' | 'remove'): this {
     const fn = this.#target[`${op}EventListener`].bind(this.#target)
-    fn('wheel', this.#onInput as EventListener, {passive: false})
+    fn('wheel', this.#onInput as EventListener)
     return this
   }
 

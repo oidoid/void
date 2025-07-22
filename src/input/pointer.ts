@@ -87,7 +87,7 @@ export class Pointer {
 
   register(op: 'add' | 'remove'): this {
     const fn = this.#target[`${op}EventListener`].bind(this.#target)
-    for (const ev of pointEvents) fn(ev, this.#onInput as EventListener)
+    for (const ev of pointEvents) fn(ev, this.#onInput as EventListener) //, {passive: true}) am I just paying this anyway on touch start?
     return this
   }
 

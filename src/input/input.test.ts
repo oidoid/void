@@ -875,7 +875,7 @@ Deno.test('wheel', () => {
 })
 
 function assertButton(
-  input: DefaultInput,
+  input: DefaultInput<DefaultButton>,
   btn: DefaultButton,
   state: 'On' | 'Off',
   edge?: 'Start'
@@ -889,7 +889,7 @@ function assertButton(
 }
 
 function assertCombo(
-  input: DefaultInput,
+  input: DefaultInput<DefaultButton>,
   combo: Readonly<Combo<DefaultButton>>,
   state: 'EndsWith' | 'Equal' | 'Unequal',
   edge?: 'Start'

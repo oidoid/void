@@ -1,7 +1,7 @@
 import { assertEquals } from '@std/assert'
 import { assertInlineSnapshot } from '@std/testing/unstable-snapshot'
 
-import { Drawable, sizeofDrawable, Sprite } from './sprite.ts'
+import { Drawable, drawableBytes, Sprite } from './sprite.ts'
 import { type Anim, type Atlas, celMillis, maxAnimCels } from './atlas.ts'
 import type { Millis } from '../types/time.ts'
 import { maxLayer } from './layer.ts'
@@ -488,7 +488,7 @@ Deno.test('toString()', () => {
 })
 
 function TestView(): DataView {
-  return new DataView(new ArrayBuffer(sizeofDrawable), 0, sizeofDrawable)
+  return new DataView(new ArrayBuffer(drawableBytes), 0, drawableBytes)
 }
 
 function toHex(view: Readonly<DataView>): string {

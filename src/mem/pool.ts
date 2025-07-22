@@ -19,12 +19,14 @@ const maxCapacity: number = 0xffff_ffff // u32
  *     this.#pool.setX(this.#sprite, this.#pool.getX(this.#sprite) + 1)
  * - setting a discard flag on sprites instead of handles may be more efficient
  *   but requires copying all elements on every frame and is sprite specific.
+ * - sprite classes own all the data is nice DX but requires a copy on every
+ *   frame.
  */
 export class Pool<T extends Block> {
   readonly view: DataView<ArrayBuffer>
   readonly #allocBytes: number
   /** fixed len. blocks fragment on free. */
-  readonly #blocks: T[]
+  readonly #blocks: readonly T[]
   /** the head of the free block linked list indexing into #blocks. */
   #free: number = 0
   readonly #maxPages: number
@@ -49,11 +51,12 @@ export class Pool<T extends Block> {
     this.#u8 = new Uint8Array(buffer)
     this.view = new DataView(buffer)
 
-    this.#blocks = new Array(this.capacity)
-    for (let i = 0; i < this.#blocks.length; i++) {
-      this.#blocks[i] = opts.alloc(this)
-      this.#blocks[i]!.i = i + 1
+    const blocks = new Array(this.capacity)
+    for (let i = 0; i < blocks.length; i++) {
+      blocks[i] = opts.alloc(this)
+      blocks[i]!.i = i + 1
     }
+    this.#blocks = blocks
   }
 
   alloc(): T {
