@@ -13,18 +13,18 @@ export type PointType =
   (typeof pointTypeByPointerType)[keyof typeof pointTypeByPointerType]
 
 type PointEvent = {
-  bits: number,
+  bits: number
   /** most recent click. */
-  clickClient: XY,
-  drag: boolean,
-  ev: typeof pointEvents[number],
-  id: number,
+  clickClient: XY
+  drag: boolean
+  ev: (typeof pointEvents)[number]
+  id: number
   /**
    * cursors should only use the primary inputs to avoid flickering between
    * distant points. inputs may be only secondaries.
    */
-  primary: boolean,
-  type: PointType | undefined,
+  primary: boolean
+  type: PointType | undefined
   xyClient: XY
 }
 
@@ -53,9 +53,9 @@ export class Pointer {
   readonly secondary: {[id: number]: Readonly<PointEvent>} = {}
   /** nonnegative. */
   #pinchStartClient: XY = {x: 0, y: 0}
-  readonly #target: EventTarget
+  readonly #target: Element
 
-  constructor(target: EventTarget) {
+  constructor(target: Element) {
     this.#target = target
   }
 
@@ -98,8 +98,8 @@ export class Pointer {
   }
 
   update(): void {
-    const on = (this.primary?.bits ? 1 : 0)
-      + Object.values(this.secondary).length
+    const on =
+      (this.primary?.bits ? 1 : 0) + Object.values(this.secondary).length
     if (on < 2 || xyEq(this.#pinchStartClient, {x: 0, y: 0}))
       this.#pinchStartClient = this.#newPinchClient
   }
@@ -116,27 +116,26 @@ export class Pointer {
   }
 
   #onInput = (ev: PointerEvent): void => {
-    if (!globalThis.Deno && !ev.isTrusted) return
+    if (!ev.isTrusted) return
     this.invalid = true
     ev.preventDefault()
-    if (
-      ev.type === 'pointerdown' && !globalThis.Deno
-      && this.#target instanceof Element
-    ) { this.#target.setPointerCapture(ev.pointerId) }
+    if (ev.type === 'pointerdown') this.#target.setPointerCapture(ev.pointerId)
 
     const prevPt = ev.isPrimary ? this.primary : this.secondary[ev.pointerId]
     const bits = this.#evButtonsToBits(ev.buttons)
     const xyClient = {x: ev.offsetX, y: ev.offsetY}
-    const evType = ev.type as typeof pointEvents[number]
-    const type = pointTypeByPointerType[
-      ev.pointerType as keyof typeof pointTypeByPointerType
-    ]
-    const clickClient = evType === 'pointerdown' || !prevPt
-      ? {x: xyClient.x, y: xyClient.y}
-      : {x: prevPt.clickClient.x, y: prevPt.clickClient.y}
-    const drag = !!bits && (
-      prevPt?.drag || xyDistance(clickClient, xyClient) >= this.dragMinClient
-    )
+    const evType = ev.type as (typeof pointEvents)[number]
+    const type =
+      pointTypeByPointerType[
+        ev.pointerType as keyof typeof pointTypeByPointerType
+      ]
+    const clickClient =
+      evType === 'pointerdown' || !prevPt
+        ? {x: xyClient.x, y: xyClient.y}
+        : {x: prevPt.clickClient.x, y: prevPt.clickClient.y}
+    const drag =
+      !!bits &&
+      (prevPt?.drag || xyDistance(clickClient, xyClient) >= this.dragMinClient)
 
     const pt = {
       clickClient,
@@ -154,9 +153,8 @@ export class Pointer {
   }
 
   get #newPinchClient(): XY {
-    if (
-      ((this.primary?.bits ? 1 : 0) + Object.values(this.secondary).length) < 2
-    ) { return {x: 0, y: 0} }
+    if ((this.primary?.bits ? 1 : 0) + Object.values(this.secondary).length < 2)
+      return {x: 0, y: 0}
     const bounds = this.boundsClient
     return bounds ? {x: bounds.w, y: bounds.h} : {x: 0, y: 0}
   }

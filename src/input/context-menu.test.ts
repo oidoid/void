@@ -1,28 +1,26 @@
-import { assertEquals } from '@std/assert'
-import { ContextMenu } from './context-menu.ts'
+import assert from 'node:assert/strict'
+import {test} from 'node:test'
+import {MenuTestEvent} from '../test/test-event.ts'
+import {ContextMenu} from './context-menu.ts'
 
-Deno.test('ContextMenu', async (test) => {
+test('ContextMenu', async ctx => {
   const target = new EventTarget()
   using menu = new ContextMenu(target).register('add')
 
-  await test.step('disabled', () => {
+  ctx.test('disabled', () => {
     let blocked = 0
     target.dispatchEvent(MenuTestEvent('contextmenu', () => blocked++))
-    assertEquals(blocked, 1)
+    assert.equal(blocked, 1)
     target.dispatchEvent(MenuTestEvent('touchstart', () => blocked++))
-    assertEquals(blocked, 2)
+    assert.equal(blocked, 2)
   })
 
-  await test.step('enabled', () => {
+  ctx.test('enabled', () => {
     menu.enable = true
     let blocked = 0
     target.dispatchEvent(MenuTestEvent('contextmenu', () => blocked++))
-    assertEquals(blocked, 0)
+    assert.equal(blocked, 0)
     target.dispatchEvent(MenuTestEvent('touchstart', () => blocked++))
-    assertEquals(blocked, 0)
+    assert.equal(blocked, 0)
   })
 })
-
-function MenuTestEvent(type: string, preventDefault: () => void): Event {
-  return Object.assign(new Event(type), {preventDefault})
-}

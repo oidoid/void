@@ -1,64 +1,65 @@
-import { assertEquals } from '@std/assert'
-import { Framer } from './framer.ts'
+import assert from 'node:assert/strict'
+import {afterEach, beforeEach, describe, test} from 'node:test'
 
-Deno.test('Framer', async (test) => {
+import {Framer} from './framer.ts'
+import {TestEvent} from './test/test-event.ts'
+
+describe('Framer', () => {
   const doc = Object.assign(new EventTarget(), {hidden: false})
   let onFrame: ((millis: number) => void) | undefined
-  using _ = (() => {
+  beforeEach(() => {
     globalThis.document = doc as Document
-    globalThis.cancelAnimationFrame = () => onFrame = undefined
-    globalThis.requestAnimationFrame = (cb) => {
+    globalThis.cancelAnimationFrame = () => (onFrame = undefined)
+    globalThis.requestAnimationFrame = cb => {
       onFrame = cb
       return 0
     }
-    return {
-      [Symbol.dispose]() {
-        delete (globalThis as {[_: string]: unknown}).document
-        delete (globalThis as {[_: string]: unknown}).cancelAnimationFrame
-        delete (globalThis as {[_: string]: unknown}).requestAnimationFrame
-      }
-    }
-  })()
+  })
+  afterEach(() => {
+    delete (globalThis as {[_: string]: unknown}).document
+    delete (globalThis as {[_: string]: unknown}).cancelAnimationFrame
+    delete (globalThis as {[_: string]: unknown}).requestAnimationFrame
+  })
   using framer = new Framer()
   let frame = 0
   framer.onFrame = () => ++frame
 
-  await test.step('init', () => assertEquals(frame, 0))
+  test('init', () => assert.equal(frame, 0))
 
-  await test.step('register', () => {
+  test('register', () => {
     framer.register('add')
-    assertEquals(frame, 0)
-    assertEquals(framer.frame, 0)
-    assertEquals(framer.age, 0)
+    assert.equal(frame, 0)
+    assert.equal(framer.frame, 0)
+    assert.equal(framer.age, 0)
   })
 
-  await test.step('onFrame', () => {
+  test('onFrame', () => {
     onFrame!(10)
-    assertEquals(frame, 1)
-    assertEquals(framer.frame, 1)
-    assertEquals(framer.age, 10)
+    assert.equal(frame, 1)
+    assert.equal(framer.frame, 1)
+    assert.equal(framer.age, 10)
     onFrame!(10)
-    assertEquals(frame, 2)
-    assertEquals(framer.frame, 2)
-    assertEquals(framer.age, 20)
+    assert.equal(frame, 2)
+    assert.equal(framer.frame, 2)
+    assert.equal(framer.age, 20)
     onFrame!(10)
-    assertEquals(frame, 3)
-    assertEquals(framer.frame, 3)
-    assertEquals(framer.age, 30)
+    assert.equal(frame, 3)
+    assert.equal(framer.frame, 3)
+    assert.equal(framer.age, 30)
   })
 
-  await test.step('hidden', () => {
+  test('hidden', () => {
     doc.hidden = true
-    doc.dispatchEvent(new Event('visibilitychange'))
-    assertEquals(onFrame, undefined)
+    doc.dispatchEvent(TestEvent('visibilitychange'))
+    assert.equal(onFrame, undefined)
   })
 
-  await test.step('shown', () => {
+  test('shown', () => {
     doc.hidden = false
-    doc.dispatchEvent(new Event('visibilitychange'))
+    doc.dispatchEvent(TestEvent('visibilitychange'))
     onFrame!(10)
-    assertEquals(frame, 4)
-    assertEquals(framer.frame, 4)
-    assertEquals(framer.age, 40)
+    assert.equal(frame, 4)
+    assert.equal(framer.frame, 4)
+    assert.equal(framer.age, 40)
   })
 })

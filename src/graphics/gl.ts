@@ -1,4 +1,4 @@
-import { debug } from '../debug.ts'
+import {debug} from '../debug.ts'
 
 export type GL2 = WebGL2RenderingContext
 export type GLProgram = WebGLProgram
@@ -10,12 +10,16 @@ export type GLUniformMap = {[name: string]: GLUniformLocation}
 export function GLUniformMap(gl: GL2, pgm: GLProgram): GLUniformMap {
   const len = gl.getProgramParameter(pgm, gl.ACTIVE_UNIFORMS)
   const map = debug.render
-    ? new Proxy<GLUniformMap>({}, {
-      get(target, prop: string): GLUniformLocation {
-        if (target[prop] == null) throw Error(`no shader uniform named ${prop}`)
-        return target[prop]
-      }
-    })
+    ? new Proxy<GLUniformMap>(
+        {},
+        {
+          get(target, prop: string): GLUniformLocation {
+            if (target[prop] == null)
+              throw Error(`no shader uniform named ${prop}`)
+            return target[prop]
+          }
+        }
+      )
     : {}
   for (let i = 0; i < len; ++i) {
     const uniform = gl.getActiveUniform(pgm, i)

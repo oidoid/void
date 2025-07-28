@@ -1,13 +1,13 @@
-import type { WH, XY } from './types/geo.ts'
+import type {WH, XY} from './types/geo.ts'
 
 export type LevelClientLocalXY = {
   /** position relative canvas top-left (in DPI scale). */
-  client: XY,
+  client: XY
   /**
    * position relative canvas top-left in level scale (like level xy but no cam
    * offset) within cam.
    */
-  local: XY,
+  local: XY
   /** level position within cam. */
   xy: XY
 }
@@ -160,8 +160,7 @@ export class Cam {
 
     const scale = Math.max(
       this.#minScale,
-      Math.min(whPhy.w / this.#minWH.w, whPhy.h / this.#minWH.h)
-        - (this.#zoomOut)
+      Math.min(whPhy.w / this.#minWH.w, whPhy.h / this.#minWH.h) - this.#zoomOut
     )
     // scale = Math.abs(Math.round(scale) - scale) < 0.05
     //   ? Math.round(scale) // if close to an int, use the int.

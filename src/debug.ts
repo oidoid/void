@@ -4,12 +4,12 @@
  * CSV.
  */
 export type Debug =
-  | { [K in 'cam' | 'input' | 'render']?: string } & {
-    [k: string]: string
-  }
+  | ({[K in 'cam' | 'input' | 'render']?: string} & {
+      [k: string]: string
+    })
   | undefined
 
-export const debug: Readonly<Debug> = Debug(location)
+export const debug: Readonly<Debug> = Debug(globalThis.location)
 
 /** @internal */
 export function Debug(location: {readonly href: string} | undefined): Debug {
@@ -17,10 +17,13 @@ export function Debug(location: {readonly href: string} | undefined): Debug {
   const csv = new URL(location.href.toLowerCase()).searchParams.get('debug')
   if (csv == null) return
   const map = Object.fromEntries(
-    csv.split(',').filter(Boolean).map((kv) => kv.split('='))
+    csv
+      .split(',')
+      .filter(Boolean)
+      .map(kv => kv.split('='))
   )
   const debug: {[k: string]: string} = {}
-  const keyset: { [_ in keyof Debug]-?: undefined } = {
+  const keyset: {[_ in keyof Debug]-?: undefined} = {
     cam: undefined,
     input: undefined,
     render: undefined

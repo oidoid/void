@@ -1,0 +1,57 @@
+{
+  "author": "Stephen Niedzielski <stephen@oidoid.com> (https://oidoid.com)",
+  "bin": {
+    "void": "tools/void.ts"
+  },
+  "bugs": "https://github.com/oidoid/void/issues",
+  "description": "basic 2D game library.",
+  "devDependencies": {
+    "@biomejs/biome": "2.1.2",
+    "@types/node": "22.14.1",
+    "@types/jsdom": "21.1.7",
+    "esbuild": "0.25.8",
+    "jsdom": "25.0.1",
+    "typescript": "5.9.1-rc"
+  },
+  "engines": {
+    "node": ">=24.0"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "tools",
+    "!**/tsconfig.tsbuildinfo"
+  ],
+  "homepage": "https://github.com/oidoid/void",
+  "keywords": [
+    "game engine",
+    "webgl"
+  ],
+  "license": "AGPL-3.0-only",
+  "name": "@oidoid/void",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oidoid/void.git"
+  },
+  "scripts": {
+    "build": "tools/build.ts",
+    "clean": "rm -rf dist",
+    "format": "npm run formatter -- --fix",
+    "formatter": "biome check --error-on-warnings",
+    "preversion": "[ -z \"$(git status -z)\" ]",
+    "prepublishOnly": "! git symbolic-ref --quiet HEAD || git push --follow-tags origin \"$(git branch --show-current)\"",
+    "start": "npm run build -- --local --watch",
+    "test": "npm run test:format && npm run test:types && npm run test:unit && npm run build",
+    "test:format": "npm run formatter",
+    "test:types": "tsc --build",
+    "test:unit": "sh -c 'node --experimental-test-coverage --test \"${@:-**/*.test.ts}\"' --",
+    "version": "npm test"
+  },
+  "type": "module",
+  "version": "0.1.0-4"
+}

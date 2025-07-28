@@ -1,27 +1,28 @@
-import { assertEquals } from '@std/assert'
-import { Keyboard } from './keyboard.ts'
-import { KeyTestEvent } from '../test/test-event.ts'
+import assert from 'node:assert/strict'
+import {test} from 'node:test'
+import {KeyTestEvent} from '../test/test-event.ts'
+import {Keyboard} from './keyboard.ts'
 
-Deno.test('Keyboard', async (test) => {
+test('Keyboard', async ctx => {
   const target = new EventTarget()
   using kbd = new Keyboard(target).register('add')
   kbd.bitByKey.a = 1
   kbd.bitByKey.b = 2
 
-  await test.step('init', () => assertEquals(kbd.bits, 0))
+  ctx.test('init', () => assert.equal(kbd.bits, 0))
 
-  await test.step('a down', () => {
+  ctx.test('a down', () => {
     target.dispatchEvent(KeyTestEvent('keydown', {key: 'a'}))
-    assertEquals(kbd.bits, 1)
+    assert.equal(kbd.bits, 1)
   })
 
-  await test.step('b down', () => {
+  ctx.test('b down', () => {
     target.dispatchEvent(KeyTestEvent('keydown', {key: 'b'}))
-    assertEquals(kbd.bits, 3)
+    assert.equal(kbd.bits, 3)
   })
 
-  await test.step('a up', () => {
+  ctx.test('a up', () => {
     target.dispatchEvent(KeyTestEvent('keyup', {key: 'a'}))
-    assertEquals(kbd.bits, 2)
+    assert.equal(kbd.bits, 2)
   })
 })

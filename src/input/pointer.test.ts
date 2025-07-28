@@ -1,222 +1,218 @@
-import { Pointer } from './pointer.ts'
-import { assertEquals } from '@std/assert'
-import { PointerTestEvent } from '../test/test-event.ts'
+import assert from 'node:assert/strict'
+import {test} from 'node:test'
+import {TestElement} from '../test/test-element.ts'
+import {PointerTestEvent} from '../test/test-event.ts'
+import {Pointer} from './pointer.ts'
 
-Deno.test('buttons', async (test) => {
-  const target = new EventTarget()
+test('buttons', async ctx => {
+  const target = TestElement()
   using pointer = DefaultPointer(target)
 
-  await test.step('init', () => {
-    assertEquals(pointer.primary, undefined)
-    assertEquals(pointer.secondary, {})
-    assertEquals(pointer.centerClient, undefined)
-    assertEquals(pointer.pinchClient, {x: 0, y: 0})
+  ctx.test('init', () => {
+    assert.equal(pointer.primary, undefined)
+    assert.deepEqual(pointer.secondary, {})
+    assert.deepEqual(pointer.centerClient, undefined)
+    assert.deepEqual(pointer.pinchClient, {x: 0, y: 0})
   })
 
-  await test.step('primary down', () => {
-    target.dispatchEvent(PointerTestEvent('pointerdown', {
-      buttons: 1,
-      offsetX: 10,
-      offsetY: 40
-    }))
+  ctx.test('primary down', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointerdown', {buttons: 1, offsetX: 10, offsetY: 40})
+    )
     pointer.update()
-    assertEquals(pointer.primary?.bits, 1)
-    assertEquals(pointer.primary?.xyClient, {x: 10, y: 40})
-    assertEquals(pointer.centerClient, {x: 10, y: 40})
-    assertEquals(pointer.pinchClient, {x: 0, y: 0})
+    assert.equal(pointer.primary?.bits, 1)
+    assert.deepEqual(pointer.primary?.xyClient, {x: 10, y: 40})
+    assert.deepEqual(pointer.centerClient, {x: 10, y: 40})
+    assert.deepEqual(pointer.pinchClient, {x: 0, y: 0})
   })
 
-  await test.step('secondary down', () => {
-    target.dispatchEvent(PointerTestEvent('pointerdown', {
-      buttons: 2,
-      offsetX: 11,
-      offsetY: 41,
-      pointerId: 2
-    }))
+  ctx.test('secondary down', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointerdown', {
+        buttons: 2,
+        offsetX: 11,
+        offsetY: 41,
+        pointerId: 2
+      })
+    )
     pointer.update()
-    assertEquals(pointer.primary?.bits, 1)
-    assertEquals(pointer.primary?.xyClient, {x: 10, y: 40})
-    assertEquals(pointer.secondary[2]?.bits, 2)
-    assertEquals(pointer.secondary[2]?.xyClient, {x: 11, y: 41})
-    assertEquals(pointer.centerClient, {x: 10.5, y: 40.5})
-    assertEquals(pointer.pinchClient, {x: 0, y: 0})
+    assert.equal(pointer.primary?.bits, 1)
+    assert.deepEqual(pointer.primary?.xyClient, {x: 10, y: 40})
+    assert.equal(pointer.secondary[2]?.bits, 2)
+    assert.deepEqual(pointer.secondary[2]?.xyClient, {x: 11, y: 41})
+    assert.deepEqual(pointer.centerClient, {x: 10.5, y: 40.5})
+    assert.deepEqual(pointer.pinchClient, {x: 0, y: 0})
   })
 
-  await test.step('primary up', () => {
+  ctx.test('primary up', () => {
     target.dispatchEvent(
       PointerTestEvent('pointerup', {offsetX: 11, offsetY: 41})
     )
     pointer.update()
-    assertEquals(pointer.primary?.bits, 0)
-    assertEquals(pointer.primary?.xyClient, {x: 11, y: 41})
-    assertEquals(pointer.secondary[2]?.bits, 2)
-    assertEquals(pointer.secondary[2]?.xyClient, {x: 11, y: 41})
-    assertEquals(pointer.centerClient, {x: 11, y: 41})
-    assertEquals(pointer.pinchClient, {x: 0, y: 0})
+    assert.equal(pointer.primary?.bits, 0)
+    assert.deepEqual(pointer.primary?.xyClient, {x: 11, y: 41})
+    assert.equal(pointer.secondary[2]?.bits, 2)
+    assert.deepEqual(pointer.secondary[2]?.xyClient, {x: 11, y: 41})
+    assert.deepEqual(pointer.centerClient, {x: 11, y: 41})
+    assert.deepEqual(pointer.pinchClient, {x: 0, y: 0})
   })
 })
 
-Deno.test('centerClient()', async (test) => {
-  const target = new EventTarget()
+test('centerClient()', async ctx => {
+  const target = TestElement()
   using pointer = DefaultPointer(target)
 
-  await test.step('init', () => assertEquals(pointer.centerClient, undefined))
+  ctx.test('init', () =>
+    assert.deepEqual(pointer.centerClient, undefined)
+  )
 
-  await test.step('primary', () => {
-    target.dispatchEvent(PointerTestEvent('pointerdown', {
-      buttons: 1,
-      offsetX: 10,
-      offsetY: 10
-    }))
+  ctx.test('primary', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointerdown', {buttons: 1, offsetX: 10, offsetY: 10})
+    )
     pointer.update()
-    assertEquals(pointer.centerClient, {x: 10, y: 10})
+    assert.deepEqual(pointer.centerClient, {x: 10, y: 10})
   })
 
-  await test.step('primary and secondary', () => {
-    target.dispatchEvent(PointerTestEvent('pointerdown', {
-      buttons: 1,
-      offsetX: 20,
-      offsetY: 20,
-      pointerId: 2
-    }))
+  ctx.test('primary and secondary', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointerdown', {
+        buttons: 1,
+        offsetX: 20,
+        offsetY: 20,
+        pointerId: 2
+      })
+    )
     pointer.update()
-    assertEquals(pointer.centerClient, {x: 15, y: 15})
+    assert.deepEqual(pointer.centerClient, {x: 15, y: 15})
   })
 })
 
-Deno.test('pinchClient()', async (test) => {
-  const target = new EventTarget()
+test('pinchClient()', async ctx => {
+  const target = TestElement()
   using pointer = DefaultPointer(target)
 
-  await test.step('init', () => assertEquals(pointer.pinchClient, {x: 0, y: 0}))
+  ctx.test('init', () =>
+    assert.deepEqual(pointer.pinchClient, {x: 0, y: 0})
+  )
 
-  await test.step('primary down', () => {
-    target.dispatchEvent(PointerTestEvent('pointerdown', {
-      buttons: 1,
-      offsetX: 10,
-      offsetY: 10
-    }))
+  ctx.test('primary down', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointerdown', {buttons: 1, offsetX: 10, offsetY: 10})
+    )
     pointer.update()
-    assertEquals(pointer.pinchClient, {x: 0, y: 0})
+    assert.deepEqual(pointer.pinchClient, {x: 0, y: 0})
   })
 
-  await test.step('primary move', () => {
-    target.dispatchEvent(PointerTestEvent('pointermove', {
-      buttons: 1,
-      offsetX: 20,
-      offsetY: 20
-    }))
+  ctx.test('primary move', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointermove', {buttons: 1, offsetX: 20, offsetY: 20})
+    )
     pointer.update()
-    assertEquals(pointer.pinchClient, {x: 0, y: 0})
+    assert.deepEqual(pointer.pinchClient, {x: 0, y: 0})
   })
 
-  await test.step('secondary down', () => {
-    target.dispatchEvent(PointerTestEvent('pointerdown', {
-      buttons: 1,
-      offsetX: 30,
-      offsetY: 20,
-      pointerId: 2
-    }))
+  ctx.test('secondary down', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointerdown', {
+        buttons: 1,
+        offsetX: 30,
+        offsetY: 20,
+        pointerId: 2
+      })
+    )
     pointer.update()
-    assertEquals(pointer.pinchClient, {x: 0, y: 0})
+    assert.deepEqual(pointer.pinchClient, {x: 0, y: 0})
   })
 
-  await test.step('secondary move', () => {
-    target.dispatchEvent(PointerTestEvent('pointerdown', {
-      buttons: 1,
-      offsetX: 40,
-      offsetY: 20,
-      pointerId: 2
-    }))
+  ctx.test('secondary move', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointerdown', {
+        buttons: 1,
+        offsetX: 40,
+        offsetY: 20,
+        pointerId: 2
+      })
+    )
     pointer.update()
-    assertEquals(pointer.pinchClient, {x: 10, y: 0})
+    assert.deepEqual(pointer.pinchClient, {x: 10, y: 0})
   })
 
-  await test.step('primary move again', () => {
-    target.dispatchEvent(PointerTestEvent('pointermove', {
-      buttons: 1,
-      offsetX: 30,
-      offsetY: 20
-    }))
+  ctx.test('primary move again', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointermove', {buttons: 1, offsetX: 30, offsetY: 20})
+    )
     pointer.update()
-    assertEquals(pointer.pinchClient, {x: 0, y: 0})
+    assert.deepEqual(pointer.pinchClient, {x: 0, y: 0})
   })
 })
 
-Deno.test('drag', async (test) => {
-  const target = new EventTarget()
+test('drag', async ctx => {
+  const target = TestElement()
   using pointer = DefaultPointer(target)
 
-  await test.step('click', () => {
-    target.dispatchEvent(PointerTestEvent('pointerdown', {
-      buttons: 1,
-      offsetX: 10,
-      offsetY: 10
-    }))
+  ctx.test('click', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointerdown', {buttons: 1, offsetX: 10, offsetY: 10})
+    )
     pointer.update()
-    assertEquals(pointer.primary?.bits, 1)
-    assertEquals(pointer.primary?.primary, true)
-    assertEquals(pointer.primary?.xyClient, {x: 10, y: 10})
-    assertEquals(pointer.primary?.clickClient, {x: 10, y: 10})
-    assertEquals(pointer.primary?.drag, false)
+    assert.equal(pointer.primary?.bits, 1)
+    assert.equal(pointer.primary?.primary, true)
+    assert.deepEqual(pointer.primary?.xyClient, {x: 10, y: 10})
+    assert.deepEqual(pointer.primary?.clickClient, {x: 10, y: 10})
+    assert.equal(pointer.primary?.drag, false)
   })
 
-  await test.step('move a little', () => {
-    target.dispatchEvent(PointerTestEvent('pointermove', {
-      buttons: 1,
-      offsetX: 12,
-      offsetY: 12
-    }))
+  ctx.test('move a little', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointermove', {buttons: 1, offsetX: 12, offsetY: 12})
+    )
     pointer.update()
-    assertEquals(pointer.primary?.bits, 1)
-    assertEquals(pointer.primary?.primary, true)
-    assertEquals(pointer.primary?.xyClient, {x: 12, y: 12})
-    assertEquals(pointer.primary?.clickClient, {x: 10, y: 10})
-    assertEquals(pointer.primary?.drag, false)
+    assert.equal(pointer.primary?.bits, 1)
+    assert.equal(pointer.primary?.primary, true)
+    assert.deepEqual(pointer.primary?.xyClient, {x: 12, y: 12})
+    assert.deepEqual(pointer.primary?.clickClient, {x: 10, y: 10})
+    assert.equal(pointer.primary?.drag, false)
   })
 
-  await test.step('drag start', () => {
-    target.dispatchEvent(PointerTestEvent('pointermove', {
-      buttons: 1,
-      offsetX: 15,
-      offsetY: 15
-    }))
+  ctx.test('drag start', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointermove', {buttons: 1, offsetX: 15, offsetY: 15})
+    )
     pointer.update()
-    assertEquals(pointer.primary?.bits, 1)
-    assertEquals(pointer.primary?.primary, true)
-    assertEquals(pointer.primary?.xyClient, {x: 15, y: 15})
-    assertEquals(pointer.primary?.clickClient, {x: 10, y: 10})
-    assertEquals(pointer.primary?.drag, true)
+    assert.equal(pointer.primary?.bits, 1)
+    assert.equal(pointer.primary?.primary, true)
+    assert.deepEqual(pointer.primary?.xyClient, {x: 15, y: 15})
+    assert.deepEqual(pointer.primary?.clickClient, {x: 10, y: 10})
+    assert.equal(pointer.primary?.drag, true)
   })
 
-  await test.step('drag move', () => {
-    target.dispatchEvent(PointerTestEvent('pointermove', {
-      buttons: 1,
-      offsetX: 17,
-      offsetY: 17
-    }))
+  ctx.test('drag move', () => {
+    target.dispatchEvent(
+      PointerTestEvent('pointermove', {buttons: 1, offsetX: 17, offsetY: 17})
+    )
     pointer.update()
-    assertEquals(pointer.primary?.bits, 1)
-    assertEquals(pointer.primary?.primary, true)
-    assertEquals(pointer.primary?.xyClient, {x: 17, y: 17})
-    assertEquals(pointer.primary?.clickClient, {x: 10, y: 10})
-    assertEquals(pointer.primary?.drag, true)
+    assert.equal(pointer.primary?.bits, 1)
+    assert.equal(pointer.primary?.primary, true)
+    assert.deepEqual(pointer.primary?.xyClient, {x: 17, y: 17})
+    assert.deepEqual(pointer.primary?.clickClient, {x: 10, y: 10})
+    assert.equal(pointer.primary?.drag, true)
   })
 
-  await test.step('drag end', () => {
+  ctx.test('drag end', () => {
     target.dispatchEvent(
       PointerTestEvent('pointerup', {offsetX: 20, offsetY: 20})
     )
     pointer.update()
-    assertEquals(pointer.primary?.bits, 0)
-    assertEquals(pointer.primary?.primary, true)
-    assertEquals(pointer.primary?.xyClient, {x: 20, y: 20})
-    assertEquals(pointer.primary?.clickClient, {x: 10, y: 10})
-    assertEquals(pointer.primary?.drag, false)
+    assert.equal(pointer.primary?.bits, 0)
+    assert.equal(pointer.primary?.primary, true)
+    assert.deepEqual(pointer.primary?.xyClient, {x: 20, y: 20})
+    assert.deepEqual(pointer.primary?.clickClient, {x: 10, y: 10})
+    assert.equal(pointer.primary?.drag, false)
   })
 })
 
-function DefaultPointer(target: EventTarget): Pointer {
+function DefaultPointer(target: Element): Pointer {
   const pointer = new Pointer(target)
   pointer.bitByButton[1] = 1
   pointer.bitByButton[2] = 2

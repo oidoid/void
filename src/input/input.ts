@@ -1,39 +1,41 @@
-import type { Cam, LevelClientLocalXY } from '../cam.ts'
-import type { XY, XYZ } from '../types/geo.ts'
-import { ContextMenu } from './context-menu.ts'
-import { Gamepad } from './gamepad.ts'
-import { Keyboard } from './keyboard.ts'
-import { Pointer } from './pointer.ts'
-import { Wheel } from './wheel.ts'
-import type { PointType } from './pointer.ts'
+import type {Cam, LevelClientLocalXY} from '../cam.ts'
+import type {XY, XYZ} from '../types/geo.ts'
+import {ContextMenu} from './context-menu.ts'
+import {Gamepad} from './gamepad.ts'
+import {Keyboard} from './keyboard.ts'
+import type {PointType} from './pointer.ts'
+import {Pointer} from './pointer.ts'
+import {Wheel} from './wheel.ts'
 
 export type ButtonSet<Button> = [btn: Button, ...Button[]]
 export type Combo<Button> = [ButtonSet<Button>, ...ButtonSet<Button>[]]
 
-export type DefaultButton = // deno-fmt-ignore
+// biome-ignore format:;
+export type DefaultButton =
   | 'L' | 'R' | 'U' | 'D' // dpad.
   | 'A' | 'B' | 'C'       // primary, secondary, tertiary.
   | 'Click' | 'Click2'
   | 'Menu'
 
-export type Point =
-  & LevelClientLocalXY
-  & {click: LevelClientLocalXY, type: PointType | undefined}
+export type Point = LevelClientLocalXY & {
+  click: LevelClientLocalXY
+  type: PointType | undefined
+}
 
 /**
  * doesn't consider handled. local and level positions are reevaluated each
  * frame.
  */
 type PointerState = Point & {
-  center: LevelClientLocalXY,
+  center: LevelClientLocalXY
   /** false when pinched. */
-  drag: {on: boolean, start: boolean, end: boolean},
+  drag: {on: boolean; start: boolean; end: boolean}
   /** may be negative. */
   pinch: {
-    client: XY,
+    client: XY
     /** level / local. */
     xy: XY
-  },
+  }
   /** secondary points. */
   secondary: Point[]
 }
@@ -41,19 +43,17 @@ type PointerState = Point & {
 /** triggered. */
 type WheelState = {
   delta: {
-    client: Readonly<XYZ>,
+    client: Readonly<XYZ>
     /** level / local. */
     xy: XY
   }
 }
 
-export type DefaultInput<Button extends DefaultButton> = Input<
-  Button
->
+export type DefaultInput<Button extends DefaultButton> = Input<Button>
 
 export function DefaultInput<Button extends DefaultButton>(
   cam: Readonly<Cam>,
-  target: EventTarget
+  target: Element
 ): DefaultInput<Button> {
   const input = new Input<DefaultButton>(cam, target)
   input.mapKeyboardKey('L', 'ArrowLeft', 'a', 'A')
@@ -117,7 +117,7 @@ export class Input<Button extends string> {
    * strictly as polled aggregates.
    */
   minHeldMillis: number = 300
-  readonly #bitByButton: { [btn in Button]?: number } = {}
+  readonly #bitByButton: {[btn in Button]?: number} = {}
   readonly #buttonByBit: {[bit: number]: Button} = {}
   #bits: number = 0
   readonly #cam: Readonly<Cam>
@@ -135,13 +135,13 @@ export class Input<Button extends string> {
   #pointerState: PointerState | undefined
   /** bits last update. may not be equal to `#combo.at(-1)`. */
   #prevBits: number = 0
-  readonly #target: EventTarget
+  readonly #target: Element
   readonly #wheel: Wheel
   #wheelState: Readonly<WheelState> = {
     delta: {client: {x: 0, y: 0, z: 0}, xy: {x: 0, y: 0}}
   }
 
-  constructor(cam: Readonly<Cam>, target: EventTarget) {
+  constructor(cam: Readonly<Cam>, target: Element) {
     this.#cam = cam
     this.#contextMenu = new ContextMenu(target)
     this.#keyboard = new Keyboard(target)
@@ -152,9 +152,9 @@ export class Input<Button extends string> {
 
   /** for debugging. */
   get combo(): Button[][] {
-    const sets = []
+    const sets: Button[][] = []
     for (const bits of this.#combo) {
-      const set = []
+      const set: Button[] = []
       for (let bit = 1; bit <= bits; bit <<= 1) {
         if ((bit & bits) === bit && this.#buttonByBit[bit])
           set.push(this.#buttonByBit[bit]!)
@@ -172,12 +172,17 @@ export class Input<Button extends string> {
     return this.#contextMenu
   }
 
+  /** true if input hasn't changed for a while. */
+  get held(): boolean {
+    return !this.handled && this.#heldMillis >= this.minHeldMillis
+  }
+
   isAnyOn(...btns: Readonly<ButtonSet<Button>>): boolean {
     return !this.handled && !!(this.#bits & this.#mapBits(btns))
   }
 
   isAnyOnStart(...btns: Readonly<ButtonSet<Button>>): boolean {
-    return this.isStart() && this.isAnyOn(...btns)
+    return this.started && this.isAnyOn(...btns)
   }
 
   /**
@@ -215,11 +220,6 @@ export class Input<Button extends string> {
     return this.isOnStart(...combo.at(-1)!) && this.isCombo(...combo)
   }
 
-  /** true if input hasn't changed for a while. */
-  isHeld(): boolean {
-    return !this.handled && this.#heldMillis >= this.minHeldMillis
-  }
-
   /*:
    * true if any button in set is not on. this is usually what's wanted. eg:
    * ```ts
@@ -236,7 +236,7 @@ export class Input<Button extends string> {
     const wasOn = (this.#prevBits & bits) === bits
     // don't test this.#bits === 0 since it might forever miss the off event for
     // the specific bits.
-    return wasOn && this.isStart() && this.isOff(...btns)
+    return wasOn && this.started && this.isOff(...btns)
   }
 
   /**
@@ -249,12 +249,7 @@ export class Input<Button extends string> {
   }
 
   isOnStart(...btns: Readonly<ButtonSet<Button>>): boolean {
-    return this.isStart() && this.isOn(...btns)
-  }
-
-  /** true if input has changed. */
-  isStart(): boolean {
-    return !this.handled && this.#bits !== this.#prevBits
+    return this.started && this.isOn(...btns)
   }
 
   // to-do: support analog values.
@@ -314,28 +309,38 @@ export class Input<Button extends string> {
     this.#wheelState = {delta: {client: {x: 0, y: 0, z: 0}, xy: {x: 0, y: 0}}}
   }
 
+  /** true if input has changed. */
+  get started(): boolean {
+    return !this.handled && this.#bits !== this.#prevBits
+  }
+
   /**
    * call on new frame before altering cam. dispatches always occur before an
    * update.
    * @arg millis time since last update.
    */
-  update(millis: number) {
+  update(millis: number): void {
     this.handled = false
     this.#gamepad.update()
     this.#pointer.update()
 
     this.#prevBits = this.#bits
-    this.#bits = this.#gamepad.bits | this.#keyboard.bits
-      | (this.#pointer.primary?.bits ?? 0)
-    this.invalid = this.#bits !== this.#prevBits || this.#pointer.invalid
-      || this.#wheel.invalid
+    this.#bits =
+      this.#gamepad.bits |
+      this.#keyboard.bits |
+      (this.#pointer.primary?.bits ?? 0)
+    this.invalid =
+      this.#bits !== this.#prevBits ||
+      this.#pointer.invalid ||
+      this.#wheel.invalid
     this.gestured ||= !!this.#bits
 
     if (
-      millis > this.comboMaxIntervalMillis && this.#bits !== this.#prevBits
-      || (this.#heldMillis + millis) > this.comboMaxIntervalMillis
-        && !this.#bits
-    ) { this.#combo.length = 0 }
+      (millis > this.comboMaxIntervalMillis && this.#bits !== this.#prevBits) ||
+      (this.#heldMillis + millis > this.comboMaxIntervalMillis && !this.#bits)
+    ) {
+      this.#combo.length = 0
+    }
 
     if (this.#bits === this.#prevBits) this.#heldMillis += millis
     else this.#heldMillis = millis
@@ -346,9 +351,10 @@ export class Input<Button extends string> {
     if (this.#pointer.primary) {
       const pinchClient = this.#pointer.pinchClient
       const pinchXY = this.#cam.toXY(pinchClient)
-      const dragOn = this.#pointer.primary.drag
-        && !Object.values(this.#pointer.secondary).length
-      const secondary = []
+      const dragOn =
+        this.#pointer.primary.drag &&
+        !Object.values(this.#pointer.secondary).length
+      const secondary: Point[] = []
       for (const pt of Object.values(this.#pointer.secondary)) {
         secondary.push({
           type: pt.type,
@@ -388,10 +394,8 @@ export class Input<Button extends string> {
         local: this.#cam.toXYLocal(this.#pointer.primary.xyClient)
       }
     }
-    else {
-      // secondary should never be set when primary isn't.
-      this.#pointerState = undefined
-    }
+    // secondary should never be set when primary isn't.
+    else this.#pointerState = undefined
 
     this.#wheelState = {
       delta: {
@@ -421,8 +425,8 @@ export class Input<Button extends string> {
 
   /** assign button to bit. */
   #mapButton(btn: Button): number {
-    const bit = this.#bitByButton[btn] ??= 1
-      << Object.keys(this.#bitByButton).length
+    const bit = (this.#bitByButton[btn] ??=
+      1 << Object.keys(this.#bitByButton).length)
     this.#buttonByBit[bit] = btn
     return bit
   }

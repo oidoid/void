@@ -1,4 +1,4 @@
-import type { Millis } from './types/time.ts'
+import type {Millis} from './types/time.ts'
 
 /**
  * requests frames except when hidden. frames are requested even when idle to
@@ -26,14 +26,14 @@ export class Framer {
   }
 
   #onFrame = (millis: Millis): void => {
-    this.age = this.age + millis as Millis
+    this.age = (this.age + millis) as Millis
     this.frame++
     this.#resume() // call before in case onFrame() unregisters.
     this.onFrame?.(millis)
   }
 
   #onVisibility = (ev: Event): void => {
-    if (!globalThis.Deno && !ev.isTrusted) return
+    if (!ev.isTrusted) return
     // ev.preventDefault()
     if (document.hidden) this.#pause()
     else this.#resume()

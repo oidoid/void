@@ -1,0 +1,5 @@
+{
+  // build all references.
+  "files": [],
+  "references": [{"path": "./src"}, {"path": "./src/test"}, {"path": "./tools"}]
+}

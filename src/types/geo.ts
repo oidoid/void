@@ -1,32 +1,32 @@
 export type Box = XY & WH
-export type WH = {w: number, h: number}
-export type XY = {x: number, y: number}
-export type XYZ = {x: number, y: number, z: number}
+export type WH = {w: number; h: number}
+export type XY = {x: number; y: number}
+export type XYZ = {x: number; y: number; z: number}
 
-// to-do: why do I need partial xy lhs
+// to-do: why do I need partial xy l
 export function boxHits(
-  lhs: Readonly<Partial<XY> & WH>,
-  rhs: Readonly<XY & Partial<WH>>
+  l: Readonly<Partial<XY> & WH>,
+  r: Readonly<XY & Partial<WH>>
 ): boolean {
-  const rhsWH = {w: rhs.w ?? 1, h: rhs.h ?? 1} // point? an empty box has no w/h.
-  if (!lhs.w || !lhs.h || !rhsWH.w || !rhsWH.h) return false // noncommutative.
+  const rWH = {w: r.w ?? 1, h: r.h ?? 1} // point? an empty box has no w/h.
+  if (!l.w || !l.h || !rWH.w || !rWH.h) return false // noncommutative.
   return (
-    (lhs.x ?? 0) < rhs.x + rhsWH.w
-    && (lhs.x ?? 0) + lhs.w > rhs.x
-    && (lhs.y ?? 0) < rhs.y + rhsWH.h
-    && (lhs.y ?? 0) + lhs.h > rhs.y
+    (l.x ?? 0) < r.x + rWH.w &&
+    (l.x ?? 0) + l.w > r.x &&
+    (l.y ?? 0) < r.y + rWH.h &&
+    (l.y ?? 0) + l.h > r.y
   )
 }
 
-/** lhs + rhs. */
-export function xyAdd(lhs: Readonly<XY>, rhs: Readonly<XY>): XY {
-  return {x: lhs.x + rhs.x, y: lhs.y + rhs.y}
+/** l + r. */
+export function xyAdd(l: Readonly<XY>, r: Readonly<XY>): XY {
+  return {x: l.x + r.x, y: l.y + r.y}
 }
 
-/** lhs += rhs. */
-export function xyAddTo(lhs: XY, rhs: Readonly<XY>): void {
-  lhs.x += rhs.x
-  lhs.y += rhs.y
+/** l += r. */
+export function xyAddTo(l: XY, r: Readonly<XY>): void {
+  l.x += r.x
+  l.y += r.y
 }
 
 /** nonnegative. */
@@ -34,13 +34,13 @@ export function xyDistance(from: Readonly<XY>, to: Readonly<XY>): number {
   return xyMagnitude(xySub(from, to))
 }
 
-/** lhs / rhs. */
-export function xyDiv(lhs: Readonly<XY>, rhs: Readonly<XY>): XY {
-  return {x: lhs.x / rhs.x, y: lhs.y / rhs.y}
+/** l / r. */
+export function xyDiv(l: Readonly<XY>, r: Readonly<XY>): XY {
+  return {x: l.x / r.x, y: l.y / r.y}
 }
 
-export function xyEq(lhs: Readonly<XY>, rhs: Readonly<XY>): boolean {
-  return lhs.x === rhs.x && lhs.y === rhs.y
+export function xyEq(l: Readonly<XY>, r: Readonly<XY>): boolean {
+  return l.x === r.x && l.y === r.y
 }
 
 /** nonnegative. */
@@ -49,20 +49,20 @@ export function xyMagnitude(xy: Readonly<XY>): number {
 }
 
 /** the greater of each component. */
-export function xyMax(lhs: Readonly<XY>, rhs: Readonly<XY>): XY {
-  return {x: Math.max(lhs.x, rhs.x), y: Math.max(lhs.y, rhs.y)}
+export function xyMax(l: Readonly<XY>, r: Readonly<XY>): XY {
+  return {x: Math.max(l.x, r.x), y: Math.max(l.y, r.y)}
 }
 
 /** the lesser of each component. */
-export function xyMin(lhs: Readonly<XY>, rhs: Readonly<XY>): XY {
-  return {x: Math.min(lhs.x, rhs.x), y: Math.min(lhs.y, rhs.y)}
+export function xyMin(l: Readonly<XY>, r: Readonly<XY>): XY {
+  return {x: Math.min(l.x, r.x), y: Math.min(l.y, r.y)}
 }
 
 export function xyStr(xy: Readonly<XY>): string {
   return `(${xy.x}, ${xy.y})`
 }
 
-/** lhs - rhs. */
-export function xySub(lhs: Readonly<XY>, rhs: Readonly<XY>): XY {
-  return {x: lhs.x - rhs.x, y: lhs.y - rhs.y}
+/** l - r. */
+export function xySub(l: Readonly<XY>, r: Readonly<XY>): XY {
+  return {x: l.x - r.x, y: l.y - r.y}
 }

@@ -19,7 +19,7 @@ export class ContextMenu {
   }
 
   #onContextMenu = (ev: Event): void => {
-    if (!globalThis.Deno && !ev.isTrusted) return
+    if (!ev.isTrusted) return
     if (!this.enable) ev.preventDefault()
   }
 }

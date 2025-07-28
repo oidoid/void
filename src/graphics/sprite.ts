@@ -4,8 +4,8 @@ import {
   celMillis,
   type TagFormat
 } from '../graphics/atlas.ts'
-import { type Box, boxHits, type WH, type XY } from '../types/geo.ts'
-import type { Millis } from '../types/time.ts'
+import {type Box, boxHits, type WH, type XY} from '../types/geo.ts'
+import type {Millis} from '../types/time.ts'
 
 export const drawableBytes: number = 11
 
@@ -37,10 +37,11 @@ export abstract class Drawable implements Box {
   }
 
   above(draw: Readonly<Drawable>): boolean {
-    const compare = this.z === draw.z
-      ? (draw.zend ? draw.y + draw.h : draw.y)
-        - (this.zend ? this.y + this.h : this.y)
-      : this.z - draw.z
+    const compare =
+      this.z === draw.z
+        ? (draw.zend ? draw.y + draw.h : draw.y) -
+          (this.zend ? this.y + this.h : this.y)
+        : this.z - draw.z
     return compare < 0
   }
 
@@ -52,7 +53,7 @@ export abstract class Drawable implements Box {
   /** [0, maxAnimCels]. set to Framer.age % (1000 / maxAnimCels) to start at the beginning. can actually return 2x max cels */
   set cel(cel: number) {
     const iiic_cccc = this.#view.getUint8(this.#offset + 9)
-    this.#view.setUint8(this.#offset + 9, iiic_cccc & ~0x1f | cel & 0x1f)
+    this.#view.setUint8(this.#offset + 9, (iiic_cccc & ~0x1f) | (cel & 0x1f))
   }
 
   /** test if render area overlaps box or sprite render area. */
@@ -67,7 +68,7 @@ export abstract class Drawable implements Box {
 
   set flipX(flip: boolean) {
     const sxyz_llll = this.#view.getUint8(this.#offset + 5)
-    this.#view.setUint8(this.#offset + 5, sxyz_llll & ~0x40 | -flip & 0x40)
+    this.#view.setUint8(this.#offset + 5, (sxyz_llll & ~0x40) | (-flip & 0x40))
   }
 
   get flipY(): boolean {
@@ -77,7 +78,7 @@ export abstract class Drawable implements Box {
 
   set flipY(flip: boolean) {
     const sxyz_llll = this.#view.getUint8(this.#offset + 5)
-    this.#view.setUint8(this.#offset + 5, sxyz_llll & ~0x20 | -flip & 0x20)
+    this.#view.setUint8(this.#offset + 5, (sxyz_llll & ~0x20) | (-flip & 0x20))
   }
 
   get h(): number {
@@ -90,7 +91,7 @@ export abstract class Drawable implements Box {
     const h12_wwww = this.#view.getUint16(this.#offset + 7, true)
     this.#view.setUint16(
       this.#offset + 7,
-      h12_wwww & ~(0xfff << 4) | ((h & 0xfff) << 4),
+      (h12_wwww & ~(0xfff << 4)) | ((h & 0xfff) << 4),
       true
     )
   }
@@ -113,7 +114,7 @@ export abstract class Drawable implements Box {
     const r_i10_c5 = this.#view.getUint16(this.#offset + 9, true)
     this.#view.setUint16(
       this.#offset + 9,
-      r_i10_c5 & ~(0x3ff << 5) | ((id & 0x3ff) << 5),
+      (r_i10_c5 & ~(0x3ff << 5)) | ((id & 0x3ff) << 5),
       true
     )
   }
@@ -130,7 +131,10 @@ export abstract class Drawable implements Box {
   /** wrap texture (default) or stretch to width and height. */
   set stretch(stretch: boolean) {
     const sxyz_llll = this.#view.getUint8(this.#offset + 5)
-    this.#view.setUint8(this.#offset + 5, sxyz_llll & ~0x80 | -stretch & 0x80)
+    this.#view.setUint8(
+      this.#offset + 5,
+      (sxyz_llll & ~0x80) | (-stretch & 0x80)
+    )
   }
 
   get w(): number {
@@ -141,7 +145,11 @@ export abstract class Drawable implements Box {
   /** [0, 4095]. */
   set w(w: number) {
     const hhhh_w12 = this.#view.getUint16(this.#offset + 6, true)
-    this.#view.setUint16(this.#offset + 6, hhhh_w12 & ~0xfff | w & 0xfff, true)
+    this.#view.setUint16(
+      this.#offset + 6,
+      (hhhh_w12 & ~0xfff) | (w & 0xfff),
+      true
+    )
   }
 
   get x(): number {
@@ -154,7 +162,7 @@ export abstract class Drawable implements Box {
     const y12_x20 = this.#view.getUint32(this.#offset + 0, true)
     this.#view.setUint32(
       this.#offset + 0,
-      y12_x20 & ~0xf_ffff | ((x * 8) & 0xf_ffff),
+      (y12_x20 & ~0xf_ffff) | ((x * 8) & 0xf_ffff),
       true
     )
   }
@@ -169,7 +177,7 @@ export abstract class Drawable implements Box {
     const sxyz_llll_y20_xxxx = this.#view.getUint32(this.#offset + 2, true)
     this.#view.setUint32(
       this.#offset + 2,
-      sxyz_llll_y20_xxxx & ~(0xf_ffff << 4) | (((y * 8) & 0xf_ffff) << 4),
+      (sxyz_llll_y20_xxxx & ~(0xf_ffff << 4)) | (((y * 8) & 0xf_ffff) << 4),
       true
     )
   }
@@ -182,7 +190,7 @@ export abstract class Drawable implements Box {
   /** layer [0 (closest), 14 (furthest)]; 15 is hidden. */
   set z(z: number) {
     const sxyz_llll = this.#view.getUint8(this.#offset + 5)
-    this.#view.setUint8(this.#offset + 5, sxyz_llll & ~0xf | z & 0xf)
+    this.#view.setUint8(this.#offset + 5, (sxyz_llll & ~0xf) | (z & 0xf))
   }
 
   get zend(): boolean {
@@ -193,7 +201,7 @@ export abstract class Drawable implements Box {
   /** z-order by top (default) or bottom of box. */
   set zend(end: boolean) {
     const sxyz_llll = this.#view.getUint8(this.#offset + 5)
-    this.#view.setUint8(this.#offset + 5, sxyz_llll & ~0x10 | -end & 0x10)
+    this.#view.setUint8(this.#offset + 5, (sxyz_llll & ~0x10) | (-end & 0x10))
   }
 }
 

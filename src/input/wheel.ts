@@ -1,4 +1,4 @@
-import type { XYZ } from '../types/geo.ts'
+import type {XYZ} from '../types/geo.ts'
 
 export class Wheel {
   deltaClient: Readonly<XYZ> = {x: 0, y: 0, z: 0}
@@ -29,7 +29,7 @@ export class Wheel {
   }
 
   #onInput = (ev: WheelEvent): void => {
-    if (!globalThis.Deno && !ev.isTrusted) return
+    if (!ev.isTrusted) return
     this.invalid = true
     this.deltaClient = {x: ev.deltaX, y: ev.deltaY, z: ev.deltaZ}
     ev.preventDefault() // disable scaling.

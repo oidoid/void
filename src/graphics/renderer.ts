@@ -1,4 +1,4 @@
-import { debug } from '../debug.ts'
+import {debug} from '../debug.ts'
 
 export class Renderer {
   #canvas: HTMLCanvasElement
@@ -37,7 +37,7 @@ export class Renderer {
   }
 
   get #ctx(): WebGL2RenderingContext | undefined {
-    return this.#gl ??= this.#newContext()
+    return (this.#gl ??= this.#newContext())
   }
 
   #newContext(): WebGL2RenderingContext | undefined {

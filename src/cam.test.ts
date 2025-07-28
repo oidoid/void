@@ -1,7 +1,8 @@
-import { assertEquals } from '@std/assert'
-import { Cam } from './cam.ts'
+import assert from 'node:assert/strict'
+import {test} from 'node:test'
+import {Cam} from './cam.ts'
 
-Deno.test('cam', () => {
+test('cam', () => {
   globalThis.devicePixelRatio = 5 // to-do: will I get resize event when this changes?
 
   const cam = new Cam()
@@ -9,28 +10,28 @@ Deno.test('cam', () => {
   cam.minWH = {w: 400, h: 128}
   cam.mode = 'Int'
 
-  assertEquals(cam.scale, 2)
-  assertEquals(cam.w, 406)
-  assertEquals(cam.h, 223)
+  assert.equal(cam.scale, 2)
+  assert.equal(cam.w, 406)
+  assert.equal(cam.h, 223)
 
   const xyClient = {x: 137.40000915527344, y: 48.400001525878906}
-  assertEquals(
-    cam.toXY(xyClient),
-    {x: 343.9235805586467, y: 121.54504469983058}
-  )
-  assertEquals(
-    cam.toXYLocal(xyClient),
-    {x: 343.9235805586467, y: 121.54504469983058}
-  )
+  assert.deepEqual(cam.toXY(xyClient), {
+    x: 343.9235805586467,
+    y: 121.54504469983058
+  })
+  assert.deepEqual(cam.toXYLocal(xyClient), {
+    x: 343.9235805586467,
+    y: 121.54504469983058
+  })
 
   cam.x = 10
   cam.y = 100
-  assertEquals(
-    cam.toXY(xyClient),
-    {x: 353.9235805586467, y: 221.54504469983058}
-  )
-  assertEquals(
-    cam.toXYLocal(xyClient),
-    {x: 343.9235805586467, y: 121.54504469983058}
-  )
+  assert.deepEqual(cam.toXY(xyClient), {
+    x: 353.9235805586467,
+    y: 221.54504469983058
+  })
+  assert.deepEqual(cam.toXYLocal(xyClient), {
+    x: 343.9235805586467,
+    y: 121.54504469983058
+  })
 })

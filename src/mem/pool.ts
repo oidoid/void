@@ -1,7 +1,7 @@
 export type PoolOpts<T extends Block> = {
-  alloc(pool: Pool<T>): T,
-  allocBytes: number,
-  pageBlocks: number,
+  alloc(pool: Pool<T>): T
+  allocBytes: number
+  pageBlocks: number
   maxPages: number
 }
 
@@ -44,10 +44,9 @@ export class Pool<T extends Block> {
         `max capacity (${this.capacity}) must be lesser or equal to ${maxCapacity}`
       )
     }
-    const buffer = new ArrayBuffer(
-      this.stride * opts.pageBlocks,
-      {maxByteLength: this.stride * this.capacity}
-    )
+    const buffer = new ArrayBuffer(this.stride * opts.pageBlocks, {
+      maxByteLength: this.stride * this.capacity
+    })
     this.#u8 = new Uint8Array(buffer)
     this.view = new DataView(buffer)
 

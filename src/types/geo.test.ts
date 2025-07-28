@@ -1,4 +1,5 @@
-import { assertEquals } from '@std/assert'
+import assert from 'node:assert/strict'
+import {test} from 'node:test'
 import {
   boxHits,
   xyAdd,
@@ -13,7 +14,7 @@ import {
   xySub
 } from './geo.ts'
 
-Deno.test('boxHits()', async (test) => {
+test('boxHits()', async ctx => {
   type TestCase = readonly [
     diagram: string,
     lhs: [x: number, y: number, w: number, h: number],
@@ -626,63 +627,69 @@ Deno.test('boxHits()', async (test) => {
   for (const [diagram, lhs, rhs, hits] of cases) {
     const lhsBox = {x: lhs[0], y: lhs[1], w: lhs[2], h: lhs[3]}
     const rhsBox = {x: rhs[0], y: rhs[1], w: rhs[2], h: rhs[3]}
-    await test.step(`hits(lhs, rhs): ${diagram}`, () =>
-      assertEquals(boxHits(lhsBox, rhsBox), hits))
-    await test.step(`hits(rhs, lhs): ${diagram}`, () =>
-      assertEquals(boxHits(rhsBox, lhsBox), hits))
+    ctx.test(`hits(lhs, rhs): ${diagram}`, () =>
+      assert.equal(boxHits(lhsBox, rhsBox), hits)
+    )
+    ctx.test(`hits(rhs, lhs): ${diagram}`, () =>
+      assert.equal(boxHits(rhsBox, lhsBox), hits)
+    )
   }
 
-  await test.step("empty box doesn't hit nonempty box", () =>
-    assertEquals(
+  ctx.test("empty box doesn't hit nonempty box", () =>
+    assert.equal(
       boxHits({x: 0.5, y: 0.5, w: 0, h: 0}, {x: 0, y: 0, w: 1, h: 1}),
       false
-    ))
+    )
+  )
 
-  await test.step("nonempty box doesn't hit empty box", () =>
-    assertEquals(
+  ctx.test("nonempty box doesn't hit empty box", () =>
+    assert.equal(
       boxHits({x: 0, y: 0, w: 1, h: 1}, {x: 0.5, y: 0.5, w: 0, h: 0}),
       false
-    ))
+    )
+  )
 
-  await test.step('box hits point', () =>
-    assertEquals(boxHits({x: 0, y: 0, w: 1, h: 1}, {x: 0.5, y: 0.5}), true))
+  ctx.test('box hits point', () =>
+    assert.equal(boxHits({x: 0, y: 0, w: 1, h: 1}, {x: 0.5, y: 0.5}), true)
+  )
 
-  await test.step("flipped box doesn't hit nonempty box", () =>
-    assertEquals(
+  ctx.test("flipped box doesn't hit nonempty box", () =>
+    assert.equal(
       boxHits({x: 0.5, y: 0.5, w: -1, h: -1}, {x: 0, y: 0, w: 1, h: 1}),
       false
-    ))
+    )
+  )
 })
 
-Deno.test('xyAdd()', () =>
-  assertEquals(xyAdd({x: 1, y: 2}, {x: 3, y: 4}), {x: 4, y: 6}))
+test('xyAdd()', () =>
+  assert.deepEqual(xyAdd({x: 1, y: 2}, {x: 3, y: 4}), {x: 4, y: 6}))
 
-Deno.test('xyAddTo()', () => {
+test('xyAddTo()', () => {
   const xy = {x: 1, y: 2}
   xyAddTo(xy, {x: 3, y: 4})
-  assertEquals(xy, {x: 4, y: 6})
+  assert.deepEqual(xy, {x: 4, y: 6})
 })
 
-Deno.test('xyDistance()', () =>
-  assertEquals(xyDistance({x: 1, y: 2}, {x: 6, y: 14}), 13))
+test('xyDistance()', () =>
+  assert.deepEqual(xyDistance({x: 1, y: 2}, {x: 6, y: 14}), 13))
 
-Deno.test('xyDiv()', () =>
-  assertEquals(xyDiv({x: 1, y: 2}, {x: 3, y: 4}), {x: 1 / 3, y: 2 / 4}))
+test('xyDiv()', () =>
+  assert.deepEqual(xyDiv({x: 1, y: 2}, {x: 3, y: 4}), {x: 1 / 3, y: 2 / 4}))
 
-Deno.test('xyEq()', () => {
-  assertEquals(xyEq({x: 1, y: 2}, {x: 1, y: 2}), true)
-  assertEquals(xyEq({x: 1, y: 2}, {x: 3, y: 4}), false)
+test('xyEq()', () => {
+  assert.deepEqual(xyEq({x: 1, y: 2}, {x: 1, y: 2}), true)
+  assert.deepEqual(xyEq({x: 1, y: 2}, {x: 3, y: 4}), false)
 })
 
-Deno.test('xyMagnitude()', () => assertEquals(xyMagnitude({x: 3, y: 4}), 5))
+test('xyMagnitude()', () => assert.deepEqual(xyMagnitude({x: 3, y: 4}), 5))
 
-Deno.test('xyMax()', () =>
-  assertEquals(xyMax({x: 1, y: 2}, {x: 3, y: 4}), {x: 3, y: 4}))
+test('xyMax()', () =>
+  assert.deepEqual(xyMax({x: 1, y: 2}, {x: 3, y: 4}), {x: 3, y: 4}))
 
-Deno.test('xyMin()', () =>
-  assertEquals(xyMin({x: 1, y: 2}, {x: 3, y: 4}), {x: 1, y: 2}))
+test('xyMin()', () =>
+  assert.deepEqual(xyMin({x: 1, y: 2}, {x: 3, y: 4}), {x: 1, y: 2}))
 
-Deno.test('xyStr()', () => assertEquals(xyStr({x: 1, y: 2}), '(1, 2)'))
+test('xyStr()', () => assert.deepEqual(xyStr({x: 1, y: 2}), '(1, 2)'))
 
-Deno.test('xySub()', () =>
-  assertEquals(xySub({x: 1, y: 2}, {x: 3, y: 4}), {x: -2, y: -2}))
+test('xySub()', () =>
+  assert.deepEqual(xySub({x: 1, y: 2}, {x: 3, y: 4}), {x: -2, y: -2}))

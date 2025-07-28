@@ -1,22 +1,23 @@
-import { assertEquals } from '@std/assert'
-import { Wheel } from './wheel.ts'
-import { WheelTestEvent } from '../test/test-event.ts'
+import assert from 'node:assert/strict'
+import {test} from 'node:test'
+import {WheelTestEvent} from '../test/test-event.ts'
+import {Wheel} from './wheel.ts'
 
-Deno.test('Wheel', async (test) => {
+test('Wheel', async ctx => {
   const target = new EventTarget()
   using wheel = new Wheel(target).register('add')
 
-  await test.step('init', () => {
-    assertEquals(wheel.deltaClient, {x: 0, y: 0, z: 0})
-  })
+  ctx.test('init', () =>
+    assert.deepEqual(wheel.deltaClient, {x: 0, y: 0, z: 0})
+  )
 
-  await test.step('event', () => {
+  ctx.test('event', () => {
     target.dispatchEvent(WheelTestEvent({deltaX: 1, deltaY: 2, deltaZ: 3}))
-    assertEquals(wheel.deltaClient, {x: 1, y: 2, z: 3})
+    assert.deepEqual(wheel.deltaClient, {x: 1, y: 2, z: 3})
   })
 
-  await test.step('postupdate', () => {
+  ctx.test('postupdate', () => {
     wheel.postupdate()
-    assertEquals(wheel.deltaClient, {x: 0, y: 0, z: 0})
+    assert.deepEqual(wheel.deltaClient, {x: 0, y: 0, z: 0})
   })
 })
