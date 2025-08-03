@@ -11,6 +11,7 @@ const watch = process.argv.includes('--watch')
 const opts: BuildOptions = {
   bundle: true,
   format: 'esm',
+  loader: {'.html': 'copy'},
   logLevel: 'info', // print the port and build demarcations.
   metafile: true,
   outbase: 'src', // strip the src/ prefix from the outputs.
@@ -19,11 +20,6 @@ const opts: BuildOptions = {
   target: 'es2024' // https://esbuild.github.io/content-types/#tsconfig-json
 }
 
-const cpOpts: BuildOptions = {
-  ...opts,
-  entryPoints: ['src/demo/demo.html'],
-  loader: {'.html': 'copy'}
-}
 const demoOpts: BuildOptions = {
   ...opts,
   banner: watch
@@ -31,24 +27,17 @@ const demoOpts: BuildOptions = {
         js: "new EventSource('/esbuild').addEventListener('change', () => location.reload());"
       }
     : {},
-  entryPoints: ['src/demo/demo.ts'],
+  entryPoints: ['src/demo/demo.html', 'src/demo/demo.ts'],
   write: !watch
 }
 const voidOpts: BuildOptions = {...opts, entryPoints: ['src/void.ts']}
 
 if (watch) {
-  const cpCtx = await esbuild.context(cpOpts)
   const demoCtx = await esbuild.context(demoOpts)
   const voidCtx = await esbuild.context(voidOpts)
   await Promise.all([
-    cpCtx.watch(),
     demoCtx.watch(),
     voidCtx.watch(),
     demoCtx.serve({port: 1234, servedir: '.'})
   ])
-} else
-  await Promise.all([
-    esbuild.build(cpOpts),
-    esbuild.build(demoOpts),
-    esbuild.build(voidOpts)
-  ])
+} else await Promise.all([esbuild.build(demoOpts), esbuild.build(voidOpts)])
