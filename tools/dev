@@ -1,1 +1,0 @@
-#!/usr/bin/env -S deno --quiet run --allow-env --allow-net --allow-read --allow-run --allow-write --ext ts
