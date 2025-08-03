@@ -7,6 +7,7 @@ import {TestEvent} from './test/test-event.ts'
 describe('Framer', () => {
   const doc = Object.assign(new EventTarget(), {hidden: false})
   let onFrame: ((millis: number) => void) | undefined
+  const now = performance.now
   beforeEach(() => {
     globalThis.document = doc as Document
     globalThis.cancelAnimationFrame = () => (onFrame = undefined)
@@ -14,11 +15,13 @@ describe('Framer', () => {
       onFrame = cb
       return 0
     }
+    performance.now = () => 0
   })
   afterEach(() => {
     delete (globalThis as {[_: string]: unknown}).document
     delete (globalThis as {[_: string]: unknown}).cancelAnimationFrame
     delete (globalThis as {[_: string]: unknown}).requestAnimationFrame
+    performance.now = now
   })
   using framer = new Framer()
   let frame = 0

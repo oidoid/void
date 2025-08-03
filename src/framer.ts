@@ -9,9 +9,10 @@ export class Framer {
   age: Millis = 0 as Millis
   /** frames rendered. */
   frame: number = 0
-  /** only millis since frame request not since last frame. */
+  /** update input, update canvas, update cam, update world, then render. */
   onFrame: ((millis: Millis) => void) | undefined
   #req: number = 0
+  #prevFrame: Millis = 0 as Millis
 
   register(op: 'add' | 'remove'): this {
     const fn = `${op}EventListener` as const
@@ -25,7 +26,9 @@ export class Framer {
     this.register('remove')
   }
 
-  #onFrame = (millis: Millis): void => {
+  #onFrame = (prev: Millis): void => {
+    const millis = (prev - this.#prevFrame) as Millis
+    this.#prevFrame = prev
     this.age = (this.age + millis) as Millis
     this.frame++
     this.#resume() // call before in case onFrame() unregisters.
@@ -44,6 +47,7 @@ export class Framer {
   }
 
   #resume(): void {
+    this.#prevFrame = performance.now() as Millis
     this.#req = requestAnimationFrame(this.#onFrame as FrameRequestCallback)
   }
 }
