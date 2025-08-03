@@ -17,6 +17,7 @@ test('init', async ctx => {
   using input = DefaultInput(DefaultCam(), target).register('add')
 
   ctx.test('no update', () => {
+    assert.deepEqual(input.on, [])
     assert.equal(input.handled, false)
     assert.equal(input.invalid, false)
     assert.equal(input.gestured, false)
@@ -31,6 +32,7 @@ test('init', async ctx => {
   ctx.test('no change after update', () => {
     input.update(16)
 
+    assert.deepEqual(input.on, [])
     assert.equal(input.handled, false)
     assert.equal(input.invalid, false)
     assert.equal(input.gestured, false)
@@ -49,6 +51,7 @@ test('held off', () => {
 
   input.update(input.comboMaxIntervalMillis + 1)
 
+  assert.deepEqual(input.on, [])
   assert.equal(input.invalid, false)
   assert.equal(input.gestured, false)
   assert.equal(input.held, true)
@@ -65,6 +68,7 @@ test('pressed buttons', async ctx => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
     input.update(16)
 
+    assert.deepEqual(input.on, ['U'])
     assert.equal(input.invalid, true)
     assert.equal(input.gestured, true)
     assert.equal(input.held, false)
@@ -84,6 +88,7 @@ test('pressed buttons', async ctx => {
   ctx.test('pressed are triggered for one frame only', () => {
     input.update(16)
 
+    assert.deepEqual(input.on, ['U'])
     assert.equal(input.invalid, false)
     assert.equal(input.gestured, true)
     assert.equal(input.held, false)
@@ -97,6 +102,7 @@ test('pressed buttons', async ctx => {
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowUp'}))
     input.update(16)
 
+    assert.deepEqual(input.on, [])
     assert.equal(input.invalid, true)
     assert.equal(input.gestured, true)
     assert.equal(input.held, false)
@@ -110,6 +116,7 @@ test('pressed buttons', async ctx => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
     input.update(input.minHeldMillis)
 
+    assert.deepEqual(input.on, ['U'])
     assert.equal(input.invalid, true)
     assert.equal(input.gestured, true)
     assert.equal(input.held, true)
@@ -125,6 +132,7 @@ test('pressed buttons', async ctx => {
     () => {
       input.update(input.comboMaxIntervalMillis + 1)
 
+      assert.deepEqual(input.on, ['U'])
       assert.equal(input.invalid, false)
       assert.equal(input.gestured, true)
       assert.equal(input.held, true)
@@ -142,6 +150,7 @@ test('pressed buttons', async ctx => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
     input.update(16)
 
+    assert.deepEqual(input.on, ['U'])
     assert.equal(input.invalid, true)
     assert.equal(input.gestured, true)
     assert.equal(input.held, false)
@@ -163,6 +172,7 @@ test('combos require gaps between presses', async ctx => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
     input.update(16)
 
+    assert.deepEqual(input.on, ['U'])
     assert.equal(input.invalid, true)
     assert.equal(input.gestured, true)
     assert.equal(input.held, false)
@@ -180,6 +190,7 @@ test('combos require gaps between presses', async ctx => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowDown'}))
     input.update(16)
 
+    assert.deepEqual(input.on, ['D'])
     assert.equal(input.invalid, true)
     assert.equal(input.gestured, true)
     assert.equal(input.held, false)
@@ -196,6 +207,7 @@ test('combos require gaps between presses', async ctx => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
     input.update(16)
 
+    assert.deepEqual(input.on, ['U'])
     assert.equal(input.invalid, true)
     assert.equal(input.gestured, true)
     assert.equal(input.held, false)
@@ -255,6 +267,7 @@ test('Up, Up, Down, Down, Left', async ctx => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
     input.update(16)
 
+    assert.deepEqual(input.on, ['U'])
     assert.equal(input.invalid, true)
     assert.equal(input.gestured, true)
     assert.equal(input.held, false)
@@ -275,6 +288,7 @@ test('Up, Up, Down, Down, Left', async ctx => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
     input.update(16)
 
+    assert.deepEqual(input.on, ['U'])
     assert.equal(input.invalid, true)
     assert.equal(input.gestured, true)
     assert.equal(input.held, false)
@@ -295,6 +309,7 @@ test('Up, Up, Down, Down, Left', async ctx => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowDown'}))
     input.update(16)
 
+    assert.deepEqual(input.on, ['D'])
     assert.equal(input.invalid, true)
     assert.equal(input.gestured, true)
     assert.equal(input.held, false)
@@ -315,6 +330,7 @@ test('Up, Up, Down, Down, Left', async ctx => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowDown'}))
     input.update(16)
 
+    assert.deepEqual(input.on, ['D'])
     assert.equal(input.invalid, true)
     assert.equal(input.gestured, true)
     assert.equal(input.held, false)
@@ -335,6 +351,7 @@ test('Up, Up, Down, Down, Left', async ctx => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowLeft'}))
     input.update(16)
 
+    assert.deepEqual(input.on, ['L'])
     assert.equal(input.invalid, true)
     assert.equal(input.gestured, true)
     assert.equal(input.held, false)
@@ -362,6 +379,7 @@ test('held combos stay active past expiry', async ctx => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
     input.update(16)
 
+    assert.deepEqual(input.on, ['U'])
     assert.equal(input.invalid, true)
     assert.equal(input.gestured, true)
     assert.equal(input.held, false)
@@ -374,6 +392,7 @@ test('held combos stay active past expiry', async ctx => {
   ctx.test('held', () => {
     input.update(input.comboMaxIntervalMillis + 1)
 
+    assert.deepEqual(input.on, ['U'])
     assert.equal(input.invalid, false)
     assert.equal(input.gestured, true)
     assert.equal(input.held, true)
@@ -393,6 +412,7 @@ test('combo sequences can have multiple buttons', async ctx => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowLeft'}))
     input.update(16)
 
+    assert.deepEqual(input.on, ['L', 'U'])
     assert.equal(input.invalid, true)
     assert.equal(input.gestured, true)
     assert.equal(input.held, false)
@@ -409,10 +429,7 @@ test('combo sequences can have multiple buttons', async ctx => {
     assertCombo(input, [['D', 'R']], 'Unequal')
     assertCombo(
       input,
-      [
-        ['U', 'L'],
-        ['D', 'R']
-      ],
+      [['U', 'L'], ['D', 'R']], // biome-ignore format:;
       'Unequal'
     )
   })
@@ -425,6 +442,7 @@ test('combo sequences can have multiple buttons', async ctx => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowRight'}))
     input.update(16)
 
+    assert.deepEqual(input.on, ['D', 'R'])
     assert.equal(input.invalid, true)
     assert.equal(input.gestured, true)
     assert.equal(input.held, false)
@@ -441,10 +459,7 @@ test('combo sequences can have multiple buttons', async ctx => {
     assertCombo(input, [['D', 'R']], 'EndsWith', 'Start')
     assertCombo(
       input,
-      [
-        ['U', 'L'],
-        ['D', 'R']
-      ],
+      [['U', 'L'], ['D', 'R']], // biome-ignore format:;
       'Equal',
       'Start'
     )
@@ -465,6 +480,7 @@ test('handled', () => {
 
   input.handled = true
 
+  assert.deepEqual(input.on, [])
   assert.equal(input.invalid, false)
   assert.equal(input.gestured, false)
   assert.equal(input.held, false)
@@ -485,6 +501,7 @@ test('handled', () => {
   target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
   input.update(input.minHeldMillis)
 
+  assert.deepEqual(input.on, ['U'])
   assert.equal(input.invalid, true)
   assert.equal(input.gestured, true)
   assert.equal(input.held, true)
