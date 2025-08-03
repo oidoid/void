@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import {test} from 'node:test'
-import type {Millis} from '../types/time.ts'
+import type {OriginMillis} from '../types/time.ts'
 import {type Anim, type Atlas, celMillis, maxAnimCels} from './atlas.ts'
 import {maxLayer} from './layer.ts'
 import {Drawable, drawableBytes, Sprite} from './sprite.ts'
@@ -376,13 +376,13 @@ test('zend', () => {
 })
 
 test('anim', () => {
-  const sprite = new Sprite(TestView(), 0, atlas, {age: 0 as Millis})
+  const sprite = new Sprite(TestView(), 0, atlas, {age: 0 as OriginMillis})
   sprite.tag = 'stem--AnimA'
   assert.equal(sprite.anim, animA)
 })
 
 test('hitbox', () => {
-  const sprite = new Sprite(TestView(), 0, atlas, {age: 0 as Millis})
+  const sprite = new Sprite(TestView(), 0, atlas, {age: 0 as OriginMillis})
   sprite.tag = 'stem--AnimA'
   assert.deepEqual(sprite.hitbox, {x: 1, y: 2, w: 3, h: 4})
   sprite.flipX = true
@@ -396,14 +396,14 @@ test('hitbox', () => {
 })
 
 test('hits', () => {
-  const sprite = new Sprite(TestView(), 0, atlas, {age: 0 as Millis})
+  const sprite = new Sprite(TestView(), 0, atlas, {age: 0 as OriginMillis})
   sprite.tag = 'stem--AnimA'
   assert.equal(sprite.hits({x: 1, y: 2}), true)
   assert.equal(sprite.hits({x: 4, y: 6}), false)
 })
 
 test('hurtbox', () => {
-  const sprite = new Sprite(TestView(), 0, atlas, {age: 0 as Millis})
+  const sprite = new Sprite(TestView(), 0, atlas, {age: 0 as OriginMillis})
   sprite.tag = 'stem--AnimA'
   assert.deepEqual(sprite.hurtbox, {x: 1, y: 2, w: 3, h: 4})
   sprite.flipX = true
@@ -413,56 +413,56 @@ test('hurtbox', () => {
 })
 
 test('looped', () => {
-  const framer = {age: 0 as Millis}
+  const framer = {age: 0 as OriginMillis}
   const sprite = new Sprite(TestView(), 0, atlas, framer)
 
   sprite.tag = 'stem--AnimA'
   for (let i = 0; i < maxAnimCels * 5; i++) {
-    framer.age = (celMillis * i) as Millis
+    framer.age = (celMillis * i) as OriginMillis
     assert.equal(sprite.looped, i % (animA.cels * 2) >= animA.cels, `${i}`)
   }
 
-  framer.age = 0 as Millis
+  framer.age = 0 as OriginMillis
   sprite.tag = 'stem--AnimB'
   for (let i = 0; i < maxAnimCels * 5; i++) {
-    framer.age = (celMillis * i) as Millis
+    framer.age = (celMillis * i) as OriginMillis
     assert.equal(sprite.looped, i % (animB.cels * 2) >= animB.cels, `${i}`)
   }
 
-  framer.age = (celMillis * (maxAnimCels + 0)) as Millis
+  framer.age = (celMillis * (maxAnimCels + 0)) as OriginMillis
   sprite.tag = 'stem--AnimB'
   assert.equal(sprite.looped, false)
 
   for (let i = 0; i < maxAnimCels - 1; i++) {
-    framer.age = (celMillis * (maxAnimCels + i)) as Millis
+    framer.age = (celMillis * (maxAnimCels + i)) as OriginMillis
     assert.equal(sprite.looped, false, `${i}`)
   }
 
-  framer.age = (celMillis * (maxAnimCels + maxAnimCels)) as Millis
+  framer.age = (celMillis * (maxAnimCels + maxAnimCels)) as OriginMillis
   assert.equal(sprite.looped, true)
 })
 
 test('reset()', () => {
-  const framer = {age: 0 as Millis}
+  const framer = {age: 0 as OriginMillis}
   const sprite = new Sprite(TestView(), 0, atlas, framer)
   sprite.tag = 'stem--AnimA'
 
   for (let i = 0; i < maxAnimCels * 5; i++) {
-    framer.age = (celMillis * i) as Millis
+    framer.age = (celMillis * i) as OriginMillis
     sprite.reset()
     assert.equal(sprite.cel, i % (2 * sprite.anim.cels), `${i}`)
   }
 })
 
 test('tag', () => {
-  const framer = {age: 0 as Millis}
+  const framer = {age: 0 as OriginMillis}
   const sprite = new Sprite(TestView(), 0, atlas, framer)
   sprite.tag = 'stem--AnimA'
   assert.equal(sprite.w, 10)
   assert.equal(sprite.h, 20)
   assert.equal(sprite.id, 0)
   assert.equal(sprite.cel, 0)
-  framer.age = (celMillis * 1) as Millis
+  framer.age = (celMillis * 1) as OriginMillis
   sprite.tag = 'stem--AnimB'
   assert.equal(sprite.w, 30)
   assert.equal(sprite.h, 40)
@@ -471,7 +471,7 @@ test('tag', () => {
 })
 
 test('toString()', () => {
-  const sprite = new Sprite(TestView(), 0, atlas, {age: 0 as Millis})
+  const sprite = new Sprite(TestView(), 0, atlas, {age: 0 as OriginMillis})
   sprite.tag = 'stem--AnimA'
   assert.equal(sprite.toString(), 'Sprite{stem--AnimA (0 0 0) 10×20}')
   sprite.tag = 'stem--AnimB'

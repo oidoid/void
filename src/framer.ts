@@ -1,18 +1,17 @@
-import type {Millis} from './types/time.ts'
+import type {Millis, OriginMillis} from './types/time.ts'
 
 /**
  * requests frames except when hidden. frames are requested even when idle to
  * poll gamepads.
  */
 export class Framer {
-  /** milliseconds rendered. */
-  age: Millis = 0 as Millis
+  age: OriginMillis = 0 as OriginMillis
   /** frames rendered. */
   frame: number = 0
   /** update input, update canvas, update cam, update world, then render. */
   onFrame: ((millis: Millis) => void) | undefined
   #req: number = 0
-  #prevFrame: Millis = 0 as Millis
+  #prevFrame: OriginMillis = 0 as OriginMillis
 
   register(op: 'add' | 'remove'): this {
     const fn = `${op}EventListener` as const
@@ -26,10 +25,10 @@ export class Framer {
     this.register('remove')
   }
 
-  #onFrame = (prev: Millis): void => {
+  #onFrame = (prev: OriginMillis): void => {
     const millis = (prev - this.#prevFrame) as Millis
     this.#prevFrame = prev
-    this.age = (this.age + millis) as Millis
+    this.age = (this.age + millis) as OriginMillis
     this.frame++
     this.#resume() // call before in case onFrame() unregisters.
     this.onFrame?.(millis)
@@ -47,7 +46,7 @@ export class Framer {
   }
 
   #resume(): void {
-    this.#prevFrame = performance.now() as Millis
+    this.#prevFrame = performance.now() as OriginMillis
     this.#req = requestAnimationFrame(this.#onFrame as FrameRequestCallback)
   }
 }

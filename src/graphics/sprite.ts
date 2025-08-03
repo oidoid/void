@@ -5,7 +5,7 @@ import {
   type TagFormat
 } from '../graphics/atlas.ts'
 import {type Box, boxHits, type WH, type XY} from '../types/geo.ts'
-import type {Millis} from '../types/time.ts'
+import type {OriginMillis} from '../types/time.ts'
 
 export const drawableBytes: number = 11
 
@@ -207,13 +207,13 @@ export abstract class Drawable implements Box {
 
 export class Sprite<T extends TagFormat> extends Drawable {
   readonly #atlas: Readonly<Atlas<T>>
-  readonly #framer: {readonly age: Millis}
+  readonly #framer: {readonly age: OriginMillis}
 
   constructor(
     view: DataView,
     i: number,
     atlas: Readonly<Atlas<T>>,
-    framer: {readonly age: Millis}
+    framer: {readonly age: OriginMillis}
   ) {
     super(view, i)
     this.#atlas = atlas

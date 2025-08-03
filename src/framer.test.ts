@@ -3,10 +3,11 @@ import {afterEach, beforeEach, describe, test} from 'node:test'
 
 import {Framer} from './framer.ts'
 import {TestEvent} from './test/test-event.ts'
+import type {Millis} from './types/time.ts'
 
 describe('Framer', () => {
   const doc = Object.assign(new EventTarget(), {hidden: false})
-  let onFrame: ((millis: number) => void) | undefined
+  let onFrame: ((millis: Millis) => void) | undefined
   const now = performance.now
   beforeEach(() => {
     globalThis.document = doc as Document
@@ -37,15 +38,15 @@ describe('Framer', () => {
   })
 
   test('onFrame', () => {
-    onFrame!(10)
+    onFrame!(10 as Millis)
     assert.equal(frame, 1)
     assert.equal(framer.frame, 1)
     assert.equal(framer.age, 10)
-    onFrame!(10)
+    onFrame!(10 as Millis)
     assert.equal(frame, 2)
     assert.equal(framer.frame, 2)
     assert.equal(framer.age, 20)
-    onFrame!(10)
+    onFrame!(10 as Millis)
     assert.equal(frame, 3)
     assert.equal(framer.frame, 3)
     assert.equal(framer.age, 30)
@@ -60,7 +61,7 @@ describe('Framer', () => {
   test('shown', () => {
     doc.hidden = false
     doc.dispatchEvent(TestEvent('visibilitychange'))
-    onFrame!(10)
+    onFrame!(10 as Millis)
     assert.equal(frame, 4)
     assert.equal(framer.frame, 4)
     assert.equal(framer.age, 40)

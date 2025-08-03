@@ -1,5 +1,6 @@
 import type {Cam, LevelClientLocalXY} from '../cam.ts'
 import type {XY, XYZ} from '../types/geo.ts'
+import type {Millis} from '../types/time.ts'
 import {ContextMenu} from './context-menu.ts'
 import {Gamepad} from './gamepad.ts'
 import {Keyboard} from './keyboard.ts'
@@ -106,7 +107,7 @@ export function DefaultInput<Button extends DefaultButton>(
  */
 export class Input<Button extends string> {
   /** time allowed between combo inputs. */
-  comboMaxIntervalMillis: number = 300
+  comboMaxIntervalMillis: Millis = 300 as Millis
   /**
    * true if any button, key, or click was _ever_ on. doesn't consider handled.
    */
@@ -120,7 +121,7 @@ export class Input<Button extends string> {
    * calculated at frame boundaries, not on actual press. devices are treated
    * strictly as polled aggregates.
    */
-  minHeldMillis: number = 300
+  minHeldMillis: Millis = 300 as Millis
   readonly #bitByButton: {[btn in Button]?: number} = {}
   readonly #buttonByBit: {[bit: number]: Button} = {}
   #bits: number = 0
@@ -133,7 +134,7 @@ export class Input<Button extends string> {
   readonly #contextMenu: ContextMenu
   readonly #gamepad: Gamepad = new Gamepad()
   /** time since buttons changed. */
-  #heldMillis: number = 0
+  #heldMillis: Millis = 0 as Millis
   readonly #keyboard: Keyboard
   readonly #pointer: Pointer
   #pointerState: PointerState | undefined
@@ -308,7 +309,7 @@ export class Input<Button extends string> {
     this.#bits = 0
     this.#prevBits = 0
     this.handled = false
-    this.#heldMillis = 0
+    this.#heldMillis = 0 as Millis
     this.#combo.length = 0
     this.#gamepad.reset()
     this.#keyboard.reset()
@@ -328,7 +329,7 @@ export class Input<Button extends string> {
    * update.
    * @arg millis time since last update.
    */
-  update(millis: number): void {
+  update(millis: Millis): void {
     this.handled = false
     this.#gamepad.update()
     this.#pointer.update()
@@ -350,7 +351,8 @@ export class Input<Button extends string> {
     )
       this.#combo.length = 0
 
-    if (this.#bits === this.#prevBits) this.#heldMillis += millis
+    if (this.#bits === this.#prevBits)
+      this.#heldMillis = (this.#heldMillis + millis) as Millis
     else this.#heldMillis = millis
 
     if (this.#bits && this.#bits !== this.#prevBits) {

@@ -1,9 +1,10 @@
 import type {Box} from '../types/geo.ts'
+import type {Millis} from '../types/time.ts'
 
 /** every animation is padded to 16 cels as needed by repeating the sequence. */
 export const maxAnimCels: number = 16
 export const maxAnimMillis: number = 1000
-export const celMillis: number = maxAnimMillis / maxAnimCels
+export const celMillis: Millis = (maxAnimMillis / maxAnimCels) as Millis
 
 export type Atlas<T extends TagFormat> = {
   anim: AnimByTag<T>

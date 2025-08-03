@@ -7,6 +7,7 @@ import {
   PointerTestEvent,
   WheelTestEvent
 } from '../test/test-event.ts'
+import type {Millis} from '../types/time.ts'
 import {type Combo, type DefaultButton, DefaultInput} from './input.ts'
 
 globalThis.devicePixelRatio = 1
@@ -30,7 +31,7 @@ test('init', async ctx => {
   })
 
   ctx.test('no change after update', () => {
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.on, [])
     assert.equal(input.handled, false)
@@ -49,7 +50,7 @@ test('held off', () => {
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
-  input.update(input.comboMaxIntervalMillis + 1)
+  input.update((input.comboMaxIntervalMillis + 1) as Millis)
 
   assert.deepEqual(input.on, [])
   assert.equal(input.invalid, false)
@@ -66,7 +67,7 @@ test('pressed buttons', async ctx => {
 
   ctx.test('pressed are active and triggered', () => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.on, ['U'])
     assert.equal(input.invalid, true)
@@ -86,7 +87,7 @@ test('pressed buttons', async ctx => {
   })
 
   ctx.test('pressed are triggered for one frame only', () => {
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.on, ['U'])
     assert.equal(input.invalid, false)
@@ -100,7 +101,7 @@ test('pressed buttons', async ctx => {
 
   ctx.test('released are off and triggered', () => {
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowUp'}))
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.on, [])
     assert.equal(input.invalid, true)
@@ -130,7 +131,7 @@ test('pressed buttons', async ctx => {
   ctx.test(
     'expired allow current combo to stay on but discontinue next',
     () => {
-      input.update(input.comboMaxIntervalMillis + 1)
+      input.update((input.comboMaxIntervalMillis + 1) as Millis)
 
       assert.deepEqual(input.on, ['U'])
       assert.equal(input.invalid, false)
@@ -146,9 +147,9 @@ test('pressed buttons', async ctx => {
 
   ctx.test('expired start new combo', () => {
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowUp'}))
-    input.update(16)
+    input.update(16 as Millis)
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.on, ['U'])
     assert.equal(input.invalid, true)
@@ -170,7 +171,7 @@ test('combos require gaps between presses', async ctx => {
 
   ctx.test('Up', () => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.on, ['U'])
     assert.equal(input.invalid, true)
@@ -186,9 +187,9 @@ test('combos require gaps between presses', async ctx => {
 
   ctx.test('Up, Down', () => {
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowUp'}))
-    input.update(16)
+    input.update(16 as Millis)
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowDown'}))
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.on, ['D'])
     assert.equal(input.invalid, true)
@@ -205,7 +206,7 @@ test('combos require gaps between presses', async ctx => {
   ctx.test('Up, Down, Up', () => {
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowDown'}))
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.on, ['U'])
     assert.equal(input.invalid, true)
@@ -235,10 +236,10 @@ test('around-the-world combo', () => {
     ['ArrowUp', 'ArrowLeft']
   ]
   for (const set of sets) {
-    input.update(16)
+    input.update(16 as Millis)
     for (const code of set)
       target.dispatchEvent(KeyTestEvent('keydown', {code}))
-    input.update(16)
+    input.update(16 as Millis)
     for (const code of set) target.dispatchEvent(KeyTestEvent('keyup', {code}))
   }
 
@@ -265,7 +266,7 @@ test('Up, Up, Down, Down, Left', async ctx => {
 
   ctx.test('Up', () => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.on, ['U'])
     assert.equal(input.invalid, true)
@@ -284,9 +285,9 @@ test('Up, Up, Down, Down, Left', async ctx => {
 
   ctx.test('Up, Up', () => {
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowUp'}))
-    input.update(16)
+    input.update(16 as Millis)
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.on, ['U'])
     assert.equal(input.invalid, true)
@@ -305,9 +306,9 @@ test('Up, Up, Down, Down, Left', async ctx => {
 
   ctx.test('Up, Up, Down', () => {
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowUp'}))
-    input.update(16)
+    input.update(16 as Millis)
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowDown'}))
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.on, ['D'])
     assert.equal(input.invalid, true)
@@ -326,9 +327,9 @@ test('Up, Up, Down, Down, Left', async ctx => {
 
   ctx.test('Up, Up, Down, Down', () => {
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowDown'}))
-    input.update(16)
+    input.update(16 as Millis)
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowDown'}))
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.on, ['D'])
     assert.equal(input.invalid, true)
@@ -347,9 +348,9 @@ test('Up, Up, Down, Down, Left', async ctx => {
 
   ctx.test('Up, Up, Down, Down, Left', () => {
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowDown'}))
-    input.update(16)
+    input.update(16 as Millis)
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowLeft'}))
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.on, ['L'])
     assert.equal(input.invalid, true)
@@ -373,11 +374,11 @@ test('held combos stay active past expiry', async ctx => {
 
   ctx.test('Up, Up', () => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
-    input.update(16)
+    input.update(16 as Millis)
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowUp'}))
-    input.update(16)
+    input.update(16 as Millis)
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.on, ['U'])
     assert.equal(input.invalid, true)
@@ -390,7 +391,7 @@ test('held combos stay active past expiry', async ctx => {
   })
 
   ctx.test('held', () => {
-    input.update(input.comboMaxIntervalMillis + 1)
+    input.update((input.comboMaxIntervalMillis + 1) as Millis)
 
     assert.deepEqual(input.on, ['U'])
     assert.equal(input.invalid, false)
@@ -410,7 +411,7 @@ test('combo sequences can have multiple buttons', async ctx => {
   ctx.test('Up Left', () => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowLeft'}))
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.on, ['L', 'U'])
     assert.equal(input.invalid, true)
@@ -437,10 +438,10 @@ test('combo sequences can have multiple buttons', async ctx => {
   ctx.test('Up Left, Down Right', () => {
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowUp'}))
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowLeft'}))
-    input.update(16)
+    input.update(16 as Millis)
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowDown'}))
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowRight'}))
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.on, ['D', 'R'])
     assert.equal(input.invalid, true)
@@ -535,7 +536,7 @@ test('isAny', () => {
   using input = DefaultInput(DefaultCam(), target).register('add')
 
   target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
-  input.update(16)
+  input.update(16 as Millis)
 
   assert.equal(input.started, true)
 
@@ -559,18 +560,18 @@ test('isStart', () => {
   assert.equal(input.started, false)
 
   target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
-  input.update(16)
+  input.update(16 as Millis)
 
   assert.equal(input.started, true)
 
-  input.update(16)
+  input.update(16 as Millis)
   assert.equal(input.started, false)
 
   target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowUp'}))
-  input.update(16)
+  input.update(16 as Millis)
 
   assert.equal(input.started, true)
-  input.update(16)
+  input.update(16 as Millis)
 
   assert.equal(input.started, false)
 })
@@ -586,7 +587,7 @@ test('pointer movements update position', async ctx => {
         offsetY: 2
       })
     )
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.point?.client, {x: 1, y: 2})
     assert.deepEqual(input.point?.type, 'Mouse')
@@ -594,7 +595,7 @@ test('pointer movements update position', async ctx => {
   })
 
   ctx.test('and position is not lost on update', () => {
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.point?.client, {x: 1, y: 2})
     assert.deepEqual(input.point?.type, 'Mouse')
@@ -609,7 +610,7 @@ test('pointer clicks are buttons', () => {
   target.dispatchEvent(
     PointerTestEvent('pointerdown', {buttons: 1, offsetX: 1, offsetY: 2})
   )
-  input.update(16)
+  input.update(16 as Millis)
 
   assertButton(input, 'Click', 'On', 'Start')
   assertCombo(input, [['Click']], 'Equal', 'Start')
@@ -623,7 +624,7 @@ test('pointer secondary clicks are buttons', () => {
   target.dispatchEvent(
     PointerTestEvent('pointerdown', {buttons: 2, offsetX: 1, offsetY: 2})
   )
-  input.update(16)
+  input.update(16 as Millis)
 
   assertButton(input, 'Click2', 'On', 'Start')
   assertCombo(input, [['Click2']], 'Equal', 'Start')
@@ -646,7 +647,7 @@ test('a pointer click can become a drag', async ctx => {
     target.dispatchEvent(
       PointerTestEvent('pointerdown', {buttons: 1, offsetX: 1, offsetY: 2})
     )
-    input.update(16)
+    input.update(16 as Millis)
 
     assertButton(input, 'Click', 'On', 'Start')
     assertCombo(input, [['Click']], 'Equal', 'Start')
@@ -661,7 +662,7 @@ test('a pointer click can become a drag', async ctx => {
     target.dispatchEvent(
       PointerTestEvent('pointermove', {buttons: 1, offsetX: 6, offsetY: 2})
     )
-    input.update(16)
+    input.update(16 as Millis)
 
     assertButton(input, 'Click', 'On')
     assertCombo(input, [['Click']], 'Equal')
@@ -673,7 +674,7 @@ test('a pointer click can become a drag', async ctx => {
   })
 
   ctx.test('pause', () => {
-    input.update(16)
+    input.update(16 as Millis)
 
     assertButton(input, 'Click', 'On')
     assertCombo(input, [['Click']], 'Equal')
@@ -688,7 +689,7 @@ test('a pointer click can become a drag', async ctx => {
     target.dispatchEvent(
       PointerTestEvent('pointermove', {buttons: 1, offsetX: 16, offsetY: 12})
     )
-    input.update(16)
+    input.update(16 as Millis)
 
     assertButton(input, 'Click', 'On')
     assertCombo(input, [['Click']], 'Equal')
@@ -701,7 +702,7 @@ test('a pointer click can become a drag', async ctx => {
 
   ctx.test('release', () => {
     target.dispatchEvent(PointerTestEvent('pointerup', {}))
-    input.update(16)
+    input.update(16 as Millis)
 
     assertButton(input, 'Click', 'Off', 'Start')
     assertCombo(input, [['Click']], 'Equal')
@@ -713,7 +714,7 @@ test('a pointer click can become a drag', async ctx => {
   })
 
   ctx.test('pause again', () => {
-    input.update(16)
+    input.update(16 as Millis)
 
     assertButton(input, 'Click', 'Off')
     assertCombo(input, [['Click']], 'Equal')
@@ -743,7 +744,7 @@ test('a pointer click can become a drag or a pinch', async ctx => {
     target.dispatchEvent(
       PointerTestEvent('pointerdown', {buttons: 1, offsetX: 1, offsetY: 2})
     )
-    input.update(16)
+    input.update(16 as Millis)
 
     assertButton(input, 'Click', 'On', 'Start')
     assertCombo(input, [['Click']], 'Equal', 'Start')
@@ -760,7 +761,7 @@ test('a pointer click can become a drag or a pinch', async ctx => {
     target.dispatchEvent(
       PointerTestEvent('pointermove', {buttons: 1, offsetX: 6, offsetY: 2})
     )
-    input.update(16)
+    input.update(16 as Millis)
 
     assertButton(input, 'Click', 'On')
     assertCombo(input, [['Click']], 'Equal')
@@ -782,7 +783,7 @@ test('a pointer click can become a drag or a pinch', async ctx => {
         pointerId: 2
       })
     )
-    input.update(16)
+    input.update(16 as Millis)
 
     assertButton(input, 'Click', 'On')
     assertCombo(input, [['Click']], 'Equal')
@@ -804,7 +805,7 @@ test('a pointer click can become a drag or a pinch', async ctx => {
         pointerId: 2
       })
     )
-    input.update(16)
+    input.update(16 as Millis)
 
     assertButton(input, 'Click', 'On')
     assertCombo(input, [['Click']], 'Equal')
@@ -828,7 +829,7 @@ test('center', async ctx => {
     target.dispatchEvent(
       PointerTestEvent('pointerdown', {buttons: 1, offsetX: 1, offsetY: 2})
     )
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.point?.center.xy, {x: 1, y: 2})
     assert.equal(input.point?.started, true)
@@ -838,7 +839,7 @@ test('center', async ctx => {
     target.dispatchEvent(
       PointerTestEvent('pointermove', {buttons: 1, offsetX: 10, offsetY: 10})
     )
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.point?.center.xy, {x: 10, y: 10})
     assert.equal(input.point?.started, true)
@@ -853,7 +854,7 @@ test('center', async ctx => {
         pointerId: 2
       })
     )
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.point?.center.xy, {x: 15, y: 15})
     assert.equal(input.point?.started, true)
@@ -863,7 +864,7 @@ test('center', async ctx => {
     target.dispatchEvent(
       PointerTestEvent('pointerup', {offsetX: 30, offsetY: 30})
     )
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.point?.center.xy, {x: 20, y: 20})
     assert.equal(input.point?.started, true)
@@ -884,7 +885,7 @@ test('pinch', async ctx => {
     target.dispatchEvent(
       PointerTestEvent('pointerdown', {buttons: 1, offsetX: 10, offsetY: 10})
     )
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.point?.center.xy, {x: 10, y: 10})
     assert.deepEqual(input.point?.pinch?.xy, undefined)
@@ -900,7 +901,7 @@ test('pinch', async ctx => {
         pointerId: 2
       })
     )
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.point?.center.xy, {x: 15, y: 15})
     assert.deepEqual(input.point?.pinch?.xy, {x: 0, y: 0})
@@ -916,7 +917,7 @@ test('pinch', async ctx => {
         pointerId: 2
       })
     )
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.point?.center.xy, {x: 20, y: 20})
     assert.deepEqual(input.point?.pinch?.xy, {x: 10, y: 10})
@@ -925,7 +926,7 @@ test('pinch', async ctx => {
 
   ctx.test('release', () => {
     target.dispatchEvent(PointerTestEvent('pointerup', {pointerId: 2}))
-    input.update(16)
+    input.update(16 as Millis)
 
     assert.deepEqual(input.point?.center.xy, {x: 10, y: 10})
     assert.deepEqual(input.point?.pinch?.xy, undefined)
@@ -938,7 +939,7 @@ test('wheel', () => {
   using input = DefaultInput(DefaultCam(), target).register('add')
 
   target.dispatchEvent(WheelTestEvent({deltaX: 1, deltaY: 2, deltaZ: 3}))
-  input.update(16)
+  input.update(16 as Millis)
 
   assert.deepEqual(input.wheel?.delta.client, {x: 1, y: 2, z: 3})
   assert.deepEqual(input.wheel?.delta.xy, {x: 1, y: 2})
