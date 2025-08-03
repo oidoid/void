@@ -37,18 +37,23 @@ test('two buttons mapped to the same bit are unioned', async ctx => {
   kbd.bitByCode.KeyA = 1
   kbd.bitByCode.KeyB = 1
 
-  ctx.test('a down', () => {
+  ctx.test('A↓', () => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'KeyA'}))
     assert.equal(kbd.bits, 1)
   })
 
-  ctx.test('b down', () => {
+  ctx.test('B↓', () => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'KeyB'}))
     assert.equal(kbd.bits, 1)
   })
 
-  ctx.test('a up', () => {
+  ctx.test('A↑', () => {
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'KeyA'}))
     assert.equal(kbd.bits, 1)
+  })
+
+  ctx.test('B↑', () => {
+    target.dispatchEvent(KeyTestEvent('keyup', {code: 'KeyB'}))
+    assert.equal(kbd.bits, 0)
   })
 })

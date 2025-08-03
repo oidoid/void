@@ -18,7 +18,7 @@ export type DefaultButton =
   | 'Menu'
 
 export type Point = LevelClientLocalXY & {
-  click: LevelClientLocalXY
+  click: LevelClientLocalXY | undefined
   type: PointType | undefined
 }
 
@@ -31,11 +31,13 @@ type PointerState = Point & {
   /** false when pinched. */
   drag: {on: boolean; start: boolean; end: boolean}
   /** may be negative. */
-  pinch: {
-    client: XY
-    /** level / local. */
-    xy: XY
-  }
+  pinch:
+    | {
+        client: XY
+        /** level / local. */
+        xy: XY
+      }
+    | undefined
   /** secondary points. */
   secondary: Point[]
   /** true if changed since last update. */
@@ -345,9 +347,8 @@ export class Input<Button extends string> {
     if (
       (millis > this.comboMaxIntervalMillis && this.#bits !== this.#prevBits) ||
       (this.#heldMillis + millis > this.comboMaxIntervalMillis && !this.#bits)
-    ) {
+    )
       this.#combo.length = 0
-    }
 
     if (this.#bits === this.#prevBits) this.#heldMillis += millis
     else this.#heldMillis = millis
@@ -357,7 +358,6 @@ export class Input<Button extends string> {
 
     if (this.#pointer.primary) {
       const pinchClient = this.#pointer.pinchClient
-      const pinchXY = this.#cam.toXY(pinchClient)
       const dragOn =
         this.#pointer.primary.drag &&
         !Object.values(this.#pointer.secondary).length
@@ -365,11 +365,13 @@ export class Input<Button extends string> {
       for (const pt of Object.values(this.#pointer.secondary)) {
         secondary.push({
           type: pt.type,
-          click: {
-            client: pt.clickClient,
-            local: this.#cam.toXYLocal(pt.clickClient),
-            xy: this.#cam.toXY(pt.clickClient)
-          },
+          click: pt.clickClient
+            ? {
+                client: pt.clickClient,
+                local: this.#cam.toXYLocal(pt.clickClient),
+                xy: this.#cam.toXY(pt.clickClient)
+              }
+            : undefined,
           xy: this.#cam.toXY(pt.xyClient),
           client: pt.xyClient,
           local: this.#cam.toXYLocal(pt.xyClient)
@@ -383,18 +385,22 @@ export class Input<Button extends string> {
       }
       this.#pointerState = {
         center,
-        click: {
-          client: this.#pointer.primary.clickClient,
-          local: this.#cam.toXYLocal(this.#pointer.primary.clickClient),
-          xy: this.#cam.toXY(this.#pointer.primary.clickClient)
-        },
+        click: this.#pointer.primary.clickClient
+          ? {
+              client: this.#pointer.primary.clickClient,
+              local: this.#cam.toXYLocal(this.#pointer.primary.clickClient),
+              xy: this.#cam.toXY(this.#pointer.primary.clickClient)
+            }
+          : undefined,
         drag: {
           on: dragOn,
           start: !this.#pointerState?.drag.on && dragOn,
           end: !!this.#pointerState?.drag.on && !dragOn
         },
         started: this.#pointer.invalid,
-        pinch: {client: pinchClient, xy: pinchXY},
+        pinch: pinchClient
+          ? {client: pinchClient, xy: this.#cam.toXY(pinchClient)}
+          : undefined,
         secondary,
         type: this.#pointer.primary.type,
         xy: this.#cam.toXY(this.#pointer.primary.xyClient),

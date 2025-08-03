@@ -3,7 +3,6 @@ import {
   type XY,
   xyAdd,
   xyDistance,
-  xyEq,
   xyMax,
   xyMin,
   xySub
@@ -15,7 +14,7 @@ export type PointType =
 type PointEvent = {
   bits: number
   /** most recent click. */
-  clickClient: XY
+  clickClient: XY | undefined
   drag: boolean
   ev: (typeof pointEvents)[number]
   id: number
@@ -52,7 +51,7 @@ export class Pointer {
    */
   readonly secondary: {[id: number]: Readonly<PointEvent>} = {}
   /** nonnegative. */
-  #pinchStartClient: XY = {x: 0, y: 0}
+  #pinchStartClient: XY | undefined
   readonly #target: Element
 
   constructor(target: Element) {
@@ -77,8 +76,10 @@ export class Pointer {
     return xyAdd(bounds, {x: bounds.w / 2, y: bounds.h / 2})
   }
 
-  get pinchClient(): XY {
-    return xySub(this.#newPinchClient, this.#pinchStartClient)
+  get pinchClient(): XY | undefined {
+    if (!this.#pinchStartClient) return
+    const end = this.#newPinchClient
+    return end ? xySub(end, this.#pinchStartClient) : undefined
   }
 
   postupdate(): void {
@@ -87,7 +88,7 @@ export class Pointer {
 
   register(op: 'add' | 'remove'): this {
     const fn = this.#target[`${op}EventListener`].bind(this.#target)
-    for (const ev of pointEvents) fn(ev, this.#onInput as EventListener) //, {passive: true}) am I just paying this anyway on touch start?
+    for (const ev of pointEvents) fn(ev, this.#onInput as EventListener)
     return this
   }
 
@@ -95,13 +96,13 @@ export class Pointer {
     this.invalid = false
     this.primary = undefined
     for (const pt in this.secondary) delete this.secondary[pt]
-    this.#pinchStartClient = {x: 0, y: 0}
+    this.#pinchStartClient = undefined
   }
 
   update(): void {
     const on =
       (this.primary?.bits ? 1 : 0) + Object.values(this.secondary).length
-    if (on < 2 || xyEq(this.#pinchStartClient, {x: 0, y: 0}))
+    if (on < 2 || !this.#pinchStartClient)
       this.#pinchStartClient = this.#newPinchClient
   }
 
@@ -117,26 +118,27 @@ export class Pointer {
   }
 
   #onInput = (ev: PointerEvent): void => {
-    if (!ev.isTrusted) return
+    if (!ev.isTrusted || ev.metaKey) return // ignore untrusted; super is for OS.
     this.invalid = true
-    ev.preventDefault()
+    const bits = this.#evButtonsToBits(ev.buttons)
+    if (bits) ev.preventDefault() // only prevent mapped buttons.
     if (ev.type === 'pointerdown') this.#target.setPointerCapture(ev.pointerId)
 
     const prevPt = ev.isPrimary ? this.primary : this.secondary[ev.pointerId]
-    const bits = this.#evButtonsToBits(ev.buttons)
     const xyClient = {x: ev.offsetX, y: ev.offsetY}
     const evType = ev.type as (typeof pointEvents)[number]
     const type =
       pointTypeByPointerType[
         ev.pointerType as keyof typeof pointTypeByPointerType
       ]
-    const clickClient =
-      evType === 'pointerdown' || !prevPt
-        ? {x: xyClient.x, y: xyClient.y}
-        : {x: prevPt.clickClient.x, y: prevPt.clickClient.y}
+    let clickClient
+    if (ev.type === 'pointerdown') clickClient = {x: xyClient.x, y: xyClient.y}
+    else if (ev.type === 'pointermove') clickClient = prevPt?.clickClient
     const drag =
       !!bits &&
-      (prevPt?.drag || xyDistance(clickClient, xyClient) >= this.dragMinClient)
+      (prevPt?.drag ||
+        (!!clickClient &&
+          xyDistance(clickClient, xyClient) >= this.dragMinClient))
 
     const pt = {
       clickClient,
@@ -153,10 +155,10 @@ export class Pointer {
     else this.secondary[ev.pointerId] = pt
   }
 
-  get #newPinchClient(): XY {
+  get #newPinchClient(): XY | undefined {
     if ((this.primary?.bits ? 1 : 0) + Object.values(this.secondary).length < 2)
-      return {x: 0, y: 0}
+      return
     const bounds = this.boundsClient
-    return bounds ? {x: bounds.w, y: bounds.h} : {x: 0, y: 0}
+    return bounds ? {x: bounds.w, y: bounds.h} : undefined
   }
 }

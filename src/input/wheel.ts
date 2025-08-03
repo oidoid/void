@@ -27,7 +27,7 @@ export class Wheel {
   }
 
   #onInput = (ev: WheelEvent): void => {
-    if (!ev.isTrusted) return
+    if (!ev.isTrusted || ev.metaKey) return // ignore untrusted; super is for OS.
     this.deltaClient = {x: ev.deltaX, y: ev.deltaY, z: ev.deltaZ}
     ev.preventDefault() // disable scaling.
   }
