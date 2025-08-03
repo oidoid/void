@@ -10,15 +10,14 @@ import {
   xyMagnitude,
   xyMax,
   xyMin,
-  xyStr,
   xySub
 } from './geo.ts'
 
 test('boxHits()', async ctx => {
   type TestCase = readonly [
     diagram: string,
-    lhs: [x: number, y: number, w: number, h: number],
-    rhs: [x: number, y: number, w: number, h: number],
+    l: [x: number, y: number, w: number, h: number],
+    r: [x: number, y: number, w: number, h: number],
     hits: boolean
   ]
   // to-do: separate diagram and label.
@@ -624,14 +623,14 @@ test('boxHits()', async ctx => {
     ['3 Disparate Disjoint', [100, 100, 400, 1000], [20, 39, 12, 38], false]
   ]
 
-  for (const [diagram, lhs, rhs, hits] of cases) {
-    const lhsBox = {x: lhs[0], y: lhs[1], w: lhs[2], h: lhs[3]}
-    const rhsBox = {x: rhs[0], y: rhs[1], w: rhs[2], h: rhs[3]}
-    ctx.test(`hits(lhs, rhs): ${diagram}`, () =>
-      assert.equal(boxHits(lhsBox, rhsBox), hits)
+  for (const [diagram, l, r, hits] of cases) {
+    const lBox = {x: l[0], y: l[1], w: l[2], h: l[3]}
+    const rBox = {x: r[0], y: r[1], w: r[2], h: r[3]}
+    ctx.test(`hits(l, r): ${diagram}`, () =>
+      assert.equal(boxHits(lBox, rBox), hits)
     )
-    ctx.test(`hits(rhs, lhs): ${diagram}`, () =>
-      assert.equal(boxHits(rhsBox, lhsBox), hits)
+    ctx.test(`hits(r, l): ${diagram}`, () =>
+      assert.equal(boxHits(rBox, lBox), hits)
     )
   }
 
@@ -688,8 +687,6 @@ test('xyMax()', () =>
 
 test('xyMin()', () =>
   assert.deepEqual(xyMin({x: 1, y: 2}, {x: 3, y: 4}), {x: 1, y: 2}))
-
-test('xyStr()', () => assert.deepEqual(xyStr({x: 1, y: 2}), '(1, 2)'))
 
 test('xySub()', () =>
   assert.deepEqual(xySub({x: 1, y: 2}, {x: 3, y: 4}), {x: -2, y: -2}))

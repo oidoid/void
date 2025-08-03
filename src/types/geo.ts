@@ -58,10 +58,6 @@ export function xyMin(l: Readonly<XY>, r: Readonly<XY>): XY {
   return {x: Math.min(l.x, r.x), y: Math.min(l.y, r.y)}
 }
 
-export function xyStr(xy: Readonly<XY>): string {
-  return `(${xy.x}, ${xy.y})`
-}
-
 /** l - r. */
 export function xySub(l: Readonly<XY>, r: Readonly<XY>): XY {
   return {x: l.x - r.x, y: l.y - r.y}
