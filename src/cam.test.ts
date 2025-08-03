@@ -35,3 +35,8 @@ test('cam', () => {
     y: 121.54504469983058
   })
 })
+
+test('toString()', () => {
+  const cam = new Cam()
+  assert.equal(cam.toString(), `Cam{(0 0) 1×1}`)
+})

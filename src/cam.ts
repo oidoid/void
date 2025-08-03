@@ -44,7 +44,7 @@ export class Cam {
 
   /**
    * positive int or infinite min dimensions. set to
-   * `{w: Infinity, h: Infinity}` or `whClient` to always use min scale.
+   * `{w: Infinity, h: Infinity}` to always use min scale.
    */
   get minWH(): Readonly<WH> {
     return this.#minWH
@@ -77,6 +77,10 @@ export class Cam {
     return this.#scale
   }
 
+  toString(): string {
+    return `Cam{(${this.x} ${this.y}) ${this.w}×${this.h}}`
+  }
+
   /** position in fractional level coordinates. */
   toXY(client: Readonly<XY>): XY {
     const local = this.toXYLocal(client)
@@ -88,6 +92,7 @@ export class Cam {
    * offset). often used for UI that is fixed within the cam.
    */
   toXYLocal(client: Readonly<XY>): XY {
+    if (this.#scale === 1) return {x: client.x, y: client.y}
     return {
       x: (client.x / this.#whClient.w) * this.#w,
       y: (client.y / this.#whClient.h) * this.#h
@@ -104,8 +109,8 @@ export class Cam {
   }
 
   /**
-   * positive int dimensions in client px (DPI scale) of canvas (often
-   * `canvas.parentElement!.clientWidth/Height` since the canvas is resized)
+   * positive int dimensions in client px of canvas (often
+   * `canvas.parentElement.clientWidth/Height` since the canvas is resized)
    * which is assumed to be max WH.
    */
   get whClient(): Readonly<WH> {
@@ -139,11 +144,11 @@ export class Cam {
     this.#y = y
   }
 
+  /** nonnegative int or fraction depending on mode. */
   get zoomOut(): number {
     return this.#zoomOut
   }
 
-  /** nonnegative int or fraction depending on mode. */
   set zoomOut(out: number) {
     if (this.#zoomOut === out) return
     this.#zoomOut = out
@@ -162,9 +167,6 @@ export class Cam {
       this.#minScale,
       Math.min(whPhy.w / this.#minWH.w, whPhy.h / this.#minWH.h) - this.#zoomOut
     )
-    // scale = Math.abs(Math.round(scale) - scale) < 0.05
-    //   ? Math.round(scale) // if close to an int, use the int.
-    //   : scale
     this.#scale = this.#mode === 'Int' ? Math.trunc(scale) : scale
 
     this.#w = Math.ceil(whPhy.w / this.#scale)
