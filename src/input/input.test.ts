@@ -102,7 +102,7 @@ test('pressed buttons', async ctx => {
     assert.equal(input.held, false)
     assert.equal(input.started, true)
     assertButton(input, 'U', 'Off', 'Start')
-    assertCombo(input, [['U']], 'Unequal')
+    assertCombo(input, [['U']], 'Equal')
     assert.deepEqual(input.combo, [['U']])
   })
 
@@ -153,8 +153,9 @@ test('pressed buttons', async ctx => {
   })
 })
 
-// for "A, A+B", you can slide from A to B without a release.
-test("combos don't require gaps between presses", async ctx => {
+// for "A, A+B", you can't slide from A to B without a release and releasing
+// buttons after "A, A+B, A+B+C" doesn't cause "A, A+B, A+B+C, B+C, C".
+test('combos require gaps between presses', async ctx => {
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -201,9 +202,9 @@ test("combos don't require gaps between presses", async ctx => {
     assert.equal(input.started, true)
     assertButton(input, 'U', 'On', 'Start')
     assertButton(input, 'D', 'Off', 'Start')
-    assertCombo(input, [['U']], 'EndsWith', 'Start')
+    assertCombo(input, [['U']], 'Equal', 'Start')
     assertCombo(input, [['U'], ['D']], 'Unequal')
-    assertCombo(input, [['U'], ['D'], ['U']], 'Equal', 'Start')
+    assertCombo(input, [['U'], ['D'], ['U']], 'Unequal')
   })
 })
 
@@ -686,7 +687,7 @@ test('a pointer click can become a drag', async ctx => {
     input.update(16)
 
     assertButton(input, 'Click', 'Off', 'Start')
-    assertCombo(input, [['Click']], 'Unequal')
+    assertCombo(input, [['Click']], 'Equal')
     assert.deepEqual(input.point?.drag.on, false)
     assert.deepEqual(input.point?.drag.start, false)
     assert.deepEqual(input.point?.drag.end, true)
@@ -698,7 +699,7 @@ test('a pointer click can become a drag', async ctx => {
     input.update(16)
 
     assertButton(input, 'Click', 'Off')
-    assertCombo(input, [['Click']], 'Unequal')
+    assertCombo(input, [['Click']], 'Equal')
     assert.deepEqual(input.point?.drag.on, false)
     assert.deepEqual(input.point?.drag.start, false)
     assert.deepEqual(input.point?.drag.end, false)
@@ -956,6 +957,9 @@ function assertCombo(
     input.isComboStart(...combo),
     state === 'Equal' && edge === 'Start'
   )
+  const abcCombo = combo.map(set => set.sort())
+  if (state === 'Equal') assert.deepEqual(input.combo, abcCombo)
+  else assert.notDeepEqual(input.combo, abcCombo)
 }
 
 function DefaultCam(): Cam {

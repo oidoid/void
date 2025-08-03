@@ -161,6 +161,7 @@ export class Input<Button extends string> {
         if ((bit & bits) === bit && this.#buttonByBit[bit])
           set.push(this.#buttonByBit[bit]!)
       }
+      set.sort()
       sets.push(set)
     }
     return sets
@@ -206,9 +207,8 @@ export class Input<Button extends string> {
       if (this.#combo.at(-combo.length + i) !== bits) return false
     }
     // #combo is a historical record of buttons. whenever buttons changes, a new
-    // entry is pushed. make sure the current entry is the current state and
-    // that the last entry's buttons haven't been released.
-    return !this.handled && this.#combo.at(-1) === this.#bits
+    // entry is pushed. make sure the current entry is the current state.
+    return !this.handled && (this.#combo.at(-1) === this.#bits || !this.#bits)
   }
 
   /** like isComboEndsWith() but test if the last button is triggered. */
@@ -353,8 +353,10 @@ export class Input<Button extends string> {
     if (this.#bits === this.#prevBits) this.#heldMillis += millis
     else this.#heldMillis = millis
 
-    if (this.#bits && this.#bits !== this.#prevBits)
+    if (this.#bits && this.#bits !== this.#prevBits) {
+      if (this.#prevBits) this.#combo.length = 0 // new button without release.
       this.#combo.push(this.#bits)
+    }
 
     if (this.#pointer.primary) {
       const pinchClient = this.#pointer.pinchClient
