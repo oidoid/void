@@ -36,41 +36,41 @@ const atlas: Readonly<Atlas<`stem--Anim${'A' | 'B'}`>> = {
 class TestDrawable extends Drawable {}
 
 test('above() layer', () => {
-  const lhs = new TestDrawable(TestView(), 0)
-  const rhs = new TestDrawable(TestView(), 0)
+  const l = new TestDrawable(TestView(), 0)
+  const r = new TestDrawable(TestView(), 0)
 
-  lhs.z = 1
-  rhs.z = 2
-  assert.equal(lhs.above(rhs), true)
-  assert.equal(rhs.above(lhs), false)
+  l.z = 1
+  r.z = 2
+  assert.equal(l.above(r), true)
+  assert.equal(r.above(l), false)
 
-  lhs.z = 2
-  rhs.z = 2
-  assert.equal(lhs.above(rhs), false)
-  assert.equal(rhs.above(lhs), false)
+  l.z = 2
+  r.z = 2
+  assert.equal(l.above(r), false)
+  assert.equal(r.above(l), false)
 
-  lhs.z = 3
-  rhs.z = 2
-  assert.equal(lhs.above(rhs), false)
-  assert.equal(rhs.above(lhs), true)
+  l.z = 3
+  r.z = 2
+  assert.equal(l.above(r), false)
+  assert.equal(r.above(l), true)
 })
 
 test('above() zend', () => {
-  const lhs = new TestDrawable(TestView(), 0)
-  const rhs = new TestDrawable(TestView(), 0)
+  const l = new TestDrawable(TestView(), 0)
+  const r = new TestDrawable(TestView(), 0)
 
-  lhs.h = 10
-  rhs.h = 100
-  assert.equal(lhs.above(rhs), false)
-  assert.equal(rhs.above(lhs), false)
+  l.h = 10
+  r.h = 100
+  assert.equal(l.above(r), false)
+  assert.equal(r.above(l), false)
 
-  lhs.zend = true
-  assert.equal(lhs.above(rhs), true)
-  assert.equal(rhs.above(lhs), false)
+  l.zend = true
+  assert.equal(l.above(r), true)
+  assert.equal(r.above(l), false)
 
-  rhs.zend = true
-  assert.equal(lhs.above(rhs), false)
-  assert.equal(rhs.above(lhs), true)
+  r.zend = true
+  assert.equal(l.above(r), false)
+  assert.equal(r.above(l), true)
 })
 
 test('cel', () => {
@@ -473,14 +473,14 @@ test('tag', () => {
 test('toString()', () => {
   const sprite = new Sprite(TestView(), 0, atlas, {age: 0 as Millis})
   sprite.tag = 'stem--AnimA'
-  assert.equal(sprite.toString(), 'stem--AnimA (0 0 0) 10×20')
+  assert.equal(sprite.toString(), 'Sprite{stem--AnimA (0 0 0) 10×20}')
   sprite.tag = 'stem--AnimB'
   sprite.x = 1
   sprite.y = 2
   sprite.z = 3
   sprite.w = 4
   sprite.h = 5
-  assert.equal(sprite.toString(), 'stem--AnimB (1 2 3) 4×5')
+  assert.equal(sprite.toString(), 'Sprite{stem--AnimB (1 2 3) 4×5}')
 })
 
 function TestView(): DataView {

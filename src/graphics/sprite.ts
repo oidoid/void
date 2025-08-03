@@ -279,7 +279,7 @@ export class Sprite<T extends TagFormat> extends Drawable {
   }
 
   override toString(): string {
-    return `${this.tag} (${this.x} ${this.y} ${this.z}) ${this.w}×${this.h}`
+    return `Sprite{${this.tag} (${this.x} ${this.y} ${this.z}) ${this.w}×${this.h}}`
   }
 
   /** current fractional cel in [0, 2 * anim.cels). */
