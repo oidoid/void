@@ -92,6 +92,7 @@ export class Pointer {
   }
 
   reset(): void {
+    this.invalid = false
     this.primary = undefined
     for (const pt in this.secondary) delete this.secondary[pt]
     this.#pinchStartClient = {x: 0, y: 0}

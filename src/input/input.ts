@@ -14,7 +14,7 @@ export type Combo<Button> = [ButtonSet<Button>, ...ButtonSet<Button>[]]
 export type DefaultButton =
   | 'L' | 'R' | 'U' | 'D' // dpad.
   | 'A' | 'B' | 'C'       // primary, secondary, tertiary.
-  | 'Click' | 'Click2'
+  | 'Click' | 'Click2' | 'ClickMiddle'
   | 'Menu'
 
 export type Point = LevelClientLocalXY & {
@@ -38,6 +38,8 @@ type PointerState = Point & {
   }
   /** secondary points. */
   secondary: Point[]
+  /** true if changed since last update. */
+  started: boolean
 }
 
 /** triggered. */
@@ -56,16 +58,14 @@ export function DefaultInput<Button extends DefaultButton>(
   target: Element
 ): DefaultInput<Button> {
   const input = new Input<DefaultButton>(cam, target)
-  input.mapKeyboardKey('L', 'ArrowLeft', 'a', 'A')
-  input.mapKeyboardKey('R', 'ArrowRight', 'd', 'D')
-  input.mapKeyboardKey('U', 'ArrowUp', 'w', 'W')
-  input.mapKeyboardKey('D', 'ArrowDown', 's', 'S')
-  input.mapKeyboardKey('C', 'c', 'C', 'Shift')
-  // to-do: support left shift distinction
-  //        https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/location.
-  input.mapKeyboardKey('A', 'x', 'X', '.', '>', ' ')
-  input.mapKeyboardKey('B', 'z', 'Z', '/', '?')
-  input.mapKeyboardKey('Menu', 'Enter', 'Escape')
+  input.mapKeyboardCode('L', 'ArrowLeft', 'KeyA')
+  input.mapKeyboardCode('R', 'ArrowRight', 'KeyD')
+  input.mapKeyboardCode('U', 'ArrowUp', 'KeyW')
+  input.mapKeyboardCode('D', 'ArrowDown', 'KeyS')
+  input.mapKeyboardCode('C', 'KeyC', 'ShiftLeft')
+  input.mapKeyboardCode('A', 'KeyX', 'Period', 'Space', 'AltLeft')
+  input.mapKeyboardCode('B', 'KeyZ', 'Slash', 'ControlLeft')
+  input.mapKeyboardCode('Menu', 'Enter', 'Escape')
 
   // https://w3c.github.io/gamepad/#remapping
   input.mapGamepadAxis('L', 'R', 0, 2)
@@ -81,6 +81,7 @@ export function DefaultInput<Button extends DefaultButton>(
 
   input.mapPointerClick('Click', 1)
   input.mapPointerClick('Click2', 2)
+  input.mapPointerClick('ClickMiddle', 4)
   return input as DefaultInput<Button>
 }
 
@@ -99,6 +100,7 @@ export function DefaultInput<Button extends DefaultButton>(
  * to-do: expose analog state of gamepad. offer direction as a number instead of
  *        bool.
  * to-do: multiplayer. possible if devices were requested instead of sought.
+ * to-do: expose input source device.
  */
 export class Input<Button extends string> {
   /** time allowed between combo inputs. */
@@ -137,14 +139,12 @@ export class Input<Button extends string> {
   #prevBits: number = 0
   readonly #target: Element
   readonly #wheel: Wheel
-  #wheelState: Readonly<WheelState> = {
-    delta: {client: {x: 0, y: 0, z: 0}, xy: {x: 0, y: 0}}
-  }
+  #wheelState: Readonly<WheelState> | undefined
 
   constructor(cam: Readonly<Cam>, target: Element) {
     this.#cam = cam
     this.#contextMenu = new ContextMenu(target)
-    this.#keyboard = new Keyboard(target)
+    this.#keyboard = new Keyboard(target.ownerDocument)
     this.#pointer = new Pointer(target)
     this.#target = target
     this.#wheel = new Wheel(target)
@@ -172,7 +172,7 @@ export class Input<Button extends string> {
     return this.#contextMenu
   }
 
-  /** true if input hasn't changed for a while. */
+  /** true if bits hasn't changed for a while. */
   get held(): boolean {
     return !this.handled && this.#heldMillis >= this.minHeldMillis
   }
@@ -267,14 +267,21 @@ export class Input<Button extends string> {
       this.#gamepad.bitByButton[index] = this.#mapButton(btn)
   }
 
-  /** @arg keys union of case-sensitive KeyboardEvent.key. */
-  mapKeyboardKey(btn: Button, ...keys: readonly string[]): void {
-    for (const key of keys) this.#keyboard.bitByKey[key] = this.#mapButton(btn)
+  /** @arg codes union of KeyboardEvent.code. */
+  mapKeyboardCode(btn: Button, ...codes: readonly string[]): void {
+    for (const code of codes)
+      this.#keyboard.bitByCode[code] = this.#mapButton(btn)
   }
 
   mapPointerClick(btn: Button, ...clicks: readonly number[]): void {
     for (const click of clicks)
       this.#pointer.bitByButton[click] = this.#mapButton(btn)
+  }
+
+  get on(): Button[] {
+    const on: Button[] = []
+    for (const btn in this.#bitByButton) if (this.isOn(btn)) on.push(btn)
+    return on.sort()
   }
 
   /** doesn't consider handled. */
@@ -306,10 +313,10 @@ export class Input<Button extends string> {
     this.#pointer.reset()
     this.#pointerState = undefined
     this.#wheel.reset()
-    this.#wheelState = {delta: {client: {x: 0, y: 0, z: 0}, xy: {x: 0, y: 0}}}
+    this.#wheelState = undefined
   }
 
-  /** true if input has changed. */
+  /** true if bits has changed. */
   get started(): boolean {
     return !this.handled && this.#bits !== this.#prevBits
   }
@@ -332,7 +339,7 @@ export class Input<Button extends string> {
     this.invalid =
       this.#bits !== this.#prevBits ||
       this.#pointer.invalid ||
-      this.#wheel.invalid
+      !!this.#wheel.deltaClient
     this.gestured ||= !!this.#bits
 
     if (
@@ -386,6 +393,7 @@ export class Input<Button extends string> {
           start: !this.#pointerState?.drag.on && dragOn,
           end: !!this.#pointerState?.drag.on && !dragOn
         },
+        started: this.#pointer.invalid,
         pinch: {client: pinchClient, xy: pinchXY},
         secondary,
         type: this.#pointer.primary.type,
@@ -397,12 +405,14 @@ export class Input<Button extends string> {
     // secondary should never be set when primary isn't.
     else this.#pointerState = undefined
 
-    this.#wheelState = {
-      delta: {
-        client: this.#wheel.deltaClient,
-        xy: this.#cam.toXY(this.#wheel.deltaClient)
-      }
-    }
+    this.#wheelState = this.#wheel.deltaClient
+      ? {
+          delta: {
+            client: this.#wheel.deltaClient,
+            xy: this.#cam.toXY(this.#wheel.deltaClient)
+          }
+        }
+      : undefined
     this.#pointer.postupdate()
     this.#wheel.postupdate()
   }
@@ -412,7 +422,7 @@ export class Input<Button extends string> {
   }
 
   /** doesn't consider handled. */
-  get wheel(): Readonly<WheelState> {
+  get wheel(): Readonly<WheelState | undefined> {
     return this.#wheelState
   }
 

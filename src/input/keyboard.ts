@@ -1,11 +1,18 @@
 export class Keyboard {
-  /** case-sensitive KeyboardEvent.key. */
-  readonly bitByKey: {[key: string]: number} = {}
-  bits: number = 0
+  /** KeyboardEvent.code to bit. */
+  readonly bitByCode: {[code: string]: number} = {}
+  /** KeyboardEvent.code to state. Multiple keys may map to the same bit. */
+  #on: {[code: string]: boolean} = {}
   readonly #target: EventTarget
 
   constructor(target: EventTarget) {
     this.#target = target
+  }
+
+  get bits(): number {
+    let bits = 0
+    for (const k in this.bitByCode) bits |= this.#on[k] ? this.bitByCode[k]! : 0
+    return bits
   }
 
   register(op: 'add' | 'remove'): this {
@@ -15,7 +22,7 @@ export class Keyboard {
   }
 
   reset(): void {
-    this.bits = 0
+    this.#on = {}
   }
 
   [Symbol.dispose](): void {
@@ -23,10 +30,9 @@ export class Keyboard {
   }
 
   #onKey = (ev: KeyboardEvent): void => {
-    if (!ev.isTrusted) return
-    const bit = this.bitByKey[ev.key]
-    if (bit == null) return
+    // ignore untrusted and unknown; super is for OS.
+    if (!ev.isTrusted || this.bitByCode[ev.code] == null || ev.metaKey) return
+    this.#on[ev.code] = ev.type === 'keydown'
     ev.preventDefault()
-    this.bits = ev.type === 'keydown' ? this.bits | bit : this.bits & ~bit
   }
 }

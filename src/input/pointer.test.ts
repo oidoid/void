@@ -13,6 +13,7 @@ test('buttons', async ctx => {
     assert.deepEqual(pointer.secondary, {})
     assert.deepEqual(pointer.centerClient, undefined)
     assert.deepEqual(pointer.pinchClient, {x: 0, y: 0})
+    assert.equal(pointer.invalid, false)
   })
 
   ctx.test('primary down', () => {
@@ -24,6 +25,7 @@ test('buttons', async ctx => {
     assert.deepEqual(pointer.primary?.xyClient, {x: 10, y: 40})
     assert.deepEqual(pointer.centerClient, {x: 10, y: 40})
     assert.deepEqual(pointer.pinchClient, {x: 0, y: 0})
+    assert.equal(pointer.invalid, true)
   })
 
   ctx.test('secondary down', () => {
@@ -42,6 +44,7 @@ test('buttons', async ctx => {
     assert.deepEqual(pointer.secondary[2]?.xyClient, {x: 11, y: 41})
     assert.deepEqual(pointer.centerClient, {x: 10.5, y: 40.5})
     assert.deepEqual(pointer.pinchClient, {x: 0, y: 0})
+    assert.equal(pointer.invalid, true)
   })
 
   ctx.test('primary up', () => {
@@ -55,6 +58,7 @@ test('buttons', async ctx => {
     assert.deepEqual(pointer.secondary[2]?.xyClient, {x: 11, y: 41})
     assert.deepEqual(pointer.centerClient, {x: 11, y: 41})
     assert.deepEqual(pointer.pinchClient, {x: 0, y: 0})
+    assert.equal(pointer.invalid, true)
   })
 })
 
@@ -62,9 +66,7 @@ test('centerClient()', async ctx => {
   const target = TestElement()
   using pointer = DefaultPointer(target)
 
-  ctx.test('init', () =>
-    assert.deepEqual(pointer.centerClient, undefined)
-  )
+  ctx.test('init', () => assert.deepEqual(pointer.centerClient, undefined))
 
   ctx.test('primary', () => {
     target.dispatchEvent(
@@ -92,9 +94,7 @@ test('pinchClient()', async ctx => {
   const target = TestElement()
   using pointer = DefaultPointer(target)
 
-  ctx.test('init', () =>
-    assert.deepEqual(pointer.pinchClient, {x: 0, y: 0})
-  )
+  ctx.test('init', () => assert.deepEqual(pointer.pinchClient, {x: 0, y: 0}))
 
   ctx.test('primary down', () => {
     target.dispatchEvent(
@@ -161,6 +161,7 @@ test('drag', async ctx => {
     assert.deepEqual(pointer.primary?.xyClient, {x: 10, y: 10})
     assert.deepEqual(pointer.primary?.clickClient, {x: 10, y: 10})
     assert.equal(pointer.primary?.drag, false)
+    assert.equal(pointer.invalid, true)
   })
 
   ctx.test('move a little', () => {
@@ -173,6 +174,7 @@ test('drag', async ctx => {
     assert.deepEqual(pointer.primary?.xyClient, {x: 12, y: 12})
     assert.deepEqual(pointer.primary?.clickClient, {x: 10, y: 10})
     assert.equal(pointer.primary?.drag, false)
+    assert.equal(pointer.invalid, true)
   })
 
   ctx.test('drag start', () => {
@@ -185,6 +187,7 @@ test('drag', async ctx => {
     assert.deepEqual(pointer.primary?.xyClient, {x: 15, y: 15})
     assert.deepEqual(pointer.primary?.clickClient, {x: 10, y: 10})
     assert.equal(pointer.primary?.drag, true)
+    assert.equal(pointer.invalid, true)
   })
 
   ctx.test('drag move', () => {
@@ -197,6 +200,7 @@ test('drag', async ctx => {
     assert.deepEqual(pointer.primary?.xyClient, {x: 17, y: 17})
     assert.deepEqual(pointer.primary?.clickClient, {x: 10, y: 10})
     assert.equal(pointer.primary?.drag, true)
+    assert.equal(pointer.invalid, true)
   })
 
   ctx.test('drag end', () => {
@@ -209,6 +213,7 @@ test('drag', async ctx => {
     assert.deepEqual(pointer.primary?.xyClient, {x: 20, y: 20})
     assert.deepEqual(pointer.primary?.clickClient, {x: 10, y: 10})
     assert.equal(pointer.primary?.drag, false)
+    assert.equal(pointer.invalid, true)
   })
 })
 

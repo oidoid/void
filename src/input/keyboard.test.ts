@@ -3,26 +3,52 @@ import {test} from 'node:test'
 import {KeyTestEvent} from '../test/test-event.ts'
 import {Keyboard} from './keyboard.ts'
 
-test('Keyboard', async ctx => {
+test('constructor() inits', () => {
   const target = new EventTarget()
   using kbd = new Keyboard(target).register('add')
-  kbd.bitByKey.a = 1
-  kbd.bitByKey.b = 2
+  assert.equal(kbd.bits, 0)
+})
 
-  ctx.test('init', () => assert.equal(kbd.bits, 0))
+test('bits map to button state: A↓, B↓, A↑', async ctx => {
+  const target = new EventTarget()
+  using kbd = new Keyboard(target).register('add')
+  kbd.bitByCode.KeyA = 1
+  kbd.bitByCode.KeyB = 2
+
+  ctx.test('A↓', () => {
+    target.dispatchEvent(KeyTestEvent('keydown', {code: 'KeyA'}))
+    assert.equal(kbd.bits, 1)
+  })
+
+  ctx.test('B↓', () => {
+    target.dispatchEvent(KeyTestEvent('keydown', {code: 'KeyB'}))
+    assert.equal(kbd.bits, 3)
+  })
+
+  ctx.test('A↑', () => {
+    target.dispatchEvent(KeyTestEvent('keyup', {code: 'KeyA'}))
+    assert.equal(kbd.bits, 2)
+  })
+})
+
+test('two buttons mapped to the same bit are unioned', async ctx => {
+  const target = new EventTarget()
+  using kbd = new Keyboard(target).register('add')
+  kbd.bitByCode.KeyA = 1
+  kbd.bitByCode.KeyB = 1
 
   ctx.test('a down', () => {
-    target.dispatchEvent(KeyTestEvent('keydown', {key: 'a'}))
+    target.dispatchEvent(KeyTestEvent('keydown', {code: 'KeyA'}))
     assert.equal(kbd.bits, 1)
   })
 
   ctx.test('b down', () => {
-    target.dispatchEvent(KeyTestEvent('keydown', {key: 'b'}))
-    assert.equal(kbd.bits, 3)
+    target.dispatchEvent(KeyTestEvent('keydown', {code: 'KeyB'}))
+    assert.equal(kbd.bits, 1)
   })
 
   ctx.test('a up', () => {
-    target.dispatchEvent(KeyTestEvent('keyup', {key: 'a'}))
-    assert.equal(kbd.bits, 2)
+    target.dispatchEvent(KeyTestEvent('keyup', {code: 'KeyA'}))
+    assert.equal(kbd.bits, 1)
   })
 })

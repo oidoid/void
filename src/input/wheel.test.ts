@@ -7,9 +7,7 @@ test('Wheel', async ctx => {
   const target = new EventTarget()
   using wheel = new Wheel(target).register('add')
 
-  ctx.test('init', () =>
-    assert.deepEqual(wheel.deltaClient, {x: 0, y: 0, z: 0})
-  )
+  ctx.test('init', () => assert.deepEqual(wheel.deltaClient, undefined))
 
   ctx.test('event', () => {
     target.dispatchEvent(WheelTestEvent({deltaX: 1, deltaY: 2, deltaZ: 3}))
@@ -18,6 +16,6 @@ test('Wheel', async ctx => {
 
   ctx.test('postupdate', () => {
     wheel.postupdate()
-    assert.deepEqual(wheel.deltaClient, {x: 0, y: 0, z: 0})
+    assert.deepEqual(wheel.deltaClient, undefined)
   })
 })
