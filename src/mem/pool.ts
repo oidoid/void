@@ -19,8 +19,9 @@ const maxCapacity: number = 0xffff_ffff // u32
  *     this.#pool.setX(this.#sprite, this.#pool.getX(this.#sprite) + 1)
  * - setting a discard flag on sprites instead of handles may be more efficient
  *   but requires copying all elements on every frame and is sprite specific.
- * - sprite classes own all the data is nice DX but requires a copy on every
+ * - sprite classes owning all the data is nice DX but requires a copy on every
  *   frame.
+ * - ArrayBuffer.resize() is incompatible with WebGL.
  */
 export class Pool<T extends Block> {
   readonly view: DataView<ArrayBuffer>
