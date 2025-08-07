@@ -2,15 +2,12 @@ export type PoolOpts<T extends Block> = {
   alloc(pool: Pool<T>): T
   allocBytes: number
   pageBlocks: number
-  maxPages: number
 }
 
 export type Block = {/** variable pool index. */ i: number}
 
-const maxCapacity: number = 0xffff_ffff // u32
-
 /**
- * a contiguous resizable array with handle objects.
+ * a contiguous growable array with handle objects.
  *
  * alternatives:
  * - operating on the array without classes would probably be faster but the DX
@@ -24,48 +21,44 @@ const maxCapacity: number = 0xffff_ffff // u32
  * - ArrayBuffer.resize() is incompatible with WebGL.
  */
 export class Pool<T extends Block> {
-  readonly view: DataView<ArrayBuffer>
-  readonly #allocBytes: number
-  /** fixed len. blocks fragment on free. */
-  readonly #blocks: readonly T[]
+  /** sized to one page initially but only grows. blocks fragment on free. */
+  readonly #blocks: T[]
   /** the head of the free block linked list indexing into #blocks. */
   #free: number = 0
-  readonly #maxPages: number
-  readonly #pageBlocks: number
+  readonly #opts: Readonly<PoolOpts<T>>
   #size: number = 0
   /** the next free block is always at size. resized to n pages. */
-  readonly #u8: Uint8Array<ArrayBuffer>
+  #u8: Uint8Array<ArrayBuffer>
+  #view: DataView<ArrayBuffer>
 
   constructor(opts: Readonly<PoolOpts<T>>) {
-    this.#allocBytes = opts.allocBytes
-    this.#pageBlocks = opts.pageBlocks
-    this.#maxPages = opts.maxPages
-    if (this.capacity > maxCapacity) {
-      throw Error(
-        `max capacity (${this.capacity}) must be lesser or equal to ${maxCapacity}`
-      )
-    }
-    const buffer = new ArrayBuffer(this.stride * opts.pageBlocks, {
-      maxByteLength: this.stride * this.capacity
-    })
-    this.#u8 = new Uint8Array(buffer)
-    this.view = new DataView(buffer)
+    this.#opts = opts
 
-    const blocks = new Array(this.capacity)
+    const buffer = new ArrayBuffer(this.stride * opts.pageBlocks)
+    this.#u8 = new Uint8Array(buffer)
+    this.#view = new DataView(buffer)
+
+    const blocks = new Array(opts.pageBlocks)
     for (let i = 0; i < blocks.length; i++) {
       blocks[i] = opts.alloc(this)
-      blocks[i]!.i = i + 1
+      blocks[i].i = i + 1
     }
     this.#blocks = blocks
   }
 
   alloc(): T {
     if (this.#size >= this.#currentCapacity) {
-      if (this.#size >= this.capacity)
-        throw Error(`pool overflow; capacity=${this.#currentCapacity}`)
-      this.#u8.buffer.resize(
-        this.#u8.buffer.byteLength + this.stride * this.#pageBlocks
-      )
+      const capacity = this.#currentCapacity + this.#opts.pageBlocks
+      for (let i = this.#currentCapacity; i < capacity; i++) {
+        this.#blocks[i] = this.#opts.alloc(this)
+        this.#blocks[i]!.i = i + 1
+      }
+
+      const buffer = new ArrayBuffer(this.stride * capacity)
+      const u8 = new Uint8Array(buffer)
+      u8.set(this.#u8)
+      this.#u8 = u8
+      this.#view = new DataView(buffer)
     }
     const handle = this.#free
     const block = this.#blocks[handle]!
@@ -74,10 +67,6 @@ export class Pool<T extends Block> {
     this.#setHandle(this.#size, handle)
     this.#size++
     return block
-  }
-
-  get capacity(): number {
-    return this.#pageBlocks * this.#maxPages
   }
 
   clear(): void {
@@ -90,7 +79,6 @@ export class Pool<T extends Block> {
     if (!this.#size) throw Error('pool underflow')
 
     const handle = this.#getHandle(block.i)
-
     this.#size--
     const start = this.#size * this.stride
     this.#u8.copyWithin(block.i * this.stride, start, start + this.stride)
@@ -98,12 +86,6 @@ export class Pool<T extends Block> {
 
     block.i = this.#free
     this.#free = handle
-
-    if (this.#currentCapacity - this.#size > this.#pageBlocks) {
-      this.#u8.buffer.resize(
-        this.#u8.buffer.byteLength - this.stride * this.#pageBlocks
-      )
-    }
   }
 
   get size(): number {
@@ -111,7 +93,11 @@ export class Pool<T extends Block> {
   }
 
   get stride(): number {
-    return this.#allocBytes + 4
+    return this.#opts.allocBytes + 4
+  }
+
+  get view(): DataView<ArrayBuffer> {
+    return this.#view
   }
 
   toDebugString(): string {
@@ -128,10 +114,10 @@ export class Pool<T extends Block> {
   }
 
   #getHandle(i: number): number {
-    return this.view.getUint32(i * this.stride + this.#allocBytes, true)
+    return this.view.getUint32(i * this.stride + this.#opts.allocBytes, true)
   }
 
   #setHandle(i: number, handle: number): void {
-    this.view.setUint32(i * this.stride + this.#allocBytes, handle, true)
+    this.view.setUint32(i * this.stride + this.#opts.allocBytes, handle, true)
   }
 }

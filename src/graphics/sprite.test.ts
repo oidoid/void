@@ -36,8 +36,8 @@ const atlas: Readonly<Atlas<`stem--Anim${'A' | 'B'}`>> = {
 class TestDrawable extends Drawable {}
 
 test('above() layer', () => {
-  const l = new TestDrawable(TestView(), 0)
-  const r = new TestDrawable(TestView(), 0)
+  const l = new TestDrawable(TestPool(), 0)
+  const r = new TestDrawable(TestPool(), 0)
 
   l.z = 1
   r.z = 2
@@ -56,8 +56,8 @@ test('above() layer', () => {
 })
 
 test('above() zend', () => {
-  const l = new TestDrawable(TestView(), 0)
-  const r = new TestDrawable(TestView(), 0)
+  const l = new TestDrawable(TestPool(), 0)
+  const r = new TestDrawable(TestPool(), 0)
 
   l.h = 10
   r.h = 100
@@ -74,7 +74,7 @@ test('above() zend', () => {
 })
 
 test('cel', () => {
-  const view = TestView()
+  const view = TestPool()
   const draw = new TestDrawable(view, 0)
 
   assert.equal(draw.cel, 0)
@@ -98,7 +98,7 @@ test('cel', () => {
 })
 
 test('clips()', () => {
-  const draw = new TestDrawable(TestView(), 0)
+  const draw = new TestDrawable(TestPool(), 0)
   assert.equal(draw.clips({x: 1, y: 1}), false)
 
   draw.w = draw.h = 10
@@ -108,7 +108,7 @@ test('clips()', () => {
 })
 
 test('flipX', () => {
-  const view = TestView()
+  const view = TestPool()
   const draw = new TestDrawable(view, 0)
 
   assert.equal(draw.flipX, false)
@@ -124,7 +124,7 @@ test('flipX', () => {
 })
 
 test('flipY', () => {
-  const view = TestView()
+  const view = TestPool()
   const draw = new TestDrawable(view, 0)
 
   assert.equal(draw.flipY, false)
@@ -140,7 +140,7 @@ test('flipY', () => {
 })
 
 test('height', () => {
-  const view = TestView()
+  const view = TestPool()
   const draw = new TestDrawable(view, 0)
 
   assert.equal(draw.h, 0)
@@ -160,7 +160,7 @@ test('height', () => {
 })
 
 test('index', () => {
-  const draw = new TestDrawable(TestView(), 0)
+  const draw = new TestDrawable(TestPool(), 0)
 
   assert.equal(draw.i, 0)
 
@@ -169,7 +169,7 @@ test('index', () => {
 })
 
 test('id', () => {
-  const view = TestView()
+  const view = TestPool()
   const draw = new TestDrawable(view, 0)
 
   assert.equal(draw.id, 0)
@@ -189,7 +189,7 @@ test('id', () => {
 })
 
 test('stretch', () => {
-  const view = TestView()
+  const view = TestPool()
   const draw = new TestDrawable(view, 0)
 
   assert.equal(draw.stretch, false)
@@ -205,7 +205,7 @@ test('stretch', () => {
 })
 
 test('width', () => {
-  const view = TestView()
+  const view = TestPool()
   const draw = new TestDrawable(view, 0)
 
   assert.equal(draw.w, 0)
@@ -225,7 +225,7 @@ test('width', () => {
 })
 
 test('x', () => {
-  const view = TestView()
+  const view = TestPool()
   const draw = new TestDrawable(view, 0)
 
   draw.x = -65537
@@ -282,7 +282,7 @@ test('x', () => {
 })
 
 test('y', () => {
-  const view = TestView()
+  const view = TestPool()
   const draw = new TestDrawable(view, 0)
 
   draw.y = -65537
@@ -339,7 +339,7 @@ test('y', () => {
 })
 
 test('z', () => {
-  const view = TestView()
+  const view = TestPool()
   const draw = new TestDrawable(view, 0)
 
   draw.z = 0
@@ -360,7 +360,7 @@ test('z', () => {
 })
 
 test('zend', () => {
-  const view = TestView()
+  const view = TestPool()
   const draw = new TestDrawable(view, 0)
 
   assert.equal(draw.zend, false)
@@ -376,13 +376,13 @@ test('zend', () => {
 })
 
 test('anim', () => {
-  const sprite = new Sprite(TestView(), 0, atlas, {age: 0 as OriginMillis})
+  const sprite = new Sprite(TestPool(), 0, atlas, {age: 0 as OriginMillis})
   sprite.tag = 'stem--AnimA'
   assert.equal(sprite.anim, animA)
 })
 
 test('hitbox', () => {
-  const sprite = new Sprite(TestView(), 0, atlas, {age: 0 as OriginMillis})
+  const sprite = new Sprite(TestPool(), 0, atlas, {age: 0 as OriginMillis})
   sprite.tag = 'stem--AnimA'
   assert.deepEqual(sprite.hitbox, {x: 1, y: 2, w: 3, h: 4})
   sprite.flipX = true
@@ -396,14 +396,14 @@ test('hitbox', () => {
 })
 
 test('hits', () => {
-  const sprite = new Sprite(TestView(), 0, atlas, {age: 0 as OriginMillis})
+  const sprite = new Sprite(TestPool(), 0, atlas, {age: 0 as OriginMillis})
   sprite.tag = 'stem--AnimA'
   assert.equal(sprite.hits({x: 1, y: 2}), true)
   assert.equal(sprite.hits({x: 4, y: 6}), false)
 })
 
 test('hurtbox', () => {
-  const sprite = new Sprite(TestView(), 0, atlas, {age: 0 as OriginMillis})
+  const sprite = new Sprite(TestPool(), 0, atlas, {age: 0 as OriginMillis})
   sprite.tag = 'stem--AnimA'
   assert.deepEqual(sprite.hurtbox, {x: 1, y: 2, w: 3, h: 4})
   sprite.flipX = true
@@ -414,7 +414,7 @@ test('hurtbox', () => {
 
 test('looped', () => {
   const framer = {age: 0 as OriginMillis}
-  const sprite = new Sprite(TestView(), 0, atlas, framer)
+  const sprite = new Sprite(TestPool(), 0, atlas, framer)
 
   sprite.tag = 'stem--AnimA'
   for (let i = 0; i < maxAnimCels * 5; i++) {
@@ -444,7 +444,7 @@ test('looped', () => {
 
 test('reset()', () => {
   const framer = {age: 0 as OriginMillis}
-  const sprite = new Sprite(TestView(), 0, atlas, framer)
+  const sprite = new Sprite(TestPool(), 0, atlas, framer)
   sprite.tag = 'stem--AnimA'
 
   for (let i = 0; i < maxAnimCels * 5; i++) {
@@ -456,7 +456,7 @@ test('reset()', () => {
 
 test('tag', () => {
   const framer = {age: 0 as OriginMillis}
-  const sprite = new Sprite(TestView(), 0, atlas, framer)
+  const sprite = new Sprite(TestPool(), 0, atlas, framer)
   sprite.tag = 'stem--AnimA'
   assert.equal(sprite.w, 10)
   assert.equal(sprite.h, 20)
@@ -471,7 +471,7 @@ test('tag', () => {
 })
 
 test('toString()', () => {
-  const sprite = new Sprite(TestView(), 0, atlas, {age: 0 as OriginMillis})
+  const sprite = new Sprite(TestPool(), 0, atlas, {age: 0 as OriginMillis})
   sprite.tag = 'stem--AnimA'
   assert.equal(sprite.toString(), 'Sprite{stem--AnimA (0 0 0) 10×20}')
   sprite.tag = 'stem--AnimB'
@@ -483,12 +483,12 @@ test('toString()', () => {
   assert.equal(sprite.toString(), 'Sprite{stem--AnimB (1 2 3) 4×5}')
 })
 
-function TestView(): DataView {
-  return new DataView(new ArrayBuffer(drawableBytes), 0, drawableBytes)
+function TestPool(): {view: DataView<ArrayBuffer>} {
+  return {view: new DataView(new ArrayBuffer(drawableBytes), 0, drawableBytes)}
 }
 
-function toHex(view: Readonly<DataView>): string {
-  return [...new Uint8Array(view.buffer)]
+function toHex(pool: {readonly view: DataView<ArrayBuffer>}): string {
+  return [...new Uint8Array(pool.view.buffer)]
     .map(v => v.toString(16).padStart(2, '0'))
     .join('')
 }

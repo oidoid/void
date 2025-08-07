@@ -3,12 +3,7 @@ import {test} from 'node:test'
 import {type Block, Pool} from './pool.ts'
 
 test('alloc()', async ctx => {
-  const pool = new Pool({
-    alloc: () => ({i: 0}),
-    allocBytes: 5,
-    pageBlocks: 2,
-    maxPages: 3
-  })
+  const pool = new Pool({alloc: () => ({i: 0}), allocBytes: 5, pageBlocks: 2})
 
   ctx.test('has one page init', () => {
     assert.equal(pool.toDebugString(), '000000000000000000 000000000000000000')
@@ -27,42 +22,10 @@ test('alloc()', async ctx => {
       '000000000000000000 000000000001000000 000000000002000000 000000000000000000'
     )
   })
-
-  ctx.test('overflows when at capacity', () => {
-    for (let i = 0; i < 3; i++) pool.alloc()
-    assert.throws(() => pool.alloc())
-  })
-})
-
-test('capacity', async ctx => {
-  ctx.test('is zero when no pages or blocks', () => {
-    const pool = new Pool({
-      alloc: () => ({i: 0}),
-      allocBytes: 0,
-      pageBlocks: 0,
-      maxPages: 0
-    })
-    assert.equal(pool.capacity, 0)
-  })
-
-  ctx.test('is blocks * pages', () => {
-    const pool = new Pool({
-      alloc: () => ({i: 0}),
-      allocBytes: 5,
-      pageBlocks: 2,
-      maxPages: 3
-    })
-    assert.equal(pool.capacity, 6)
-  })
 })
 
 test('clear() sets pool to init state', () => {
-  const pool = new Pool({
-    alloc: () => ({i: 0}),
-    allocBytes: 5,
-    pageBlocks: 2,
-    maxPages: 3
-  })
+  const pool = new Pool({alloc: () => ({i: 0}), allocBytes: 5, pageBlocks: 2})
 
   const alloc = []
   for (let i = 0; i < 6; i++) alloc.push(pool.alloc().i)
@@ -81,26 +44,20 @@ test('constructor() limits capacity', () => {
       new Pool({
         alloc: () => ({i: 0}),
         allocBytes: 1,
-        pageBlocks: 0x1_0000_0000,
-        maxPages: 1
+        pageBlocks: 0x1_0000_0000
       })
   )
 })
 
 test('free()', async ctx => {
-  const pool = new Pool({
-    alloc: () => ({i: 0}),
-    allocBytes: 5,
-    pageBlocks: 2,
-    maxPages: 3
-  })
+  const pool = new Pool({alloc: () => ({i: 0}), allocBytes: 5, pageBlocks: 2})
   const blocks: Block[] = []
 
   ctx.test('underflows when nothing to free', () => {
     assert.throws(() => pool.free({i: 0}))
   })
 
-  ctx.test('downsizes pages when in excess of two blocks', () => {
+  ctx.test("doesn't shrink", () => {
     blocks.push(pool.alloc())
     assert.equal(pool.toDebugString(), '000000000000000000 000000000000000000')
     blocks.push(pool.alloc())
@@ -115,22 +72,23 @@ test('free()', async ctx => {
       '000000000002000000 000000000001000000 000000000002000000 000000000000000000'
     )
     pool.free(blocks.shift()!)
-    assert.equal(pool.toDebugString(), '000000000002000000 000000000001000000')
+    assert.equal(
+      pool.toDebugString(),
+      '000000000002000000 000000000001000000 000000000002000000 000000000000000000'
+    )
   })
 
-  ctx.test('keeps at least one page', () => {
+  ctx.test('never shrinks', () => {
     while (blocks.length) pool.free(blocks.shift()!)
-    assert.equal(pool.toDebugString(), '000000000002000000 000000000001000000')
+    assert.equal(
+      pool.toDebugString(),
+      '000000000002000000 000000000001000000 000000000002000000 000000000000000000'
+    )
   })
 })
 
 test('size', async ctx => {
-  const pool = new Pool({
-    alloc: () => ({i: 0}),
-    allocBytes: 5,
-    pageBlocks: 2,
-    maxPages: 3
-  })
+  const pool = new Pool({alloc: () => ({i: 0}), allocBytes: 5, pageBlocks: 2})
 
   ctx.test('is zero init', () => assert.equal(pool.size, 0))
 
@@ -148,24 +106,14 @@ test('size', async ctx => {
 test('stride', async ctx => {
   ctx.test('is at least handle sized', () =>
     assert.equal(
-      new Pool({
-        alloc: () => ({i: 0}),
-        allocBytes: 0,
-        pageBlocks: 2,
-        maxPages: 3
-      }).stride,
+      new Pool({alloc: () => ({i: 0}), allocBytes: 0, pageBlocks: 2}).stride,
       4
     )
   )
 
   ctx.test('is alloc + handle', () =>
     assert.equal(
-      new Pool({
-        alloc: () => ({i: 0}),
-        allocBytes: 1,
-        pageBlocks: 2,
-        maxPages: 3
-      }).stride,
+      new Pool({alloc: () => ({i: 0}), allocBytes: 1, pageBlocks: 2}).stride,
       5
     )
   )
@@ -183,8 +131,7 @@ test('alloc to capacity then free middle and realloc', () => {
       }
     }),
     allocBytes: 1,
-    pageBlocks: 2,
-    maxPages: 3
+    pageBlocks: 2
   })
 
   assert.equal(pool.toDebugString(), '0000000000 0000000000')
@@ -241,7 +188,7 @@ test('alloc to capacity then free middle and realloc', () => {
   )
   assert.equal(
     pool.toDebugString(),
-    '0000000000 0101000000 0505000000 0404000000'
+    '0000000000 0101000000 0505000000 0404000000 0404000000 0505000000'
   )
 
   blocks.push(pool.alloc())
@@ -253,7 +200,7 @@ test('alloc to capacity then free middle and realloc', () => {
   )
   assert.equal(
     pool.toDebugString(),
-    '0000000000 0101000000 0505000000 0204000000'
+    '0000000000 0101000000 0505000000 0204000000 0404000000 0505000000'
   )
 
   blocks.push(pool.alloc())
@@ -265,7 +212,7 @@ test('alloc to capacity then free middle and realloc', () => {
   )
   assert.equal(
     pool.toDebugString(),
-    '0000000000 0101000000 0505000000 0204000000 0303000000 0000000000'
+    '0000000000 0101000000 0505000000 0204000000 0303000000 0505000000'
   )
 
   blocks.push(pool.alloc())
