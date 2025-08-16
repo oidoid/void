@@ -124,10 +124,11 @@ test('alloc to capacity then free middle and realloc', () => {
     alloc: () => ({
       i: 0,
       get(): number {
-        return pool.view.getUint8(this.i * pool.stride)
+        console.log(this.i)
+        return pool.view.getUint8(this.i)
       },
       set(val: number): void {
-        pool.view.setUint8(this.i * pool.stride, val)
+        pool.view.setUint8(this.i, val)
       }
     }),
     allocBytes: 1,
@@ -154,8 +155,9 @@ test('alloc to capacity then free middle and realloc', () => {
 
   pool.free(blocks[2]!)
   assert.equal(blocks[2]!.i, 6)
-  assert.equal(blocks[5]!.i, 2)
+  assert.equal(blocks[5]!.i, 10)
   blocks.splice(2, 1)
+  console.log('ok')
   assert.deepEqual(
     blocks.map(block => block.get()),
     [0, 1, 3, 4, 5]
@@ -167,7 +169,7 @@ test('alloc to capacity then free middle and realloc', () => {
 
   pool.free(blocks[2]!)
   assert.equal(blocks[2]!.i, 2)
-  assert.equal(blocks[3]!.i, 3)
+  assert.equal(blocks[3]!.i, 15)
   blocks.splice(2, 1)
   assert.deepEqual(
     blocks.map(block => block.get()),
@@ -180,7 +182,7 @@ test('alloc to capacity then free middle and realloc', () => {
 
   pool.free(blocks[2]!)
   assert.equal(blocks[2]!.i, 3)
-  assert.equal(blocks[3]!.i, 2)
+  assert.equal(blocks[3]!.i, 10)
   blocks.splice(2, 1)
   assert.deepEqual(
     blocks.map(block => block.get()),
@@ -192,7 +194,7 @@ test('alloc to capacity then free middle and realloc', () => {
   )
 
   blocks.push(pool.alloc())
-  assert.equal(blocks[3]!.i, 3)
+  assert.equal(blocks[3]!.i, 15)
   blocks[3]!.set(2)
   assert.deepEqual(
     blocks.map(block => block.get()),
@@ -204,7 +206,7 @@ test('alloc to capacity then free middle and realloc', () => {
   )
 
   blocks.push(pool.alloc())
-  assert.equal(blocks[4]!.i, 4)
+  assert.equal(blocks[4]!.i, 20)
   blocks[4]!.set(3)
   assert.deepEqual(
     blocks.map(block => block.get()),
@@ -216,7 +218,7 @@ test('alloc to capacity then free middle and realloc', () => {
   )
 
   blocks.push(pool.alloc())
-  assert.equal(blocks[5]!.i, 5)
+  assert.equal(blocks[5]!.i, 25)
   blocks[5]!.set(4)
   assert.deepEqual(
     blocks.map(block => block.get()),

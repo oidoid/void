@@ -1,10 +1,13 @@
+import {debug} from '../types/debug.ts'
+
 export type PoolOpts<T extends Block> = {
   alloc(pool: Pool<T>): T
   allocBytes: number
+  minPages?: number
   pageBlocks: number
 }
 
-export type Block = {/** variable pool index. */ i: number}
+export type Block = {/** variable pool byte offset. */ i: number}
 
 /**
  * a contiguous growable array with handle objects.
@@ -33,25 +36,27 @@ export class Pool<T extends Block> {
 
   constructor(opts: Readonly<PoolOpts<T>>) {
     this.#opts = opts
+    const initSize = (opts.minPages ?? 1) * opts.pageBlocks
 
-    const buffer = new ArrayBuffer(this.stride * opts.pageBlocks)
+    const buffer = new ArrayBuffer(this.stride * initSize)
     this.#u8 = new Uint8Array(buffer)
     this.#view = new DataView(buffer)
 
-    const blocks = new Array(opts.pageBlocks)
-    for (let i = 0; i < blocks.length; i++) {
-      blocks[i] = opts.alloc(this)
-      blocks[i].i = i + 1
+    this.#blocks = Array(initSize)
+    for (let i = 0; i < initSize; i++) {
+      this.#blocks[i] = opts.alloc(this)
+      this.#blocks[i]!.i = i + 1 // next handle.
     }
-    this.#blocks = blocks
   }
 
   alloc(): T {
     if (this.#size >= this.#currentCapacity) {
       const capacity = this.#currentCapacity + this.#opts.pageBlocks
+      if (debug?.mem) console.debug(`[mem] growing pool to ${capacity}`)
+
       for (let i = this.#currentCapacity; i < capacity; i++) {
         this.#blocks[i] = this.#opts.alloc(this)
-        this.#blocks[i]!.i = i + 1
+        this.#blocks[i]!.i = i + 1 // next handle.
       }
 
       const buffer = new ArrayBuffer(this.stride * capacity)
@@ -63,7 +68,7 @@ export class Pool<T extends Block> {
     const handle = this.#free
     const block = this.#blocks[handle]!
     this.#free = block.i
-    block.i = this.#size
+    block.i = this.#size * this.stride
     this.#setHandle(this.#size, handle)
     this.#size++
     return block
@@ -78,10 +83,10 @@ export class Pool<T extends Block> {
   free(block: T): void {
     if (!this.#size) throw Error('pool underflow')
 
-    const handle = this.#getHandle(block.i)
+    const handle = this.#getHandle(block.i / this.stride)
     this.#size--
     const start = this.#size * this.stride
-    this.#u8.copyWithin(block.i * this.stride, start, start + this.stride)
+    this.#u8.copyWithin(block.i, start, start + this.stride)
     this.#blocks[this.#getHandle(this.#size)]!.i = block.i
 
     block.i = this.#free
