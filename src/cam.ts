@@ -12,6 +12,13 @@ export type LevelClientLocalXY = {
   xy: XY
 }
 
+type Canvas = {
+  width: number
+  height: number
+  style: {width: string; height: string}
+  parentElement: {clientWidth: number; clientHeight: number} | null
+}
+
 /** given a min WH and scale, size the camera to the max WH. */
 export class Cam {
   #h: number = 1
@@ -99,8 +106,25 @@ export class Cam {
     }
   }
 
-  update(): void {
-    this.#invalid = false
+  /**
+   * call after input processing but before ent processing. ents that move the
+   * camera should be called immediately after update so that the invalid state
+   * can be considered.
+   */
+  update(canvas: Canvas): void {
+    if (!canvas.parentElement) throw Error('canvas has no parent')
+    const {clientWidth: parentW, clientHeight: parentH} = canvas.parentElement
+
+    this.#invalid = this.#whClient.w !== parentW || this.#whClient.h !== parentH
+    if (!this.#invalid) return
+    this.#whClient.w = parentW
+    this.#whClient.h = parentH
+    this.#invalidateWH()
+
+    canvas.width = this.#w
+    canvas.height = this.#h
+    canvas.style.width = `${(this.#w * this.scale) / devicePixelRatio}px`
+    canvas.style.height = `${(this.#h * this.scale) / devicePixelRatio}px`
   }
 
   /** positive int in level px. */
@@ -115,13 +139,6 @@ export class Cam {
    */
   get whClient(): Readonly<WH> {
     return this.#whClient
-  }
-
-  set whClient(wh: Readonly<WH>) {
-    if (this.#whClient.w === wh.w && this.#whClient.h === wh.h) return
-    this.#whClient.w = wh.w
-    this.#whClient.h = wh.h
-    this.#invalidateWH()
   }
 
   /** fractional. */
@@ -158,18 +175,18 @@ export class Cam {
   #invalidateWH(): void {
     this.#invalid = true
 
-    const whPhy = {
-      w: Math.ceil(this.#whClient.w * devicePixelRatio),
-      h: Math.ceil(this.#whClient.h * devicePixelRatio)
+    const phy = {
+      w: devicePixelRatio * this.#whClient.w,
+      h: devicePixelRatio * this.#whClient.h
     }
 
     const scale = Math.max(
       this.#minScale,
-      Math.min(whPhy.w / this.#minWH.w, whPhy.h / this.#minWH.h) - this.#zoomOut
+      Math.min(phy.w / this.#minWH.w, phy.h / this.#minWH.h) - this.#zoomOut
     )
     this.#scale = this.#mode === 'Int' ? Math.trunc(scale) : scale
 
-    this.#w = Math.ceil(whPhy.w / this.#scale)
-    this.#h = Math.ceil(whPhy.h / this.#scale)
+    this.#w = Math.ceil(phy.w / this.#scale)
+    this.#h = Math.ceil(phy.h / this.#scale)
   }
 }

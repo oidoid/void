@@ -6,9 +6,23 @@ test('cam', () => {
   globalThis.devicePixelRatio = 5 // to-do: will I get resize event when this changes?
 
   const cam = new Cam()
-  cam.whClient = {w: 162.1999969482422, h: 88.80000305175781}
   cam.minWH = {w: 400, h: 128}
   cam.mode = 'Int'
+  const canvas = {
+    width: 0,
+    height: 0,
+    style: {width: '', height: ''},
+    parentElement: {
+      clientWidth: 162.1999969482422,
+      clientHeight: 88.80000305175781
+    }
+  }
+  cam.update(canvas)
+
+  assert.equal(canvas.width, 406)
+  assert.equal(canvas.height, 223)
+  assert.equal(canvas.style.width, '162.4px')
+  assert.equal(canvas.style.height, '89.2px')
 
   assert.equal(cam.scale, 2)
   assert.equal(cam.w, 406)
