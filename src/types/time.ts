@@ -1,3 +1,13 @@
+declare global {
+  interface DateConstructor {
+    now(): UTCMillis
+  }
+
+  interface Performance {
+    now(): OriginMillis
+  }
+}
+
 declare const millis: unique symbol
 /** duration in milliseconds. */
 export type Millis = number & {readonly [millis]: never}
@@ -8,7 +18,3 @@ export type OriginMillis = number & {readonly [originMillis]: never}
 
 declare const utcMillis: unique symbol
 export type UTCMillis = number & {readonly [utcMillis]: never}
-
-export function now(): UTCMillis {
-  return Date.now() as UTCMillis
-}

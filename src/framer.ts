@@ -36,7 +36,6 @@ export class Framer {
 
   #onVisibility = (ev: Event): void => {
     if (!ev.isTrusted) return
-    // ev.preventDefault()
     if (document.hidden) this.#pause()
     else this.#resume()
   }
@@ -46,7 +45,7 @@ export class Framer {
   }
 
   #resume(): void {
-    this.#prevFrame = performance.now() as OriginMillis
+    this.#prevFrame = performance.now()
     this.#req = requestAnimationFrame(this.#onFrame as FrameRequestCallback)
   }
 }
