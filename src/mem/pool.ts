@@ -99,7 +99,7 @@ export class Pool<T extends Block> {
   }
 
   #resize(capacity: number, origin: 'Init' | 'Call'): void {
-    if (origin === 'Init' && debug?.mem)
+    if (origin === 'Call' && debug?.mem)
       console.debug(
         `[mem] ${capacity < this.#currentCapacity ? 'shrinking' : 'growing'} pool to ${capacity}`
       )
