@@ -18,6 +18,10 @@ export function boxHits(
   )
 }
 
+export function whEq(l: Readonly<WH>, r: Readonly<WH>): boolean {
+  return l.w === r.w && l.h === r.h
+}
+
 /** l + r. */
 export function xyAdd(l: Readonly<XY>, r: Readonly<XY>): XY {
   return {x: l.x + r.x, y: l.y + r.y}

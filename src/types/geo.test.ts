@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import {test} from 'node:test'
 import {
   boxHits,
+  whEq,
   xyAdd,
   xyAddTo,
   xyDistance,
@@ -660,6 +661,12 @@ test('boxHits()', async ctx => {
   )
 })
 
+test('whEq()', () => {
+  assert.deepEqual(whEq({w: 1, h: 2}, {w: 1, h: 2}), true)
+  assert.deepEqual(whEq({w: 1, h: 2}, {w: 3, h: 2}), false)
+  assert.deepEqual(whEq({w: 1, h: 2}, {w: 1, h: 3}), false)
+})
+
 test('xyAdd()', () =>
   assert.deepEqual(xyAdd({x: 1, y: 2}, {x: 3, y: 4}), {x: 4, y: 6}))
 
@@ -677,7 +684,8 @@ test('xyDiv()', () =>
 
 test('xyEq()', () => {
   assert.deepEqual(xyEq({x: 1, y: 2}, {x: 1, y: 2}), true)
-  assert.deepEqual(xyEq({x: 1, y: 2}, {x: 3, y: 4}), false)
+  assert.deepEqual(xyEq({x: 1, y: 2}, {x: 3, y: 2}), false)
+  assert.deepEqual(xyEq({x: 1, y: 2}, {x: 1, y: 3}), false)
 })
 
 test('xyMagnitude()', () => assert.deepEqual(xyMagnitude({x: 3, y: 4}), 5))
