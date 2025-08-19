@@ -42,6 +42,28 @@ test('no vals', () => {
   assert.equal((debug as {unknown: string}).unknown, 'true')
 })
 
+test('all', () => {
+  const url = 'https://oidoid.com/?debug=all,abc=def'
+  const debug = Debug(url)
+  assert.equal(debug?.cam, 'true')
+  assert.equal(debug?.input, 'true')
+  assert.equal(debug?.mem, 'true')
+  assert.equal(debug?.render, 'true')
+  assert.equal((debug as {unknown: string}).unknown, 'true')
+  assert.equal((debug as {abc: string}).abc, 'def')
+})
+
+test('void', () => {
+  const url = 'https://oidoid.com/?debug=nativescale,void'
+  const debug = Debug(url)
+  assert.equal(debug?.cam, 'true')
+  assert.equal(debug?.input, 'true')
+  assert.equal(debug?.mem, 'true')
+  assert.equal(debug?.render, 'true')
+  assert.equal(debug?.nativeScale, 'true')
+  assert.equal((debug as {unknown: string}).unknown, undefined)
+})
+
 test('no params', () => {
   const url = 'https://oidoid.com/'
   assert.deepEqual(Debug(url), undefined)
