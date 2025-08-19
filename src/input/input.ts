@@ -16,7 +16,7 @@ export type DefaultButton =
   | 'L' | 'R' | 'U' | 'D' // dpad.
   | 'A' | 'B' | 'C'       // primary, secondary, tertiary.
   | 'Click' | 'Click2' | 'ClickMiddle'
-  | 'Menu'
+  | 'Menu' | 'Back'
 
 export type Point = LevelClientLocalXY & {
   click: LevelClientLocalXY | undefined
@@ -61,14 +61,15 @@ export function DefaultInput<Button extends DefaultButton>(
   target: Element
 ): DefaultInput<Button> {
   const input = new Input<DefaultButton>(cam, target)
-  input.mapKeyboardCode('L', 'ArrowLeft', 'KeyA')
-  input.mapKeyboardCode('R', 'ArrowRight', 'KeyD')
-  input.mapKeyboardCode('U', 'ArrowUp', 'KeyW')
-  input.mapKeyboardCode('D', 'ArrowDown', 'KeyS')
-  input.mapKeyboardCode('C', 'KeyC', 'ShiftLeft')
-  input.mapKeyboardCode('A', 'KeyX', 'Period', 'Space', 'AltLeft')
-  input.mapKeyboardCode('B', 'KeyZ', 'Slash', 'ControlLeft')
-  input.mapKeyboardCode('Menu', 'Enter', 'Escape')
+  input.mapKeyboardCode('L', 'ArrowLeft')
+  input.mapKeyboardCode('R', 'ArrowRight')
+  input.mapKeyboardCode('U', 'ArrowUp')
+  input.mapKeyboardCode('D', 'ArrowDown')
+  input.mapKeyboardCode('C', 'KeyC')
+  input.mapKeyboardCode('A', 'KeyX')
+  input.mapKeyboardCode('B', 'KeyZ')
+  input.mapKeyboardCode('Menu', 'Enter')
+  input.mapKeyboardCode('Back', 'Escape')
 
   // https://w3c.github.io/gamepad/#remapping
   input.mapGamepadAxis('L', 'R', 0, 2)
@@ -77,10 +78,11 @@ export function DefaultInput<Button extends DefaultButton>(
   input.mapGamepadButton('R', 15)
   input.mapGamepadButton('U', 12)
   input.mapGamepadButton('D', 13)
-  input.mapGamepadButton('A', 0)
-  input.mapGamepadButton('B', 2)
-  input.mapGamepadButton('C', 1)
+  input.mapGamepadButton('C', 2)
+  input.mapGamepadButton('B', 0)
+  input.mapGamepadButton('A', 1)
   input.mapGamepadButton('Menu', 9)
+  input.mapGamepadButton('Back', 8)
 
   input.mapPointerClick('Click', 1)
   input.mapPointerClick('Click2', 2)
@@ -214,7 +216,7 @@ export class Input<Button extends string> {
 
   /** like isComboEndsWith() but test if the last button is triggered. */
   isComboEndsWithStart(...combo: Readonly<Combo<Button>>): boolean {
-    // isOnStart() can handled zero-length.
+    // isOnStart() can handle zero-length.
     return this.isOnStart(...combo.at(-1)!) && this.isComboEndsWith(...combo)
   }
 

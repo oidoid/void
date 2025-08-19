@@ -9,7 +9,7 @@ export class ContextMenu {
   register(op: 'add' | 'remove'): this {
     const fn = this.#target[`${op}EventListener`].bind(this.#target)
     fn('contextmenu', this.#onContextMenu as EventListener)
-    // disable long press vibration. nonpassive must be explicit for touchstart.
+    // disable long press vibration. nonpassive must be explicit.
     fn('touchstart', this.#onContextMenu as EventListener, {passive: false})
     return this
   }
@@ -19,7 +19,7 @@ export class ContextMenu {
   }
 
   #onContextMenu = (ev: PointerEvent | TouchEvent): void => {
-    if (!ev.isTrusted || ev.metaKey) return // ignore untrusted; super is for OS.
+    if (!ev.isTrusted || ev.metaKey) return
     if (!this.enable) ev.preventDefault()
   }
 }

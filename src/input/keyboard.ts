@@ -30,8 +30,14 @@ export class Keyboard {
   }
 
   #onKey = (ev: KeyboardEvent): void => {
-    // ignore untrusted and unknown; super is for OS.
-    if (!ev.isTrusted || this.bitByCode[ev.code] == null || ev.metaKey) return
+    if (
+      !ev.isTrusted ||
+      this.bitByCode[ev.code] == null ||
+      ev.metaKey ||
+      ev.altKey ||
+      ev.ctrlKey
+    )
+      return
     this.#on[ev.code] = ev.type === 'keydown'
     ev.preventDefault()
   }

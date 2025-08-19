@@ -14,7 +14,7 @@ export class Wheel {
 
   register(op: 'add' | 'remove'): this {
     const fn = this.#target[`${op}EventListener`].bind(this.#target)
-    fn('wheel', this.#onInput as EventListener)
+    fn('wheel', this.#onInput as EventListener, {passive: true})
     return this
   }
 
@@ -27,8 +27,7 @@ export class Wheel {
   }
 
   #onInput = (ev: WheelEvent): void => {
-    if (!ev.isTrusted || ev.metaKey) return // ignore untrusted; super is for OS.
+    if (!ev.isTrusted || ev.metaKey || ev.altKey || ev.ctrlKey) return
     this.deltaClient = {x: ev.deltaX, y: ev.deltaY, z: ev.deltaZ}
-    ev.preventDefault() // disable scaling.
   }
 }

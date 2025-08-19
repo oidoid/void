@@ -118,7 +118,7 @@ export class Pointer {
   }
 
   #onInput = (ev: PointerEvent): void => {
-    if (!ev.isTrusted || ev.metaKey) return // ignore untrusted; super is for OS.
+    if (!ev.isTrusted || ev.metaKey || ev.altKey || ev.ctrlKey) return
     this.invalid = true
     const bits = this.#evButtonsToBits(ev.buttons)
     if (bits) ev.preventDefault() // only prevent mapped buttons.

@@ -982,6 +982,12 @@ function assertCombo(
 
 function DefaultCam(): Cam {
   const cam = new Cam()
-  cam.whClient = {w: 1000, h: 1000}
+  // assume a fixed cam for all tests.
+  cam.update({
+    width: 0,
+    height: 0,
+    parentElement: {clientHeight: 1000, clientWidth: 1000},
+    style: {width: '', height: ''}
+  })
   return cam
 }
