@@ -7,29 +7,27 @@ export const maxAnimMillis: Millis = 1000 as Millis
 export const celMillis: Millis = (maxAnimMillis / maxAnimCels) as Millis
 
 export type Atlas<T extends TagFormat> = {
-  anim: AnimByTag<T>
-  /** tag by ID. */ tag: T[]
+  /** key order is tag ID. */
+  [tag in T]: Anim<T>
 }
-
-export type AnimByTag<T extends TagFormat> = {[tag in T]: Anim<T>}
 
 export type Anim<T extends TagFormat> = {
   /** number of cels in the original animation (no wrapping). */
   cels: number
   /** outgoing collision rectangle (red / blue). */
-  hitbox?: Readonly<Box> | undefined
+  hitbox: Box | undefined
   /** incoming collision rectangle (green / blue). */
-  hurtbox?: Readonly<Box> | undefined
+  hurtbox: Box | undefined
   /**
-   * Atlas.cels index, a multiple of 16 (maxAnimCels). each cel is shown for
-   * ~63 millis.
+   * Atlas.cels index, a multiple of 16 (`maxAnimCels`). each cel is shown for
+   * ~63 millis (`celMillis`).
    */
   id: number
   tag: T
-  /** source x. */ x: number
-  /** source y. */ y: number
-  /** clipbox / source width. */ w: number
-  /** clipbox / source height. */ h: number
+  /** clipbox / source width. */
+  w: number
+  /** clipbox / source height. */
+  h: number
 }
 
 /** `--tagname-format={filestem}--{animation}`. */
