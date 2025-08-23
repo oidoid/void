@@ -15,17 +15,17 @@ import type {
 } from './aseprite.js'
 
 export function parseAtlas(ase: Aseprite): Atlas {
-  const atlas: Atlas = {}
+  const anim: {[tag: string]: Anim} = {}
   for (const span of ase.meta.frameTags) {
     const tag = parseTag(span.name)
-    if (atlas[tag]) throw Error(`atlas tag "${tag}" duplicate`)
-    const id = Object.keys(atlas).length * maxAnimCels
-    atlas[tag] = parseAnim(id, span, ase.frames, ase.meta.slices)
+    if (anim[tag]) throw Error(`atlas tag "${tag}" duplicate`)
+    const id = Object.keys(anim).length
+    anim[tag] = parseAnim(id, span, ase.frames, ase.meta.slices)
   }
   for (const slice of ase.meta.slices)
-    if (!atlas[parseTag(slice.name)])
+    if (!anim[parseTag(slice.name)])
       throw Error(`atlas hitbox "${slice.name}" has no animation`)
-  return atlas
+  return {anim, tags: Object.keys(anim)}
 }
 
 /** @internal */

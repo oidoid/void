@@ -4,11 +4,13 @@ import type {Millis} from '../types/time.ts'
 /** every animation is padded to 16 cels as needed by repeating the sequence. */
 export const maxAnimCels: number = 16
 export const maxAnimMillis: Millis = 1000 as Millis
+/** ~63 millis. */
 export const celMillis: Millis = (maxAnimMillis / maxAnimCels) as Millis
 
 export type Atlas = {
-  /** key order is tag ID. */
-  [tag: string]: Anim
+  anim: {[tag: string]: Anim}
+  /** tag by `Anim.id`. */
+  tags: string[]
 }
 
 export type Anim = {
@@ -18,10 +20,7 @@ export type Anim = {
   hitbox: Box | undefined
   /** incoming collision rectangle (green / blue). */
   hurtbox: Box | undefined
-  /**
-   * Atlas.cels index, a multiple of 16 (`maxAnimCels`). each cel is shown for
-   * ~63 millis (`celMillis`).
-   */
+  /** atlas tag index. */
   id: number
   /** clipbox / source width. */
   w: number

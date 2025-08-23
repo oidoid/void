@@ -12,7 +12,7 @@ describe('parseAtlas()', () => {
         meta: {frameTags: [], size: {w: 0, h: 0}, slices: []},
         frames: {}
       }),
-      {}
+      {anim: {}, tags: []}
     )
   })
 
@@ -79,38 +79,46 @@ describe('parseAtlas()', () => {
     assert.deepEqual<Atlas>(
       parseAtlas({meta: {frameTags, size: {w: 0, h: 0}, slices}, frames}),
       {
-        'scenery--Cloud': {
-          cels: 1,
-          id: 0x00,
-          w: 16,
-          h: 16,
-          hitbox: {x: 8, y: 12, w: 2, h: 3},
-          hurtbox: {x: 1, y: 2, w: 3, h: 4}
+        anim: {
+          'scenery--Cloud': {
+            cels: 1,
+            id: 0,
+            w: 16,
+            h: 16,
+            hitbox: {x: 8, y: 12, w: 2, h: 3},
+            hurtbox: {x: 1, y: 2, w: 3, h: 4}
+          },
+          'palette--red': {
+            cels: 1,
+            id: 1,
+            w: 16,
+            h: 16,
+            hitbox: {x: 7, y: 11, w: 3, h: 4},
+            hurtbox: undefined
+          },
+          'scenery--Conifer': {
+            cels: 1,
+            id: 2,
+            w: 16,
+            h: 16,
+            hitbox: {x: 7, y: 10, w: 3, h: 5},
+            hurtbox: undefined
+          },
+          'scenery--ConiferShadow': {
+            cels: 1,
+            id: 3,
+            w: 16,
+            h: 16,
+            hitbox: {x: 7, y: 9, w: 3, h: 6},
+            hurtbox: undefined
+          }
         },
-        'palette--red': {
-          cels: 1,
-          id: 0x10,
-          w: 16,
-          h: 16,
-          hitbox: {x: 7, y: 11, w: 3, h: 4},
-          hurtbox: undefined
-        },
-        'scenery--Conifer': {
-          cels: 1,
-          id: 0x20,
-          w: 16,
-          h: 16,
-          hitbox: {x: 7, y: 10, w: 3, h: 5},
-          hurtbox: undefined
-        },
-        'scenery--ConiferShadow': {
-          cels: 1,
-          id: 0x30,
-          w: 16,
-          h: 16,
-          hitbox: {x: 7, y: 9, w: 3, h: 6},
-          hurtbox: undefined
-        }
+        tags: [
+          'scenery--Cloud',
+          'palette--red',
+          'scenery--Conifer',
+          'scenery--ConiferShadow'
+        ]
       }
     )
   })
@@ -136,7 +144,10 @@ describe('parseAtlas()', () => {
       }
     }
     assert.throws(() =>
-      parseAtlas({meta: {frameTags, size: {w: 0, h: 0}, slices: []}, frames})
+      parseAtlas({
+        meta: {frameTags, size: {w: 0, h: 0}, slices: []},
+        frames
+      })
     )
   })
 })

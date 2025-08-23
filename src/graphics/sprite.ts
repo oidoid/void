@@ -200,13 +200,13 @@ export abstract class Drawable implements Block, Box {
 }
 
 export class Sprite<Tag extends TagFormat> extends Drawable {
-  readonly #atlas: Readonly<Atlas<Tag>>
+  readonly #atlas: Readonly<Atlas>
   readonly #framer: {readonly age: OriginMillis}
 
   constructor(
     pool: {readonly view: DataView<ArrayBuffer>},
     i: number,
-    atlas: Readonly<Atlas<Tag>>,
+    atlas: Readonly<Atlas>,
     framer: {readonly age: OriginMillis}
   ) {
     super(pool, i)
@@ -214,8 +214,8 @@ export class Sprite<Tag extends TagFormat> extends Drawable {
     this.#framer = framer
   }
 
-  get anim(): Anim<Tag> {
-    return this.#atlas.anim[this.tag]
+  get anim(): Anim {
+    return this.#atlas.anim[this.tag]!
   }
 
   get hitbox(): Box | undefined {
@@ -260,12 +260,12 @@ export class Sprite<Tag extends TagFormat> extends Drawable {
   }
 
   get tag(): Tag {
-    return this.#atlas.tag[this.id]!
+    return this.#atlas.tags[this.id] as Tag
   }
 
   /** sets animation, resets cel, dimensions, hitbox, and hurtbox. */
   set tag(tag: Tag) {
-    const anim = this.#atlas.anim[tag]
+    const anim = this.#atlas.anim[tag]!
     this.w = anim.w
     this.h = anim.h
     this.id = anim.id

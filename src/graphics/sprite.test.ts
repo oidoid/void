@@ -5,32 +5,26 @@ import {type Anim, type Atlas, celMillis, maxAnimCels} from './atlas.ts'
 import {maxLayer} from './layer.ts'
 import {Drawable, drawableBytes, Sprite} from './sprite.ts'
 
-const animA: Anim<'stem--AnimA'> = {
+const animA: Anim = {
   cels: 10,
   id: 0,
-  tag: 'stem--AnimA',
-  x: 5,
-  y: 10,
   w: 10,
   h: 20,
   hitbox: {x: 1, y: 2, w: 3, h: 4},
   hurtbox: {x: 1, y: 2, w: 3, h: 4}
 }
-const animB: Anim<'stem--AnimB'> = {
+const animB: Anim = {
   cels: maxAnimCels,
   id: 1,
-  tag: 'stem--AnimB',
-  x: 10,
-  y: 20,
   w: 30,
   h: 40,
   hitbox: {x: 1, y: 2, w: 3, h: 4},
   hurtbox: {x: 1, y: 2, w: 3, h: 4}
 }
 
-const atlas: Readonly<Atlas<`stem--Anim${'A' | 'B'}`>> = {
-  tag: [animA.tag, animB.tag],
-  anim: {'stem--AnimA': animA, 'stem--AnimB': animB}
+const atlas: Readonly<Atlas> = {
+  anim: {'stem--AnimA': animA, 'stem--AnimB': animB},
+  tags: ['stem--AnimA', 'stem--AnimB']
 }
 
 class TestDrawable extends Drawable {}
