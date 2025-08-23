@@ -6,12 +6,12 @@ export const maxAnimCels: number = 16
 export const maxAnimMillis: Millis = 1000 as Millis
 export const celMillis: Millis = (maxAnimMillis / maxAnimCels) as Millis
 
-export type Atlas<T extends TagFormat> = {
+export type Atlas = {
   /** key order is tag ID. */
-  [tag in T]: Anim<T>
+  [tag: string]: Anim
 }
 
-export type Anim<T extends TagFormat> = {
+export type Anim = {
   /** number of cels in the original animation (no wrapping). */
   cels: number
   /** outgoing collision rectangle (red / blue). */
@@ -23,7 +23,6 @@ export type Anim<T extends TagFormat> = {
    * ~63 millis (`celMillis`).
    */
   id: number
-  tag: T
   /** clipbox / source width. */
   w: number
   /** clipbox / source height. */

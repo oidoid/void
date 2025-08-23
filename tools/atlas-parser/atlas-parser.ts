@@ -14,8 +14,8 @@ import type {
   AsepriteTagSpan
 } from './aseprite.js'
 
-export function parseAtlas<T extends TagFormat>(ase: Aseprite): Atlas<T> {
-  const atlas: Atlas<TagFormat> = {}
+export function parseAtlas(ase: Aseprite): Atlas {
+  const atlas: Atlas = {}
   for (const span of ase.meta.frameTags) {
     const tag = parseTag(span.name)
     if (atlas[tag]) throw Error(`atlas tag "${tag}" duplicate`)
@@ -25,7 +25,7 @@ export function parseAtlas<T extends TagFormat>(ase: Aseprite): Atlas<T> {
   for (const slice of ase.meta.slices)
     if (!atlas[parseTag(slice.name)])
       throw Error(`atlas hitbox "${slice.name}" has no animation`)
-  return atlas as Atlas<T>
+  return atlas
 }
 
 /** @internal */
@@ -34,7 +34,7 @@ export function parseAnim(
   span: AsepriteTagSpan,
   map: AsepriteFrameMap,
   slices: readonly AsepriteSlice[]
-): Anim<TagFormat> {
+): Anim {
   const frame = parseAnimFrames(span, map).next().value
   if (!frame) throw Error('no atlas animation frame')
   const {hitbox, hurtbox} = parseHitboxes(span, slices)
@@ -44,7 +44,6 @@ export function parseAnim(
     hitbox,
     hurtbox,
     id,
-    tag: parseTag(span.name),
     w: frame.sourceSize.w
   }
 }
@@ -70,7 +69,7 @@ function* parseAnimFrames(
   }
 }
 
-export function parseCel(frame: AsepriteFrame): Readonly<XY> {
+export function parseCel(frame: AsepriteFrame): XY {
   return {
     x: frame.frame.x + (frame.frame.w - frame.sourceSize.w) / 2,
     y: frame.frame.y + (frame.frame.h - frame.sourceSize.h) / 2
@@ -81,10 +80,7 @@ export function parseCel(frame: AsepriteFrame): Readonly<XY> {
 export function parseHitboxes(
   span: AsepriteTagSpan,
   slices: readonly AsepriteSlice[]
-): {
-  readonly hitbox: Readonly<Box> | undefined
-  hurtbox: Readonly<Box> | undefined
-} {
+): {hitbox: Box | undefined; hurtbox: Box | undefined} {
   let hitbox
   let hurtbox
   // https://github.com/aseprite/aseprite/issues/3524

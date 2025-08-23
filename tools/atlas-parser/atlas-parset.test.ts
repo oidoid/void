@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict'
 import {describe, test} from 'node:test'
-import type {Anim, Atlas, TagFormat} from '../../src/graphics/atlas.ts'
+import type {Anim, Atlas} from '../../src/graphics/atlas.ts'
 import type {XY} from '../../src/types/geo.ts'
 import type {AsepriteTagSpan} from './aseprite.ts'
 import {parseAnim, parseAtlas, parseCel, parseHitboxes} from './atlas-parser.ts'
 
 describe('parseAtlas()', () => {
   test('parses empty.', () => {
-    assert.deepEqual<Atlas<TagFormat>>(
+    assert.deepEqual<Atlas>(
       parseAtlas({
         meta: {frameTags: [], size: {w: 0, h: 0}, slices: []},
         frames: {}
@@ -76,13 +76,12 @@ describe('parseAtlas()', () => {
         keys: [{frame: 0, bounds: {x: 7, y: 9, w: 3, h: 6}}]
       }
     ]
-    assert.deepEqual<Atlas<TagFormat>>(
+    assert.deepEqual<Atlas>(
       parseAtlas({meta: {frameTags, size: {w: 0, h: 0}, slices}, frames}),
       {
         'scenery--Cloud': {
           cels: 1,
           id: 0x00,
-          tag: 'scenery--Cloud',
           w: 16,
           h: 16,
           hitbox: {x: 8, y: 12, w: 2, h: 3},
@@ -91,7 +90,6 @@ describe('parseAtlas()', () => {
         'palette--red': {
           cels: 1,
           id: 0x10,
-          tag: 'palette--red',
           w: 16,
           h: 16,
           hitbox: {x: 7, y: 11, w: 3, h: 4},
@@ -100,7 +98,6 @@ describe('parseAtlas()', () => {
         'scenery--Conifer': {
           cels: 1,
           id: 0x20,
-          tag: 'scenery--Conifer',
           w: 16,
           h: 16,
           hitbox: {x: 7, y: 10, w: 3, h: 5},
@@ -109,7 +106,6 @@ describe('parseAtlas()', () => {
         'scenery--ConiferShadow': {
           cels: 1,
           id: 0x30,
-          tag: 'scenery--ConiferShadow',
           w: 16,
           h: 16,
           hitbox: {x: 7, y: 9, w: 3, h: 6},
@@ -189,14 +185,13 @@ describe('parseAnim()', async () => {
         keys: [{frame: 0, bounds: {x: 3, y: 11, w: 10, h: 4}}]
       }
     ]
-    assert.deepEqual<Anim<TagFormat>>(parseAnim(16, frameTag, frames, slices), {
+    assert.deepEqual<Anim>(parseAnim(16, frameTag, frames, slices), {
       cels: 1,
       id: 16,
       w: 16,
       h: 16,
       hitbox: {x: 4, y: 11, w: 9, h: 4},
-      hurtbox: undefined,
-      tag: 'cloud--s'
+      hurtbox: undefined
     })
   })
 
