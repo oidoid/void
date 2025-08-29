@@ -34,7 +34,7 @@ export function Debug(url: string | undefined): Debug | undefined {
   const target: {[k: string]: string} = {}
   for (const k in map) target[k.toLowerCase()] = map[k] || 'true'
 
-  const voidKeyset: {[_ in keyof Omit<Debug, 'checkerboard'>]-?: undefined} = {
+  const voidKeyset: {[_ in keyof Omit<Debug, 'invalid'>]-?: undefined} = {
     cam: undefined,
     input: undefined,
     mem: undefined,
@@ -45,7 +45,7 @@ export function Debug(url: string | undefined): Debug | undefined {
     get(target, k): string | undefined {
       if (typeof k !== 'string') return target[k as unknown as string]
       k = k.toLowerCase()
-      return !csv || 'all' in map || ('void' in map && k in voidKeyset)
+      return !csv || 'all' in map || (k in voidKeyset && 'void' in map)
         ? target[k] || 'true'
         : target[k]
     }

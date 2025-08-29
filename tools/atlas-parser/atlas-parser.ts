@@ -16,16 +16,19 @@ import type {
 
 export function parseAtlas(ase: Aseprite): Atlas {
   const anim: {[tag: string]: Anim} = {}
+  const cels: number[] = []
   for (const span of ase.meta.frameTags) {
     const tag = parseTag(span.name)
     if (anim[tag]) throw Error(`atlas tag "${tag}" duplicate`)
     const id = Object.keys(anim).length
     anim[tag] = parseAnim(id, span, ase.frames, ase.meta.slices)
+    for (const cel of [...parseAnimFrames(span, ase.frames)].map(parseCel))
+      cels.push(cel.x, cel.y, anim[tag].w, anim[tag].h)
   }
   for (const slice of ase.meta.slices)
     if (!anim[parseTag(slice.name)])
       throw Error(`atlas hitbox "${slice.name}" has no animation`)
-  return {anim, tags: Object.keys(anim)}
+  return {anim, cels, tags: Object.keys(anim)}
 }
 
 /** @internal */
@@ -36,7 +39,7 @@ export function parseAnim(
   slices: readonly AsepriteSlice[]
 ): Anim {
   const frame = parseAnimFrames(span, map).next().value
-  if (!frame) throw Error('no atlas animation frame')
+  if (!frame) throw Error(`no atlas frame "${span.name}"`)
   const {hitbox, hurtbox} = parseHitboxes(span, slices)
   return {
     cels: span.to - span.from + 1,
@@ -51,7 +54,11 @@ export function parseAnim(
 function* parseAnimFrames(
   span: AsepriteTagSpan,
   map: AsepriteFrameMap
-): IterableIterator<AsepriteFrame> {
+): IterableIterator<
+  AsepriteFrame,
+  // biome-ignore lint/suspicious/noConfusingVoidType:;
+  AsepriteFrame | void
+> {
   for (let i = span.from; i <= span.to && i - span.from < maxAnimCels; i++) {
     const frameTag = `${span.name}--${i}` as AsepriteFrameTag
     const frame = map[frameTag]
@@ -69,6 +76,7 @@ function* parseAnimFrames(
   }
 }
 
+/** @internal */
 export function parseCel(frame: AsepriteFrame): XY {
   return {
     x: frame.frame.x + (frame.frame.w - frame.sourceSize.w) / 2,

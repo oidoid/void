@@ -6,9 +6,12 @@ import {
 } from '../graphics/atlas.ts'
 import type {Block} from '../mem/pool.ts'
 import {type Box, boxHits, type WH, type XY} from '../types/geo.ts'
-import type {OriginMillis} from '../types/time.ts'
+import type {Millis} from '../types/time.ts'
+import type {Layer} from './layer.ts'
 
 export const drawableBytes: number = 12
+
+// to-do: 1/64 pixel, 24b. might as well pad out animations to 2048. and w and h to 8096.
 
 /**
  * everything not requiring an atlas. the box is the drawn region. assume little
@@ -23,10 +26,11 @@ export const drawableBytes: number = 12
  * 6 wwww wwww width. zero means discard.
  * 7 hhhh wwww height. zero means discard.
  * 8 hhhh hhhh
- * 9 iiic cccc animation ID [0, 1023], animation cel [0, 15], reserved (2b).
+ * 9 iiic cccc animation ID [0, 1023], animation cel [0, 31], reserved (2b).
  * a riii iiii
  * b rrrr rrrr reserved.
  *
+ * animations default to looping without CPU interaction.
  * @internal
  */
 export abstract class Drawable implements Block, Box {
@@ -52,7 +56,7 @@ export abstract class Drawable implements Block, Box {
     return iiic_cccc & 0x1f
   }
 
-  /** [0, maxAnimCels]. set to Framer.age % (1000 / maxAnimCels) to start at the beginning. can actually return 2x max cels */
+  /** [0, 31]. set to Framer.age adasdas % (1000 / maxAnimCels) to start at the beginning. can actually return 2x `maxAnimCels`. */
   set cel(cel: number) {
     const iiic_cccc = this.#pool.view.getUint8(this.i + 9)
     this.#pool.view.setUint8(this.i + 9, (iiic_cccc & ~0x1f) | (cel & 0x1f))
@@ -176,13 +180,13 @@ export abstract class Drawable implements Block, Box {
     )
   }
 
-  get z(): number {
+  get z(): Layer {
     const sxyz_llll = this.#pool.view.getUint8(this.i + 5)
-    return sxyz_llll & 0xf
+    return (sxyz_llll & 0xf) as Layer
   }
 
   /** layer [0 (closest), 14 (furthest)]; 15 is hidden. */
-  set z(z: number) {
+  set z(z: Layer) {
     const sxyz_llll = this.#pool.view.getUint8(this.i + 5)
     this.#pool.view.setUint8(this.i + 5, (sxyz_llll & ~0xf) | (z & 0xf))
   }
@@ -201,13 +205,13 @@ export abstract class Drawable implements Block, Box {
 
 export class Sprite<Tag extends TagFormat> extends Drawable {
   readonly #atlas: Readonly<Atlas>
-  readonly #framer: {readonly age: OriginMillis}
+  readonly #framer: {readonly age: Millis}
 
   constructor(
     pool: {readonly view: DataView<ArrayBuffer>},
     i: number,
     atlas: Readonly<Atlas>,
-    framer: {readonly age: OriginMillis}
+    framer: {readonly age: Millis}
   ) {
     super(pool, i)
     this.#atlas = atlas

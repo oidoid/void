@@ -60,7 +60,7 @@ test('void', () => {
   assert.equal(debug?.input, 'true')
   assert.equal(debug?.mem, 'true')
   assert.equal(debug?.render, 'true')
-  assert.equal(debug?.nativeScale, 'true')
+  assert.equal((debug as {nativeScale: string}).nativeScale, 'true')
   assert.equal((debug as {unknown: string}).unknown, undefined)
 })
 

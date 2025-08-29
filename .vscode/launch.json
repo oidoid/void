@@ -1,0 +1,15 @@
+{
+  // https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "name": "test:unit file",
+      "request": "launch",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--test", "${file}"],
+      "env": {"NODE_OPTIONS": "--experimental-strip-types"},
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}

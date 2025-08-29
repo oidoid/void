@@ -79,8 +79,8 @@ export function DefaultInput<Button extends DefaultButton>(
   input.mapGamepadButton('U', 12)
   input.mapGamepadButton('D', 13)
   input.mapGamepadButton('C', 2)
-  input.mapGamepadButton('B', 0)
-  input.mapGamepadButton('A', 1)
+  input.mapGamepadButton('B', 0) // to-do: not good from PS perspective.
+  input.mapGamepadButton('A', 1) // to-do: not good from PS perspective.
   input.mapGamepadButton('Menu', 9)
   input.mapGamepadButton('Back', 8)
 
@@ -197,6 +197,7 @@ export class Input<Button extends string> {
    * `['A'], ['A'], ['A']`.
    */
   isCombo(...combo: Readonly<Combo<Button>>): boolean {
+    // to-do: isCombo('A+B', 'A', 'A', 'A', 'U+L+A') syntax? +update get combo.
     return combo.length === this.#combo.length && this.isComboEndsWith(...combo)
   }
 

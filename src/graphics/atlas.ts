@@ -9,6 +9,11 @@ export const celMillis: Millis = (maxAnimMillis / maxAnimCels) as Millis
 
 export type Atlas = {
   anim: {[tag: string]: Anim}
+  /**
+   * cell source XYWH by `Anim.id` and `Anim.cel`. every animation is padded to
+   * 16 cels (`maxAnimCels`) as needed by repeating the sequence.
+   */
+  cels: number[]
   /** tag by `Anim.id`. */
   tags: string[]
 }
@@ -17,9 +22,9 @@ export type Anim = {
   /** number of cels in the original animation (no wrapping). */
   cels: number
   /** outgoing collision rectangle (red / blue). */
-  hitbox: Box | undefined
+  hitbox?: Box | undefined
   /** incoming collision rectangle (green / blue). */
-  hurtbox: Box | undefined
+  hurtbox?: Box | undefined
   /** atlas tag index. */
   id: number
   /** clipbox / source width. */

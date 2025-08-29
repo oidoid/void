@@ -163,8 +163,15 @@ test('pressed buttons', async ctx => {
   })
 })
 
+// to-do: how can I make two button combos friendlier? this is impossible to
+// time at the same time and it's unclear how to resolve within a window. all
+// buttons pressed sounds good. even if I remove gap requirement, you end up
+// pressing A, A+B, B instead of A+B. maybe a fundamental limitation of combos
+// if you want immediate button feedback. not sure if you can look back in time
+// to generate a generous interpretation of a button sequence as a combo. maybe.
 // for "A, A+B", you can't slide from A to B without a release and releasing
 // buttons after "A, A+B, A+B+C" doesn't cause "A, A+B, A+B+C, B+C, C".
+// my ideal is: new sequence after an off release, otherwise aggregate for like 60ms.
 test('combos require gaps between presses', async ctx => {
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')

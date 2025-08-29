@@ -5,7 +5,7 @@ import type {Millis, OriginMillis} from './types/time.ts'
  * poll gamepads.
  */
 export class Framer {
-  age: OriginMillis = 0 as OriginMillis
+  age: Millis = 0 as Millis
   /** frames rendered. */
   frame: number = 0
   /** update input, update canvas, update cam, update world, then render. */
@@ -28,7 +28,7 @@ export class Framer {
   #onFrame = (prev: OriginMillis): void => {
     const millis = (prev - this.#prevFrame) as Millis
     this.#prevFrame = prev
-    this.age = (this.age + millis) as OriginMillis
+    this.age = (this.age + millis) as Millis
     this.frame++
     this.#resume() // call before in case onFrame() unregisters.
     this.onFrame?.(millis)
@@ -40,6 +40,7 @@ export class Framer {
     else this.#resume()
   }
 
+  // to-do: console.debug() lifecycles.
   #pause(): void {
     cancelAnimationFrame(this.#req)
   }

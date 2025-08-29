@@ -3,6 +3,10 @@ export type WH = {w: number; h: number}
 export type XY = {x: number; y: number}
 export type XYZ = {x: number; y: number; z: number}
 
+export function boxEq(l: Readonly<Box>, r: Readonly<Box>): boolean {
+  return xyEq(l, r) && whEq(l, r)
+}
+
 // to-do: why do I need partial xy l
 export function boxHits(
   l: Readonly<Partial<XY> & WH>,

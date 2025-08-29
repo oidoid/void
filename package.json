@@ -34,21 +34,22 @@
   "publishConfig": {
     "access": "public"
   },
+  "published": "20250824",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/oidoid/void.git"
   },
   "scripts": {
-    "build": "tools/build.ts",
+    "build": "tsc --build && npm run build:demo -- --minify",
+    "build:demo": "tools/void.ts --assets=src/demo/assets --entry=src/demo/demo.html --out-dir=dist/demo --out-image=dist/demo/atlas.png --out-json=src/demo/atlas.json",
     "clean": "rm -rf dist",
     "format": "npm run formatter -- --fix",
     "formatter": "biome check --error-on-warnings",
-    "preversion": "[ -z \"$(git status -z)\" ]",
+    "preversion": "[ -z \"$(git status -z)\" ] && sed -ri 's%\"published\": \"[0-9]{8}\"%\"published\": \"$(date +%Y%m%d)\"%' package.json",
     "prepublishOnly": "! git symbolic-ref --quiet HEAD || git push --follow-tags origin \"$(git branch --show-current)\"",
-    "start": "npm run build -- --watch",
-    "test": "npm run test:format && npm run test:types && npm run test:unit && npm run build",
+    "start": "tsc --build --preserveWatchOutput --watch& npm run build:demo -- --watch& wait",
+    "test": "npm run test:format && npm run test:unit && npm run build",
     "test:format": "npm run formatter",
-    "test:types": "tsc --build",
     "test:unit": "sh -c 'node --experimental-test-coverage --test \"${@:-**/*.test.ts}\"' --",
     "version": "npm test"
   },

@@ -3,7 +3,7 @@ import {afterEach, beforeEach, describe, test} from 'node:test'
 
 import {Framer} from './framer.ts'
 import {TestEvent} from './test/test-event.ts'
-import type {Millis} from './types/time.ts'
+import type {Millis, OriginMillis} from './types/time.ts'
 
 describe('Framer', () => {
   const doc = Object.assign(new EventTarget(), {hidden: false})
@@ -16,7 +16,7 @@ describe('Framer', () => {
       onFrame = cb
       return 0
     }
-    performance.now = () => 0
+    performance.now = () => 0 as OriginMillis
   })
   afterEach(() => {
     delete (globalThis as {[_: string]: unknown}).document

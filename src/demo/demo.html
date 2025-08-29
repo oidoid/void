@@ -9,15 +9,18 @@
     >
     <style>
       body {
+        /* fill the screen except for UI chrome. */
+        width: 100dvw;
+        height: 100dvh;
         margin: 0;
-        width: 100vw;
-        height: 100vh;
         overflow: hidden;
+
+        background-color: #ffffb1;
       }
     </style>
   </head>
   <body>
     <canvas></canvas>
-    <script src="/dist/demo/demo.js" defer></script>
+    <script src="demo.ts" type="module"></script>
   </body>
 </html>

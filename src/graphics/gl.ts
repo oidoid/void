@@ -1,4 +1,4 @@
-import {debug} from '../debug.ts'
+import {debug} from '../types/debug.ts'
 
 export type GL2 = WebGL2RenderingContext
 export type GLProgram = WebGLProgram
@@ -7,32 +7,56 @@ export type GLTexture = WebGLTexture
 export type GLUniformLocation = WebGLUniformLocation
 export type GLUniformMap = {[name: string]: GLUniformLocation}
 
-export function GLUniformMap(gl: GL2, pgm: GLProgram): GLUniformMap {
-  const len = gl.getProgramParameter(pgm, gl.ACTIVE_UNIFORMS)
-  const map = debug.render
+export type Shader = {
+  program: GLProgram | null
+  buffer: WebGLBuffer | null
+  uniform: GLUniformMap
+  vao: WebGLVertexArrayObject | null
+  textures: GLTexture[]
+}
+
+export function Shader(
+  gl: GL2,
+  vertGLSL: string,
+  fragGLSL: string,
+  textures: GLTexture[]
+): Shader {
+  const program = loadProgram(gl, vertGLSL, fragGLSL)
+  gl.useProgram(program)
+  return {
+    buffer: gl.createBuffer(),
+    program,
+    textures,
+    uniform: GLUniformMap(gl, program),
+    vao: gl.createVertexArray()
+  }
+}
+
+function GLUniformMap(gl: GL2, pgm: GLProgram | null): GLUniformMap {
+  const len = pgm ? gl.getProgramParameter(pgm, gl.ACTIVE_UNIFORMS) : 0
+  const map = debug?.render
     ? new Proxy<GLUniformMap>(
         {},
         {
-          get(target, prop: string): GLUniformLocation {
-            if (target[prop] == null)
-              throw Error(`no shader uniform named ${prop}`)
-            return target[prop]
+          get(target, k: string): GLUniformLocation {
+            if (target[k] == null) throw Error(`no shader uniform "${k}"`)
+            return target[k]
           }
         }
       )
     : {}
   for (let i = 0; i < len; ++i) {
-    const uniform = gl.getActiveUniform(pgm, i)
-    if (uniform == null) throw Error(`no shader uniform at index ${i}`)
-    const location = gl.getUniformLocation(pgm, uniform.name)
-    if (!location) throw Error(`no shader uniform named ${uniform.name}`)
+    const uniform = gl.getActiveUniform(pgm!, i)
+    if (!uniform) throw Error(`no shader uniform at index ${i}`)
+    const location = gl.getUniformLocation(pgm!, uniform.name)
+    if (!location) throw Error(`no shader uniform "${uniform.name}"`)
     const name = uniform.name.replace('[0]', '') // arrays.
     map[name] = location
   }
   return map
 }
 
-export function loadProgram(
+function loadProgram(
   gl: GL2,
   vertGLSL: string,
   fragGLSL: string
@@ -47,7 +71,7 @@ export function loadProgram(
   gl.attachShader(pgm, frag)
   gl.linkProgram(pgm)
 
-  if (!gl.getProgramParameter(pgm, gl.LINK_STATUS)) {
+  if (debug?.render && !gl.getProgramParameter(pgm, gl.LINK_STATUS)) {
     const log = gl.getProgramInfoLog(pgm)?.slice(0, -1)
     throw Error(`shader link failure; ${log}`)
   }
@@ -70,7 +94,7 @@ function compileShader(
   gl.shaderSource(shader, glsl.trim())
   gl.compileShader(shader)
 
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+  if (debug?.render && !gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
     const log = gl.getShaderInfoLog(shader)?.slice(0, -1)
     throw Error(`shader compile failure; ${log}`)
   }
