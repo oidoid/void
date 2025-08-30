@@ -179,6 +179,8 @@ export function packAtlas(
     outJSONFilename,
     JSON.stringify(parseAtlas(JSON.parse(json)), undefined, 2)
   )
+
+  execFileSync('biome', ['check', '--fix', outJSONFilename], {encoding: 'utf8'})
 }
 
 if (import.meta.main) build(process.argv)
