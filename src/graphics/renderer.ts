@@ -15,6 +15,7 @@ const uv: Readonly<Int8Array> = new Int8Array([1, 1, 0, 1, 1, 0, 0, 0])
 // renderer attempts to jusut keep state. buffered sprites keep being drawn, animations keep playing by defualt.
 export class Renderer {
   invalid: boolean = false
+  loseContext: WEBGL_lose_context | undefined
   readonly #atlas: Readonly<Atlas>
   #atlasImage?: Readonly<HTMLImageElement>
   readonly #canvas: HTMLCanvasElement
@@ -187,10 +188,13 @@ export class Renderer {
       )
 
     this.invalid = true
+    // keep outside of #context so it can be restored.
+    this.loseContext = gl.getExtension('WEBGL_lose_context') ?? undefined
     return (this.#ctx = {gl, spriteShader: shader, viewport: {w: 0, h: 0}})
   }
 
-  #onContextLost = (): void => {
+  #onContextLost = (ev: Event): void => {
+    ev.preventDefault() // required.
     console.debug('[render] WebGL context lost')
     this.#ctx = undefined
   }

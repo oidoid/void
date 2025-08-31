@@ -40,6 +40,7 @@ const input = DefaultInput(cam, canvas)
 input.register('add')
 
 const renderer = new Renderer(atlas, canvas)
+renderer.register('add')
 const framer = new Framer()
 
 const pool = new Pool<Sprite<Tag>>({
