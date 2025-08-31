@@ -34,7 +34,6 @@ canvas.focus()
 
 // to-do: center cam on background.
 const cam = new Cam()
-cam.mode = 'Int'
 cam.minWH = {w: 320, h: 240} // to-do: support zoom out.
 
 const input = DefaultInput(cam, canvas)

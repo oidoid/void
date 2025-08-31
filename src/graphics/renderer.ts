@@ -72,7 +72,7 @@ export class Renderer {
 
     gl.useProgram(spriteShader.program)
 
-    gl.uniform4f(spriteShader.uniform.uCam!, cam.x, cam.y, cam.w, cam.h)
+    gl.uniform4i(spriteShader.uniform.uCam!, cam.x, cam.y, cam.w, cam.h)
     gl.uniform1ui(spriteShader.uniform.uFrame!, framer.frame)
 
     gl.bindBuffer(gl.ARRAY_BUFFER, spriteShader.buffer)

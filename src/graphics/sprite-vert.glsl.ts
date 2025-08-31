@@ -4,8 +4,8 @@ export const spriteVertGLSL: string = `#version 300 es
 
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#essl300_minimum_requirements_webgl_2
 
-uniform highp vec4 uCam;
-uniform mediump usampler2D uCels;
+uniform highp ivec4 uCam;
+uniform lowp usampler2D uCels;
 uniform highp uint uFrame;
 
 layout (location=0) in lowp ivec2 iUV;
@@ -41,8 +41,8 @@ void main() {
   highp vec2 end = vec2(x + targetWH.x, y + targetWH.y);
   // UI layers are always given in screen coordinates.
   // to-do: how to handle non-int mode?
-  highp vec2 camXY = z <= ${Layer.UIBottom} ? vec2(0, 0) : trunc(uCam.xy);
-  highp vec2 clip = ((-2. * camXY  + 2. * end) / uCam.zw - 1.) * vec2(1, -1);
+  highp vec2 camXY = z <= ${Layer.UIBottom} ? vec2(0, 0) : vec2(uCam.xy);
+  highp vec2 clip = ((-2. * camXY  + 2. * end) / vec2(uCam.zw) - 1.) * vec2(1, -1);
   gl_Position = vec4(clip, depth, 1);
 
   lowp int frame = (int(uFrame) / 4 - cel) & 0xf;

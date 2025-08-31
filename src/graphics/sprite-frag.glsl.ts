@@ -11,8 +11,7 @@ in highp vec2 vDstWH;
 out highp vec4 oRGBA;
 
 void main() {
-  highp vec2 srcWH = vec2(vTexXYWH.zw);
-  highp vec2 px = vec2(vTexXYWH.xy ) + mod(vDstWH, srcWH);
+  highp vec2 px = vec2(vTexXYWH.xy ) + mod(vDstWH, vec2(vTexXYWH.zw));
   oRGBA = texture(uTex, px / vec2(uTexWH));
   if(oRGBA.a < .001) discard;
 }

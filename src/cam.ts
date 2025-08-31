@@ -25,7 +25,7 @@ export class Cam {
   #invalid: boolean = true
   #minScale: number = 1
   readonly #minWH: WH = {w: Infinity, h: Infinity}
-  #mode: 'Int' | 'Fraction' = 'Fraction'
+  #mode: 'Int' | 'Fraction' = 'Int'
   #scale: number = 1
   #w: number = 1
   readonly #whClient: WH = {w: 1, h: 1}
@@ -99,7 +99,6 @@ export class Cam {
    * offset). often used for UI that is fixed within the cam.
    */
   toXYLocal(client: Readonly<XY>): XY {
-    if (this.#scale === 1) return {x: client.x, y: client.y}
     return {
       x: (client.x / this.#whClient.w) * this.#w,
       y: (client.y / this.#whClient.h) * this.#h
@@ -113,12 +112,13 @@ export class Cam {
    */
   update(canvas: Canvas): void {
     if (!canvas.parentElement) throw Error('canvas has no parent')
-    const {clientWidth: parentW, clientHeight: parentH} = canvas.parentElement
+    const {clientWidth, clientHeight} = canvas.parentElement
 
-    this.#invalid = this.#whClient.w !== parentW || this.#whClient.h !== parentH
+    this.#invalid =
+      this.#whClient.w !== clientWidth || this.#whClient.h !== clientHeight
     if (!this.#invalid) return
-    this.#whClient.w = parentW
-    this.#whClient.h = parentH
+    this.#whClient.w = clientWidth
+    this.#whClient.h = clientHeight
     this.#invalidateWH()
 
     canvas.width = this.#w
@@ -177,8 +177,8 @@ export class Cam {
     this.#invalid = true
 
     const phy = {
-      w: devicePixelRatio * this.#whClient.w,
-      h: devicePixelRatio * this.#whClient.h
+      w: this.#whClient.w * devicePixelRatio,
+      h: this.#whClient.h * devicePixelRatio
     }
 
     const scale = Math.max(
