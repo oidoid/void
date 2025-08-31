@@ -13,6 +13,7 @@ declare global {
 
 export type Void<Button extends string, Tag extends TagFormat> = {
   cam: Cam
+  canvas: HTMLCanvasElement
   debug: Debug | undefined
   framer: Framer
   input: Input<Button>

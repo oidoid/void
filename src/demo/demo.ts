@@ -50,7 +50,7 @@ const pool = new Pool<Sprite<Tag>>({
   pageBlocks: 10_000
 })
 
-globalThis.v = {cam, debug, framer, pool, input, renderer}
+globalThis.v = {cam, canvas, debug, framer, pool, input, renderer}
 
 const cursor = pool.alloc()
 cursor.tag = 'cursor--Pointer'

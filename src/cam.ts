@@ -123,6 +123,7 @@ export class Cam {
 
     canvas.width = this.#w
     canvas.height = this.#h
+    // ~parentW / parentH.
     canvas.style.width = `${(this.#w * this.scale) / devicePixelRatio}px`
     canvas.style.height = `${(this.#h * this.scale) / devicePixelRatio}px`
   }

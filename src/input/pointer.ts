@@ -76,6 +76,10 @@ export class Pointer {
     return xyAdd(bounds, {x: bounds.w / 2, y: bounds.h / 2})
   }
 
+  get locked(): boolean {
+    return this.#target.ownerDocument.pointerLockElement === this.#target
+  }
+
   get pinchClient(): XY | undefined {
     if (!this.#pinchStartClient) return
     const end = this.#newPinchClient
@@ -122,10 +126,45 @@ export class Pointer {
     this.invalid = true
     const bits = this.#evButtonsToBits(ev.buttons)
     if (bits) ev.preventDefault() // only prevent mapped buttons.
-    if (ev.type === 'pointerdown') this.#target.setPointerCapture(ev.pointerId)
+    const locked = this.locked
+    if (ev.type === 'pointerdown' && !locked)
+      try {
+        this.#target.setPointerCapture(ev.pointerId)
+      } catch {}
 
     const prevPt = ev.isPrimary ? this.primary : this.secondary[ev.pointerId]
-    const xyClient = {x: ev.offsetX, y: ev.offsetY}
+
+    let xyClient
+    if (locked) {
+      // `devicePixelRatio` seems to be incorrect. when zoom is 500%, DPR is 10.
+      // in full screen, this would give the actual zoom allowing `movementX`
+      // to match the `offsetX` delta:
+      //   const scale = document.documentElement.clientWidth / screen.availWidth
+      //   console.log(
+      //     `screenDelta=${ev.screenX - prevScreen.x} movementX=${ev.movementX} movementXScaled=${ev.movementX * scale} offsetDelta=${ev.offsetX - prevOffset.x} clientDelta=${ev.clientX - prevClient.x}`
+      //   )
+      // probably wouldn't work across devices though.
+      const scale = 1 / devicePixelRatio
+
+      // to-do: this should allow offscreen.
+      xyClient = {
+        x: Math.min(
+          Math.max(
+            0,
+            (prevPt?.xyClient.x ?? ev.offsetX) + ev.movementX * scale
+          ),
+          this.#target.clientWidth
+        ),
+        y: Math.min(
+          Math.max(
+            0,
+            (prevPt?.xyClient.y ?? ev.offsetY) + ev.movementY * scale
+          ),
+          this.#target.clientHeight
+        )
+      }
+    } else xyClient = {x: ev.offsetX, y: ev.offsetY}
+
     const evType = ev.type as (typeof pointEvents)[number]
     const type =
       pointTypeByPointerType[

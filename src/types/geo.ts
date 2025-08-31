@@ -14,11 +14,12 @@ export function boxHits(
 ): boolean {
   const rWH = {w: r.w ?? 1, h: r.h ?? 1} // point? an empty box has no w/h.
   if (!l.w || !l.h || !rWH.w || !rWH.h) return false // noncommutative.
+  const lXY = {x: l.x ?? 0, y: l.y ?? 0}
   return (
-    (l.x ?? 0) < r.x + rWH.w &&
-    (l.x ?? 0) + l.w > r.x &&
-    (l.y ?? 0) < r.y + rWH.h &&
-    (l.y ?? 0) + l.h > r.y
+    lXY.x < r.x + rWH.w &&
+    lXY.x + l.w > r.x &&
+    lXY.y < r.y + rWH.h &&
+    lXY.y + l.h > r.y
   )
 }
 

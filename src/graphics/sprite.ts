@@ -56,7 +56,7 @@ export abstract class Drawable implements Block, Box {
     return iiic_cccc & 0x1f
   }
 
-  /** [0, 31]. set to Framer.age adasdas % (1000 / maxAnimCels) to start at the beginning. can actually return 2x `maxAnimCels`. */
+  /** to-do: [0, 31]. set to Framer.age adasdas % (1000 / maxAnimCels) to start at the beginning. can actually return 2x `maxAnimCels`. */
   set cel(cel: number) {
     const iiic_cccc = this.#pool.view.getUint8(this.i + 9)
     this.#pool.view.setUint8(this.i + 9, (iiic_cccc & ~0x1f) | (cel & 0x1f))
