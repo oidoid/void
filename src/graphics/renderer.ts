@@ -109,7 +109,7 @@ export class Renderer {
   }
 
   #Context(): Context | undefined {
-    const gl = GL2(this.#canvas)
+    const gl = this.#ctx?.gl ?? GL2(this.#canvas)
     if (!gl) return
 
     const shader = Shader(gl, spriteVertGLSL, spriteFragGLSL, [
@@ -208,7 +208,7 @@ export class Renderer {
 function GL2(canvas: HTMLCanvasElement): GL2 | undefined {
   const gl = canvas.getContext('webgl2', {
     // to-do: expose.
-    // antialias: false,
+    antialias: false,
     powerPreference: 'low-power',
     // avoid flicker caused by clearing the drawing buffer. see
     // https://developer.chrome.com/blog/desynchronized/.
