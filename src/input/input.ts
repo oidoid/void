@@ -142,7 +142,6 @@ export class Input<Button extends string> {
   #pointerState: PointerState | undefined
   /** bits last update. may not be equal to `#combo.at(-1)`. */
   #prevBits: number = 0
-  readonly #target: Element
   readonly #wheel: Wheel
   #wheelState: Readonly<WheelState> | undefined
 
@@ -151,7 +150,6 @@ export class Input<Button extends string> {
     this.#contextMenu = new ContextMenu(target)
     this.#keyboard = new Keyboard(target.ownerDocument)
     this.#pointer = new Pointer(target)
-    this.#target = target
     this.#wheel = new Wheel(target)
   }
 
@@ -300,7 +298,7 @@ export class Input<Button extends string> {
   }
 
   register(op: 'add' | 'remove'): this {
-    this.#target[`${op}EventListener`]('blur', this.reset) // keyup is lost if window loses focus.
+    globalThis[`${op}EventListener`]('blur', this.reset) // keyup is lost if window loses focus.
     this.#contextMenu.register(op)
     this.#keyboard.register(op)
     this.#pointer.register(op)

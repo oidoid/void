@@ -47,21 +47,7 @@ export class Renderer {
     this.#atlasImage = atlas
     this.#ctx = this.#Context()
   }
-
-  register(op: 'add' | 'remove'): this {
-    this.#canvas[`${op}EventListener`]('webglcontextlost', this.#onContextLost)
-    this.#canvas[`${op}EventListener`](
-      'webglcontextrestored',
-      this.#onContextRestored
-    )
-    return this
-  }
-
-  render(
-    cam: Readonly<Cam>,
-    framer: {readonly frame: number},
-    pool: Readonly<Pool<Sprite<TagFormat>>>
-  ): void {
+  prerender(cam: Readonly<Cam>, framer: {readonly frame: number}): void {
     if (!this.#ctx) return
     const {gl, spriteShader, viewport} = this.#ctx
 
@@ -76,6 +62,25 @@ export class Renderer {
     gl.uniform4i(spriteShader.uniform.uCam!, cam.x, cam.y, cam.w, cam.h)
     gl.uniform1ui(spriteShader.uniform.uFrame!, framer.frame)
 
+    for (const [i, tex] of spriteShader.textures.entries()) {
+      gl.activeTexture(gl.TEXTURE0 + i)
+      gl.bindTexture(gl.TEXTURE_2D, tex)
+    }
+  }
+
+  register(op: 'add' | 'remove'): this {
+    this.#canvas[`${op}EventListener`]('webglcontextlost', this.#onContextLost)
+    this.#canvas[`${op}EventListener`](
+      'webglcontextrestored',
+      this.#onContextRestored
+    )
+    return this
+  }
+
+  render(pool: Readonly<Pool<Sprite<TagFormat>>>): void {
+    if (!this.#ctx) return
+    const {gl, spriteShader} = this.#ctx
+
     gl.bindBuffer(gl.ARRAY_BUFFER, spriteShader.buffer)
     gl.bufferData(
       gl.ARRAY_BUFFER,
@@ -84,13 +89,7 @@ export class Renderer {
       0,
       pool.size * drawableBytes
     )
-
     gl.bindBuffer(gl.ARRAY_BUFFER, null)
-
-    for (const [i, tex] of spriteShader.textures.entries()) {
-      gl.activeTexture(gl.TEXTURE0 + i)
-      gl.bindTexture(gl.TEXTURE_2D, tex)
-    }
 
     gl.bindVertexArray(spriteShader.vao)
     gl.drawArraysInstanced(
@@ -102,6 +101,12 @@ export class Renderer {
     gl.bindVertexArray(null)
 
     this.invalid = false
+  }
+
+  setDepth(enable: boolean): void {
+    if (!this.#ctx) return
+    if (enable) this.#ctx.gl.enable(this.#ctx.gl.DEPTH_TEST)
+    else this.#ctx.gl.disable(this.#ctx.gl.DEPTH_TEST)
   }
 
   [Symbol.dispose](): void {
@@ -117,8 +122,16 @@ export class Renderer {
       gl.createTexture()
     ])
 
+    // allow translucent textures to be layered.
+    gl.enable(gl.BLEND)
+    gl.blendFuncSeparate(
+      gl.SRC_ALPHA,
+      gl.ONE_MINUS_SRC_ALPHA,
+      gl.ONE,
+      gl.ONE_MINUS_SRC_ALPHA
+    )
+
     // enable z-buffer for [0, 1] ([foreground, background]).
-    gl.enable(gl.DEPTH_TEST)
     gl.depthRange(0, 1)
     gl.clearDepth(1)
     gl.depthFunc(gl.LESS)

@@ -18,6 +18,7 @@ const lowp int layers = 16;
 const mediump int maxDepth = maxY * layers;
 
 flat out mediump ivec4 vTexXYWH;
+flat out lowp int vZ;
 out highp vec2 vDstWH;
 
 void main() {
@@ -48,6 +49,7 @@ void main() {
   lowp int frame = (int(uFrame) / 4 - cel) & 0xf;
   mediump uvec4 texXYWH = texelFetch(uCels, ivec2(0, id + frame), 0);
   vTexXYWH = ivec4(texXYWH);
+  vZ = z;
 
   vDstWH = vec2(targetWH * ivec2(flipX ? -1 : 1, flipY ? -1 : 1));
 }
