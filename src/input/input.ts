@@ -8,8 +8,8 @@ import type {PointType} from './pointer.ts'
 import {Pointer} from './pointer.ts'
 import {Wheel} from './wheel.ts'
 
-export type ButtonSet<Button> = [btn: Button, ...Button[]]
-export type Combo<Button> = [ButtonSet<Button>, ...ButtonSet<Button>[]]
+export type Chord<Button> = [Button, ...Button[]]
+export type Combo<Button> = [Chord<Button>, ...Chord<Button>[]]
 
 // biome-ignore format:;
 export type DefaultButton =
@@ -155,17 +155,17 @@ export class Input<Button extends string> {
 
   /** for debugging. */
   get combo(): Button[][] {
-    const sets: Button[][] = []
+    const chords: Button[][] = []
     for (const bits of this.#combo) {
-      const set: Button[] = []
+      const chord: Button[] = []
       for (let bit = 1; bit <= bits; bit <<= 1) {
         if ((bit & bits) === bit && this.#buttonByBit[bit])
-          set.push(this.#buttonByBit[bit]!)
+          chord.push(this.#buttonByBit[bit]!)
       }
-      set.sort()
-      sets.push(set)
+      chord.sort()
+      chords.push(chord)
     }
-    return sets
+    return chords
   }
 
   /**
@@ -181,11 +181,11 @@ export class Input<Button extends string> {
     return !this.handled && this.#heldMillis >= this.minHeldMillis
   }
 
-  isAnyOn(...btns: Readonly<ButtonSet<Button>>): boolean {
+  isAnyOn(...btns: Readonly<Chord<Button>>): boolean {
     return !this.handled && !!(this.#bits & this.#mapBits(btns))
   }
 
-  isAnyOnStart(...btns: Readonly<ButtonSet<Button>>): boolean {
+  isAnyOnStart(...btns: Readonly<Chord<Button>>): boolean {
     return this.started && this.isAnyOn(...btns)
   }
 
@@ -225,17 +225,17 @@ export class Input<Button extends string> {
   }
 
   /*:
-   * true if any button in set is not on. this is usually what's wanted. eg:
+   * true if any button in chord is not on. this is usually what's wanted. eg:
    * ```ts
    * if (isOn('A', 'B')) console.log('on')
    * if (isOff('A', 'B')) console.log('not A+B; A and/or B is off')
    * ```
    */
-  isOff(...btns: Readonly<ButtonSet<Button>>): boolean {
+  isOff(...btns: Readonly<Chord<Button>>): boolean {
     return !this.handled && !this.isOn(...btns)
   }
 
-  isOffStart(...btns: Readonly<ButtonSet<Button>>): boolean {
+  isOffStart(...btns: Readonly<Chord<Button>>): boolean {
     const bits = this.#mapBits(btns)
     const wasOn = (this.#prevBits & bits) === bits
     // don't test this.#bits === 0 since it might forever miss the off event for
@@ -247,12 +247,12 @@ export class Input<Button extends string> {
    * true if all buttons are on inclusively. eg, `isOn('U')` is true when up is
    * pressed or when up and down are pressed.
    */
-  isOn(...btns: Readonly<ButtonSet<Button>>): boolean {
+  isOn(...btns: Readonly<Chord<Button>>): boolean {
     const bits = this.#mapBits(btns)
     return !this.handled && (this.#bits & bits) === bits
   }
 
-  isOnStart(...btns: Readonly<ButtonSet<Button>>): boolean {
+  isOnStart(...btns: Readonly<Chord<Button>>): boolean {
     return this.started && this.isOn(...btns)
   }
 
@@ -438,7 +438,7 @@ export class Input<Button extends string> {
   }
 
   /** get bits for buttons. */
-  #mapBits(btns: Readonly<ButtonSet<Button>>): number {
+  #mapBits(btns: Readonly<Chord<Button>>): number {
     let bits = 0
     for (const btn of btns) bits |= this.#bitByButton[btn] ?? 0
     return bits
