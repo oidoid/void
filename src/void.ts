@@ -7,10 +7,6 @@ import type {Input} from './input/input.ts'
 import type {Pool} from './mem/pool.ts'
 import type {Debug} from './types/debug.ts'
 
-declare global {
-  var v: Void<string, TagFormat>
-}
-
 export type Void<Button extends string, Tag extends TagFormat> = {
   cam: Cam
   canvas: HTMLCanvasElement

@@ -1,3 +1,4 @@
+/** @internal */
 export class Gamepad {
   bits: number = 0
   // to-do: support analog button values, expose connected status and vibration,

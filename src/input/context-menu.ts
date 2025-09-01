@@ -1,3 +1,4 @@
+/** @internal */
 export class ContextMenu {
   enable: boolean = false
   readonly #target: EventTarget

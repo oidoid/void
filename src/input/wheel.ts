@@ -1,5 +1,6 @@
 import type {XYZ} from '../types/geo.ts'
 
+/** @internal */
 export class Wheel {
   deltaClient: Readonly<XYZ> | undefined
   readonly #target: EventTarget

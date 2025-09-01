@@ -11,7 +11,7 @@ import {
 export type PointType =
   (typeof pointTypeByPointerType)[keyof typeof pointTypeByPointerType]
 
-type PointEvent = {
+export type PointEvent = {
   bits: number
   /** most recent click. */
   clickClient: XY | undefined
@@ -39,6 +39,7 @@ const pointEvents = [
   'pointerup'
 ] as const
 
+/** @internal */
 export class Pointer {
   readonly bitByButton: {[btn: number]: number} = {}
   dragMinClient: number = 5

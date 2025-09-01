@@ -1,17 +1,26 @@
-import {published, version} from '../../package.json'
-import {Cam} from '../cam.ts'
-import {Framer} from '../framer.ts'
-import {Layer} from '../graphics/layer.ts'
-import {Renderer} from '../graphics/renderer.ts'
-import {drawableBytes, Sprite} from '../graphics/sprite.ts'
-import {DefaultInput} from '../input/input.ts'
-import {Pool} from '../mem/pool.ts'
-import {debug} from '../types/debug.ts'
-import {initDoc} from '../utils/doc-util.ts'
-import {fetchImage} from '../utils/fetch-util.ts'
+import {
+  Cam,
+  type DefaultButton,
+  DefaultInput,
+  debug,
+  drawableBytes,
+  Framer,
+  fetchImage,
+  initDoc,
+  Layer,
+  Pool,
+  Renderer,
+  Sprite,
+  type Void,
+  version
+} from '../index.ts'
 import atlas from './atlas.json' with {type: 'json'}
 
-declare module '../types/debug.ts' {
+declare global {
+  var v: Void<DefaultButton, Tag>
+}
+
+declare module '../index.ts' {
   interface Debug {
     /** always render. */
     invalid?: string
@@ -20,7 +29,7 @@ declare module '../types/debug.ts' {
 
 type Tag = keyof typeof atlas.anim
 
-console.log(`void v${version}+${published} ───oidoid>°──`)
+console.log(`void v${version} ───oidoid>°──`)
 
 const canvas = initDoc(0xffffb1ff, 'Int')
 

@@ -1,3 +1,4 @@
+/** @internal */
 export class Keyboard {
   /** KeyboardEvent.code to bit. */
   readonly bitByCode: {[code: string]: number} = {}
