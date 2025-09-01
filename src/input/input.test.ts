@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import {test} from 'node:test'
+import {afterEach, beforeEach, test} from 'node:test'
 import {Cam} from '../cam.ts'
 import {TestElement} from '../test/test-element.ts'
 import {
@@ -10,8 +10,19 @@ import {
 import type {Millis} from '../types/time.ts'
 import {type Combo, type DefaultButton, DefaultInput} from './input.ts'
 
-globalThis.devicePixelRatio = 1
-globalThis.isSecureContext = false
+beforeEach(() => {
+  globalThis.devicePixelRatio = 1
+  globalThis.isSecureContext = false
+  globalThis.addEventListener = () => {}
+  globalThis.removeEventListener = () => {}
+})
+
+afterEach(() => {
+  delete (globalThis as Partial<typeof globalThis>).devicePixelRatio
+  delete (globalThis as Partial<typeof globalThis>).isSecureContext
+  delete (globalThis as Partial<typeof globalThis>).addEventListener
+  delete (globalThis as Partial<typeof globalThis>).removeEventListener
+})
 
 test('init', async ctx => {
   const target = TestElement()
@@ -166,12 +177,14 @@ test('pressed buttons', async ctx => {
 // to-do: how can I make two button combos friendlier? this is impossible to
 // time at the same time and it's unclear how to resolve within a window. all
 // buttons pressed sounds good. even if I remove gap requirement, you end up
-// pressing A, A+B, B instead of A+B. maybe a fundamental limitation of combos
-// if you want immediate button feedback. not sure if you can look back in time
-// to generate a generous interpretation of a button sequence as a combo. maybe.
-// for "A, A+B", you can't slide from A to B without a release and releasing
-// buttons after "A, A+B, A+B+C" doesn't cause "A, A+B, A+B+C, B+C, C".
-// my ideal is: new sequence after an off release, otherwise aggregate for like 60ms.
+// pressing A, A+B, B instead of A+B. generate multiple interpretations each
+// press and union result. for "A, A+B", you can't slide from A to B without a
+// release and releasing buttons after "A, A+B, A+B+C" doesn't cause
+// "A, A+B, A+B+C, B+C, C". my ideal is: new sequence after an off release,
+// otherwise aggregate for like 60ms.
+// A-off-A+B-off-A-off-A -> A-A+B-A-A
+// A-off-A-B-off-A-off-A -> A-A+B-A-A, don't care if also A-A-B-A-A
+// U-U+R-R-R+D-D-D+L-L-L+U -> U-U+R-R-R+D-D-D+L-L-L+U
 test('combos require gaps between presses', async ctx => {
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
