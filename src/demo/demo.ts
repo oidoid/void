@@ -7,6 +7,7 @@ import {drawableBytes, Sprite} from '../graphics/sprite.ts'
 import {DefaultInput} from '../input/input.ts'
 import {Pool} from '../mem/pool.ts'
 import {debug} from '../types/debug.ts'
+import {initDoc} from '../utils/doc-util.ts'
 import {fetchImage} from '../utils/fetch-util.ts'
 import atlas from './atlas.json' with {type: 'json'}
 
@@ -21,16 +22,7 @@ type Tag = keyof typeof atlas.anim
 
 console.log(`void v${version}+${published} ───oidoid>°──`)
 
-const canvas = document.querySelector('canvas')
-if (!canvas) throw Error('no canvas')
-canvas.style.imageRendering = 'pixelated' // why doesn't cam mode set this?
-canvas.style.display = 'block'
-canvas.style.touchAction = 'none' // to-do: normal html stuff.
-canvas.tabIndex = 0
-canvas.style.outline = 'none' // disable focus outline.
-canvas.style.cursor = 'none'
-canvas.focus()
-// to-do: the rest
+const canvas = initDoc(0xffffb1ff, 'Int')
 
 // to-do: center cam on background.
 const cam = new Cam()
@@ -76,15 +68,16 @@ framer.onFrame = millis => {
   input.update(millis)
   cam.update(canvas)
 
-  if (input.point?.started) {
-    cursor.x = input.point.local.x
-    cursor.y = input.point.local.y
-  }
   const epsilon = 1 / 8 //to-do:1/16 and move to sprite or something.
   if (input.isOn('L')) cam.x -= epsilon
   if (input.isOn('R')) cam.x += epsilon
   if (input.isOn('U')) cam.y -= epsilon
   if (input.isOn('D')) cam.y += epsilon
+
+  if (input.point?.started) {
+    cursor.x = input.point.local.x
+    cursor.y = input.point.local.y
+  }
 
   if (!debug?.invalid && !input.invalid && !cam.invalid && !renderer.invalid)
     return
@@ -97,22 +90,24 @@ framer.register('add')
 function printInput(): void {
   if (input.started) {
     const on = !!input.on.length
-    if (on) console.debug(`buttons on: ${input.on.join(' ')}`)
-    else console.debug(`buttons off`)
+    if (on) console.debug(`[input] buttons on: ${input.on.join(' ')}`)
+    else console.debug(`[input] buttons off`)
     const combo = input.combo
     if (combo.length > 1 && on)
-      console.debug(`combo: ${combo.map(set => set.join('+')).join(' ')}`)
+      console.debug(
+        `[input] combo: ${combo.map(set => set.join('+')).join(' ')}`
+      )
   }
   if (input.point?.started && input.point?.click && !input.point.pinch)
     console.debug(
-      `${input.point.drag.on ? 'drag' : 'click'} xy: ${input.point.xy.x} ${input.point.xy.y}`
+      `[input] ${input.point.drag.on ? 'drag' : 'click'} xy: ${input.point.xy.x} ${input.point.xy.y}`
     )
   if (input.point?.pinch)
     console.debug(
-      `pinch xy: ${input.point.pinch.xy.x} ${input.point.pinch.xy.y}`
+      `[input] pinch xy: ${input.point.pinch.xy.x} ${input.point.pinch.xy.y}`
     )
   if (input.wheel)
     console.debug(
-      `wheel xy: ${input.wheel.delta.xy.x} ${input.wheel.delta.xy.y}`
+      `[input] wheel xy: ${input.wheel.delta.xy.x} ${input.wheel.delta.xy.y}`
     )
 }
