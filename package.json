@@ -54,7 +54,7 @@
     "start": "tsc --build --preserveWatchOutput --watch& npm run build:demo -- --watch& wait",
     "test": "npm run test:format && npm run test:unit && npm run build",
     "test:format": "npm run formatter",
-    "test:unit": "sh -c 'node --experimental-test-coverage --test \"${@:-**/*.test.ts}\"' --",
+    "test:unit": "sh -c 'find; echo **/*.ts; node --experimental-test-coverage --test \"${@:-**/*.test.ts}\"' --",
     "version": "npm test"
   },
   "type": "module",
