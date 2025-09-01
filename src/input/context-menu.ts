@@ -20,7 +20,7 @@ export class ContextMenu {
   }
 
   #onContextMenu = (ev: PointerEvent | TouchEvent): void => {
-    if (!ev.isTrusted || ev.metaKey) return
+    if (!ev.isTrusted || ev.metaKey || ev.altKey || ev.ctrlKey) return
     if (!this.enable) ev.preventDefault()
   }
 }
