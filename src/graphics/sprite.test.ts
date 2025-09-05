@@ -434,6 +434,7 @@ test('looped', () => {
 
   framer.age = (celMillis * (maxAnimCels + 0)) as Millis
   sprite.tag = 'stem--AnimB'
+  assert.equal(sprite.cel, maxAnimCels)
   assert.equal(sprite.looped, false)
 
   for (let i = 0; i < maxAnimCels - 1; i++) {
@@ -442,6 +443,9 @@ test('looped', () => {
   }
 
   framer.age = (celMillis * (maxAnimCels + maxAnimCels)) as Millis
+  assert.equal(sprite.looped, true)
+
+  framer.age = (celMillis * (maxAnimCels + maxAnimCels + 1)) as Millis
   assert.equal(sprite.looped, true)
 })
 

@@ -2,14 +2,19 @@ import {
   type Anim,
   type Atlas,
   celMillis,
+  maxAnimCels,
   type TagFormat
 } from '../graphics/atlas.ts'
 import type {Block} from '../mem/pool.ts'
 import {type Box, boxHits, type WH, type XY} from '../types/geo.ts'
 import type {Millis} from '../types/time.ts'
+import {mod} from '../utils/math.ts'
 import type {Layer} from './layer.ts'
 
+// to-do: how do I rotate the sprite offset? I used to be able to do this. very handy for first 8px at least.
+
 export const drawableBytes: number = 12
+export const spriteMaxWH: WH = {w: 4095, h: 4095}
 
 // to-do: 1/64 pixel, 24b. might as well pad out animations to 2048. and w and h to 8096.
 
@@ -56,6 +61,7 @@ export abstract class Drawable implements Block, Box {
     return iiic_cccc & 0x1f
   }
 
+  // offset name? the starting framer cel frame thing.
   /** to-do: [0, 31]. set to Framer.age adasdas % (1000 / maxAnimCels) to start at the beginning. can actually return 2x `maxAnimCels`. */
   set cel(cel: number) {
     const iiic_cccc = this.#pool.view.getUint8(this.i + 9)
@@ -222,6 +228,7 @@ export class Sprite<Tag extends TagFormat> extends Drawable {
     return this.#atlas.anim[this.tag]!
   }
 
+  // to-do: cache.
   get hitbox(): Box | undefined {
     const {hitbox} = this.anim
     if (!hitbox) return
@@ -240,6 +247,7 @@ export class Sprite<Tag extends TagFormat> extends Drawable {
     return !!hurtbox && boxHits(hitbox, hurtbox)
   }
 
+  // to-do: cache.
   get hurtbox(): Box | undefined {
     const {hurtbox} = this.anim
     if (!hurtbox) return
@@ -251,16 +259,16 @@ export class Sprite<Tag extends TagFormat> extends Drawable {
     }
   }
 
-  /** true if animation has played. */
+  /** true if animation has played once. */
   get looped(): boolean {
     // this comparison resets after the second loop since cel can only count to
     // 2 * anim.cels.
-    return Math.abs(this.#framerCel - this.cel) >= this.anim.cels
+    return mod(this.#currentCel - this.cel, maxAnimCels * 2) >= this.anim.cels
   }
 
   /** sets cel to animation start. */
   reset(): void {
-    this.cel = this.#framerCel // let the setter truncate.
+    this.cel = this.#currentCel // setter truncates.
   }
 
   get tag(): Tag {
@@ -281,8 +289,8 @@ export class Sprite<Tag extends TagFormat> extends Drawable {
   }
 
   /** current fractional cel in [0, 2 * anim.cels). */
-  get #framerCel(): number {
+  get #currentCel(): number {
     const cel = this.#framer.age / celMillis
-    return cel % (2 * this.anim.cels)
+    return cel % (this.anim.cels * 2)
   }
 }

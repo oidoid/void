@@ -6,7 +6,7 @@ export const spriteVertGLSL: string = `#version 300 es
 
 uniform highp ivec4 uCam;
 uniform lowp usampler2D uCels;
-uniform highp uint uFrame;
+uniform highp float uAge;
 
 layout (location=0) in lowp ivec2 iUV;
 layout (location=1) in highp uint iy12_x20;
@@ -46,7 +46,7 @@ void main() {
   highp vec2 clip = ((-2. * camXY  + 2. * end) / vec2(uCam.zw) - 1.) * vec2(1, -1);
   gl_Position = vec4(clip, depth, 1);
 
-  lowp int frame = (int(uFrame) / 4 - cel) & 0xf;
+  lowp int frame = (((int(uAge / ${celMillis}) & 0x1f) - cel) + ${maxAnimCels}) & 0xf;
   mediump uvec4 texXYWH = texelFetch(uCels, ivec2(0, id + frame), 0);
   vTexXYWH = ivec4(texXYWH);
   vZ = z;
@@ -55,5 +55,6 @@ void main() {
 }
 `
 
-import {debug} from '../types/debug.js'
-import {Layer} from './layer.js'
+import {debug} from '../types/debug.ts'
+import {celMillis, maxAnimCels} from './atlas.ts'
+import {Layer} from './layer.ts'

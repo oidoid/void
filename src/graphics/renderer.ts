@@ -2,6 +2,7 @@ import type {Cam} from '../cam.ts'
 import type {Pool} from '../mem/pool.ts'
 import {debug} from '../types/debug.ts'
 import {type WH, whEq} from '../types/geo.ts'
+import type {Millis} from '../types/time.ts'
 import type {Atlas, TagFormat} from './atlas.ts'
 import {type GL2, Shader} from './gl.ts'
 import {drawableBytes, type Sprite} from './sprite.ts'
@@ -47,7 +48,7 @@ export class Renderer {
     this.#atlasImage = atlas
     this.#ctx = this.#Context()
   }
-  prerender(cam: Readonly<Cam>, framer: {readonly frame: number}): void {
+  prerender(cam: Readonly<Cam>, framer: {readonly age: Millis}): void {
     if (!this.#ctx) return
     const {gl, spriteShader, viewport} = this.#ctx
 
@@ -60,7 +61,7 @@ export class Renderer {
     gl.useProgram(spriteShader.program)
 
     gl.uniform4i(spriteShader.uniform.uCam!, cam.x, cam.y, cam.w, cam.h)
-    gl.uniform1ui(spriteShader.uniform.uFrame!, framer.frame)
+    gl.uniform1f(spriteShader.uniform.uAge!, framer.age)
 
     for (const [i, tex] of spriteShader.textures.entries()) {
       gl.activeTexture(gl.TEXTURE0 + i)

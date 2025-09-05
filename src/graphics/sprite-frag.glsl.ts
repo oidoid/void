@@ -19,5 +19,5 @@ void main() {
 }
 `
 
-import {debug} from '../types/debug.js'
-import {Layer} from './layer.js'
+import {debug} from '../types/debug.ts'
+import {Layer} from './layer.ts'
