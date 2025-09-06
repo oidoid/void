@@ -1,23 +1,23 @@
 import type {Font} from 'mem-font'
-import type {TagFormat} from '../graphics/atlas.js'
+import type {TagFormat} from '../graphics/atlas.ts'
 
-export function fontCharToTag(self: Font, char: string): TagFormat {
+export function fontCharToTag(font: Readonly<Font>, char: string): TagFormat {
   let pt = char.codePointAt(0)
   if (pt == null || pt > 0xff) pt = 63 // ?
-  return `${self.id}--${pt.toString(16).padStart(2, '0')}`
+  return `${font.id}--${pt.toString(16).padStart(2, '0')}`
 }
 
-/** @arg rhs undefined means end of line. */
+/** @arg r undefined means end of line. */
 export function fontKerning(
-  self: Font,
-  lhs: string,
-  rhs: string | undefined
+  font: Readonly<Font>,
+  l: string,
+  r: string | undefined
 ): number {
-  if (rhs == null) return self.endOfLineKerning
-  if (/^\s*$/.test(lhs) || /^\s*$/.test(rhs)) return self.whitespaceKerning
-  return self.kerning[lhs + rhs] ?? self.defaultKerning
+  if (r == null) return font.endOfLineKerning
+  if (/^\s*$/.test(l) || /^\s*$/.test(r)) return font.whitespaceKerning
+  return font.kerning[l + r] ?? font.defaultKerning
 }
 
-export function fontCharWidth(self: Font, letter: string): number {
-  return self.charWidth[letter] ?? self.defaultCharWidth
+export function fontCharWidth(font: Readonly<Font>, letter: string): number {
+  return font.charWidth[letter] ?? font.defaultCharWidth
 }

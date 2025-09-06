@@ -85,11 +85,11 @@ function layoutNewline(font: Readonly<Font>, cursor: Readonly<XY>): TextLayout {
 function layoutSpace(
   font: Readonly<Font>,
   cursor: Readonly<XY>,
-  width: number,
+  w: number,
   span: number
 ): TextLayout {
   const nextCursor =
-    cursor.x > 0 && cursor.x + span >= width
+    cursor.x > 0 && cursor.x + span >= w
       ? nextLine(font, cursor.y)
       : {x: cursor.x + span, y: cursor.y}
   return {chars: [undefined], cursor: nextCursor}
@@ -98,8 +98,8 @@ function layoutSpace(
 /** @return the distance in pixels from the start of lhs to the start of rhs. */
 function tracking(
   font: Readonly<Font>,
-  lhs: string,
-  rhs: string | undefined
+  l: string,
+  r: string | undefined
 ): number {
-  return fontCharWidth(font, lhs) + fontKerning(font, lhs, rhs)
+  return fontCharWidth(font, l) + fontKerning(font, l, r)
 }
