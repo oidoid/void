@@ -21,17 +21,26 @@ export function layoutText(
     const i = chars.length
     const char = str[i]!
     let layout
-    if (char === '\n') layout = layoutNewline(font, cursor)
+    if (char === '\n') layout = layoutNewline(font, cursor, start.x)
     else if (/^\s*$/.test(char)) {
-      layout = layoutSpace(font, cursor, maxW, tracking(font, char, str[i + 1]))
+      layout = layoutSpace(
+        font,
+        cursor,
+        maxW,
+        tracking(font, char, str[i + 1]),
+        start.x
+      )
     } else {
-      layout = layoutWord(font, cursor, maxW, str, i)
-      if (cursor.x > 0 && layout.cursor.y === nextLine(font, cursor.y).y) {
+      layout = layoutWord(font, cursor, maxW, str, i, start.x)
+      if (
+        cursor.x > 0 &&
+        layout.cursor.y === nextLine(font, start.x, cursor.y).y
+      ) {
         const wordW = maxW - cursor.x + layout.cursor.x
         if (wordW <= maxW) {
           // word can fit on one line if cursor is reset to the start of line.
-          cursor = nextLine(font, cursor.y)
-          layout = layoutWord(font, cursor, maxW, str, i)
+          cursor = nextLine(font, start.x, cursor.y)
+          layout = layoutWord(font, cursor, maxW, str, i, start.x)
         }
       }
     }
@@ -48,7 +57,8 @@ export function layoutWord(
   cursor: Readonly<XY>,
   maxW: number,
   word: string,
-  index: number
+  index: number,
+  startX: number
 ): TextLayout {
   const chars = []
   let {x, y} = cursor
@@ -57,7 +67,7 @@ export function layoutWord(
     if (!char || /^\s*$/.test(char)) break
 
     const span = tracking(font, char, word[index + 1])
-    if (x > 0 && x + span > maxW) ({x, y} = nextLine(font, y))
+    if (x > 0 && x + span > maxW) ({x, y} = nextLine(font, startX, y))
 
     // width is not span since, with kerning, that may exceed the actual
     // width of the character's sprite. eg, if w has the maximal character width
@@ -70,12 +80,16 @@ export function layoutWord(
   return {chars, cursor: {x, y}}
 }
 
-function nextLine(font: Readonly<Font>, y: number): XY {
-  return {x: 0, y: y + font.lineHeight}
+function nextLine(font: Readonly<Font>, startX: number, curY: number): XY {
+  return {x: startX, y: curY + font.lineHeight}
 }
 
-function layoutNewline(font: Readonly<Font>, cursor: Readonly<XY>): TextLayout {
-  return {chars: [undefined], cursor: nextLine(font, cursor.y)}
+function layoutNewline(
+  font: Readonly<Font>,
+  cursor: Readonly<XY>,
+  startX: number
+): TextLayout {
+  return {chars: [undefined], cursor: nextLine(font, startX, cursor.y)}
 }
 
 /**
@@ -86,11 +100,12 @@ function layoutSpace(
   font: Readonly<Font>,
   cursor: Readonly<XY>,
   w: number,
-  span: number
+  span: number,
+  startX: number
 ): TextLayout {
   const nextCursor =
     cursor.x > 0 && cursor.x + span >= w
-      ? nextLine(font, cursor.y)
+      ? nextLine(font, startX, cursor.y)
       : {x: cursor.x + span, y: cursor.y}
   return {chars: [undefined], cursor: nextCursor}
 }

@@ -615,6 +615,6 @@ describe('layoutWord()', () => {
     ] as const
   ).entries()) {
     test(`case ${i}: xy=(${xy.x}, ${xy.y}), width=${width}, string="${string}", index=${index}.`, () =>
-      assert.deepEqual(layoutWord(font, xy, width, string, index), expected))
+      assert.deepEqual(layoutWord(font, xy, width, string, index, 0), expected))
   }
 })
