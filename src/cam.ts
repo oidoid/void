@@ -8,8 +8,10 @@ export type LevelClientLocalXY = {
    * offset) within cam.
    */
   local: XY
-  /** level position within cam. */
-  xy: XY
+  /** level x-coord within cam. */
+  x: number
+  /** level y-coord within cam. */
+  y: number
 }
 
 type Canvas = {
@@ -32,6 +34,11 @@ export class Cam {
   #x: number = 0
   #y: number = 0
   #zoomOut: number = 0
+
+  center(xy: Readonly<XY>): void {
+    this.x = Math.floor(xy.x - this.w / 2)
+    this.y = Math.floor(xy.y - this.h / 2)
+  }
 
   /** true if cam moved or resized since last update. */
   get invalid(): boolean {

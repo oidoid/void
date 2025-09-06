@@ -374,10 +374,10 @@ export class Input<Button extends string> {
             ? {
                 client: pt.clickClient,
                 local: this.#cam.toXYLocal(pt.clickClient),
-                xy: this.#cam.toXY(pt.clickClient)
+                ...this.#cam.toXY(pt.clickClient)
               }
             : undefined,
-          xy: this.#cam.toXY(pt.xyClient),
+          ...this.#cam.toXY(pt.xyClient),
           client: pt.xyClient,
           local: this.#cam.toXYLocal(pt.xyClient)
         })
@@ -386,7 +386,7 @@ export class Input<Button extends string> {
       const center = {
         client: centerClient,
         local: this.#cam.toXYLocal(centerClient),
-        xy: this.#cam.toXY(centerClient)
+        ...this.#cam.toXY(centerClient)
       }
       this.#pointerState = {
         center,
@@ -394,7 +394,7 @@ export class Input<Button extends string> {
           ? {
               client: this.#pointer.primary.clickClient,
               local: this.#cam.toXYLocal(this.#pointer.primary.clickClient),
-              xy: this.#cam.toXY(this.#pointer.primary.clickClient)
+              ...this.#cam.toXY(this.#pointer.primary.clickClient)
             }
           : undefined,
         drag: {
@@ -408,7 +408,7 @@ export class Input<Button extends string> {
           : undefined,
         secondary,
         type: this.#pointer.primary.type,
-        xy: this.#cam.toXY(this.#pointer.primary.xyClient),
+        ...this.#cam.toXY(this.#pointer.primary.xyClient),
         client: this.#pointer.primary.xyClient,
         local: this.#cam.toXYLocal(this.#pointer.primary.xyClient)
       }

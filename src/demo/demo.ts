@@ -125,7 +125,7 @@ function printInput(): void {
   }
   if (input.point?.started && input.point?.click && !input.point.pinch)
     console.debug(
-      `[input] ${input.point.drag.on ? 'drag' : 'click'} xy: ${input.point.xy.x} ${input.point.xy.y}`
+      `[input] ${input.point.drag.on ? 'drag' : 'click'} xy: ${input.point.x} ${input.point.y}`
     )
   if (input.point?.pinch)
     console.debug(
