@@ -1,3 +1,5 @@
+import {rgbaHex} from './color-util.ts'
+
 export function initDoc(
   rgba: number,
   mode: 'Int' | 'Fraction'
@@ -14,7 +16,7 @@ export function initDoc(
   document.body.style.width = '100dvw'
   document.body.style.height = '100dvh'
   document.body.style.overflow = 'hidden'
-  document.body.style.background = `#${rgba.toString(16).padStart(8, '0')}`
+  document.body.style.background = rgbaHex(rgba)
 
   const canvas = document.createElement('canvas')
   canvas.width = 0 // guarantee Renderer.#resize().
