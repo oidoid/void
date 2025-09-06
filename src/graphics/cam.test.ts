@@ -29,22 +29,22 @@ test('cam', () => {
   assert.equal(cam.h, 223)
 
   const xyClient = {x: 137.40000915527344, y: 48.400001525878906}
-  assert.deepEqual(cam.toXY(xyClient), {
+  assert.deepEqual(cam.clientToXY(xyClient), {
     x: 343.9235805586467,
     y: 121.54504469983058
   })
-  assert.deepEqual(cam.toXYLocal(xyClient), {
+  assert.deepEqual(cam.clientToXYLocal(xyClient), {
     x: 343.9235805586467,
     y: 121.54504469983058
   })
 
   cam.x = 10
   cam.y = 100
-  assert.deepEqual(cam.toXY(xyClient), {
+  assert.deepEqual(cam.clientToXY(xyClient), {
     x: 353.9235805586467,
     y: 221.54504469983058
   })
-  assert.deepEqual(cam.toXYLocal(xyClient), {
+  assert.deepEqual(cam.clientToXYLocal(xyClient), {
     x: 343.9235805586467,
     y: 121.54504469983058
   })

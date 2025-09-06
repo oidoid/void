@@ -1,6 +1,6 @@
-import type {Cam} from './cam.ts'
 import type {Framer} from './framer.ts'
 import type {TagFormat} from './graphics/atlas.ts'
+import type {Cam} from './graphics/cam.ts'
 import type {Renderer} from './graphics/renderer.ts'
 import type {Sprite} from './graphics/sprite.ts'
 import type {Input} from './input/input.ts'

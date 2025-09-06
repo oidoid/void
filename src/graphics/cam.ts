@@ -1,4 +1,10 @@
-import type {WH, XY} from './types/geo.ts'
+import {
+  type Box,
+  boxHits,
+  type CompassDir,
+  type WH,
+  type XY
+} from '../types/geo.ts'
 
 export type LevelClientLocalXY = {
   /** position relative canvas top-left (in DPI scale). */
@@ -40,9 +46,77 @@ export class Cam {
     this.y = Math.floor(xy.y - this.h / 2)
   }
 
+  /** positive int in level px. */
+  get h(): number {
+    return this.#h
+  }
+
+  isVisible(box: Readonly<XY & Partial<WH>>): boolean {
+    return boxHits(this, box)
+  }
+
   /** true if cam moved or resized since last update. */
   get invalid(): boolean {
     return this.#invalid
+  }
+
+  lead(
+    wh: Readonly<WH>,
+    pivot: CompassDir,
+    opts?: {
+      readonly fill?: 'X' | 'Y' | 'XY' | undefined
+      readonly modulo?: Partial<Readonly<XY>> | undefined
+      readonly pad?: Partial<Readonly<WH>> | undefined
+    }
+  ): Box {
+    const padW = opts?.pad?.w ?? 0
+    let x = this.x
+    switch (pivot) {
+      case 'SW':
+      case 'W':
+      case 'NW':
+        x += padW
+        break
+      case 'SE':
+      case 'E':
+      case 'NE':
+        x += this.w - (wh.w + padW)
+        break
+      case 'N':
+      case 'S':
+      case 'Origin':
+        x += Math.trunc(this.w / 2) - Math.trunc(wh.w / 2)
+        break
+    }
+    x -= x % ((opts?.modulo?.x ?? x) || 1)
+
+    const padH = opts?.pad?.h ?? 0
+    let y = this.y
+    switch (pivot) {
+      case 'N':
+      case 'NE':
+      case 'NW':
+        y += padH
+        break
+      case 'SE':
+      case 'S':
+      case 'SW':
+        y += this.h - (wh.h + padH)
+        break
+      case 'E':
+      case 'W':
+      case 'Origin':
+        y += Math.trunc(this.h / 2) - Math.trunc(wh.h / 2)
+        break
+    }
+    y -= y % ((opts?.modulo?.y ?? y) || 1)
+
+    const w =
+      opts?.fill === 'X' || opts?.fill === 'XY' ? this.w - 2 * padW : wh.w
+    const h =
+      opts?.fill === 'Y' || opts?.fill === 'XY' ? this.h - 2 * padH : wh.h
+
+    return {x, y, w, h}
   }
 
   /** positive int or fraction depending on mode. */
@@ -81,9 +155,8 @@ export class Cam {
     this.#invalidateWH()
   }
 
-  /** positive int in level px. */
-  get h(): number {
-    return this.#h
+  get portrait(): boolean {
+    return this.h > this.w
   }
 
   /** positive int or fraction depending on mode. */
@@ -96,8 +169,8 @@ export class Cam {
   }
 
   /** position in fractional level coordinates. */
-  toXY(client: Readonly<XY>): XY {
-    const local = this.toXYLocal(client)
+  clientToXY(client: Readonly<XY>): XY {
+    const local = this.clientToXYLocal(client)
     return {x: this.#x + local.x, y: this.#y + local.y}
   }
 
@@ -105,10 +178,18 @@ export class Cam {
    * position relative canvas top-left in level scale (like level xy but no cam
    * offset). often used for UI that is fixed within the cam.
    */
-  toXYLocal(client: Readonly<XY>): XY {
+  clientToXYLocal(client: Readonly<XY>): XY {
     return {
       x: (client.x / this.#whClient.w) * this.#w,
       y: (client.y / this.#whClient.h) * this.#h
+    }
+  }
+
+  // relative cam
+  toXYClient(xy: Readonly<XY>): XY {
+    return {
+      x: this.#whClient.w / (this.#w * (xy.x - this.x)),
+      y: this.#whClient.h / (this.#h * (xy.y - this.y))
     }
   }
 

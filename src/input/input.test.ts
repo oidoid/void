@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import {afterEach, beforeEach, test} from 'node:test'
-import {Cam} from '../cam.ts'
+import {Cam} from '../graphics/cam.ts'
 import {TestElement} from '../test/test-element.ts'
 import {
   KeyTestEvent,

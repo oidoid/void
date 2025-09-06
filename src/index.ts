@@ -1,9 +1,9 @@
 import {version as pkgVersion, published} from '../package.json'
 
-export type {Font} from 'mem-font'
-export * from './cam.ts'
+export {type Font, memProp5x6} from 'mem-font'
 export * from './framer.ts'
 export * from './graphics/atlas.ts'
+export * from './graphics/cam.ts'
 export * from './graphics/canvas-util.ts'
 export * from './graphics/layer.ts'
 export * from './graphics/renderer.ts'

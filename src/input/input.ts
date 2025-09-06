@@ -1,4 +1,4 @@
-import type {Cam, LevelClientLocalXY} from '../cam.ts'
+import type {Cam, LevelClientLocalXY} from '../graphics/cam.ts'
 import type {XY, XYZ} from '../types/geo.ts'
 import type {Millis} from '../types/time.ts'
 import {ContextMenu} from './context-menu.ts'
@@ -373,28 +373,30 @@ export class Input<Button extends string> {
           click: pt.clickClient
             ? {
                 client: pt.clickClient,
-                local: this.#cam.toXYLocal(pt.clickClient),
-                ...this.#cam.toXY(pt.clickClient)
+                local: this.#cam.clientToXYLocal(pt.clickClient),
+                ...this.#cam.clientToXY(pt.clickClient)
               }
             : undefined,
-          ...this.#cam.toXY(pt.xyClient),
+          ...this.#cam.clientToXY(pt.xyClient),
           client: pt.xyClient,
-          local: this.#cam.toXYLocal(pt.xyClient)
+          local: this.#cam.clientToXYLocal(pt.xyClient)
         })
       }
       const centerClient = this.#pointer.centerClient!
       const center = {
         client: centerClient,
-        local: this.#cam.toXYLocal(centerClient),
-        ...this.#cam.toXY(centerClient)
+        local: this.#cam.clientToXYLocal(centerClient),
+        ...this.#cam.clientToXY(centerClient)
       }
       this.#pointerState = {
         center,
         click: this.#pointer.primary.clickClient
           ? {
               client: this.#pointer.primary.clickClient,
-              local: this.#cam.toXYLocal(this.#pointer.primary.clickClient),
-              ...this.#cam.toXY(this.#pointer.primary.clickClient)
+              local: this.#cam.clientToXYLocal(
+                this.#pointer.primary.clickClient
+              ),
+              ...this.#cam.clientToXY(this.#pointer.primary.clickClient)
             }
           : undefined,
         drag: {
@@ -404,13 +406,13 @@ export class Input<Button extends string> {
         },
         started: this.#pointer.invalid,
         pinch: pinchClient
-          ? {client: pinchClient, xy: this.#cam.toXY(pinchClient)}
+          ? {client: pinchClient, xy: this.#cam.clientToXY(pinchClient)}
           : undefined,
         secondary,
         type: this.#pointer.primary.type,
-        ...this.#cam.toXY(this.#pointer.primary.xyClient),
+        ...this.#cam.clientToXY(this.#pointer.primary.xyClient),
         client: this.#pointer.primary.xyClient,
-        local: this.#cam.toXYLocal(this.#pointer.primary.xyClient)
+        local: this.#cam.clientToXYLocal(this.#pointer.primary.xyClient)
       }
     }
     // secondary should never be set when primary isn't.
@@ -420,7 +422,7 @@ export class Input<Button extends string> {
       ? {
           delta: {
             client: this.#wheel.deltaClient,
-            xy: this.#cam.toXY(this.#wheel.deltaClient)
+            xy: this.#cam.clientToXY(this.#wheel.deltaClient)
           }
         }
       : undefined
