@@ -134,7 +134,7 @@ export class Input<Button extends string> {
    */
   readonly #combo: number[] = []
   readonly #contextMenu: ContextMenu
-  readonly #gamepad: Gamepad
+  readonly #gamepad: Gamepad = new Gamepad()
   /** time since buttons changed. */
   #heldMillis: Millis = 0 as Millis
   readonly #keyboard: Keyboard
@@ -148,7 +148,6 @@ export class Input<Button extends string> {
   constructor(cam: Readonly<Cam>, target: Element) {
     this.#cam = cam
     this.#contextMenu = new ContextMenu(target)
-    this.#gamepad = new Gamepad(target)
     this.#keyboard = new Keyboard(target.ownerDocument)
     this.#pointer = new Pointer(target)
     this.#wheel = new Wheel(target)
@@ -301,7 +300,6 @@ export class Input<Button extends string> {
   register(op: 'add' | 'remove'): this {
     globalThis[`${op}EventListener`]('blur', this.reset) // keyup is lost if window loses focus.
     this.#contextMenu.register(op)
-    this.#gamepad.register(op)
     this.#keyboard.register(op)
     this.#pointer.register(op)
     this.#wheel.register(op)
@@ -344,7 +342,6 @@ export class Input<Button extends string> {
       (this.#pointer.primary?.bits ?? 0)
     this.invalid =
       this.#bits !== this.#prevBits ||
-      this.#gamepad.invalid ||
       this.#pointer.invalid ||
       !!this.#wheel.deltaClient
     this.gestured ||= !!this.#bits
@@ -427,7 +424,6 @@ export class Input<Button extends string> {
           }
         }
       : undefined
-    this.#gamepad.postupdate()
     this.#pointer.postupdate()
     this.#wheel.postupdate()
   }
