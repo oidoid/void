@@ -3,12 +3,11 @@ import {afterEach, beforeEach, describe, test} from 'node:test'
 
 import {Framer} from './framer.ts'
 import {TestEvent} from './test/test-event.ts'
-import type {Millis, OriginMillis} from './types/time.ts'
+import type {Millis} from './types/time.ts'
 
 describe('Framer', () => {
   const doc = Object.assign(new EventTarget(), {hidden: false})
   let onFrame: ((millis: Millis) => void) | undefined
-  const now = performance.now
   beforeEach(() => {
     globalThis.document = doc as Document
     globalThis.cancelAnimationFrame = () => (onFrame = undefined)
@@ -16,13 +15,11 @@ describe('Framer', () => {
       onFrame = cb
       return 0
     }
-    performance.now = () => 0 as OriginMillis
   })
   afterEach(() => {
     delete (globalThis as {[_: string]: unknown}).document
     delete (globalThis as {[_: string]: unknown}).cancelAnimationFrame
     delete (globalThis as {[_: string]: unknown}).requestAnimationFrame
-    performance.now = now
   })
   using framer = new Framer()
   let frame = 0
@@ -33,22 +30,18 @@ describe('Framer', () => {
   test('register', () => {
     framer.register('add')
     assert.equal(frame, 0)
-    assert.equal(framer.frame, 0)
     assert.equal(framer.age, 0)
   })
 
   test('onFrame', () => {
     onFrame!(10 as Millis)
     assert.equal(frame, 1)
-    assert.equal(framer.frame, 1)
     assert.equal(framer.age, 10)
-    onFrame!(10 as Millis)
+    onFrame!(20 as Millis)
     assert.equal(frame, 2)
-    assert.equal(framer.frame, 2)
     assert.equal(framer.age, 20)
-    onFrame!(10 as Millis)
+    onFrame!(30 as Millis)
     assert.equal(frame, 3)
-    assert.equal(framer.frame, 3)
     assert.equal(framer.age, 30)
   })
 
@@ -61,9 +54,8 @@ describe('Framer', () => {
   test('shown', () => {
     doc.hidden = false
     doc.dispatchEvent(TestEvent('visibilitychange'))
-    onFrame!(10 as Millis)
+    onFrame!(40 as Millis)
     assert.equal(frame, 4)
-    assert.equal(framer.frame, 4)
     assert.equal(framer.age, 40)
   })
 })

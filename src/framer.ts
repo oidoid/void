@@ -1,17 +1,17 @@
 import type {Millis, OriginMillis} from './types/time.ts'
 
+// to-do: rename looper or is that a higher order component?
 /**
  * requests frames except when hidden. frames are requested even when idle to
  * poll gamepads.
  */
 export class Framer {
+  /** duration of frames observed. */
   age: Millis = 0 as Millis
-  /** frames rendered. */
-  frame: number = 0
   /** update input, update canvas, update cam, update world, then render. */
   onFrame: ((millis: Millis) => void) | undefined
   #req: number = 0
-  #prevFrame: OriginMillis = 0 as OriginMillis
+  #issued: OriginMillis = 0 as OriginMillis // to-do: init on start and add discard negative values.
 
   register(op: 'add' | 'remove'): this {
     const fn = `${op}EventListener` as const
@@ -25,11 +25,10 @@ export class Framer {
     this.register('remove')
   }
 
-  #onFrame = (prev: OriginMillis): void => {
-    const millis = (prev - this.#prevFrame) as Millis
-    this.#prevFrame = prev
+  #onFrame = (now: OriginMillis): void => {
+    const millis = (now - this.#issued) as Millis
+    this.#issued = now
     this.age = (this.age + millis) as Millis
-    this.frame++
     this.#resume() // call before in case onFrame() unregisters.
     this.onFrame?.(millis)
   }
@@ -46,7 +45,6 @@ export class Framer {
   }
 
   #resume(): void {
-    this.#prevFrame = performance.now()
     this.#req = requestAnimationFrame(this.#onFrame as FrameRequestCallback)
   }
 }
