@@ -131,6 +131,7 @@ export async function build(args: readonly string[]): Promise<void> {
   if (watch) {
     fs.watch(argv.opts['--assets'], {recursive: true}, (ev, file) => {
       console.log(`${file}: ${ev}`)
+      // to-do: debounce. this gets called a million times per save.
       packAtlas(
         argv.opts['--assets']!,
         argv.opts['--out-image']!,

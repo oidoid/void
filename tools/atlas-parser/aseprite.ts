@@ -18,6 +18,8 @@ export type AsepriteMeta = {
 export type AsepriteFrameTag = `${TagFormat}--${bigint}`
 
 export type AsepriteFrame = {
+  /** positive animation length in milliseconds. */
+  duration: number
   /** bounds including padding. */
   frame: Box
   /** WH without padding. */
@@ -25,6 +27,7 @@ export type AsepriteFrame = {
 }
 
 export type AsepriteTagSpan = {
+  direction: AsepriteDirection | string
   name: TagFormat | string
   from: number
   /** inclusive ending index, possibly equal to from. */
@@ -37,3 +40,21 @@ export type AsepriteSlice = {
   name: TagFormat | string
   keys: {bounds: Box}[]
 }
+
+export type AsepriteDirection =
+  (typeof AsepriteDirection)[keyof typeof AsepriteDirection]
+export const AsepriteDirection = {
+  /** animate from start to end; when looping, return to start. */
+  Forward: 'forward',
+  /** animate from end to start; when looping, return to end. */
+  Reverse: 'reverse',
+  /**
+   * animate from start to end - 1 or start, whichever is greater; when
+   * looping, change direction (initially, end to start + 1 or end, whichever
+   * is lesser. a traversal from start to end - 1 then end to start + 1 is
+   * considered a complete loop.
+   */
+  PingPong: 'pingpong',
+  /** like pingpong but start from end - 1 or start, whichever is greater. */
+  PingPongReverse: 'pingpong_reverse'
+} as const

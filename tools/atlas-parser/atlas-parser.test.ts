@@ -2,8 +2,18 @@ import assert from 'node:assert/strict'
 import {describe, test} from 'node:test'
 import type {Anim, Atlas} from '../../src/graphics/atlas.ts'
 import type {XY} from '../../src/types/geo.ts'
-import type {AsepriteTagSpan} from './aseprite.ts'
-import {parseAnim, parseAtlas, parseCel, parseHitboxes} from './atlas-parser.ts'
+import {
+  AsepriteDirection,
+  type AsepriteFrameMap,
+  type AsepriteTagSpan
+} from './aseprite.ts'
+import {
+  parseAnim,
+  parseAnimFrames,
+  parseAtlas,
+  parseCel,
+  parseHitboxes
+} from './atlas-parser.ts'
 
 describe('parseAtlas()', () => {
   test('parses empty.', () => {
@@ -158,9 +168,10 @@ describe('parseAtlas()', () => {
   })
 })
 
-describe('parseAnim()', async () => {
+describe('parseAnim()', () => {
   test('parses FrameTag, Frame from Frame[], and Slice.', () => {
     const frameTag: AsepriteTagSpan = {
+      direction: 'pingpong',
       name: 'cloud--s',
       from: 1,
       to: 1
@@ -213,12 +224,253 @@ describe('parseAnim()', async () => {
   })
 
   test('throws error when no frame is associated with tag.', () => {
-    const frameTag: AsepriteTagSpan = {name: 'frog--walk', from: 0, to: 0}
+    const frameTag: AsepriteTagSpan = {
+      direction: 'pingpong',
+      name: 'frog--walk',
+      from: 0,
+      to: 0
+    }
     assert.throws(() => parseAnim(16, frameTag, {}, []))
   })
 })
 
-describe('parseCel()', async () => {
+describe('parseAnimFrames()', () => {
+  test('single cell', () => {
+    for (const direction of Object.values(AsepriteDirection)) {
+      const span: AsepriteTagSpan = {
+        direction,
+        name: 'stem--foo',
+        from: 0,
+        to: 0
+      }
+      const map: AsepriteFrameMap = {
+        'stem--foo--0': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        }
+      }
+      assertAnimFrames(
+        span,
+        map,
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        direction
+      )
+    }
+  })
+
+  test('full anim', () => {
+    const expected: {[dir in AsepriteDirection]: number[]} = {
+      forward: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+      pingpong: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+      pingpong_reverse: [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0],
+      reverse: [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+    }
+    for (const direction of Object.values(AsepriteDirection)) {
+      const span: AsepriteTagSpan = {
+        direction,
+        name: 'stem--foo',
+        from: 0,
+        to: 15
+      }
+      const map: AsepriteFrameMap = {
+        'stem--foo--0': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        },
+        'stem--foo--1': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        },
+        'stem--foo--2': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        },
+        'stem--foo--3': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        },
+        'stem--foo--4': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        },
+        'stem--foo--5': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        },
+        'stem--foo--6': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        },
+        'stem--foo--7': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        },
+        'stem--foo--8': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        },
+        'stem--foo--9': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        },
+        'stem--foo--10': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        },
+        'stem--foo--11': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        },
+        'stem--foo--12': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        },
+        'stem--foo--13': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        },
+        'stem--foo--14': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        },
+        'stem--foo--15': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        }
+      }
+      assertAnimFrames(span, map, expected[direction], direction)
+    }
+  })
+
+  test('short anim', () => {
+    const expected: {[dir in AsepriteDirection]: number[]} = {
+      forward: [0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0],
+      pingpong: [0, 1, 2, 1, 0, 1, 2, 1, 0, 1, 2, 1, 0, 1, 2, 1],
+      pingpong_reverse: [2, 1, 0, 1, 2, 1, 0, 1, 2, 1, 0, 1, 2, 1, 0, 1],
+      reverse: [2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2]
+    }
+    for (const direction of Object.values(AsepriteDirection)) {
+      const span: AsepriteTagSpan = {
+        direction,
+        name: 'stem--foo',
+        from: 0,
+        to: 2
+      }
+      const map: AsepriteFrameMap = {
+        'stem--foo--0': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        },
+        'stem--foo--1': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        },
+        'stem--foo--2': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        }
+      }
+      assertAnimFrames(span, map, expected[direction], direction)
+    }
+  })
+
+  test('short anim with another anim', () => {
+    const expected: {[dir in AsepriteDirection]: number[]} = {
+      forward: [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1],
+      pingpong: [1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2],
+      pingpong_reverse: [3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2],
+      reverse: [3, 2, 1, 3, 2, 1, 3, 2, 1, 3, 2, 1, 3, 2, 1, 3]
+    }
+    for (const direction of Object.values(AsepriteDirection)) {
+      const span: AsepriteTagSpan = {
+        direction,
+        name: 'stem--bar',
+        from: 1,
+        to: 3
+      }
+      const map: AsepriteFrameMap = {
+        'stem--foo--0': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        },
+        'stem--bar--1': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        },
+        'stem--bar--2': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        },
+        'stem--bar--3': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        }
+      }
+      assertAnimFrames(span, map, expected[direction], direction)
+    }
+  })
+
+  test('short anim with multi-cel durations', () => {
+    const expected: {[dir in AsepriteDirection]: number[]} = {
+      forward: [0, 1, 1, 2, 0, 1, 1, 2, 0, 1, 1, 2, 0, 1, 1, 2],
+      pingpong: [0, 1, 1, 2, 1, 1, 0, 1, 1, 2, 1, 1, 0, 1, 1, 2],
+      pingpong_reverse: [2, 1, 1, 0, 1, 1, 2, 1, 1, 0, 1, 1, 2, 1, 1, 0],
+      reverse: [2, 1, 1, 0, 2, 1, 1, 0, 2, 1, 1, 0, 2, 1, 1, 0]
+    }
+    for (const direction of Object.values(AsepriteDirection)) {
+      const span: AsepriteTagSpan = {
+        direction,
+        name: 'stem--foo',
+        from: 0,
+        to: 2
+      }
+      const map: AsepriteFrameMap = {
+        'stem--foo--0': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        },
+        'stem--foo--1': {
+          duration: 63,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        },
+        'stem--foo--2': {
+          duration: 1,
+          frame: {x: 0, y: 0, w: 0, h: 0},
+          sourceSize: {w: 0, h: 0}
+        }
+      }
+      assertAnimFrames(span, map, expected[direction], direction)
+    }
+  })
+})
+
+describe('parseCel()', () => {
   test('parses 1:1 texture mapping/', () => {
     const frame = {
       frame: {x: 1, y: 2, w: 3, h: 4},
@@ -244,9 +496,14 @@ describe('parseCel()', async () => {
   })
 })
 
-describe('parseHitboxes()', async () => {
+describe('parseHitboxes()', () => {
   test('parses hitbox.', () => {
-    const span: AsepriteTagSpan = {name: 'stem--foo', from: 0, to: 0}
+    const span: AsepriteTagSpan = {
+      direction: 'pingpong',
+      name: 'stem--foo',
+      from: 0,
+      to: 0
+    }
     const slices = [
       {
         name: 'stem--foo',
@@ -261,7 +518,12 @@ describe('parseHitboxes()', async () => {
   })
 
   test('parses hurtbox.', () => {
-    const span: AsepriteTagSpan = {name: 'stem--foo', from: 0, to: 0}
+    const span: AsepriteTagSpan = {
+      direction: 'pingpong',
+      name: 'stem--foo',
+      from: 0,
+      to: 0
+    }
     const slices = [
       {
         name: 'stem--foo',
@@ -276,7 +538,12 @@ describe('parseHitboxes()', async () => {
   })
 
   test('parses hitbox and hurtbox (blue).', () => {
-    const span: AsepriteTagSpan = {name: 'stem--foo', from: 0, to: 0}
+    const span: AsepriteTagSpan = {
+      direction: 'pingpong',
+      name: 'stem--foo',
+      from: 0,
+      to: 0
+    }
     const slices = [
       {
         name: 'stem--foo',
@@ -291,7 +558,12 @@ describe('parseHitboxes()', async () => {
   })
 
   test('parses hitbox and hurtbox.', () => {
-    const span: AsepriteTagSpan = {name: 'stem--foo', from: 0, to: 0}
+    const span: AsepriteTagSpan = {
+      direction: 'pingpong',
+      name: 'stem--foo',
+      from: 0,
+      to: 0
+    }
     const slices = [
       {
         name: 'stem--foo',
@@ -311,7 +583,12 @@ describe('parseHitboxes()', async () => {
   })
 
   test('filters out unrelated tags.', () => {
-    const span: AsepriteTagSpan = {name: 'stem--foo', from: 0, to: 0}
+    const span: AsepriteTagSpan = {
+      direction: 'pingpong',
+      name: 'stem--foo',
+      from: 0,
+      to: 0
+    }
     const slices = [
       {
         name: 'unrelated--bar',
@@ -331,7 +608,12 @@ describe('parseHitboxes()', async () => {
   })
 
   test('throws on frame with multiple keys.', () => {
-    const span: AsepriteTagSpan = {name: 'stem--foo', from: 0, to: 2}
+    const span: AsepriteTagSpan = {
+      direction: 'pingpong',
+      name: 'stem--foo',
+      from: 0,
+      to: 2
+    }
     const slices = [
       {
         name: 'stem--foo',
@@ -347,7 +629,12 @@ describe('parseHitboxes()', async () => {
   })
 
   test('defaults to undefined hitbox.', () => {
-    const span: AsepriteTagSpan = {name: 'stem--foo', from: 0, to: 0}
+    const span: AsepriteTagSpan = {
+      direction: 'pingpong',
+      name: 'stem--foo',
+      from: 0,
+      to: 0
+    }
     assert.deepEqual(parseHitboxes(span, []), {
       hitbox: undefined,
       hurtbox: undefined
@@ -355,7 +642,12 @@ describe('parseHitboxes()', async () => {
   })
 
   test('throws on unsupported color.', () => {
-    const span: AsepriteTagSpan = {name: 'stem--foo', from: 0, to: 0}
+    const span: AsepriteTagSpan = {
+      direction: 'pingpong',
+      name: 'stem--foo',
+      from: 0,
+      to: 0
+    }
     const slices = [
       {
         name: 'stem--foo',
@@ -367,7 +659,12 @@ describe('parseHitboxes()', async () => {
   })
 
   test('throws on multiple hitboxes.', () => {
-    const span: AsepriteTagSpan = {name: 'stem--foo', from: 0, to: 1}
+    const span: AsepriteTagSpan = {
+      direction: 'pingpong',
+      name: 'stem--foo',
+      from: 0,
+      to: 1
+    }
     const slices = [
       {
         name: 'stem--foo',
@@ -388,7 +685,12 @@ describe('parseHitboxes()', async () => {
   })
 
   test('throws on multiple hurtboxes.', () => {
-    const span: AsepriteTagSpan = {name: 'stem--foo', from: 0, to: 1}
+    const span: AsepriteTagSpan = {
+      direction: 'pingpong',
+      name: 'stem--foo',
+      from: 0,
+      to: 1
+    }
     const slices = [
       {
         name: 'stem--foo',
@@ -408,3 +710,18 @@ describe('parseHitboxes()', async () => {
     assert.throws(() => parseHitboxes(span, slices))
   })
 })
+
+function assertAnimFrames(
+  span: Readonly<AsepriteTagSpan>,
+  map: Readonly<AsepriteFrameMap>,
+  expected: number[],
+  msg?: string | undefined
+): void {
+  assert.deepEqual(
+    [...parseAnimFrames(span, map)].map(frame =>
+      Object.values(map).indexOf(frame)
+    ),
+    expected,
+    msg
+  )
+}

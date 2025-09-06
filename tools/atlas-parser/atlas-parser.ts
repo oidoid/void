@@ -1,18 +1,21 @@
 import {
   type Anim,
   type Atlas,
-  maxAnimCels,
+  animCels,
+  animMillis,
+  celMillis,
   type TagFormat
 } from '../../src/graphics/atlas.ts'
 import {type Box, boxEq, type XY} from '../../src/types/geo.ts'
 import type {
   Aseprite,
+  AsepriteDirection,
   AsepriteFrame,
   AsepriteFrameMap,
   AsepriteFrameTag,
   AsepriteSlice,
   AsepriteTagSpan
-} from './aseprite.js'
+} from './aseprite.ts'
 
 export function parseAtlas(ase: Aseprite): Atlas {
   const anim: {[tag: string]: Anim} = {}
@@ -51,7 +54,8 @@ export function parseAnim(
   }
 }
 
-function* parseAnimFrames(
+/** @internal */
+export function* parseAnimFrames(
   span: AsepriteTagSpan,
   map: AsepriteFrameMap
 ): IterableIterator<
@@ -59,20 +63,30 @@ function* parseAnimFrames(
   // biome-ignore lint/suspicious/noConfusingVoidType:;
   AsepriteFrame | void
 > {
-  for (let i = span.from; i <= span.to && i - span.from < maxAnimCels; i++) {
-    const frameTag = `${span.name}--${i}` as AsepriteFrameTag
-    const frame = map[frameTag]
-    if (!frame) throw Error(`no atlas frame "${frameTag}"`)
-    yield frame
+  let cels = 0
+  let animDuration = 0
+  const len = span.to - span.from + 1
+  const peak = len - 1
+  const cycle = Math.max(1, 2 * peak)
+  const indexByDir: {[dir in AsepriteDirection]: (i: number) => number} = {
+    forward: i => span.from + (i % len),
+    pingpong: i => span.from + peak - Math.abs((i % cycle) - peak),
+    pingpong_reverse: i => span.to - (peak - Math.abs((i % cycle) - peak)),
+    reverse: i => span.to - (i % len)
   }
-  // pad remaining by looping back.
-  for (let i = span.to + 1; i < span.from + maxAnimCels; i++) {
-    const frameTag = `${span.name}--${
-      span.from + (i % (span.to + 1 - span.from))
-    }` as AsepriteFrameTag
+  const frameIndex = indexByDir[span.direction as AsepriteDirection]
+  for (let i = 0; cels < animCels && animDuration < animMillis; i++) {
+    const frameTag = `${span.name}--${frameIndex(i)}` as AsepriteFrameTag
     const frame = map[frameTag]
     if (!frame) throw Error(`no atlas frame "${frameTag}"`)
-    yield frame
+    for (
+      let celDuration = 0;
+      celDuration < frame.duration &&
+      cels < animCels &&
+      animDuration < animMillis;
+      celDuration += celMillis, animDuration += celMillis, cels++
+    )
+      yield frame
   }
 }
 

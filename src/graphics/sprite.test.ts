@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import {test} from 'node:test'
 import type {Millis} from '../types/time.ts'
-import {type Anim, type Atlas, celMillis, maxAnimCels} from './atlas.ts'
+import {type Anim, type Atlas, animCels, celMillis} from './atlas.ts'
 import {Layer} from './layer.ts'
 import {Drawable, drawableBytes, Sprite} from './sprite.ts'
 
@@ -14,7 +14,7 @@ const animA: Anim = {
   hurtbox: {x: 1, y: 2, w: 3, h: 4}
 }
 const animB: Anim = {
-  cels: maxAnimCels,
+  cels: animCels,
   id: 1,
   w: 30,
   h: 40,
@@ -79,15 +79,15 @@ test('cel', () => {
   assert.equal(draw.cel, 1)
   assert.equal(toHex(view), '000000000000000000010000')
 
-  draw.cel = maxAnimCels
-  assert.equal(draw.cel, maxAnimCels)
+  draw.cel = animCels
+  assert.equal(draw.cel, animCels)
   assert.equal(toHex(view), '000000000000000000100000')
 
-  draw.cel = maxAnimCels * 2 - 1
-  assert.equal(draw.cel, maxAnimCels * 2 - 1)
+  draw.cel = animCels * 2 - 1
+  assert.equal(draw.cel, animCels * 2 - 1)
   assert.equal(toHex(view), '0000000000000000001f0000')
 
-  draw.cel = maxAnimCels * 2
+  draw.cel = animCels * 2
   assert.equal(draw.cel, 0)
   assert.equal(toHex(view), '000000000000000000000000')
 })
@@ -420,32 +420,32 @@ test('looped', () => {
   const sprite = new Sprite(TestPool(), 0, atlas, framer)
 
   sprite.tag = 'stem--AnimA'
-  for (let i = 0; i < maxAnimCels * 5; i++) {
+  for (let i = 0; i < animCels * 5; i++) {
     framer.age = (celMillis * i) as Millis
     assert.equal(sprite.looped, i % (animA.cels * 2) >= animA.cels, `${i}`)
   }
 
   framer.age = 0 as Millis
   sprite.tag = 'stem--AnimB'
-  for (let i = 0; i < maxAnimCels * 5; i++) {
+  for (let i = 0; i < animCels * 5; i++) {
     framer.age = (celMillis * i) as Millis
     assert.equal(sprite.looped, i % (animB.cels * 2) >= animB.cels, `${i}`)
   }
 
-  framer.age = (celMillis * (maxAnimCels + 0)) as Millis
+  framer.age = (celMillis * (animCels + 0)) as Millis
   sprite.tag = 'stem--AnimB'
-  assert.equal(sprite.cel, maxAnimCels)
+  assert.equal(sprite.cel, animCels)
   assert.equal(sprite.looped, false)
 
-  for (let i = 0; i < maxAnimCels - 1; i++) {
-    framer.age = (celMillis * (maxAnimCels + i)) as Millis
+  for (let i = 0; i < animCels - 1; i++) {
+    framer.age = (celMillis * (animCels + i)) as Millis
     assert.equal(sprite.looped, false, `${i}`)
   }
 
-  framer.age = (celMillis * (maxAnimCels + maxAnimCels)) as Millis
+  framer.age = (celMillis * (animCels + animCels)) as Millis
   assert.equal(sprite.looped, true)
 
-  framer.age = (celMillis * (maxAnimCels + maxAnimCels + 1)) as Millis
+  framer.age = (celMillis * (animCels + animCels + 1)) as Millis
   assert.equal(sprite.looped, true)
 })
 
@@ -454,7 +454,7 @@ test('reset()', () => {
   const sprite = new Sprite(TestPool(), 0, atlas, framer)
   sprite.tag = 'stem--AnimA'
 
-  for (let i = 0; i < maxAnimCels * 5; i++) {
+  for (let i = 0; i < animCels * 5; i++) {
     framer.age = (celMillis * i) as Millis
     sprite.reset()
     assert.equal(sprite.cel, i % (2 * sprite.anim.cels), `${i}`)

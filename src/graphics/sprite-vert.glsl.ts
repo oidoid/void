@@ -46,7 +46,7 @@ void main() {
   highp vec2 clip = ((-2. * camXY  + 2. * end) / vec2(uCam.zw) - 1.) * vec2(1, -1);
   gl_Position = vec4(clip, depth, 1);
 
-  lowp int frame = (((int(uAge / ${celMillis}) & 0x1f) - cel) + ${maxAnimCels}) & 0xf;
+  lowp int frame = (((int(uAge / ${celMillis}) & 0x1f) - cel) + ${animCels}) & 0xf;
   mediump uvec4 texXYWH = texelFetch(uCels, ivec2(0, id + frame), 0);
   vTexXYWH = ivec4(texXYWH);
   vZ = z;
@@ -56,5 +56,5 @@ void main() {
 `
 
 import {debug} from '../types/debug.ts'
-import {celMillis, maxAnimCels} from './atlas.ts'
+import {animCels, celMillis} from './atlas.ts'
 import {Layer} from './layer.ts'

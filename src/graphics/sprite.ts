@@ -1,8 +1,8 @@
 import {
   type Anim,
   type Atlas,
+  animCels,
   celMillis,
-  maxAnimCels,
   type TagFormat
 } from '../graphics/atlas.ts'
 import type {Block} from '../mem/pool.ts'
@@ -263,7 +263,7 @@ export class Sprite<Tag extends TagFormat> extends Drawable {
   get looped(): boolean {
     // this comparison resets after the second loop since cel can only count to
     // 2 * anim.cels.
-    return mod(this.#currentCel - this.cel, maxAnimCels * 2) >= this.anim.cels
+    return mod(this.#currentCel - this.cel, animCels * 2) >= this.anim.cels
   }
 
   /** sets cel to animation start. */
