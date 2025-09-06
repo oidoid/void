@@ -17,9 +17,11 @@ const mediump int maxY = 0x1000;
 const lowp int layers = 16;
 const mediump int maxDepth = maxY * layers;
 
+flat out lowp uint vStretch;
 flat out mediump ivec4 vTexXYWH;
 flat out lowp int vZ;
 out highp vec2 vDstWH;
+flat out highp ivec2 vDstWHFixed;
 
 void main() {
   highp int x = (int(iy12_x20 << 12) >> 12) / 8;
@@ -52,6 +54,9 @@ void main() {
   vZ = z;
 
   vDstWH = vec2(targetWH * ivec2(flipX ? -1 : 1, flipY ? -1 : 1));
+  vDstWHFixed = ivec2(w, h) * ivec2(flipX ? -1 : 1, flipY ? -1 : 1);
+
+  vStretch = stretch ? 1u : 0u;
 }
 `
 

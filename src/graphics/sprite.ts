@@ -124,7 +124,6 @@ export abstract class Drawable implements Block, Box {
   }
 
   // to-do: rotate.
-  // to-do: scale.
   // to-do: switch between AABB collisions. make rotation optional on Box.
 
   get stretch(): boolean {
