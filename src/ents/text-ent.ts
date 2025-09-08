@@ -2,11 +2,10 @@ import {memProp5x6} from 'mem-font'
 import type {TagFormat} from '../graphics/atlas.ts'
 import {Layer} from '../graphics/layer.ts'
 import type {Sprite} from '../graphics/sprite.ts'
-import type {Input} from '../input/input.ts'
-import type {Pool} from '../mem/pool.ts'
 import {fontCharToTag} from '../text/font.ts'
 import {layoutText} from '../text/text-layout.ts'
 import {type XY, xyAddTo, xySub} from '../types/geo.ts'
+import type {VoidT} from '../void.ts'
 import type {EID, EIDFactory} from './eid.ts'
 import type {Ent} from './ent.ts'
 
@@ -41,20 +40,19 @@ export class TextEnt<T extends TagFormat> implements Ent {
     for (const char of this.#sprites) xyAddTo(char, delta)
   }
 
-  update(_input: Input<string>, pool?: Pool<Sprite<T>>): void {
-    if (!pool) throw Error('fuck')
+  update(v: VoidT<string, T>): void {
     if (!this.#invalid) return
     let spriteI = 0
     const layout = layoutText(memProp5x6, this.#text, this.#maxW, this.#xy) // to-do: scale.
     for (const [i, char] of layout.chars.entries()) {
       if (char == null) continue
-      const sprite = (this.#sprites[spriteI] ??= pool.alloc())
+      const sprite = (this.#sprites[spriteI] ??= v.pool.alloc())
       sprite.x = char.x
       sprite.y = char.y
       sprite.tag = fontCharToTag(memProp5x6, this.#text[i]!) as T
       sprite.z = Layer.UIA // to-do: expose.
       spriteI++
     }
-    while (this.#sprites.length > spriteI) pool.free(this.#sprites.pop()!)
+    while (this.#sprites.length > spriteI) v.pool.free(this.#sprites.pop()!)
   }
 }
