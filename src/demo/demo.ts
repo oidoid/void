@@ -1,3 +1,5 @@
+import {EIDFactory} from '../ents/eid.ts'
+import {TextEnt} from '../ents/text-ent.ts'
 import {
   Cam,
   type DefaultButton,
@@ -6,24 +8,31 @@ import {
   drawableBytes,
   Framer,
   fetchImage,
+  type Input,
   initDoc,
   Layer,
   Pool,
   Renderer,
   Sprite,
+  spriteMaxWH,
   type Void,
   version
 } from '../index.ts'
 import atlas from './atlas.json' with {type: 'json'}
 
 declare global {
-  var v: Void<DefaultButton, Tag>
+  var v: Void
 }
 
 declare module '../index.ts' {
   interface Debug {
     /** always render. */
     invalid?: string
+  }
+
+  interface Void {
+    input: Input<DefaultButton>
+    pool: Pool<Sprite<Tag>>
   }
 }
 
@@ -68,6 +77,31 @@ bg.h = 240
 bg.z = Layer.Bottom
 // to-do: 9patch for borders.
 
+const abc123 = spritePool.alloc()
+abc123.tag = 'abc123--ABC'
+abc123.cel = 10
+abc123.x = 200
+abc123.y = 100
+abc123.z = Layer.A
+abc123.stretch = true
+abc123.w *= 3
+abc123.h *= 3
+
+const backpacker = spritePool.alloc()
+backpacker.tag = 'backpacker--WalkRight'
+backpacker.x = 7
+backpacker.y = 7
+backpacker.z = Layer.C
+backpacker.stretch = true
+backpacker.w *= 5
+backpacker.h *= 5
+
+const factory = new EIDFactory()
+const text = new TextEnt(factory)
+text.setText('hello world!')
+text.move({x: 50, y: 90})
+text.update(v)
+
 const filterPool = new Pool<Sprite<Tag>>({
   alloc: pool => new Sprite(pool, 0, atlas, framer),
   allocBytes: drawableBytes,
@@ -75,8 +109,8 @@ const filterPool = new Pool<Sprite<Tag>>({
 })
 const filter = filterPool.alloc()
 filter.tag = 'background--GreyCheckerboard'
-filter.w = 4095
-filter.h = 4095
+filter.w = spriteMaxWH.w
+filter.h = spriteMaxWH.h
 filter.z = Layer.UIBottom
 
 framer.onFrame = millis => {
@@ -99,6 +133,12 @@ framer.onFrame = millis => {
     cursor.z = Layer.UITop
   }
 
+  // to-do: egg timer. update every minute.
+  if (abc123.looped) {
+    abc123.tag = abc123.tag === 'abc123--123' ? 'abc123--ABC' : 'abc123--123'
+    abc123.w *= 3
+    abc123.h *= 3 // not a good option here? surprising not to change size, surprising not to.
+  }
   if (!debug?.invalid && !input.invalid && !cam.invalid && !renderer.invalid)
     return
   if (debug?.input) printInput()

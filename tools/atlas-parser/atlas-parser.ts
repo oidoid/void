@@ -54,6 +54,9 @@ export function parseAnim(
   }
 }
 
+// to-do: doc. every frame is guaranteed to be present for at least `celMillis`.
+//  gets duplicated until duration is met or exceeded. unpacking up to 1s for
+// the animation dir. no warns for overflow.
 /** @internal */
 export function* parseAnimFrames(
   span: AsepriteTagSpan,
