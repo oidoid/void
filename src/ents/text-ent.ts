@@ -6,22 +6,16 @@ import {fontCharToTag} from '../text/font.ts'
 import {layoutText} from '../text/text-layout.ts'
 import {type XY, xyEq} from '../types/geo.ts'
 import type {VoidT} from '../void.ts'
-import type {EID, EIDFactory} from './eid.ts'
 import type {Ent} from './ent.ts'
 
 // to-do: publish Aseprite so it can be included in atlas.
 export class TextEnt<T extends TagFormat> implements Ent {
-  readonly eid: EID
   #maxW: number = Infinity
   #invalid: boolean = false
   #scale: number = 1
   readonly #sprites: Sprite<T>[] = []
   #text: string = ''
   readonly #xy: XY = {x: 0, y: 0}
-
-  constructor(factory: EIDFactory) {
-    this.eid = factory.new()
-  }
 
   set maxW(w: number) {
     if (w === this.#maxW) return
@@ -51,7 +45,7 @@ export class TextEnt<T extends TagFormat> implements Ent {
 
   update(v: VoidT<string, T>): boolean | undefined {
     if (!this.#invalid) return
-    let spriteI = 0
+    let len = 0
     const layout = layoutText({
       font: memProp5x6,
       maxW: this.#maxW,
@@ -61,7 +55,7 @@ export class TextEnt<T extends TagFormat> implements Ent {
     })
     for (const [i, char] of layout.chars.entries()) {
       if (char == null) continue
-      const sprite = (this.#sprites[spriteI] ??= v.pool.alloc())
+      const sprite = (this.#sprites[len] ??= v.pool.alloc())
       sprite.x = char.x
       sprite.y = char.y
       sprite.tag = fontCharToTag(memProp5x6, this.#text[i]!) as T
@@ -69,9 +63,9 @@ export class TextEnt<T extends TagFormat> implements Ent {
       sprite.w *= this.#scale
       sprite.h *= this.#scale
       sprite.z = Layer.UIA // to-do: expose.
-      spriteI++
+      len++
     }
-    while (this.#sprites.length > spriteI) v.pool.free(this.#sprites.pop()!)
+    while (this.#sprites.length > len) v.pool.free(this.#sprites.pop()!)
     return true
   }
 }
