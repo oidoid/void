@@ -9,38 +9,53 @@ export type TextLayout = {
   cursor: XY
 }
 
-export function layoutText(
-  font: Readonly<Font>,
-  str: string,
-  maxW: number,
-  start: Readonly<XY>
-): TextLayout {
+export type TextLayoutOpts = {
+  font: Font
+  maxW?: number
+  scale?: number
+  start?: XY
+  str: string
+}
+
+export function layoutText(opts: Readonly<TextLayoutOpts>): TextLayout {
   const chars = []
+  const scale = opts.scale ?? 1
+  const start = opts.start ?? {x: 0, y: 0}
+  const maxW = opts.maxW ?? Infinity
   let cursor = {x: start.x, y: start.y}
-  while (chars.length < str.length) {
+  while (chars.length < opts.str.length) {
     const i = chars.length
-    const char = str[i]!
+    const char = opts.str[i]!
     let layout
-    if (char === '\n') layout = layoutNewline(font, cursor, start.x)
+    if (char === '\n') layout = layoutNewline(opts.font, cursor, start.x, scale)
     else if (/^\s*$/.test(char)) {
       layout = layoutSpace(
-        font,
+        opts.font,
         cursor,
         maxW,
-        tracking(font, char, str[i + 1]),
-        start.x
+        tracking(opts.font, char, opts.str[i + 1], scale),
+        start.x,
+        scale
       )
     } else {
-      layout = layoutWord(font, cursor, maxW, str, i, start.x)
+      layout = layoutWord(opts.font, cursor, maxW, opts.str, i, start.x, scale)
       if (
         cursor.x > 0 &&
-        layout.cursor.y === nextLine(font, start.x, cursor.y).y
+        layout.cursor.y === nextLine(opts.font, start.x, cursor.y, scale).y
       ) {
         const wordW = maxW - cursor.x + layout.cursor.x
         if (wordW <= maxW) {
           // word can fit on one line if cursor is reset to the start of line.
-          cursor = nextLine(font, start.x, cursor.y)
-          layout = layoutWord(font, cursor, maxW, str, i, start.x)
+          cursor = nextLine(opts.font, start.x, cursor.y, scale)
+          layout = layoutWord(
+            opts.font,
+            cursor,
+            maxW,
+            opts.str,
+            i,
+            start.x,
+            scale
+          )
         }
       }
     }
@@ -58,7 +73,8 @@ export function layoutWord(
   maxW: number,
   word: string,
   index: number,
-  startX: number
+  startX: number,
+  scale: number
 ): TextLayout {
   const chars = []
   let {x, y} = cursor
@@ -66,8 +82,8 @@ export function layoutWord(
     const char = word[index]
     if (!char || /^\s*$/.test(char)) break
 
-    const span = tracking(font, char, word[index + 1])
-    if (x > 0 && x + span > maxW) ({x, y} = nextLine(font, startX, y))
+    const span = tracking(font, char, word[index + 1], scale)
+    if (x > 0 && x + span > maxW) ({x, y} = nextLine(font, startX, y, scale))
 
     // width is not span since, with kerning, that may exceed the actual
     // width of the character's sprite. eg, if w has the maximal character width
@@ -80,16 +96,22 @@ export function layoutWord(
   return {chars, cursor: {x, y}}
 }
 
-function nextLine(font: Readonly<Font>, startX: number, curY: number): XY {
-  return {x: startX, y: curY + font.lineHeight}
+function nextLine(
+  font: Readonly<Font>,
+  startX: number,
+  curY: number,
+  scale: number
+): XY {
+  return {x: startX, y: curY + font.lineHeight * scale}
 }
 
 function layoutNewline(
   font: Readonly<Font>,
   cursor: Readonly<XY>,
-  startX: number
+  startX: number,
+  scale: number
 ): TextLayout {
-  return {chars: [undefined], cursor: nextLine(font, startX, cursor.y)}
+  return {chars: [undefined], cursor: nextLine(font, startX, cursor.y, scale)}
 }
 
 /**
@@ -101,20 +123,25 @@ function layoutSpace(
   cursor: Readonly<XY>,
   w: number,
   span: number,
-  startX: number
+  startX: number,
+  scale: number
 ): TextLayout {
   const nextCursor =
     cursor.x > 0 && cursor.x + span >= w
-      ? nextLine(font, startX, cursor.y)
+      ? nextLine(font, startX, cursor.y, scale)
       : {x: cursor.x + span, y: cursor.y}
   return {chars: [undefined], cursor: nextCursor}
 }
 
-/** @return the distance in pixels from the start of lhs to the start of rhs. */
+/**
+ * the distance in pixels from the start of lhs to the start of rhs including
+ * scale.
+ */
 function tracking(
   font: Readonly<Font>,
   l: string,
-  r: string | undefined
+  r: string | undefined,
+  scale: number
 ): number {
-  return fontCharWidth(font, l) + fontKerning(font, l, r)
+  return scale * (fontCharWidth(font, l) + fontKerning(font, l, r))
 }

@@ -8,7 +8,7 @@
     "@biomejs/biome": "2.2.3",
     "esbuild": "0.25.9",
     "jsdom": "26.1.0",
-    "mem-font": "11.0.0-4"
+    "mem-font": "11.0.0-5"
   },
   "description": "basic 2D game library.",
   "devDependencies": {

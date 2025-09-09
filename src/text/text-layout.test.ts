@@ -7,7 +7,7 @@ import {layoutText, layoutWord} from './text-layout.ts'
 const font: Font = memProp5x6
 const maxWidth = 8191
 describe('layoutText()', () => {
-  for (const [i, [string, width, expected]] of (
+  for (const [i, [str, w, expected]] of (
     [
       ['', maxWidth, {chars: [], cursor: {x: 0, y: 0 * font.lineHeight}}],
       [
@@ -161,8 +161,8 @@ describe('layoutText()', () => {
       ]
     ] as const
   ).entries()) {
-    test(`Case ${i}: string="${string}" width=${width}.`, () =>
-      assert.deepEqual(layoutText(font, string, width, {x: 0, y: 0}), expected))
+    test(`Case ${i}: str="${str}" w=${w}.`, () =>
+      assert.deepEqual(layoutText({font, str, maxW: w}), expected))
   }
 })
 
@@ -615,6 +615,9 @@ describe('layoutWord()', () => {
     ] as const
   ).entries()) {
     test(`case ${i}: xy=(${xy.x}, ${xy.y}), width=${width}, string="${string}", index=${index}.`, () =>
-      assert.deepEqual(layoutWord(font, xy, width, string, index, 0), expected))
+      assert.deepEqual(
+        layoutWord(font, xy, width, string, index, 0, 1),
+        expected
+      ))
   }
 })

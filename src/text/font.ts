@@ -14,8 +14,9 @@ export function fontKerning(
   r: string | undefined
 ): number {
   if (r == null) return font.endOfLineKerning
-  if (/^\s*$/.test(l) || /^\s*$/.test(r)) return font.whitespaceKerning
-  return font.kerning[l + r] ?? font.defaultKerning
+  if (font.kerning[l + r] != null) return font.kerning[l + r]!
+  if (/^\s?$/.test(l) || /^\s?$/.test(r)) return font.defaultWhitespaceKerning
+  return font.defaultKerning
 }
 
 export function fontCharWidth(font: Readonly<Font>, letter: string): number {
