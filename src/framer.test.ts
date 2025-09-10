@@ -13,7 +13,7 @@ describe('Framer', () => {
     globalThis.cancelAnimationFrame = () => (onFrame = undefined)
     globalThis.requestAnimationFrame = cb => {
       onFrame = cb
-      return 0
+      return 1
     }
   })
   afterEach(() => {
@@ -34,18 +34,22 @@ describe('Framer', () => {
   })
 
   test('onFrame', () => {
+    framer.requestFrame()
     onFrame!(10 as Millis)
     assert.equal(frame, 1)
     assert.equal(framer.age, 10)
+    framer.requestFrame()
     onFrame!(20 as Millis)
     assert.equal(frame, 2)
     assert.equal(framer.age, 20)
+    framer.requestFrame()
     onFrame!(30 as Millis)
     assert.equal(frame, 3)
     assert.equal(framer.age, 30)
   })
 
   test('hidden', () => {
+    framer.requestFrame()
     doc.hidden = true
     doc.dispatchEvent(TestEvent('visibilitychange'))
     assert.equal(onFrame, undefined)

@@ -7,7 +7,7 @@ import {
 } from '../graphics/atlas.ts'
 import type {Block} from '../mem/pool.ts'
 import {type Box, boxHits, type WH, type XY} from '../types/geo.ts'
-import type {Millis} from '../types/time.ts'
+import type {OriginMillis} from '../types/time.ts'
 import {mod} from '../utils/math.ts'
 import type {Layer} from './layer.ts'
 
@@ -210,13 +210,13 @@ export abstract class Drawable implements Block, Box {
 
 export class Sprite<Tag extends TagFormat> extends Drawable {
   readonly #atlas: Readonly<Atlas>
-  readonly #framer: {readonly age: Millis}
+  readonly #framer: {readonly age: OriginMillis}
 
   constructor(
     pool: {readonly view: DataView<ArrayBuffer>},
     i: number,
     atlas: Readonly<Atlas>,
-    framer: {readonly age: Millis}
+    framer: {readonly age: OriginMillis}
   ) {
     super(pool, i)
     this.#atlas = atlas

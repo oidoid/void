@@ -1,7 +1,7 @@
 import type {Pool} from '../mem/pool.ts'
 import {debug} from '../types/debug.ts'
 import {type WH, whEq} from '../types/geo.ts'
-import type {Millis} from '../types/time.ts'
+import type {OriginMillis} from '../types/time.ts'
 import type {Atlas, TagFormat} from './atlas.ts'
 import type {Cam} from './cam.ts'
 import {type GL2, Shader} from './gl.ts'
@@ -48,7 +48,7 @@ export class Renderer {
     this.#atlasImage = atlas
     this.#ctx = this.#Context()
   }
-  prerender(cam: Readonly<Cam>, framer: {readonly age: Millis}): void {
+  prerender(cam: Readonly<Cam>, framer: {readonly age: OriginMillis}): void {
     if (!this.#ctx) return
     const {gl, spriteShader, viewport} = this.#ctx
 

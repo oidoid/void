@@ -1,6 +1,9 @@
 import {version as pkgVersion, published} from '../package.json'
 
 export {type Font, memProp5x6} from 'mem-font'
+export * from './ents/ent.ts'
+export * from './ents/text-ent.ts'
+export * from './ents/zoo.ts'
 export * from './framer.ts'
 export * from './graphics/atlas.ts'
 export * from './graphics/cam.ts'

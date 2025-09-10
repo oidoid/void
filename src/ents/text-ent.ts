@@ -16,6 +16,17 @@ export class TextEnt<T extends TagFormat> implements Ent {
   readonly #sprites: Sprite<T>[] = []
   #text: string = ''
   readonly #xy: XY = {x: 0, y: 0}
+  #layer: Layer = Layer.UIA
+
+  free(v: VoidT<string, T>): void {
+    while (this.#sprites.length) v.pool.free(this.#sprites.pop()!)
+  }
+
+  set layer(layer: Layer) {
+    if (layer === this.#layer) return
+    this.#layer = layer
+    this.#invalid = true
+  }
 
   set maxW(w: number) {
     if (w === this.#maxW) return
@@ -62,10 +73,11 @@ export class TextEnt<T extends TagFormat> implements Ent {
       sprite.stretch = true
       sprite.w *= this.#scale
       sprite.h *= this.#scale
-      sprite.z = Layer.UIA // to-do: expose.
+      sprite.z = this.#layer
       len++
     }
     while (this.#sprites.length > len) v.pool.free(this.#sprites.pop()!)
+    this.#invalid = false
     return true
   }
 }

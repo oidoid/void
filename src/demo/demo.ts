@@ -1,5 +1,3 @@
-import {EIDFactory} from '../ents/eid.ts'
-import {TextEnt} from '../ents/text-ent.ts'
 import {
   Cam,
   type DefaultButton,
@@ -16,9 +14,12 @@ import {
   Sprite,
   spriteMaxWH,
   type Void,
-  version
+  version,
+  Zoo
 } from '../index.ts'
 import atlas from './atlas.json' with {type: 'json'}
+import {ClockEnt} from './ents/clock-ent.ts'
+import type {Tag} from './tag.ts'
 
 declare global {
   var v: Void
@@ -28,6 +29,8 @@ declare module '../index.ts' {
   interface Debug {
     /** always render. */
     invalid?: string
+    /** update the clock at least once a minute instead of once a second. */
+    minutely?: string
   }
 
   interface Void {
@@ -36,9 +39,7 @@ declare module '../index.ts' {
   }
 }
 
-type Tag = keyof typeof atlas.anim
-
-console.log(`void v${version} ───oidoid>°──`)
+console.debug(`void v${version} ───oidoid>°──`)
 
 const canvas = initDoc(0xffffb1ff, 'Int')
 
@@ -46,12 +47,14 @@ const canvas = initDoc(0xffffb1ff, 'Int')
 const cam = new Cam()
 cam.minWH = {w: 320, h: 240} // to-do: support zoom out.
 
+const framer = new Framer()
+
 const input = DefaultInput(cam, canvas)
 input.register('add')
+input.onEvent = () => framer.requestFrame()
 
 const renderer = new Renderer(atlas, canvas)
 renderer.register('add')
-const framer = new Framer()
 
 const spritePool = new Pool<Sprite<Tag>>({
   alloc: pool => new Sprite(pool, 0, atlas, framer),
@@ -96,11 +99,10 @@ backpacker.stretch = true
 backpacker.w *= 5
 backpacker.h *= 5
 
-const factory = new EIDFactory()
-const text = new TextEnt(factory)
-text.setText('hello world!')
-text.move({x: 50, y: 90})
-text.update(v)
+const zoo = new Zoo()
+
+// take XY in constructor?
+zoo.add(new ClockEnt())
 
 const filterPool = new Pool<Sprite<Tag>>({
   alloc: pool => new Sprite(pool, 0, atlas, framer),
@@ -113,7 +115,23 @@ filter.w = spriteMaxWH.w
 filter.h = spriteMaxWH.h
 filter.z = Layer.UIBottom
 
+{
+  const now = new Date()
+  setTimeout(
+    () => {
+      framer.requestFrame()
+      setInterval(
+        () => framer.requestFrame(),
+        (debug?.minutely ? 60 : 1) * 1000
+      )
+    },
+    (debug?.minutely ? (59 - (now.getSeconds() % 60)) * 1000 : 0) +
+      1000 -
+      (now.getMilliseconds() % 1000)
+  )
+}
 framer.onFrame = millis => {
+  if (document.hidden) return
   input.update(millis)
   cam.update(canvas)
 
@@ -132,23 +150,25 @@ framer.onFrame = millis => {
     cursor.y = input.point.local.y
     cursor.z = Layer.UITop
   }
+  const updated = zoo.update(v)
 
-  // to-do: egg timer. update every minute.
   if (abc123.looped) {
     abc123.tag = abc123.tag === 'abc123--123' ? 'abc123--ABC' : 'abc123--123'
     abc123.w *= 3
-    abc123.h *= 3 // not a good option here? surprising not to change size, surprising not to.
+    abc123.h *= 3 // not a good option here? surprising not to change size, surprising to.
   }
-  if (!debug?.invalid && !input.invalid && !cam.invalid && !renderer.invalid)
-    return
   if (debug?.input) printInput()
 
-  renderer.clear(0xffffb1ff)
-  renderer.prerender(cam, framer)
-  renderer.setDepth(true)
-  renderer.render(spritePool)
-  renderer.setDepth(false)
-  renderer.render(filterPool)
+  if (updated || debug?.invalid || cam.invalid || renderer.invalid) {
+    renderer.clear(0xffffb1ff)
+    renderer.prerender(cam, framer)
+    renderer.setDepth(true)
+    renderer.render(spritePool)
+    renderer.setDepth(false)
+    renderer.render(filterPool)
+  }
+
+  if (input.gamepad || debug?.invalid) framer.requestFrame()
 }
 framer.register('add')
 

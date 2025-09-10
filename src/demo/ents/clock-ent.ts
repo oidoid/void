@@ -6,7 +6,7 @@ export class ClockEnt implements Ent {
 
   constructor() {
     this.#textEnt.scale = 12
-    this.#textEnt.xy = {x: 0, y: 200}
+    this.#textEnt.xy = {x: 16, y: 200}
   }
 
   update(v: Void): boolean | undefined {
