@@ -44,6 +44,7 @@ export class Pointer {
   readonly bitByButton: {[btn: number]: number} = {}
   dragMinClient: number = 5
   invalid: boolean = false
+  onEvent: () => void = () => {}
   /** primary may be on or off. */
   primary: Readonly<PointEvent> | undefined
   /**
@@ -199,6 +200,8 @@ export class Pointer {
     if (ev.isPrimary) this.primary = pt
     else if (!bits) delete this.secondary[ev.pointerId]
     else this.secondary[ev.pointerId] = pt
+
+    this.onEvent()
   }
 
   get #newPinchClient(): XY | undefined {

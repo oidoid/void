@@ -134,7 +134,7 @@ export class Input<Button extends string> {
    */
   readonly #combo: number[] = []
   readonly #contextMenu: ContextMenu
-  readonly #gamepad: Gamepad = new Gamepad()
+  readonly #gamepad: Gamepad
   /** time since buttons changed. */
   #heldMillis: Millis = 0 as Millis
   readonly #keyboard: Keyboard
@@ -148,6 +148,7 @@ export class Input<Button extends string> {
   constructor(cam: Readonly<Cam>, target: Element) {
     this.#cam = cam
     this.#contextMenu = new ContextMenu(target)
+    this.#gamepad = new Gamepad(globalThis)
     this.#keyboard = new Keyboard(target.ownerDocument)
     this.#pointer = new Pointer(target)
     this.#wheel = new Wheel(target)
@@ -174,6 +175,11 @@ export class Input<Button extends string> {
    */
   get contextMenu(): {enable: boolean} {
     return this.#contextMenu
+  }
+
+  /** doesn't consider handled. gamepads must be polled. */
+  get gamepad(): Readonly<object | undefined> {
+    return this.#gamepad.connected ? {} : undefined
   }
 
   /** true if bits hasn't changed for a while. */
@@ -288,6 +294,13 @@ export class Input<Button extends string> {
     return on.sort()
   }
 
+  set onEvent(cb: () => void) {
+    this.#gamepad.onEvent = cb
+    this.#keyboard.onEvent = cb
+    this.#pointer.onEvent = cb
+    this.#wheel.onEvent = cb
+  }
+
   /** doesn't consider handled. */
   get point(): PointerState | undefined {
     return this.#pointerState
@@ -300,6 +313,7 @@ export class Input<Button extends string> {
   register(op: 'add' | 'remove'): this {
     globalThis[`${op}EventListener`]('blur', this.reset) // keyup is lost if window loses focus.
     this.#contextMenu.register(op)
+    this.#gamepad.register(op)
     this.#keyboard.register(op)
     this.#pointer.register(op)
     this.#wheel.register(op)

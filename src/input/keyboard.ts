@@ -3,6 +3,7 @@ export class Keyboard {
   /** KeyboardEvent.code to bit. */
   readonly bitByCode: {[code: string]: number} = {}
   /** KeyboardEvent.code to state. Multiple keys may map to the same bit. */
+  onEvent: () => void = () => {}
   #on: {[code: string]: boolean} = {}
   readonly #target: EventTarget
 
@@ -35,5 +36,6 @@ export class Keyboard {
     if (ev.type === 'keydown' && (ev.metaKey || ev.altKey || ev.ctrlKey)) return
     this.#on[ev.code] = ev.type === 'keydown'
     ev.preventDefault()
+    this.onEvent()
   }
 }
