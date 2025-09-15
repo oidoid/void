@@ -1,5 +1,5 @@
 import type {Font} from 'mem-font'
-import type {Box, XY} from '../types/geo.ts'
+import type {Box, WH, XY} from '../types/geo.ts'
 import {fontCharWidth, fontKerning} from './font.ts'
 
 export type TextLayout = {
@@ -7,6 +7,7 @@ export type TextLayout = {
   chars: (Box | undefined)[]
   /** the offset in pixels. */
   cursor: XY
+  wh: WH
 }
 
 export type TextLayoutOpts = {
@@ -23,6 +24,7 @@ export function layoutText(opts: Readonly<TextLayoutOpts>): TextLayout {
   const start = opts.start ?? {x: 0, y: 0}
   const maxW = opts.maxW ?? Infinity
   let cursor = {x: start.x, y: start.y}
+  let w = 0
   while (chars.length < opts.str.length) {
     const i = chars.length
     const char = opts.str[i]!
@@ -62,8 +64,13 @@ export function layoutText(opts: Readonly<TextLayoutOpts>): TextLayout {
     chars.push(...layout.chars)
     cursor.x = layout.cursor.x
     cursor.y = layout.cursor.y
+    w = Math.max(w, layout.cursor.x - start.x)
   }
-  return {chars, cursor}
+  return {
+    chars,
+    cursor,
+    wh: {w, h: nextLine(opts.font, start.x, cursor.y, scale).y - start.y}
+  }
 }
 
 /** @internal */
@@ -75,7 +82,7 @@ export function layoutWord(
   index: number,
   startX: number,
   scale: number
-): TextLayout {
+): Omit<TextLayout, 'wh'> {
   const chars = []
   let {x, y} = cursor
   for (; ; index++) {
@@ -110,7 +117,7 @@ function layoutNewline(
   cursor: Readonly<XY>,
   startX: number,
   scale: number
-): TextLayout {
+): Omit<TextLayout, 'wh'> {
   return {chars: [undefined], cursor: nextLine(font, startX, cursor.y, scale)}
 }
 
@@ -125,7 +132,7 @@ function layoutSpace(
   span: number,
   startX: number,
   scale: number
-): TextLayout {
+): Omit<TextLayout, 'wh'> {
   const nextCursor =
     cursor.x > 0 && cursor.x + span >= w
       ? nextLine(font, startX, cursor.y, scale)

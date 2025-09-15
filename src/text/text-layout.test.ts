@@ -9,16 +9,32 @@ const maxWidth = 8191
 describe('layoutText()', () => {
   for (const [i, [str, w, expected]] of (
     [
-      ['', maxWidth, {chars: [], cursor: {x: 0, y: 0 * font.lineHeight}}],
+      [
+        '',
+        maxWidth,
+        {
+          chars: [],
+          cursor: {x: 0, y: 0 * font.lineHeight},
+          wh: {h: 7, w: 0}
+        }
+      ],
       [
         ' ',
         maxWidth,
-        {chars: [undefined], cursor: {x: 4, y: 0 * font.lineHeight}}
+        {
+          chars: [undefined],
+          cursor: {x: 4, y: 0 * font.lineHeight},
+          wh: {h: 7, w: 4}
+        }
       ],
       [
         '\n',
         maxWidth,
-        {chars: [undefined], cursor: {x: 0, y: 1 * font.lineHeight}}
+        {
+          chars: [undefined],
+          cursor: {x: 0, y: 1 * font.lineHeight},
+          wh: {h: 14, w: 0}
+        }
       ],
       [
         'abc def ghi jkl mno',
@@ -45,7 +61,8 @@ describe('layoutText()', () => {
             {x: 54, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
             {x: 58, y: 0 * font.lineHeight, w: 3, h: font.cellHeight}
           ],
-          cursor: {x: 61, y: 0 * font.lineHeight}
+          cursor: {x: 61, y: 0 * font.lineHeight},
+          wh: {h: 7, w: 61}
         }
       ],
       [
@@ -73,7 +90,8 @@ describe('layoutText()', () => {
             {x: 6, y: 4 * font.lineHeight, w: 3, h: font.cellHeight},
             {x: 0, y: 5 * font.lineHeight, w: 3, h: font.cellHeight}
           ],
-          cursor: {x: 3, y: 5 * font.lineHeight}
+          cursor: {x: 3, y: 5 * font.lineHeight},
+          wh: {h: 42, w: 10}
         }
       ],
       [
@@ -101,7 +119,8 @@ describe('layoutText()', () => {
             {x: 6, y: 3 * font.lineHeight, w: 3, h: font.cellHeight},
             {x: 10, y: 3 * font.lineHeight, w: 3, h: font.cellHeight}
           ],
-          cursor: {x: 13, y: 3 * font.lineHeight}
+          cursor: {x: 13, y: 3 * font.lineHeight},
+          wh: {h: 28, w: 19}
         }
       ],
       [
@@ -129,7 +148,8 @@ describe('layoutText()', () => {
             {x: 6, y: 3 * font.lineHeight, w: 3, h: font.cellHeight},
             {x: 10, y: 3 * font.lineHeight, w: 3, h: font.cellHeight}
           ],
-          cursor: {x: 13, y: 3 * font.lineHeight}
+          cursor: {x: 13, y: 3 * font.lineHeight},
+          wh: {h: 28, w: 21}
         }
       ],
       [
@@ -142,7 +162,8 @@ describe('layoutText()', () => {
             undefined,
             {x: 0, y: 2 * font.lineHeight, w: 3, h: font.cellHeight}
           ],
-          cursor: {x: 3, y: 2 * font.lineHeight}
+          cursor: {x: 3, y: 2 * font.lineHeight},
+          wh: {h: 21, w: 3}
         }
       ],
       [
@@ -156,7 +177,8 @@ describe('layoutText()', () => {
             {x: 0, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
             undefined
           ],
-          cursor: {x: 0, y: 3 * font.lineHeight}
+          cursor: {x: 0, y: 3 * font.lineHeight},
+          wh: {h: 28, w: 3}
         }
       ]
     ] as const
