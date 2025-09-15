@@ -5,6 +5,7 @@ import {
   type WH,
   type XY
 } from '../types/geo.ts'
+import {Layer} from './layer.ts'
 
 export type LevelClientLocalXY = {
   /** position relative canvas top-left (in DPI scale). */
@@ -46,22 +47,9 @@ export class Cam {
     this.y = Math.floor(xy.y - this.h / 2)
   }
 
-  /** positive int in level px. */
-  get h(): number {
-    return this.#h
-  }
-
-  isVisible(box: Readonly<XY & Partial<WH>>): boolean {
-    return boxHits(this, box)
-  }
-
-  /** true if cam moved or resized since last update. */
-  get invalid(): boolean {
-    return this.#invalid
-  }
-
-  lead(
+  follow(
     wh: Readonly<WH>,
+    z: Layer,
     pivot: CompassDir,
     opts?: {
       readonly fill?: 'X' | 'Y' | 'XY' | undefined
@@ -70,7 +58,7 @@ export class Cam {
     }
   ): Box {
     const padW = opts?.pad?.w ?? 0
-    let x = this.x
+    let x = z > Layer.UIBottom ? Math.trunc(this.x) : 0
     switch (pivot) {
       case 'SW':
       case 'W':
@@ -91,7 +79,7 @@ export class Cam {
     x -= x % ((opts?.modulo?.x ?? x) || 1)
 
     const padH = opts?.pad?.h ?? 0
-    let y = this.y
+    let y = z > Layer.UIBottom ? Math.trunc(this.y) : 0
     switch (pivot) {
       case 'N':
       case 'NE':
@@ -117,6 +105,20 @@ export class Cam {
       opts?.fill === 'Y' || opts?.fill === 'XY' ? this.h - 2 * padH : wh.h
 
     return {x, y, w, h}
+  }
+
+  /** positive int in level px. */
+  get h(): number {
+    return this.#h
+  }
+
+  isVisible(box: Readonly<XY & Partial<WH>>): boolean {
+    return boxHits(this, box)
+  }
+
+  /** true if cam moved or resized since last update. */
+  get invalid(): boolean {
+    return this.#invalid
   }
 
   /** positive int or fraction depending on mode. */
