@@ -9,13 +9,13 @@ uniform lowp usampler2D uCels;
 uniform highp float uAge;
 
 layout (location=0) in lowp ivec2 iUV;
-layout (location=1) in highp uint iy12_x20;
-layout (location=2) in highp uint ih4_w12_sxyz_llll_y8;
-layout (location=3) in highp uint ir9_i10_5c_8h;
+layout (location=1) in highp uint iy8_x24;
+layout (location=2) in highp uint iw8_sxyz_llll_y16;
+layout (location=3) in highp uint ii11_c5_h12_w4;
 
-const mediump int maxY = 0x1000;
+const highp int maxY = 0x20000;
 const lowp int layers = 16;
-const mediump int maxDepth = maxY * layers;
+const highp int maxDepth = maxY * layers;
 
 flat out lowp uint vStretch;
 flat out mediump ivec4 vTexXYWH;
@@ -24,17 +24,17 @@ out highp vec2 vDstWH;
 flat out highp ivec2 vDstWHFixed;
 
 void main() {
-  highp int x = (int(iy12_x20 << 12) >> 12) / 8;
-  highp int y = int(((ih4_w12_sxyz_llll_y8 << 24) >> 12) | (iy12_x20 >> 20)) / 8;
-  lowp int z = int((ih4_w12_sxyz_llll_y8 >> 8) & 0xfu);
-  bool zend = bool(ih4_w12_sxyz_llll_y8 & 0x1000u);
-  bool flipX = bool(ih4_w12_sxyz_llll_y8 & 0x4000u);
-  bool flipY = bool(ih4_w12_sxyz_llll_y8 & 0x2000u);
-  bool stretch = bool(ih4_w12_sxyz_llll_y8 & 0x8000u);
-  mediump int id = int((ir9_i10_5c_8h >> 9) & 0x3ff0u);
-  lowp int cel = int((ir9_i10_5c_8h >> 8) & 0xfu); // ignore the MSB.
-  mediump int w = int(ih4_w12_sxyz_llll_y8 << 4 >> 20);
-  mediump int h = int((ir9_i10_5c_8h << 24 >> 20) | (ih4_w12_sxyz_llll_y8 >> 28));
+  highp int x = (int((iy8_x24 & 0xffffffu) << 8) >> 8) / 64;
+  highp int y = (int(iy8_x24 >> 24) | (int(iw8_sxyz_llll_y16 & 0xffffu) << 16 >> 8)) / 64;
+  lowp int z = int((iw8_sxyz_llll_y16 >> 16) & 0xfu);
+  bool zend = bool(iw8_sxyz_llll_y16 & 0x100000u);
+  bool flipY = bool(iw8_sxyz_llll_y16 & 0x200000u);
+  bool flipX = bool(iw8_sxyz_llll_y16 & 0x400000u);
+  bool stretch = bool(iw8_sxyz_llll_y16 & 0x800000u);
+  mediump int id = int((ii11_c5_h12_w4 >> 17) & 0x7ff0u); // ignore cel.
+  lowp int cel = int((ii11_c5_h12_w4 >> 16) & 0xfu); // ignore the MSB.
+  mediump int w = int(((ii11_c5_h12_w4 & 0xfu) << 8) | (iw8_sxyz_llll_y16 >> 24));
+  mediump int h = int((ii11_c5_h12_w4 >> 4) & 0xfffu);
 
   // https://www.patternsgameprog.com/opengl-2d-facade-25-get-the-z-of-a-pixel
   highp float depth = float((z + 1) * maxY - (y + (zend ? 0 : h))) / float(maxDepth);

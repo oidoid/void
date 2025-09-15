@@ -16,24 +16,22 @@ import type {Layer} from './layer.ts'
 export const drawableBytes: number = 12
 export const spriteMaxWH: WH = {w: 4095, h: 4095}
 
-// to-do: 1/64 pixel, 24b. might as well pad out animations to 2048. and w and h to 8096.
-
 /**
  * everything not requiring an atlas. the box is the drawn region. assume little
  * endian.
  *
- * 0 xxxx xxxx x (8x fixed-point). 1b sign, 16b int, 3b fraction.
- * 1 xxxx xxxx
- * 2 yyyy xxxx y.
- * 3 yyyy yyyy
+ * 0 xxxx xxxx x [-131072, 131071.984375] (1/64th fixed-point). 1b sign, 17b
+ * 1 xxxx xxxx int, 6b fraction.
+ * 2 xxxx xxxx
+ * 3 yyyy yyyy y.
  * 4 yyyy yyyy
- * 5 sxyz llll stretch, flip x, flip y, zend, z layer (4b).
- * 6 wwww wwww width. zero means discard.
- * 7 hhhh wwww height. zero means discard.
- * 8 hhhh hhhh
- * 9 iiic cccc animation ID [0, 1023], animation cel [0, 31], reserved (2b).
- * a riii iiii
- * b rrrr rrrr reserved.
+ * 5 yyyy yyyy
+ * 6 sxyz llll stretch, flip x, flip y, zend, z layer (4b).
+ * 7 wwww wwww width [0, 4095]. zero means discard.
+ * 8 hhhh wwww height. zero means discard.
+ * 9 hhhh hhhh
+ * a iiic cccc animation ID [0, 2047], animation cel [0, 31].
+ * b iiii iiii
  *
  * animations default to looping without CPU interaction.
  * @internal
@@ -57,15 +55,15 @@ export abstract class Drawable implements Block, Box {
   }
 
   get cel(): number {
-    const iiic_cccc = this.#pool.view.getUint8(this.i + 9)
+    const iiic_cccc = this.#pool.view.getUint8(this.i + 10)
     return iiic_cccc & 0x1f
   }
 
   // offset name? the starting framer cel frame thing.
   /** to-do: [0, 31]. set to Framer.age adasdas % (1000 / maxAnimCels) to start at the beginning. can actually return 2x `maxAnimCels`. */
   set cel(cel: number) {
-    const iiic_cccc = this.#pool.view.getUint8(this.i + 9)
-    this.#pool.view.setUint8(this.i + 9, (iiic_cccc & ~0x1f) | (cel & 0x1f))
+    const iiic_cccc = this.#pool.view.getUint8(this.i + 10)
+    this.#pool.view.setUint8(this.i + 10, (iiic_cccc & ~0x1f) | (cel & 0x1f))
   }
 
   /** test if render area overlaps box or sprite render area. */
@@ -74,51 +72,51 @@ export abstract class Drawable implements Block, Box {
   }
 
   get flipX(): boolean {
-    const sxyz_llll = this.#pool.view.getUint8(this.i + 5)
+    const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
     return !!(sxyz_llll & 0x40)
   }
 
   set flipX(flip: boolean) {
-    const sxyz_llll = this.#pool.view.getUint8(this.i + 5)
-    this.#pool.view.setUint8(this.i + 5, (sxyz_llll & ~0x40) | (-flip & 0x40))
+    const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
+    this.#pool.view.setUint8(this.i + 6, (sxyz_llll & ~0x40) | (-flip & 0x40))
   }
 
   get flipY(): boolean {
-    const sxyz_llll = this.#pool.view.getUint8(this.i + 5)
+    const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
     return !!(sxyz_llll & 0x20)
   }
 
   set flipY(flip: boolean) {
-    const sxyz_llll = this.#pool.view.getUint8(this.i + 5)
-    this.#pool.view.setUint8(this.i + 5, (sxyz_llll & ~0x20) | (-flip & 0x20))
+    const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
+    this.#pool.view.setUint8(this.i + 6, (sxyz_llll & ~0x20) | (-flip & 0x20))
   }
 
   get h(): number {
-    const h12_wwww = this.#pool.view.getUint16(this.i + 7, true)
+    const h12_wwww = this.#pool.view.getUint16(this.i + 8, true)
     return h12_wwww >>> 4
   }
 
   /** [0, 4095]. */
   set h(h: number) {
-    const h12_wwww = this.#pool.view.getUint16(this.i + 7, true)
+    const h12_wwww = this.#pool.view.getUint16(this.i + 8, true)
     this.#pool.view.setUint16(
-      this.i + 7,
+      this.i + 8,
       (h12_wwww & ~(0xfff << 4)) | ((h & 0xfff) << 4),
       true
     )
   }
 
   get id(): number {
-    const r_i10_c5 = this.#pool.view.getUint16(this.i + 9, true)
-    return (r_i10_c5 >>> 5) & 0x3ff
+    const i11_c5 = this.#pool.view.getUint16(this.i + 10, true)
+    return (i11_c5 >>> 5) & 0x7ff
   }
 
-  /** [0, 1023]. */
+  /** [0, 2047]. */
   set id(id: number) {
-    const r_i10_c5 = this.#pool.view.getUint16(this.i + 9, true)
+    const i11_c5 = this.#pool.view.getUint16(this.i + 10, true)
     this.#pool.view.setUint16(
-      this.i + 9,
-      (r_i10_c5 & ~(0x3ff << 5)) | ((id & 0x3ff) << 5),
+      this.i + 10,
+      (i11_c5 & ~(0x7ff << 5)) | ((id & 0x7ff) << 5),
       true
     )
   }
@@ -127,87 +125,88 @@ export abstract class Drawable implements Block, Box {
   // to-do: switch between AABB collisions. make rotation optional on Box.
 
   get stretch(): boolean {
-    const sxyz_llll = this.#pool.view.getUint8(this.i + 5)
+    const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
     return !!(sxyz_llll & 0x80)
   }
 
   /** wrap texture (default) or stretch to width and height. */
   set stretch(stretch: boolean) {
-    const sxyz_llll = this.#pool.view.getUint8(this.i + 5)
+    const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
     this.#pool.view.setUint8(
-      this.i + 5,
+      this.i + 6,
       (sxyz_llll & ~0x80) | (-stretch & 0x80)
     )
   }
 
   get w(): number {
-    const hhhh_w12 = this.#pool.view.getUint16(this.i + 6, true)
+    const hhhh_w12 = this.#pool.view.getUint16(this.i + 7, true)
     return hhhh_w12 & 0xfff
   }
 
   /** [0, 4095]. */
   set w(w: number) {
-    const hhhh_w12 = this.#pool.view.getUint16(this.i + 6, true)
+    const hhhh_w12 = this.#pool.view.getUint16(this.i + 7, true)
     this.#pool.view.setUint16(
-      this.i + 6,
+      this.i + 7,
       (hhhh_w12 & ~0xfff) | (w & 0xfff),
       true
     )
   }
 
   get x(): number {
-    const y12_x20 = this.#pool.view.getUint32(this.i + 0, true)
-    return ((y12_x20 << 12) >> 12) / 8 // signed shift.
+    const y8_x24 = this.#pool.view.getUint32(this.i + 0, true)
+    return ((y8_x24 << 8) >> 8) / 64 // signed shift.
   }
 
-  /** [-65536, 65535.875] with .125 granularity. */
+  /** [-131072, 131071.984375] with 1/64th (0.015625) granularity. */
   set x(x: number) {
-    const y12_x20 = this.#pool.view.getUint32(this.i + 0, true)
+    const y8_x24 = this.#pool.view.getUint32(this.i + 0, true)
     this.#pool.view.setUint32(
       this.i + 0,
-      (y12_x20 & ~0xf_ffff) | ((x * 8) & 0xf_ffff),
+      (y8_x24 & ~0xff_ffff) | ((x * 64) & 0xff_ffff),
       true
     )
   }
 
   get y(): number {
-    const sxyz_llll_y20_xxxx = this.#pool.view.getUint32(this.i + 2, true)
-    return ((sxyz_llll_y20_xxxx << 8) >> 12) / 8 // signed shift.
+    const sxyz_llll_y24 = this.#pool.view.getUint32(this.i + 3, true)
+    return ((sxyz_llll_y24 << 8) >> 8) / 64 // signed shift.
   }
 
-  /** [-65536, 65535.875] with .125 granularity. */
+  /** [-131072, 131071.984375] with 1/64th (0.015625) granularity. */
   set y(y: number) {
-    const sxyz_llll_y20_xxxx = this.#pool.view.getUint32(this.i + 2, true)
+    const sxyz_llll_y24 = this.#pool.view.getUint32(this.i + 3, true)
     this.#pool.view.setUint32(
-      this.i + 2,
-      (sxyz_llll_y20_xxxx & ~(0xf_ffff << 4)) | (((y * 8) & 0xf_ffff) << 4),
+      this.i + 3,
+      (sxyz_llll_y24 & ~0xff_ffff) | ((y * 64) & 0xff_ffff),
       true
     )
   }
 
   get z(): Layer {
-    const sxyz_llll = this.#pool.view.getUint8(this.i + 5)
+    const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
     return (sxyz_llll & 0xf) as Layer
   }
 
   /** layer [0 (closest), 14 (furthest)]; 15 is hidden. */
   set z(z: Layer) {
-    const sxyz_llll = this.#pool.view.getUint8(this.i + 5)
-    this.#pool.view.setUint8(this.i + 5, (sxyz_llll & ~0xf) | (z & 0xf))
+    const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
+    this.#pool.view.setUint8(this.i + 6, (sxyz_llll & ~0xf) | (z & 0xf))
   }
 
   get zend(): boolean {
-    const sxyz_llll = this.#pool.view.getUint8(this.i + 5)
+    const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
     return !!(sxyz_llll & 0x10)
   }
 
   /** z-order by top (default) or bottom of box. */
   set zend(end: boolean) {
-    const sxyz_llll = this.#pool.view.getUint8(this.i + 5)
-    this.#pool.view.setUint8(this.i + 5, (sxyz_llll & ~0x10) | (-end & 0x10))
+    const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
+    this.#pool.view.setUint8(this.i + 6, (sxyz_llll & ~0x10) | (-end & 0x10))
   }
 }
 
+// to-do: can I declaration merge or namespace merge away from the tag type?
 export class Sprite<Tag extends TagFormat> extends Drawable {
   readonly #atlas: Readonly<Atlas>
   readonly #framer: {readonly age: OriginMillis}
@@ -269,6 +268,8 @@ export class Sprite<Tag extends TagFormat> extends Drawable {
   reset(): void {
     this.cel = this.#currentCel // setter truncates.
   }
+
+  // to-do: unit test and catch up on unit tests elsewhere.
 
   get tag(): Tag {
     return this.#atlas.tags[this.id] as Tag
