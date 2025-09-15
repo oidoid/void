@@ -4,28 +4,22 @@ import {Layer} from '../graphics/layer.ts'
 import type {Sprite} from '../graphics/sprite.ts'
 import {fontCharToTag} from '../text/font.ts'
 import {layoutText} from '../text/text-layout.ts'
-import {type XY, xyEq} from '../types/geo.ts'
+import {type WH, type XY, xyEq} from '../types/geo.ts'
 import type {VoidT} from '../void.ts'
 import type {Ent} from './ent.ts'
 
-// to-do: publish Aseprite so it can be included in atlas.
-export class TextEnt<T extends TagFormat> implements Ent {
+export class TextEnt implements Ent {
   #maxW: number = Infinity
   #invalid: boolean = false
+  #z: Layer = Layer.UIA
   #scale: number = 1
-  readonly #sprites: Sprite<T>[] = []
+  readonly #sprites: Sprite<TagFormat>[] = []
   #text: string = ''
+  #wh: WH = {w: 0, h: 0}
   readonly #xy: XY = {x: 0, y: 0}
-  #layer: Layer = Layer.UIA
 
-  free(v: VoidT<string, T>): void {
+  free(v: VoidT<string, TagFormat>): void {
     while (this.#sprites.length) v.pool.free(this.#sprites.pop()!)
-  }
-
-  set layer(layer: Layer) {
-    if (layer === this.#layer) return
-    this.#layer = layer
-    this.#invalid = true
   }
 
   set maxW(w: number) {
@@ -46,15 +40,7 @@ export class TextEnt<T extends TagFormat> implements Ent {
     this.#invalid = true
   }
 
-  // to-do: support moving to an XY by an anchor (NW, N, NE, etc).
-  set xy(xy: Readonly<XY>) {
-    if (xyEq(xy, this.#xy)) return
-    this.#xy.x = xy.x
-    this.#xy.y = xy.y
-    this.#invalid = true
-  }
-
-  update(v: VoidT<string, T>): boolean | undefined {
+  update(v: VoidT<string, TagFormat>): boolean | undefined {
     if (!this.#invalid) return
     let len = 0
     const layout = layoutText({
@@ -64,20 +50,47 @@ export class TextEnt<T extends TagFormat> implements Ent {
       start: this.#xy,
       str: this.#text
     })
+    this.#wh = {w: layout.wh.w, h: layout.wh.h}
     for (const [i, char] of layout.chars.entries()) {
       if (char == null) continue
       const sprite = (this.#sprites[len] ??= v.pool.alloc())
       sprite.x = char.x
       sprite.y = char.y
-      sprite.tag = fontCharToTag(memProp5x6, this.#text[i]!) as T
+      sprite.tag = fontCharToTag(memProp5x6, this.#text[i]!)
       sprite.stretch = true
       sprite.w *= this.#scale
       sprite.h *= this.#scale
-      sprite.z = this.#layer
+      sprite.z = this.#z
       len++
     }
     while (this.#sprites.length > len) v.pool.free(this.#sprites.pop()!)
     this.#invalid = false
     return true
+  }
+
+  get wh(): Readonly<WH> {
+    return this.#wh
+  }
+
+  get xy(): Readonly<XY> {
+    return this.#xy
+  }
+
+  // to-do: support moving to an XY by an anchor (NW, N, NE, etc).
+  set xy(xy: Readonly<XY>) {
+    if (xyEq(xy, this.#xy)) return
+    this.#xy.x = xy.x
+    this.#xy.y = xy.y
+    this.#invalid = true
+  }
+
+  get z(): Layer {
+    return this.#z
+  }
+
+  set z(layer: Layer) {
+    if (layer === this.#z) return
+    this.#z = layer
+    this.#invalid = true
   }
 }

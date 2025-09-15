@@ -6,9 +6,10 @@ import type {Ent} from './ent.ts'
 /**
  * ents are updated in insertion order. composed ents are updated by their
  * owning ents.
+ * to-do: process in layer order.
  */
-export class Zoo {
-  #cursor: CursorEnt | undefined
+export class Zoo<Tag extends TagFormat> {
+  #cursor: CursorEnt<Tag> | undefined
   readonly #ents: Set<Ent> = new Set()
   // to-do: layer ents by update order.
 
@@ -24,7 +25,7 @@ export class Zoo {
     this.#ents.clear()
   }
 
-  get cursor(): CursorEnt | undefined {
+  get cursor(): CursorEnt<Tag> | undefined {
     return this.#cursor
   }
 
@@ -37,7 +38,7 @@ export class Zoo {
 
   update(v: VoidT<string, TagFormat>): boolean {
     let invalid = false
-    for (const ent of this.#ents) invalid ||= !!ent.update?.(v)
+    for (const ent of this.#ents) if (ent.update?.(v)) invalid = true
     return invalid
   }
 }
