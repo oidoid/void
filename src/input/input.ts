@@ -31,6 +31,8 @@ type PointerState = Point & {
   center: LevelClientLocalXY
   /** false when pinched. */
   drag: {on: boolean; start: boolean; end: boolean}
+  /** true if changed since last update. */
+  invalid: boolean
   /** may be negative. */
   pinch:
     | {
@@ -41,8 +43,6 @@ type PointerState = Point & {
     | undefined
   /** secondary points. */
   secondary: Point[]
-  /** true if changed since last update. */
-  started: boolean
 }
 
 /** triggered. */
@@ -152,6 +152,10 @@ export class Input<Button extends string> {
     this.#keyboard = new Keyboard(target.ownerDocument)
     this.#pointer = new Pointer(target)
     this.#wheel = new Wheel(target)
+  }
+
+  get anyOn(): boolean {
+    return this.#bits !== 0
   }
 
   /** for debugging. */
@@ -418,7 +422,7 @@ export class Input<Button extends string> {
           start: !this.#pointerState?.drag.on && dragOn,
           end: !!this.#pointerState?.drag.on && !dragOn
         },
-        started: this.#pointer.invalid,
+        invalid: this.#pointer.invalid,
         pinch: pinchClient
           ? {client: pinchClient, xy: this.#cam.clientToXY(pinchClient)}
           : undefined,

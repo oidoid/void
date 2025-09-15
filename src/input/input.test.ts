@@ -611,7 +611,7 @@ test('pointer movements update position', async ctx => {
 
     assert.deepEqual(input.point?.client, {x: 1, y: 2})
     assert.deepEqual(input.point?.type, 'Mouse')
-    assert.equal(input.point?.started, true)
+    assert.equal(input.point?.invalid, true)
   })
 
   ctx.test('and position is not lost on update', () => {
@@ -619,7 +619,7 @@ test('pointer movements update position', async ctx => {
 
     assert.deepEqual(input.point?.client, {x: 1, y: 2})
     assert.deepEqual(input.point?.type, 'Mouse')
-    assert.equal(input.point?.started, false)
+    assert.equal(input.point?.invalid, false)
   })
 })
 
@@ -634,7 +634,7 @@ test('pointer clicks are buttons', () => {
 
   assertButton(input, 'Click', 'On', 'Start')
   assertCombo(input, [['Click']], 'Equal', 'Start')
-  assert.equal(input.point?.started, true)
+  assert.equal(input.point?.invalid, true)
 })
 
 test('pointer secondary clicks are buttons', () => {
@@ -648,7 +648,7 @@ test('pointer secondary clicks are buttons', () => {
 
   assertButton(input, 'Click2', 'On', 'Start')
   assertCombo(input, [['Click2']], 'Equal', 'Start')
-  assert.equal(input.point?.started, true)
+  assert.equal(input.point?.invalid, true)
 })
 
 test('a pointer click can become a drag', async ctx => {
@@ -660,7 +660,7 @@ test('a pointer click can become a drag', async ctx => {
     assert.deepEqual(input.point?.drag.start, undefined)
     assert.deepEqual(input.point?.drag.end, undefined)
     assert.equal(input.point?.click, undefined)
-    assert.equal(input.point?.started, undefined)
+    assert.equal(input.point?.invalid, undefined)
   })
 
   ctx.test('click', () => {
@@ -675,7 +675,7 @@ test('a pointer click can become a drag', async ctx => {
     assert.deepEqual(input.point?.drag.start, false)
     assert.deepEqual(input.point?.drag.end, false)
     assert.partialDeepStrictEqual(input.point?.click, {x: 1, y: 2})
-    assert.equal(input.point?.started, true)
+    assert.equal(input.point?.invalid, true)
   })
 
   ctx.test('drag', () => {
@@ -690,7 +690,7 @@ test('a pointer click can become a drag', async ctx => {
     assert.deepEqual(input.point?.drag.start, true)
     assert.deepEqual(input.point?.drag.end, false)
     assert.partialDeepStrictEqual(input.point?.click, {x: 1, y: 2})
-    assert.equal(input.point?.started, true)
+    assert.equal(input.point?.invalid, true)
   })
 
   ctx.test('pause', () => {
@@ -702,7 +702,7 @@ test('a pointer click can become a drag', async ctx => {
     assert.deepEqual(input.point?.drag.start, false)
     assert.deepEqual(input.point?.drag.end, false)
     assert.partialDeepStrictEqual(input.point?.click, {x: 1, y: 2})
-    assert.equal(input.point?.started, false)
+    assert.equal(input.point?.invalid, false)
   })
 
   ctx.test('move', () => {
@@ -717,7 +717,7 @@ test('a pointer click can become a drag', async ctx => {
     assert.deepEqual(input.point?.drag.start, false)
     assert.deepEqual(input.point?.drag.end, false)
     assert.partialDeepStrictEqual(input.point?.click, {x: 1, y: 2})
-    assert.equal(input.point?.started, true)
+    assert.equal(input.point?.invalid, true)
   })
 
   ctx.test('release', () => {
@@ -730,7 +730,7 @@ test('a pointer click can become a drag', async ctx => {
     assert.deepEqual(input.point?.drag.start, false)
     assert.deepEqual(input.point?.drag.end, true)
     assert.partialDeepStrictEqual(input.point?.click, undefined)
-    assert.equal(input.point?.started, true)
+    assert.equal(input.point?.invalid, true)
   })
 
   ctx.test('pause again', () => {
@@ -742,7 +742,7 @@ test('a pointer click can become a drag', async ctx => {
     assert.deepEqual(input.point?.drag.start, false)
     assert.deepEqual(input.point?.drag.end, false)
     assert.partialDeepStrictEqual(input.point?.click, undefined)
-    assert.equal(input.point?.started, false)
+    assert.equal(input.point?.invalid, false)
   })
 })
 
@@ -757,7 +757,7 @@ test('a pointer click can become a drag or a pinch', async ctx => {
     assert.partialDeepStrictEqual(input.point?.click, undefined)
     assert.deepEqual(input.point?.pinch?.xy, undefined)
     assert.equal(input.point?.center, undefined)
-    assert.equal(input.point?.started, undefined)
+    assert.equal(input.point?.invalid, undefined)
   })
 
   ctx.test('click', () => {
@@ -774,7 +774,7 @@ test('a pointer click can become a drag or a pinch', async ctx => {
     assert.partialDeepStrictEqual(input.point?.click, {x: 1, y: 2})
     assert.deepEqual(input.point?.pinch?.xy, undefined)
     assert.partialDeepStrictEqual(input.point?.center, {x: 1, y: 2})
-    assert.equal(input.point?.started, true)
+    assert.equal(input.point?.invalid, true)
   })
 
   ctx.test('drag', () => {
@@ -791,7 +791,7 @@ test('a pointer click can become a drag or a pinch', async ctx => {
     assert.partialDeepStrictEqual(input.point?.click, {x: 1, y: 2})
     assert.deepEqual(input.point?.pinch?.xy, undefined)
     assert.partialDeepStrictEqual(input.point?.center, {x: 6, y: 2})
-    assert.equal(input.point?.started, true)
+    assert.equal(input.point?.invalid, true)
   })
 
   ctx.test('pinch', () => {
@@ -813,7 +813,7 @@ test('a pointer click can become a drag or a pinch', async ctx => {
     assert.partialDeepStrictEqual(input.point?.click, {x: 1, y: 2})
     assert.deepEqual(input.point?.pinch?.xy, {x: 0, y: 0})
     assert.partialDeepStrictEqual(input.point?.center, {x: 8, y: 6})
-    assert.equal(input.point?.started, true)
+    assert.equal(input.point?.invalid, true)
   })
 
   ctx.test('expand', () => {
@@ -835,7 +835,7 @@ test('a pointer click can become a drag or a pinch', async ctx => {
     assert.partialDeepStrictEqual(input.point?.click, {x: 1, y: 2})
     assert.deepEqual(input.point?.pinch?.xy, {x: 10, y: 10})
     assert.partialDeepStrictEqual(input.point?.center, {x: 13, y: 11})
-    assert.equal(input.point?.started, true)
+    assert.equal(input.point?.invalid, true)
   })
 })
 
@@ -854,7 +854,7 @@ test('center', async ctx => {
     input.update(16 as Millis)
 
     assert.partialDeepStrictEqual(input.point?.center, {x: 1, y: 2})
-    assert.equal(input.point?.started, true)
+    assert.equal(input.point?.invalid, true)
   })
 
   ctx.test('drag', () => {
@@ -864,7 +864,7 @@ test('center', async ctx => {
     input.update(16 as Millis)
 
     assert.partialDeepStrictEqual(input.point?.center, {x: 10, y: 10})
-    assert.equal(input.point?.started, true)
+    assert.equal(input.point?.invalid, true)
   })
 
   ctx.test('secondary click', () => {
@@ -879,7 +879,7 @@ test('center', async ctx => {
     input.update(16 as Millis)
 
     assert.partialDeepStrictEqual(input.point?.center, {x: 15, y: 15})
-    assert.equal(input.point?.started, true)
+    assert.equal(input.point?.invalid, true)
   })
 
   ctx.test('primary unclick', () => {
@@ -889,7 +889,7 @@ test('center', async ctx => {
     input.update(16 as Millis)
 
     assert.partialDeepStrictEqual(input.point?.center, {x: 20, y: 20})
-    assert.equal(input.point?.started, true)
+    assert.equal(input.point?.invalid, true)
   })
 })
 
@@ -900,7 +900,7 @@ test('pinch', async ctx => {
   ctx.test('init', () => {
     assert.partialDeepStrictEqual(input.point?.center, undefined)
     assert.deepEqual(input.point?.pinch, undefined)
-    assert.equal(input.point?.started, undefined)
+    assert.equal(input.point?.invalid, undefined)
   })
 
   ctx.test('click', () => {
@@ -911,7 +911,7 @@ test('pinch', async ctx => {
 
     assert.partialDeepStrictEqual(input.point?.center, {x: 10, y: 10})
     assert.deepEqual(input.point?.pinch?.xy, undefined)
-    assert.equal(input.point?.started, true)
+    assert.equal(input.point?.invalid, true)
   })
 
   ctx.test('secondary click', () => {
@@ -927,7 +927,7 @@ test('pinch', async ctx => {
 
     assert.partialDeepStrictEqual(input.point?.center, {x: 15, y: 15})
     assert.deepEqual(input.point?.pinch?.xy, {x: 0, y: 0})
-    assert.equal(input.point?.started, true)
+    assert.equal(input.point?.invalid, true)
   })
 
   ctx.test('expand', () => {
@@ -943,7 +943,7 @@ test('pinch', async ctx => {
 
     assert.partialDeepStrictEqual(input.point?.center, {x: 20, y: 20})
     assert.deepEqual(input.point?.pinch?.xy, {x: 10, y: 10})
-    assert.equal(input.point?.started, true)
+    assert.equal(input.point?.invalid, true)
   })
 
   ctx.test('release', () => {
@@ -952,7 +952,7 @@ test('pinch', async ctx => {
 
     assert.partialDeepStrictEqual(input.point?.center, {x: 10, y: 10})
     assert.deepEqual(input.point?.pinch?.xy, undefined)
-    assert.equal(input.point?.started, true)
+    assert.equal(input.point?.invalid, true)
   })
 })
 
