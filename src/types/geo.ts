@@ -34,6 +34,11 @@ export function boxHits(
   )
 }
 
+export function whAssign(l: WH, r: Readonly<WH>): void {
+  l.w = r.w
+  l.h = r.h
+}
+
 export function whEq(l: Readonly<WH>, r: Readonly<WH>): boolean {
   return l.w === r.w && l.h === r.h
 }
@@ -47,6 +52,12 @@ export function xyAdd(l: Readonly<XY>, r: Readonly<XY>): XY {
 export function xyAddTo(l: XY, r: Readonly<XY>): void {
   l.x += r.x
   l.y += r.y
+}
+
+// hate all these useless functions. such a dumb abstraction.
+export function xyAssign(l: XY, r: Readonly<XY>): void {
+  l.x = r.x
+  l.y = r.y
 }
 
 /** nonnegative. */
