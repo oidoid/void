@@ -73,7 +73,8 @@ test('free()', async ctx => {
   })
 
   ctx.test('never shrinks below one page', () => {
-    while (blocks.length) pool.free(blocks.shift()!)
+    pool.free(...blocks)
+    blocks.length = 0
     assert.equal(pool.toDebugString(), '0000000000 0000000000')
   })
 })

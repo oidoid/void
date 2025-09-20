@@ -63,6 +63,6 @@ void main() {
 }
 `
 
-import {debug} from '../types/debug.ts'
+import {debug} from '../utils/debug.ts'
 import {animCels, celMillis} from './atlas.ts'
 import {Layer} from './layer.ts'

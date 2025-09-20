@@ -1,6 +1,6 @@
-// TypeScript config for all functional code.
+// TypeScript config for demo.
 {
-  "extends": "../tools/tsconfig-base.json",
+  "extends": "../../tools/tsconfig-base.json",
   "compilerOptions": {
     "lib": [
       "DOM",
@@ -12,13 +12,14 @@
 
     "rewriteRelativeImportExtensions": true, // rewrite .ts imports to .js.
 
-    "outDir": "../dist", // output to dist/<folder>.
+    "outDir": "../../dist/demo", // output to dist/demo.
 
-    "tsBuildInfoFile": "../dist/tsconfig.tsbuildinfo",
+    "tsBuildInfoFile": "../../dist/demo/tsconfig.tsbuildinfo",
 
     "customConditions": ["browser"]
   },
   // https://github.com/Microsoft/TypeScript/issues/25636
   "include": ["**/*", "**/*.json"],
-  "exclude": ["**/*.test.ts", "demo"]
+  "exclude": ["**/*.test.ts"],
+  "references": [{"path": ".."}]
 }

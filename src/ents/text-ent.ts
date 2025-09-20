@@ -19,7 +19,11 @@ export class TextEnt implements Ent {
   readonly #xy: XY = {x: 0, y: 0}
 
   free(v: VoidT<string, TagFormat>): void {
-    while (this.#sprites.length) v.pool.free(this.#sprites.pop()!)
+    v.pool.free(...this.#sprites)
+  }
+
+  get maxW(): number {
+    return this.#maxW
   }
 
   set maxW(w: number) {

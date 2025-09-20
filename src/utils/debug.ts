@@ -34,9 +34,7 @@ export function Debug(url: string | undefined): Debug | undefined {
   const target: {[k: string]: string} = {}
   for (const k in map) target[k.toLowerCase()] = map[k] || 'true'
 
-  const voidKeyset: {
-    [_ in keyof Omit<Debug, 'invalid' | 'seconds'>]-?: undefined
-  } = {
+  const voidKeyset: {[_ in keyof Debug]-?: undefined} = {
     cam: undefined,
     input: undefined,
     mem: undefined,

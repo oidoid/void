@@ -1,7 +1,7 @@
 import type {Pool} from '../mem/pool.ts'
-import {debug} from '../types/debug.ts'
 import {type WH, whEq} from '../types/geo.ts'
 import type {OriginMillis} from '../types/time.ts'
+import {debug} from '../utils/debug.ts'
 import type {Atlas, TagFormat} from './atlas.ts'
 import type {Cam} from './cam.ts'
 import {type GL2, Shader} from './gl.ts'
@@ -236,6 +236,12 @@ function GL2(canvas: HTMLCanvasElement): GL2 | undefined {
 
   if (debug?.render && !gl.getContextAttributes()?.desynchronized)
     console.debug('[render] no WebGL DOM desynchronization')
+
+  if (debug?.render) {
+    const info = gl.getExtension('WEBGL_debug_renderer_info')
+    const renderer = info && gl.getParameter(info.UNMASKED_RENDERER_WEBGL)
+    console.debug(`[render] ${renderer}`)
+  }
 
   return gl
 }

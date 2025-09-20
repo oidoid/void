@@ -1,4 +1,4 @@
-import {debug} from '../types/debug.ts'
+import {debug} from '../utils/debug.ts'
 
 /** @internal */
 export type GL2 = WebGL2RenderingContext

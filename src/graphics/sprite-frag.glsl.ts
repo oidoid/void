@@ -27,5 +27,5 @@ void main() {
 }
 `
 
-import {debug} from '../types/debug.ts'
+import {debug} from '../utils/debug.ts'
 import {Layer} from './layer.ts'
