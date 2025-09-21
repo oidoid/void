@@ -58,7 +58,7 @@ export class Cam {
     }
   ): Box {
     const padW = opts?.pad?.w ?? 0
-    let x = z > Layer.UIBottom ? Math.trunc(this.x) : 0
+    let x = z > Layer.UIG ? Math.trunc(this.x) : 0
     switch (pivot) {
       case 'SW':
       case 'W':
@@ -79,7 +79,7 @@ export class Cam {
     x -= x % ((opts?.modulo?.x ?? x) || 1)
 
     const padH = opts?.pad?.h ?? 0
-    let y = z > Layer.UIBottom ? Math.trunc(this.y) : 0
+    let y = z > Layer.UIG ? Math.trunc(this.y) : 0
     switch (pivot) {
       case 'N':
       case 'NE':
@@ -184,14 +184,6 @@ export class Cam {
     return {
       x: (client.x / this.#whClient.w) * this.#w,
       y: (client.y / this.#whClient.h) * this.#h
-    }
-  }
-
-  // relative cam
-  toXYClient(xy: Readonly<XY>): XY {
-    return {
-      x: this.#whClient.w / (this.#w * (xy.x - this.x)),
-      y: this.#whClient.h / (this.#h * (xy.y - this.y))
     }
   }
 

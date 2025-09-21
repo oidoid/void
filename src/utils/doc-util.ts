@@ -33,3 +33,11 @@ export function initDoc(
 
   return canvas
 }
+
+export function download(uri: string, filename: string): void {
+  const a = document.createElement('a')
+  a.href = uri
+  a.download = filename
+  a.click()
+  a.remove()
+}

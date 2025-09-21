@@ -7,7 +7,7 @@ import {
 } from '../graphics/atlas.ts'
 import type {Block} from '../mem/pool.ts'
 import {type Box, boxHits, type WH, type XY} from '../types/geo.ts'
-import type {OriginMillis} from '../types/time.ts'
+import type {Millis} from '../types/time.ts'
 import {mod} from '../utils/math.ts'
 import type {Layer} from './layer.ts'
 
@@ -168,6 +168,16 @@ export abstract class Drawable implements Block, Box {
     )
   }
 
+  // to-do: test
+  get xy(): XY {
+    return {x: this.x, y: this.y}
+  }
+
+  set xy(xy: Readonly<XY>) {
+    this.x = xy.x
+    this.y = xy.y
+  }
+
   get y(): number {
     const sxyz_llll_y24 = this.#pool.view.getUint32(this.i + 3, true)
     return ((sxyz_llll_y24 << 8) >> 8) / 64 // signed shift.
@@ -209,13 +219,13 @@ export abstract class Drawable implements Block, Box {
 // to-do: can I declaration merge or namespace merge away from the tag type?
 export class Sprite<Tag extends TagFormat> extends Drawable {
   readonly #atlas: Readonly<Atlas>
-  readonly #framer: {readonly age: OriginMillis}
+  readonly #framer: {readonly age: Millis}
 
   constructor(
     pool: {readonly view: DataView<ArrayBuffer>},
     i: number,
     atlas: Readonly<Atlas>,
-    framer: {readonly age: OriginMillis}
+    framer: {readonly age: Millis}
   ) {
     super(pool, i)
     this.#atlas = atlas

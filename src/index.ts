@@ -1,7 +1,11 @@
 import {version as pkgVersion, published} from '../package.json'
 
 export {type Font, memProp5x6} from 'mem-font'
+export * from './ents/button-ent.ts'
+export * from './ents/cursor-ent.ts'
 export * from './ents/ent.ts'
+export * from './ents/follow-cam-ent.ts'
+export * from './ents/nine-patch-ent.ts'
 export * from './ents/text-ent.ts'
 export * from './ents/zoo.ts'
 export * from './framer.ts'

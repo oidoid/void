@@ -178,7 +178,7 @@ export function packAtlas(
   )
   fs.writeFileSync(
     outJSONFilename,
-    JSON.stringify(parseAtlas(JSON.parse(json)), undefined, 2)
+    JSON.stringify(parseAtlas(JSON.parse(json)))
   )
 
   execFileSync('biome', ['check', '--fix', outJSONFilename], {encoding: 'utf8'})

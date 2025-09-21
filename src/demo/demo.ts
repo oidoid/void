@@ -1,9 +1,12 @@
 import {
+  ButtonEnt,
   Cam,
+  CursorEnt,
   type DefaultButton,
   DefaultInput,
   debug,
   drawableBytes,
+  FollowCamEnt,
   Framer,
   fetchImage,
   type Input,
@@ -29,13 +32,14 @@ declare module '../index.ts' {
   interface Debug {
     /** always render. */
     invalid?: string
-    /** update the clock at least once a minute instead of once a second. */
-    minutely?: string
+    /** update the clock at least once a second instead of once a minute. */
+    seconds?: string
   }
 
   interface Void {
     input: Input<DefaultButton>
     pool: Pool<Sprite<Tag>>
+    zoo: Zoo<Tag>
   }
 }
 
@@ -62,22 +66,58 @@ const spritePool = new Pool<Sprite<Tag>>({
   minPages: 3,
   pageBlocks: 10_000
 })
+const zoo = new Zoo<Tag>()
 
-globalThis.v = {cam, canvas, debug, framer, pool: spritePool, input, renderer}
-
-const cursor = spritePool.alloc()
-cursor.tag = 'cursor--Pointer'
-cursor.z = Layer.Hidden
+globalThis.v = {
+  cam,
+  canvas,
+  debug,
+  framer,
+  pool: spritePool,
+  input,
+  renderer,
+  zoo
+}
 
 ;(async () => {
   renderer.load(await fetchImage('/atlas.png'))
+  framer.requestFrame()
+  startTimer()
 })()
 
-const bg = spritePool.alloc()
-bg.tag = 'background--OrangeCheckerboard'
+function startTimer(): void {
+  const now = new Date()
+  const delay =
+    (debug?.seconds ? 0 : (59 - (now.getSeconds() % 60)) * 1000) +
+    1000 -
+    (now.getMilliseconds() % 1000)
+  setTimeout(() => {
+    framer.requestFrame()
+    setInterval(() => framer.requestFrame(), (debug?.seconds ? 1 : 60) * 1000)
+  }, delay)
+}
+
+// to-do: mobile is running in invalid mode
+
+// need to not consider gamepad connected as invalid because this will always render, want always poll not always render in that case. need to propagate connected event.
+// to-do: why don't I get click combo for touchpad taps?
+// to-do: gamepad connected listeren
+
+// Create a ResizeObserver
+const resizeObserver = new ResizeObserver(() => {
+  console.log('parent resized')
+  framer.requestFrame()
+})
+
+if (!canvas.parentElement) throw Error('canvas has no parent')
+resizeObserver.observe(canvas.parentElement)
+// to-do: unobserve / disconnect().
+
+const bg = new FollowCamEnt(v, 'background--OrangeCheckerboard', 'Origin')
 bg.w = 320
 bg.h = 240
 bg.z = Layer.Bottom
+
 // to-do: 9patch for borders.
 
 const abc123 = spritePool.alloc()
@@ -99,10 +139,46 @@ backpacker.stretch = true
 backpacker.w *= 5
 backpacker.h *= 5
 
-const zoo = new Zoo()
+// to-do: this is invalid. I really don't want folks wirintg this.
+// ninep.xy.y = 300
 
-// take XY in constructor?
-zoo.add(new ClockEnt())
+
+const invalidateToggle = new ButtonEnt(v, {
+  w: {tag: 'background--Strawberry'},
+  nw: {tag: 'background--Cyan'},
+  n: {tag: 'background--Bubblegum'},
+  ne: {tag: 'background--Cucumber'},
+  e: {tag: 'background--Blueberry'},
+  s: {tag: 'background--Kiwi'},
+  se: {tag: 'background--Mustard'},
+  sw: {tag: 'background--Squash'},
+  origin: {tag: 'background--Grape'},
+  border: {n: 1},
+
+  pressed: 'background--OrangeCheckerboard',
+  selected: 'background--OrangeCheckerboard',
+  toggle: true,
+  text: 'invalidate',
+  textScale: 2,
+  wh: {w: 120, h: 30},
+  x: 50,
+  y: 65,
+  z: Layer.UIC
+})
+
+// had smoe really nifty JSON defautls before.
+
+zoo.add(
+  // always update the cursor first so that other ents may depend on its
+  // position instead of input.
+  new CursorEnt(v, 'cursor--Pointer'),
+
+  bg,
+
+  // take XY in constructor?
+  new ClockEnt(),
+  invalidateToggle
+)
 
 const filterPool = new Pool<Sprite<Tag>>({
   alloc: pool => new Sprite(pool, 0, atlas, framer),
@@ -113,29 +189,14 @@ const filter = filterPool.alloc()
 filter.tag = 'background--GreyCheckerboard'
 filter.w = spriteMaxWH.w
 filter.h = spriteMaxWH.h
-filter.z = Layer.UIBottom
+filter.z = Layer.UIA
 
-{
-  const now = new Date()
-  setTimeout(
-    () => {
-      framer.requestFrame()
-      setInterval(
-        () => framer.requestFrame(),
-        (debug?.minutely ? 60 : 1) * 1000
-      )
-    },
-    (debug?.minutely ? (59 - (now.getSeconds() % 60)) * 1000 : 0) +
-      1000 -
-      (now.getMilliseconds() % 1000)
-  )
-}
 framer.onFrame = millis => {
   if (document.hidden) return
   input.update(millis)
   cam.update(canvas)
 
-  const epsilon = 1 / 8 //to-do:1/16 and move to sprite or something.
+  const epsilon = 1 / 4 // 1 / 64 //to-do:1/16 and move to sprite or something.
   if (input.isAnyOnStart('L', 'R', 'U', 'D')) {
     cam.x = Math.trunc(cam.x)
     cam.y = Math.trunc(cam.y)
@@ -145,21 +206,21 @@ framer.onFrame = millis => {
   if (input.isOn('U')) cam.y -= epsilon
   if (input.isOn('D')) cam.y += epsilon
 
-  if (input.point?.started) {
-    cursor.x = input.point.local.x
-    cursor.y = input.point.local.y
-    cursor.z = Layer.UITop
-  }
-  const updated = zoo.update(v)
+  // if (input.wheel?.delta.xy.y)
+  //   cam.zoomOut += Math.max(0, Math.sign(input.wheel.delta.xy.y)) // fixme
+
+  let updated = zoo.update(v)
 
   if (abc123.looped) {
     abc123.tag = abc123.tag === 'abc123--123' ? 'abc123--ABC' : 'abc123--123'
     abc123.w *= 3
     abc123.h *= 3 // not a good option here? surprising not to change size, surprising to.
+    updated = true
   }
   if (debug?.input) printInput()
 
-  if (updated || debug?.invalid || cam.invalid || renderer.invalid) {
+  const render = updated || debug?.invalid || cam.invalid || renderer.invalid
+  if (render) {
     renderer.clear(0xffffb1ff)
     renderer.prerender(cam, framer)
     renderer.setDepth(true)
@@ -168,7 +229,7 @@ framer.onFrame = millis => {
     renderer.render(filterPool)
   }
 
-  if (input.gamepad || debug?.invalid) framer.requestFrame()
+  if (input.anyOn || input.gamepad || debug?.invalid) framer.requestFrame()
 }
 framer.register('add')
 
@@ -183,7 +244,7 @@ function printInput(): void {
         `[input] combo: ${combo.map(set => set.join('+')).join(' ')}`
       )
   }
-  if (input.point?.started && input.point?.click && !input.point.pinch)
+  if (input.point?.invalid && input.point?.click && !input.point.pinch)
     console.debug(
       `[input] ${input.point.drag.on ? 'drag' : 'click'} xy: ${input.point.x} ${input.point.y}`
     )

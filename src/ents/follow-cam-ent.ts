@@ -16,7 +16,7 @@ import type {Ent} from './ent.ts'
 // to-do: unclear if this is needless abstraction for `Cam.follow()`.
 export class FollowCamEnt<Tag extends TagFormat> implements Ent {
   #fill: 'X' | 'Y' | 'XY' | undefined
-  #invalid: boolean = false
+  #invalid: boolean = true
   readonly #modulo: XY = {x: 0, y: 0}
   readonly #pad: WH = {w: 0, h: 0}
   #pivot: CompassDir

@@ -90,7 +90,8 @@ export function layoutWord(
     if (!char || /^\s*$/.test(char)) break
 
     const span = tracking(font, char, word[index + 1], scale)
-    if (x > 0 && x + span > maxW) ({x, y} = nextLine(font, startX, y, scale))
+    if (x > startX && x + span > startX + maxW)
+      ({x, y} = nextLine(font, startX, y, scale))
 
     // width is not span since, with kerning, that may exceed the actual
     // width of the character's sprite. eg, if w has the maximal character width

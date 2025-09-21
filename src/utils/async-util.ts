@@ -1,4 +1,4 @@
-import type {Millis, OriginMillis} from '../types/time.ts'
+import type {Millis} from '../types/time.ts'
 
 export function debounce<T extends unknown[]>(
   fn: (this: undefined, ...args: T) => void,
@@ -36,7 +36,7 @@ export function throttle<T extends unknown[]>(
   fn: (this: undefined, ...args: T) => void,
   period: Millis
 ): {cancel(): void; (...args: T): void} {
-  let exec: OriginMillis = 0 as OriginMillis
+  let exec: Millis = 0 as Millis
   let timeout: number | undefined
   const cancel = () => clearTimeout(timeout)
   return Object.assign(

@@ -14,7 +14,7 @@ export class TextEnt implements Ent {
   #z: Layer = Layer.UIA
   #scale: number = 1
   readonly #sprites: Sprite<TagFormat>[] = []
-  #text: string = ''
+  #str: string = ''
   #wh: WH = {w: 0, h: 0}
   readonly #xy: XY = {x: 0, y: 0}
 
@@ -43,12 +43,12 @@ export class TextEnt implements Ent {
   }
 
   get text(): string {
-    return this.#text
+    return this.#str
   }
 
   set text(str: string) {
-    if (str === this.#text) return
-    this.#text = str
+    if (str === this.#str) return
+    this.#str = str
     this.#invalid = true
   }
 
@@ -60,7 +60,7 @@ export class TextEnt implements Ent {
       maxW: this.#maxW,
       scale: this.#scale,
       start: this.#xy,
-      str: this.#text
+      str: this.#str
     })
     this.#wh = {w: layout.wh.w, h: layout.wh.h}
     for (const [i, char] of layout.chars.entries()) {
@@ -68,7 +68,7 @@ export class TextEnt implements Ent {
       const sprite = (this.#sprites[len] ??= v.pool.alloc())
       sprite.x = char.x
       sprite.y = char.y
-      sprite.tag = fontCharToTag(memProp5x6, this.#text[i]!)
+      sprite.tag = fontCharToTag(memProp5x6, this.#str[i]!)
       sprite.stretch = true
       sprite.w *= this.#scale
       sprite.h *= this.#scale

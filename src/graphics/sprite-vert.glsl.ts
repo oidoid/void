@@ -47,7 +47,7 @@ void main() {
   vec2 end = vec2(x + targetWH.x, y + targetWH.y);
   // UI layers are always given in screen coordinates.
   // to-do: how to handle non-int mode?
-  vec2 camXY = z <= ${Layer.UIBottom} ? vec2(0, 0) : vec2(uCam.xy);
+  vec2 camXY = z < ${Layer.A} ? vec2(0, 0) : vec2(uCam.xy);
   vec2 clip = ((-2. * camXY  + 2. * end) / vec2(uCam.zw) - 1.) * vec2(1, -1);
   gl_Position = vec4(clip, depth, 1);
 

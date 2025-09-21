@@ -1,4 +1,4 @@
-import type {Millis, OriginMillis} from './types/time.ts'
+import type {Millis} from './types/time.ts'
 
 // to-do: move to graphics/.
 // to-do: rename looper or is that a higher order component?
@@ -9,7 +9,7 @@ import type {Millis, OriginMillis} from './types/time.ts'
  */
 export class Framer {
   /** duration of frames observed. */
-  age: OriginMillis = 0 as OriginMillis
+  age: Millis = 0 as Millis
   /**
    * update input, update canvas, update cam, update world, then render.
    * to-do: encapsulate^.
@@ -41,7 +41,7 @@ export class Framer {
     this.#req = 0
   }
 
-  #onFrame = (now: OriginMillis): void => {
+  #onFrame = (now: Millis): void => {
     this.age = now
     this.#req = 0
     this.onFrame?.((now - (this.age || now)) as Millis)

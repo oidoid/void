@@ -48,7 +48,8 @@ export class CursorEnt<Tag extends TagFormat> implements Ent {
     if (v.input.point?.invalid) {
       this.#sprite.x = v.input.point.local.x
       this.#sprite.y = v.input.point.local.y
-      this.#sprite.z = v.input.point?.type === 'Mouse' ? Layer.Top : Layer.Hidden
+      this.#sprite.z =
+        v.input.point?.type === 'Mouse' ? Layer.Top : Layer.Hidden
       return true
     }
 
