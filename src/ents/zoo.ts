@@ -6,12 +6,11 @@ import type {Ent} from './ent.ts'
 /**
  * ents are updated in insertion order. composed ents are updated by their
  * owning ents.
- * to-do: process in layer order.
  */
+// to-do: layer ents by update order.
 export class Zoo<Tag extends TagFormat> {
   #cursor: CursorEnt<Tag> | undefined
   readonly #ents: Set<Ent> = new Set()
-  // to-do: layer ents by update order.
 
   add(...ents: readonly Ent[]): void {
     for (const ent of ents) {

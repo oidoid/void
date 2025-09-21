@@ -32,10 +32,18 @@ export class TextEnt implements Ent {
     this.#invalid = true
   }
 
+  get scale() {
+    return this.#scale
+  }
+
   set scale(scale: number) {
     if (scale === this.#scale) return
     this.#scale = scale
     this.#invalid = true
+  }
+
+  get text(): string {
+    return this.#text
   }
 
   set text(str: string) {
