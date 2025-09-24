@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import {describe, test} from 'node:test'
-import type {Anim, Atlas} from '../../src/graphics/atlas.ts'
+import type {Anim, AtlasJSON} from '../../src/graphics/atlas.ts'
 import type {XY} from '../../src/types/geo.ts'
 import {
   AsepriteDirection,
@@ -10,19 +10,19 @@ import {
 import {
   parseAnim,
   parseAnimFrames,
-  parseAtlas,
+  parseAtlasJSON,
   parseCel,
   parseHitboxes
-} from './atlas-parser.ts'
+} from './atlas-json-parser.ts'
 
-describe('parseAtlas()', () => {
+describe('parseAtlasJSON()', () => {
   test('parses empty.', () => {
-    assert.deepEqual<Atlas>(
-      parseAtlas({
+    assert.deepEqual<AtlasJSON>(
+      parseAtlasJSON({
         meta: {frameTags: [], size: {w: 0, h: 0}, slices: []},
         frames: {}
       }),
-      {anim: {}, cels: [], tags: []}
+      {anim: {}, celXY: []}
     )
   })
 
@@ -31,32 +31,74 @@ describe('parseAtlas()', () => {
       {name: 'scenery--Cloud', from: 0, to: 0, direction: 'forward'},
       {name: 'palette--red', from: 1, to: 1, direction: 'forward'},
       {name: 'scenery--Conifer', from: 2, to: 2, direction: 'forward'},
-      {name: 'scenery--ConiferShadow', from: 3, to: 3, direction: 'forward'}
+      {name: 'scenery--ConiferShadow', from: 3, to: 3, direction: 'forward'},
+      {name: 'backpacker--WalkRight', from: 0, to: 7, direction: 'pingpong'}
     ]
     const frames = {
       'scenery--Cloud--0': {
         frame: {x: 220, y: 18, w: 18, h: 18},
-        spriteSourceSize: {x: 0, y: 0, w: 16, h: 16},
         sourceSize: {w: 16, h: 16},
         duration: 1
       },
       'palette--red--1': {
         frame: {x: 90, y: 54, w: 18, h: 18},
-        spriteSourceSize: {x: 0, y: 0, w: 16, h: 16},
         sourceSize: {w: 16, h: 16},
         duration: 65535
       },
       'scenery--Conifer--2': {
         frame: {x: 72, y: 54, w: 18, h: 18},
-        spriteSourceSize: {x: 0, y: 0, w: 16, h: 16},
         sourceSize: {w: 16, h: 16},
         duration: 65535
       },
       'scenery--ConiferShadow--3': {
         frame: {x: 54, y: 54, w: 18, h: 18},
-        spriteSourceSize: {x: 0, y: 0, w: 16, h: 16},
         sourceSize: {w: 16, h: 16},
         duration: 65535
+      },
+      'backpacker--WalkRight--0': {
+        frame: {x: 1408, y: 28, w: 8, h: 13},
+        sourceSize: {w: 8, h: 13},
+        duration: 62
+      },
+      'backpacker--WalkRight--1': {
+        frame: {x: 1400, y: 28, w: 8, h: 13},
+        sourceSize: {w: 8, h: 13},
+        duration: 62
+      },
+      'backpacker--WalkRight--2': {
+        frame: {x: 1392, y: 28, w: 8, h: 13},
+        sourceSize: {w: 8, h: 13},
+        duration: 62
+      },
+      'backpacker--WalkRight--3': {
+        frame: {x: 1384, y: 28, w: 8, h: 13},
+        sourceSize: {w: 8, h: 13},
+        duration: 62
+      },
+      'backpacker--WalkRight--4': {
+        frame: {x: 1376, y: 28, w: 8, h: 13},
+        sourceSize: {w: 8, h: 13},
+        duration: 62
+      },
+      'backpacker--WalkRight--5': {
+        frame: {x: 1416, y: 28, w: 8, h: 13},
+        sourceSize: {w: 8, h: 13},
+        duration: 62
+      },
+      'backpacker--WalkRight--6': {
+        frame: {x: 1392, y: 28, w: 8, h: 13},
+        sourceSize: {w: 8, h: 13},
+        duration: 62
+      },
+      'backpacker--WalkRight--7': {
+        frame: {x: 1368, y: 28, w: 8, h: 13},
+        sourceSize: {w: 8, h: 13},
+        duration: 62
+      },
+      'backpacker--WalkDown--8': {
+        frame: {x: 1360, y: 28, w: 8, h: 13},
+        sourceSize: {w: 8, h: 13},
+        duration: 62
       }
     }
     const slices = [
@@ -84,10 +126,15 @@ describe('parseAtlas()', () => {
         name: 'scenery--ConiferShadow',
         color: '#ff0000ff',
         keys: [{frame: 0, bounds: {x: 7, y: 9, w: 3, h: 6}}]
+      },
+      {
+        name: 'backpacker--WalkRight',
+        color: '#ff0000ff',
+        keys: [{frame: 0, bounds: {x: 2, y: 0, w: 4, h: 4}}]
       }
     ]
-    assert.deepEqual<Atlas>(
-      parseAtlas({meta: {frameTags, size: {w: 0, h: 0}, slices}, frames}),
+    assert.deepEqual<AtlasJSON>(
+      parseAtlasJSON({meta: {frameTags, size: {w: 0, h: 0}, slices}, frames}),
       {
         anim: {
           'scenery--Cloud': {
@@ -121,19 +168,20 @@ describe('parseAtlas()', () => {
             h: 16,
             hitbox: {x: 7, y: 9, w: 3, h: 6},
             hurtbox: undefined
+          },
+          'backpacker--WalkRight': {
+            cels: 14,
+            id: 4,
+            w: 8,
+            h: 13,
+            hitbox: {x: 2, y: 0, w: 4, h: 4},
+            hurtbox: undefined
           }
         },
-        cels: [
-          ...Array(16).fill([221, 19, 16, 16]),
-          ...Array(16).fill([91, 55, 16, 16]),
-          ...Array(16).fill([73, 55, 16, 16]),
-          ...Array(16).fill([55, 55, 16, 16])
-        ].flat(),
-        tags: [
-          'scenery--Cloud',
-          'palette--red',
-          'scenery--Conifer',
-          'scenery--ConiferShadow'
+        celXY: [
+          221, 19, 91, 55, 73, 55, 55, 55, 1408, 28, 1400, 28, 1392, 28, 1384,
+          28, 1376, 28, 1416, 28, 1392, 28, 1368, 28, 1392, 28, 1416, 28, 1376,
+          28, 1384, 28, 1392, 28, 1400, 28
         ]
       }
     )
@@ -148,19 +196,17 @@ describe('parseAtlas()', () => {
     const frames = {
       'scenery--Cloud--0': {
         frame: {x: 220, y: 18, w: 18, h: 18},
-        spriteSourceSize: {x: 0, y: 0, w: 16, h: 16},
         sourceSize: {w: 16, h: 16},
         duration: 1
       },
       'palette--red--1': {
         frame: {x: 90, y: 54, w: 18, h: 18},
-        spriteSourceSize: {x: 0, y: 0, w: 16, h: 16},
         sourceSize: {w: 16, h: 16},
         duration: 65535
       }
     }
     assert.throws(() =>
-      parseAtlas({
+      parseAtlasJSON({
         meta: {frameTags, size: {w: 0, h: 0}, slices: []},
         frames
       })
@@ -179,19 +225,16 @@ describe('parseAnim()', () => {
     const frames = {
       'cloud--xs--0': {
         frame: {x: 202, y: 36, w: 18, h: 18},
-        spriteSourceSize: {x: 0, y: 0, w: 16, h: 16},
         sourceSize: {w: 16, h: 16},
         duration: 65535
       },
       'cloud--s--1': {
         frame: {x: 184, y: 36, w: 18, h: 18},
-        spriteSourceSize: {x: 0, y: 0, w: 16, h: 16},
         sourceSize: {w: 16, h: 16},
         duration: 65535
       },
       'cloud--m--2': {
         frame: {x: 166, y: 36, w: 18, h: 18},
-        spriteSourceSize: {x: 0, y: 0, w: 16, h: 16},
         sourceSize: {w: 16, h: 16},
         duration: 65535
       }
@@ -250,12 +293,7 @@ describe('parseAnimFrames()', () => {
           sourceSize: {w: 0, h: 0}
         }
       }
-      assertAnimFrames(
-        span,
-        map,
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        direction
-      )
+      assertAnimFrames(span, map, [0], direction)
     }
   })
 
@@ -361,10 +399,10 @@ describe('parseAnimFrames()', () => {
 
   test('short anim', () => {
     const expected: {[dir in AsepriteDirection]: number[]} = {
-      forward: [0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0],
-      pingpong: [0, 1, 2, 1, 0, 1, 2, 1, 0, 1, 2, 1, 0, 1, 2, 1],
-      pingpong_reverse: [2, 1, 0, 1, 2, 1, 0, 1, 2, 1, 0, 1, 2, 1, 0, 1],
-      reverse: [2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2]
+      forward: [0, 1, 2],
+      pingpong: [0, 1, 2, 1],
+      pingpong_reverse: [2, 1, 0, 1],
+      reverse: [2, 1, 0]
     }
     for (const direction of Object.values(AsepriteDirection)) {
       const span: AsepriteTagSpan = {
@@ -396,10 +434,10 @@ describe('parseAnimFrames()', () => {
 
   test('short anim with another anim', () => {
     const expected: {[dir in AsepriteDirection]: number[]} = {
-      forward: [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1],
-      pingpong: [1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2],
-      pingpong_reverse: [3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2],
-      reverse: [3, 2, 1, 3, 2, 1, 3, 2, 1, 3, 2, 1, 3, 2, 1, 3]
+      forward: [1, 2, 3],
+      pingpong: [1, 2, 3, 2],
+      pingpong_reverse: [3, 2, 1, 2],
+      reverse: [3, 2, 1]
     }
     for (const direction of Object.values(AsepriteDirection)) {
       const span: AsepriteTagSpan = {
@@ -436,10 +474,10 @@ describe('parseAnimFrames()', () => {
 
   test('short anim with multi-cel durations', () => {
     const expected: {[dir in AsepriteDirection]: number[]} = {
-      forward: [0, 1, 1, 2, 0, 1, 1, 2, 0, 1, 1, 2, 0, 1, 1, 2],
-      pingpong: [0, 1, 1, 2, 1, 1, 0, 1, 1, 2, 1, 1, 0, 1, 1, 2],
-      pingpong_reverse: [2, 1, 1, 0, 1, 1, 2, 1, 1, 0, 1, 1, 2, 1, 1, 0],
-      reverse: [2, 1, 1, 0, 2, 1, 1, 0, 2, 1, 1, 0, 2, 1, 1, 0]
+      forward: [0, 1, 1, 2],
+      pingpong: [0, 1, 1, 2, 1, 1],
+      pingpong_reverse: [2, 1, 1, 0, 1, 1],
+      reverse: [2, 1, 1, 0]
     }
     for (const direction of Object.values(AsepriteDirection)) {
       const span: AsepriteTagSpan = {
@@ -476,7 +514,6 @@ describe('parseCel()', () => {
       frame: {x: 1, y: 2, w: 3, h: 4},
       rotated: false,
       trimmed: false,
-      spriteSourceSize: {x: 0, y: 0, w: 3, h: 4},
       sourceSize: {w: 3, h: 4},
       duration: 1
     }
@@ -488,7 +525,6 @@ describe('parseCel()', () => {
       frame: {x: 1, y: 2, w: 5, h: 6},
       rotated: false,
       trimmed: false,
-      spriteSourceSize: {x: 0, y: 0, w: 3, h: 4},
       sourceSize: {w: 3, h: 4},
       duration: 1
     }

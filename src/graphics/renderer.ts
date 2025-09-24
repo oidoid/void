@@ -182,11 +182,11 @@ export class Renderer {
       0,
       gl.RGBA16UI, // to-do: what was i thinking
       1,
-      this.#atlas.cels.length / 4, // 4 u16s per row
+      this.#atlas.celXYWH.length / 4, // 4 u16s per row
       0,
       gl.RGBA_INTEGER,
       gl.UNSIGNED_SHORT,
-      new Uint16Array(this.#atlas.cels)
+      new Uint16Array(this.#atlas.celXYWH)
     )
     gl.bindTexture(gl.TEXTURE_2D, null)
 
@@ -236,12 +236,6 @@ function GL2(canvas: HTMLCanvasElement): GL2 | undefined {
 
   if (debug?.render && !gl.getContextAttributes()?.desynchronized)
     console.debug('[render] no WebGL DOM desynchronization')
-
-  if (debug?.render) {
-    const info = gl.getExtension('WEBGL_debug_renderer_info')
-    const renderer = info && gl.getParameter(info.UNMASKED_RENDERER_WEBGL)
-    console.debug(`[render] ${renderer}`)
-  }
 
   return gl
 }

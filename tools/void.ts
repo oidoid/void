@@ -9,7 +9,7 @@ import url from 'node:url'
 import type {BuildOptions} from 'esbuild'
 import esbuild from 'esbuild'
 import {JSDOM} from 'jsdom'
-import {parseAtlas} from './atlas-parser/atlas-parser.ts'
+import {parseAtlasJSON} from './atlas-json-parser/atlas-json-parser.ts'
 
 export type Argv = {
   /** all the arguments not starting with `--` before `--`. */
@@ -178,7 +178,7 @@ export function packAtlas(
   )
   fs.writeFileSync(
     outJSONFilename,
-    JSON.stringify(parseAtlas(JSON.parse(json)))
+    JSON.stringify(parseAtlasJSON(JSON.parse(json)))
   )
 
   execFileSync('biome', ['check', '--fix', outJSONFilename], {encoding: 'utf8'})

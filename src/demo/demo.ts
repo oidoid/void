@@ -13,6 +13,7 @@ import {
   initDoc,
   Layer,
   Pool,
+  parseAtlas,
   Renderer,
   Sprite,
   spriteMaxWH,
@@ -20,7 +21,7 @@ import {
   version,
   Zoo
 } from '../index.ts'
-import atlas from './atlas.json' with {type: 'json'}
+import atlasJSON from './atlas.json' with {type: 'json'}
 import {ClockEnt} from './ents/clock-ent.ts'
 import type {Tag} from './tag.ts'
 
@@ -56,6 +57,8 @@ const framer = new Framer()
 const input = DefaultInput(cam, canvas)
 input.register('add')
 input.onEvent = () => framer.requestFrame()
+
+const atlas = parseAtlas(atlasJSON)
 
 const renderer = new Renderer(atlas, canvas)
 renderer.register('add')

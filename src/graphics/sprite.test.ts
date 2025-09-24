@@ -24,7 +24,7 @@ const animB: Anim = {
 
 const atlas: Readonly<Atlas> = {
   anim: {'stem--AnimA': animA, 'stem--AnimB': animB},
-  cels: [],
+  celXYWH: [],
   tags: ['stem--AnimA', 'stem--AnimB']
 }
 

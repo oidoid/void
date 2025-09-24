@@ -14,13 +14,25 @@ export type Atlas = {
    * cell source XYWH by `Anim.id` and `Anim.cel`. every animation is padded to
    * 16 cels (`maxAnimCels`) as needed by repeating the sequence.
    */
-  cels: number[]
+  celXYWH: number[]
   /** tag by `Anim.id`. */
   tags: string[]
 }
 
+export type AtlasJSON = {
+  anim: {[tag: string]: Anim}
+  /**
+   * cel source XY by `Anim.id` and `Anim.cel` for one cycle. truncated to
+   * `animCels`.
+   */
+  celXY: number[]
+}
+
 export type Anim = {
-  /** number of cels in the original animation (no wrapping). */
+  /**
+   * number of cels in a full animation cycle including cels extended for
+   * duration and the second half of pingpongs.
+   */
   cels: number
   /** outgoing collision rectangle (red / blue). */
   hitbox?: Box | undefined

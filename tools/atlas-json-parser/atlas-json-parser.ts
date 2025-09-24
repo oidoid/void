@@ -1,23 +1,23 @@
 import {
   type Anim,
-  type Atlas,
+  type AtlasJSON,
   animCels,
   animMillis,
   celMillis,
   type TagFormat
 } from '../../src/graphics/atlas.ts'
 import {type Box, boxEq, type XY} from '../../src/types/geo.ts'
-import type {
-  Aseprite,
+import {
+  type Aseprite,
   AsepriteDirection,
-  AsepriteFrame,
-  AsepriteFrameMap,
-  AsepriteFrameTag,
-  AsepriteSlice,
-  AsepriteTagSpan
+  type AsepriteFrame,
+  type AsepriteFrameMap,
+  type AsepriteFrameTag,
+  type AsepriteSlice,
+  type AsepriteTagSpan
 } from './aseprite.ts'
 
-export function parseAtlas(ase: Aseprite): Atlas {
+export function parseAtlasJSON(ase: Readonly<Aseprite>): AtlasJSON {
   const anim: {[tag: string]: Anim} = {}
   const cels: number[] = []
   for (const span of ase.meta.frameTags) {
@@ -25,32 +25,32 @@ export function parseAtlas(ase: Aseprite): Atlas {
     if (anim[tag]) throw Error(`atlas tag "${tag}" duplicate`)
     const id = Object.keys(anim).length
     anim[tag] = parseAnim(id, span, ase.frames, ase.meta.slices)
-    for (const cel of [...parseAnimFrames(span, ase.frames)].map(parseCel))
-      cels.push(cel.x, cel.y, anim[tag].w, anim[tag].h)
+    for (const cel of parseAnimFrames(span, ase.frames).map(parseCel))
+      cels.push(cel.x, cel.y)
   }
   for (const slice of ase.meta.slices)
     if (!anim[parseTag(slice.name)])
       throw Error(`atlas hitbox "${slice.name}" has no animation`)
-  return {anim, cels, tags: Object.keys(anim)}
+  return {anim, celXY: cels}
 }
 
 /** @internal */
 export function parseAnim(
   id: number,
-  span: AsepriteTagSpan,
-  map: AsepriteFrameMap,
-  slices: readonly AsepriteSlice[]
+  span: Readonly<AsepriteTagSpan>,
+  map: Readonly<AsepriteFrameMap>,
+  slices: readonly Readonly<AsepriteSlice>[]
 ): Anim {
-  const frame = parseAnimFrames(span, map).next().value
-  if (!frame) throw Error(`no atlas frame "${span.name}"`)
+  const cels = parseAnimFrames(span, map)
+  if (!cels[0]) throw Error(`no atlas frame "${span.name}"`)
   const {hitbox, hurtbox} = parseHitboxes(span, slices)
   return {
-    cels: span.to - span.from + 1,
-    h: frame.sourceSize.h,
+    cels: cels.length,
+    h: cels[0].sourceSize.h,
     hitbox,
     hurtbox,
     id,
-    w: frame.sourceSize.w
+    w: cels[0].sourceSize.w
   }
 }
 
@@ -58,19 +58,20 @@ export function parseAnim(
 //  gets duplicated until duration is met or exceeded. unpacking up to 1s for
 // the animation dir. no warns for overflow.
 /** @internal */
-export function* parseAnimFrames(
+export function parseAnimFrames(
   span: AsepriteTagSpan,
   map: AsepriteFrameMap
-): IterableIterator<
-  AsepriteFrame,
-  // biome-ignore lint/suspicious/noConfusingVoidType:;
-  AsepriteFrame | void
-> {
-  let cels = 0
+): AsepriteFrame[] {
+  const cels = []
   let animDuration = 0
   const len = span.to - span.from + 1
   const peak = len - 1
   const cycle = Math.max(1, 2 * peak)
+  const end =
+    span.direction === AsepriteDirection.Forward ||
+    span.direction === AsepriteDirection.Reverse
+      ? len
+      : cycle
   const indexByDir: {[dir in AsepriteDirection]: (i: number) => number} = {
     forward: i => span.from + (i % len),
     pingpong: i => span.from + peak - Math.abs((i % cycle) - peak),
@@ -78,23 +79,31 @@ export function* parseAnimFrames(
     reverse: i => span.to - (i % len)
   }
   const frameIndex = indexByDir[span.direction as AsepriteDirection]
-  for (let i = 0; cels < animCels && animDuration < animMillis; i++) {
+  for (
+    let i = 0;
+    i < end && cels.length < animCels && animDuration < animMillis;
+    i++
+  ) {
     const frameTag = `${span.name}--${frameIndex(i)}` as AsepriteFrameTag
     const frame = map[frameTag]
     if (!frame) throw Error(`no atlas frame "${frameTag}"`)
     for (
       let celDuration = 0;
       celDuration < frame.duration &&
-      cels < animCels &&
+      cels.length < animCels &&
       animDuration < animMillis;
-      celDuration += celMillis, animDuration += celMillis, cels++
-    )
-      yield frame
+      celDuration += celMillis, animDuration += celMillis
+    ) {
+      cels.push(frame)
+
+      if (span.from === span.to) return cels // optimize for long single cel.
+    }
   }
+  return cels
 }
 
 /** @internal */
-export function parseCel(frame: AsepriteFrame): XY {
+export function parseCel(frame: Readonly<AsepriteFrame>): XY {
   return {
     x: frame.frame.x + (frame.frame.w - frame.sourceSize.w) / 2,
     y: frame.frame.y + (frame.frame.h - frame.sourceSize.h) / 2
@@ -103,8 +112,8 @@ export function parseCel(frame: AsepriteFrame): XY {
 
 /** @internal */
 export function parseHitboxes(
-  span: AsepriteTagSpan,
-  slices: readonly AsepriteSlice[]
+  span: Readonly<AsepriteTagSpan>,
+  slices: readonly Readonly<AsepriteSlice>[]
 ): {hitbox: Box | undefined; hurtbox: Box | undefined} {
   let hitbox
   let hurtbox
