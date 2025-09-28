@@ -2,6 +2,7 @@
 export class Keyboard {
   /** KeyboardEvent.code to bit. */
   readonly bitByCode: {[code: string]: number} = {}
+  invalid: boolean = false
   /** KeyboardEvent.code to state. Multiple keys may map to the same bit. */
   onEvent: () => void = () => {}
   #on: {[code: string]: boolean} = {}
@@ -17,6 +18,10 @@ export class Keyboard {
     return bits
   }
 
+  postupdate(): void {
+    this.invalid = false
+  }
+
   register(op: 'add' | 'remove'): this {
     const fn = this.#target[`${op}EventListener`].bind(this.#target)
     for (const ev of ['keydown', 'keyup']) fn(ev, this.#onKey as EventListener)
@@ -24,6 +29,7 @@ export class Keyboard {
   }
 
   reset(): void {
+    this.invalid = false
     this.#on = {}
   }
 
@@ -34,6 +40,7 @@ export class Keyboard {
   #onKey = (ev: KeyboardEvent): void => {
     if (!ev.isTrusted || this.bitByCode[ev.code] == null) return
     if (ev.type === 'keydown' && (ev.metaKey || ev.altKey || ev.ctrlKey)) return
+    this.invalid = true
     this.#on[ev.code] = ev.type === 'keydown'
     ev.preventDefault()
     this.onEvent()

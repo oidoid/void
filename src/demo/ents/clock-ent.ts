@@ -1,4 +1,5 @@
-import {type Ent, Layer, TextEnt, type Void} from '../../index.ts'
+import {type Ent, Layer, TextEnt} from '../../index.ts'
+import type {Game} from '../game.ts'
 
 export class ClockEnt implements Ent {
   readonly #time: TextEnt = new TextEnt()
@@ -8,14 +9,21 @@ export class ClockEnt implements Ent {
     this.#time.z = Layer.A
   }
 
-  update(v: Void): boolean | undefined {
+  free(v: Game): void {
+    this.#time.free(v)
+  }
+
+  update(v: Game): boolean | undefined {
     this.#time.text = timeString(new Date())
     let render = this.#time.update(v)
 
     if (v.cam.invalid || render)
-      this.#time.xy = v.cam.follow(this.#time.wh, this.#time.z, 'N', {
-        pad: {h: 8}
-      })
+      this.#time.xy = v.cam.follow(
+        {w: this.#time.wh.w, h: this.#time.wh.h - this.#time.scaledLeading},
+        this.#time.z,
+        'N',
+        {pad: {h: 8}}
+      )
 
     if (this.#time.update(v)) render = true
 

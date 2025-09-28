@@ -5,7 +5,7 @@ import type {Sprite} from '../graphics/sprite.ts'
 import {fontCharToTag} from '../text/font.ts'
 import {layoutText} from '../text/text-layout.ts'
 import {type WH, type XY, xyEq} from '../types/geo.ts'
-import type {VoidT} from '../void.ts'
+import type {Void} from '../void.ts'
 import type {Ent} from './ent.ts'
 
 export class TextEnt implements Ent {
@@ -18,8 +18,8 @@ export class TextEnt implements Ent {
   #wh: WH = {w: 0, h: 0}
   readonly #xy: XY = {x: 0, y: 0}
 
-  free(v: VoidT<string, TagFormat>): void {
-    v.pool.free(...this.#sprites)
+  free(v: Void<TagFormat, string>): void {
+    v.sprites.free(...this.#sprites)
   }
 
   get maxW(): number {
@@ -52,7 +52,7 @@ export class TextEnt implements Ent {
     this.#invalid = true
   }
 
-  update(v: VoidT<string, TagFormat>): boolean | undefined {
+  update(v: Void<TagFormat, string>): boolean | undefined {
     if (!this.#invalid) return
     let len = 0
     const layout = layoutText({
@@ -65,7 +65,7 @@ export class TextEnt implements Ent {
     this.#wh = {w: layout.wh.w, h: layout.wh.h}
     for (const [i, char] of layout.chars.entries()) {
       if (char == null) continue
-      const sprite = (this.#sprites[len] ??= v.pool.alloc())
+      const sprite = (this.#sprites[len] ??= v.sprites.alloc())
       sprite.x = char.x
       sprite.y = char.y
       sprite.tag = fontCharToTag(memProp5x6, this.#str[i]!)
@@ -75,9 +75,13 @@ export class TextEnt implements Ent {
       sprite.z = this.#z
       len++
     }
-    while (this.#sprites.length > len) v.pool.free(this.#sprites.pop()!)
+    while (this.#sprites.length > len) v.sprites.free(this.#sprites.pop()!)
     this.#invalid = false
     return true
+  }
+
+  get scaledLeading(): number {
+    return memProp5x6.leading * this.#scale
   }
 
   get wh(): Readonly<WH> {

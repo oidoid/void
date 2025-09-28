@@ -1,10 +1,10 @@
 import type {TagFormat} from '../graphics/atlas.ts'
-import type {VoidT} from '../void.ts'
+import type {Void} from '../void.ts'
 
 /** declaration merge for base needs. */
 export interface Ent {
-  free?(v: VoidT<string, TagFormat>): void
+  free?(v: Void<TagFormat, string>): void
 
   /** returns true if a render is required. */
-  update?(v: VoidT<string, TagFormat>): boolean | undefined
+  update?(v: Void<TagFormat, string>): boolean | undefined
 }

@@ -54,42 +54,6 @@ type WheelState = {
   }
 }
 
-export type DefaultInput<Button extends DefaultButton> = Input<Button>
-
-export function DefaultInput<Button extends DefaultButton>(
-  cam: Readonly<Cam>,
-  target: Element
-): DefaultInput<Button> {
-  const input = new Input<DefaultButton>(cam, target)
-  input.mapKeyboardCode('L', 'ArrowLeft')
-  input.mapKeyboardCode('R', 'ArrowRight')
-  input.mapKeyboardCode('U', 'ArrowUp')
-  input.mapKeyboardCode('D', 'ArrowDown')
-  input.mapKeyboardCode('C', 'KeyC')
-  input.mapKeyboardCode('A', 'KeyX')
-  input.mapKeyboardCode('B', 'KeyZ')
-  input.mapKeyboardCode('Menu', 'Enter')
-  input.mapKeyboardCode('Back', 'Escape')
-
-  // https://w3c.github.io/gamepad/#remapping
-  input.mapGamepadAxis('L', 'R', 0, 2)
-  input.mapGamepadAxis('U', 'D', 1, 3)
-  input.mapGamepadButton('L', 14)
-  input.mapGamepadButton('R', 15)
-  input.mapGamepadButton('U', 12)
-  input.mapGamepadButton('D', 13)
-  input.mapGamepadButton('C', 2)
-  input.mapGamepadButton('B', 0) // to-do: not good from PS perspective.
-  input.mapGamepadButton('A', 1) // to-do: not good from PS perspective.
-  input.mapGamepadButton('Menu', 9)
-  input.mapGamepadButton('Back', 8)
-
-  input.mapPointerClick('Click', 1)
-  input.mapPointerClick('Click2', 2)
-  input.mapPointerClick('ClickMiddle', 4)
-  return input as DefaultInput<Button>
-}
-
 /**
  * input device abstraction. aggregates devices, records history, and provides
  * a convenient API.
@@ -266,6 +230,41 @@ export class Input<Button extends string> {
     return this.started && this.isOn(...btns)
   }
 
+  get key(): {invalid: boolean} {
+    return {invalid: this.#keyboard.invalid}
+  }
+
+  mapDefault(): Input<Button | DefaultButton> {
+    const input = this as Input<Button | DefaultButton>
+    input.mapKeyboardCode('L', 'ArrowLeft')
+    input.mapKeyboardCode('R', 'ArrowRight')
+    input.mapKeyboardCode('U', 'ArrowUp')
+    input.mapKeyboardCode('D', 'ArrowDown')
+    input.mapKeyboardCode('C', 'KeyC')
+    input.mapKeyboardCode('A', 'KeyX')
+    input.mapKeyboardCode('B', 'KeyZ')
+    input.mapKeyboardCode('Menu', 'Enter')
+    input.mapKeyboardCode('Back', 'Escape')
+
+    // https://w3c.github.io/gamepad/#remapping
+    input.mapGamepadAxis('L', 'R', 0, 2)
+    input.mapGamepadAxis('U', 'D', 1, 3)
+    input.mapGamepadButton('L', 14)
+    input.mapGamepadButton('R', 15)
+    input.mapGamepadButton('U', 12)
+    input.mapGamepadButton('D', 13)
+    input.mapGamepadButton('C', 2)
+    input.mapGamepadButton('B', 0) // to-do: not good from PS perspective.
+    input.mapGamepadButton('A', 1) // to-do: not good from PS perspective.
+    input.mapGamepadButton('Menu', 9)
+    input.mapGamepadButton('Back', 8)
+
+    input.mapPointerClick('Click', 1)
+    input.mapPointerClick('Click2', 2)
+    input.mapPointerClick('ClickMiddle', 4)
+    return input
+  }
+
   // to-do: support analog values.
   mapGamepadAxis(less: Button, more: Button, ...axes: readonly number[]): void {
     for (const axis of axes) {
@@ -346,7 +345,7 @@ export class Input<Button extends string> {
   /**
    * call on new frame before altering cam. dispatches always occur before an
    * update.
-   * @arg millis time since last update.
+   * @arg millis duration since last update.
    */
   update(millis: Millis): void {
     this.handled = false
@@ -444,6 +443,7 @@ export class Input<Button extends string> {
           }
         }
       : undefined
+    this.#keyboard.postupdate()
     this.#pointer.postupdate()
     this.#wheel.postupdate()
   }

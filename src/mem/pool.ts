@@ -1,6 +1,6 @@
 import {debug} from '../utils/debug.ts'
 
-export type PoolOpts<T extends Block> = {
+export type PoolOpts<out T extends Block> = {
   alloc(pool: Pool<T>): T
   allocBytes: number
   minPages?: number
@@ -21,7 +21,7 @@ export type Block = {/** variable pool byte offset. */ i: number}
  *   frame.
  * - ArrayBuffer.resize() is incompatible with WebGL.
  */
-export class Pool<T extends Block> {
+export class Pool<out T extends Block> {
   /** the next free block is always at size. */
   readonly #blocks: T[]
   readonly #opts: Readonly<Required<PoolOpts<T>>>

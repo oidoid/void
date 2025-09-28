@@ -44,11 +44,38 @@ export class Renderer {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
   }
 
+  draw(pool: Readonly<Pool<Sprite<TagFormat>>>): void {
+    if (!this.#atlasImage || !this.#ctx) return
+    const {gl, spriteShader} = this.#ctx
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, spriteShader.buffer)
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      pool.view,
+      gl.DYNAMIC_DRAW,
+      0,
+      pool.size * drawableBytes
+    )
+    gl.bindBuffer(gl.ARRAY_BUFFER, null)
+
+    gl.bindVertexArray(spriteShader.vao)
+    gl.drawArraysInstanced(
+      gl.TRIANGLE_STRIP,
+      0,
+      uv.length / 2, // d
+      pool.size
+    )
+    gl.bindVertexArray(null)
+
+    this.invalid = false
+  }
+
   load(atlas: Readonly<HTMLImageElement>): void {
     this.#atlasImage = atlas
     this.#ctx = this.#Context()
   }
-  prerender(cam: Readonly<Cam>, framer: {readonly age: Millis}): void {
+
+  predraw(cam: Readonly<Cam>, framer: {readonly age: Millis}): void {
     if (!this.#ctx) return
     const {gl, spriteShader, viewport} = this.#ctx
 
@@ -76,32 +103,6 @@ export class Renderer {
       this.#onContextRestored
     )
     return this
-  }
-
-  render(pool: Readonly<Pool<Sprite<TagFormat>>>): void {
-    if (!this.#ctx) return
-    const {gl, spriteShader} = this.#ctx
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, spriteShader.buffer)
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
-      pool.view,
-      gl.DYNAMIC_DRAW,
-      0,
-      pool.size * drawableBytes
-    )
-    gl.bindBuffer(gl.ARRAY_BUFFER, null)
-
-    gl.bindVertexArray(spriteShader.vao)
-    gl.drawArraysInstanced(
-      gl.TRIANGLE_STRIP,
-      0,
-      uv.length / 2, // d
-      pool.size
-    )
-    gl.bindVertexArray(null)
-
-    this.invalid = false
   }
 
   setDepth(enable: boolean): void {

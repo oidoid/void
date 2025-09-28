@@ -17,3 +17,8 @@ export const Layer = {
   Hidden: 15
 } as const
 export type Layer = (typeof Layer)[keyof typeof Layer]
+
+/** negative is above. returns [top, bottom]; hidden is out of domain. */
+export function layerOffset(layer: Layer, offset: number): Layer {
+  return Math.max(Layer.Top, Math.min(Layer.Bottom, layer + offset)) as Layer
+}

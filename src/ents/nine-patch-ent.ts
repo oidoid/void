@@ -2,7 +2,7 @@ import type {TagFormat} from '../graphics/atlas.ts'
 import type {Layer} from '../graphics/layer.ts'
 import type {Sprite} from '../graphics/sprite.ts'
 import {type CompassDir, type WH, whEq, type XY, xyEq} from '../types/geo.ts'
-import type {VoidT} from '../void.ts'
+import type {Void} from '../void.ts'
 import type {Ent} from './ent.ts'
 
 export type NinePatchOpts<Tag extends TagFormat> = {
@@ -28,17 +28,17 @@ export class NinePatchEnt<Tag extends TagFormat> implements Ent {
   readonly #dir: {readonly [dir in Lowercase<CompassDir>]: Sprite<Tag>}
   #invalid: boolean = true
 
-  constructor(v: VoidT<string, Tag>, opts: Readonly<NinePatchOpts<Tag>>) {
+  constructor(v: Void<Tag, string>, opts: Readonly<NinePatchOpts<Tag>>) {
     this.#dir = {
-      w: v.pool.alloc(),
-      nw: v.pool.alloc(),
-      n: v.pool.alloc(),
-      ne: v.pool.alloc(),
-      e: v.pool.alloc(),
-      se: v.pool.alloc(),
-      s: v.pool.alloc(),
-      sw: v.pool.alloc(),
-      origin: v.pool.alloc()
+      w: v.sprites.alloc(),
+      nw: v.sprites.alloc(),
+      n: v.sprites.alloc(),
+      ne: v.sprites.alloc(),
+      e: v.sprites.alloc(),
+      se: v.sprites.alloc(),
+      s: v.sprites.alloc(),
+      sw: v.sprites.alloc(),
+      origin: v.sprites.alloc()
     }
     this.#dir.w.tag = opts.w?.tag ?? opts.e?.tag ?? opts.n.tag
     this.#dir.n.tag = opts.n.tag
@@ -117,8 +117,8 @@ export class NinePatchEnt<Tag extends TagFormat> implements Ent {
     this.xy = {x: opts.x ?? 0, y: opts.y ?? 0}
   }
 
-  free(v: VoidT<string, TagFormat>): void {
-    v.pool.free(
+  free(v: Void<Tag, string>): void {
+    v.sprites.free(
       this.#dir.w,
       this.#dir.nw,
       this.#dir.n,
@@ -131,7 +131,7 @@ export class NinePatchEnt<Tag extends TagFormat> implements Ent {
     )
   }
 
-  update(_v?: VoidT<string, TagFormat>): boolean | undefined {
+  update(): boolean | undefined {
     if (!this.#invalid) return
     this.#invalid = false
     return true

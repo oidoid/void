@@ -2,26 +2,29 @@ import type {TagFormat} from '../graphics/atlas.ts'
 import {Layer} from '../graphics/layer.ts'
 import type {Sprite} from '../graphics/sprite.ts'
 import {type Box, boxHits, type WH, type XY} from '../types/geo.ts'
-import type {VoidT} from '../void.ts'
+import type {Void} from '../void.ts'
 import type {Ent} from './ent.ts'
 
-export type CursorButton = 'L' | 'R' | 'U' | 'D'
-
-export class CursorEnt<Tag extends TagFormat> implements Ent {
+// to-do: how to guarantee update order? this ent should be processed first.
+/**
+ * always prefer testing against cursor, not input, in other ents. the cursor
+ * may be moved by keyboard and has a hitbox.
+ */
+export class CursorEnt<out Tag extends TagFormat> implements Ent {
   keyboard: boolean = false
   readonly #sprite: Sprite<Tag>
 
-  constructor(v: VoidT<string, Tag>, tag: Tag) {
-    this.#sprite = v.pool.alloc()
+  constructor(v: Void<Tag, string>, tag: Tag) {
+    this.#sprite = v.sprites.alloc()
     this.#sprite.tag = tag
     this.#sprite.z = Layer.Hidden
   }
 
-  free(v: VoidT<CursorButton, Tag>): void {
-    v.pool.free(this.#sprite)
+  free(v: Void<Tag, string>): void {
+    v.sprites.free(this.#sprite)
   }
 
-  hitbox(v: Readonly<VoidT<string, Tag>>, coords: 'Level' | 'UI'): Box {
+  hitbox(v: Readonly<Void<Tag, string>>, coords: 'Level' | 'UI'): Box {
     const lvl = coords === 'Level'
     const hitbox = this.#sprite.hitbox
     if (!hitbox) throw Error('cursor has no hitbox')
@@ -34,7 +37,7 @@ export class CursorEnt<Tag extends TagFormat> implements Ent {
   }
 
   hits(
-    v: Readonly<VoidT<string, Tag>>,
+    v: Readonly<Void<Tag, string>>,
     box: Readonly<XY & Partial<WH>>,
     coords: 'Level' | 'UI'
   ): boolean {
@@ -43,8 +46,7 @@ export class CursorEnt<Tag extends TagFormat> implements Ent {
 
   // never just do ui state unless writing to invalid.
   // make getters too generally
-  // to-do: update me as first ent
-  update(v: VoidT<CursorButton, Tag>): boolean | undefined {
+  update(v: Void<Tag, 'L' | 'R' | 'U' | 'D'>): boolean | undefined {
     if (v.input.point?.invalid) {
       this.#sprite.x = v.input.point.local.x
       this.#sprite.y = v.input.point.local.y
@@ -53,7 +55,6 @@ export class CursorEnt<Tag extends TagFormat> implements Ent {
       return true
     }
 
-    // to-do: `Input.keyboard.invalid` test.
     if (v.input.invalid && !this.keyboard) {
       const z = this.#sprite.z
       this.#sprite.z = Layer.Hidden

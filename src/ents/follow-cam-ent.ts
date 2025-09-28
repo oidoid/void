@@ -10,7 +10,7 @@ import {
   xyAssign,
   xyEq
 } from '../types/geo.ts'
-import type {VoidT} from '../void.ts'
+import type {Void} from '../void.ts'
 import type {Ent} from './ent.ts'
 
 // to-do: unclear if this is needless abstraction for `Cam.follow()`.
@@ -22,8 +22,8 @@ export class FollowCamEnt<Tag extends TagFormat> implements Ent {
   #pivot: CompassDir
   readonly #sprite: Sprite<Tag>
 
-  constructor(v: VoidT<string, Tag>, tag: Tag, pivot: CompassDir) {
-    this.#sprite = v.pool.alloc()
+  constructor(v: Void<Tag, string>, tag: Tag, pivot: CompassDir) {
+    this.#sprite = v.sprites.alloc()
     this.#sprite.tag = tag
     this.#pivot = pivot
   }
@@ -68,8 +68,8 @@ export class FollowCamEnt<Tag extends TagFormat> implements Ent {
     this.#invalid = true
   }
 
-  free(v: VoidT<string, Tag>): void {
-    v.pool.free(this.#sprite)
+  free(v: Void<Tag, string>): void {
+    v.sprites.free(this.#sprite)
   }
 
   get pivot(): CompassDir {
@@ -82,7 +82,7 @@ export class FollowCamEnt<Tag extends TagFormat> implements Ent {
     this.#invalid = true
   }
 
-  update(v: VoidT<string, Tag>): boolean | undefined {
+  update(v: Void<Tag, string>): boolean | undefined {
     if (!this.#invalid && !v.cam.invalid) return
     const follow = v.cam.follow(
       {w: this.#sprite.w, h: this.#sprite.h},
