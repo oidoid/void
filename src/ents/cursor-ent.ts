@@ -48,8 +48,7 @@ export class CursorEnt<out Tag extends TagFormat> implements Ent {
   // make getters too generally
   update(v: Void<Tag, 'L' | 'R' | 'U' | 'D'>): boolean | undefined {
     if (v.input.point?.invalid) {
-      this.#sprite.x = v.input.point.local.x
-      this.#sprite.y = v.input.point.local.y
+      this.#sprite.xy = v.input.point.local
       this.#sprite.z =
         v.input.point?.type === 'Mouse' ? Layer.Top : Layer.Hidden
       return true

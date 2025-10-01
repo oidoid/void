@@ -1,7 +1,8 @@
 import * as V from '../index.ts'
 import atlasJSON from './atlas.json'
 import {ClockEnt} from './ents/clock-ent.ts'
-import {FrameCounterEnt} from './ents/frame-counter-ent.ts'
+import {InvalidateToggleEnt} from './ents/invalidate-toggle-ent.ts'
+import {WorkCounterEnt} from './ents/work-counter-ent.ts'
 import type {Tag} from './tag.ts'
 
 declare module '../index.ts' {
@@ -15,11 +16,13 @@ declare module '../index.ts' {
 }
 
 export class Game extends V.Void<Tag> {
-  // to-do: rework.
-  abc123?: V.Sprite<Tag>
   filters: V.Pool<V.Sprite<Tag>>
+  // to-do: rework.
+  #abc123?: V.Sprite<Tag>
   #interval: number = 0
   #timer: number = 0
+  #invalidateToggle: InvalidateToggleEnt
+  #workCounter: WorkCounterEnt
 
   constructor() {
     super({
@@ -33,6 +36,8 @@ export class Game extends V.Void<Tag> {
       allocBytes: V.drawableBytes,
       pageBlocks: 10
     })
+    this.#invalidateToggle = new InvalidateToggleEnt(this)
+    this.#workCounter = new WorkCounterEnt()
     this.#initZoo()
   }
 
@@ -61,22 +66,31 @@ export class Game extends V.Void<Tag> {
     if (this.input.isOn('U')) this.cam.y -= epsilon
     if (this.input.isOn('D')) this.cam.y += epsilon
 
-    // to-do: wheel zoom
-    // if (input.wheel?.delta.xy.y)
-    //   cam.zoomOut += Math.max(0, Math.sign(input.wheel.delta.xy.y)) // fixme
+    let render = false
+    if (this.input.wheel?.delta.xy.y) {
+      render = true
+      this.cam.zoomOut =
+        this.cam.zoomOut - Math.sign(this.input.wheel.delta.xy.y)
+    }
+    // this.cam.zoomOut = 2
     let updated = this.zoo.update(this)
 
-    if (this.abc123?.looped) {
-      this.abc123.tag =
-        this.abc123.tag === 'abc123--123' ? 'abc123--ABC' : 'abc123--123'
-      this.abc123.w *= 3
-      this.abc123.h *= 3 // to-do: not a good option here? surprising not to change size, surprising to.
+    if (this.#abc123?.looped) {
+      this.#abc123.tag =
+        this.#abc123.tag === 'abc123--123' ? 'abc123--ABC' : 'abc123--123'
+      this.#abc123.w *= 3
+      this.#abc123.h *= 3 // to-do: not a good option here? surprising not to change size, surprising to.
       updated = true
     }
     if (V.debug?.input) this.#printInput()
 
-    const render =
-      updated || V.debug?.invalid || this.cam.invalid || this.renderer.invalid
+    render ||=
+      updated ||
+      !!V.debug?.invalid ||
+      this.#invalidateToggle.on ||
+      this.cam.invalid ||
+      this.renderer.invalid
+    this.#workCounter.record(this, render ? 'Render' : 'Update')
     if (render) {
       this.renderer.clear(0xffffb1ff)
       this.renderer.predraw(this.cam, this.framer)
@@ -86,7 +100,12 @@ export class Game extends V.Void<Tag> {
       this.renderer.draw(this.filters)
     }
 
-    if (this.input.anyOn || this.input.gamepad || V.debug?.invalid)
+    if (
+      this.input.anyOn ||
+      this.input.gamepad ||
+      V.debug?.invalid ||
+      this.#invalidateToggle.on
+    )
       this.framer.requestFrame()
   }
 
@@ -101,15 +120,15 @@ export class Game extends V.Void<Tag> {
     bg.h = 240
     bg.z = V.Layer.Bottom
 
-    this.abc123 = this.sprites.alloc()
-    this.abc123.tag = 'abc123--ABC'
-    this.abc123.cel = 10
-    this.abc123.x = 200
-    this.abc123.y = 100
-    this.abc123.z = V.Layer.A
-    this.abc123.stretch = true
-    this.abc123.w *= 3
-    this.abc123.h *= 3
+    this.#abc123 = this.sprites.alloc()
+    this.#abc123.tag = 'abc123--ABC'
+    this.#abc123.cel = 10
+    this.#abc123.x = 200
+    this.#abc123.y = 100
+    this.#abc123.z = V.Layer.A
+    this.#abc123.stretch = true
+    this.#abc123.w *= 3
+    this.#abc123.h *= 3
 
     const backpacker = this.sprites.alloc()
     backpacker.tag = 'backpacker--WalkRight'
@@ -132,31 +151,8 @@ export class Game extends V.Void<Tag> {
       new V.CursorEnt(this, 'cursor--Pointer'),
       bg,
       new ClockEnt(),
-      new FrameCounterEnt(),
-      new V.ButtonEnt(this, {
-        background: {
-          w: {tag: 'background--Strawberry'},
-          nw: {tag: 'background--Cyan'},
-          n: {tag: 'background--Bubblegum'},
-          ne: {tag: 'background--Cucumber'},
-          e: {tag: 'background--Blueberry'},
-          s: {tag: 'background--Kiwi'},
-          se: {tag: 'background--Mustard'},
-          sw: {tag: 'background--Squash'},
-          origin: {tag: 'background--Grape'},
-          border: {n: 1},
-          z: V.Layer.UIC
-        },
-        selected: 'background--OrangeCheckerboard',
-        toggle: true,
-        text: 'invalidate',
-        textScale: 2,
-        w: 120,
-        h: 30,
-        x: 50,
-        y: 65,
-        pressed: 'background--Bubblegum'
-      })
+      this.#invalidateToggle,
+      this.#workCounter
     )
 
     const overlay = this.filters.alloc()

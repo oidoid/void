@@ -196,7 +196,7 @@ export class Cam {
     if (!canvas.parentElement) throw Error('canvas has no parent')
     const {clientWidth, clientHeight} = canvas.parentElement
 
-    this.#invalid =
+    this.#invalid ||=
       this.#whClient.w !== clientWidth || this.#whClient.h !== clientHeight
     if (!this.#invalid) return
     this.#whClient.w = clientWidth
@@ -208,6 +208,8 @@ export class Cam {
     // ~parentW / parentH.
     canvas.style.width = `${(this.#w * this.scale) / devicePixelRatio}px`
     canvas.style.height = `${(this.#h * this.scale) / devicePixelRatio}px`
+
+    this.#invalid = false
   }
 
   /** positive int in level px. */
@@ -250,6 +252,7 @@ export class Cam {
   }
 
   set zoomOut(out: number) {
+    out = Math.min(this.scale, Math.max(0, out))
     if (this.#zoomOut === out) return
     this.#zoomOut = out
     this.#invalidateWH()

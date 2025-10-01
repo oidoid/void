@@ -20,11 +20,14 @@ export type ButtonOpts<Tag extends TagFormat> = {
   y?: number | undefined
 }
 
-export class ButtonEnt<Tag extends TagFormat> implements Ent {
+export class ButtonEnt<Tag extends TagFormat, Button extends string>
+  implements Ent
+{
   readonly #bg: NinePatchEnt<Tag>
   #invalid: boolean = true
   readonly #pressed: Sprite<Tag>
   readonly #selected: Sprite<Tag>
+  #started: boolean = false
   readonly #toggle: boolean = false
   readonly #text: TextEnt = new TextEnt()
   readonly #xy: XY = {x: 0, y: 0}
@@ -93,6 +96,10 @@ export class ButtonEnt<Tag extends TagFormat> implements Ent {
     return this.#pressed.z === this.#foregroundZ
   }
 
+  get onStart(): boolean {
+    return this.on && this.#started
+  }
+
   set text(str: string) {
     this.#text.text = str // to-do: review update() is propagating invalid in update() elsewhere.
   }
@@ -110,28 +117,35 @@ export class ButtonEnt<Tag extends TagFormat> implements Ent {
     this.#invalid = true
   }
 
-  update(v: Void<Tag, 'A' | 'Click'>): boolean | undefined {
+  update(v: Void<Tag, 'A' | 'Click' | Button>): boolean | undefined {
     let invalid = this.#invalid
     if (this.#bg.update()) invalid = true
     if (this.#text.update(v)) invalid = true
 
-    const hitsCursor = v.zoo.cursor?.hits(v, this.#selected, 'UI')
+    const hitsCursor =
+      !v.input.handled && v.zoo.cursor?.hits(v, this.#selected, 'UI')
 
-    const on =
+    const click =
       (hitsCursor && v.input.isAnyOnStart('A', 'Click')) ||
-      // to-do: toggle support.
       (hitsCursor && v.input.isAnyOn('A', 'Click') && this.on)
-    if (on) {
-      if (this.#toggle) this.#pressed
-      invalid ||= this.#pressed.z !== this.#foregroundZ
-      this.#pressed.z = this.#foregroundZ
+
+    this.#started = this.on !== click
+    if (click) {
+      v.input.handled = true
+      if ((this.#toggle && !this.on) || !this.#toggle) {
+        invalid ||= this.#pressed.z !== this.#foregroundZ
+        this.#pressed.z = this.#foregroundZ
+      } else {
+        invalid ||= this.#pressed.z !== Layer.Hidden
+        this.#pressed.z = Layer.Hidden
+      }
     } else {
       invalid ||= this.#pressed.z !== Layer.Hidden
       this.#pressed.z = Layer.Hidden
     }
 
     if (
-      !on &&
+      !click &&
       hitsCursor &&
       (v.input.point?.click || v.input.point?.type === 'Mouse')
     ) {
