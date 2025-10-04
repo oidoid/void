@@ -82,7 +82,6 @@ export class Void<
   onFrame(millis: Millis): void {
     if (document.hidden) return
     this.input.update(millis)
-    this.cam.update(this.canvas)
 
     this.onLoop(millis)
 
@@ -107,6 +106,11 @@ export class Void<
     this.framer.requestFrame()
 
     this.renderer.load(await fetchImage(this.#atlasImageURI))
+  }
+
+  requestFrame(avoid: boolean): void {
+    if (!avoid || this.input.anyOn || this.input.gamepad)
+      this.framer.requestFrame()
   }
 
   [Symbol.dispose](): void {

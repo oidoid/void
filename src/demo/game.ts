@@ -70,13 +70,7 @@ export class Game extends V.Void<Tag> {
       this.renderer.draw(this.#filterSprites)
     }
 
-    if (
-      this.input.anyOn ||
-      this.input.gamepad ||
-      V.debug?.invalid ||
-      this.#invalidateToggle.on
-    )
-      this.framer.requestFrame()
+    this.requestFrame(!V.debug?.invalid && !this.#invalidateToggle.on)
   }
 
   #initZoo(): void {
@@ -127,8 +121,8 @@ export class Game extends V.Void<Tag> {
 
     const overlay = this.#filterSprites.alloc()
     overlay.tag = 'background--GreyCheckerboard'
-    overlay.w = V.spriteMaxWH.w
-    overlay.h = V.spriteMaxWH.h
+    overlay.w = V.drawableMaxWH.w
+    overlay.h = V.drawableMaxWH.h
     overlay.z = V.Layer.UIA
 
     const oidoid = this.sprites.alloc()
@@ -190,22 +184,23 @@ export class Game extends V.Void<Tag> {
   #updateCam(): boolean {
     let render = this.input.isAnyOn('L', 'R', 'U', 'D')
 
-    const epsilon = 1 / 4 // 1 / 64 //to-do:1/16 and move to sprite or something.
     if (this.input.isAnyOnStart('L', 'R', 'U', 'D')) {
       this.cam.x = Math.trunc(this.cam.x)
       this.cam.y = Math.trunc(this.cam.y)
     }
-    if (this.input.isOn('L')) this.cam.x -= epsilon
-    if (this.input.isOn('R')) this.cam.x += epsilon
-    if (this.input.isOn('U')) this.cam.y -= epsilon
-    if (this.input.isOn('D')) this.cam.y += epsilon
+
+    const d = 1 / 4
+    if (this.input.isOn('L')) this.cam.x -= d
+    if (this.input.isOn('R')) this.cam.x += d
+    if (this.input.isOn('U')) this.cam.y -= d
+    if (this.input.isOn('D')) this.cam.y += d
 
     if (this.input.wheel?.delta.xy.y) {
       render = true
-      this.cam.zoomOut =
-        this.cam.zoomOut - Math.sign(this.input.wheel.delta.xy.y)
+      this.cam.zoomOut -= this.input.wheel.delta.client.y * 0.01
     }
-    // this.cam.zoomOut = 2
+
+    this.cam.update(this.canvas)
 
     return render
   }

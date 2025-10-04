@@ -178,6 +178,10 @@ export class Cam {
     return this.h > this.w
   }
 
+  postupdate(): void {
+    this.#invalid = false
+  }
+
   /** positive int or fraction depending on mode. */
   get scale(): number {
     return this.#scale
@@ -185,10 +189,6 @@ export class Cam {
 
   toString(): string {
     return `Cam{(${this.x} ${this.y}) ${this.w}×${this.h}}`
-  }
-
-  postupdate(): void {
-    this.#invalid = false
   }
 
   /**
@@ -210,8 +210,8 @@ export class Cam {
     canvas.width = this.#w
     canvas.height = this.#h
     // ~parentW / parentH.
-    canvas.style.width = `${(this.#w * this.scale) / devicePixelRatio}px`
-    canvas.style.height = `${(this.#h * this.scale) / devicePixelRatio}px`
+    canvas.style.width = `${(this.#w * this.#scale) / devicePixelRatio}px`
+    canvas.style.height = `${(this.#h * this.#scale) / devicePixelRatio}px`
   }
 
   /** positive int in level px. */
@@ -254,7 +254,7 @@ export class Cam {
   }
 
   set zoomOut(out: number) {
-    out = Math.min(this.scale, Math.max(0, out))
+    out = Math.max(0, out)
     if (this.#zoomOut === out) return
     this.#zoomOut = out
     this.#invalidateWH()
@@ -270,7 +270,8 @@ export class Cam {
 
     const scale = Math.max(
       this.#minScale,
-      Math.min(phy.w / this.#minWH.w, phy.h / this.#minWH.h) - this.#zoomOut
+      Math.min(phy.w / this.#minWH.w, phy.h / this.#minWH.h) -
+        (this.#mode === 'Int' ? Math.trunc(this.#zoomOut) : this.#zoomOut)
     )
     this.#scale = this.#mode === 'Int' ? Math.trunc(scale) : scale
 

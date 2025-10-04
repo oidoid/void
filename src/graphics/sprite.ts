@@ -11,10 +11,10 @@ import type {Millis} from '../types/time.ts'
 import {mod} from '../utils/math.ts'
 import type {Layer} from './layer.ts'
 
-// to-do: how do I rotate the sprite offset? I used to be able to do this. very handy for first 8px at least.
-
 export const drawableBytes: number = 12
-export const spriteMaxWH: WH = {w: 4095, h: 4095}
+/** granularity of `Drawable` coords. */
+export const drawableEpsilon: number = 1 / 64
+export const drawableMaxWH: WH = {w: 4095, h: 4095}
 
 /**
  * everything not requiring an atlas. the box is the drawn region. assume little
