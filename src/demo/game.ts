@@ -1,5 +1,5 @@
 import * as V from '../index.ts'
-import atlasJSON from './atlas.json'
+import atlasJSON from './atlas.json' with {type: 'json'}
 import {ClockEnt} from './ents/clock-ent.ts'
 import {InvalidateToggleEnt} from './ents/invalidate-toggle-ent.ts'
 import {WorkCounterEnt} from './ents/work-counter-ent.ts'
@@ -73,14 +73,13 @@ export class Game extends V.Void<Tag> {
         this.cam.zoomOut - Math.sign(this.input.wheel.delta.xy.y)
     }
     // this.cam.zoomOut = 2
-    let updated = this.zoo.update(this)
+    const updated = this.zoo.update(this)
 
     if (this.#abc123?.looped) {
       this.#abc123.tag =
         this.#abc123.tag === 'abc123--123' ? 'abc123--ABC' : 'abc123--123'
       this.#abc123.w *= 3
       this.#abc123.h *= 3 // to-do: not a good option here? surprising not to change size, surprising to.
-      updated = true
     }
     if (V.debug?.input) this.#printInput()
 
@@ -90,8 +89,8 @@ export class Game extends V.Void<Tag> {
       this.#invalidateToggle.on ||
       this.cam.invalid ||
       this.renderer.invalid
-    this.#workCounter.record(this, render ? 'Render' : 'Update')
     if (render) {
+      this.#workCounter.incrementRender()
       this.renderer.clear(0xffffb1ff)
       this.renderer.predraw(this.cam, this.framer)
       this.renderer.setDepth(true)
@@ -100,6 +99,8 @@ export class Game extends V.Void<Tag> {
       this.renderer.draw(this.filters)
     }
 
+    this.cam.postupdate()
+
     if (
       this.input.anyOn ||
       this.input.gamepad ||
@@ -107,8 +108,6 @@ export class Game extends V.Void<Tag> {
       this.#invalidateToggle.on
     )
       this.framer.requestFrame()
-
-    this.cam.postupdate()
   }
 
   #initZoo(): void {

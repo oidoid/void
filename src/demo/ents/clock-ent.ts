@@ -1,12 +1,12 @@
-import {type Ent, Layer, TextEnt} from '../../index.ts'
+import * as V from '../../index.ts'
 import type {Game} from '../game.ts'
 
-export class ClockEnt implements Ent {
-  readonly #time: TextEnt = new TextEnt()
+export class ClockEnt implements V.Ent {
+  readonly #time: V.TextEnt = new V.TextEnt()
 
   constructor() {
     this.#time.scale = 3
-    this.#time.z = Layer.A
+    this.#time.z = V.Layer.A
   }
 
   free(v: Game): void {
@@ -14,10 +14,10 @@ export class ClockEnt implements Ent {
   }
 
   update(v: Game): boolean | undefined {
-    this.#time.text = timeString(new Date())
-    let render = this.#time.update(v)
+    const now = new Date()
+    this.#time.text = timeString(now)
 
-    if (v.cam.invalid || render)
+    if (this.#time.layout(v) || v.cam.invalid)
       this.#time.xy = v.cam.follow(
         {w: this.#time.wh.w, h: this.#time.wh.h - this.#time.scaledLeading},
         this.#time.z,
@@ -25,13 +25,12 @@ export class ClockEnt implements Ent {
         {margin: {h: 8}}
       )
 
-    if (this.#time.update(v)) render = true
-
-    return render
+    return this.#time.update(v)
   }
 }
 
-function timeString(date: Readonly<Date>): string {
+/** @internal */
+export function timeString(date: Readonly<Date>): string {
   const hh = `${date.getHours() % 12 || 12}`.padStart(2, ' ')
   const mm = `${date.getMinutes()}`.padStart(2, '0')
   const ss = `${date.getSeconds()}`.padStart(2, '0')

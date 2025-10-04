@@ -72,7 +72,7 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
     // to-do: layer. how to expose? just zend?
     this.#text.text = opts.text?.text ?? ''
     this.#text.scale = opts.text?.scale ?? 1
-    this.#text.update(v) // blach
+    this.#text.layout(v)
     this.#moveText()
     this.#text.maxW = opts.w ?? this.#button.wh.w
     this.#text.z = opts.text?.z ?? layerOffset(buttonZ, -1)
@@ -103,19 +103,6 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
 
   set text(str: string) {
     this.#text.text = str // to-do: review update() is propagating invalid in update() elsewhere.
-  }
-
-  // to-do: center within button.
-  // to-do: support moving to an XY by an anchor (NW, N, NE, etc).
-  set xy(xy: Readonly<XY>) {
-    if (xyEq(xy, this.#xy)) return
-    this.#xy.x = xy.x
-    this.#xy.y = xy.y
-    this.#button.xy = xy
-    this.#moveText()
-    this.#pressed.xy = xy
-    this.#selected.xy = xy
-    this.#invalid = true
   }
 
   update(v: Void<Tag, 'A' | 'Click' | Button>): boolean | undefined {
@@ -154,6 +141,19 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
     v.input.handled ||= hitsCursor
     this.#invalid = false
     return invalid
+  }
+
+  // to-do: center within button.
+  // to-do: support moving to an XY by an anchor (NW, N, NE, etc).
+  set xy(xy: Readonly<XY>) {
+    if (xyEq(xy, this.#xy)) return
+    this.#xy.x = xy.x
+    this.#xy.y = xy.y
+    this.#button.xy = xy
+    this.#moveText()
+    this.#pressed.xy = xy
+    this.#selected.xy = xy
+    this.#invalid = true
   }
 
   #moveText(): void {

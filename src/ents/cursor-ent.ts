@@ -41,7 +41,7 @@ export class CursorEnt<out Tag extends TagFormat> implements Ent {
     box: Readonly<XY & Partial<WH>>,
     coords: 'Level' | 'UI'
   ): boolean {
-    return boxHits(this.hitbox(v, coords), box)
+    return this.visible && boxHits(this.hitbox(v, coords), box)
   }
 
   // never just do ui state unless writing to invalid.
@@ -66,9 +66,13 @@ export class CursorEnt<out Tag extends TagFormat> implements Ent {
       if (v.input.isOn('R')) this.#sprite.x += epsilon
       if (v.input.isOn('U')) this.#sprite.y -= epsilon
       if (v.input.isOn('D')) this.#sprite.y += epsilon
-      this.#sprite.z = Layer.Top // to-do: expose.
+      this.#sprite.z = Layer.Top
 
       return true
     }
+  }
+
+  get visible(): boolean {
+    return this.#sprite.z !== Layer.Hidden
   }
 }

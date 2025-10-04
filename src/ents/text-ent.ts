@@ -10,7 +10,7 @@ import type {Ent} from './ent.ts'
 
 export class TextEnt implements Ent {
   #maxW: number = Infinity
-  #invalid: boolean = false
+  #layout: 'Rendered' | 'Updated' | 'Outdated' = 'Outdated'
   #z: Layer = Layer.UIA
   #scale: number = 1
   readonly #sprites: Sprite<TagFormat>[] = []
@@ -22,38 +22,8 @@ export class TextEnt implements Ent {
     v.sprites.free(...this.#sprites)
   }
 
-  get maxW(): number {
-    return this.#maxW
-  }
-
-  set maxW(w: number) {
-    if (w === this.#maxW) return
-    this.#maxW = w
-    this.#invalid = true
-  }
-
-  get scale() {
-    return this.#scale
-  }
-
-  set scale(scale: number) {
-    if (scale === this.#scale) return
-    this.#scale = scale
-    this.#invalid = true
-  }
-
-  get text(): string {
-    return this.#str
-  }
-
-  set text(str: string) {
-    if (str === this.#str) return
-    this.#str = str
-    this.#invalid = true
-  }
-
-  update(v: Void<TagFormat, string>): boolean | undefined {
-    if (!this.#invalid) return
+  layout(v: Void<TagFormat, string>): boolean {
+    if (this.#layout !== 'Outdated') return false
     let len = 0
     const layout = layoutText({
       font: memProp5x6,
@@ -76,7 +46,44 @@ export class TextEnt implements Ent {
       len++
     }
     while (this.#sprites.length > len) v.sprites.free(this.#sprites.pop()!)
-    this.#invalid = false
+    this.#layout = 'Updated'
+    return true
+  }
+
+  get maxW(): number {
+    return this.#maxW
+  }
+
+  set maxW(w: number) {
+    if (w === this.#maxW) return
+    this.#maxW = w
+    this.#layout = 'Outdated'
+  }
+
+  get scale() {
+    return this.#scale
+  }
+
+  set scale(scale: number) {
+    if (scale === this.#scale) return
+    this.#scale = scale
+    this.#layout = 'Outdated'
+  }
+
+  get text(): string {
+    return this.#str
+  }
+
+  set text(str: string) {
+    if (str === this.#str) return
+    this.#str = str
+    this.#layout = 'Outdated'
+  }
+
+  update(v: Void<TagFormat, string>): boolean | undefined {
+    if (this.#layout === 'Rendered') return
+    if (this.#layout === 'Outdated') this.layout(v)
+    this.#layout = 'Rendered'
     return true
   }
 
@@ -97,7 +104,7 @@ export class TextEnt implements Ent {
     if (xyEq(xy, this.#xy)) return
     this.#xy.x = xy.x
     this.#xy.y = xy.y
-    this.#invalid = true
+    this.#layout = 'Outdated'
   }
 
   get z(): Layer {
@@ -107,6 +114,6 @@ export class TextEnt implements Ent {
   set z(layer: Layer) {
     if (layer === this.#z) return
     this.#z = layer
-    this.#invalid = true
+    this.#layout = 'Outdated'
   }
 }

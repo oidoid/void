@@ -14,22 +14,21 @@ export class WorkCounterEnt implements Ent {
     this.#text.free(v)
   }
 
-  // to-do: rename.
-  record(v: Game, op: 'Render' | 'Update'): void {
-    if (op === 'Render') this.#renders++
-    this.#text.text = `${this.#updates} updates\n${this.#renders} renders`
+  incrementRender(): void {
+    this.#renders++
+  }
+
+  /** always updates but never invalidates. */
+  update(v: Game): undefined {
+    this.#updates++
+    this.#text.text = `${this.#updates} updates\n${this.#renders + 1} renders`
+    this.#text.layout(v)
     this.#text.xy = v.cam.follow(
       {w: this.#text.wh.w, h: this.#text.wh.h - this.#text.scaledLeading},
       this.#text.z,
       'NE',
       {margin: {w: 8, h: 8}} //to-do: old opts parser allowed passing number for both w and h.
     )
-    // to-do: fix double layout nad update call. this is for move
-    this.#text.update(v) // to-do: only want one update.
-  }
-
-  /** always updates but never invalidates. */
-  update(): undefined {
-    this.#updates++
+    this.#text.update(v)
   }
 }
