@@ -43,8 +43,6 @@ export class CursorEnt<out Tag extends TagFormat> implements Ent {
     return this.visible && boxHits(this.hitbox(v, coords), box)
   }
 
-  // never just do ui state unless writing to invalid.
-  // make getters too generally
   update(v: Void<Tag, 'L' | 'R' | 'U' | 'D'>): boolean | undefined {
     if (v.input.point?.invalid) {
       this.#sprite.xy = v.input.point.local

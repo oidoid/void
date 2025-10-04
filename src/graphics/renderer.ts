@@ -13,7 +13,6 @@ type Context = {gl: GL2; spriteShader: Shader; viewport: WH}
 
 const uv: Readonly<Int8Array> = new Int8Array([1, 1, 0, 1, 1, 0, 0, 0])
 
-// renderer attempts to jusut keep state. buffered sprites keep being drawn, animations keep playing by defualt.
 export class Renderer {
   invalid: boolean = false
   loseContext: WEBGL_lose_context | undefined
@@ -181,7 +180,7 @@ export class Renderer {
     gl.texImage2D(
       gl.TEXTURE_2D,
       0,
-      gl.RGBA16UI, // to-do: what was i thinking
+      gl.RGBA16UI, // source XYWH cannot be > 65535.
       1,
       this.#atlas.celXYWH.length / 4, // 4 u16s per row
       0,

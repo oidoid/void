@@ -143,8 +143,7 @@ export async function build(args: readonly string[]): Promise<void> {
       ctx.watch(),
       ctx.serve({port: 1234, servedir: argv.opts['--out-dir']})
     ])
-  }
-  await esbuild.build(opts)
+  } else await esbuild.build(opts)
 }
 
 export function packAtlas(

@@ -99,7 +99,6 @@ export class TextEnt implements Ent {
     return this.#xy
   }
 
-  // to-do: support moving to an XY by an anchor (NW, N, NE, etc).
   set xy(xy: Readonly<XY>) {
     if (xyEq(xy, this.#xy)) return
     this.#xy.x = xy.x

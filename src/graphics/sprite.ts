@@ -12,7 +12,7 @@ import {mod} from '../utils/math.ts'
 import type {Layer} from './layer.ts'
 
 export const drawableBytes: number = 12
-/** granularity of `Drawable` coords. */
+/** granularity (0.015625) of `Drawable` coords. */
 export const drawableEpsilon: number = 1 / 64
 export const drawableMaxWH: WH = {w: 4095, h: 4095}
 
@@ -59,8 +59,9 @@ export abstract class Drawable implements Block, Box {
     return iiic_cccc & 0x1f
   }
 
-  // offset name? the starting framer cel frame thing.
-  /** to-do: [0, 31]. set to Framer.age adasdas % (1000 / maxAnimCels) to start at the beginning. can actually return 2x `maxAnimCels`. */
+  /**
+   * [0, 31]. rendered cel offset. call reset() to play animation from start.
+   */
   set cel(cel: number) {
     const iiic_cccc = this.#pool.view.getUint8(this.i + 10)
     this.#pool.view.setUint8(this.i + 10, (iiic_cccc & ~0x1f) | (cel & 0x1f))
@@ -121,9 +122,6 @@ export abstract class Drawable implements Block, Box {
     )
   }
 
-  // to-do: rotate.
-  // to-do: switch between AABB collisions. make rotation optional on Box.
-
   get stretch(): boolean {
     const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
     return !!(sxyz_llll & 0x80)
@@ -168,7 +166,6 @@ export abstract class Drawable implements Block, Box {
     )
   }
 
-  // to-do: test
   get xy(): XY {
     return {x: this.x, y: this.y}
   }
@@ -220,6 +217,8 @@ export abstract class Drawable implements Block, Box {
 export class Sprite<out Tag extends TagFormat> extends Drawable {
   readonly #atlas: Readonly<Atlas>
   readonly #framer: {readonly age: Millis}
+  #hitbox: Box | undefined
+  #hurtbox: Box | undefined
 
   constructor(
     pool: {readonly view: DataView<ArrayBuffer>},
@@ -236,16 +235,49 @@ export class Sprite<out Tag extends TagFormat> extends Drawable {
     return this.#atlas.anim[this.tag]!
   }
 
-  // to-do: cache.
+  override get flipX(): boolean {
+    return super.flipX
+  }
+
+  override set flipX(flip: boolean) {
+    if (this.flipX === flip) return
+    super.flipX = flip
+    this.#hitbox = undefined
+    this.#hurtbox = undefined
+  }
+
+  override get flipY(): boolean {
+    return super.flipY
+  }
+
+  override set flipY(flip: boolean) {
+    if (this.flipY === flip) return
+    super.flipY = flip
+    this.#hitbox = undefined
+    this.#hurtbox = undefined
+  }
+
+  override get h(): number {
+    return super.h
+  }
+
+  override set h(h: number) {
+    if (this.h === h) return
+    super.h = h
+    this.#hitbox = undefined
+    this.#hurtbox = undefined
+  }
+
   get hitbox(): Box | undefined {
+    if (this.#hitbox) return this.#hitbox
     const {hitbox} = this.anim
     if (!hitbox) return
-    return {
+    return (this.#hitbox ??= {
       x: this.x + (this.flipX ? this.w - hitbox.w - hitbox.x : hitbox.x),
       y: this.y + (this.flipY ? this.h - hitbox.h - hitbox.y : hitbox.y),
       w: hitbox.w,
       h: hitbox.h
-    }
+    })
   }
 
   hits(box: Readonly<XY | Box>): boolean {
@@ -255,16 +287,27 @@ export class Sprite<out Tag extends TagFormat> extends Drawable {
     return !!hurtbox && boxHits(hitbox, hurtbox)
   }
 
-  // to-do: cache.
   get hurtbox(): Box | undefined {
+    if (this.#hurtbox) return this.#hurtbox
     const {hurtbox} = this.anim
     if (!hurtbox) return
-    return {
+    return (this.#hurtbox ??= {
       x: this.x + (this.flipX ? this.w - hurtbox.w - hurtbox.x : hurtbox.x),
       y: this.y + (this.flipY ? this.h - hurtbox.h - hurtbox.y : hurtbox.y),
       w: hurtbox.w,
       h: hurtbox.h
-    }
+    })
+  }
+
+  override get id(): number {
+    return super.id
+  }
+
+  override set id(id: number) {
+    if (this.id === id) return
+    super.id = id
+    this.#hitbox = undefined
+    this.#hurtbox = undefined
   }
 
   /** true if animation has played once. */
@@ -296,6 +339,39 @@ export class Sprite<out Tag extends TagFormat> extends Drawable {
 
   override toString(): string {
     return `Sprite{${this.tag} (${this.x} ${this.y} ${this.z}) ${this.w}×${this.h}}`
+  }
+
+  override get w(): number {
+    return super.w
+  }
+
+  override set w(w: number) {
+    if (this.w === w) return
+    super.w = w
+    this.#hitbox = undefined
+    this.#hurtbox = undefined
+  }
+
+  override get x(): number {
+    return super.x
+  }
+
+  override set x(x: number) {
+    if (this.x === x) return
+    super.x = x
+    this.#hitbox = undefined
+    this.#hurtbox = undefined
+  }
+
+  override get y(): number {
+    return super.y
+  }
+
+  override set y(y: number) {
+    if (this.y === y) return
+    super.y = y
+    this.#hitbox = undefined
+    this.#hurtbox = undefined
   }
 
   /** current fractional cel in [0, 2 * anim.cels). */

@@ -288,6 +288,17 @@ test('x', () => {
   assert.equal(toHex(view), '000080000000000000000000')
 })
 
+test('xy', () => {
+  const view = TestPool()
+  const draw = new TestDrawable(view, 0)
+
+  draw.xy = {x: 1, y: 2}
+  assert.deepEqual(draw.xy, {x: 1, y: 2})
+
+  draw.xy = {x: 3, y: 4}
+  assert.deepEqual(draw.xy, {x: 3, y: 4})
+})
+
 test('y', () => {
   const view = TestPool()
   const draw = new TestDrawable(view, 0)

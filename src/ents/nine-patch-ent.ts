@@ -166,7 +166,7 @@ export class NinePatchEnt<Tag extends TagFormat> implements Ent {
     this.#dir.origin.w = this.#dir.n.w
     this.#dir.origin.h = this.#dir.e.h
 
-    this.#xyRight = this.xy
+    this.#setXYRight()
 
     this.#invalid = true
   }
@@ -191,12 +191,12 @@ export class NinePatchEnt<Tag extends TagFormat> implements Ent {
     this.#dir.origin.x = this.#dir.n.x
     this.#dir.origin.y = this.#dir.nw.y + this.#dir.ne.h
 
-    this.#xyRight = xy
+    this.#setXYRight()
 
     this.#invalid = true
   }
 
-  set #xyRight(_xy: Readonly<XY>) {
+  #setXYRight() {
     this.#dir.ne.x = this.#dir.n.x + this.#dir.n.w
     this.#dir.ne.y = this.#dir.nw.y
     this.#dir.e.x = this.#dir.ne.x

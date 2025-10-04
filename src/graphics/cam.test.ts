@@ -3,7 +3,7 @@ import {test} from 'node:test'
 import {Cam} from './cam.ts'
 
 test('cam', () => {
-  globalThis.devicePixelRatio = 5 // to-do: will I get resize event when this changes?
+  globalThis.devicePixelRatio = 5
 
   const cam = new Cam()
   cam.minWH = {w: 400, h: 128}

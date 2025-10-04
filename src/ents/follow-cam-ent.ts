@@ -13,7 +13,6 @@ import {
 import type {Void} from '../void.ts'
 import type {Ent} from './ent.ts'
 
-// to-do: unclear if this is needless abstraction for `Cam.follow()`.
 export class FollowCamEnt<Tag extends TagFormat> implements Ent {
   #fill: 'X' | 'Y' | 'XY' | undefined
   #invalid: boolean = true

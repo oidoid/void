@@ -57,25 +57,22 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
 
     this.#pressed.sprite.tag = opts.pressed.tag
     this.#pressed.sprite.x = opts.x ?? 0
-    this.#pressed.sprite.y = opts.y ?? 0 // to-do: allow setting props. constructor opts vs setters. seems a bit easier to chew setter + dynamic but maybe more code both in impl and callers
+    this.#pressed.sprite.y = opts.y ?? 0
     this.#pressed.sprite.w = opts.w ?? this.#button.wh.w
     this.#pressed.sprite.h = opts.h ?? this.#button.wh.h
     this.#pressed.sprite.z = Layer.Hidden
 
-    // to-do: review what I did when last making button
-    // to-do: what does a global alloc simplify and make more complex?
     this.#selected.sprite.tag = opts.selected.tag
     this.#selected.sprite.x = opts.x ?? 0
-    this.#selected.sprite.y = opts.y ?? 0 // to-do: allow setting props. constructor opts vs setters. seems a bit easier to chew setter + dynamic but maybe more code both in impl and callers
+    this.#selected.sprite.y = opts.y ?? 0
     this.#selected.sprite.w = opts.w ?? this.#button.wh.w
     this.#selected.sprite.h = opts.h ?? this.#button.wh.h
     this.#selected.sprite.z = Layer.Hidden
 
-    // to-do: layer. how to expose? just zend?
     this.#text.text = opts.text?.text ?? ''
     this.#text.scale = opts.text?.scale ?? 1
     this.#text.layout(v)
-    this.#moveText()
+    this.#moveText(v)
     this.#text.maxW = opts.w ?? this.#button.wh.w
     this.#text.z = opts.text?.z ?? layerOffset(buttonZ, -1)
 
@@ -89,12 +86,9 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
   free(v: Void<Tag, string>): void {
     this.#button.free(v)
     this.#text.free(v)
-    // other stuff
-    // to-do: review free elsewhere for composeod ents.
     v.sprites.free(this.#selected.sprite, this.#pressed.sprite)
   }
 
-  // to-do: update UI after cursor so these getters make sense.
   get on(): boolean {
     return this.#pressed.sprite.z !== Layer.Hidden
   }
@@ -104,7 +98,7 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
   }
 
   set text(str: string) {
-    this.#text.text = str // to-do: review update() is propagating invalid in update() elsewhere.
+    this.#text.text = str
   }
 
   update(v: Void<Tag, 'A' | 'Click' | Button>): boolean | undefined {
@@ -145,28 +139,25 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
     return invalid
   }
 
-  // to-do: center within button.
-  // to-do: support moving to an XY by an anchor (NW, N, NE, etc).
-  set xy(xy: Readonly<XY>) {
+  setXY(v: Void<Tag, string>, xy: Readonly<XY>): void {
     if (xyEq(xy, this.#xy)) return
     this.#xy.x = xy.x
     this.#xy.y = xy.y
     this.#button.xy = xy
-    this.#moveText()
+    this.#moveText(v)
     this.#pressed.sprite.xy = xy
     this.#selected.sprite.xy = xy
     this.#invalid = true
   }
 
-  #moveText(): void {
+  #moveText(v: Void<Tag, string>): void {
+    this.#text.layout(v)
     this.#text.xy = {
       x: this.#button.xy.x + this.#button.wh.w / 2 - this.#text.wh.w / 2,
       y:
         this.#button.xy.y +
         this.#button.wh.h / 2 -
-        (this.#text.wh.h - this.#text.scaledLeading) / 2 // not crazy aobut wh. dot. want clarity on .w vs .wh.w for get and set.
-      // don't like this leading logic here. want something more thoughtful like text metrics for when no ascenders, for example.
+        (this.#text.wh.h - this.#text.scaledLeading) / 2
     }
   }
 }
-// to-do: calling update out of band for text to reset size may cause a missed render. need to expose another mechanism.

@@ -109,8 +109,8 @@ export class Game extends V.Void<Tag> {
 
     this.zoo.add(
       new V.CursorEnt(this, 'cursor--Pointer'),
-      new ClockEnt(),
       this.#invalidateToggle,
+      new ClockEnt(),
       this.#workCounter,
       bg
     )
