@@ -41,16 +41,15 @@ export class Game extends V.Void<Tag> {
   }
 
   override onLoop(_millis: V.Millis): void {
-    this.#updateCam()
+    let render = this.#updateCam()
 
-    let render = false
     const updated = this.zoo.update(this)
 
     if (this.#abc123?.looped) {
       this.#abc123.tag =
         this.#abc123.tag === 'abc123--123' ? 'abc123--ABC' : 'abc123--123'
       this.#abc123.w *= 3
-      this.#abc123.h *= 3 // to-do: not a good option here? surprising not to change size, surprising to.
+      this.#abc123.h *= 3
     }
     if (V.debug?.input) this.#printInput()
 

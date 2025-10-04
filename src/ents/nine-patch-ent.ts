@@ -1,7 +1,14 @@
 import type {TagFormat} from '../graphics/atlas.ts'
 import type {Layer} from '../graphics/layer.ts'
 import type {Sprite} from '../graphics/sprite.ts'
-import {type CompassDir, type WH, whEq, type XY, xyEq} from '../types/geo.ts'
+import {
+  type CardinalDir,
+  type CompassDir,
+  type WH,
+  whEq,
+  type XY,
+  xyEq
+} from '../types/geo.ts'
 import type {Void} from '../void.ts'
 import type {Ent} from './ent.ts'
 
@@ -9,7 +16,7 @@ export type NinePatchOpts<Tag extends TagFormat> = {
   margin?: {w?: number | undefined; h?: number | undefined} | undefined
   n: NinePatchDirOpts<Tag>
   origin: NinePatchDirOpts<Tag>
-  border?: {[dir in 'w' | 'n' | 'e' | 's']?: number | undefined}
+  border?: {[dir in Lowercase<CardinalDir>]?: number | undefined}
   wh?: {w?: number | undefined; h?: number | undefined} | undefined
   x?: number | undefined
   y?: number | undefined
