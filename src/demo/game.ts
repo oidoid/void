@@ -107,6 +107,8 @@ export class Game extends V.Void<Tag> {
       this.#invalidateToggle.on
     )
       this.framer.requestFrame()
+
+    this.cam.postupdate()
   }
 
   #initZoo(): void {

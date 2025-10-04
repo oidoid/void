@@ -1,4 +1,4 @@
-import {ButtonEnt, type DefaultButton, type Ent, Layer} from '../../index.ts'
+import {ButtonEnt, type DefaultButton, type Ent} from '../../index.ts'
 import type {Game} from '../game.ts'
 import type {Tag} from '../tag.ts'
 
@@ -7,7 +7,7 @@ export class InvalidateToggleEnt implements Ent {
 
   constructor(v: Game) {
     this.#toggle = new ButtonEnt(v, {
-      background: {
+      button: {
         w: {tag: 'background--Strawberry'},
         nw: {tag: 'background--Cyan'},
         n: {tag: 'background--Bubblegum'},
@@ -17,18 +17,17 @@ export class InvalidateToggleEnt implements Ent {
         se: {tag: 'background--Mustard'},
         sw: {tag: 'background--Squash'},
         origin: {tag: 'background--Grape'},
-        border: {n: 1},
-        z: Layer.UIC
+        border: {n: 2},
+        margin: {w: 2, h: 2}
       },
-      selected: 'background--OrangeCheckerboard',
+      selected: {tag: 'background--OrangeCheckerboard'},
       toggle: true,
-      text: 'invalidate',
-      textScale: 2,
-      w: 120,
-      h: 30,
+      text: {text: 'invalidate', scale: 2},
+      w: 80,
+      h: 22,
       x: 50,
-      y: 65,
-      pressed: 'background--Bubblegum'
+      y: 25,
+      pressed: {tag: 'background--Bubblegum'}
     })
   }
 

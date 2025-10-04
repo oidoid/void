@@ -22,7 +22,7 @@ export class WorkCounterEnt implements Ent {
       {w: this.#text.wh.w, h: this.#text.wh.h - this.#text.scaledLeading},
       this.#text.z,
       'NE',
-      {pad: {w: 8, h: 8}} //to-do: old opts parser allowed passing number for both w and h.
+      {margin: {w: 8, h: 8}} //to-do: old opts parser allowed passing number for both w and h.
     )
     // to-do: fix double layout nad update call. this is for move
     this.#text.update(v) // to-do: only want one update.

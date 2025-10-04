@@ -47,28 +47,45 @@ export class Cam {
     this.y = Math.floor(xy.y - this.h / 2)
   }
 
+  /** position in fractional level coordinates. */
+  clientToXY(client: Readonly<XY>): XY {
+    const local = this.clientToXYLocal(client)
+    return {x: this.#x + local.x, y: this.#y + local.y}
+  }
+
+  /**
+   * position relative canvas top-left in level scale (like level xy but no cam
+   * offset). often used for UI that is fixed within the cam.
+   */
+  clientToXYLocal(client: Readonly<XY>): XY {
+    return {
+      x: (client.x / this.#whClient.w) * this.#w,
+      y: (client.y / this.#whClient.h) * this.#h
+    }
+  }
+
   follow(
     wh: Readonly<WH>,
     z: Layer,
     pivot: CompassDir,
     opts?: {
       readonly fill?: 'X' | 'Y' | 'XY' | undefined
+      readonly margin?: Partial<Readonly<WH>> | undefined
       readonly modulo?: Partial<Readonly<XY>> | undefined
-      readonly pad?: Partial<Readonly<WH>> | undefined
     }
   ): Box {
-    const padW = opts?.pad?.w ?? 0
+    const marginW = opts?.margin?.w ?? 0
     let x = z > Layer.UIG ? Math.trunc(this.x) : 0
     switch (pivot) {
       case 'SW':
       case 'W':
       case 'NW':
-        x += padW
+        x += marginW
         break
       case 'SE':
       case 'E':
       case 'NE':
-        x += this.w - (wh.w + padW)
+        x += this.w - (wh.w + marginW)
         break
       case 'N':
       case 'S':
@@ -78,18 +95,18 @@ export class Cam {
     }
     x -= x % ((opts?.modulo?.x ?? x) || 1)
 
-    const padH = opts?.pad?.h ?? 0
+    const marginH = opts?.margin?.h ?? 0
     let y = z > Layer.UIG ? Math.trunc(this.y) : 0
     switch (pivot) {
       case 'N':
       case 'NE':
       case 'NW':
-        y += padH
+        y += marginH
         break
       case 'SE':
       case 'S':
       case 'SW':
-        y += this.h - (wh.h + padH)
+        y += this.h - (wh.h + marginH)
         break
       case 'E':
       case 'W':
@@ -100,9 +117,9 @@ export class Cam {
     y -= y % ((opts?.modulo?.y ?? y) || 1)
 
     const w =
-      opts?.fill === 'X' || opts?.fill === 'XY' ? this.w - 2 * padW : wh.w
+      opts?.fill === 'X' || opts?.fill === 'XY' ? this.w - 2 * marginW : wh.w
     const h =
-      opts?.fill === 'Y' || opts?.fill === 'XY' ? this.h - 2 * padH : wh.h
+      opts?.fill === 'Y' || opts?.fill === 'XY' ? this.h - 2 * marginH : wh.h
 
     return {x, y, w, h}
   }
@@ -170,21 +187,8 @@ export class Cam {
     return `Cam{(${this.x} ${this.y}) ${this.w}×${this.h}}`
   }
 
-  /** position in fractional level coordinates. */
-  clientToXY(client: Readonly<XY>): XY {
-    const local = this.clientToXYLocal(client)
-    return {x: this.#x + local.x, y: this.#y + local.y}
-  }
-
-  /**
-   * position relative canvas top-left in level scale (like level xy but no cam
-   * offset). often used for UI that is fixed within the cam.
-   */
-  clientToXYLocal(client: Readonly<XY>): XY {
-    return {
-      x: (client.x / this.#whClient.w) * this.#w,
-      y: (client.y / this.#whClient.h) * this.#h
-    }
+  postupdate(): void {
+    this.#invalid = false
   }
 
   /**
@@ -208,8 +212,6 @@ export class Cam {
     // ~parentW / parentH.
     canvas.style.width = `${(this.#w * this.scale) / devicePixelRatio}px`
     canvas.style.height = `${(this.#h * this.scale) / devicePixelRatio}px`
-
-    this.#invalid = false
   }
 
   /** positive int in level px. */

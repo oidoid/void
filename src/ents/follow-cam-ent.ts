@@ -17,8 +17,8 @@ import type {Ent} from './ent.ts'
 export class FollowCamEnt<Tag extends TagFormat> implements Ent {
   #fill: 'X' | 'Y' | 'XY' | undefined
   #invalid: boolean = true
+  readonly #margin: WH = {w: 0, h: 0}
   readonly #modulo: XY = {x: 0, y: 0}
-  readonly #pad: WH = {w: 0, h: 0}
   #pivot: CompassDir
   readonly #sprite: Sprite<Tag>
 
@@ -38,6 +38,10 @@ export class FollowCamEnt<Tag extends TagFormat> implements Ent {
     this.#invalid = true
   }
 
+  free(v: Void<Tag, string>): void {
+    v.sprites.free(this.#sprite)
+  }
+
   get h(): number {
     return this.#sprite.h
   }
@@ -45,6 +49,16 @@ export class FollowCamEnt<Tag extends TagFormat> implements Ent {
   set h(h: number) {
     if (this.#sprite.h === h) return
     this.#sprite.h = h
+    this.#invalid = true
+  }
+
+  get margin(): Readonly<WH> {
+    return this.#margin
+  }
+
+  set margin(margin: Readonly<WH>) {
+    if (whEq(margin, this.#margin)) return
+    whAssign(this.#margin, margin)
     this.#invalid = true
   }
 
@@ -56,20 +70,6 @@ export class FollowCamEnt<Tag extends TagFormat> implements Ent {
     if (xyEq(modulo, this.#modulo)) return
     xyAssign(this.#modulo, modulo)
     this.#invalid = true
-  }
-
-  get pad(): Readonly<WH> {
-    return this.#pad
-  }
-
-  set pad(pad: Readonly<WH>) {
-    if (whEq(pad, this.#pad)) return
-    whAssign(this.#pad, pad)
-    this.#invalid = true
-  }
-
-  free(v: Void<Tag, string>): void {
-    v.sprites.free(this.#sprite)
   }
 
   get pivot(): CompassDir {
@@ -88,7 +88,7 @@ export class FollowCamEnt<Tag extends TagFormat> implements Ent {
       {w: this.#sprite.w, h: this.#sprite.h},
       this.#sprite.z,
       this.#pivot,
-      {fill: this.#fill, modulo: this.#modulo, pad: this.#pad}
+      {fill: this.#fill, modulo: this.#modulo, margin: this.#margin}
     )
     this.#sprite.x = follow.x
     this.#sprite.y = follow.y

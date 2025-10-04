@@ -22,7 +22,7 @@ export class ClockEnt implements Ent {
         {w: this.#time.wh.w, h: this.#time.wh.h - this.#time.scaledLeading},
         this.#time.z,
         'N',
-        {pad: {h: 8}}
+        {margin: {h: 8}}
       )
 
     if (this.#time.update(v)) render = true

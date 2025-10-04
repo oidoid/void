@@ -8,12 +8,17 @@ import {NinePatchEnt, type NinePatchOpts} from './nine-patch-ent.ts'
 import {TextEnt} from './text-ent.ts'
 
 export type ButtonOpts<Tag extends TagFormat> = {
-  background: Omit<NinePatchOpts<Tag>, 'x' | 'y' | 'wh'>
-  pressed: Tag
-  selected: Tag
+  button: Omit<NinePatchOpts<Tag>, 'x' | 'y' | 'wh'>
+  pressed: {tag: Tag; z?: Layer | undefined}
+  selected: {tag: Tag; z?: Layer | undefined}
   toggle?: boolean | undefined
-  text?: string | undefined
-  textScale?: number | undefined
+  text?:
+    | {
+        text?: string | undefined
+        scale?: number | undefined
+        z?: Layer | undefined
+      }
+    | undefined
   w?: number | undefined
   h?: number | undefined
   x?: number | undefined
@@ -23,68 +28,64 @@ export type ButtonOpts<Tag extends TagFormat> = {
 export class ButtonEnt<Tag extends TagFormat, Button extends string>
   implements Ent
 {
-  readonly #bg: NinePatchEnt<Tag>
+  readonly #button: NinePatchEnt<Tag>
   #invalid: boolean = true
   readonly #pressed: Sprite<Tag>
+  readonly #pressedZ: Layer
   readonly #selected: Sprite<Tag>
+  readonly #selectedZ: Layer
   #started: boolean = false
   readonly #toggle: boolean = false
   readonly #text: TextEnt = new TextEnt()
   readonly #xy: XY = {x: 0, y: 0}
-  readonly #foregroundZ: Layer
 
   constructor(v: Void<Tag, string>, opts: Readonly<ButtonOpts<Tag>>) {
-    this.#bg = new NinePatchEnt(v, {
-      ...opts.background,
+    const buttonZ = opts.button.z ?? Layer.UID
+    this.#button = new NinePatchEnt(v, {
+      ...opts.button,
       x: opts.x,
       y: opts.y,
+      z: buttonZ,
       wh: {w: opts.w, h: opts.h}
     })
-    this.#foregroundZ = layerOffset(opts.background.z ?? 0, -1)
+    this.#pressedZ = opts.pressed.z ?? layerOffset(buttonZ, 2)
+    this.#selectedZ = opts.selected.z ?? layerOffset(this.#pressedZ, -1)
 
     this.#pressed = v.sprites.alloc()
-    this.#pressed.tag = opts.pressed
+    this.#pressed.tag = opts.pressed.tag
     this.#pressed.x = opts.x ?? 0
     this.#pressed.y = opts.y ?? 0 // to-do: allow setting props. constructor opts vs setters. seems a bit easier to chew setter + dynamic but maybe more code both in impl and callers
-    this.#pressed.w = opts.w ?? this.#bg.wh.w
-    this.#pressed.h = opts.h ?? this.#bg.wh.h
+    this.#pressed.w = opts.w ?? this.#button.wh.w
+    this.#pressed.h = opts.h ?? this.#button.wh.h
     this.#pressed.z = Layer.Hidden
 
     // to-do: review what I did when last making button
     // to-do: what does a global alloc simplify and make more complex?
     this.#selected = v.sprites.alloc()
-    this.#selected.tag = opts.selected
+    this.#selected.tag = opts.selected.tag
     this.#selected.x = opts.x ?? 0
     this.#selected.y = opts.y ?? 0 // to-do: allow setting props. constructor opts vs setters. seems a bit easier to chew setter + dynamic but maybe more code both in impl and callers
-    this.#selected.w = opts.w ?? this.#bg.wh.w
-    this.#selected.h = opts.h ?? this.#bg.wh.h
+    this.#selected.w = opts.w ?? this.#button.wh.w
+    this.#selected.h = opts.h ?? this.#button.wh.h
     this.#selected.z = Layer.Hidden
 
     // to-do: layer. how to expose? just zend?
-    this.#text.text = opts.text ?? ''
-    this.#text.scale = opts.textScale ?? 1
+    this.#text.text = opts.text?.text ?? ''
+    this.#text.scale = opts.text?.scale ?? 1
     this.#text.update(v) // blach
-    // to-do: do this in xy setter too.
-    this.#text.xy = {
-      x: this.#bg.xy.x + this.#bg.wh.w / 2 - this.#text.wh.w / 2,
-      y:
-        this.#bg.xy.y +
-        this.#bg.wh.h / 2 -
-        (this.#text.wh.h - this.#text.scaledLeading) / 2 // not crazy aobut wh. dot. want clarity on .w vs .wh.w for get and set.
-      // don't like this leading logic here. want something more thoughtful like text metrics for when no ascenders, for example.
-    }
-    this.#text.maxW = opts.w ?? this.#bg.wh.w
-    this.#text.z = this.#foregroundZ
+    this.#moveText()
+    this.#text.maxW = opts.w ?? this.#button.wh.w
+    this.#text.z = opts.text?.z ?? layerOffset(buttonZ, -1)
 
     this.#toggle = opts.toggle ?? false
   }
 
   get selected(): boolean {
-    return this.on || this.#selected.z !== Layer.Hidden
+    return this.#selected.z !== Layer.Hidden
   }
 
   free(v: Void<Tag, string>): void {
-    this.#bg.free(v)
+    this.#button.free(v)
     this.#text.free(v)
     // other stuff
     // to-do: review free elsewhere for composeod ents.
@@ -93,7 +94,7 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
 
   // to-do: update UI after cursor so these getters make sense.
   get on(): boolean {
-    return this.#pressed.z === this.#foregroundZ
+    return this.#pressed.z !== Layer.Hidden
   }
 
   get onStart(): boolean {
@@ -110,8 +111,8 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
     if (xyEq(xy, this.#xy)) return
     this.#xy.x = xy.x
     this.#xy.y = xy.y
-    this.#bg.xy = xy
-    this.#text.xy = xy
+    this.#button.xy = xy
+    this.#moveText()
     this.#pressed.xy = xy
     this.#selected.xy = xy
     this.#invalid = true
@@ -119,45 +120,51 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
 
   update(v: Void<Tag, 'A' | 'Click' | Button>): boolean | undefined {
     let invalid = this.#invalid
-    if (this.#bg.update()) invalid = true
+    if (this.#button.update()) invalid = true
     if (this.#text.update(v)) invalid = true
 
     const hitsCursor =
-      !v.input.handled && v.zoo.cursor?.hits(v, this.#selected, 'UI')
+      !v.input.handled && !!v.zoo.cursor?.hits(v, this.#selected, 'UI')
+    const clickStarted = hitsCursor && v.input.isAnyOnStart('A', 'Click')
 
-    const click =
-      (hitsCursor && v.input.isAnyOnStart('A', 'Click')) ||
-      (hitsCursor && v.input.isAnyOn('A', 'Click') && this.on)
-
-    this.#started = this.on !== click
-    if (click) {
-      v.input.handled = true
-      if ((this.#toggle && !this.on) || !this.#toggle) {
-        invalid ||= this.#pressed.z !== this.#foregroundZ
-        this.#pressed.z = this.#foregroundZ
-      } else {
-        invalid ||= this.#pressed.z !== Layer.Hidden
-        this.#pressed.z = Layer.Hidden
-      }
-    } else {
-      invalid ||= this.#pressed.z !== Layer.Hidden
-      this.#pressed.z = Layer.Hidden
+    const on = clickStarted
+      ? this.#toggle
+        ? !this.on
+        : true
+      : this.#toggle
+        ? this.on
+        : v.input.isAnyOn('A', 'Click')
+    this.#started = this.on !== on
+    if (this.#started) {
+      this.#pressed.z = on ? this.#pressedZ : Layer.Hidden
+      invalid = true
     }
 
     if (
-      !click &&
       hitsCursor &&
       (v.input.point?.click || v.input.point?.type === 'Mouse')
     ) {
-      invalid ||= this.#selected.z !== this.#foregroundZ
-      this.#selected.z = this.#foregroundZ
+      invalid ||= this.#selected.z !== this.#selectedZ
+      this.#selected.z = this.#selectedZ
     } else {
       invalid ||= this.#selected.z !== Layer.Hidden
       this.#selected.z = Layer.Hidden
     }
 
+    v.input.handled ||= hitsCursor
     this.#invalid = false
     return invalid
+  }
+
+  #moveText(): void {
+    this.#text.xy = {
+      x: this.#button.xy.x + this.#button.wh.w / 2 - this.#text.wh.w / 2,
+      y:
+        this.#button.xy.y +
+        this.#button.wh.h / 2 -
+        (this.#text.wh.h - this.#text.scaledLeading) / 2 // not crazy aobut wh. dot. want clarity on .w vs .wh.w for get and set.
+      // don't like this leading logic here. want something more thoughtful like text metrics for when no ascenders, for example.
+    }
   }
 }
 // to-do: calling update out of band for text to reset size may cause a missed render. need to expose another mechanism.

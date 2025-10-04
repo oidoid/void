@@ -6,6 +6,7 @@ import type {Void} from '../void.ts'
 import type {Ent} from './ent.ts'
 
 export type NinePatchOpts<Tag extends TagFormat> = {
+  margin?: {w?: number | undefined; h?: number | undefined} | undefined
   n: NinePatchDirOpts<Tag>
   origin: NinePatchDirOpts<Tag>
   border?: {[dir in 'w' | 'n' | 'e' | 's']?: number | undefined}
@@ -26,6 +27,7 @@ export type NinePatchDirOpts<Tag extends TagFormat> = {
 
 export class NinePatchEnt<Tag extends TagFormat> implements Ent {
   readonly #dir: {readonly [dir in Lowercase<CompassDir>]: Sprite<Tag>}
+  readonly #margin: Readonly<WH>
   #invalid: boolean = true
 
   constructor(v: Void<Tag, string>, opts: Readonly<NinePatchOpts<Tag>>) {
@@ -100,6 +102,8 @@ export class NinePatchEnt<Tag extends TagFormat> implements Ent {
     this.#dir.sw.w = this.#dir.w.w
     this.#dir.sw.h = this.#dir.s.h
 
+    this.#margin = {w: opts.margin?.w ?? 0, h: opts.margin?.h ?? 0}
+
     const w =
       opts.wh?.w == null
         ? this.#dir.w.w + this.#dir.n.w + this.#dir.e.w
@@ -139,16 +143,16 @@ export class NinePatchEnt<Tag extends TagFormat> implements Ent {
 
   get wh(): WH {
     return {
-      w: this.#dir.w.w + this.#dir.n.w + this.#dir.e.w,
-      h: this.#dir.n.h + this.#dir.w.h + this.#dir.s.h
+      w: this.#dir.w.w + this.#dir.n.w + this.#dir.e.w + this.#margin.w,
+      h: this.#dir.n.h + this.#dir.w.h + this.#dir.s.h + this.#margin.h
     }
   }
 
   set wh(wh: Readonly<WH>) {
     if (whEq(wh, this.wh)) return
 
-    this.#dir.w.h = wh.h - this.#dir.n.h - this.#dir.s.h
-    this.#dir.n.w = wh.w - this.#dir.w.w - this.#dir.e.w
+    this.#dir.w.h = wh.h - this.#dir.n.h - this.#dir.s.h - this.#margin.h
+    this.#dir.n.w = wh.w - this.#dir.w.w - this.#dir.e.w - this.#margin.w
     this.#dir.s.w = this.#dir.n.w
     this.#dir.e.h = this.#dir.w.h
 
@@ -161,36 +165,40 @@ export class NinePatchEnt<Tag extends TagFormat> implements Ent {
   }
 
   get xy(): XY {
-    return this.#dir.nw.xy
+    return {
+      x: this.#dir.nw.x - this.#margin.w / 2,
+      y: this.#dir.nw.y - this.#margin.h / 2
+    }
   }
 
   set xy(xy: Readonly<XY>) {
-    if (xyEq(xy, this.#dir.nw.xy)) return
+    if (xyEq(xy, this.xy)) return
 
-    this.#dir.w.x = xy.x
-    this.#dir.w.y = xy.y + this.#dir.nw.h
-    this.#dir.nw.xy = xy
-    this.#dir.n.x = xy.x + this.#dir.nw.w
-    this.#dir.n.y = xy.y
+    this.#dir.nw.x = xy.x + this.#margin.w / 2
+    this.#dir.nw.y = xy.y + this.#margin.h / 2
+    this.#dir.w.x = this.#dir.nw.x
+    this.#dir.w.y = this.#dir.nw.y + this.#dir.nw.h
+    this.#dir.n.x = this.#dir.nw.x + this.#dir.nw.w
+    this.#dir.n.y = this.#dir.nw.y
 
     this.#dir.origin.x = this.#dir.n.x
-    this.#dir.origin.y = xy.y + this.#dir.ne.h
+    this.#dir.origin.y = this.#dir.nw.y + this.#dir.ne.h
 
     this.#xyRight = xy
 
     this.#invalid = true
   }
 
-  set #xyRight(xy: Readonly<XY>) {
+  set #xyRight(_xy: Readonly<XY>) {
     this.#dir.ne.x = this.#dir.n.x + this.#dir.n.w
-    this.#dir.ne.y = xy.y
+    this.#dir.ne.y = this.#dir.nw.y
     this.#dir.e.x = this.#dir.ne.x
-    this.#dir.e.y = xy.y + this.#dir.ne.h
+    this.#dir.e.y = this.#dir.nw.y + this.#dir.ne.h
     this.#dir.se.x = this.#dir.e.x
     this.#dir.se.y = this.#dir.e.y + this.#dir.e.h
     this.#dir.s.x = this.#dir.n.x
     this.#dir.s.y = this.#dir.se.y
-    this.#dir.sw.x = xy.x
+    this.#dir.sw.x = this.#dir.nw.x
     this.#dir.sw.y = this.#dir.se.y
   }
 }
