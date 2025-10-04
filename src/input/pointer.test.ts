@@ -4,7 +4,7 @@ import {TestElement} from '../test/test-element.ts'
 import {PointerTestEvent} from '../test/test-event.ts'
 import {Pointer} from './pointer.ts'
 
-test('buttons', async ctx => {
+test('buttons', ctx => {
   const target = TestElement()
   using pointer = DefaultPointer(target)
 
@@ -67,7 +67,7 @@ test('buttons', async ctx => {
   })
 })
 
-test('centerClient()', async ctx => {
+test('centerClient()', ctx => {
   const target = TestElement()
   using pointer = DefaultPointer(target)
 
@@ -95,7 +95,7 @@ test('centerClient()', async ctx => {
   })
 })
 
-test('pinchClient()', async ctx => {
+test('pinchClient()', ctx => {
   const target = TestElement()
   using pointer = DefaultPointer(target)
 
@@ -152,7 +152,7 @@ test('pinchClient()', async ctx => {
   })
 })
 
-test('drag', async ctx => {
+test('drag', ctx => {
   const target = TestElement()
   using pointer = DefaultPointer(target)
 

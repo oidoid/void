@@ -14,7 +14,7 @@ import {
   xySub
 } from './geo.ts'
 
-test('boxHits()', async ctx => {
+test('boxHits()', ctx => {
   type TestCase = readonly [
     diagram: string,
     l: [x: number, y: number, w: number, h: number],

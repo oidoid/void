@@ -3,7 +3,7 @@ import {test} from 'node:test'
 import {MenuTestEvent} from '../test/test-event.ts'
 import {ContextMenu} from './context-menu.ts'
 
-test('ContextMenu', async ctx => {
+test('ContextMenu', ctx => {
   const target = new EventTarget()
   using menu = new ContextMenu(target).register('add')
 

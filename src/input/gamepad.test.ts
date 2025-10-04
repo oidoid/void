@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import {test} from 'node:test'
 import {Gamepad} from './gamepad.ts'
 
-test('Gamepad', async ctx => {
+test('Gamepad', ctx => {
   globalThis.isSecureContext = true
   const target = new EventTarget()
   using gamepad = new Gamepad(target).register('add')

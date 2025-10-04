@@ -3,7 +3,7 @@ import {test} from 'node:test'
 import {WheelTestEvent} from '../test/test-event.ts'
 import {Wheel} from './wheel.ts'
 
-test('Wheel', async ctx => {
+test('Wheel', ctx => {
   const target = new EventTarget()
   using wheel = new Wheel(target).register('add')
 

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import {test} from 'node:test'
 import {type Block, Pool} from './pool.ts'
 
-test('alloc()', async ctx => {
+test('alloc()', ctx => {
   const pool = new Pool({alloc: () => ({i: 0}), allocBytes: 5, pageBlocks: 2})
 
   ctx.test('has one page init', () => {
@@ -49,7 +49,7 @@ test('constructor() limits capacity', () => {
   )
 })
 
-test('free()', async ctx => {
+test('free()', ctx => {
   const pool = new Pool({alloc: () => ({i: 0}), allocBytes: 5, pageBlocks: 2})
   const blocks: Block[] = []
 
@@ -79,7 +79,7 @@ test('free()', async ctx => {
   })
 })
 
-test('size', async ctx => {
+test('size', ctx => {
   const pool = new Pool({alloc: () => ({i: 0}), allocBytes: 5, pageBlocks: 2})
 
   ctx.test('is zero init', () => assert.equal(pool.size, 0))

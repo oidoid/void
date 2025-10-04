@@ -9,7 +9,7 @@ test('constructor() inits', () => {
   assert.equal(kbd.bits, 0)
 })
 
-test('bits map to button state: A↓, B↓, A↑', async ctx => {
+test('bits map to button state: A↓, B↓, A↑', ctx => {
   const target = new EventTarget()
   using kbd = new Keyboard(target).register('add')
   kbd.bitByCode.KeyA = 1
@@ -31,7 +31,7 @@ test('bits map to button state: A↓, B↓, A↑', async ctx => {
   })
 })
 
-test('two buttons mapped to the same bit are unioned', async ctx => {
+test('two buttons mapped to the same bit are unioned', ctx => {
   const target = new EventTarget()
   using kbd = new Keyboard(target).register('add')
   kbd.bitByCode.KeyA = 1

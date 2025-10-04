@@ -24,7 +24,7 @@ afterEach(() => {
   delete (globalThis as Partial<typeof globalThis>).removeEventListener
 })
 
-test('init', async ctx => {
+test('init', ctx => {
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -72,7 +72,7 @@ test('held off', () => {
   assertCombo(input, [['U']], 'Unequal')
 })
 
-test('pressed buttons', async ctx => {
+test('pressed buttons', ctx => {
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -174,18 +174,7 @@ test('pressed buttons', async ctx => {
   })
 })
 
-// to-do: how can I make two button combos friendlier? this is impossible to
-// time at the same time and it's unclear how to resolve within a window. all
-// buttons pressed sounds good. even if I remove gap requirement, you end up
-// pressing A, A+B, B instead of A+B. generate multiple interpretations each
-// press and union result. for "A, A+B", you can't slide from A to B without a
-// release and releasing buttons after "A, A+B, A+B+C" doesn't cause
-// "A, A+B, A+B+C, B+C, C". my ideal is: new sequence after an off release,
-// otherwise aggregate for like 60ms.
-// A-off-A+B-off-A-off-A -> A-A+B-A-A
-// A-off-A-B-off-A-off-A -> A-A+B-A-A, don't care if also A-A-B-A-A
-// U-U+R-R-R+D-D-D+L-L-L+U -> U-U+R-R-R+D-D-D+L-L-L+U
-test('combos require gaps between presses', async ctx => {
+test('combos require gaps between presses', ctx => {
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -280,7 +269,7 @@ test('around-the-world combo', () => {
   )
 })
 
-test('Up, Up, Down, Down, Left', async ctx => {
+test('Up, Up, Down, Down, Left', ctx => {
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -388,7 +377,7 @@ test('Up, Up, Down, Down, Left', async ctx => {
   })
 })
 
-test('held combos stay active past expiry', async ctx => {
+test('held combos stay active past expiry', ctx => {
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -424,7 +413,7 @@ test('held combos stay active past expiry', async ctx => {
   })
 })
 
-test('combo sequences can have multiple buttons', async ctx => {
+test('combo sequences can have multiple buttons', ctx => {
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -596,7 +585,7 @@ test('isStart', () => {
   assert.equal(input.started, false)
 })
 
-test('pointer movements update position', async ctx => {
+test('pointer movements update position', ctx => {
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -651,7 +640,7 @@ test('pointer secondary clicks are buttons', () => {
   assert.equal(input.point?.invalid, true)
 })
 
-test('a pointer click can become a drag', async ctx => {
+test('a pointer click can become a drag', ctx => {
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -746,7 +735,7 @@ test('a pointer click can become a drag', async ctx => {
   })
 })
 
-test('a pointer click can become a drag or a pinch', async ctx => {
+test('a pointer click can become a drag or a pinch', ctx => {
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -839,7 +828,7 @@ test('a pointer click can become a drag or a pinch', async ctx => {
   })
 })
 
-test('center', async ctx => {
+test('center', ctx => {
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -893,7 +882,7 @@ test('center', async ctx => {
   })
 })
 
-test('pinch', async ctx => {
+test('pinch', ctx => {
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
