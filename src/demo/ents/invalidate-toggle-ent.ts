@@ -1,12 +1,12 @@
-import {ButtonEnt, type DefaultButton, type Ent} from '../../index.ts'
+import * as V from '../../index.ts'
 import type {Game} from '../game.ts'
 import type {Tag} from '../tag.ts'
 
-export class InvalidateToggleEnt implements Ent {
-  readonly #toggle: ButtonEnt<Tag, DefaultButton>
+export class InvalidateToggleEnt implements V.Ent {
+  readonly #toggle: V.ButtonEnt<Tag, V.DefaultButton>
 
   constructor(v: Game) {
-    this.#toggle = new ButtonEnt(v, {
+    this.#toggle = new V.ButtonEnt(v, {
       button: {
         w: {tag: 'background--Strawberry'},
         nw: {tag: 'background--Cyan'},

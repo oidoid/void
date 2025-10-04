@@ -5,16 +5,6 @@ import {InvalidateToggleEnt} from './ents/invalidate-toggle-ent.ts'
 import {WorkCounterEnt} from './ents/work-counter-ent.ts'
 import type {Tag} from './tag.ts'
 
-declare module '../index.ts' {
-  interface Debug {
-    /** always render. */
-    invalid?: string
-    // to-do: fix always invalidate button.
-    /** update the clock at least once a second instead of once a minute. */
-    seconds?: string
-  }
-}
-
 export class Game extends V.Void<Tag> {
   filters: V.Pool<V.Sprite<Tag>>
   // to-do: rework.
@@ -201,22 +191,36 @@ export class Game extends V.Void<Tag> {
   }
 
   #startTimer(): void {
-    const now = new Date()
-    const delay =
-      (V.debug?.seconds ? 0 : (59 - (now.getSeconds() % 60)) * 1000) +
-      1000 -
-      (now.getMilliseconds() % 1000)
-    this.#timer = setTimeout(() => {
-      this.framer.requestFrame()
-      this.#interval = setInterval(
-        () => this.framer.requestFrame(),
-        (V.debug?.seconds ? 1 : 60) * 1000
-      )
-    }, delay)
+    this.#timer = setTimeout(
+      () => {
+        this.framer.requestFrame()
+        this.#interval = setInterval(
+          () => this.framer.requestFrame(),
+          (V.debug?.seconds ? 1 : 60) * 1000
+        )
+      },
+      delayMillis(new Date(), V.debug?.seconds)
+    )
   }
 
   #stopTimer(): void {
     clearTimeout(this.#timer)
     clearInterval(this.#interval)
   }
+}
+
+/**
+ * returns [0, 59_999]
+ * @internal
+ */
+export function delayMillis(
+  time: Readonly<Date>,
+  debugSecs: string | undefined
+): number {
+  return (
+    ((debugSecs ? 0 : (59 - (time.getSeconds() % 60)) * 1000) +
+      1000 -
+      (time.getMilliseconds() % 1000)) %
+    (debugSecs ? 1000 : 60_000)
+  )
 }

@@ -1,13 +1,13 @@
-import {type Ent, Layer, TextEnt} from '../../index.ts'
+import * as V from '../../index.ts'
 import type {Game} from '../game.ts'
 
-export class WorkCounterEnt implements Ent {
+export class WorkCounterEnt implements V.Ent {
   #renders: number = 0
+  readonly #text: V.TextEnt = new V.TextEnt()
   #updates: number = 0
-  readonly #text: TextEnt = new TextEnt()
 
   constructor() {
-    this.#text.z = Layer.A
+    this.#text.z = V.Layer.A
   }
 
   free(v: Game): void {
@@ -27,7 +27,7 @@ export class WorkCounterEnt implements Ent {
       {w: this.#text.wh.w, h: this.#text.wh.h - this.#text.scaledLeading},
       this.#text.z,
       'NE',
-      {margin: {w: 8, h: 8}} //to-do: old opts parser allowed passing number for both w and h.
+      {margin: {w: 8, h: 8}}
     )
     this.#text.update(v)
   }

@@ -17,8 +17,8 @@ for (const [input, expected] of [
   ['23:59:00', '11:59:00']
 ] as const)
   test(`timeString(${input})`, () => {
-    const date = new Date()
+    const time = new Date()
     const [hours, mins, secs] = input.split(':').map(Number)
-    date.setHours(hours!, mins, secs, 0)
-    assert.equal(timeString(date), expected)
+    time.setHours(hours!, mins, secs)
+    assert.equal(timeString(time), expected)
   })

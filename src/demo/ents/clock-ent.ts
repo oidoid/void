@@ -30,9 +30,9 @@ export class ClockEnt implements V.Ent {
 }
 
 /** @internal */
-export function timeString(date: Readonly<Date>): string {
-  const hh = `${date.getHours() % 12 || 12}`.padStart(2, ' ')
-  const mm = `${date.getMinutes()}`.padStart(2, '0')
-  const ss = `${date.getSeconds()}`.padStart(2, '0')
+export function timeString(time: Readonly<Date>): string {
+  const hh = `${time.getHours() % 12 || 12}`.padStart(2, ' ')
+  const mm = `${time.getMinutes()}`.padStart(2, '0')
+  const ss = `${time.getSeconds()}`.padStart(2, '0')
   return `${hh}:${mm}:${ss}`
 }
