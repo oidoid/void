@@ -7,7 +7,6 @@ import type {Ent} from './ent.ts'
  * ents are updated in insertion order. composed ents are updated by their
  * owning ents.
  */
-// to-do: layer ents by update order.
 export class Zoo<out Tag extends TagFormat> {
   #cursor: CursorEnt<Tag> | undefined
   readonly #ents: Set<Ent> = new Set()

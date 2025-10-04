@@ -30,10 +30,8 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
 {
   readonly #button: NinePatchEnt<Tag>
   #invalid: boolean = true
-  readonly #pressed: Sprite<Tag>
-  readonly #pressedZ: Layer
-  readonly #selected: Sprite<Tag>
-  readonly #selectedZ: Layer
+  readonly #pressed: {sprite: Sprite<Tag>; z: Layer}
+  readonly #selected: {sprite: Sprite<Tag>; z: Layer}
   #started: boolean = false
   readonly #toggle: boolean = false
   readonly #text: TextEnt = new TextEnt()
@@ -48,26 +46,30 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
       z: buttonZ,
       wh: {w: opts.w, h: opts.h}
     })
-    this.#pressedZ = opts.pressed.z ?? layerOffset(buttonZ, 2)
-    this.#selectedZ = opts.selected.z ?? layerOffset(this.#pressedZ, -1)
+    this.#pressed = {
+      sprite: v.sprites.alloc(),
+      z: opts.pressed.z ?? layerOffset(buttonZ, 2)
+    }
+    this.#selected = {
+      sprite: v.sprites.alloc(),
+      z: opts.selected.z ?? layerOffset(this.#pressed.z, -1)
+    }
 
-    this.#pressed = v.sprites.alloc()
-    this.#pressed.tag = opts.pressed.tag
-    this.#pressed.x = opts.x ?? 0
-    this.#pressed.y = opts.y ?? 0 // to-do: allow setting props. constructor opts vs setters. seems a bit easier to chew setter + dynamic but maybe more code both in impl and callers
-    this.#pressed.w = opts.w ?? this.#button.wh.w
-    this.#pressed.h = opts.h ?? this.#button.wh.h
-    this.#pressed.z = Layer.Hidden
+    this.#pressed.sprite.tag = opts.pressed.tag
+    this.#pressed.sprite.x = opts.x ?? 0
+    this.#pressed.sprite.y = opts.y ?? 0 // to-do: allow setting props. constructor opts vs setters. seems a bit easier to chew setter + dynamic but maybe more code both in impl and callers
+    this.#pressed.sprite.w = opts.w ?? this.#button.wh.w
+    this.#pressed.sprite.h = opts.h ?? this.#button.wh.h
+    this.#pressed.sprite.z = Layer.Hidden
 
     // to-do: review what I did when last making button
     // to-do: what does a global alloc simplify and make more complex?
-    this.#selected = v.sprites.alloc()
-    this.#selected.tag = opts.selected.tag
-    this.#selected.x = opts.x ?? 0
-    this.#selected.y = opts.y ?? 0 // to-do: allow setting props. constructor opts vs setters. seems a bit easier to chew setter + dynamic but maybe more code both in impl and callers
-    this.#selected.w = opts.w ?? this.#button.wh.w
-    this.#selected.h = opts.h ?? this.#button.wh.h
-    this.#selected.z = Layer.Hidden
+    this.#selected.sprite.tag = opts.selected.tag
+    this.#selected.sprite.x = opts.x ?? 0
+    this.#selected.sprite.y = opts.y ?? 0 // to-do: allow setting props. constructor opts vs setters. seems a bit easier to chew setter + dynamic but maybe more code both in impl and callers
+    this.#selected.sprite.w = opts.w ?? this.#button.wh.w
+    this.#selected.sprite.h = opts.h ?? this.#button.wh.h
+    this.#selected.sprite.z = Layer.Hidden
 
     // to-do: layer. how to expose? just zend?
     this.#text.text = opts.text?.text ?? ''
@@ -89,12 +91,12 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
     this.#text.free(v)
     // other stuff
     // to-do: review free elsewhere for composeod ents.
-    v.sprites.free(this.#selected, this.#pressed)
+    v.sprites.free(this.#selected.sprite, this.#pressed.sprite)
   }
 
   // to-do: update UI after cursor so these getters make sense.
   get on(): boolean {
-    return this.#pressed.z !== Layer.Hidden
+    return this.#pressed.sprite.z !== Layer.Hidden
   }
 
   get onStart(): boolean {
@@ -111,7 +113,7 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
     if (this.#text.update(v)) invalid = true
 
     const hitsCursor =
-      !v.input.handled && !!v.zoo.cursor?.hits(v, this.#selected, 'UI')
+      !v.input.handled && !!v.zoo.cursor?.hits(v, this.#selected.sprite, 'UI')
     const clickStarted = hitsCursor && v.input.isAnyOnStart('A', 'Click')
 
     const on = clickStarted
@@ -123,7 +125,7 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
         : v.input.isAnyOn('A', 'Click')
     this.#started = this.on !== on
     if (this.#started) {
-      this.#pressed.z = on ? this.#pressedZ : Layer.Hidden
+      this.#pressed.sprite.z = on ? this.#pressed.z : Layer.Hidden
       invalid = true
     }
 
@@ -131,8 +133,8 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
       hitsCursor &&
       (v.input.point?.click || v.input.point?.type === 'Mouse')
     ) {
-      invalid ||= this.#selected.z !== this.#selectedZ
-      this.#selected.z = this.#selectedZ
+      invalid ||= this.#selected.sprite.z !== this.#selected.z
+      this.#selected.sprite.z = this.#selected.z
     } else {
       invalid ||= this.#selected.z !== Layer.Hidden
       this.#selected.z = Layer.Hidden
@@ -151,8 +153,8 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
     this.#xy.y = xy.y
     this.#button.xy = xy
     this.#moveText()
-    this.#pressed.xy = xy
-    this.#selected.xy = xy
+    this.#pressed.sprite.xy = xy
+    this.#selected.sprite.xy = xy
     this.#invalid = true
   }
 

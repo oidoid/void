@@ -73,7 +73,6 @@ export class Game extends V.Void<Tag> {
   }
 
   #initZoo(): void {
-    // to-do: options vs setters. setters are more flexible.
     const bg = new V.FollowCamEnt(
       this,
       'background--OrangeCheckerboard',
@@ -102,8 +101,6 @@ export class Game extends V.Void<Tag> {
     backpacker.w *= 5
     backpacker.h *= 5
 
-    // to-do: this is invalid. I really don't want folks wirintg this.
-    // ninep.xy.y = 300
     const heart = this.sprites.alloc()
     heart.tag = 'heart--Default'
     heart.x = -400
@@ -112,10 +109,10 @@ export class Game extends V.Void<Tag> {
 
     this.zoo.add(
       new V.CursorEnt(this, 'cursor--Pointer'),
-      bg,
       new ClockEnt(),
       this.#invalidateToggle,
-      this.#workCounter
+      this.#workCounter,
+      bg
     )
 
     const overlay = this.#filterSprites.alloc()

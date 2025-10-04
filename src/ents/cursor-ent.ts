@@ -5,10 +5,9 @@ import {type Box, boxHits, type WH, type XY} from '../types/geo.ts'
 import type {Void} from '../void.ts'
 import type {Ent} from './ent.ts'
 
-// to-do: how to guarantee update order? this ent should be processed first.
 /**
- * always prefer testing against cursor, not input, in other ents. the cursor
- * may be moved by keyboard and has a hitbox.
+ * update this ent first. always prefer testing against cursor, not input, in
+ * other ents. the cursor may be moved by keyboard and has a hitbox.
  */
 export class CursorEnt<out Tag extends TagFormat> implements Ent {
   keyboard: boolean = false
