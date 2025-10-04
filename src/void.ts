@@ -79,11 +79,18 @@ export class Void<
     this.framer.requestFrame()
   }
 
-  /** returns true when frame should be skipped. */
-  // biome-ignore lint/correctness/noUnusedFunctionParameters:;
-  onFrame(millis: Millis): boolean | undefined {
-    if (document.hidden) return true
+  onFrame(millis: Millis): void {
+    if (document.hidden) return
+    this.input.update(millis)
+    this.cam.update(this.canvas)
+
+    this.onLoop(millis)
+
+    this.cam.postupdate()
   }
+
+  // biome-ignore lint/correctness/noUnusedFunctionParameters:;
+  onLoop(millis: Millis): void {}
 
   onResize(): void {
     this.framer.requestFrame()

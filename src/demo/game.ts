@@ -6,9 +6,8 @@ import {WorkCounterEnt} from './ents/work-counter-ent.ts'
 import type {Tag} from './tag.ts'
 
 export class Game extends V.Void<Tag> {
-  filters: V.Pool<V.Sprite<Tag>>
-  // to-do: rework.
   #abc123?: V.Sprite<Tag>
+  #filterSprites: V.Pool<V.Sprite<Tag>>
   #interval: number = 0
   #timer: number = 0
   #invalidateToggle: InvalidateToggleEnt
@@ -21,7 +20,7 @@ export class Game extends V.Void<Tag> {
       backgroundRGBA: 0xffffb1ff,
       minWH: {w: 320, h: 240}
     })
-    this.filters = new V.Pool<V.Sprite<Tag>>({
+    this.#filterSprites = new V.Pool<V.Sprite<Tag>>({
       alloc: pool => new V.Sprite(pool, 0, this.atlas, this.framer),
       allocBytes: V.drawableBytes,
       pageBlocks: 10
@@ -41,28 +40,10 @@ export class Game extends V.Void<Tag> {
     }
   }
 
-  override onFrame(millis: V.Millis): boolean | undefined {
-    if (super.onFrame(millis)) return
-    this.input.update(millis)
-    this.cam.update(this.canvas)
-
-    const epsilon = 1 / 4 // 1 / 64 //to-do:1/16 and move to sprite or something.
-    if (this.input.isAnyOnStart('L', 'R', 'U', 'D')) {
-      this.cam.x = Math.trunc(this.cam.x)
-      this.cam.y = Math.trunc(this.cam.y)
-    }
-    if (this.input.isOn('L')) this.cam.x -= epsilon
-    if (this.input.isOn('R')) this.cam.x += epsilon
-    if (this.input.isOn('U')) this.cam.y -= epsilon
-    if (this.input.isOn('D')) this.cam.y += epsilon
+  override onLoop(_millis: V.Millis): void {
+    this.#updateCam()
 
     let render = false
-    if (this.input.wheel?.delta.xy.y) {
-      render = true
-      this.cam.zoomOut =
-        this.cam.zoomOut - Math.sign(this.input.wheel.delta.xy.y)
-    }
-    // this.cam.zoomOut = 2
     const updated = this.zoo.update(this)
 
     if (this.#abc123?.looped) {
@@ -86,10 +67,8 @@ export class Game extends V.Void<Tag> {
       this.renderer.setDepth(true)
       this.renderer.draw(this.sprites)
       this.renderer.setDepth(false)
-      this.renderer.draw(this.filters)
+      this.renderer.draw(this.#filterSprites)
     }
-
-    this.cam.postupdate()
 
     if (
       this.input.anyOn ||
@@ -146,7 +125,7 @@ export class Game extends V.Void<Tag> {
       this.#workCounter
     )
 
-    const overlay = this.filters.alloc()
+    const overlay = this.#filterSprites.alloc()
     overlay.tag = 'background--GreyCheckerboard'
     overlay.w = V.spriteMaxWH.w
     overlay.h = V.spriteMaxWH.h
@@ -207,10 +186,33 @@ export class Game extends V.Void<Tag> {
     clearTimeout(this.#timer)
     clearInterval(this.#interval)
   }
+
+  #updateCam(): boolean {
+    let render = this.input.isAnyOn('L', 'R', 'U', 'D')
+
+    const epsilon = 1 / 4 // 1 / 64 //to-do:1/16 and move to sprite or something.
+    if (this.input.isAnyOnStart('L', 'R', 'U', 'D')) {
+      this.cam.x = Math.trunc(this.cam.x)
+      this.cam.y = Math.trunc(this.cam.y)
+    }
+    if (this.input.isOn('L')) this.cam.x -= epsilon
+    if (this.input.isOn('R')) this.cam.x += epsilon
+    if (this.input.isOn('U')) this.cam.y -= epsilon
+    if (this.input.isOn('D')) this.cam.y += epsilon
+
+    if (this.input.wheel?.delta.xy.y) {
+      render = true
+      this.cam.zoomOut =
+        this.cam.zoomOut - Math.sign(this.input.wheel.delta.xy.y)
+    }
+    // this.cam.zoomOut = 2
+
+    return render
+  }
 }
 
 /**
- * returns [0, 59_999]
+ * returns [0, 59_999].
  * @internal
  */
 export function delayMillis(
