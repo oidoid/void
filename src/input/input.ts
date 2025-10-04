@@ -169,7 +169,6 @@ export class Input<Button extends string> {
    * `['A'], ['A'], ['A']`.
    */
   isCombo(...combo: Readonly<Combo<Button>>): boolean {
-    // to-do: isCombo('A+B', 'A', 'A', 'A', 'U+L+A') syntax? +update get combo.
     return combo.length === this.#combo.length && this.isComboEndsWith(...combo)
   }
 

@@ -114,7 +114,7 @@ export async function build(args: readonly string[]): Promise<void> {
     entryPoints: [argv.opts['--entry'], ...srcFilenames],
     format: 'esm',
     logLevel: 'info', // print the port and build demarcations.
-    metafile: true,
+    metafile: true, // to-do: write meta.
     minify,
     outdir: argv.opts['--out-dir'],
     plugins: [htmlPlugin],

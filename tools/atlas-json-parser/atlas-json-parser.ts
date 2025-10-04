@@ -54,10 +54,13 @@ export function parseAnim(
   }
 }
 
-// to-do: doc. every frame is guaranteed to be present for at least `celMillis`.
-//  gets duplicated until duration is met or exceeded. unpacking up to 1s for
-// the animation dir. no warns for overflow.
-/** @internal */
+/**
+ * every frame is guaranteed to be present for at least `celMillis`. cels are
+ * duplicated until cel duration is at least met. cels are unpacked until a full
+ * period is defined for the direction. no warns for overflowing past on second
+ * or uneven periods.
+ * @internal
+ */
 export function parseAnimFrames(
   span: AsepriteTagSpan,
   map: AsepriteFrameMap

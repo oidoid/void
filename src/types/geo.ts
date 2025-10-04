@@ -10,7 +10,6 @@ export function boxEq(l: Readonly<Box>, r: Readonly<Box>): boolean {
   return xyEq(l, r) && whEq(l, r)
 }
 
-// to-do: why do I need partial xy l
 export function boxHits(
   l: Readonly<Partial<XY> & WH>,
   r: Readonly<XY & Partial<WH>>
@@ -46,7 +45,6 @@ export function xyAddTo(l: XY, r: Readonly<XY>): void {
   l.y += r.y
 }
 
-// hate all these useless functions. such a dumb abstraction.
 export function xyAssign(l: XY, r: Readonly<XY>): void {
   l.x = r.x
   l.y = r.y

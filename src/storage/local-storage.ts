@@ -1,5 +1,3 @@
-// to-do: save to disk. https://github.com/GoogleChromeLabs/browser-fs-access
-
 import type {PartialJSONValue} from '../types/json.ts'
 
 export function saveJSON(k: string, v: PartialJSONValue): void {

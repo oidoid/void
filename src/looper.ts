@@ -1,19 +1,13 @@
 import type {Millis} from './types/time.ts'
 
-// to-do: move to graphics/.
-// to-do: rename looper or is that a higher order component?
 /**
  * requests frames except when hidden. frames are requested even when idle to
  * poll gamepads.
  * autoloop?
  */
-export class Framer {
+export class Looper {
   /** duration of frames observed. */
   age: Millis = 0 as Millis
-  /**
-   * update input, update canvas, update cam, update world, then render.
-   * to-do: encapsulate^.
-   */
   onFrame: ((millis: Millis) => void) | undefined
   #req: number = 0
   #registered: boolean = false

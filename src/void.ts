@@ -1,11 +1,11 @@
 import {Zoo} from './ents/zoo.ts'
-import {Framer} from './framer.ts'
 import type {Atlas, AtlasJSON, TagFormat} from './graphics/atlas.ts'
 import {parseAtlas} from './graphics/atlas-parser.ts'
 import {Cam} from './graphics/cam.ts'
 import {Renderer} from './graphics/renderer.ts'
 import {drawableBytes, Sprite} from './graphics/sprite.ts'
 import {type DefaultButton, Input} from './input/input.ts'
+import {Looper} from './looper.ts'
 import {Pool, type PoolOpts} from './mem/pool.ts'
 import type {WH} from './types/geo.ts'
 import type {Millis} from './types/time.ts'
@@ -26,9 +26,6 @@ export type VoidOpts<out Tag extends TagFormat> = {
     | undefined
 }
 
-// to-do: do this declaration merging for Atlas and Sprite too so everything is implied when
-//        Void is used over VoidT. don't think I can do classes like Input and Sprite.
-
 export class Void<
   out Tag extends TagFormat,
   Button extends string = DefaultButton
@@ -36,7 +33,7 @@ export class Void<
   readonly atlas: Atlas
   readonly cam: Cam = new Cam()
   readonly canvas: HTMLCanvasElement
-  readonly framer: Framer = new Framer()
+  readonly framer: Looper = new Looper()
   readonly renderer: Renderer
   readonly input: Input<Button>
   readonly sprites: Pool<Sprite<Tag>>
@@ -79,6 +76,7 @@ export class Void<
     this.framer.requestFrame()
   }
 
+  /** update input, update canvas, update cam, update world, then render. */
   onFrame(millis: Millis): void {
     if (document.hidden) return
     this.input.update(millis)

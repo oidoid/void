@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import {afterEach, beforeEach, describe, test} from 'node:test'
 
-import {Framer} from './framer.ts'
+import {Looper} from './looper.ts'
 import {TestEvent} from './test/test-event.ts'
 import type {Millis} from './types/time.ts'
 
@@ -21,7 +21,7 @@ describe('Framer', () => {
     delete (globalThis as {[_: string]: unknown}).cancelAnimationFrame
     delete (globalThis as {[_: string]: unknown}).requestAnimationFrame
   })
-  using framer = new Framer()
+  using framer = new Looper()
   let frame = 0
   framer.onFrame = () => ++frame
 
