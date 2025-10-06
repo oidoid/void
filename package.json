@@ -45,7 +45,7 @@
   },
   "scripts": {
     "build": "tsc --build && npm run build:demo -- --minify",
-    "build:demo": "tools/void.ts --assets=src/demo/assets --entry=src/demo/index.html --out-dir=dist/demo --out-image=dist/demo/atlas.png --out-json=src/demo/atlas.json",
+    "build:demo": "tools/void.ts --assets=src/demo/assets --entry=src/demo/index.html --out-dir=dist/public --out-image=dist/public/atlas.png --out-json=src/demo/atlas.json",
     "clean": "rm -rf dist",
     "format": "npm run formatter -- --fix",
     "formatter": "biome check --error-on-warnings",

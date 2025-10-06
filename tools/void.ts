@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // void.ts [--assets=assets] [--entry=<index.html>] [--out-dir=<.>] [--out-image=<atlas.png>] [--out-json=<atlas.json>] [--watch]
-// to-do: compiles images into an atlas and bundles .
+// compiles images into an atlas and bundles an HTML entrypoint.
 
 import {execFileSync} from 'node:child_process'
 import fs from 'node:fs'
@@ -9,20 +9,11 @@ import url from 'node:url'
 import type {BuildOptions} from 'esbuild'
 import esbuild from 'esbuild'
 import {JSDOM} from 'jsdom'
+import type {Millis} from '../src/index.ts'
+import {debounce} from '../src/utils/async-util.ts'
+import {Argv} from './argv.ts'
 import {parseAtlasJSON} from './atlas-json-parser/atlas-json-parser.ts'
 
-export type Argv = {
-  /** all the arguments not starting with `--` before `--`. */
-  args: string[]
-  /** all options starting with `--` before `--` and their optional value. */
-  opts: Opts
-  /** everything after `--`. */
-  posargs: string[]
-}
-
-export interface Opts {
-  [k: string]: string | undefined
-}
 export interface Opts {
   '--assets'?: string | undefined
   '--entry'?: string | undefined
@@ -64,23 +55,6 @@ const htmlPlugin: esbuild.Plugin = {
   }
 }
 
-export function Argv(argv: readonly string[]): Argv {
-  const args = []
-  const posargs = []
-  const opts: {[k: string]: string | undefined} = {}
-  for (let i = 2; i < argv.length; i++) {
-    if (argv[i] === '--') {
-      posargs.push(...argv.slice(i + 1))
-      break
-    }
-    if (argv[i]!.startsWith('--')) {
-      const [k, v] = argv[i]!.split(/=(.*)/).slice(0, 2)
-      opts[k!] = v
-    } else args.push(argv[i]!)
-  }
-  return {args, opts, posargs}
-}
-
 export async function build(args: readonly string[]): Promise<void> {
   const argv = Argv(args)
   if (
@@ -95,14 +69,14 @@ export async function build(args: readonly string[]): Promise<void> {
   const watch = '--watch' in argv.opts
 
   const doc = (await JSDOM.fromFile(argv.opts['--entry'])).window.document
-  // to-do: confusing to have this for some inputs and cli args for other.
+  // to-do: it's confusing to have this for some inputs and CLI args for other.
+  //        even more confusing to say index.ts for script and preload is
+  //        index.js.
   const srcFilenames = [
     ...doc.querySelectorAll<HTMLScriptElement>(
       "script[type='module'][src$='.ts']"
     )
   ].map(el => url.fileURLToPath(el.src))
-
-  // to-do: it's an issue for tsc to write to same dir.
 
   const opts: BuildOptions = {
     banner: watch
@@ -129,15 +103,9 @@ export async function build(args: readonly string[]): Promise<void> {
     argv.opts['--out-json']
   )
   if (watch) {
-    fs.watch(argv.opts['--assets'], {recursive: true}, (ev, file) => {
-      console.log(`${file}: ${ev}`)
-      // to-do: debounce. this gets called a million times per save.
-      packAtlas(
-        argv.opts['--assets']!,
-        argv.opts['--out-image']!,
-        argv.opts['--out-json']!
-      )
-    })
+    fs.watch(argv.opts['--assets'], {recursive: true}, (ev, type) =>
+      onWatch(argv, ev, type)
+    )
     const ctx = await esbuild.context(opts)
     await Promise.all([
       ctx.watch(),
@@ -146,17 +114,27 @@ export async function build(args: readonly string[]): Promise<void> {
   } else await esbuild.build(opts)
 }
 
+const onWatch = debounce(
+  (argv: Argv, ev: fs.WatchEventType, file: string | null) => {
+    console.log(`${file}: ${ev}`)
+    packAtlas(
+      argv.opts['--assets']!,
+      argv.opts['--out-image']!,
+      argv.opts['--out-json']!
+    )
+  },
+  500 as Millis
+)
+
 export function packAtlas(
   assetsDirname: string,
   outImageFilename: string,
   outJSONFilename: string
 ): void {
-  // to-do: support recursive.
   const aseFilenames = fs
-    .readdirSync(assetsDirname)
+    .readdirSync(assetsDirname, {recursive: true, encoding: 'utf8'})
     .filter(name => name.endsWith('.aseprite'))
     .map(name => path.resolve(assetsDirname, name))
-
   if (!aseFilenames.length) return
 
   const json = execFileSync(
