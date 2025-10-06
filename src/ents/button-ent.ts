@@ -131,7 +131,7 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
       this.#selected.sprite.z = this.#selected.z
     } else {
       invalid ||= this.#selected.z !== Layer.Hidden
-      this.#selected.z = Layer.Hidden
+      this.#selected.sprite.z = Layer.Hidden
     }
 
     v.input.handled ||= hitsCursor
