@@ -43,24 +43,24 @@ export class Game extends V.Void<Tag> {
   override onLoop(_millis: V.Millis): void {
     let render = this.#updateCam()
 
-    const updated = this.zoo.update(this)
+    let updated = this.zoo.update(this)
 
-    this.renderer.avoid = !this.#renderToggle.on && !V.debug?.invalid
+    this.renderer.always = this.#renderToggle.on || !!V.debug?.invalid
 
     if (this.#abc123?.looped) {
       this.#abc123.tag =
         this.#abc123.tag === 'abc123--123' ? 'abc123--ABC' : 'abc123--123'
       this.#abc123.w *= 3
       this.#abc123.h *= 3
-      render ||= !this.renderer.avoid
+      updated ||= this.renderer.always
     }
     if (V.debug?.input) this.#printInput()
 
     render ||=
       updated ||
       this.cam.invalid ||
-      !this.renderer.invalid ||
-      !this.renderer.avoid
+      this.renderer.invalid ||
+      this.renderer.always
     if (render) {
       this.#workCounter.incrementRender()
       this.renderer.clear(0xffffb1ff)

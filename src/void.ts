@@ -107,7 +107,7 @@ export class Void<
   }
 
   requestFrame(): void {
-    if (!this.renderer.avoid || this.input.anyOn || this.input.gamepad)
+    if (this.renderer.always || this.input.anyOn || this.input.gamepad)
       this.framer.requestFrame()
   }
 
