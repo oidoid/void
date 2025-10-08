@@ -1,7 +1,7 @@
 import * as V from '../index.ts'
 import atlasJSON from './atlas.json' with {type: 'json'}
 import {ClockEnt} from './ents/clock-ent.ts'
-import {InvalidateToggleEnt} from './ents/invalidate-toggle-ent.ts'
+import {RenderToggle} from './ents/render-toggle-ent.ts'
 import {WorkCounterEnt} from './ents/work-counter-ent.ts'
 import type {Tag} from './tag.ts'
 
@@ -9,8 +9,8 @@ export class Game extends V.Void<Tag> {
   #abc123?: V.Sprite<Tag>
   #filterSprites: V.Pool<V.Sprite<Tag>>
   #interval: number = 0
+  #renderToggle: RenderToggle
   #timer: number = 0
-  #invalidateToggle: InvalidateToggleEnt
   #workCounter: WorkCounterEnt
 
   constructor() {
@@ -25,7 +25,7 @@ export class Game extends V.Void<Tag> {
       allocBytes: V.drawableBytes,
       pageBlocks: 10
     })
-    this.#invalidateToggle = new InvalidateToggleEnt(this)
+    this.#renderToggle = new RenderToggle(this)
     this.#workCounter = new WorkCounterEnt()
     this.#initZoo()
   }
@@ -45,20 +45,22 @@ export class Game extends V.Void<Tag> {
 
     const updated = this.zoo.update(this)
 
+    this.renderer.avoid = !this.#renderToggle.on && !V.debug?.invalid
+
     if (this.#abc123?.looped) {
       this.#abc123.tag =
         this.#abc123.tag === 'abc123--123' ? 'abc123--ABC' : 'abc123--123'
       this.#abc123.w *= 3
       this.#abc123.h *= 3
+      render ||= !this.renderer.avoid
     }
     if (V.debug?.input) this.#printInput()
 
     render ||=
       updated ||
-      !!V.debug?.invalid ||
-      this.#invalidateToggle.on ||
       this.cam.invalid ||
-      this.renderer.invalid
+      !this.renderer.invalid ||
+      !this.renderer.avoid
     if (render) {
       this.#workCounter.incrementRender()
       this.renderer.clear(0xffffb1ff)
@@ -69,7 +71,7 @@ export class Game extends V.Void<Tag> {
       this.renderer.draw(this.#filterSprites)
     }
 
-    this.requestFrame(!V.debug?.invalid && !this.#invalidateToggle.on)
+    this.requestFrame()
   }
 
   #initZoo(): void {
@@ -109,7 +111,7 @@ export class Game extends V.Void<Tag> {
 
     this.zoo.add(
       new V.CursorEnt(this, 'cursor--Pointer'),
-      this.#invalidateToggle,
+      this.#renderToggle,
       new ClockEnt(),
       this.#workCounter,
       bg
@@ -133,12 +135,12 @@ export class Game extends V.Void<Tag> {
   #printInput(): void {
     if (this.input.started) {
       const on = !!this.input.on.length
-      if (on) console.debug(`[input] buttons on: ${this.input.on.join(' ')}`)
-      else console.debug(`[input] buttons off`)
+      if (on) console.debug(`[input] buttons on: ${this.input.on.join(' ')}.`)
+      else console.debug(`[input] buttons off.`)
       const combo = this.input.combo
       if (combo.length > 1 && on)
         console.debug(
-          `[input] combo: ${combo.map(set => set.join('+')).join(' ')}`
+          `[input] combo: ${combo.map(set => set.join('+')).join(' ')}.`
         )
     }
     if (
@@ -147,15 +149,15 @@ export class Game extends V.Void<Tag> {
       !this.input.point.pinch
     )
       console.debug(
-        `[input] ${this.input.point.drag.on ? 'drag' : 'click'} xy: ${this.input.point.x} ${this.input.point.y}`
+        `[input] ${this.input.point.drag.on ? 'drag' : 'click'} xy: ${this.input.point.x} ${this.input.point.y}.`
       )
     if (this.input.point?.pinch)
       console.debug(
-        `[input] pinch xy: ${this.input.point.pinch.xy.x} ${this.input.point.pinch.xy.y}`
+        `[input] pinch xy: ${this.input.point.pinch.xy.x} ${this.input.point.pinch.xy.y}.`
       )
     if (this.input.wheel)
       console.debug(
-        `[input] wheel xy: ${this.input.wheel.delta.xy.x} ${this.input.wheel.delta.xy.y}`
+        `[input] wheel xy: ${this.input.wheel.delta.xy.x} ${this.input.wheel.delta.xy.y}.`
       )
   }
 

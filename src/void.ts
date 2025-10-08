@@ -34,8 +34,8 @@ export class Void<
   readonly cam: Cam = new Cam()
   readonly canvas: HTMLCanvasElement
   readonly framer: Looper = new Looper()
-  readonly renderer: Renderer
   readonly input: Input<Button>
+  readonly renderer: Renderer
   readonly sprites: Pool<Sprite<Tag>>
   readonly zoo: Zoo<Tag> = new Zoo()
   readonly #atlasImageURI: string
@@ -106,8 +106,8 @@ export class Void<
     this.renderer.load(await fetchImage(this.#atlasImageURI))
   }
 
-  requestFrame(avoid: boolean): void {
-    if (!avoid || this.input.anyOn || this.input.gamepad)
+  requestFrame(): void {
+    if (!this.renderer.avoid || this.input.anyOn || this.input.gamepad)
       this.framer.requestFrame()
   }
 

@@ -14,6 +14,8 @@ type Context = {gl: GL2; spriteShader: Shader; viewport: WH}
 const uv: Readonly<Int8Array> = new Int8Array([1, 1, 0, 1, 1, 0, 0, 0])
 
 export class Renderer {
+  /** when on, ents should avoid requesting renders. */
+  avoid: boolean = true
   invalid: boolean = false
   loseContext: WEBGL_lose_context | undefined
   readonly #atlas: Readonly<Atlas>

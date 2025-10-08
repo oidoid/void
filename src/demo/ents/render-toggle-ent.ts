@@ -2,7 +2,7 @@ import * as V from '../../index.ts'
 import type {Game} from '../game.ts'
 import type {Tag} from '../tag.ts'
 
-export class InvalidateToggleEnt implements V.Ent {
+export class RenderToggle implements V.Ent {
   readonly #toggle: V.ButtonEnt<Tag, V.DefaultButton>
 
   constructor(v: Game) {
@@ -22,8 +22,8 @@ export class InvalidateToggleEnt implements V.Ent {
       },
       selected: {tag: 'background--OrangeCheckerboard'},
       toggle: true,
-      text: {text: 'invalidate', scale: 2},
-      w: 80,
+      text: {text: 'render', scale: 2},
+      w: 64,
       h: 22,
       x: 50,
       y: 25,
