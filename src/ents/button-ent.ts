@@ -108,7 +108,9 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
 
     const hitsCursor =
       !v.input.handled && !!v.zoo.cursor?.hits(v, this.#selected.sprite, 'UI')
-    const clickStarted = hitsCursor && v.input.isAnyOnStart('A', 'Click')
+    const clickStarted =
+      (hitsCursor && v.input.isOnStart('Click')) ||
+      (v.zoo.cursor?.keyboard && v.input.isOnStart('A'))
 
     const on = clickStarted
       ? this.#toggle
@@ -116,7 +118,7 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
         : true
       : this.#toggle
         ? this.on
-        : v.input.isAnyOn('A', 'Click')
+        : v.input.isOn('Click') || (v.zoo.cursor?.keyboard && v.input.isOn('A'))
     this.#started = this.on !== on
     if (this.#started) {
       this.#pressed.sprite.z = on ? this.#pressed.z : Layer.Hidden

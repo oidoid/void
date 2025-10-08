@@ -51,12 +51,6 @@ export class CursorEnt<out Tag extends TagFormat> implements Ent {
       return true
     }
 
-    if (v.input.invalid && !this.keyboard) {
-      const z = this.#sprite.z
-      this.#sprite.z = Layer.Hidden
-      return z !== Layer.Hidden
-    }
-
     if (this.keyboard && v.input.isAnyOn('L', 'R', 'U', 'D')) {
       const epsilon = 1
       if (v.input.isOn('L')) this.#sprite.x -= epsilon
