@@ -7,9 +7,9 @@ export type Argv = {
   posargs: string[]
 }
 
-export interface Opts {
-  [k: string]: string | undefined
-}
+/** string-string? map. Eg, `'--config'?: string | undefined` */
+// biome-ignore lint/suspicious/noEmptyInterface: declaration merging.
+export interface Opts {}
 
 export function Argv(argv: readonly string[]): Argv {
   const args = []

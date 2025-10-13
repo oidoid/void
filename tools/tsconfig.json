@@ -10,6 +10,6 @@
 
     "types": ["node"]
   },
-  "include": ["**/*"],
+  "include": ["**/*", "../schema/**/*"],
   "references": [{"path": "../src"}]
 }

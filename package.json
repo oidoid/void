@@ -45,7 +45,7 @@
   },
   "scripts": {
     "build": "tsc --build && npm run build:demo -- --minify",
-    "build:demo": "tools/void.ts --assets=src/demo/assets --entry=src/demo/index.html --out-dir=dist/public --out-image=dist/public/atlas.png --out-json=src/demo/atlas.json",
+    "build:demo": "tools/void.ts --config=src/demo/void.json",
     "clean": "rm -rf dist",
     "format": "npm run formatter -- --fix",
     "formatter": "biome check --error-on-warnings",
@@ -54,7 +54,7 @@
     "start": "tsc --build --preserveWatchOutput --watch& npm run build:demo -- --watch& wait",
     "test": "npm run test:format && npm run test:unit && npm run build",
     "test:format": "npm run formatter",
-    "test:unit": "sh -c 'node --experimental-test-coverage --test ${@:-$(find -name \\*.test.ts -printf %p\\ )}' --",
+    "test:unit": "sh -c 'node --experimental-test-coverage --test ${@:-$(find src schema tools -name \\*.test.ts -printf %p\\ )}' --",
     "version": "npm test"
   },
   "type": "module",

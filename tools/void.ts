@@ -9,23 +9,23 @@ import url from 'node:url'
 import type {BuildOptions} from 'esbuild'
 import esbuild from 'esbuild'
 import {JSDOM} from 'jsdom'
-import type {Millis} from '../src/index.ts'
+import {type ConfigFile, parseConfigFile} from '../schema/config-file.ts'
+import type {Millis} from '../src/types/time.ts'
 import {debounce} from '../src/utils/async-util.ts'
 import {Argv} from './argv.ts'
 import {parseAtlasJSON} from './atlas-json-parser/atlas-json-parser.ts'
 
-export interface Opts {
-  '--assets'?: string | undefined
-  '--entry'?: string | undefined
-  '--minify'?: '' | undefined
-  '--out-dir'?: string | undefined
-  '--out-image'?: string | undefined
-  '--out-json'?: string | undefined
-  // to-do: --single-file.
-  /**
-   * run development server on http://localhost:1234 and reload on code change.
-   */
-  '--watch'?: '' | undefined
+declare module './argv.ts' {
+  interface Opts {
+    '--config'?: string | undefined
+    '--minify'?: '' | undefined
+    // to-do: --single-file.
+    /**
+     * run development server on http://localhost:1234 and reload on code
+     * change.
+     */
+    '--watch'?: '' | undefined
+  }
 }
 
 const htmlNamespace: string = 'HTMLPlugin'
@@ -57,18 +57,18 @@ const htmlPlugin: esbuild.Plugin = {
 
 export async function build(args: readonly string[]): Promise<void> {
   const argv = Argv(args)
-  if (
-    !argv.opts['--assets'] ||
-    !argv.opts['--entry'] ||
-    !argv.opts['--out-dir'] ||
-    !argv.opts['--out-image'] ||
-    !argv.opts['--out-json']
-  )
-    throw Error('missing opt')
+  const config = parseConfigFile(argv.opts['--config'] ?? 'void.json')
+
   const minify = '--minify' in argv.opts
   const watch = '--watch' in argv.opts
 
-  const doc = (await JSDOM.fromFile(argv.opts['--entry'])).window.document
+  let doc
+  try {
+    doc = (await JSDOM.fromFile(config.entry)).window.document
+  } catch (_err) {
+    throw Error(`entry ${config.entry} unparsable`)
+  }
+
   // to-do: it's confusing to have this for some inputs and CLI args for other.
   //        even more confusing to say index.ts for script and preload is
   //        index.js.
@@ -85,43 +85,39 @@ export async function build(args: readonly string[]): Promise<void> {
         }
       : {},
     bundle: true,
-    entryPoints: [argv.opts['--entry'], ...srcFilenames],
+    entryPoints: [config.entry, ...srcFilenames],
     format: 'esm',
     logLevel: 'info', // print the port and build demarcations.
     metafile: true, // to-do: write meta.
     minify,
-    outdir: argv.opts['--out-dir'],
+    outdir: config.out,
     plugins: [htmlPlugin],
     sourcemap: 'linked',
     target: 'es2024', // https://esbuild.github.io/content-types/#tsconfig-json
     write: !watch
   }
 
-  packAtlas(
-    argv.opts['--assets'],
-    argv.opts['--out-image'],
-    argv.opts['--out-json']
-  )
+  packAtlas(config.atlas.assets, config.atlas.image, config.atlas.json)
   if (watch) {
-    fs.watch(argv.opts['--assets'], {recursive: true}, (ev, type) =>
-      onWatch(argv, ev, type)
+    fs.watch(config.atlas.assets, {recursive: true}, (ev, type) =>
+      onWatch(config, ev, type)
     )
     const ctx = await esbuild.context(opts)
     await Promise.all([
       ctx.watch(),
-      ctx.serve({port: 1234, servedir: argv.opts['--out-dir']})
+      ctx.serve({port: 1234, servedir: config.out})
     ])
   } else await esbuild.build(opts)
 }
 
 const onWatch = debounce(
-  (argv: Argv, ev: fs.WatchEventType, file: string | null) => {
+  (
+    config: Readonly<ConfigFile>,
+    ev: fs.WatchEventType,
+    file: string | null
+  ) => {
     console.log(`${file}: ${ev}`)
-    packAtlas(
-      argv.opts['--assets']!,
-      argv.opts['--out-image']!,
-      argv.opts['--out-json']!
-    )
+    packAtlas(config.atlas.assets, config.atlas.image, config.atlas.json)
   },
   500 as Millis
 )
@@ -131,10 +127,12 @@ export function packAtlas(
   outImageFilename: string,
   outJSONFilename: string
 ): void {
-  const aseFilenames = fs
-    .readdirSync(assetsDirname, {recursive: true, encoding: 'utf8'})
-    .filter(name => name.endsWith('.aseprite'))
-    .map(name => path.resolve(assetsDirname, name))
+  let aseFilenames
+  try {
+    aseFilenames = fs.globSync(path.join(assetsDirname, '**.aseprite'))
+  } catch (_err) {
+    throw Error(`assets dir ${assetsDirname} unreadable`)
+  }
   if (!aseFilenames.length) return
 
   const json = execFileSync(

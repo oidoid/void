@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schema/config-file.v0.json",
+  "atlas": {
+    "image": "../../dist/public/atlas.png",
+    "json": "atlas.json"
+  },
+  "entry": "index.html",
+  "out": "../../dist/public/"
+}

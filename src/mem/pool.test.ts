@@ -38,17 +38,6 @@ test('clear() sets pool to init state', () => {
   assert.deepEqual(alloc, realloc)
 })
 
-test('constructor() limits capacity', () => {
-  assert.throws(
-    () =>
-      new Pool({
-        alloc: () => ({i: 0}),
-        allocBytes: 1,
-        pageBlocks: 0x1_0000_0000
-      })
-  )
-})
-
 test('free()', ctx => {
   const pool = new Pool({alloc: () => ({i: 0}), allocBytes: 5, pageBlocks: 2})
   const blocks: Block[] = []

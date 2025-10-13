@@ -205,11 +205,13 @@ describe('parseAtlasJSON()', () => {
         duration: 65535
       }
     }
-    assert.throws(() =>
-      parseAtlasJSON({
-        meta: {frameTags, size: {w: 0, h: 0}, slices: []},
-        frames
-      })
+    assert.throws(
+      () =>
+        parseAtlasJSON({
+          meta: {frameTags, size: {w: 0, h: 0}, slices: []},
+          frames
+        }),
+      Error('atlas tag "scenery--Cloud" duplicate')
     )
   })
 })
@@ -273,7 +275,10 @@ describe('parseAnim()', () => {
       from: 0,
       to: 0
     }
-    assert.throws(() => parseAnim(16, frameTag, {}, []))
+    assert.throws(
+      () => parseAnim(16, frameTag, {}, []),
+      Error('no atlas frame "frog--walk--0"')
+    )
   })
 })
 
@@ -661,7 +666,10 @@ describe('parseHitboxes()', () => {
         ]
       }
     ]
-    assert.throws(() => parseHitboxes(span, slices))
+    assert.throws(
+      () => parseHitboxes(span, slices),
+      Error('atlas tag "stem--foo" hitbox bounds varies across frames')
+    )
   })
 
   test('defaults to undefined hitbox.', () => {
@@ -691,7 +699,10 @@ describe('parseHitboxes()', () => {
         keys: [{frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}}]
       }
     ]
-    assert.throws(() => parseHitboxes(span, slices))
+    assert.throws(
+      () => parseHitboxes(span, slices),
+      Error('atlas tag "stem--foo" hitbox color #ff00ffff unsupported')
+    )
   })
 
   test('throws on multiple hitboxes.', () => {
@@ -717,7 +728,10 @@ describe('parseHitboxes()', () => {
         keys: [{frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}}]
       }
     ]
-    assert.throws(() => parseHitboxes(span, slices))
+    assert.throws(
+      () => parseHitboxes(span, slices),
+      Error('atlas tag "stem--foo" hitbox bounds varies across frames')
+    )
   })
 
   test('throws on multiple hurtboxes.', () => {
@@ -743,7 +757,10 @@ describe('parseHitboxes()', () => {
         keys: [{frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}}]
       }
     ]
-    assert.throws(() => parseHitboxes(span, slices))
+    assert.throws(
+      () => parseHitboxes(span, slices),
+      Error('atlas tag "stem--foo" hitbox bounds varies across frames')
+    )
   })
 })
 

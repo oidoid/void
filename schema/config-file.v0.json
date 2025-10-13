@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/oidoid/void/refs/heads/main/schema/config-file.v0.json",
+  "title": "void Config File Schema",
+  "type": "object",
+  "description": "a JSON representation of a void config file.",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "the configuration schema URI.",
+      "default": "https://raw.githubusercontent.com/oidoid/void/refs/heads/main/schema/config-file.v0.json"
+    },
+    "atlas": {
+      "type": "object",
+      "description": "sprite sheet config.",
+      "additionalProperties": false,
+      "properties": {
+        "assets": {
+          "type": "string",
+          "description": "Aseprite asset root directory. all `**.aseprite` files are input.",
+          "default": "assets/"
+        },
+        "image": {
+          "type": "string",
+          "description": "sprite sheet image output.",
+          "default": "dist/public/atlas.png"
+        },
+        "json": {
+          "type": "string",
+          "description": "sprite sheet JSON output.",
+          "default": "dist/public/atlas.json"
+        }
+      }
+    },
+    "entry": {
+      "type": "string",
+      "default": "src/index.html",
+      "description": "HTML entrypoint input. the file should include a script tag sourcing the TypeScript / JavaScript entrypoint."
+    },
+    "out": {
+      "type": "string",
+      "description": "HTML and JavaScript output directory.",
+      "default": "dist/public/"
+    }
+  }
+}
