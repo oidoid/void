@@ -55,7 +55,8 @@ export class NinePatchEnt<Tag extends TagFormat> implements Ent {
     this.#dir.s.tag = opts.s?.tag ?? this.#dir.n.tag
 
     this.#dir.nw.tag = opts.nw?.tag ?? opts.se?.tag ?? opts.n.tag
-    this.#dir.ne.tag = opts.ne?.tag ?? opts.sw?.tag ?? opts.n.tag
+    this.#dir.ne.tag =
+      opts.ne?.tag ?? opts.sw?.tag ?? opts.nw?.tag ?? opts.n.tag
     this.#dir.se.tag = opts.se?.tag ?? this.#dir.nw.tag
     this.#dir.sw.tag = opts.sw?.tag ?? this.#dir.ne.tag
 

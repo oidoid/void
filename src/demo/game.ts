@@ -75,14 +75,17 @@ export class Game extends V.Void<Tag> {
   }
 
   #initZoo(): void {
-    const bg = new V.FollowCamEnt(
-      this,
-      'background--OrangeCheckerboard',
-      'Origin'
-    )
-    bg.w = 320
-    bg.h = 240
-    bg.z = V.Layer.Bottom
+    // to-do: why can I use follow cam ent with an ent?
+    const border = new V.NinePatchEnt<Tag>(this, {
+      n: {tag: 'background--Black'},
+      origin: {tag: 'background--Transparent'},
+      border: {n: 1},
+      z: V.Layer.UIA // to-do: default 0 layer is dumb.
+    })
+    this.zoo.add(border)
+    const box = this.cam.follow({w: 0, h: 0}, V.Layer.UIA, 'NW', {fill: 'XY'})
+    border.xy = box // to-do: use x, y, w, h everywhere so the interfaces align and I can just assing here.
+    border.wh = box
 
     this.#abc123 = this.sprites.alloc()
     this.#abc123.tag = 'abc123--ABC'
@@ -103,18 +106,16 @@ export class Game extends V.Void<Tag> {
     backpacker.w *= 5
     backpacker.h *= 5
 
-    const heart = this.sprites.alloc()
-    heart.tag = 'heart--Default'
-    heart.x = -400
-    heart.y = 0
-    heart.z = V.Layer.E
+    const oidoid = new V.FollowCamEnt(this, 'oidoid--Default', 'SW')
+    oidoid.z = V.Layer.UIG
+    oidoid.margin = {w: 4, h: 4}
 
     this.zoo.add(
       new V.CursorEnt(this, 'cursor--Pointer'),
       this.#renderToggle,
       new ClockEnt(),
       this.#workCounter,
-      bg
+      oidoid
     )
 
     const overlay = this.#filterSprites.alloc()
@@ -122,14 +123,6 @@ export class Game extends V.Void<Tag> {
     overlay.w = V.drawableMaxWH.w
     overlay.h = V.drawableMaxWH.h
     overlay.z = V.Layer.UIA
-
-    const oidoid = this.sprites.alloc()
-    oidoid.tag = 'oidoid--Default'
-    oidoid.x = 48
-    oidoid.y = 250
-    oidoid.z = V.Layer.Bottom
-    oidoid.flipX = true
-    oidoid.flipY = true
   }
 
   #printInput(): void {

@@ -48,6 +48,7 @@ export class Void<
 
     if (opts.minWH) this.cam.minWH = opts.minWH
     this.cam.mode = opts.mode ?? 'Int'
+    this.cam.update(this.canvas)
 
     this.input = new Input(this.cam, this.canvas)
     if (opts.input !== 'Custom') this.input.mapDefault()

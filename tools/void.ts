@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// void.ts [--assets=assets] [--entry=<index.html>] [--out-dir=<.>] [--out-image=<atlas.png>] [--out-json=<atlas.json>] [--watch]
+// void.ts --config=<void.json> [--minify] [--watch]
 // compiles images into an atlas and bundles an HTML entrypoint.
 
 import {execFileSync} from 'node:child_process'
@@ -65,13 +65,13 @@ export async function build(args: readonly string[]): Promise<void> {
   let doc
   try {
     doc = (await JSDOM.fromFile(config.entry)).window.document
-  } catch (_err) {
-    throw Error(`entry ${config.entry} unparsable`)
+  } catch (err) {
+    throw Error(`entry ${config.entry} unparsable`, {cause: err})
   }
 
   // to-do: it's confusing to have this for some inputs and CLI args for other.
   //        even more confusing to say index.ts for script and preload is
-  //        index.js.
+  //        index.js. how does this shape up with single-file?
   const srcFilenames = [
     ...doc.querySelectorAll<HTMLScriptElement>(
       "script[type='module'][src$='.ts']"
@@ -130,8 +130,8 @@ export function packAtlas(
   let aseFilenames
   try {
     aseFilenames = fs.globSync(path.join(assetsDirname, '**.aseprite'))
-  } catch (_err) {
-    throw Error(`assets dir ${assetsDirname} unreadable`)
+  } catch (err) {
+    throw Error(`assets dir ${assetsDirname} unreadable`, {cause: err})
   }
   if (!aseFilenames.length) return
 

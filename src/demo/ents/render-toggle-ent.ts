@@ -2,6 +2,7 @@ import * as V from '../../index.ts'
 import type {Game} from '../game.ts'
 import type {Tag} from '../tag.ts'
 
+// to-do: follow cam sw.
 export class RenderToggle implements V.Ent {
   readonly #toggle: V.ButtonEnt<Tag, V.DefaultButton>
 
