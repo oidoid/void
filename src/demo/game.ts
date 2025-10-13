@@ -1,15 +1,14 @@
 import * as V from '../index.ts'
 import atlasJSON from './atlas.json' with {type: 'json'}
 import {ClockEnt} from './ents/clock-ent.ts'
-import {RenderToggle} from './ents/render-toggle-ent.ts'
+import {RenderToggleEnt} from './ents/render-toggle-ent.ts'
 import {WorkCounterEnt} from './ents/work-counter-ent.ts'
 import type {Tag} from './tag.ts'
 
 export class Game extends V.Void<Tag> {
-  #abc123?: V.Sprite<Tag>
   #filterSprites: V.Pool<V.Sprite<Tag>>
   #interval: number = 0
-  #renderToggle: RenderToggle
+  #renderToggle: RenderToggleEnt
   #timer: number = 0
   #workCounter: WorkCounterEnt
 
@@ -25,7 +24,7 @@ export class Game extends V.Void<Tag> {
       allocBytes: V.drawableBytes,
       pageBlocks: 10
     })
-    this.#renderToggle = new RenderToggle(this)
+    this.#renderToggle = new RenderToggleEnt(this)
     this.#workCounter = new WorkCounterEnt()
     this.#initZoo()
   }
@@ -41,19 +40,12 @@ export class Game extends V.Void<Tag> {
   }
 
   override onLoop(_millis: V.Millis): void {
-    let render = this.#updateCam()
-
-    let updated = this.zoo.update(this)
-
     this.renderer.always = this.#renderToggle.on || !!V.debug?.invalid
 
-    if (this.#abc123?.looped) {
-      this.#abc123.tag =
-        this.#abc123.tag === 'abc123--123' ? 'abc123--ABC' : 'abc123--123'
-      this.#abc123.w *= 3
-      this.#abc123.h *= 3
-      updated ||= this.renderer.always
-    }
+    let render = this.#updateCam()
+
+    const updated = this.zoo.update(this)
+
     if (V.debug?.input) this.#printInput()
 
     render ||=
@@ -86,16 +78,6 @@ export class Game extends V.Void<Tag> {
     const box = this.cam.follow({w: 0, h: 0}, V.Layer.UIA, 'NW', {fill: 'XY'})
     border.xy = box // to-do: use x, y, w, h everywhere so the interfaces align and I can just assing here.
     border.wh = box
-
-    this.#abc123 = this.sprites.alloc()
-    this.#abc123.tag = 'abc123--ABC'
-    this.#abc123.cel = 10
-    this.#abc123.x = 200
-    this.#abc123.y = 100
-    this.#abc123.z = V.Layer.A
-    this.#abc123.stretch = true
-    this.#abc123.w *= 3
-    this.#abc123.h *= 3
 
     const backpacker = this.sprites.alloc()
     backpacker.tag = 'backpacker--WalkRight'

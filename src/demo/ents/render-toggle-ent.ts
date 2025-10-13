@@ -3,22 +3,19 @@ import type {Game} from '../game.ts'
 import type {Tag} from '../tag.ts'
 
 // to-do: follow cam sw.
-export class RenderToggle implements V.Ent {
+export class RenderToggleEnt implements V.Ent {
   readonly #toggle: V.ButtonEnt<Tag, V.DefaultButton>
 
   constructor(v: Game) {
     this.#toggle = new V.ButtonEnt(v, {
       button: {
         w: {tag: 'background--Strawberry'},
-        nw: {tag: 'background--Cyan'},
+        nw: {tag: 'background--Transparent'},
         n: {tag: 'background--Bubblegum'},
-        ne: {tag: 'background--Cucumber'},
         e: {tag: 'background--Blueberry'},
         s: {tag: 'background--Kiwi'},
-        se: {tag: 'background--Mustard'},
-        sw: {tag: 'background--Squash'},
         origin: {tag: 'background--Grape'},
-        border: {n: 2},
+        border: {n: 1},
         margin: {w: 2, h: 2}
       },
       selected: {tag: 'background--OrangeCheckerboard'},
