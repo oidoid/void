@@ -88,7 +88,7 @@ export async function build(args: readonly string[]): Promise<void> {
     entryPoints: [config.entry, ...srcFilenames],
     format: 'esm',
     logLevel: 'info', // print the port and build demarcations.
-    metafile: true, // to-do: write meta.
+    metafile: true,
     minify,
     outdir: config.out,
     plugins: [htmlPlugin],
@@ -107,7 +107,11 @@ export async function build(args: readonly string[]): Promise<void> {
       ctx.watch(),
       ctx.serve({port: 1234, servedir: config.out})
     ])
-  } else await esbuild.build(opts)
+  } else {
+    const build = await esbuild.build(opts)
+    if (config.meta)
+      fs.writeFileSync(config.meta, JSON.stringify(build.metafile))
+  }
 }
 
 const onWatch = debounce(

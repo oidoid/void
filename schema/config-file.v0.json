@@ -38,6 +38,11 @@
       "default": "src/index.html",
       "description": "HTML entrypoint input. the file should include a script tag sourcing the TypeScript / JavaScript entrypoint."
     },
+    "meta": {
+      "type": "string",
+      "default": "dist/meta.json",
+      "description": "esbuild bundle metadata file output."
+    },
     "out": {
       "type": "string",
       "description": "HTML and JavaScript output directory.",

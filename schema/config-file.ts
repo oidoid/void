@@ -6,14 +6,22 @@ export type ConfigFile = {
   $schema: string
   atlas: {assets: string; image: string; json: string}
   entry: string
+  meta: string | undefined
   out: string
 }
 
 export type ConfigFileSchema = {
-  $schema?: string
-  atlas?: {assets?: string; image?: string; json?: string}
-  entry?: string
-  out?: string
+  $schema?: string | undefined
+  atlas?:
+    | {
+        assets?: string | undefined
+        image?: string | undefined
+        json?: string | undefined
+      }
+    | undefined
+  entry?: string | undefined
+  meta?: string | undefined
+  out?: string | undefined
 }
 
 export function parseConfigFile(filename: string): ConfigFile {
@@ -54,6 +62,7 @@ export function parse(filename: string, str: string): ConfigFile {
       )
     },
     entry: path.join(dirname, json.entry ?? schema.properties.entry.default),
+    meta: path.join(dirname, json.meta ?? schema.properties.meta.default),
     out: path.join(dirname, json.out ?? schema.properties.out.default)
   }
 }

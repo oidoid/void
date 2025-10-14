@@ -15,6 +15,7 @@ test('defaults', () => {
         json: 'dirname/dist/public/atlas.json'
       },
       entry: 'dirname/src/index.html',
+      meta: 'dirname/dist/meta.json',
       out: 'dirname/dist/public/'
     }
   )
@@ -25,6 +26,7 @@ test('overrides', () => {
     $schema: '$schema',
     atlas: {assets: 'assets', image: 'image', json: 'json'},
     entry: 'entry',
+    meta: 'meta',
     out: 'out'
   }
   assert.deepEqual<ConfigFile>(
@@ -37,6 +39,7 @@ test('overrides', () => {
         json: 'dirname/json'
       },
       entry: 'dirname/entry',
+      meta: 'dirname/meta',
       out: 'dirname/out'
     }
   )
