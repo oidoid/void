@@ -9,6 +9,7 @@ import url from 'node:url'
 import type {BuildOptions} from 'esbuild'
 import esbuild from 'esbuild'
 import {JSDOM} from 'jsdom'
+import packageJSON from '../package.json' with {type: 'json'}
 import {type ConfigFile, parseConfigFile} from '../schema/config-file.ts'
 import type {Millis} from '../src/types/time.ts'
 import {debounce} from '../src/utils/async-util.ts'
@@ -85,6 +86,11 @@ export async function build(args: readonly string[]): Promise<void> {
         }
       : {},
     bundle: true,
+    define: {
+      // imported JSON doesn't treeshake. define as a constant.
+      voidPublished: JSON.stringify(packageJSON.published),
+      voidVersion: JSON.stringify(packageJSON.version)
+    },
     entryPoints: [config.entry, ...srcFilenames],
     format: 'esm',
     logLevel: 'info', // print the port and build demarcations.

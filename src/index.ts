@@ -1,5 +1,3 @@
-import packageJSON from '../package.json' with {type: 'json'}
-
 export {type Font, memProp5x6} from 'mem-font'
 export * from './ents/button-ent.ts'
 export * from './ents/cursor-ent.ts'
@@ -29,4 +27,4 @@ export * from './utils/dom-util.ts'
 export * from './utils/fetch-util.ts'
 export * from './void.ts'
 
-export const version: string = `${packageJSON.version}+${packageJSON.published}`
+export const version: string = `${voidVersion}+${voidPublished}`
