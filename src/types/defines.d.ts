@@ -1,6 +1,6 @@
 /** constants set by esbuild. */
 
 /** package.json `published`. */
-declare const voidPublished: string
+declare var voidPublished: string
 /** package.json `version`. */
-declare const voidVersion: string
+declare var voidVersion: string

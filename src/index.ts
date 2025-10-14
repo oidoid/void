@@ -27,4 +27,4 @@ export * from './utils/dom-util.ts'
 export * from './utils/fetch-util.ts'
 export * from './void.ts'
 
-export const version: string = `${voidVersion}+${voidPublished}`
+export const version: string = `${globalThis.voidVersion}+${globalThis.voidPublished}`

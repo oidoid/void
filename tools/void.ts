@@ -88,8 +88,8 @@ export async function build(args: readonly string[]): Promise<void> {
     bundle: true,
     define: {
       // imported JSON doesn't treeshake. define as a constant.
-      voidPublished: JSON.stringify(packageJSON.published),
-      voidVersion: JSON.stringify(packageJSON.version)
+      'globalThis.voidPublished': JSON.stringify(packageJSON.published),
+      'globalThis.voidVersion': JSON.stringify(packageJSON.version)
     },
     entryPoints: [config.entry, ...srcFilenames],
     format: 'esm',
