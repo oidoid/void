@@ -1,4 +1,4 @@
-import {readFileSync} from 'node:fs'
+import {readFile} from 'node:fs/promises'
 import path from 'node:path'
 import schema from './config-file.v0.json' with {type: 'json'}
 
@@ -24,10 +24,10 @@ export type ConfigFileSchema = {
   out?: string | undefined
 }
 
-export function parseConfigFile(filename: string): ConfigFile {
+export async function parseConfigFile(filename: string): Promise<ConfigFile> {
   let str
   try {
-    str = readFileSync(filename, 'utf8')
+    str = await readFile(filename, 'utf8')
   } catch (err) {
     throw Error(`config ${filename} unreadable`, {cause: err})
   }

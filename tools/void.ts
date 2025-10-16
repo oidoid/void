@@ -2,10 +2,11 @@
 // void.ts --config=<void.json> [--minify] [--watch]
 // compiles images into an atlas and bundles an HTML entrypoint.
 
-import {execFileSync} from 'node:child_process'
+import {execFile} from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 import url from 'node:url'
+import util from 'node:util'
 import esbuild from 'esbuild'
 import {JSDOM} from 'jsdom'
 import packageJSON from '../package.json' with {type: 'json'}
@@ -58,7 +59,7 @@ const htmlPlugin: esbuild.Plugin = {
 
 export async function build(args: readonly string[]): Promise<void> {
   const argv = Argv(args)
-  const config = parseConfigFile(argv.opts['--config'] ?? 'void.json')
+  const config = await parseConfigFile(argv.opts['--config'] ?? 'void.json')
 
   const minify = '--minify' in argv.opts
   const watch = '--watch' in argv.opts
@@ -80,9 +81,7 @@ export async function build(args: readonly string[]): Promise<void> {
   ].map(el => url.fileURLToPath(el.src))
 
   const version: Version = {
-    hash: execFileSync('git', ['rev-parse', '--short', 'HEAD'], {
-      encoding: 'utf8'
-    }).trim(),
+    hash: (await exec('git', 'rev-parse', '--short', 'HEAD')).trim(),
     published: packageJSON.published,
     // imported JSON doesn't treeshake. define as a constant.
     version: packageJSON.version
@@ -111,7 +110,7 @@ export async function build(args: readonly string[]): Promise<void> {
     write: !watch
   }
 
-  packAtlas(config.atlas.assets, config.atlas.image, config.atlas.json)
+  await packAtlas(config.atlas.assets, config.atlas.image, config.atlas.json)
   if (watch) {
     fs.watch(config.atlas.assets, {recursive: true}, (ev, type) =>
       onWatch(config, ev, type)
@@ -124,27 +123,27 @@ export async function build(args: readonly string[]): Promise<void> {
   } else {
     const build = await esbuild.build(opts)
     if (config.meta)
-      fs.writeFileSync(config.meta, JSON.stringify(build.metafile))
+      await fs.promises.writeFile(config.meta, JSON.stringify(build.metafile))
   }
 }
 
 const onWatch = debounce(
-  (
+  async (
     config: Readonly<ConfigFile>,
     ev: fs.WatchEventType,
     file: string | null
   ) => {
     console.log(`${file}: ${ev}`)
-    packAtlas(config.atlas.assets, config.atlas.image, config.atlas.json)
+    await packAtlas(config.atlas.assets, config.atlas.image, config.atlas.json)
   },
   500 as Millis
 )
 
-export function packAtlas(
+export async function packAtlas(
   assetsDirname: string,
   outImageFilename: string,
   outJSONFilename: string
-): void {
+): Promise<void> {
   let aseFilenames
   try {
     aseFilenames = fs.globSync(path.join(assetsDirname, '**.aseprite'))
@@ -153,28 +152,31 @@ export function packAtlas(
   }
   if (!aseFilenames.length) return
 
-  const json = execFileSync(
+  const json = await exec(
     'aseprite',
-    [
-      '--batch',
-      '--color-mode=indexed',
-      '--filename-format={title}--{tag}--{frame}',
-      '--list-slices',
-      '--list-tags',
-      '--merge-duplicates',
-      `--sheet=${outImageFilename}`,
-      '--sheet-pack',
-      '--tagname-format={title}--{tag}',
-      ...aseFilenames
-    ],
-    {encoding: 'utf8'}
+    '--batch',
+    '--color-mode=indexed',
+    '--filename-format={title}--{tag}--{frame}',
+    '--list-slices',
+    '--list-tags',
+    '--merge-duplicates',
+    `--sheet=${outImageFilename}`,
+    '--sheet-pack',
+    '--tagname-format={title}--{tag}',
+    ...aseFilenames
   )
-  fs.writeFileSync(
+  await fs.promises.writeFile(
     outJSONFilename,
     JSON.stringify(parseAtlasJSON(JSON.parse(json)))
   )
 
-  execFileSync('biome', ['check', '--fix', outJSONFilename], {encoding: 'utf8'})
+  await exec('biome', 'check', '--fix', outJSONFilename)
+}
+
+async function exec(exe: string, ...args: readonly string[]): Promise<string> {
+  const {stdout, stderr} = await util.promisify(execFile)(exe, args)
+  process.stderr.write(stderr)
+  return stdout
 }
 
 if (import.meta.main) build(process.argv)
