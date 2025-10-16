@@ -93,6 +93,7 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
     return this.#pressed.sprite.z !== Layer.Hidden
   }
 
+  // to-do: offStart() for pointer up listen? would need a boundary check too.
   get onStart(): boolean {
     return this.on && this.#started
   }
