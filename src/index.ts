@@ -1,3 +1,5 @@
+import {version as _version} from './types/version.ts'
+
 export {type Font, memProp5x6} from 'mem-font'
 export * from './ents/button-ent.ts'
 export * from './ents/cursor-ent.ts'
@@ -27,4 +29,6 @@ export * from './utils/dom-util.ts'
 export * from './utils/fetch-util.ts'
 export * from './void.ts'
 
-export const version: string = `${globalThis.voidVersion}+${globalThis.voidPublished}`
+export const version: string = _version
+  ? `${_version.version}+${_version.published}.${_version.hash}`
+  : '?'

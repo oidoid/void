@@ -6,12 +6,12 @@ import {execFileSync} from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 import url from 'node:url'
-import type {BuildOptions} from 'esbuild'
 import esbuild from 'esbuild'
 import {JSDOM} from 'jsdom'
 import packageJSON from '../package.json' with {type: 'json'}
 import {type ConfigFile, parseConfigFile} from '../schema/config-file.ts'
 import type {Millis} from '../src/types/time.ts'
+import type {Version} from '../src/types/version.ts'
 import {debounce} from '../src/utils/async-util.ts'
 import {Argv} from './argv.ts'
 import {parseAtlasJSON} from './atlas-json-parser/atlas-json-parser.ts'
@@ -79,7 +79,16 @@ export async function build(args: readonly string[]): Promise<void> {
     )
   ].map(el => url.fileURLToPath(el.src))
 
-  const opts: BuildOptions = {
+  const version: Version = {
+    hash: execFileSync('git', ['rev-parse', '--short', 'HEAD'], {
+      encoding: 'utf8'
+    }).trim(),
+    published: packageJSON.published,
+    // imported JSON doesn't treeshake. define as a constant.
+    version: packageJSON.version
+  }
+
+  const opts: esbuild.BuildOptions = {
     banner: watch
       ? {
           js: "new EventSource('/esbuild').addEventListener('change', () => location.reload());"
@@ -87,9 +96,8 @@ export async function build(args: readonly string[]): Promise<void> {
       : {},
     bundle: true,
     define: {
-      // imported JSON doesn't treeshake. define as a constant.
-      'globalThis.voidPublished': JSON.stringify(packageJSON.published),
-      'globalThis.voidVersion': JSON.stringify(packageJSON.version)
+      // define on globalThis to avoid ReferenceError in unit tests.
+      'globalThis.voidVersion': JSON.stringify(version)
     },
     entryPoints: [config.entry, ...srcFilenames],
     format: 'esm',
