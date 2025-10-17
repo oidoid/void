@@ -117,7 +117,7 @@ export class Void<
       this.framer.requestFrame()
   }
 
-  [Symbol.dispose](): void {
-    this.register('remove')
+  async [Symbol.asyncDispose](): Promise<void> {
+    await this.register('remove')
   }
 }

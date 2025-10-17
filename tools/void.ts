@@ -179,4 +179,4 @@ async function exec(exe: string, ...args: readonly string[]): Promise<string> {
   return stdout
 }
 
-if (import.meta.main) build(process.argv)
+if (import.meta.main) await build(process.argv)

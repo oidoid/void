@@ -18,7 +18,13 @@
   },
   "json": {"parser": {"allowComments": true}},
   "linter": {
+    "domains": {"project": "all"},
     "rules": {
+      "nursery": {
+        "noFloatingPromises": "error",
+        "noMisusedPromises": "error",
+        "recommended": true
+      },
       "performance": {"noDelete": "off"},
       "complexity": {"noThisInStatic": "off"},
       "style": {
