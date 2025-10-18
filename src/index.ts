@@ -1,4 +1,3 @@
-import './types/bytes.d.ts'
 import {version as _version} from './types/version.ts'
 
 export {type Font, memProp5x6} from 'mem-font'

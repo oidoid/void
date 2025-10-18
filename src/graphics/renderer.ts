@@ -19,7 +19,7 @@ export class Renderer {
   invalid: boolean = false
   loseContext: WEBGL_lose_context | undefined
   readonly #preloadAtlas: Readonly<Atlas>
-  #preloadAtlasImage: Readonly<ArrayBufferView<ArrayBufferLike>> | undefined
+  #preloadAtlasImage: Readonly<HTMLImageElement> | undefined
   readonly #canvas: HTMLCanvasElement
   #clearRGBA: number = 0
   #ctx: Context | undefined
@@ -71,9 +71,7 @@ export class Renderer {
     this.invalid = false
   }
 
-  load(
-    preloadAtlas: Readonly<ArrayBufferView<ArrayBufferLike>> | undefined
-  ): void {
+  load(preloadAtlas: Readonly<HTMLImageElement> | undefined): void {
     this.#preloadAtlasImage = preloadAtlas
     this.#ctx = this.#Context()
   }
@@ -167,17 +165,11 @@ export class Renderer {
     gl.bindTexture(gl.TEXTURE_2D, shader.textures[0]!)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-
-    const w = 70
-    const h = 80 // to-do: fish out of PNG header or put in Atlas.
     if (this.#preloadAtlasImage)
       gl.texImage2D(
         gl.TEXTURE_2D,
         0,
         gl.RGBA,
-        w,
-        h,
-        0,
         gl.RGBA,
         gl.UNSIGNED_BYTE,
         this.#preloadAtlasImage
@@ -204,7 +196,12 @@ export class Renderer {
 
     gl.uniform1i(shader.uniform.uTex!, 0)
     gl.uniform1i(shader.uniform.uCels!, 1)
-    if (this.#preloadAtlasImage) gl.uniform2ui(shader.uniform.uTexWH!, w, h)
+    if (this.#preloadAtlasImage)
+      gl.uniform2ui(
+        shader.uniform.uTexWH!,
+        this.#preloadAtlasImage.naturalWidth,
+        this.#preloadAtlasImage.naturalHeight
+      )
 
     this.invalid = true
     // keep outside of #context so it can be restored.

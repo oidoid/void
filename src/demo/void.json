@@ -5,7 +5,7 @@
   "out": "../../dist/public/",
   "preloadAtlas": {
     "dir": "assets/",
-    "image": "preload.png",
+    "image": "../../dist/public/preload.png",
     "json": "preload.json"
   }
 }

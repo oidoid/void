@@ -2,16 +2,8 @@ import * as V from '../index.ts'
 import {ClockEnt} from './ents/clock-ent.ts'
 import {RenderToggleEnt} from './ents/render-toggle-ent.ts'
 import {WorkCounterEnt} from './ents/work-counter-ent.ts'
-import preloadJSON from './preload.json' with {type: 'json'}
-import preloadImage from './preload.png' with {type: 'bytes'}
+import preloadAtlasJSON from './preload.json' with {type: 'json'}
 import type {Tag} from './tag.ts'
-import {renderDelayMillis} from './utils/render.ts'
-
-const view = new DataView(preloadImage.buffer, 0, 24)
-const width = view.getUint32(16)
-const height = view.getUint32(20)
-console.log('size:', `${width}\xD7${height}`)
-console.log('len:', `${preloadImage.buffer.byteLength}`)
 
 export class Game extends V.Void<Tag> {
   #filterSprites: V.Pool<V.Sprite<Tag>>
@@ -22,7 +14,10 @@ export class Game extends V.Void<Tag> {
 
   constructor() {
     super({
-      preloadAtlas: {image: preloadImage, json: preloadJSON},
+      preloadAtlas: {
+        image: document.querySelector('#preload-atlas')!,
+        json: preloadAtlasJSON
+      },
       backgroundRGBA: 0xffffb1ff,
       minWH: {w: 320, h: 240}
     })
@@ -184,4 +179,20 @@ export class Game extends V.Void<Tag> {
 
     return render
   }
+}
+
+/**
+ * returns [0, 59_999].
+ * @internal
+ */
+export function renderDelayMillis(
+  time: Readonly<Date>,
+  debugSecs: string | undefined
+): number {
+  return (
+    ((debugSecs ? 0 : (59 - (time.getSeconds() % 60)) * 1000) +
+      1000 -
+      (time.getMilliseconds() % 1000)) %
+    (debugSecs ? 1000 : 60_000)
+  )
 }

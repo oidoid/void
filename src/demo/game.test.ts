@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import {renderDelayMillis} from './render.ts'
+import {renderDelayMillis} from './game.ts'
 
 for (const [debugSeconds, millis, delay] of [
   [undefined, 0, 0],
