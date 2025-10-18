@@ -33,7 +33,7 @@ export function HTMLPlugin(
 
         if (argv.opts['--one-file']) {
           const imgs = doc.querySelectorAll<HTMLImageElement>(
-            "img#atlas[src$='.png']"
+            "img#preload-atlas[src$='.png']"
           ) // to-do: multi-atlas support.
           for (const img of imgs) {
             const filename = img.getAttribute('src')!

@@ -26,8 +26,8 @@
   },
   "files": [
     "dist",
-    "tools/atlas-parser/atlas-parser.ts",
-    "tools/void.ts",
+    "tools",
+    "!tools/tsconfig*",
     "!**/tsconfig.tsbuildinfo"
   ],
   "homepage": "https://github.com/oidoid/void",

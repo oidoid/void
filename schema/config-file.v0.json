@@ -4,34 +4,37 @@
   "title": "void Config File Schema",
   "type": "object",
   "description": "a JSON representation of a void config file.",
+  "$defs": {
+    "Atlas": {
+      "type": "object",
+      "description": "sprite sheet config.",
+      "additionalProperties": false,
+      "required": ["dir", "image", "json"],
+      "properties": {
+        "dir": {
+          "type": "string",
+          "description": "Aseprite asset root directory. all `**.aseprite` files are input.",
+          "examples": ["assets/", "./"]
+        },
+        "image": {
+          "type": "string",
+          "description": "sprite sheet image output.",
+          "examples": ["dist/public/atlas.png", "atlas.png"]
+        },
+        "json": {
+          "type": "string",
+          "description": "sprite sheet JSON output.",
+          "examples": ["src/atlas.json", "atlas.json"]
+        }
+      }
+    }
+  },
   "additionalProperties": false,
   "properties": {
     "$schema": {
       "type": "string",
       "description": "the configuration schema URI.",
       "default": "https://raw.githubusercontent.com/oidoid/void/refs/heads/main/schema/config-file.v0.json"
-    },
-    "atlas": {
-      "type": "object",
-      "description": "sprite sheet config.",
-      "additionalProperties": false,
-      "properties": {
-        "assets": {
-          "type": "string",
-          "description": "Aseprite asset root directory. all `**.aseprite` files are input.",
-          "default": "assets/"
-        },
-        "image": {
-          "type": "string",
-          "description": "sprite sheet image output.",
-          "default": "dist/public/atlas.png"
-        },
-        "json": {
-          "type": "string",
-          "description": "sprite sheet JSON output.",
-          "default": "dist/public/atlas.json"
-        }
-      }
     },
     "entry": {
       "type": "string",
@@ -47,6 +50,7 @@
       "type": "string",
       "description": "HTML and JavaScript output directory.",
       "default": "dist/public/"
-    }
+    },
+    "preloadAtlas": {"$ref": "#/$defs/Atlas"}
   }
 }

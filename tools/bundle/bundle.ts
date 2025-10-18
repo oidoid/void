@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import esbuild from 'esbuild'
-import type {ConfigFile} from '../../schema/config-file.ts'
+import type {AtlasConfig, ConfigFile} from '../../schema/config-file.ts'
 import type {Millis} from '../../src/types/time.ts'
 import type {Version} from '../../src/types/version.ts'
 import {debounce} from '../../src/utils/async-util.ts'
@@ -36,10 +36,10 @@ export async function bundle(
     target: 'es2024' // https://esbuild.github.io/content-types/#tsconfig-json
   }
 
-  await packAtlas(config.atlas.assets, config.atlas.image, config.atlas.json)
-  if (argv.opts['--watch']) {
-    fs.watch(config.atlas.assets, {recursive: true}, (ev, type) =>
-      onWatch(config, ev, type)
+  if (config.preloadAtlas) await packAtlas(config.preloadAtlas)
+  if (config.preloadAtlas && argv.opts['--watch']) {
+    fs.watch(config.preloadAtlas.dir, {recursive: true}, (ev, type) =>
+      onWatch(config.preloadAtlas!, ev, type)
     )
     const ctx = await esbuild.context(opts)
     await Promise.all([
@@ -55,12 +55,12 @@ export async function bundle(
 
 const onWatch = debounce(
   async (
-    config: Readonly<ConfigFile>,
+    config: Readonly<AtlasConfig>,
     ev: fs.WatchEventType,
     file: string | null
   ) => {
-    console.log(`${file}: ${ev}`)
-    await packAtlas(config.atlas.assets, config.atlas.image, config.atlas.json)
+    console.log(`asset ${file} ${ev}`)
+    await packAtlas(config)
   },
   500 as Millis
 )

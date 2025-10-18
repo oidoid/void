@@ -15,8 +15,7 @@ import {initBody, initMetaViewport} from './utils/dom-util.ts'
 import {loadImage} from './utils/fetch-util.ts'
 
 export type VoidOpts<out Tag extends TagFormat> = {
-  atlasImage?: HTMLImageElement | undefined
-  atlasJSON: AtlasJSON
+  preloadAtlas?: {image: HTMLImageElement; json: AtlasJSON} | undefined
   backgroundRGBA?: number
   canvas?: HTMLCanvasElement | undefined
   minWH?: WH | undefined
@@ -31,16 +30,16 @@ export class Void<
   out Tag extends TagFormat,
   Button extends string = DefaultButton
 > {
-  readonly atlas: Atlas
   readonly cam: Cam = new Cam()
   readonly canvas: HTMLCanvasElement
   readonly framer: Looper = new Looper()
   readonly input: Input<Button>
+  readonly preload: Atlas
   readonly renderer: Renderer
   readonly sprites: Pool<Sprite<Tag>>
   readonly zoo: Zoo<Tag> = new Zoo()
-  #atlasImage: HTMLImageElement
   readonly #pixelRatioObserver: PixelRatioObserver = new PixelRatioObserver()
+  readonly #preloadAtlasImage: HTMLImageElement | undefined
   readonly #resizeObserver = new ResizeObserver(() => this.onResize())
 
   constructor(opts: Readonly<VoidOpts<Tag>>) {
@@ -58,13 +57,13 @@ export class Void<
 
     this.#pixelRatioObserver.onChange = () => this.onResize()
 
-    const atlasImage = opts.atlasImage ?? document.querySelector('img#atlas')
-    if (!(atlasImage instanceof HTMLImageElement)) throw Error(`no atlas image`)
-    this.#atlasImage = atlasImage
+    if (opts.preloadAtlas) this.#preloadAtlasImage = opts.preloadAtlas.image
 
-    this.atlas = parseAtlas(opts.atlasJSON)
+    this.preload = opts.preloadAtlas
+      ? parseAtlas(opts.preloadAtlas.json)
+      : {anim: {}, celXYWH: [], tags: []}
 
-    this.renderer = new Renderer(this.atlas, this.canvas)
+    this.renderer = new Renderer(this.preload ?? {}, this.canvas)
 
     this.sprites = new Pool<Sprite<Tag>>({
       alloc: pool => this.onAllocSprite(pool),
@@ -77,7 +76,7 @@ export class Void<
   }
 
   onAllocSprite(pool: Pool<Sprite<TagFormat>>): Sprite<Tag> {
-    return new Sprite(pool, 0, this.atlas, this.framer)
+    return new Sprite(pool, 0, this.preload, this.framer)
   }
 
   onEvent(): void {
@@ -112,7 +111,8 @@ export class Void<
 
     this.framer.requestFrame()
 
-    this.renderer.load(await loadImage(this.#atlasImage))
+    if (this.#preloadAtlasImage) await loadImage(this.#preloadAtlasImage)
+    this.renderer.load(this.#preloadAtlasImage)
   }
 
   requestFrame(): void {

@@ -18,14 +18,14 @@ export class Renderer {
   always: boolean = false
   invalid: boolean = false
   loseContext: WEBGL_lose_context | undefined
-  readonly #atlas: Readonly<Atlas>
-  #atlasImage?: Readonly<HTMLImageElement>
+  readonly #preloadAtlas: Readonly<Atlas>
+  #preloadAtlasImage: Readonly<HTMLImageElement> | undefined
   readonly #canvas: HTMLCanvasElement
   #clearRGBA: number = 0
   #ctx: Context | undefined
 
-  constructor(atlas: Readonly<Atlas>, canvas: HTMLCanvasElement) {
-    this.#atlas = atlas
+  constructor(preloadAtlas: Readonly<Atlas>, canvas: HTMLCanvasElement) {
+    this.#preloadAtlas = preloadAtlas
     this.#canvas = canvas
     this.#ctx = this.#Context()
   }
@@ -46,7 +46,7 @@ export class Renderer {
   }
 
   draw(pool: Readonly<Pool<Sprite<TagFormat>>>): void {
-    if (!this.#atlasImage || !this.#ctx) return
+    if (!this.#preloadAtlasImage || !this.#ctx) return
     const {gl, spriteShader} = this.#ctx
 
     gl.bindBuffer(gl.ARRAY_BUFFER, spriteShader.buffer)
@@ -71,8 +71,8 @@ export class Renderer {
     this.invalid = false
   }
 
-  load(atlas: Readonly<HTMLImageElement>): void {
-    this.#atlasImage = atlas
+  load(preloadAtlas: Readonly<HTMLImageElement> | undefined): void {
+    this.#preloadAtlasImage = preloadAtlas
     this.#ctx = this.#Context()
   }
 
@@ -165,14 +165,15 @@ export class Renderer {
     gl.bindTexture(gl.TEXTURE_2D, shader.textures[0]!)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-    if (this.#atlasImage)
+    // to-do: ArrayBufferView<ArrayBufferLike> | TexImageSource, output size to config.
+    if (this.#preloadAtlasImage)
       gl.texImage2D(
         gl.TEXTURE_2D,
         0,
         gl.RGBA,
         gl.RGBA,
         gl.UNSIGNED_BYTE,
-        this.#atlasImage
+        this.#preloadAtlasImage
       )
     gl.bindTexture(gl.TEXTURE_2D, null)
 
@@ -184,11 +185,11 @@ export class Renderer {
       0,
       gl.RGBA16UI, // source XYWH cannot be > 65535.
       1,
-      this.#atlas.celXYWH.length / 4, // 4 u16s per row
+      this.#preloadAtlas.celXYWH.length / 4, // 4 u16s per row
       0,
       gl.RGBA_INTEGER,
       gl.UNSIGNED_SHORT,
-      new Uint16Array(this.#atlas.celXYWH)
+      new Uint16Array(this.#preloadAtlas.celXYWH)
     )
     gl.bindTexture(gl.TEXTURE_2D, null)
 
@@ -196,11 +197,11 @@ export class Renderer {
 
     gl.uniform1i(shader.uniform.uTex!, 0)
     gl.uniform1i(shader.uniform.uCels!, 1)
-    if (this.#atlasImage)
+    if (this.#preloadAtlasImage)
       gl.uniform2ui(
         shader.uniform.uTexWH!,
-        this.#atlasImage.naturalWidth,
-        this.#atlasImage.naturalHeight
+        this.#preloadAtlasImage.naturalWidth,
+        this.#preloadAtlasImage.naturalHeight
       )
 
     this.invalid = true

@@ -1,8 +1,8 @@
 import * as V from '../index.ts'
-import atlasJSON from './atlas.json' with {type: 'json'}
 import {ClockEnt} from './ents/clock-ent.ts'
 import {RenderToggleEnt} from './ents/render-toggle-ent.ts'
 import {WorkCounterEnt} from './ents/work-counter-ent.ts'
+import preloadAtlasJSON from './preload.json' with {type: 'json'}
 import type {Tag} from './tag.ts'
 
 export class Game extends V.Void<Tag> {
@@ -13,9 +13,16 @@ export class Game extends V.Void<Tag> {
   #workCounter: WorkCounterEnt
 
   constructor() {
-    super({atlasJSON, backgroundRGBA: 0xffffb1ff, minWH: {w: 320, h: 240}})
+    super({
+      preloadAtlas: {
+        image: document.querySelector('#preload-atlas')!,
+        json: preloadAtlasJSON
+      },
+      backgroundRGBA: 0xffffb1ff,
+      minWH: {w: 320, h: 240}
+    })
     this.#filterSprites = new V.Pool<V.Sprite<Tag>>({
-      alloc: pool => new V.Sprite(pool, 0, this.atlas, this.framer),
+      alloc: pool => new V.Sprite(pool, 0, this.preload, this.framer),
       allocBytes: V.drawableBytes,
       pageBlocks: 10
     })

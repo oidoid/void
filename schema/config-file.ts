@@ -2,12 +2,14 @@ import {readFile} from 'node:fs/promises'
 import path from 'node:path'
 import schema from './config-file.v0.json' with {type: 'json'}
 
+export type AtlasConfig = {dir: string; image: string; json: string}
+
 export type ConfigFile = {
   $schema: string
-  atlas: {assets: string; image: string; json: string}
   entry: string
   meta: string | undefined
   out: string
+  preloadAtlas: AtlasConfig | undefined
 
   /** config directory name. */
   dirname: string
@@ -17,16 +19,10 @@ export type ConfigFile = {
 
 export type ConfigFileSchema = {
   $schema?: string | undefined
-  atlas?:
-    | {
-        assets?: string | undefined
-        image?: string | undefined
-        json?: string | undefined
-      }
-    | undefined
   entry?: string | undefined
   meta?: string | undefined
   out?: string | undefined
+  preloadAtlas?: AtlasConfig | undefined
 }
 
 export async function parseConfigFile(filename: string): Promise<ConfigFile> {
@@ -52,23 +48,14 @@ export function parse(filename: string, str: string): ConfigFile {
 
   return {
     $schema: json.$schema ?? schema.properties.$schema.default,
-    atlas: {
-      assets: path.join(
-        dirname,
-        json.atlas?.assets ?? schema.properties.atlas.properties.assets.default
-      ),
-      image: path.join(
-        dirname,
-        json.atlas?.image ?? schema.properties.atlas.properties.image.default
-      ),
-      json: path.join(
-        dirname,
-        json.atlas?.json ?? schema.properties.atlas.properties.json.default
-      )
-    },
     entry: path.join(dirname, json.entry ?? schema.properties.entry.default),
     meta: path.join(dirname, json.meta ?? schema.properties.meta.default),
     out: path.join(dirname, json.out ?? schema.properties.out.default),
+    preloadAtlas: json.preloadAtlas && {
+      dir: path.join(dirname, json.preloadAtlas.dir),
+      image: path.join(dirname, json.preloadAtlas.image),
+      json: path.join(dirname, json.preloadAtlas.json)
+    },
 
     dirname,
     filename

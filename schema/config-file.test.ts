@@ -9,14 +9,10 @@ test('defaults', () => {
     {
       $schema:
         'https://raw.githubusercontent.com/oidoid/void/refs/heads/main/schema/config-file.v0.json',
-      atlas: {
-        assets: 'dirname/assets/',
-        image: 'dirname/dist/public/atlas.png',
-        json: 'dirname/dist/public/atlas.json'
-      },
       entry: 'dirname/src/index.html',
       meta: 'dirname/dist/meta.json',
       out: 'dirname/dist/public/',
+      preloadAtlas: undefined,
 
       dirname: 'dirname',
       filename: 'dirname/filename'
@@ -27,23 +23,23 @@ test('defaults', () => {
 test('overrides', () => {
   const config: ConfigFileSchema = {
     $schema: '$schema',
-    atlas: {assets: 'assets', image: 'image', json: 'json'},
     entry: 'entry',
     meta: 'meta',
-    out: 'out'
+    out: 'out',
+    preloadAtlas: {dir: 'dir/', image: 'image.png', json: 'json.json'}
   }
   assert.deepEqual<ConfigFile>(
     parse('dirname/filename', JSON.stringify(config)),
     {
       $schema: '$schema',
-      atlas: {
-        assets: 'dirname/assets',
-        image: 'dirname/image',
-        json: 'dirname/json'
-      },
       entry: 'dirname/entry',
       meta: 'dirname/meta',
       out: 'dirname/out',
+      preloadAtlas: {
+        dir: 'dirname/dir/',
+        image: 'dirname/image.png',
+        json: 'dirname/json.json'
+      },
 
       dirname: 'dirname',
       filename: 'dirname/filename'
