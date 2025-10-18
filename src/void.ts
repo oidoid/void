@@ -12,10 +12,10 @@ import type {WH} from './types/geo.ts'
 import type {Millis} from './types/time.ts'
 import {initCanvas} from './utils/canvas-util.ts'
 import {initBody, initMetaViewport} from './utils/dom-util.ts'
-import {fetchImage} from './utils/fetch-util.ts'
+import {loadImage} from './utils/fetch-util.ts'
 
 export type VoidOpts<out Tag extends TagFormat> = {
-  atlasImageURI: string
+  atlasImage?: HTMLImageElement | undefined
   atlasJSON: AtlasJSON
   backgroundRGBA?: number
   canvas?: HTMLCanvasElement | undefined
@@ -39,7 +39,7 @@ export class Void<
   readonly renderer: Renderer
   readonly sprites: Pool<Sprite<Tag>>
   readonly zoo: Zoo<Tag> = new Zoo()
-  readonly #atlasImageURI: string
+  #atlasImage: HTMLImageElement
   readonly #pixelRatioObserver: PixelRatioObserver = new PixelRatioObserver()
   readonly #resizeObserver = new ResizeObserver(() => this.onResize())
 
@@ -58,7 +58,10 @@ export class Void<
 
     this.#pixelRatioObserver.onChange = () => this.onResize()
 
-    this.#atlasImageURI = opts.atlasImageURI
+    const atlasImage = opts.atlasImage ?? document.querySelector('img#atlas')
+    if (!(atlasImage instanceof HTMLImageElement)) throw Error(`no atlas image`)
+    this.#atlasImage = atlasImage
+
     this.atlas = parseAtlas(opts.atlasJSON)
 
     this.renderer = new Renderer(this.atlas, this.canvas)
@@ -109,7 +112,7 @@ export class Void<
 
     this.framer.requestFrame()
 
-    this.renderer.load(await fetchImage(this.#atlasImageURI))
+    this.renderer.load(await loadImage(this.#atlasImage))
   }
 
   requestFrame(): void {

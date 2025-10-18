@@ -10,10 +10,18 @@ export async function fetchAudio(url: string): Promise<ArrayBuffer> {
 }
 
 export function fetchImage(url: string): Promise<HTMLImageElement> {
+  const img = new Image()
+  const promise = loadImage(img)
+  img.src = url
+  return promise
+}
+
+export async function loadImage(
+  img: HTMLImageElement
+): Promise<HTMLImageElement> {
+  if (img.complete) return img
   return new Promise((fulfil, reject) => {
-    const img = new Image()
     img.onload = () => fulfil(img)
-    img.onerror = () => reject(Error(`image fetch error for ${url}`))
-    img.src = url
+    img.onerror = () => reject(Error(`image load error for ${img.src}`))
   })
 }

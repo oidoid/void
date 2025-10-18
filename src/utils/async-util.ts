@@ -1,7 +1,7 @@
 import type {Millis} from '../types/time.ts'
 
 export function debounce<T extends unknown[]>(
-  fn: (this: undefined, ...args: T) => void,
+  fn: (this: undefined, ...args: T) => void | Promise<void>,
   delay: Millis
 ): {cancel(): void; (...args: T): void} {
   let timeout: number | undefined

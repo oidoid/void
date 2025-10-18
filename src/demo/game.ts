@@ -13,12 +13,7 @@ export class Game extends V.Void<Tag> {
   #workCounter: WorkCounterEnt
 
   constructor() {
-    super({
-      atlasImageURI: '/atlas.png',
-      atlasJSON,
-      backgroundRGBA: 0xffffb1ff,
-      minWH: {w: 320, h: 240}
-    })
+    super({atlasJSON, backgroundRGBA: 0xffffb1ff, minWH: {w: 320, h: 240}})
     this.#filterSprites = new V.Pool<V.Sprite<Tag>>({
       alloc: pool => new V.Sprite(pool, 0, this.atlas, this.framer),
       allocBytes: V.drawableBytes,

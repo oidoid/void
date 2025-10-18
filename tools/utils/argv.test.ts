@@ -4,9 +4,9 @@ import {Argv} from './argv.ts'
 
 declare module './argv.ts' {
   interface Opts {
-    '--config'?: string | undefined
-    '--minify'?: '' | undefined
-    '--watch'?: '' | undefined
+    '--config'?: string
+    '--minify'?: true
+    '--watch'?: true
   }
 }
 
@@ -34,7 +34,7 @@ test('parses nonempty.', () => {
     ]),
     {
       args: ['a.aseprite', 'b.aseprite'],
-      opts: {'--config': 'config', '--minify': undefined, '--watch': undefined},
+      opts: {'--config': 'config', '--minify': true, '--watch': true},
       posargs: ['posarg0', 'posarg1']
     }
   )

@@ -7,14 +7,14 @@ export type Argv = {
   posargs: string[]
 }
 
-/** string-string? map. Eg, `'--config'?: string | undefined` */
+/** string-string|bool map. Eg, `'--config'?: string; '--minify'?: string | true` */
 // biome-ignore lint/suspicious/noEmptyInterface: declaration merging.
 export interface Opts {}
 
 export function Argv(argv: readonly string[]): Argv {
   const args = []
   const posargs = []
-  const opts: {[k: string]: string | undefined} = {}
+  const opts: {[k: string]: string | true} = {}
   for (let i = 2; i < argv.length; i++) {
     if (argv[i] === '--') {
       posargs.push(...argv.slice(i + 1))
@@ -22,7 +22,7 @@ export function Argv(argv: readonly string[]): Argv {
     }
     if (argv[i]!.startsWith('--')) {
       const [k, v] = argv[i]!.split(/=(.*)/).slice(0, 2)
-      opts[k!] = v
+      opts[k!] = v ?? true
     } else args.push(argv[i]!)
   }
   return {args, opts, posargs}
