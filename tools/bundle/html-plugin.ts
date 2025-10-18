@@ -31,18 +31,18 @@ export function HTMLPlugin(
           } else script.src = filename
         }
 
-        if (argv.opts['--one-file']) {
-          const imgs = doc.querySelectorAll<HTMLImageElement>(
-            "img#preload-atlas[src$='.png']"
-          ) // to-do: multi-atlas support.
-          for (const img of imgs) {
-            const filename = img.getAttribute('src')!
-            const b64 = await fs.readFile(path.join(config.out, filename), {
-              encoding: 'base64'
-            })
-            img.src = `data:image/png;base64,${b64}`
-          }
-        }
+        // if (argv.opts['--one-file']) {
+        //   const imgs = doc.querySelectorAll<HTMLImageElement>(
+        //     "img#preload-atlas[src$='.png']"
+        //   ) // to-do: multi-atlas support.
+        //   for (const img of imgs) {
+        //     const filename = img.getAttribute('src')!
+        //     const b64 = await fs.readFile(path.join(config.out, filename), {
+        //       encoding: 'base64'
+        //     })
+        //     img.src = `data:image/png;base64,${b64}`
+        //   }
+        // }
 
         let html = `<!doctype html>\n${doc.documentElement.outerHTML}`
 

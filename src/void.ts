@@ -12,10 +12,11 @@ import type {WH} from './types/geo.ts'
 import type {Millis} from './types/time.ts'
 import {initCanvas} from './utils/canvas-util.ts'
 import {initBody, initMetaViewport} from './utils/dom-util.ts'
-import {loadImage} from './utils/fetch-util.ts'
 
 export type VoidOpts<out Tag extends TagFormat> = {
-  preloadAtlas?: {image: HTMLImageElement; json: AtlasJSON} | undefined
+  preloadAtlas?:
+    | {image: ArrayBufferView<ArrayBufferLike>; json: AtlasJSON}
+    | undefined
   backgroundRGBA?: number
   canvas?: HTMLCanvasElement | undefined
   minWH?: WH | undefined
@@ -39,7 +40,7 @@ export class Void<
   readonly sprites: Pool<Sprite<Tag>>
   readonly zoo: Zoo<Tag> = new Zoo()
   readonly #pixelRatioObserver: PixelRatioObserver = new PixelRatioObserver()
-  readonly #preloadAtlasImage: HTMLImageElement | undefined
+  readonly #preloadAtlasImage: ArrayBufferView<ArrayBufferLike> | undefined
   readonly #resizeObserver = new ResizeObserver(() => this.onResize())
 
   constructor(opts: Readonly<VoidOpts<Tag>>) {
@@ -57,8 +58,7 @@ export class Void<
 
     this.#pixelRatioObserver.onChange = () => this.onResize()
 
-    if (opts.preloadAtlas) this.#preloadAtlasImage = opts.preloadAtlas.image
-
+    this.#preloadAtlasImage = opts.preloadAtlas?.image
     this.preload = opts.preloadAtlas
       ? parseAtlas(opts.preloadAtlas.json)
       : {anim: {}, celXYWH: [], tags: []}
@@ -111,7 +111,6 @@ export class Void<
 
     this.framer.requestFrame()
 
-    if (this.#preloadAtlasImage) await loadImage(this.#preloadAtlasImage)
     this.renderer.load(this.#preloadAtlasImage)
   }
 
