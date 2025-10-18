@@ -16,7 +16,10 @@ test('defaults', () => {
       },
       entry: 'dirname/src/index.html',
       meta: 'dirname/dist/meta.json',
-      out: 'dirname/dist/public/'
+      out: 'dirname/dist/public/',
+
+      dirname: 'dirname',
+      filename: 'dirname/filename'
     }
   )
 })
@@ -40,7 +43,10 @@ test('overrides', () => {
       },
       entry: 'dirname/entry',
       meta: 'dirname/meta',
-      out: 'dirname/out'
+      out: 'dirname/out',
+
+      dirname: 'dirname',
+      filename: 'dirname/filename'
     }
   )
 })

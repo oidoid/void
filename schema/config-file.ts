@@ -8,6 +8,11 @@ export type ConfigFile = {
   entry: string
   meta: string | undefined
   out: string
+
+  /** config directory name. */
+  dirname: string
+  /** config filename. */
+  filename: string
 }
 
 export type ConfigFileSchema = {
@@ -63,6 +68,9 @@ export function parse(filename: string, str: string): ConfigFile {
     },
     entry: path.join(dirname, json.entry ?? schema.properties.entry.default),
     meta: path.join(dirname, json.meta ?? schema.properties.meta.default),
-    out: path.join(dirname, json.out ?? schema.properties.out.default)
+    out: path.join(dirname, json.out ?? schema.properties.out.default),
+
+    dirname,
+    filename
   }
 }
