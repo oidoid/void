@@ -14,7 +14,7 @@
         "dir": {
           "type": "string",
           "description": "Aseprite asset root directory. all `**.aseprite` files are input.",
-          "examples": ["assets/", "./"]
+          "examples": ["assets/atlas/", "./"]
         },
         "image": {
           "type": "string",

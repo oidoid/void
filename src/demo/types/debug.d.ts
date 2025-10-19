@@ -1,6 +1,6 @@
-import '../index.ts'
+import '../../index.ts'
 
-declare module '../index.ts' {
+declare module '../../index.ts' {
   interface Debug {
     /** always render. */
     invalid?: string

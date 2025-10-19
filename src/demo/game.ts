@@ -2,8 +2,8 @@ import * as V from '../index.ts'
 import {ClockEnt} from './ents/clock-ent.ts'
 import {RenderToggleEnt} from './ents/render-toggle-ent.ts'
 import {WorkCounterEnt} from './ents/work-counter-ent.ts'
-import preloadAtlasJSON from './preload.json' with {type: 'json'}
-import type {Tag} from './tag.ts'
+import preloadAtlasJSON from './preload-atlas.json' with {type: 'json'}
+import type {Tag} from './types/tag.ts'
 
 export class Game extends V.Void<Tag> {
   #filterSprites: V.Pool<V.Sprite<Tag>>

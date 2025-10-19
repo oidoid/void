@@ -4,8 +4,8 @@
   "meta": "../../dist/meta.json",
   "out": "../../dist/public/",
   "preloadAtlas": {
-    "dir": "assets/",
-    "image": "../../dist/public/preload.png",
-    "json": "preload.json"
+    "dir": "assets/preload-atlas/",
+    "image": "../../dist/public/preload-atlas.png",
+    "json": "preload-atlas.json"
   }
 }
