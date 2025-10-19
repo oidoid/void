@@ -6,7 +6,10 @@ import {globAll} from '../utils/file-util.ts'
 import {parseAtlasJSON} from './atlas-json-parser.ts'
 
 // to-do: separate executable?
-export async function packAtlas(config: Readonly<AtlasConfig>): Promise<void> {
+export async function packAtlas(
+  config: Readonly<AtlasConfig>,
+  minify: boolean
+): Promise<void> {
   const filenames = await globAll(path.join(config.dir, '**.aseprite'))
   if (!filenames.length) return
 
@@ -23,6 +26,16 @@ export async function packAtlas(config: Readonly<AtlasConfig>): Promise<void> {
     '--tagname-format={title}--{tag}',
     ...filenames
   )
+
+  if (minify)
+    await exec(
+      'zopflipng',
+      '--always_zopflify',
+      '-y',
+      config.image,
+      config.image
+    )
+
   await fs.writeFile(
     config.json,
     JSON.stringify(parseAtlasJSON(JSON.parse(json)))

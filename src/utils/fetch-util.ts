@@ -19,9 +19,9 @@ export function fetchImage(url: string): Promise<HTMLImageElement> {
 export async function loadImage(
   img: HTMLImageElement
 ): Promise<HTMLImageElement> {
-  if (img.complete) return img
-  return new Promise((fulfil, reject) => {
+  const promise = new Promise<HTMLImageElement>((fulfil, reject) => {
     img.onload = () => fulfil(img)
     img.onerror = () => reject(Error(`image load error for ${img.src}`))
   })
+  return img.complete ? img : await promise
 }

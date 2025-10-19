@@ -35,10 +35,11 @@ export async function bundle(
     target: 'es2024' // https://esbuild.github.io/content-types/#tsconfig-json
   }
 
-  if (config.preloadAtlas) await packAtlas(config.preloadAtlas)
+  if (config.preloadAtlas)
+    await packAtlas(config.preloadAtlas, argv.opts['--minify'] ?? false)
   if (config.preloadAtlas && argv.opts['--watch']) {
     fs.watch(config.preloadAtlas.dir, {recursive: true}, (ev, type) =>
-      onWatch(config.preloadAtlas!, ev, type)
+      onWatch(config.preloadAtlas!, argv.opts['--minify'] ?? false, ev, type)
     )
     const ctx = await esbuild.context(opts)
     await Promise.all([
@@ -55,11 +56,12 @@ export async function bundle(
 const onWatch = V.debounce(
   async (
     config: Readonly<AtlasConfig>,
+    minify: boolean,
     ev: fs.WatchEventType,
     file: string | null
   ) => {
     console.log(`asset ${file} ${ev}`)
-    await packAtlas(config)
+    await packAtlas(config, minify)
   },
   500 as V.Millis
 )

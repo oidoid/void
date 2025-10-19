@@ -18,7 +18,11 @@ jobs:
         with:
           node-version: 24.4.1
           cache: npm
-      - name: Install Dependencies
+      - name: Install Native Dependencies
+        run: |
+          sudo apt update
+          sudo apt install --yes zopfli
+      - name: Install JavaScript Dependencies
         run: npm ci --no-fund
       - name: Test Format
         run: npm run test:format
