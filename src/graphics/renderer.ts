@@ -18,11 +18,11 @@ export class Renderer {
   always: boolean = false
   invalid: boolean = false
   loseContext: WEBGL_lose_context | undefined
-  readonly #preloadAtlas: Readonly<Atlas>
-  #preloadAtlasImage: Readonly<HTMLImageElement> | undefined
   readonly #canvas: HTMLCanvasElement
   #clearRGBA: number = 0
   #ctx: Context | undefined
+  readonly #preloadAtlas: Readonly<Atlas>
+  #preloadAtlasImage: Readonly<HTMLImageElement> | undefined
 
   constructor(preloadAtlas: Readonly<Atlas>, canvas: HTMLCanvasElement) {
     this.#preloadAtlas = preloadAtlas

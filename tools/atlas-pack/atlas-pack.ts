@@ -2,7 +2,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import type {AtlasConfig} from '../../schema/config-file.ts'
 import {exec} from '../utils/exec.ts'
-import {globAll} from '../utils/glob-all.ts'
+import {globAll} from '../utils/file-util.ts'
 import {parseAtlasJSON} from './atlas-json-parser.ts'
 
 // to-do: separate executable?
