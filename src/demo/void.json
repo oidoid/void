@@ -1,11 +1,11 @@
 {
   "$schema": "../../schema/config-file.v0.json",
-  "entry": "index.html",
+  "entry": "assets/index.html",
   "meta": "../../dist/meta.json",
   "out": "../../dist/public/",
   "preloadAtlas": {
     "dir": "assets/preload-atlas/",
     "image": "../../dist/public/preload-atlas.png",
-    "json": "preload-atlas.json"
+    "json": "assets/preload-atlas.json"
   }
 }

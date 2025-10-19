@@ -9,7 +9,7 @@ test('defaults', () => {
     {
       $schema:
         'https://raw.githubusercontent.com/oidoid/void/refs/heads/main/schema/config-file.v0.json',
-      entry: 'dirname/src/index.html',
+      entry: 'dirname/src/assets/index.html',
       meta: 'dirname/dist/meta.json',
       out: 'dirname/dist/public/',
       preloadAtlas: undefined,

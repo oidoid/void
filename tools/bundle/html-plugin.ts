@@ -21,7 +21,10 @@ export function HTMLPlugin(
           "script[type='module'][src$='.ts']"
         )
         for (const script of scripts) {
-          const filename = script.getAttribute('src')!.replace(/\.ts$/, '.js')
+          // to-do: test.
+          const filename = path.basename(
+            script.getAttribute('src')!.replace(/\.ts$/, '.js')
+          )
           if (argv.opts['--one-file']) {
             script.removeAttribute('src')
             script.textContent = await fs.readFile(
@@ -67,7 +70,8 @@ export function HTMLPlugin(
           )
 
         await fs.writeFile(
-          path.join(config.out, path.relative(config.dirname, config.entry)),
+          // to-do: test.
+          path.join(config.out, path.basename(config.entry)),
           html
         )
       })

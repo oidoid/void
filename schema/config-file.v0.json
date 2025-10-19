@@ -14,7 +14,7 @@
         "dir": {
           "type": "string",
           "description": "Aseprite asset root directory. all `**.aseprite` files are input.",
-          "examples": ["assets/atlas/", "./"]
+          "examples": ["src/assets/atlas/", "./"]
         },
         "image": {
           "type": "string",
@@ -24,7 +24,7 @@
         "json": {
           "type": "string",
           "description": "sprite sheet JSON output.",
-          "examples": ["src/atlas.json", "atlas.json"]
+          "examples": ["src/assets/atlas.json", "atlas.json"]
         }
       }
     }
@@ -38,7 +38,7 @@
     },
     "entry": {
       "type": "string",
-      "default": "src/index.html",
+      "default": "src/assets/index.html",
       "description": "HTML entrypoint input. the file should include a script tag sourcing the TypeScript / JavaScript entrypoint."
     },
     "meta": {
