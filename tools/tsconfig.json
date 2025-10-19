@@ -2,14 +2,20 @@
 {
   "extends": "./tsconfig-base.json",
   "compilerOptions": {
-    "noEmit": true, // tsc is only used for type-checking.
-
-    "rootDir": "..",
-
-    "tsBuildInfoFile": "../dist/tools/tsconfig.tsbuildinfo",
-
     "types": ["node"]
   },
-  "include": ["**/*", "../schema/**/*"],
+  "include": [
+    "${configDir}/",
+    "${configDir}/**/*.json",
+    "../schema/",
+    "../schema/**/*.json",
+    "../package.json"
+  ],
+  "exclude": [
+    "${configDir}/**/*.test.*",
+    "${configDir}/**/test/",
+    "../schema/**/*.test.*",
+    "../schema/**/test/"
+  ],
   "references": [{"path": "../src"}]
 }

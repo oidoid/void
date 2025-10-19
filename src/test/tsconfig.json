@@ -1,4 +1,4 @@
-// TypeScript config for test code under src/**/*.test.ts and src/test/**/*.
+// TypeScript config for test code.
 {
   "extends": "../../tools/tsconfig-base.json",
   "compilerOptions": {
@@ -6,12 +6,19 @@
 
     "noEmit": true, // tsc is only used for type-checking.
 
-    "rootDir": "..",
-
-    "types": ["node"],
-
-    "tsBuildInfoFile": "../../dist/test/tsconfig.tsbuildinfo"
+    "types": ["node"]
   },
-  "include": ["**/*", "../**/*.test.ts"],
-  "references": [{"path": ".."}, {"path": "../demo"}]
+  "include": [
+    "${configDir}/",
+    "${configDir}/**/*.json",
+    "../../**/*.test.ts",
+    "../../**/test/",
+    "../../**/test/**/*.json"
+  ],
+  "exclude": ["../../node_modules/", "../../dist/"],
+  "references": [
+    {"path": "../"},
+    {"path": "../demo/"},
+    {"path": "../../tools/"}
+  ]
 }

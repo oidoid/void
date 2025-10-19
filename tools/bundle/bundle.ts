@@ -1,9 +1,8 @@
 import fs from 'node:fs'
 import esbuild from 'esbuild'
 import type {AtlasConfig, ConfigFile} from '../../schema/config-file.ts'
-import type {Millis} from '../../src/types/time.ts'
+import * as V from '../../src/index.ts'
 import type {Version} from '../../src/types/version.ts'
-import {debounce} from '../../src/utils/async-util.ts'
 import {packAtlas} from '../atlas-pack/atlas-pack.ts'
 import type {Argv} from '../utils/argv.ts'
 import {HTMLPlugin} from './html-plugin.ts'
@@ -53,7 +52,7 @@ export async function bundle(
   }
 }
 
-const onWatch = debounce(
+const onWatch = V.debounce(
   async (
     config: Readonly<AtlasConfig>,
     ev: fs.WatchEventType,
@@ -62,5 +61,5 @@ const onWatch = debounce(
     console.log(`asset ${file} ${ev}`)
     await packAtlas(config)
   },
-  500 as Millis
+  500 as V.Millis
 )

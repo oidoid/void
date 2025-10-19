@@ -24,7 +24,9 @@
     "resolveJsonModule": true,
     "strict": true,
 
-    "types": [], // projects add types needed.
+    // projects add types as needed.
+    "lib": ["ES2024", "ESNext.disposable"],
+    "types": [],
 
     "isolatedDeclarations": true, // require explicit types.
 
@@ -37,6 +39,10 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
 
+    "rewriteRelativeImportExtensions": true, // rewrite .ts imports to .js.
+
+    "rootDir": "..",
+
     // assume library types are checked and compatible.
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
@@ -45,9 +51,11 @@
 
     "target": "ES2024",
 
+    "outDir": "../dist",
+
     // don't transform type-only imports.
     "verbatimModuleSyntax": true
   },
-  // https://github.com/microsoft/TypeScript/wiki/Performance#misconfigured-include-and-exclude
-  "exclude": ["dist", "node_modules", ".*/"]
+  "include": ["${configDir}/", "${configDir}/**/*.json"],
+  "exclude": ["${configDir}/**/*.test.*", "${configDir}/**/test/"]
 }
