@@ -26,6 +26,7 @@
   },
   "files": [
     "dist",
+    "schema",
     "tools",
     "!tools/tsconfig*",
     "!**/tsconfig.tsbuildinfo"
@@ -46,14 +47,15 @@
     "url": "git+https://github.com/oidoid/void.git"
   },
   "scripts": {
-    "build": "tsc --build && npm run build:demo -- --minify --one-file",
+    "build": "tsc --build && npm run build:favicon && npm run build:demo -- --minify --one-file",
+    "build:favicon": "for s in 1 2 3 4 12 32; do aseprite src/demo/assets/favicon.aseprite --batch --color-mode=indexed --scale=$s --save-as=dist/public/favicon/favicon$(($s * 16)).png; done",
     "build:demo": "tools/void.ts --config=src/demo/void.json",
     "clean": "rm -rf dist",
     "format": "npm run formatter -- --fix",
     "formatter": "biome check --error-on-warnings",
-    "preversion": "[ -z \"$(git status -z)\" ] && sed -ri 's%\"published\": \"[0-9]{8}\"%\"published\": \"$(date +%Y%m%d)\"%' package.json",
+    "preversion": "[ -z \"$(git status -z)\" ] && sed -ri 's%(\"published\": )\"[0-9]{8}\"%\\1\"$(date +%Y%m%d)\"%' package.json",
     "prepublishOnly": "! git symbolic-ref --quiet HEAD || git push --follow-tags origin \"$(git branch --show-current)\"",
-    "start": "tsc --build --preserveWatchOutput --watch& npm run build:demo -- --watch& wait",
+    "start": "tsc --build --preserveWatchOutput --watch& npm run build:favicon && npm run build:demo -- --watch& wait",
     "test": "npm run test:format && npm run test:unit && npm run build",
     "test:format": "npm run formatter",
     "test:unit": "sh -c 'node --experimental-test-coverage --test ${@:-$(find src schema tools -name \\*.test.ts -printf %p\\ )}' --",

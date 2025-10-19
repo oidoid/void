@@ -1,4 +1,4 @@
-export type Version = {
+export type VoidVersion = {
   /** Git short hash. */
   hash: string
   /** package.json `published` YYYYMMDD. */
@@ -8,7 +8,7 @@ export type Version = {
 }
 
 declare namespace globalThis {
-  var voidVersion: Version // set by esbuild.
+  var voidVersion: VoidVersion // set by esbuild.
 }
 
-export const version: Version = globalThis.voidVersion
+export const voidVersion: VoidVersion = globalThis.voidVersion

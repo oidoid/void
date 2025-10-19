@@ -7,6 +7,18 @@ import type {Argv} from '../utils/argv.ts'
 import {exec} from '../utils/exec.ts'
 import {parseHTML} from '../utils/html-parser.ts'
 
+type Manifest = {
+  icons?:
+    | {
+        src?: string | undefined
+        size?: string | undefined
+        type?: string | undefined
+      }[]
+    | undefined
+  start_url?: string | undefined
+  version?: string | undefined
+}
+
 export function HTMLPlugin(
   argv: Readonly<Argv>,
   config: Readonly<ConfigFile>
@@ -47,6 +59,55 @@ export function HTMLPlugin(
           }
         }
 
+        const manifestEl = doc.querySelector<HTMLLinkElement>(
+          'link[href][rel="manifest"]'
+        )
+        if (manifestEl) {
+          const manifestFilename = path.resolve(
+            path.dirname(config.entry),
+            manifestEl.getAttribute('href')!
+          )
+          const manifest: Manifest = JSON.parse(
+            await fs.readFile(manifestFilename, 'utf8')
+          )
+          if (process.env.npm_package_version)
+            manifest.version = process.env.npm_package_version
+
+          for (const icon of manifest.icons ?? []) {
+            if (!icon.src || !icon.type) continue
+            const iconFilename = `${path.dirname(manifestFilename)}/${icon.src}`
+            const file = await fs.readFile(iconFilename)
+            if (argv.opts['--one-file'])
+              icon.src = `data:${icon.type};base64,${file.toString('base64')}`
+            else icon.src = path.relative(config.out, iconFilename)
+          }
+          if (argv.opts['--watch']) manifest.start_url = 'http://localhost:1234'
+
+          if (argv.opts['--one-file'])
+            manifestEl.href = `data:application/json,${encodeURIComponent(
+              JSON.stringify(manifest)
+            )}`
+          else
+            await fs.writeFile(
+              path.join(config.out, path.basename(manifestFilename)),
+              JSON.stringify(manifest)
+            )
+        }
+
+        if (argv.opts['--one-file']) {
+          const icons = doc.querySelectorAll<HTMLLinkElement>(
+            'link[href][rel="icon"][type]'
+          )
+          for (const icon of icons) {
+            const filename = path.resolve(
+              config.out,
+              icon.getAttribute('href')!
+            )
+            const file = await fs.readFile(filename)
+            icon.href = `data:${icon.type};base64,${file.toString('base64')}`
+          }
+        }
+
         let html = `<!doctype html>\n${doc.documentElement.outerHTML}`
 
         if (argv.opts['--minify'])
@@ -69,11 +130,12 @@ export function HTMLPlugin(
             {stdin: html}
           )
 
-        await fs.writeFile(
-          // to-do: test.
-          path.join(config.out, path.basename(config.entry)),
-          html
-        )
+        let suffix = '.html'
+        if (!argv.opts['--watch'] && process.env.npm_package_version)
+          suffix = `-v${process.env.npm_package_version}.html`
+        // to-do: test.
+        const outHTMLFilename = `${path.join(config.out, path.basename(config.entry, '.html'))}${suffix}`
+        await fs.writeFile(outHTMLFilename, html)
       })
     }
   }

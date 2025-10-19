@@ -1,12 +1,11 @@
 #!/usr/bin/env node
-
 // void.ts --config=<void.json> [--minify] [--one-file] [--watch]
 // compiles images into an atlas and bundles an HTML entrypoint.
 
-import url from 'node:url'
+import path from 'node:path'
 import packageJSON from '../package.json' with {type: 'json'}
 import {parseConfigFile} from '../schema/config-file.ts'
-import type {Version} from '../src/types/version.ts'
+import type {VoidVersion} from '../src/types/void-version.ts'
 import {bundle} from './bundle/bundle.ts'
 import {Argv} from './utils/argv.ts'
 import {exec} from './utils/exec.ts'
@@ -16,7 +15,7 @@ declare module './utils/argv.ts' {
   interface Opts {
     '--config'?: string
     '--minify'?: true
-    /** inline everything into a single HTML file output. the usual artifacts are still generated but are not necessary. */
+    /** inline everything into a single HTML file output. */
     '--one-file'?: true
     /**
      * run development server on http://localhost:1234 and reload on code
@@ -35,16 +34,16 @@ export async function build(args: readonly string[]): Promise<void> {
     ...doc.querySelectorAll<HTMLScriptElement>(
       "script[type='module'][src$='.ts']"
     )
-  ].map(el => url.fileURLToPath(el.src))
+  ].map(el => path.resolve(path.dirname(config.entry), el.getAttribute('src')!))
 
-  const version: Version = {
+  const voidVersion: VoidVersion = {
     hash: (await exec('git', 'rev-parse', '--short', 'HEAD')).trim(),
     published: packageJSON.published,
     // imported JSON doesn't treeshake. define as a constant.
     version: packageJSON.version
   }
 
-  await bundle(argv, config, srcFilenames, version)
+  await bundle(argv, config, srcFilenames, voidVersion)
 }
 
 if (import.meta.main) await build(process.argv)

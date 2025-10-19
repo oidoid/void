@@ -1,4 +1,4 @@
-import {version as _version} from './types/version.ts'
+import {voidVersion} from './types/void-version.ts'
 
 export {type Font, memProp5x6} from 'mem-font'
 export * from './ents/button-ent.ts'
@@ -30,6 +30,6 @@ export * from './utils/dom-util.ts'
 export * from './utils/fetch-util.ts'
 export * from './void.ts'
 
-export const version: string = _version
-  ? `${_version.version}+${_version.published}.${_version.hash}`
+export const version: string = voidVersion
+  ? `${voidVersion.version}+${voidVersion.published}.${voidVersion.hash}`
   : '?'
