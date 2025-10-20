@@ -41,6 +41,8 @@
 
     "rewriteRelativeImportExtensions": true, // rewrite .ts imports to .js.
 
+    // all subprojects output to dist/ relative the project root.
+    "outDir": "../dist",
     "rootDir": "..",
 
     // assume library types are checked and compatible.
@@ -51,11 +53,11 @@
 
     "target": "ES2024",
 
-    "outDir": "../dist",
-
     // don't transform type-only imports.
     "verbatimModuleSyntax": true
   },
+  // include all sources and JSON.
   "include": ["${configDir}/", "${configDir}/**/*.json"],
+  // exclude colocated tests and test utils.
   "exclude": ["${configDir}/**/*.test.*", "${configDir}/**/test/"]
 }
