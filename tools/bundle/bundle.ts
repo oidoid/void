@@ -58,7 +58,7 @@ const onWatch = V.debounce(
     ev: fs.WatchEventType,
     file: string | null
   ) => {
-    console.log(`asset ${file} ${ev}`)
+    console.log(`asset ${file} ${ev}.`)
     await packAtlas(config, minify)
   },
   500 as V.Millis

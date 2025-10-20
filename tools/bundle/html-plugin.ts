@@ -42,16 +42,16 @@ export function HTMLPlugin(config: Readonly<Config>): esbuild.Plugin {
           } else script.src = filename
         }
 
-        if (config.oneFile && config.preloadAtlas) {
-          const imgs = doc.querySelectorAll<HTMLImageElement>(
-            "img#preload-atlas[src$='.png']"
-          ) // to-do: multi-atlas support.
+        if (config.oneFile) {
+          const imgs = doc.querySelectorAll<HTMLImageElement>('img[src]')
           for (const img of imgs) {
             const filename = img.getAttribute('src')!
             const b64 = await fs.readFile(path.join(config.out.dir, filename), {
               encoding: 'base64'
             })
-            img.src = `data:image/png;base64,${b64}`
+            const ext = filename.match(/\.([^.]+)$/)?.[1]
+            if (!ext) throw Error('no asset extension')
+            img.src = `data:image/${ext};base64,${b64}`
           }
         }
 
@@ -127,7 +127,7 @@ export function HTMLPlugin(config: Readonly<Config>): esbuild.Plugin {
           )
 
         // to-do: test.
-        const outHTMLFilename = `${path.join(config.out.dir, config.out.filename)}`
+        const outHTMLFilename = path.join(config.out.dir, config.out.filename)
         await fs.writeFile(outHTMLFilename, html)
       })
     }
