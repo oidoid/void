@@ -9,7 +9,8 @@ import {drawableBytes, type Sprite} from './sprite.ts'
 import {spriteFragGLSL} from './sprite-frag.glsl.ts'
 import {spriteVertGLSL} from './sprite-vert.glsl.ts'
 
-type Context = {gl: GL2; spriteShader: Shader; viewport: WH}
+/** @internal */
+export type Context = {gl: GL2; spriteShader: Shader; viewport: WH}
 
 const uv: Readonly<Int8Array> = new Int8Array([1, 1, 0, 1, 1, 0, 0, 0])
 
@@ -27,7 +28,6 @@ export class Renderer {
   constructor(preloadAtlas: Readonly<Atlas>, canvas: HTMLCanvasElement) {
     this.#preloadAtlas = preloadAtlas
     this.#canvas = canvas
-    this.#ctx = this.#Context()
   }
 
   clear(rgba: number): void {
@@ -71,9 +71,13 @@ export class Renderer {
     this.invalid = false
   }
 
+  get hasContext(): boolean {
+    return this.#ctx != null
+  }
+
   load(preloadAtlas: Readonly<HTMLImageElement> | undefined): void {
     this.#preloadAtlasImage = preloadAtlas
-    this.#ctx = this.#Context()
+    this.#ctx = this._Context()
   }
 
   predraw(cam: Readonly<Cam>, framer: {readonly age: Millis}): void {
@@ -116,7 +120,8 @@ export class Renderer {
     this.register('remove')
   }
 
-  #Context(): Context | undefined {
+  /** @internal */
+  _Context(): Context | undefined {
     const gl = this.#ctx?.gl ?? GL2(this.#canvas)
     if (!gl) return
 
@@ -217,7 +222,7 @@ export class Renderer {
 
   #onContextRestored = (): void => {
     console.debug('[render] WebGL context restored')
-    this.#ctx = this.#Context()
+    this.#ctx = this._Context()
   }
 }
 

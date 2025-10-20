@@ -1,9 +1,11 @@
 import type {Millis} from './types/time.ts'
 
 /**
- * requests frames except when hidden. frames are requested even when idle to
- * poll gamepads.
- * autoloop?
+ * frame manager. passes frame requests when not hidden. callers should request
+ * frames when an update occurs or a check for an update occurs. eg, gamepads
+ * must be polled.
+ *
+ * when registered, restoring visibility triggers an automatic request.
  */
 export class Looper {
   /** duration of frames observed. */
@@ -36,9 +38,10 @@ export class Looper {
   }
 
   #onFrame = (now: Millis): void => {
+    const millis = (now - (this.age || now)) as Millis
     this.age = now
     this.#req = 0
-    this.onFrame?.((now - (this.age || now)) as Millis)
+    this.onFrame?.(millis)
   }
 
   #onVisibility = (ev: Event): void => {
