@@ -1,20 +1,19 @@
 import fs from 'node:fs'
 import esbuild from 'esbuild'
-import type {AtlasConfig, ConfigFile} from '../../schema/config-file.ts'
+import type {AtlasConfig} from '../../schema/config-file.ts'
 import * as V from '../../src/index.ts'
 import type {VoidVersion} from '../../src/types/void-version.ts'
 import {packAtlas} from '../atlas-pack/atlas-pack.ts'
-import type {Argv} from '../utils/argv.ts'
+import type {Config} from '../types/config.ts'
 import {HTMLPlugin} from './html-plugin.ts'
 
 export async function bundle(
-  argv: Readonly<Argv>,
-  config: Readonly<ConfigFile>,
+  config: Readonly<Config>,
   srcFilenames: readonly string[],
   voidVersion: Readonly<VoidVersion>
 ): Promise<void> {
   const opts: esbuild.BuildOptions = {
-    banner: argv.opts['--watch']
+    banner: config.watch
       ? {
           js: "new EventSource('/esbuild').addEventListener('change', () => location.reload());"
         }
@@ -28,23 +27,22 @@ export async function bundle(
     format: 'esm',
     logLevel: 'info', // print the port and build demarcations.
     metafile: true,
-    minify: argv.opts['--minify'] ?? false,
-    outdir: config.out,
-    plugins: [HTMLPlugin(argv, config)],
+    minify: config.minify,
+    outdir: config.out.dir,
+    plugins: [HTMLPlugin(config)],
     sourcemap: 'linked',
     target: 'es2024' // https://esbuild.github.io/content-types/#tsconfig-json
   }
 
-  if (config.preloadAtlas)
-    await packAtlas(config.preloadAtlas, argv.opts['--minify'] ?? false)
-  if (config.preloadAtlas && argv.opts['--watch']) {
+  if (config.preloadAtlas) await packAtlas(config.preloadAtlas, config.minify)
+  if (config.preloadAtlas && config.watch) {
     fs.watch(config.preloadAtlas.dir, {recursive: true}, (ev, type) =>
-      onWatch(config.preloadAtlas!, argv.opts['--minify'] ?? false, ev, type)
+      onWatch(config.preloadAtlas!, config.minify, ev, type)
     )
     const ctx = await esbuild.context(opts)
     await Promise.all([
       ctx.watch(),
-      ctx.serve({port: 1234, servedir: config.out})
+      ctx.serve({port: 1234, servedir: config.out.dir})
     ])
   } else {
     const build = await esbuild.build(opts)

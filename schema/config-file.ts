@@ -8,7 +8,7 @@ export type ConfigFile = {
   $schema: string
   entry: string
   meta: string | undefined
-  out: string
+  out: {dir: string; name: string | undefined}
   preloadAtlas: AtlasConfig | undefined
 
   /** config directory name. */
@@ -21,7 +21,7 @@ export type ConfigFileSchema = {
   $schema?: string | undefined
   entry?: string | undefined
   meta?: string | undefined
-  out?: string | undefined
+  out?: {dir?: string | undefined; name?: string | undefined} | undefined
   preloadAtlas?: AtlasConfig | undefined
 }
 
@@ -50,7 +50,13 @@ export function parse(filename: string, str: string): ConfigFile {
     $schema: json.$schema ?? schema.properties.$schema.default,
     entry: path.join(dirname, json.entry ?? schema.properties.entry.default),
     meta: path.join(dirname, json.meta ?? schema.properties.meta.default),
-    out: path.join(dirname, json.out ?? schema.properties.out.default),
+    out: {
+      dir: path.join(
+        dirname,
+        json.out?.dir ?? schema.properties.out.properties.dir.default
+      ),
+      name: json.out?.name
+    },
     preloadAtlas: json.preloadAtlas && {
       dir: path.join(dirname, json.preloadAtlas.dir),
       image: path.join(dirname, json.preloadAtlas.image),

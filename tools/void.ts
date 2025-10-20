@@ -7,6 +7,7 @@ import packageJSON from '../package.json' with {type: 'json'}
 import {parseConfigFile} from '../schema/config-file.ts'
 import type {VoidVersion} from '../src/types/void-version.ts'
 import {bundle} from './bundle/bundle.ts'
+import {Config} from './types/config.ts'
 import {Argv} from './utils/argv.ts'
 import {exec} from './utils/exec.ts'
 import {parseHTML} from './utils/html-parser.ts'
@@ -25,9 +26,13 @@ declare module './utils/argv.ts' {
   }
 }
 
-export async function build(args: readonly string[]): Promise<void> {
+export async function build(
+  args: readonly string[],
+  env: {readonly [name: string]: string | undefined}
+): Promise<void> {
   const argv = Argv(args)
-  const config = await parseConfigFile(argv.opts['--config'] ?? 'void.json')
+  const configFile = await parseConfigFile(argv.opts['--config'] ?? 'void.json')
+  const config = Config(configFile, argv, env.npm_package_version)
 
   const doc = await parseHTML(config.entry)
   const srcFilenames = [
@@ -43,7 +48,7 @@ export async function build(args: readonly string[]): Promise<void> {
     version: packageJSON.version
   }
 
-  await bundle(argv, config, srcFilenames, voidVersion)
+  await bundle(config, srcFilenames, voidVersion)
 }
 
-if (import.meta.main) await build(process.argv)
+if (import.meta.main) await build(process.argv, process.env)

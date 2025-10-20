@@ -11,7 +11,7 @@ test('defaults', () => {
         'https://raw.githubusercontent.com/oidoid/void/refs/heads/main/schema/config-file.v0.json',
       entry: 'dirname/src/assets/index.html',
       meta: 'dirname/dist/meta.json',
-      out: 'dirname/dist/public/',
+      out: {dir: 'dirname/dist/public/', name: undefined},
       preloadAtlas: undefined,
 
       dirname: 'dirname',
@@ -21,11 +21,11 @@ test('defaults', () => {
 })
 
 test('overrides', () => {
-  const config: ConfigFileSchema = {
+  const config: Required<ConfigFileSchema> = {
     $schema: '$schema',
     entry: 'entry',
     meta: 'meta',
-    out: 'out',
+    out: {dir: 'outDir', name: 'name'},
     preloadAtlas: {dir: 'dir/', image: 'image.png', json: 'json.json'}
   }
   assert.deepEqual<ConfigFile>(
@@ -34,7 +34,7 @@ test('overrides', () => {
       $schema: '$schema',
       entry: 'dirname/entry',
       meta: 'dirname/meta',
-      out: 'dirname/out',
+      out: {dir: 'dirname/outDir', name: 'name'},
       preloadAtlas: {
         dir: 'dirname/dir/',
         image: 'dirname/image.png',

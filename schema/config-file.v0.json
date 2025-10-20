@@ -47,9 +47,21 @@
       "description": "esbuild bundle metadata file output."
     },
     "out": {
-      "type": "string",
-      "description": "HTML and JavaScript output directory.",
-      "default": "dist/public/"
+      "type": "object",
+      "description": "output config.",
+      "additionalProperties": false,
+      "properties": {
+        "dir": {
+          "type": "string",
+          "description": "HTML and JavaScript output directory.",
+          "default": "dist/public/"
+        },
+        "name": {
+          "type": "string",
+          "description": "HTML output file stem when watch is disabled. defaults to entry.",
+          "examples": ["index", "super-patience"]
+        }
+      }
     },
     "preloadAtlas": {"$ref": "#/$defs/Atlas"}
   }

@@ -2,7 +2,7 @@
   "$schema": "../../schema/config-file.v0.json",
   "entry": "assets/index.html",
   "meta": "../../dist/meta.json",
-  "out": "../../dist/public/",
+  "out": {"dir": "../../dist/public/", "name": "void"},
   "preloadAtlas": {
     "dir": "assets/preload-atlas/",
     "image": "../../dist/public/preload-atlas.png",
