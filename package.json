@@ -53,13 +53,13 @@
     "clean": "rm -rf dist",
     "format": "npm run formatter -- --fix",
     "formatter": "biome check --error-on-warnings",
-    "preversion": "[ -z \"$(git status -z)\" ] && sed -ri 's%(\"published\": )\"[0-9]{8}\"%\\1\"$(date +%Y%m%d)\"%' package.json",
+    "preversion": "[ -z \"$(git status -z)\" ]",
     "prepublishOnly": "! git symbolic-ref --quiet HEAD || git push --follow-tags origin \"$(git branch --show-current)\"",
     "start": "tsc --build --preserveWatchOutput --watch& npm run build:favicon && npm run build:demo -- --watch& wait",
     "test": "npm run test:format && npm run test:unit && npm run build",
     "test:format": "npm run formatter",
     "test:unit": "sh -c 'node --experimental-test-coverage --test ${@:-$(find src schema tools -name \\*.test.ts -printf %p\\ )}' --",
-    "version": "npm test"
+    "version": "npm pkg set published=$(date +%Y%m%d) && npm test"
   },
   "type": "module",
   "version": "0.1.0-4"
