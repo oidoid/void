@@ -48,7 +48,7 @@
   },
   "scripts": {
     "build": "tsc --build && npm run build:favicon && npm run build:demo -- --minify --one-file",
-    "build:favicon": "for s in 1 2 3 4 12 32; do aseprite src/demo/assets/favicon.aseprite --batch --color-mode=indexed --scale=$s --save-as=dist/public/favicon/favicon$(($s * 16)).png; done",
+    "build:favicon": "for s in 1 2 3 4 12 32; do f=dist/public/favicon/favicon$(($s * 16)).png; aseprite src/demo/assets/favicon.aseprite --batch --color-mode=indexed --scale=$s --save-as=$f; zopflipng -y $f $f; done",
     "build:demo": "tools/void.ts --config=src/demo/void.json",
     "clean": "rm -rf dist",
     "format": "npm run formatter -- --fix",

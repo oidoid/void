@@ -27,14 +27,7 @@ export async function packAtlas(
     ...filenames
   )
 
-  if (minify)
-    await exec(
-      'zopflipng',
-      '--always_zopflify',
-      '-y',
-      config.image,
-      config.image
-    )
+  if (minify) await exec('zopflipng', '-y', config.image, config.image)
 
   await fs.writeFile(
     config.json,
