@@ -46,12 +46,12 @@ export class Game extends V.Void<Tag> {
 
     let render = this.#updateCam()
 
-    const updated = this.zoo.update(this)
 
     if (V.debug?.input) this.#printInput()
+    this.zoo.update(this)
 
     render ||=
-      updated ||
+      this.zoo.invalid ||
       this.cam.invalid ||
       this.renderer.invalid ||
       this.renderer.always

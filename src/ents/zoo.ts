@@ -10,6 +10,7 @@ import type {Ent} from './ent.ts'
 export class Zoo<out Tag extends TagFormat> {
   #cursor: CursorEnt<Tag> | undefined
   readonly #ents: Set<Ent> = new Set()
+  #invalid: boolean = false
 
   add(...ents: readonly Ent[]): void {
     for (const ent of ents) {
@@ -27,6 +28,10 @@ export class Zoo<out Tag extends TagFormat> {
     return this.#cursor
   }
 
+  get invalid(): boolean {
+    return this.#invalid
+  }
+
   remove(...ents: readonly Readonly<Ent>[]): void {
     for (const ent of ents) {
       this.#ents.delete(ent)
@@ -34,9 +39,8 @@ export class Zoo<out Tag extends TagFormat> {
     }
   }
 
-  update(v: Void<TagFormat, string>): boolean {
-    let invalid = false
-    for (const ent of this.#ents) if (ent.update?.(v)) invalid = true
-    return invalid
+  update(v: Void<TagFormat, string>): void {
+    this.#invalid = false
+    for (const ent of this.#ents) if (ent.update?.(v)) this.#invalid = true
   }
 }
