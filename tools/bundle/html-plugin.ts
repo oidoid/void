@@ -66,8 +66,7 @@ export function HTMLPlugin(config: Readonly<Config>): esbuild.Plugin {
           const manifest: Manifest = JSON.parse(
             await fs.readFile(manifestFilename, 'utf8')
           )
-          if (process.env.npm_package_version)
-            manifest.version = process.env.npm_package_version
+          if (config.version) manifest.version = config.version
 
           for (const icon of manifest.icons ?? []) {
             if (!icon.src || !icon.type) continue

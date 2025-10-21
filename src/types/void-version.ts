@@ -1,6 +1,4 @@
 export type VoidVersion = {
-  /** Git short hash. */
-  hash: string
   /** package.json `published` YYYYMMDD. */
   published: string
   /** package.json semantic `version`. */

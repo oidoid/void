@@ -31,5 +31,5 @@ export * from './utils/fetch-util.ts'
 export * from './void.ts'
 
 export const version: string = voidVersion
-  ? `${voidVersion.version}+${voidVersion.published}.${voidVersion.hash}`
+  ? `${voidVersion.version}+${voidVersion.published}`
   : '?'
