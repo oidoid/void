@@ -1,6 +1,6 @@
 /**
  * proxy for debug CSV query param with case-insensitive keys. when a key
- * exists, the value is as specified or `'true'` if no value. void values
+ * exists, the value is as specified or `'true'` if no value. most void values
  * default to `'true'` when the `debug` param is empty or `'void'` is set (eg,
  * `localhost:1234?debug` or `localhost:1234?debug=void,foo=bar`). all values
  * default to true when `'all'` is set. extend interface for additional types.
@@ -9,6 +9,8 @@
 export interface Debug {
   cam?: string
   input?: string
+  /** debug render invalidations. */
+  invalid?: string
   mem?: string
   render?: 'always' | string
 }
@@ -34,7 +36,7 @@ export function Debug(url: string | undefined): Debug | undefined {
   const target: {[k: string]: string} = {}
   for (const k in map) target[k.toLowerCase()] = map[k] || 'true'
 
-  const voidKeyset: {[_ in keyof Debug]-?: undefined} = {
+  const voidKeyset: {[_ in keyof Omit<Debug, 'invalid'>]-?: undefined} = {
     cam: undefined,
     input: undefined,
     mem: undefined,

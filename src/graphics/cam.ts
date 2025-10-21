@@ -5,6 +5,7 @@ import {
   type WH,
   type XY
 } from '../types/geo.ts'
+import {debug} from '../utils/debug.ts'
 import {Layer} from './layer.ts'
 
 export type LevelClientLocalXY = {
@@ -261,6 +262,7 @@ export class Cam {
   }
 
   #invalidateWH(): void {
+    if (!this.#invalid && debug?.invalid) console.log('cam invalid')
     this.#invalid = true
 
     const phy = {

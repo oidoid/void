@@ -212,6 +212,7 @@ export class Renderer {
         this.#preloadAtlasImage.naturalHeight
       )
 
+    if (!this.invalid && debug?.invalid) console.log('renderer invalid')
     this.invalid = true
     // keep outside of #context so it can be restored.
     this.loseContext = gl.getExtension('WEBGL_lose_context') ?? undefined
