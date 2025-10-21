@@ -7,9 +7,7 @@ import type {Tag} from './types/tag.ts'
 
 export class Game extends V.Void<Tag> {
   #filterSprites: V.Pool<V.Sprite<Tag>>
-  #interval: number = 0
   #renderToggle: RenderToggleEnt
-  #timer: number = 0
   #workCounter: WorkCounterEnt
 
   constructor() {
@@ -19,7 +17,11 @@ export class Game extends V.Void<Tag> {
         json: preloadAtlasJSON
       },
       backgroundRGBA: 0xffffb1ff,
-      minWH: {w: 320, h: 240}
+      minWH: {w: 320, h: 240},
+      poll: {
+        delay: () => renderDelayMillis(new Date(), V.debug?.seconds),
+        period: ((V.debug?.seconds ? 1 : 60) * 1000) as V.Millis
+      }
     })
     this.#filterSprites = new V.Pool<V.Sprite<Tag>>({
       alloc: pool => new V.Sprite(pool, 0, this.preload, this.framer),
@@ -30,16 +32,6 @@ export class Game extends V.Void<Tag> {
     this.#renderToggle.on = this.renderer.always
     this.#workCounter = new WorkCounterEnt()
     this.#initZoo()
-  }
-
-  override async register(op: 'add' | 'remove'): Promise<void> {
-    await super.register(op)
-    if (op === 'add') {
-      this.framer.requestFrame()
-      this.#startTimer()
-    } else {
-      this.#stopTimer()
-    }
   }
 
   override onLoop(_millis: V.Millis): void {
@@ -63,8 +55,6 @@ export class Game extends V.Void<Tag> {
       this.renderer.setDepth(false)
       this.renderer.draw(this.#filterSprites)
     }
-
-    this.requestFrame()
   }
 
   #initZoo(): void {
@@ -136,24 +126,6 @@ export class Game extends V.Void<Tag> {
       )
   }
 
-  #startTimer(): void {
-    this.#timer = setTimeout(
-      () => {
-        this.framer.requestFrame()
-        this.#interval = setInterval(
-          () => this.framer.requestFrame(),
-          (V.debug?.seconds ? 1 : 60) * 1000
-        )
-      },
-      renderDelayMillis(new Date(), V.debug?.seconds)
-    )
-  }
-
-  #stopTimer(): void {
-    clearTimeout(this.#timer)
-    clearInterval(this.#interval)
-  }
-
   #updateCam(): boolean {
     let render = this.input.isAnyOn('L', 'R', 'U', 'D')
 
@@ -186,11 +158,9 @@ export class Game extends V.Void<Tag> {
 export function renderDelayMillis(
   time: Readonly<Date>,
   debugSecs: string | undefined
-): number {
-  return (
-    ((debugSecs ? 0 : (59 - (time.getSeconds() % 60)) * 1000) +
-      1000 -
-      (time.getMilliseconds() % 1000)) %
-    (debugSecs ? 1000 : 60_000)
-  )
+): V.Millis {
+  return (((debugSecs ? 0 : (59 - (time.getSeconds() % 60)) * 1000) +
+    1000 -
+    (time.getMilliseconds() % 1000)) %
+    (debugSecs ? 1000 : 60_000)) as V.Millis
 }

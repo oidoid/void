@@ -11,6 +11,7 @@ import {PixelRatioObserver} from './pixel-ratio-observer.ts'
 import type {WH} from './types/geo.ts'
 import type {Millis} from './types/time.ts'
 import {initCanvas} from './utils/canvas-util.ts'
+import {DelayInterval} from './utils/delay-interval.ts'
 import {initBody, initMetaViewport} from './utils/dom-util.ts'
 import {loadImage} from './utils/fetch-util.ts'
 
@@ -21,6 +22,7 @@ export type VoidOpts<out Tag extends TagFormat> = {
   minWH?: WH | undefined
   input?: 'Custom' | 'Default' | undefined
   mode?: 'Int' | 'Fraction' | undefined
+  poll?: {delay?: (() => Millis) | undefined; period: Millis} | undefined
   sprites?:
     | Partial<Omit<PoolOpts<Sprite<Tag>>, 'alloc' | 'allocBytes'>>
     | undefined
@@ -38,11 +40,19 @@ export class Void<
   readonly renderer: Renderer
   readonly sprites: Pool<Sprite<Tag>>
   readonly zoo: Zoo<Tag> = new Zoo()
+  readonly #poll: DelayInterval | undefined
   readonly #pixelRatioObserver: PixelRatioObserver = new PixelRatioObserver()
   readonly #preloadAtlasImage: HTMLImageElement | undefined
   readonly #resizeObserver = new ResizeObserver(() => this.onResize())
 
   constructor(opts: Readonly<VoidOpts<Tag>>) {
+    if (opts.poll != null)
+      this.#poll = new DelayInterval(
+        opts.poll.delay ?? (() => 0 as Millis),
+        opts.poll.period,
+        () => this.onPoll()
+      )
+
     initMetaViewport()
     this.canvas = initCanvas(opts.canvas, opts.mode ?? 'Int')
     initBody(this.canvas, opts.backgroundRGBA ?? 0x000000ff)
@@ -88,6 +98,8 @@ export class Void<
     if (document.hidden) return
     this.input.update(millis)
 
+    this.requestFrame() // request frame before in case loop cancels.
+
     this.onLoop(millis)
 
     this.cam.postupdate()
@@ -95,6 +107,10 @@ export class Void<
 
   // biome-ignore lint/correctness/noUnusedFunctionParameters:;
   onLoop(millis: Millis): void {}
+
+  onPoll(): void {
+    this.framer.requestFrame()
+  }
 
   onResize(): void {
     this.framer.requestFrame()
@@ -109,7 +125,8 @@ export class Void<
     else this.#resizeObserver.unobserve(this.canvas.parentElement)
     this.#pixelRatioObserver.register(op)
 
-    this.framer.requestFrame()
+    if (op === 'add') this.framer.requestFrame()
+    this.#poll?.register(op)
 
     if (this.#preloadAtlasImage) await loadImage(this.#preloadAtlasImage)
     this.renderer.load(this.#preloadAtlasImage)

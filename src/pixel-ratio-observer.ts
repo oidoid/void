@@ -1,7 +1,4 @@
-/**
- * when moving the window across monitors, resolution changes may not trigger a
- * resize. observe density changes.
- */
+/** resolution changes may not trigger a resize. observe density changes. */
 export class PixelRatioObserver {
   onChange: () => void = () => {}
   #mediaQuery: MediaQueryList | undefined
