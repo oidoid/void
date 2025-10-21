@@ -8,7 +8,7 @@ import {type WH, type XY, xyEq} from '../types/geo.ts'
 import type {Void} from '../void.ts'
 import type {Ent} from './ent.ts'
 
-export class TextEnt implements Ent {
+export class TextEnt implements Ent<TagFormat> {
   #maxW: number = Infinity
   #layout: 'Rendered' | 'Updated' | 'Outdated' = 'Outdated'
   #z: Layer = Layer.UIA

@@ -3,7 +3,7 @@ import type {Game} from '../game.ts'
 import type {Tag} from '../types/tag.ts'
 
 // to-do: follow cam sw.
-export class RenderToggleEnt implements V.Ent {
+export class RenderToggleEnt implements V.Ent<Tag> {
   readonly #toggle: V.ButtonEnt<Tag, V.DefaultButton>
 
   constructor(v: Game) {

@@ -9,7 +9,7 @@ import type {Ent} from './ent.ts'
  * update this ent first. always prefer testing against cursor, not input, in
  * other ents. the cursor may be moved by keyboard and has a hitbox.
  */
-export class CursorEnt<out Tag extends TagFormat> implements Ent {
+export class CursorEnt<out Tag extends TagFormat> implements Ent<Tag> {
   keyboard: boolean = false
   readonly #sprite: Sprite<Tag>
 

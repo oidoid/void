@@ -26,7 +26,7 @@ export type ButtonOpts<Tag extends TagFormat> = {
 }
 
 export class ButtonEnt<Tag extends TagFormat, Button extends string>
-  implements Ent
+  implements Ent<Tag>
 {
   readonly #button: NinePatchEnt<Tag>
   #invalid: boolean = true

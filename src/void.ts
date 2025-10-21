@@ -65,7 +65,7 @@ export class Void<
 
     this.renderer = new Renderer(this.preload ?? {}, this.canvas)
 
-    this.sprites = new Pool<Sprite<Tag>>({
+    this.sprites = new Pool({
       alloc: pool => this.onAllocSprite(pool),
       allocBytes: drawableBytes,
       minPages: opts.sprites?.minPages ?? 3,
@@ -75,7 +75,7 @@ export class Void<
     this.framer.onFrame = millis => this.onFrame(millis)
   }
 
-  onAllocSprite(pool: Pool<Sprite<TagFormat>>): Sprite<Tag> {
+  onAllocSprite(pool: Pool<Sprite<Tag>>): Sprite<Tag> {
     return new Sprite(pool, 0, this.preload, this.framer)
   }
 

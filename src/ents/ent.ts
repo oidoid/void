@@ -1,8 +1,8 @@
 import type {TagFormat} from '../graphics/atlas.ts'
 import type {Void} from '../void.ts'
 
-export interface Ent {
-  free?(v: Void<TagFormat, string>): void
+export interface Ent<out Tag extends TagFormat> {
+  free?(v: Void<Tag, string>): void
   /** returns true if a render is required. */
-  update?(v: Void<TagFormat, string>): boolean | undefined
+  update?(v: Void<Tag, string>): boolean | undefined
 }

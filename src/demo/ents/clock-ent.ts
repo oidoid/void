@@ -1,7 +1,8 @@
 import * as V from '../../index.ts'
 import type {Game} from '../game.ts'
+import type {Tag} from '../types/tag.ts'
 
-export class ClockEnt implements V.Ent {
+export class ClockEnt implements V.Ent<Tag> {
   readonly #time: V.TextEnt = new V.TextEnt()
 
   constructor() {

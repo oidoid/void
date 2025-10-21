@@ -32,7 +32,7 @@ export type NinePatchDirOpts<Tag extends TagFormat> = {
   stretch?: boolean | undefined
 }
 
-export class NinePatchEnt<Tag extends TagFormat> implements Ent {
+export class NinePatchEnt<Tag extends TagFormat> implements Ent<Tag> {
   readonly #dir: {readonly [dir in Lowercase<CompassDir>]: Sprite<Tag>}
   readonly #margin: Readonly<WH>
   #invalid: boolean = true
