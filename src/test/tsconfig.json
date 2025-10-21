@@ -2,7 +2,7 @@
 {
   "extends": "../../tools/tsconfig-base.json",
   "compilerOptions": {
-    "lib": ["DOM"],
+    "lib": ["ES2024", "ESNext.disposable", "DOM"],
 
     "noEmit": true, // tsc is only used for type-checking.
 
