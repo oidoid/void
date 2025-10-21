@@ -31,6 +31,7 @@ type Canvas = {
 
 /** given a min WH and scale, size the camera to the max WH. */
 export class Cam {
+  #devicePixelRatio: number = 0
   #h: number = 1
   #invalid: boolean = true
   #minScale: number = 1
@@ -202,8 +203,13 @@ export class Cam {
     const {clientWidth, clientHeight} = canvas.parentElement
 
     this.#invalid ||=
-      this.#whClient.w !== clientWidth || this.#whClient.h !== clientHeight
+      this.#whClient.w !== clientWidth ||
+      this.#whClient.h !== clientHeight ||
+      // doesn't seem like this should be necessary but it is when moving across
+      // monitors.
+      this.#devicePixelRatio !== devicePixelRatio
     if (!this.#invalid) return
+    this.#devicePixelRatio = devicePixelRatio
     this.#whClient.w = clientWidth
     this.#whClient.h = clientHeight
     this.#invalidateWH()

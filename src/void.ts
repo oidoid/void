@@ -7,7 +7,6 @@ import {drawableBytes, Sprite} from './graphics/sprite.ts'
 import {type DefaultButton, Input} from './input/input.ts'
 import {Looper} from './looper.ts'
 import {Pool, type PoolOpts} from './mem/pool.ts'
-import {PixelRatioObserver} from './pixel-ratio-observer.ts'
 import type {WH} from './types/geo.ts'
 import type {Millis} from './types/time.ts'
 import {initCanvas} from './utils/canvas-util.ts'
@@ -41,7 +40,6 @@ export class Void<
   readonly sprites: Pool<Sprite<Tag>>
   readonly zoo: Zoo<Tag> = new Zoo()
   readonly #poll: DelayInterval | undefined
-  readonly #pixelRatioObserver: PixelRatioObserver = new PixelRatioObserver()
   readonly #preloadAtlasImage: HTMLImageElement | undefined
   readonly #resizeObserver = new ResizeObserver(() => this.onResize())
 
@@ -64,8 +62,6 @@ export class Void<
     this.input = new Input(this.cam, this.canvas)
     if (opts.input !== 'Custom') this.input.mapDefault()
     this.input.onEvent = () => this.onEvent()
-
-    this.#pixelRatioObserver.onChange = () => this.onResize()
 
     if (opts.preloadAtlas) this.#preloadAtlasImage = opts.preloadAtlas.image
 
@@ -123,7 +119,6 @@ export class Void<
     if (!this.canvas.parentElement) throw Error('no canvas parent')
     if (op === 'add') this.#resizeObserver.observe(this.canvas.parentElement)
     else this.#resizeObserver.unobserve(this.canvas.parentElement)
-    this.#pixelRatioObserver.register(op)
 
     if (op === 'add') this.framer.requestFrame()
     this.#poll?.register(op)
