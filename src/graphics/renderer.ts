@@ -21,6 +21,7 @@ export class Renderer {
   loseContext: WEBGL_lose_context | undefined
   readonly #canvas: HTMLCanvasElement
   #clearRGBA: number = 0
+  #depth: boolean = true
   #ctx: Context | undefined
   readonly #preloadAtlas: Readonly<Atlas>
   #preloadAtlasImage: Readonly<HTMLImageElement> | undefined
@@ -111,6 +112,7 @@ export class Renderer {
   }
 
   setDepth(enable: boolean): void {
+    this.#depth = enable
     if (!this.#ctx) return
     if (enable) this.#ctx.gl.enable(this.#ctx.gl.DEPTH_TEST)
     else this.#ctx.gl.disable(this.#ctx.gl.DEPTH_TEST)
@@ -138,6 +140,8 @@ export class Renderer {
       gl.ONE,
       gl.ONE_MINUS_SRC_ALPHA
     )
+
+    this.setDepth(this.#depth)
 
     // enable z-buffer for [0, 1] ([foreground, background]).
     gl.depthRange(0, 1)
