@@ -27,6 +27,7 @@ export class Game extends V.Void<Tag> {
       pageBlocks: 10
     })
     this.#renderToggle = new RenderToggleEnt(this)
+    this.#renderToggle.on = this.renderer.always
     this.#workCounter = new WorkCounterEnt()
     this.#initZoo()
   }
@@ -42,12 +43,10 @@ export class Game extends V.Void<Tag> {
   }
 
   override onLoop(_millis: V.Millis): void {
-    this.renderer.always = this.#renderToggle.on || !!V.debug?.invalid
+    if (V.debug?.input) this.#printInput()
+    this.renderer.always = this.#renderToggle.on
 
     let render = this.#updateCam()
-
-
-    if (V.debug?.input) this.#printInput()
     this.zoo.update(this)
 
     render ||=
@@ -69,16 +68,15 @@ export class Game extends V.Void<Tag> {
   }
 
   #initZoo(): void {
-    // to-do: why can I use follow cam ent with an ent?
     const border = new V.NinePatchEnt<Tag>(this, {
       n: {tag: 'background--Black'},
       origin: {tag: 'background--Transparent'},
       border: {n: 1},
-      z: V.Layer.UIA // to-do: default 0 layer is dumb.
+      z: V.Layer.UIA
     })
     this.zoo.add(border)
     const box = this.cam.follow({w: 0, h: 0}, V.Layer.UIA, 'NW', {fill: 'XY'})
-    border.xy = box // to-do: use x, y, w, h everywhere so the interfaces align and I can just assing here.
+    border.xy = box
     border.wh = box
 
     const backpacker = this.sprites.alloc()

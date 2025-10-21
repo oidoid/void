@@ -93,6 +93,10 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
     return this.#pressed.sprite.z !== Layer.Hidden
   }
 
+  set on(on: boolean) {
+    this.#pressed.sprite.z = on ? this.#pressed.z : Layer.Hidden
+  }
+
   // to-do: offStart() for pointer up listen? would need a boundary check too.
   get onStart(): boolean {
     return this.on && this.#started
@@ -119,10 +123,11 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
         : true
       : this.#toggle
         ? this.on
-        : v.input.isOn('Click') || (v.zoo.cursor?.keyboard && v.input.isOn('A'))
+        : v.input.isOn('Click') ||
+          (!!v.zoo.cursor?.keyboard && v.input.isOn('A'))
     this.#started = this.on !== on
     if (this.#started) {
-      this.#pressed.sprite.z = on ? this.#pressed.z : Layer.Hidden
+      this.on = on
       invalid = true
     }
 

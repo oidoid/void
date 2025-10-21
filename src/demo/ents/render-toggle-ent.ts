@@ -33,6 +33,10 @@ export class RenderToggleEnt implements V.Ent {
     return this.#toggle.on
   }
 
+  set on(on: boolean) {
+    this.#toggle.on = on
+  }
+
   free(v: Game): void {
     this.#toggle.free(v)
   }
