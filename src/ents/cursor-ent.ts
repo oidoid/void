@@ -12,10 +12,14 @@ import type {Ent} from './ent.ts'
 export class CursorEnt<out Tag extends TagFormat> implements Ent<Tag> {
   keyboard: boolean = false
   readonly #sprite: Sprite<Tag>
+  #pick: Tag
+  #point: Tag
 
-  constructor(v: Void<Tag, string>, tag: Tag) {
+  constructor(v: Void<Tag, string>, point: Tag, pick?: Tag | undefined) {
+    this.#point = point
+    this.#pick = pick ?? this.#point
     this.#sprite = v.sprites.alloc()
-    this.#sprite.tag = tag
+    this.#sprite.tag = point
     this.#sprite.z = Layer.Hidden
   }
 
@@ -45,6 +49,7 @@ export class CursorEnt<out Tag extends TagFormat> implements Ent<Tag> {
 
   update(v: Void<Tag, 'L' | 'R' | 'U' | 'D'>): boolean | undefined {
     if (v.input.point?.invalid) {
+      this.#sprite.tag = v.input.point.click ? this.#pick : this.#point
       this.#sprite.xy = v.input.point.local
       this.#sprite.z =
         v.input.point?.type === 'Mouse' ? Layer.Top : Layer.Hidden
