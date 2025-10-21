@@ -29,11 +29,6 @@
       "src": "../../../dist/public/favicon/favicon192.png",
       "sizes": "192x192",
       "type": "image/png"
-    },
-    {
-      "src": "../../../dist/public/favicon/favicon512.png",
-      "sizes": "512x512",
-      "type": "image/png"
     }
   ],
   "manifest_version": 3,
