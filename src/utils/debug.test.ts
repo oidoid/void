@@ -54,12 +54,12 @@ test('all', () => {
 })
 
 test('void', () => {
-  const url = 'https://oidoid.com/?debug=nativescale,void'
+  const url = 'https://oidoid.com/?debug=nativescale,void,render=always'
   const debug = Debug(url)
   assert.equal(debug?.cam, 'true')
   assert.equal(debug?.input, 'true')
   assert.equal(debug?.mem, 'true')
-  assert.equal(debug?.render, 'true')
+  assert.equal(debug?.render, 'always')
   assert.equal((debug as {nativeScale: string}).nativeScale, 'true')
   assert.equal((debug as {unknown: string}).unknown, undefined)
 })

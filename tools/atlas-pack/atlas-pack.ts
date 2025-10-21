@@ -6,13 +6,12 @@ import {globAll} from '../utils/file-util.ts'
 import {parseAtlasJSON} from './atlas-json-parser.ts'
 
 // to-do: separate executable?
-export async function packAtlas(
-  config: Readonly<AtlasConfig>,
-  minify: boolean
-): Promise<void> {
+export async function packAtlas(config: Readonly<AtlasConfig>): Promise<void> {
   const filenames = await globAll(path.join(config.dir, '**.aseprite'))
   if (!filenames.length) return
 
+  const webp = config.image.endsWith('.webp')
+  const sheet = webp ? config.image.replace('.webp', '.png') : config.image
   const json = await exec(
     'aseprite',
     '--batch',
@@ -21,18 +20,32 @@ export async function packAtlas(
     '--list-slices',
     '--list-tags',
     '--merge-duplicates',
-    `--sheet=${config.image}`,
+    `--sheet=${sheet}`,
     '--sheet-pack',
     '--tagname-format={title}--{tag}',
     ...filenames
   )
 
-  if (minify) await exec('zopflipng', '-y', config.image, config.image)
+  if (webp)
+    await exec(
+      'cwebp',
+      '-exact',
+      '-lossless',
+      '-mt',
+      '-quiet',
+      '-z',
+      '9',
+      sheet,
+      '-o',
+      config.image
+    )
 
   await fs.writeFile(
     config.json,
     JSON.stringify(parseAtlasJSON(JSON.parse(json)))
   )
 
-  await exec('biome', 'check', '--fix', config.json)
+  try {
+    await exec('biome', 'check', '--fix', config.json)
+  } catch {}
 }

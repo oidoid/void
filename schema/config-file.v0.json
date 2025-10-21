@@ -19,7 +19,7 @@
         "image": {
           "type": "string",
           "description": "sprite sheet image output.",
-          "examples": ["dist/public/atlas.png", "atlas.png"]
+          "examples": ["dist/public/atlas.webp", "atlas.png"]
         },
         "json": {
           "type": "string",

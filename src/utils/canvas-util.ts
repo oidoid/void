@@ -6,7 +6,7 @@ export async function downloadScreenshot(
   name: string
 ): Promise<void> {
   using img = await screenshot(canvas)
-  download(img.uri, `${name}-screenshot-${dateToTimestamp(new Date())}.png`)
+  download(img.uri, `${name}-screenshot-${dateToTimestamp(new Date())}.webp`)
 }
 
 export function initCanvas(
@@ -69,6 +69,6 @@ export function screenshot(
         }
         fulfil(img)
       } else reject(Error('no blob'))
-    }, 'image/png')
+    }, 'image/webp')
   })
 }

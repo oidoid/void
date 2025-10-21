@@ -21,12 +21,12 @@ jobs:
       - name: Install Native Dependencies
         run: |
           sudo apt update
-          sudo apt install --yes zopfli
+          sudo apt install --yes cwebp
       - name: Install JavaScript Dependencies
         run: npm ci --no-fund
       - name: Test Format
         run: npm run test:format
-      - name: Unit Test
-        run: npm run test:unit
       - name: Build
         run: npx tsc --build
+      - name: Unit Test
+        run: npm run test:unit

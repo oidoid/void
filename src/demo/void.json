@@ -5,7 +5,7 @@
   "out": {"dir": "../../dist/public/", "name": "void"},
   "preloadAtlas": {
     "dir": "assets/preload-atlas/",
-    "image": "../../dist/public/preload-atlas.png",
+    "image": "../../dist/public/preload-atlas.webp",
     "json": "assets/preload-atlas.json"
   }
 }

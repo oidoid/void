@@ -116,15 +116,16 @@ export function HTMLPlugin(config: Readonly<Config>): esbuild.Plugin {
             removeComments: true,
             removeEmptyAttributes: true
           })
-        // to-do: what biome config does this use outside of the repo?
         else
-          html = await exec(
-            'biome',
-            'check',
-            '--fix',
-            `--stdin-file-path=${config.entry}`,
-            {stdin: html}
-          )
+          try {
+            html = await exec(
+              'biome',
+              'check',
+              '--fix',
+              `--stdin-file-path=${config.entry}`,
+              {stdin: html}
+            )
+          } catch {}
 
         // to-do: test.
         const outHTMLFilename = path.join(config.out.dir, config.out.filename)

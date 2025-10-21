@@ -26,7 +26,7 @@ test('overrides', () => {
     entry: 'entry',
     meta: 'meta',
     out: {dir: 'outDir', name: 'name'},
-    preloadAtlas: {dir: 'dir/', image: 'image.png', json: 'json.json'}
+    preloadAtlas: {dir: 'dir/', image: 'image.webp', json: 'json.json'}
   }
   assert.deepEqual<ConfigFile>(
     parse('dirname/filename', JSON.stringify(config)),
@@ -37,7 +37,7 @@ test('overrides', () => {
       out: {dir: 'dirname/outDir', name: 'name'},
       preloadAtlas: {
         dir: 'dirname/dir/',
-        image: 'dirname/image.png',
+        image: 'dirname/image.webp',
         json: 'dirname/json.json'
       },
 
