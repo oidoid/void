@@ -22,7 +22,7 @@
     "node": ">=24.0"
   },
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./dist/src/index.js"
   },
   "files": [
     "dist",
