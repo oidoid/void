@@ -1,7 +1,7 @@
 {
   "author": "Stephen Niedzielski <stephen@oidoid.com> (https://oidoid.com)",
   "bin": {
-    "void": "tools/void.ts"
+    "void": "dist/tools/void.js"
   },
   "bugs": "https://github.com/oidoid/void/issues",
   "dependencies": {
@@ -25,10 +25,9 @@
     ".": "./dist/src/index.js"
   },
   "files": [
-    "dist",
-    "schema",
-    "tools",
-    "!tools/tsconfig*",
+    "dist/",
+    "!dist/meta.json",
+    "!dist/public/**/*.png",
     "!**/tsconfig.tsbuildinfo"
   ],
   "homepage": "https://github.com/oidoid/void",
@@ -59,7 +58,7 @@
     "test": "npm run test:format && npm run test:unit && npm run build",
     "test:format": "npm run formatter",
     "test:unit": "sh -c 'node --experimental-test-coverage --test ${@:-$(find src schema tools -name \\*.test.ts -printf %p\\ )}' --",
-    "version": "npm pkg set published=$(date +%Y%m%d) && npm test"
+    "version": "npm pkg set published=$(date +%Y%m%d) && npm run clean && npm test"
   },
   "type": "module",
   "version": "0.1.0-7"
