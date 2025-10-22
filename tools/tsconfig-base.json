@@ -50,6 +50,7 @@
     "skipDefaultLibCheck": true,
 
     "sourceMap": true,
+    "declarationMap": true, // map back to original sources, not .d.ts.
 
     "target": "ES2024",
 
