@@ -8,6 +8,11 @@ basic 2D game library.
 npm install --save @oidoid/void
 ```
 
+### Native Dependencies
+
+- Aseprite
+- cwebp
+
 ## Copyright and License
 
 © oidoid.

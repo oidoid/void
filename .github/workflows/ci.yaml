@@ -18,11 +18,7 @@ jobs:
         with:
           node-version: 24.4.1
           cache: npm
-      - name: Install Native Dependencies
-        run: |
-          sudo apt update
-          sudo apt install --yes webp
-      - name: Install JavaScript Dependencies
+      - name: Install Dependencies
         run: npm ci --no-fund
       - name: Test Format
         run: npm run test:format
