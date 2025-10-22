@@ -8,7 +8,7 @@ import {type DefaultButton, Input} from './input/input.ts'
 import {Looper} from './looper.ts'
 import {Pool, type PoolOpts} from './mem/pool.ts'
 import type {WH} from './types/geo.ts'
-import type {Millis} from './types/time.ts'
+import type {Millis, Secs} from './types/time.ts'
 import {initCanvas} from './utils/canvas-util.ts'
 import {DelayInterval} from './utils/delay-interval.ts'
 import {initBody, initMetaViewport} from './utils/dom-util.ts'
@@ -39,6 +39,8 @@ export class Void<
   readonly sprites: Pool<Sprite<Tag>>
   readonly zoo: Zoo<Tag> = new Zoo()
   readonly looper: Looper = new Looper()
+  /** delta since frame request. */
+  readonly tick: {ms: Millis; s: Secs} = {ms: 0, s: 0}
   readonly #poll: DelayInterval | undefined
   readonly #preloadAtlasImage: HTMLImageElement | undefined
   // may trigger an initial force update.
@@ -47,7 +49,7 @@ export class Void<
   constructor(opts: Readonly<VoidOpts<Tag>>) {
     if (opts.poll != null)
       this.#poll = new DelayInterval(
-        opts.poll.delay ?? (() => 0 as Millis),
+        opts.poll.delay ?? (() => 0),
         opts.poll.period,
         () => this.onPoll()
       )
@@ -92,18 +94,19 @@ export class Void<
 
   /** update input, update canvas, update cam, update world, then render. */
   onFrame(millis: Millis): void {
+    this.tick.ms = millis
+    this.tick.s = (millis / 1000) as Secs
     if (document.hidden) return
     this.input.update(millis)
 
     this.requestFrame() // request frame before in case loop cancels.
 
-    this.onLoop(millis)
+    this.onLoop()
 
     this.cam.postupdate()
   }
 
-  // biome-ignore lint/correctness/noUnusedFunctionParameters:;
-  onLoop(millis: Millis): void {}
+  onLoop(): void {}
 
   onPoll(): void {
     this.requestFrame('Force')

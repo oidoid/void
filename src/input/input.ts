@@ -98,9 +98,11 @@ export class Input<Button extends string> {
    */
   readonly #combo: number[] = []
   readonly #contextMenu: ContextMenu
+  /** direction vector. */
+  readonly #dir: XY = {x: 0, y: 0}
   readonly #gamepad: Gamepad
   /** time since buttons changed. */
-  #heldMillis: Millis = 0 as Millis
+  #heldMillis: Millis = 0
   readonly #keyboard: Keyboard
   readonly #pointer: Pointer
   #pointerState: PointerState | undefined
@@ -145,12 +147,16 @@ export class Input<Button extends string> {
     return this.#contextMenu
   }
 
+  get dir(): Readonly<XY> {
+    return this.#dir
+  }
+
   /** doesn't consider handled. gamepads must be polled. */
   get gamepad(): Readonly<object | undefined> {
     return this.#gamepad.connected ? {} : undefined
   }
 
-  /** true if bits hasn't changed for a while. */
+  /** true if buttons haven't changed for a while. */
   get held(): boolean {
     return !this.handled && this.#heldMillis >= this.minHeldMillis
   }
@@ -161,6 +167,12 @@ export class Input<Button extends string> {
 
   isAnyOnStart(...btns: Readonly<Chord<Button>>): boolean {
     return this.started && this.isAnyOn(...btns)
+  }
+
+  /** true if any buttons have started on or off. */
+  isAnyStarted(...btns: Readonly<Chord<Button>>): boolean {
+    const bits = this.#mapBits(btns)
+    return !this.handled && (this.#bits & bits) !== (this.#prevBits & bits)
   }
 
   /**
@@ -326,7 +338,7 @@ export class Input<Button extends string> {
     this.#bits = 0
     this.#prevBits = 0
     this.handled = false
-    this.#heldMillis = 0 as Millis
+    this.#heldMillis = 0
     this.#combo.length = 0
     this.#gamepad.reset()
     this.#keyboard.reset()
@@ -361,6 +373,28 @@ export class Input<Button extends string> {
       this.#pointer.invalid ||
       !!this.#wheel.deltaClient
     this.gestured ||= !!this.#bits
+
+    this.#dir.x = this.#dir.y = 0
+    if (
+      (this.#bitByButton['L' as Button]! & this.#bits) ===
+      this.#bitByButton['L' as Button]
+    )
+      this.#dir.x -= 1
+    if (
+      (this.#bitByButton['R' as Button]! & this.#bits) ===
+      this.#bitByButton['R' as Button]
+    )
+      this.#dir.x += 1
+    if (
+      (this.#bitByButton['U' as Button]! & this.#bits) ===
+      this.#bitByButton['U' as Button]
+    )
+      this.#dir.y -= 1
+    if (
+      (this.#bitByButton['D' as Button]! & this.#bits) ===
+      this.#bitByButton['D' as Button]
+    )
+      this.#dir.y += 1
 
     if (
       (millis > this.comboMaxIntervalMillis && this.#bits !== this.#prevBits) ||

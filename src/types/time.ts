@@ -10,7 +10,11 @@ declare global {
 
 declare const millis: unique symbol
 /** duration in milliseconds. */
-export type Millis = number & {readonly [millis]: never}
+export type Millis = (number & {readonly [millis]: never}) | 0
+
+declare const secs: unique symbol
+/** duration in seconds. */
+export type Secs = (number & {readonly [secs]: never}) | 0
 
 declare const utcMillis: unique symbol
 export type UTCMillis = number & {readonly [utcMillis]: never}

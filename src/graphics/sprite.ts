@@ -337,6 +337,11 @@ export class Sprite<out Tag extends TagFormat> extends Drawable {
     this.reset()
   }
 
+  truncXY(): void {
+    this.x = Math.trunc(this.x)
+    this.y = Math.trunc(this.y)
+  }
+
   override toString(): string {
     return `Sprite{${this.tag} (${this.x} ${this.y} ${this.z}) ${this.w}×${this.h}}`
   }
@@ -379,4 +384,8 @@ export class Sprite<out Tag extends TagFormat> extends Drawable {
     const cel = this.#looper.age / celMillis
     return cel % (this.anim.cels * 2)
   }
+}
+
+export function truncDrawableEpsilon(x: number): number {
+  return Math.trunc(x / drawableEpsilon) * drawableEpsilon
 }

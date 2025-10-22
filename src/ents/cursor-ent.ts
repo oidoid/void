@@ -1,8 +1,7 @@
 import type {TagFormat} from '../graphics/atlas.ts'
 import {Layer} from '../graphics/layer.ts'
-import type {Sprite} from '../graphics/sprite.ts'
+import {type Sprite, truncDrawableEpsilon} from '../graphics/sprite.ts'
 import {type Box, boxHits, type WH, type XY} from '../types/geo.ts'
-import type {Millis} from '../types/time.ts'
 import type {Void} from '../void.ts'
 import type {Ent} from './ent.ts'
 
@@ -11,11 +10,12 @@ import type {Ent} from './ent.ts'
  * other ents. the cursor may be moved by keyboard and has a hitbox.
  */
 export class CursorEnt<out Tag extends TagFormat> implements Ent<Tag> {
-  /** speed in pixels per second if enabled. */
+  /** px / sec, 0 to disable keyboard. */
   keyboard: number = 0
   readonly #sprite: Sprite<Tag>
-  #pick: Tag
-  #point: Tag
+  readonly #pick: Tag
+  readonly #point: Tag
+  readonly #viewport: Box = {x: 0, y: 0, w: 0, h: 0}
 
   constructor(v: Void<Tag, string>, point: Tag, pick?: Tag | undefined) {
     this.#point = point
@@ -23,6 +23,7 @@ export class CursorEnt<out Tag extends TagFormat> implements Ent<Tag> {
     this.#sprite = v.sprites.alloc()
     this.#sprite.tag = point
     this.#sprite.z = Layer.Hidden
+    this.#updateViewport(v)
   }
 
   free(v: Void<Tag, string>): void {
@@ -49,10 +50,7 @@ export class CursorEnt<out Tag extends TagFormat> implements Ent<Tag> {
     return this.visible && boxHits(this.hitbox(v, coords), box)
   }
 
-  update(
-    v: Void<Tag, 'L' | 'R' | 'U' | 'D'>,
-    millis: Millis
-  ): boolean | undefined {
+  update(v: Void<Tag, 'L' | 'R' | 'U' | 'D' | 'A'>): boolean | undefined {
     if (v.input.point?.invalid) {
       this.#sprite.tag = v.input.point.click ? this.#pick : this.#point
       this.#sprite.xy = v.input.point.local
@@ -61,12 +59,33 @@ export class CursorEnt<out Tag extends TagFormat> implements Ent<Tag> {
       return true
     }
 
-    if (this.keyboard && v.input.isAnyOn('L', 'R', 'U', 'D')) {
-      const len = (this.keyboard * millis) / 1000
-      if (v.input.isOn('L')) this.#sprite.x -= len
-      if (v.input.isOn('R')) this.#sprite.x += len
-      if (v.input.isOn('U')) this.#sprite.y -= len
-      if (v.input.isOn('D')) this.#sprite.y += len
+    // assume the sprite dimensions don't vary between point and pick. always
+    // update in case cam invalidates while keyboard is temporarily off.
+    this.#updateViewport(v)
+
+    if (
+      this.keyboard &&
+      (v.input.isAnyOn('L', 'R', 'U', 'D') || v.input.isAnyStarted('A'))
+    ) {
+      this.#sprite.tag = v.input.isOn('A') ? this.#pick : this.#point
+
+      if (v.input.isAnyOnStart('L', 'R', 'U', 'D')) this.#sprite.truncXY()
+
+      const len = truncDrawableEpsilon(this.keyboard * v.tick.s)
+      if (v.input.isOn('L'))
+        this.#sprite.x = Math.max(this.#viewport.x, this.#sprite.x - len)
+      if (v.input.isOn('R'))
+        this.#sprite.x = Math.min(
+          this.#viewport.x + this.#viewport.w,
+          this.#sprite.x + len
+        )
+      if (v.input.isOn('U'))
+        this.#sprite.y = Math.max(this.#viewport.y, this.#sprite.y - len)
+      if (v.input.isOn('D'))
+        this.#sprite.y = Math.min(
+          this.#viewport.y + this.#viewport.h,
+          this.#sprite.y + len
+        )
       this.#sprite.z = Layer.Top
 
       return true
@@ -75,5 +94,13 @@ export class CursorEnt<out Tag extends TagFormat> implements Ent<Tag> {
 
   get visible(): boolean {
     return this.#sprite.z !== Layer.Hidden
+  }
+
+  #updateViewport(v: Void<Tag, string>): void {
+    if (!v.cam.invalid) return
+    this.#viewport.x = -(this.#sprite.w - 1)
+    this.#viewport.y = -(this.#sprite.h - 1)
+    this.#viewport.w = v.cam.w + this.#sprite.w - 2
+    this.#viewport.h = v.cam.h + 2
   }
 }

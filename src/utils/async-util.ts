@@ -36,7 +36,7 @@ export function throttle<T extends unknown[]>(
   fn: (this: undefined, ...args: T) => void,
   period: Millis
 ): {cancel(): void; (...args: T): void} {
-  let exec: Millis = 0 as Millis
+  let exec: Millis = 0
   let timeout: number | undefined
   const cancel = () => clearTimeout(timeout)
   return Object.assign(

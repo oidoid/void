@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict'
 import {test} from 'node:test'
 import {TestEvent} from '../test/test-event.ts'
-import type {Millis} from '../types/time.ts'
 import {type Context, Renderer} from './renderer.ts'
 
 test('renderer', ctx => {
@@ -30,7 +29,7 @@ test('renderer', ctx => {
 
 function TestRenderer(canvas: HTMLCanvasElement): Renderer {
   const renderer = new Renderer({anim: {}, celXYWH: [], tags: []}, canvas, {
-    age: 0 as Millis
+    age: 0
   })
   renderer._Context = () => ({}) as Context
   renderer.register('add')

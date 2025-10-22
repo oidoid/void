@@ -34,12 +34,12 @@ export class Game extends V.Void<Tag> {
     this.#initZoo()
   }
 
-  override onLoop(millis: V.Millis): void {
+  override onLoop(): void {
     if (V.debug?.input) this.#printInput()
     this.renderer.always = this.#renderToggle.on
 
     let render = this.#updateCam()
-    this.zoo.update(this, millis)
+    this.zoo.update(this)
 
     render ||=
       this.zoo.invalid ||
@@ -128,16 +128,13 @@ export class Game extends V.Void<Tag> {
   #updateCam(): boolean {
     let render = this.input.isAnyOn('L', 'R', 'U', 'D')
 
-    if (this.input.isAnyOnStart('L', 'R', 'U', 'D')) {
-      this.cam.x = Math.trunc(this.cam.x)
-      this.cam.y = Math.trunc(this.cam.y)
-    }
+    if (this.input.isAnyOnStart('L', 'R', 'U', 'D')) this.cam.truncXY()
 
-    const d = 1 / 4
-    if (this.input.isOn('L')) this.cam.x -= d
-    if (this.input.isOn('R')) this.cam.x += d
-    if (this.input.isOn('U')) this.cam.y -= d
-    if (this.input.isOn('D')) this.cam.y += d
+    const len = V.truncDrawableEpsilon(25 * this.tick.s)
+    if (this.input.isOn('L')) this.cam.x -= len
+    if (this.input.isOn('R')) this.cam.x += len
+    if (this.input.isOn('U')) this.cam.y -= len
+    if (this.input.isOn('D')) this.cam.y += len
 
     if (this.input.wheel?.delta.xy.y) {
       render = true

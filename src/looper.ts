@@ -9,10 +9,11 @@ import type {Millis} from './types/time.ts'
  */
 export class Looper {
   /** duration of frames observed. */
-  age: Millis = 0 as Millis
+  age: Millis = 0
   onFrame: ((millis: Millis) => void) | undefined
   #req: number = 0
   #registered: boolean = false
+  #start: Millis = 0
 
   register(op: 'add' | 'remove'): this {
     const fn = `${op}EventListener` as const
@@ -25,7 +26,8 @@ export class Looper {
 
   requestFrame(): void {
     if (this.#req || document.hidden || !this.#registered) return
-    this.#req = requestAnimationFrame(this.#onFrame as FrameRequestCallback)
+    this.#start = performance.now()
+    this.#req = requestAnimationFrame(this.#onFrame)
   }
 
   [Symbol.dispose](): void {
@@ -37,8 +39,9 @@ export class Looper {
     this.#req = 0
   }
 
-  #onFrame = (now: Millis): void => {
-    const millis = (now - (this.age || now)) as Millis
+  #onFrame = (): void => {
+    const now = performance.now()
+    const millis = (now - this.#start) as Millis
     this.age = now
     this.#req = 0
     this.onFrame?.(millis)

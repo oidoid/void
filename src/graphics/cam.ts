@@ -193,6 +193,11 @@ export class Cam {
     return `Cam{(${this.x} ${this.y}) ${this.w}×${this.h}}`
   }
 
+  truncXY(): void {
+    this.x = Math.trunc(this.x)
+    this.y = Math.trunc(this.y)
+  }
+
   /**
    * call after input processing but before ent processing. ents that move the
    * camera should be called immediately after update so that the invalid state
