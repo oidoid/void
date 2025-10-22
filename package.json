@@ -46,7 +46,7 @@
     "url": "git+https://github.com/oidoid/void.git"
   },
   "scripts": {
-    "build": "tsc --build && npm run build:favicon && npm run build:demo -- --minify --one-file",
+    "build": "tsc --build && chmod +x dist/tools/void.js && npm run build:favicon && npm run build:demo -- --minify --one-file",
     "build:favicon": "for s in 1 2 3 4 12; do f=dist/public/favicon/favicon$(($s * 16)); aseprite src/demo/assets/favicon.aseprite --batch --color-mode=indexed --scale=$s --save-as=$f.png && cwebp -exact -lossless -mt -quiet -z 9 $f.png -o $f.webp; done",
     "build:demo": "tools/void.ts --config=src/demo/void.json",
     "build:watch": "tsc --build --watch",
