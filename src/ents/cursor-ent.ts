@@ -2,6 +2,7 @@ import type {TagFormat} from '../graphics/atlas.ts'
 import {Layer} from '../graphics/layer.ts'
 import type {Sprite} from '../graphics/sprite.ts'
 import {type Box, boxHits, type WH, type XY} from '../types/geo.ts'
+import type {Millis} from '../types/time.ts'
 import type {Void} from '../void.ts'
 import type {Ent} from './ent.ts'
 
@@ -10,7 +11,8 @@ import type {Ent} from './ent.ts'
  * other ents. the cursor may be moved by keyboard and has a hitbox.
  */
 export class CursorEnt<out Tag extends TagFormat> implements Ent<Tag> {
-  keyboard: boolean = false
+  /** speed in pixels per second if enabled. */
+  keyboard: number = 0
   readonly #sprite: Sprite<Tag>
   #pick: Tag
   #point: Tag
@@ -47,7 +49,10 @@ export class CursorEnt<out Tag extends TagFormat> implements Ent<Tag> {
     return this.visible && boxHits(this.hitbox(v, coords), box)
   }
 
-  update(v: Void<Tag, 'L' | 'R' | 'U' | 'D'>): boolean | undefined {
+  update(
+    v: Void<Tag, 'L' | 'R' | 'U' | 'D'>,
+    millis: Millis
+  ): boolean | undefined {
     if (v.input.point?.invalid) {
       this.#sprite.tag = v.input.point.click ? this.#pick : this.#point
       this.#sprite.xy = v.input.point.local
@@ -57,11 +62,11 @@ export class CursorEnt<out Tag extends TagFormat> implements Ent<Tag> {
     }
 
     if (this.keyboard && v.input.isAnyOn('L', 'R', 'U', 'D')) {
-      const epsilon = 1
-      if (v.input.isOn('L')) this.#sprite.x -= epsilon
-      if (v.input.isOn('R')) this.#sprite.x += epsilon
-      if (v.input.isOn('U')) this.#sprite.y -= epsilon
-      if (v.input.isOn('D')) this.#sprite.y += epsilon
+      const len = (this.keyboard * millis) / 1000
+      if (v.input.isOn('L')) this.#sprite.x -= len
+      if (v.input.isOn('R')) this.#sprite.x += len
+      if (v.input.isOn('U')) this.#sprite.y -= len
+      if (v.input.isOn('D')) this.#sprite.y += len
       this.#sprite.z = Layer.Top
 
       return true

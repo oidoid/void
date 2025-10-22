@@ -34,12 +34,12 @@ export class Game extends V.Void<Tag> {
     this.#initZoo()
   }
 
-  override onLoop(_millis: V.Millis): void {
+  override onLoop(millis: V.Millis): void {
     if (V.debug?.input) this.#printInput()
     this.renderer.always = this.#renderToggle.on
 
     let render = this.#updateCam()
-    this.zoo.update(this)
+    this.zoo.update(this, millis)
 
     render ||=
       this.zoo.invalid ||

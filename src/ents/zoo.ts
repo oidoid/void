@@ -1,4 +1,5 @@
 import type {TagFormat} from '../graphics/atlas.ts'
+import type {Millis} from '../types/time.ts'
 import {debug} from '../utils/debug.ts'
 import type {Void} from '../void.ts'
 import {CursorEnt} from './cursor-ent.ts'
@@ -40,10 +41,10 @@ export class Zoo<out Tag extends TagFormat> {
     }
   }
 
-  update(v: Void<Tag, string>): void {
+  update(v: Void<Tag, string>, millis: Millis): void {
     this.#invalid = false
     for (const ent of this.#ents)
-      if (ent.update?.(v)) {
+      if (ent.update?.(v, millis)) {
         if (!this.#invalid && debug?.invalid)
           console.debug('ent update invalid', ent)
         this.#invalid = true
