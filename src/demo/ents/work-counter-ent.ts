@@ -15,14 +15,10 @@ export class WorkCounterEnt implements V.Ent<Tag> {
     this.#text.free(v)
   }
 
-  incrementRender(): void {
-    this.#renders++
-  }
-
   /** always updates but never invalidates. */
   update(v: Game): undefined {
     this.#updates++
-    this.#text.text = `${this.#updates} updates\n${this.#renders + 1} renders`
+    this.#text.text = `${this.#updates} updates\n${v.renderer.clears + 1} renders`
     this.#text.layout(v)
     this.#text.xy = v.cam.follow(
       {w: this.#text.wh.w, h: this.#text.wh.h - this.#text.scaledLeading},

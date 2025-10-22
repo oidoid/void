@@ -47,7 +47,6 @@ export class Game extends V.Void<Tag> {
       this.renderer.invalid ||
       this.renderer.always
     if (render) {
-      this.#workCounter.incrementRender()
       this.renderer.clear(0xffffb1ff)
       this.renderer.predraw(this.cam, this.framer)
       this.renderer.setDepth(true)

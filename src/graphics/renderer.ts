@@ -17,6 +17,7 @@ const uv: Readonly<Int8Array> = new Int8Array([1, 1, 0, 1, 1, 0, 0, 0])
 export class Renderer {
   /** when off, ents should avoid requesting renders. */
   always: boolean = debug?.render === 'always'
+  clears: number = 0
   invalid: boolean = false
   loseContext: WEBGL_lose_context | undefined
   readonly #canvas: HTMLCanvasElement
@@ -44,6 +45,7 @@ export class Renderer {
       )
     }
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+    this.clears++
   }
 
   draw(pool: Readonly<Pool<Sprite<TagFormat>>>): void {
