@@ -216,19 +216,19 @@ export abstract class Drawable implements Block, Box {
 // to-do: can I declaration merge or namespace merge away from the tag type?
 export class Sprite<out Tag extends TagFormat> extends Drawable {
   readonly #atlas: Readonly<Atlas>
-  readonly #framer: {readonly age: Millis}
   #hitbox: Box | undefined
   #hurtbox: Box | undefined
+  readonly #looper: {readonly age: Millis}
 
   constructor(
     pool: {readonly view: DataView<ArrayBuffer>},
     i: number,
     atlas: Readonly<Atlas>,
-    framer: {readonly age: Millis}
+    looper: {readonly age: Millis}
   ) {
     super(pool, i)
     this.#atlas = atlas
-    this.#framer = framer
+    this.#looper = looper
   }
 
   get anim(): Anim {
@@ -376,7 +376,7 @@ export class Sprite<out Tag extends TagFormat> extends Drawable {
 
   /** current fractional cel in [0, 2 * anim.cels). */
   get #currentCel(): number {
-    const cel = this.#framer.age / celMillis
+    const cel = this.#looper.age / celMillis
     return cel % (this.anim.cels * 2)
   }
 }

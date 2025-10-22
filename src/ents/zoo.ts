@@ -45,7 +45,7 @@ export class Zoo<out Tag extends TagFormat> {
     for (const ent of this.#ents)
       if (ent.update?.(v)) {
         if (!this.#invalid && debug?.invalid)
-          console.log('ent update invalid', ent)
+          console.debug('ent update invalid', ent)
         this.#invalid = true
       }
   }

@@ -33,14 +33,15 @@ export class Void<
 > {
   readonly cam: Cam = new Cam()
   readonly canvas: HTMLCanvasElement
-  readonly framer: Looper = new Looper()
   readonly input: Input<Button>
   readonly preload: Atlas
   readonly renderer: Renderer
   readonly sprites: Pool<Sprite<Tag>>
   readonly zoo: Zoo<Tag> = new Zoo()
+  readonly looper: Looper = new Looper()
   readonly #poll: DelayInterval | undefined
   readonly #preloadAtlasImage: HTMLImageElement | undefined
+  // may trigger an initial force update.
   readonly #resizeObserver = new ResizeObserver(() => this.onResize())
 
   constructor(opts: Readonly<VoidOpts<Tag>>) {
@@ -69,7 +70,7 @@ export class Void<
       ? parseAtlas(opts.preloadAtlas.json)
       : {anim: {}, celXYWH: [], tags: []}
 
-    this.renderer = new Renderer(this.preload ?? {}, this.canvas)
+    this.renderer = new Renderer(this.preload ?? {}, this.canvas, this.looper)
 
     this.sprites = new Pool({
       alloc: pool => this.onAllocSprite(pool),
@@ -78,15 +79,15 @@ export class Void<
       pageBlocks: opts.sprites?.pageBlocks ?? 1000
     })
 
-    this.framer.onFrame = millis => this.onFrame(millis)
+    this.looper.onFrame = millis => this.onFrame(millis)
   }
 
   onAllocSprite(pool: Pool<Sprite<Tag>>): Sprite<Tag> {
-    return new Sprite(pool, 0, this.preload, this.framer)
+    return new Sprite(pool, 0, this.preload, this.looper)
   }
 
   onEvent(): void {
-    this.framer.requestFrame()
+    this.requestFrame('Force')
   }
 
   /** update input, update canvas, update cam, update world, then render. */
@@ -105,31 +106,31 @@ export class Void<
   onLoop(millis: Millis): void {}
 
   onPoll(): void {
-    this.framer.requestFrame()
+    this.requestFrame('Force')
   }
 
   onResize(): void {
-    this.framer.requestFrame()
+    this.requestFrame('Force') // force cam reeval.
   }
 
   async register(op: 'add' | 'remove'): Promise<void> {
     this.input.register(op)
     this.renderer.register(op)
-    this.framer.register(op)
+    this.looper.register(op)
     if (!this.canvas.parentElement) throw Error('no canvas parent')
     if (op === 'add') this.#resizeObserver.observe(this.canvas.parentElement)
     else this.#resizeObserver.unobserve(this.canvas.parentElement)
 
-    if (op === 'add') this.framer.requestFrame()
+    if (op === 'add') this.looper.requestFrame()
     this.#poll?.register(op)
 
     if (this.#preloadAtlasImage) await loadImage(this.#preloadAtlasImage)
     this.renderer.load(this.#preloadAtlasImage)
   }
 
-  requestFrame(): void {
-    if (this.renderer.always || this.input.anyOn || this.input.gamepad)
-      this.framer.requestFrame()
+  requestFrame(force?: 'Force' | undefined): void {
+    if (force || this.renderer.always || this.input.anyOn || this.input.gamepad)
+      this.looper.requestFrame()
   }
 
   async [Symbol.asyncDispose](): Promise<void> {

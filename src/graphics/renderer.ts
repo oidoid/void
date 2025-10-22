@@ -24,12 +24,18 @@ export class Renderer {
   #clearRGBA: number = 0
   #depth: boolean = true
   #ctx: Context | undefined
+  readonly #looper: {readonly age: Millis}
   readonly #preloadAtlas: Readonly<Atlas>
   #preloadAtlasImage: Readonly<HTMLImageElement> | undefined
 
-  constructor(preloadAtlas: Readonly<Atlas>, canvas: HTMLCanvasElement) {
+  constructor(
+    preloadAtlas: Readonly<Atlas>,
+    canvas: HTMLCanvasElement,
+    looper: {readonly age: Millis}
+  ) {
     this.#preloadAtlas = preloadAtlas
     this.#canvas = canvas
+    this.#looper = looper
   }
 
   clear(rgba: number): void {
@@ -83,7 +89,7 @@ export class Renderer {
     this.#ctx = this._Context()
   }
 
-  predraw(cam: Readonly<Cam>, framer: {readonly age: Millis}): void {
+  predraw(cam: Readonly<Cam>): void {
     if (!this.#ctx) return
     const {gl, spriteShader, viewport} = this.#ctx
 
@@ -96,7 +102,7 @@ export class Renderer {
     gl.useProgram(spriteShader.program)
 
     gl.uniform4i(spriteShader.uniform.uCam!, cam.x, cam.y, cam.w, cam.h)
-    gl.uniform1f(spriteShader.uniform.uAge!, framer.age)
+    gl.uniform1f(spriteShader.uniform.uAge!, this.#looper.age)
 
     for (const [i, tex] of spriteShader.textures.entries()) {
       gl.activeTexture(gl.TEXTURE0 + i)
@@ -214,7 +220,7 @@ export class Renderer {
         this.#preloadAtlasImage.naturalHeight
       )
 
-    if (!this.invalid && debug?.invalid) console.log('renderer invalid')
+    if (!this.invalid && debug?.invalid) console.debug('renderer invalid')
     this.invalid = true
     // keep outside of #context so it can be restored.
     this.loseContext = gl.getExtension('WEBGL_lose_context') ?? undefined

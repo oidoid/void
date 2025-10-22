@@ -24,7 +24,7 @@ export class Game extends V.Void<Tag> {
       }
     })
     this.#filterSprites = new V.Pool<V.Sprite<Tag>>({
-      alloc: pool => new V.Sprite(pool, 0, this.preload, this.framer),
+      alloc: pool => new V.Sprite(pool, 0, this.preload, this.looper),
       allocBytes: V.drawableBytes,
       pageBlocks: 10
     })
@@ -48,7 +48,7 @@ export class Game extends V.Void<Tag> {
       this.renderer.always
     if (render) {
       this.renderer.clear(0xffffb1ff)
-      this.renderer.predraw(this.cam, this.framer)
+      this.renderer.predraw(this.cam)
       this.renderer.setDepth(true)
       this.renderer.draw(this.sprites)
       this.renderer.setDepth(false)

@@ -3,7 +3,6 @@ import type {Game} from '../game.ts'
 import type {Tag} from '../types/tag.ts'
 
 export class WorkCounterEnt implements V.Ent<Tag> {
-  #renders: number = 0
   readonly #text: V.TextEnt = new V.TextEnt()
   #updates: number = 0
 
