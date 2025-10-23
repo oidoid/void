@@ -3,7 +3,13 @@ import {test} from 'node:test'
 import type {Millis} from '../types/time.ts'
 import {type Anim, type Atlas, animCels, celMillis} from './atlas.ts'
 import {Layer} from './layer.ts'
-import {Drawable, drawableBytes, Sprite} from './sprite.ts'
+import {
+  Drawable,
+  drawableBytes,
+  Sprite,
+  syncDrawableFraction,
+  truncDrawableUnit
+} from './sprite.ts'
 
 const animA: Anim = {
   cels: 10,
@@ -492,6 +498,34 @@ test('tag', () => {
   assert.equal(sprite.cel, 1)
 })
 
+test('syncDrawableFraction()', () => {
+  for (const [xy, dir, x, out] of [
+    [{x: -3.25, y: -2.125}, -1, 'x', {x: -3.25, y: -2.734375}],
+    [{x: -3.25, y: -2.125}, 0, 'x', {x: -3.25, y: -2.125}],
+    [{x: -3.25, y: -2.125}, 1, 'x', {x: -3.25, y: -2.25}],
+
+    [{x: -3.25, y: 2.125}, -1, 'x', {x: -3.25, y: 2.734375}],
+    [{x: -3.25, y: 2.125}, 0, 'x', {x: -3.25, y: 2.125}],
+    [{x: -3.25, y: 2.125}, 1, 'x', {x: -3.25, y: 2.25}],
+
+    [{x: 3.25, y: -2.125}, -1, 'x', {x: 3.25, y: -2.734375}],
+    [{x: 3.25, y: -2.125}, 0, 'x', {x: 3.25, y: -2.125}],
+    [{x: 3.25, y: -2.125}, 1, 'x', {x: 3.25, y: -2.25}],
+
+    [{x: 3.25, y: 2.125}, -1, 'x', {x: 3.25, y: 2.734375}],
+    [{x: 3.25, y: 2.125}, 0, 'x', {x: 3.25, y: 2.125}],
+    [{x: 3.25, y: 2.125}, 1, 'x', {x: 3.25, y: 2.25}],
+
+    [{x: 3.25, y: 2.125}, -1, 'y', {x: 3.859375, y: 2.125}],
+    [{x: 3.25, y: 2.125}, 0, 'y', {x: 3.25, y: 2.125}],
+    [{x: 3.25, y: 2.125}, 1, 'y', {x: 3.125, y: 2.125}]
+  ] as const) {
+    const copy = {...xy}
+    syncDrawableFraction(xy, dir, x === 'x')
+    assert.deepEqual(xy, out, `(${copy.x}, ${copy.y}) dir=${dir} ${x}`)
+  }
+})
+
 test('toString()', () => {
   const sprite = new Sprite(TestPool(), 0, atlas, {age: 0})
   sprite.tag = 'stem--AnimA'
@@ -503,6 +537,27 @@ test('toString()', () => {
   sprite.w = 4
   sprite.h = 5
   assert.equal(sprite.toString(), 'Sprite{stem--AnimB (1 2 3) 4×5}')
+})
+
+test('truncDrawableUnit()', () => {
+  for (const [x, out] of [
+    [-10.125, -10.125],
+    [-10.1, -10.09375],
+    [-10, -10],
+    [-1.125, -1.125],
+    [-1.1, -1.09375],
+    [-1, -1],
+    [0, 0],
+    [0.125, 0.125],
+    [0.1, 0.09375],
+    [1, 1],
+    [1.1, 1.09375],
+    [1.125, 1.125],
+    [10, 10],
+    [10.1, 10.09375],
+    [10.125, 10.125]
+  ] as const)
+    assert.equal(truncDrawableUnit(x), out, `${x}`)
 })
 
 function TestPool(): {view: DataView<ArrayBuffer>} {

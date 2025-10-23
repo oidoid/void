@@ -1,6 +1,6 @@
 import type {TagFormat} from '../graphics/atlas.ts'
 import {Layer} from '../graphics/layer.ts'
-import {type Sprite, truncDrawableEpsilon} from '../graphics/sprite.ts'
+import {type Sprite, truncDrawableUnit} from '../graphics/sprite.ts'
 import {type Box, boxHits, type WH, type XY} from '../types/geo.ts'
 import type {Void} from '../void.ts'
 import type {Ent} from './ent.ts'
@@ -69,9 +69,11 @@ export class CursorEnt<out Tag extends TagFormat> implements Ent<Tag> {
     ) {
       this.#sprite.tag = v.input.isOn('A') ? this.#pick : this.#point
 
-      if (v.input.isAnyOnStart('L', 'R', 'U', 'D')) this.#sprite.truncXY()
+      if (v.input.isAnyOnStart('L', 'R', 'U', 'D'))
+        this.#sprite.syncFraction(v.input.dir, v.input.isAnyOnStill('L', 'R'))
 
-      const len = truncDrawableEpsilon(this.keyboard * v.tick.s)
+      const len = truncDrawableUnit(this.keyboard * v.tick.s)
+
       if (v.input.isOn('L'))
         this.#sprite.x = Math.max(this.#viewport.x, this.#sprite.x - len)
       if (v.input.isOn('R'))

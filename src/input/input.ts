@@ -169,6 +169,12 @@ export class Input<Button extends string> {
     return this.started && this.isAnyOn(...btns)
   }
 
+  /** true if on for at least two frames. */
+  isAnyOnStill(...btns: Readonly<Chord<Button>>): boolean {
+    const bits = this.#mapBits(btns)
+    return !this.handled && !!(this.#bits & this.#prevBits & bits)
+  }
+
   /** true if any buttons have started on or off. */
   isAnyStarted(...btns: Readonly<Chord<Button>>): boolean {
     const bits = this.#mapBits(btns)

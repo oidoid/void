@@ -13,7 +13,7 @@ export function lerp(start: number, end: number, ratio: number): number {
   return start + (end - start) * ratio
 }
 
-// to-do: test.
+// to-do: test. mod(-1.3, 1) -> 0.7
 /** returns positive modulo. */
 export function mod(dividend: number, divisor: number): number {
   return ((dividend % divisor) + divisor) % divisor
