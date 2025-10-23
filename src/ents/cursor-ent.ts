@@ -12,10 +12,10 @@ import type {Ent} from './ent.ts'
 export class CursorEnt<out Tag extends TagFormat> implements Ent<Tag> {
   /** px / sec, 0 to disable keyboard. */
   keyboard: number = 0
+  readonly #bounds: Box = {x: 0, y: 0, w: 0, h: 0}
   readonly #sprite: Sprite<Tag>
   readonly #pick: Tag
   readonly #point: Tag
-  readonly #viewport: Box = {x: 0, y: 0, w: 0, h: 0}
 
   constructor(v: Void<Tag, string>, point: Tag, pick?: Tag | undefined) {
     this.#point = point
@@ -23,7 +23,7 @@ export class CursorEnt<out Tag extends TagFormat> implements Ent<Tag> {
     this.#sprite = v.sprites.alloc()
     this.#sprite.tag = point
     this.#sprite.z = Layer.Hidden
-    this.#updateViewport(v)
+    this.#updateBounds(v)
   }
 
   free(v: Void<Tag, string>): void {
@@ -61,7 +61,7 @@ export class CursorEnt<out Tag extends TagFormat> implements Ent<Tag> {
 
     // assume the sprite dimensions don't vary between point and pick. always
     // update in case cam invalidates while keyboard is temporarily off.
-    this.#updateViewport(v)
+    this.#updateBounds(v)
 
     if (
       this.keyboard &&
@@ -75,17 +75,17 @@ export class CursorEnt<out Tag extends TagFormat> implements Ent<Tag> {
       const len = truncDrawableUnit(this.keyboard * v.tick.s)
 
       if (v.input.isOn('L'))
-        this.#sprite.x = Math.max(this.#viewport.x, this.#sprite.x - len)
+        this.#sprite.x = Math.max(this.#bounds.x, this.#sprite.x - len)
       if (v.input.isOn('R'))
         this.#sprite.x = Math.min(
-          this.#viewport.x + this.#viewport.w,
+          this.#bounds.x + this.#bounds.w,
           this.#sprite.x + len
         )
       if (v.input.isOn('U'))
-        this.#sprite.y = Math.max(this.#viewport.y, this.#sprite.y - len)
+        this.#sprite.y = Math.max(this.#bounds.y, this.#sprite.y - len)
       if (v.input.isOn('D'))
         this.#sprite.y = Math.min(
-          this.#viewport.y + this.#viewport.h,
+          this.#bounds.y + this.#bounds.h,
           this.#sprite.y + len
         )
       this.#sprite.z = Layer.Top
@@ -98,11 +98,11 @@ export class CursorEnt<out Tag extends TagFormat> implements Ent<Tag> {
     return this.#sprite.z !== Layer.Hidden
   }
 
-  #updateViewport(v: Void<Tag, string>): void {
+  #updateBounds(v: Void<Tag, string>): void {
     if (!v.cam.invalid) return
-    this.#viewport.x = -(this.#sprite.w - 1)
-    this.#viewport.y = -(this.#sprite.h - 1)
-    this.#viewport.w = v.cam.w + this.#sprite.w - 2
-    this.#viewport.h = v.cam.h + 2
+    this.#bounds.x = -this.#sprite.w
+    this.#bounds.y = -this.#sprite.h
+    this.#bounds.w = v.cam.w + this.#sprite.w
+    this.#bounds.h = v.cam.h + this.#sprite.h
   }
 }
