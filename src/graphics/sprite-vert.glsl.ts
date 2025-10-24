@@ -1,5 +1,5 @@
 export const spriteVertGLSL: string = `#version 300 es
-#pragma debug(${debug?.render ? 'on' : 'off'})   
+#pragma debug(${debug?.render ? 'on' : 'off'})
 #pragma optimize(${debug?.render ? 'off' : 'on'})
 
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#essl300_minimum_requirements_webgl_2

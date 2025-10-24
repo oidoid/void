@@ -1,5 +1,5 @@
 export const spriteFragGLSL: string = `#version 300 es
-#pragma debug(${debug?.render ? 'on' : 'off'})   
+#pragma debug(${debug?.render ? 'on' : 'off'})
 #pragma optimize(${debug?.render ? 'off' : 'on'})
 
 precision highp int;
