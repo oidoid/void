@@ -399,7 +399,7 @@ export function syncDrawableFraction(xy: XY, dir: number, x: boolean): void {
   const fraction = Math.abs(xy[x ? 'x' : 'y'] % 1)
   const f = dir > 0 ? fraction : (1 - (drawableUnit + fraction)) % 1
 
-  xy[to] = Math.trunc(xy[to]) + Math.sign(xy[to]) * f
+  xy[to] = Math.trunc(xy[to]) + Math.sign(xy[to] || 1) * f
 }
 
 /** truncate to nearest drawable quantum. */
