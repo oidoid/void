@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict'
 import {describe, test} from 'node:test'
-import type {Anim, Atlas} from '../../src/graphics/atlas.ts'
+import type {Anim, Atlas, TagFormat} from '../../src/graphics/atlas.ts'
 import {parseAtlas, parseXYWH} from './atlas-parser.ts'
 
 describe('parseAtlas()', () => {
   test('parses empty.', () => {
-    assert.deepEqual<Atlas>(parseAtlas({anim: {}, celXY: []}), {
+    assert.deepEqual<Atlas<TagFormat>>(parseAtlas({anim: {}, celXY: []}), {
       anim: {},
       celXYWH: [],
       tags: []
@@ -13,7 +13,7 @@ describe('parseAtlas()', () => {
   })
 
   test('parses nonempty.', () => {
-    assert.deepEqual<Atlas>(
+    assert.deepEqual<Atlas<TagFormat>>(
       parseAtlas({
         anim: {
           'scenery--Cloud': {

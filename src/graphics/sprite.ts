@@ -214,8 +214,8 @@ export abstract class Drawable implements Block, Box {
 }
 
 // to-do: can I declaration merge or namespace merge away from the tag type?
-export class Sprite<out Tag extends TagFormat> extends Drawable {
-  readonly #atlas: Readonly<Atlas>
+export class Sprite<Tag extends TagFormat> extends Drawable {
+  readonly #atlas: Readonly<Atlas<Tag>>
   #hitbox: Box | undefined
   #hurtbox: Box | undefined
   readonly #looper: {readonly age: Millis}
@@ -223,7 +223,7 @@ export class Sprite<out Tag extends TagFormat> extends Drawable {
   constructor(
     pool: {readonly view: DataView<ArrayBuffer>},
     i: number,
-    atlas: Readonly<Atlas>,
+    atlas: Readonly<Atlas<Tag>>,
     looper: {readonly age: Millis}
   ) {
     super(pool, i)

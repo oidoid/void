@@ -28,7 +28,7 @@ const animB: Readonly<Anim> = {
   hurtbox: {x: 1, y: 2, w: 3, h: 4}
 }
 
-const atlas: Readonly<Atlas> = {
+const atlas: Readonly<Atlas<'stem--AnimA' | 'stem--AnimB'>> = {
   anim: {'stem--AnimA': animA, 'stem--AnimB': animB},
   celXYWH: [],
   tags: ['stem--AnimA', 'stem--AnimB']

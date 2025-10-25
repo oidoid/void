@@ -29,11 +29,11 @@ export class Renderer {
   #depth: boolean = true
   #ctx: Context | undefined
   readonly #looper: {readonly age: Millis}
-  readonly #preloadAtlas: Readonly<Atlas>
+  readonly #preloadAtlas: Readonly<Atlas<TagFormat>>
   #preloadAtlasImage: Readonly<HTMLImageElement> | undefined
 
   constructor(
-    preloadAtlas: Readonly<Atlas>,
+    preloadAtlas: Readonly<Atlas<TagFormat>>,
     canvas: HTMLCanvasElement,
     looper: {readonly age: Millis}
   ) {

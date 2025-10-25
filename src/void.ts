@@ -1,5 +1,5 @@
 import {Zoo} from './ents/zoo.ts'
-import type {Atlas, AtlasJSON, TagFormat} from './graphics/atlas.ts'
+import type {Anim, Atlas, AtlasJSON, TagFormat} from './graphics/atlas.ts'
 import {parseAtlas} from './graphics/atlas-parser.ts'
 import {Cam} from './graphics/cam.ts'
 import {Renderer} from './graphics/renderer.ts'
@@ -28,13 +28,13 @@ export type VoidOpts<out Tag extends TagFormat> = {
 }
 
 export class Void<
-  out Tag extends TagFormat,
+  Tag extends TagFormat,
   Button extends string = DefaultButton
 > {
   readonly cam: Cam = new Cam()
   readonly canvas: HTMLCanvasElement
   readonly input: Input<Button>
-  readonly preload: Atlas
+  readonly preload: Atlas<Tag>
   readonly renderer: Renderer
   readonly sprites: Pool<Sprite<Tag>>
   readonly zoo: Zoo<Tag> = new Zoo()
@@ -72,7 +72,7 @@ export class Void<
 
     this.preload = opts.preloadAtlas
       ? parseAtlas(opts.preloadAtlas.json)
-      : {anim: {}, celXYWH: [], tags: []}
+      : {anim: {} as {[tag in Tag]: Anim}, celXYWH: [], tags: []}
 
     this.renderer = new Renderer(this.preload ?? {}, this.canvas, this.looper)
 
