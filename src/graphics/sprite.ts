@@ -12,9 +12,9 @@ import {mod} from '../utils/math.ts'
 import type {Layer} from './layer.ts'
 
 export const drawableBytes: number = 12
+export const drawableEpsilon: number = 1 / 64
 export const drawableMaxWH: Readonly<WH> = {w: 4095, h: 4095}
 /** granularity (0.015625) of drawable coords. */
-export const drawableEpsilon: number = 1 / 64
 
 /**
  * everything not requiring an atlas. the box is the drawn region. assume little
@@ -268,13 +268,18 @@ export class Sprite<out Tag extends TagFormat> extends Drawable {
     this.#hurtbox = undefined
   }
 
+  /** floored hitbox. */
   get hitbox(): Box | undefined {
     if (this.#hitbox) return this.#hitbox
     const {hitbox} = this.anim
     if (!hitbox) return
     return (this.#hitbox ??= {
-      x: this.x + (this.flipX ? this.w - hitbox.w - hitbox.x : hitbox.x),
-      y: this.y + (this.flipY ? this.h - hitbox.h - hitbox.y : hitbox.y),
+      x: Math.floor(
+        this.x + (this.flipX ? this.w - hitbox.w - hitbox.x : hitbox.x)
+      ),
+      y: Math.floor(
+        this.y + (this.flipY ? this.h - hitbox.h - hitbox.y : hitbox.y)
+      ),
       w: hitbox.w,
       h: hitbox.h
     })
@@ -287,13 +292,18 @@ export class Sprite<out Tag extends TagFormat> extends Drawable {
     return !!hurtbox && boxHits(hitbox, hurtbox)
   }
 
+  /** floored hurtbox. */
   get hurtbox(): Box | undefined {
     if (this.#hurtbox) return this.#hurtbox
     const {hurtbox} = this.anim
     if (!hurtbox) return
     return (this.#hurtbox ??= {
-      x: this.x + (this.flipX ? this.w - hurtbox.w - hurtbox.x : hurtbox.x),
-      y: this.y + (this.flipY ? this.h - hurtbox.h - hurtbox.y : hurtbox.y),
+      x: Math.floor(
+        this.x + (this.flipX ? this.w - hurtbox.w - hurtbox.x : hurtbox.x)
+      ),
+      y: Math.floor(
+        this.y + (this.flipY ? this.h - hurtbox.h - hurtbox.y : hurtbox.y)
+      ),
       w: hurtbox.w,
       h: hurtbox.h
     })

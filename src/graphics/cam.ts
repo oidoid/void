@@ -78,7 +78,7 @@ export class Cam {
     }
   ): Box {
     const marginW = opts?.margin?.w ?? 0
-    let x = z > Layer.UIG ? Math.trunc(this.x) : 0
+    let x = z > Layer.UIG ? Math.floor(this.x) : 0
     switch (pivot) {
       case 'SW':
       case 'W':
@@ -99,7 +99,7 @@ export class Cam {
     x -= x % ((opts?.modulo?.x ?? x) || 1)
 
     const marginH = opts?.margin?.h ?? 0
-    let y = z > Layer.UIG ? Math.trunc(this.y) : 0
+    let y = z > Layer.UIG ? Math.floor(this.y) : 0
     switch (pivot) {
       case 'N':
       case 'NE':

@@ -35,8 +35,8 @@ export class CursorEnt<out Tag extends TagFormat> implements Ent<Tag> {
     const hitbox = this.#sprite.hitbox
     if (!hitbox) throw Error('cursor has no hitbox')
     return {
-      x: (lvl ? v.cam.x : 0) + hitbox.x,
-      y: (lvl ? v.cam.y : 0) + hitbox.y,
+      x: (lvl ? Math.floor(v.cam.x) : 0) + hitbox.x,
+      y: (lvl ? Math.floor(v.cam.y) : 0) + hitbox.y,
       w: hitbox.w,
       h: hitbox.h
     }
