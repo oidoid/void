@@ -5,4 +5,4 @@ console.debug(`void v${V.version} ───oidoid>°──`)
 
 const v = new Game()
 await v.register('add')
-if (V.debug) (globalThis as unknown as {v: Game}).v = v
+if (V.debug) (globalThis as {v?: Game}).v = v

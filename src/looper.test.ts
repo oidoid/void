@@ -20,9 +20,9 @@ beforeEach(() => {
 })
 afterEach(() => {
   performance.now = oldNow
-  delete (globalThis as {[_: string]: unknown}).document
-  delete (globalThis as {[_: string]: unknown}).cancelAnimationFrame
-  delete (globalThis as {[_: string]: unknown}).requestAnimationFrame
+  delete (globalThis as Partial<typeof globalThis>).document
+  delete (globalThis as Partial<typeof globalThis>).cancelAnimationFrame
+  delete (globalThis as Partial<typeof globalThis>).requestAnimationFrame
 })
 
 test('Looper', ctx => {
