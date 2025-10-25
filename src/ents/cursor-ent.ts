@@ -78,19 +78,15 @@ export class CursorEnt<out Tag extends TagFormat> implements Ent<Tag> {
       )
         this.#sprite.diagonalize(v.input.dir)
 
-      if (v.input.isOn('L'))
-        this.#sprite.x = Math.max(this.#bounds.x, this.#sprite.x - len)
-      if (v.input.isOn('R'))
+      if (v.input.dir.x)
         this.#sprite.x = Math.min(
           this.#bounds.x + this.#bounds.w,
-          this.#sprite.x + len
+          Math.max(this.#bounds.x, this.#sprite.x + v.input.dir.x * len)
         )
-      if (v.input.isOn('U'))
-        this.#sprite.y = Math.max(this.#bounds.y, this.#sprite.y - len)
-      if (v.input.isOn('D'))
+      if (v.input.dir.y)
         this.#sprite.y = Math.min(
           this.#bounds.y + this.#bounds.h,
-          this.#sprite.y + len
+          Math.max(this.#bounds.y, this.#sprite.y + v.input.dir.y * len)
         )
       this.#sprite.z = Layer.Top
 
