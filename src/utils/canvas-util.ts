@@ -11,7 +11,7 @@ export async function downloadScreenshot(
 
 export function initCanvas(
   canvas: HTMLCanvasElement | undefined,
-  mode: 'Int' | 'Fraction'
+  mode: 'Float' | 'Int'
 ): HTMLCanvasElement {
   canvas ??= document.createElement('canvas')
   canvas.width = 0 // guarantee Renderer.#resize().

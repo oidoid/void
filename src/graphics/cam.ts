@@ -37,7 +37,7 @@ export class Cam {
   #invalid: boolean = true
   #minScale: number = 1
   readonly #minWH: WH = {w: Infinity, h: Infinity}
-  #mode: 'Int' | 'Fraction' = 'Int'
+  #mode: 'Float' | 'Int' = 'Int'
   #scale: number = 1
   #w: number = 1
   readonly #whClient: WH = {w: 1, h: 1}
@@ -167,11 +167,11 @@ export class Cam {
     this.#invalidateWH()
   }
 
-  get mode(): 'Int' | 'Fraction' {
+  get mode(): 'Float' | 'Int' {
     return this.#mode
   }
 
-  set mode(mode: 'Int' | 'Fraction') {
+  set mode(mode: 'Float' | 'Int') {
     if (this.#mode === mode) return
     this.#mode = mode
     this.#invalidateWH()
@@ -194,7 +194,7 @@ export class Cam {
     return `Cam{(${this.x} ${this.y}) ${this.w}×${this.h}}`
   }
 
-  syncFraction(dir: Readonly<XY>): void {
+  syncFloat(dir: Readonly<XY>): void {
     diagonalize(this, dir.x * dir.y)
   }
 

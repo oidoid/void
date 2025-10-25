@@ -15,13 +15,13 @@ import {initBody, initMetaViewport} from './utils/dom-util.ts'
 import {loadImage} from './utils/fetch-util.ts'
 
 export type VoidOpts<out Tag extends TagFormat> = {
-  preloadAtlas?: {image: HTMLImageElement; json: AtlasJSON} | undefined
   backgroundRGBA?: number
   canvas?: HTMLCanvasElement | undefined
-  minWH?: WH | undefined
   input?: 'Custom' | 'Default' | undefined
-  mode?: 'Int' | 'Fraction' | undefined
+  minWH?: WH | undefined
+  mode?: 'Float' | 'Int' | undefined
   poll?: {delay?: (() => Millis) | undefined; period: Millis} | undefined
+  preloadAtlas?: {image: HTMLImageElement; json: AtlasJSON} | undefined
   sprites?:
     | Partial<Omit<PoolOpts<Sprite<Tag>>, 'alloc' | 'allocBytes'>>
     | undefined
@@ -61,7 +61,7 @@ export class Void<
     initBody(this.canvas, this.#backgroundRGBA)
 
     if (opts.minWH) this.cam.minWH = opts.minWH
-    this.cam.mode = opts.mode ?? 'Int'
+    this.cam.mode = opts.mode ?? 'Float'
     this.cam.update(this.canvas)
 
     this.input = new Input(this.cam, this.canvas)
