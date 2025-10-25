@@ -1,19 +1,12 @@
 import {debug} from '../utils/debug.ts'
 
-/** @internal */
 export type GL2 = WebGL2RenderingContext
-/** @internal */
 export type GLProgram = WebGLProgram
-/** @internal */
 export type GLShader = WebGLShader
-/** @internal */
 export type GLTexture = WebGLTexture
-/** @internal */
 export type GLUniformLocation = WebGLUniformLocation
-/** @internal */
 export type GLUniformMap = {[name: string]: GLUniformLocation}
 
-/** @internal */
 export type Shader = {
   program: GLProgram | null
   buffer: WebGLBuffer | null
@@ -22,7 +15,6 @@ export type Shader = {
   textures: GLTexture[]
 }
 
-/** @internal */
 export function Shader(
   gl: GL2,
   vertGLSL: string,

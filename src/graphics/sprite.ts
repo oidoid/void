@@ -12,9 +12,9 @@ import {mod} from '../utils/math.ts'
 import type {Layer} from './layer.ts'
 
 export const drawableBytes: number = 12
+/** granularity (0.015625) of drawable coords. */
 export const drawableEpsilon: number = 1 / 64
 export const drawableMaxWH: Readonly<WH> = {w: 4095, h: 4095}
-/** granularity (0.015625) of drawable coords. */
 
 /**
  * everything not requiring an atlas. the box is the drawn region. assume little

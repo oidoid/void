@@ -11,7 +11,7 @@ import {
   truncDrawableEpsilon
 } from './sprite.ts'
 
-const animA: Anim = {
+const animA: Readonly<Anim> = {
   cels: 10,
   id: 0,
   w: 10,
@@ -19,7 +19,7 @@ const animA: Anim = {
   hitbox: {x: 1, y: 2, w: 3, h: 4},
   hurtbox: {x: 1, y: 2, w: 3, h: 4}
 }
-const animB: Anim = {
+const animB: Readonly<Anim> = {
   cels: animCels,
   id: 1,
   w: 30,

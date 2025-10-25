@@ -17,7 +17,11 @@ const uv: Readonly<Int8Array> = new Int8Array([1, 1, 0, 1, 1, 0, 0, 0])
 export class Renderer {
   /** when off, ents should avoid requesting renders. */
   always: boolean = debug?.render === 'always'
+  /** number of clears performed. often used to count render passes. */
   clears: number = 0
+  /**
+   * true when context has changed since last draw and screen should be redrawn.
+   */
   invalid: boolean = false
   loseContext: WEBGL_lose_context | undefined
   readonly #canvas: HTMLCanvasElement
