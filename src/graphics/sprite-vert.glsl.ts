@@ -27,8 +27,8 @@ out vec2 vDstWH;
 flat out ivec2 vDstWHFixed;
 
 void main() {
-  int x = (int((iy8_x24 & 0xffffffu) << 8) >> 8) / 64;
-  int y = (int(iy8_x24 >> 24) | (int(iw8_sxyz_llll_y16 & 0xffffu) << 16 >> 8)) / 64;
+  int x = int(floor(float(int((iy8_x24 & 0xffffffu) << 8) >> 8) / 64.));
+  int y = int(floor(float(int(iy8_x24 >> 24) | (int(iw8_sxyz_llll_y16 & 0xffffu) << 16 >> 8)) / 64.));
   int z = int((iw8_sxyz_llll_y16 >> 16) & 0xfu);
   bool zend = bool(iw8_sxyz_llll_y16 & 0x100000u);
   bool flipY = bool(iw8_sxyz_llll_y16 & 0x200000u);

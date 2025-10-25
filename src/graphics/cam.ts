@@ -7,7 +7,7 @@ import {
 } from '../types/geo.ts'
 import {debug} from '../utils/debug.ts'
 import {Layer} from './layer.ts'
-import {syncDrawableFraction} from './sprite.ts'
+import {diagonalize} from './sprite.ts'
 
 export type LevelClientLocalXY = {
   /** position relative canvas top-left (in DPI scale). */
@@ -194,8 +194,8 @@ export class Cam {
     return `Cam{(${this.x} ${this.y}) ${this.w}×${this.h}}`
   }
 
-  syncFraction(dir: Readonly<XY>, x: boolean): void {
-    syncDrawableFraction(this, dir.x * dir.y, x)
+  syncFraction(dir: Readonly<XY>): void {
+    diagonalize(this, dir.x * dir.y)
   }
 
   /**

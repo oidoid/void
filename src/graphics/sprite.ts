@@ -14,7 +14,7 @@ import type {Layer} from './layer.ts'
 export const drawableBytes: number = 12
 export const drawableMaxWH: Readonly<WH> = {w: 4095, h: 4095}
 /** granularity (0.015625) of drawable coords. */
-export const drawableUnit: number = 1 / 64
+export const drawableEpsilon: number = 1 / 64
 
 /**
  * everything not requiring an atlas. the box is the drawn region. assume little
@@ -322,8 +322,8 @@ export class Sprite<out Tag extends TagFormat> extends Drawable {
     this.cel = this.#currentCel // setter truncates.
   }
 
-  syncFraction(dir: Readonly<XY>, x: boolean): void {
-    syncDrawableFraction(this, dir.x * dir.y, x)
+  diagonalize(dir: Readonly<XY>): void {
+    diagonalize(this, dir.x * dir.y)
   }
 
   // to-do: unit test and catch up on unit tests elsewhere.
@@ -386,23 +386,17 @@ export class Sprite<out Tag extends TagFormat> extends Drawable {
 }
 
 /**
- * copy XY component fraction for synchronized 45 degree diagonal movement.
+ * center component fractions for synchronized 45 degree diagonal movement.
  * @arg dir positive if x and y are both increasing or decreasing, negative if
  *          opposing, zero if either are static.
- * @arg x true if copying from x.
  */
-export function syncDrawableFraction(xy: XY, dir: number, x: boolean): void {
+export function diagonalize(xy: XY, dir: number): void {
   if (!dir) return
-
-  const to = x ? 'y' : 'x'
-
-  const fraction = Math.abs(xy[x ? 'x' : 'y'] % 1)
-  const f = dir > 0 ? fraction : (1 - (drawableUnit + fraction)) % 1
-
-  xy[to] = Math.trunc(xy[to]) + Math.sign(xy[to] || 1) * f
+  xy.x = Math.floor(xy.x) + 0.5
+  xy.y = Math.floor(xy.y) + 0.5 - (dir > 0 ? 0 : drawableEpsilon)
 }
 
 /** truncate to nearest drawable quantum. */
-export function truncDrawableUnit(x: number): number {
-  return Math.trunc(x / drawableUnit) * drawableUnit
+export function truncDrawableEpsilon(x: number): number {
+  return Math.trunc(x / drawableEpsilon) * drawableEpsilon
 }
