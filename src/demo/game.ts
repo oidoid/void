@@ -12,11 +12,11 @@ export class Game extends V.Void<Tag> {
 
   constructor() {
     super({
+      backgroundRGBA: 0xffffb1ff,
       preloadAtlas: {
         image: document.querySelector('#preload-atlas')!,
         json: preloadAtlasJSON
       },
-      backgroundRGBA: 0xffffb1ff,
       minWH: {w: 320, h: 240},
       poll: {
         delay: () => renderDelayMillis(new Date(), V.debug?.seconds),
@@ -47,7 +47,7 @@ export class Game extends V.Void<Tag> {
       this.renderer.invalid ||
       this.renderer.always
     if (render) {
-      this.renderer.clear(0xffffb1ff)
+      this.renderer.clear(this.backgroundRGBA)
       this.renderer.predraw(this.cam)
       this.renderer.setDepth(true)
       this.renderer.draw(this.sprites)

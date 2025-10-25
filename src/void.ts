@@ -41,6 +41,7 @@ export class Void<
   readonly looper: Looper = new Looper()
   /** delta since frame request. */
   readonly tick: {ms: Millis; s: Secs} = {ms: 0, s: 0}
+  readonly #backgroundRGBA: number
   readonly #poll: DelayInterval | undefined
   readonly #preloadAtlasImage: HTMLImageElement | undefined
   // may trigger an initial force update.
@@ -56,7 +57,8 @@ export class Void<
 
     initMetaViewport()
     this.canvas = initCanvas(opts.canvas, opts.mode ?? 'Int')
-    initBody(this.canvas, opts.backgroundRGBA ?? 0x000000ff)
+    this.#backgroundRGBA = opts.backgroundRGBA ?? 0x000000ff
+    initBody(this.canvas, this.#backgroundRGBA)
 
     if (opts.minWH) this.cam.minWH = opts.minWH
     this.cam.mode = opts.mode ?? 'Int'
@@ -82,6 +84,10 @@ export class Void<
     })
 
     this.looper.onFrame = millis => this.onFrame(millis)
+  }
+
+  get backgroundRGBA(): number {
+    return this.#backgroundRGBA
   }
 
   onAllocSprite(pool: Pool<Sprite<Tag>>): Sprite<Tag> {
