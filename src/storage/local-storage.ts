@@ -1,6 +1,6 @@
 import type {PartialJSONValue} from '../types/json.ts'
 
-export function saveJSON(k: string, v: PartialJSONValue): void {
+export function saveJSON<T extends PartialJSONValue>(k: string, v: T): void {
   if (v == null) localStorage.removeItem(k)
   else localStorage.setItem(k, JSON.stringify(v))
 }
