@@ -105,7 +105,13 @@ export class Renderer {
 
     gl.useProgram(spriteShader.program)
 
-    gl.uniform4i(spriteShader.uniform.uCam!, cam.x, cam.y, cam.w, cam.h)
+    gl.uniform4i(
+      spriteShader.uniform.uCam!,
+      Math.floor(cam.x),
+      Math.floor(cam.y),
+      cam.w,
+      cam.h
+    )
     gl.uniform1f(spriteShader.uniform.uAge!, this.#looper.age)
 
     for (const [i, tex] of spriteShader.textures.entries()) {
