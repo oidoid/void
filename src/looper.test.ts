@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict'
 import {afterEach, beforeEach, test} from 'node:test'
-
 import {Looper} from './looper.ts'
 import {TestEvent} from './test/test-event.ts'
 import type {Millis} from './types/time.ts'

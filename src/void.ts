@@ -55,13 +55,14 @@ export class Void<
         () => this.onPoll()
       )
 
+    const mode = opts.mode ?? 'Int'
     initMetaViewport()
-    this.canvas = initCanvas(opts.canvas, opts.mode ?? 'Int')
+    this.canvas = initCanvas(opts.canvas, mode)
     this.#backgroundRGBA = opts.backgroundRGBA ?? 0x000000ff
     initBody(this.canvas, this.#backgroundRGBA)
 
     if (opts.minWH) this.cam.minWH = opts.minWH
-    this.cam.mode = opts.mode ?? 'Float'
+    this.cam.mode = mode
     this.cam.update(this.canvas)
 
     this.input = new Input(this.cam, this.canvas)
