@@ -6,6 +6,7 @@ demo
   size border to window.
   add lose context key combo.
   add download screenshot button.
+  add `Sprite.looped` animation.
 bugs
   pool allocator should re-default some values like flip, stretch, zend, maybe z in the callback.
 perf

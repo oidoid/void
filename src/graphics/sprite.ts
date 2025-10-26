@@ -324,12 +324,18 @@ export class Sprite<Tag extends TagFormat> extends Drawable {
   get looped(): boolean {
     // this comparison resets after the second loop since cel can only count to
     // 2 * anim.cels.
-    return mod(this.#currentCel - this.cel, animCels * 2) >= this.anim.cels
+    return mod(this.looperCel - this.cel, animCels * 2) >= this.anim.cels
+  }
+
+  /** current fractional cel in [0, 2 * anim.cels). */
+  get looperCel(): number {
+    const cel = this.#looper.age / celMillis
+    return cel % (this.anim.cels * 2)
   }
 
   /** sets cel to animation start. */
   reset(): void {
-    this.cel = this.#currentCel // setter truncates.
+    this.cel = this.looperCel // setter truncates.
   }
 
   diagonalize(dir: Readonly<XY>): void {
@@ -386,12 +392,6 @@ export class Sprite<Tag extends TagFormat> extends Drawable {
     super.y = y
     this.#hitbox = undefined
     this.#hurtbox = undefined
-  }
-
-  /** current fractional cel in [0, 2 * anim.cels). */
-  get #currentCel(): number {
-    const cel = this.#looper.age / celMillis
-    return cel % (this.anim.cels * 2)
   }
 }
 
