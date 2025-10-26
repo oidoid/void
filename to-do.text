@@ -1,0 +1,20 @@
+follow cam is broken
+
+
+port super patience
+  map space bar, cursor keys, wasd, that's it.
+demo
+  size border to window.
+  add lose context key combo.
+  add download screenshot button.
+bugs
+  pool allocator should re-default some values like flip, stretch, zend, maybe z in the callback.
+perf
+  experiment with caching `Sprite` hitbox and hurtbox.
+  support multiple update lists in zoo.
+  provide quadtree.
+    https://lisyarus.github.io/blog/posts/building-a-quadtree.html
+input
+  restore left hand keys for DefaultButton.
+zoo
+  review old ECS and zoo implementation, especially EQL.

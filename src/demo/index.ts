@@ -1,7 +1,9 @@
 import * as V from '../index.ts'
 import {Game} from './game.ts'
 
-console.debug(`void v${V.version} ───oidoid>°──`)
+console.debug(
+  `void v${V.bundle.version}+${V.bundle.published}.${V.bundle.hash} ───oidoid>°──`
+)
 
 const v = new Game()
 await v.register('add')

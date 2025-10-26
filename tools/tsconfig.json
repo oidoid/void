@@ -6,8 +6,7 @@
     "${configDir}/",
     "${configDir}/**/*.json",
     "../schema/",
-    "../schema/**/*.json",
-    "../package.json"
+    "../schema/**/*.json"
   ],
   "exclude": [
     "${configDir}/**/*.test.*",

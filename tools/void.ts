@@ -3,9 +3,7 @@
 // compiles images into an atlas and bundles an HTML entrypoint.
 
 import path from 'node:path'
-import voidPackageJSON from '../package.json' with {type: 'json'}
 import {parseConfigFile} from '../schema/config-file.ts'
-import type {VoidVersion} from '../src/types/void-version.ts'
 import {bundle} from './bundle/bundle.ts'
 import {Config} from './types/config.ts'
 import type {PackageJSON} from './types/package-json.ts'
@@ -34,7 +32,7 @@ export async function build(args: readonly string[]): Promise<void> {
   const packageJSON: PackageJSON = JSON.parse(
     (await exec('npm', 'pkg', 'get', 'version', 'published')) || '{}'
   )
-  const config = Config(configFile, argv, packageJSON, hash)
+  const config = Config(argv, configFile, hash, packageJSON)
 
   const doc = await parseHTML(config.entry)
   const srcFilenames = [
@@ -43,13 +41,7 @@ export async function build(args: readonly string[]): Promise<void> {
     )
   ].map(el => path.resolve(path.dirname(config.entry), el.getAttribute('src')!))
 
-  const voidVersion: VoidVersion = {
-    published: voidPackageJSON.published,
-    // imported JSON doesn't treeshake. define as a constant.
-    version: voidPackageJSON.version
-  }
-
-  await bundle(config, srcFilenames, voidVersion)
+  await bundle(config, srcFilenames)
 }
 
 if (import.meta.main) await build(process.argv)

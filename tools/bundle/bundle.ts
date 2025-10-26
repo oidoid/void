@@ -2,15 +2,13 @@ import fs from 'node:fs'
 import esbuild from 'esbuild'
 import type {AtlasConfig} from '../../schema/config-file.ts'
 import * as V from '../../src/index.ts'
-import type {VoidVersion} from '../../src/types/void-version.ts'
 import {packAtlas} from '../atlas-pack/atlas-pack.ts'
 import type {Config} from '../types/config.ts'
 import {HTMLPlugin} from './html-plugin.ts'
 
 export async function bundle(
   config: Readonly<Config>,
-  srcFilenames: readonly string[],
-  voidVersion: Readonly<VoidVersion>
+  srcFilenames: readonly string[]
 ): Promise<void> {
   const opts: esbuild.BuildOptions = {
     banner: config.watch
@@ -21,7 +19,7 @@ export async function bundle(
     bundle: true,
     define: {
       // define on globalThis to avoid ReferenceError in unit tests.
-      'globalThis.voidVersion': JSON.stringify(voidVersion)
+      'globalThis.bundle': JSON.stringify(config.bundle)
     },
     entryPoints: [...srcFilenames],
     format: 'esm',

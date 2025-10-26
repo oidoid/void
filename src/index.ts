@@ -1,5 +1,3 @@
-import {voidVersion} from './types/void-version.ts'
-
 export {type Font, memProp5x6} from 'mem-font'
 export * from './ents/button-ent.ts'
 export * from './ents/cursor-ent.ts'
@@ -20,6 +18,7 @@ export * from './random/random.ts'
 export * from './storage/local-storage.ts'
 export * from './text/font.ts'
 export * from './text/text-layout.ts'
+export * from './types/bundle.ts'
 export * from './types/geo.ts'
 export * from './types/json.ts'
 export * from './types/time.ts'
@@ -29,7 +28,3 @@ export * from './utils/debug.ts'
 export * from './utils/dom-util.ts'
 export * from './utils/fetch-util.ts'
 export * from './void.ts'
-
-export const version: string = voidVersion
-  ? `${voidVersion.version}+${voidVersion.published}`
-  : '?'

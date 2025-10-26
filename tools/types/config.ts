@@ -1,5 +1,6 @@
 import path from 'node:path'
 import type {AtlasConfig, ConfigFile} from '../../schema/config-file.ts'
+import type {Bundle} from '../../src/types/bundle.ts'
 import type {Argv} from '../utils/argv.ts'
 import type {PackageJSON} from './package-json.ts'
 
@@ -19,20 +20,14 @@ export type Config = {
   oneFile: boolean
   watch: boolean
 
-  /** package publish date. */
-  published: string | undefined
-  /** package version. */
-  version: string | undefined
-
-  /** Git short hash. */
-  hash: string
+  bundle: Bundle
 }
 
 export function Config(
-  configFile: Readonly<ConfigFile>,
   argv: Readonly<Argv>,
-  packageJSON: Readonly<PackageJSON>,
-  hash: string
+  configFile: Readonly<ConfigFile>,
+  hash: string,
+  packageJSON: Readonly<PackageJSON>
 ): Config {
   let fileStem = path.basename(configFile.entry).replace(/\.[^.]+$/, '')
   if (configFile.out.name && !argv.opts['--watch'])
@@ -58,8 +53,10 @@ export function Config(
     minify: argv.opts['--minify'] ?? false,
     oneFile: argv.opts['--one-file'] ?? false,
     watch: argv.opts['--watch'] ?? false,
-    published: packageJSON.published,
-    version: packageJSON.version,
-    hash
+    bundle: {
+      hash,
+      published: packageJSON.published,
+      version: packageJSON.version
+    }
   }
 }
