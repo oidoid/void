@@ -22,3 +22,7 @@ export type Layer = (typeof Layer)[keyof typeof Layer]
 export function layerOffset(layer: Layer, offset: number): Layer {
   return Math.max(Layer.Top, Math.min(Layer.Bottom, layer + offset)) as Layer
 }
+
+export function isUILayer(layer: Layer): boolean {
+  return layer < Layer.A
+}

@@ -42,12 +42,27 @@ export class CursorEnt<Tag extends TagFormat> implements Ent<Tag> {
     }
   }
 
+  hits(v: Readonly<Void<Tag, string>>, sprite: Readonly<Sprite<Tag>>): boolean
   hits(
     v: Readonly<Void<Tag, string>>,
     box: Readonly<XY & Partial<WH>>,
     coords: 'Level' | 'UI'
+  ): boolean
+  hits(
+    v: Readonly<Void<Tag, string>>,
+    box: Readonly<XY & Partial<WH>>,
+    coords?: 'Level' | 'UI'
   ): boolean {
-    return this.visible && boxHits(this.hitbox(v, coords), box)
+    return (
+      this.visible &&
+      boxHits(
+        this.hitbox(
+          v,
+          coords == null ? ((box as Sprite<Tag>).ui ? 'UI' : 'Level') : coords
+        ),
+        box
+      )
+    )
   }
 
   update(v: Void<Tag, 'L' | 'R' | 'U' | 'D' | 'A'>): boolean | undefined {
@@ -96,6 +111,14 @@ export class CursorEnt<Tag extends TagFormat> implements Ent<Tag> {
 
   get visible(): boolean {
     return this.#sprite.z !== Layer.Hidden
+  }
+
+  get x(): number {
+    return this.#sprite.x
+  }
+
+  get y(): number {
+    return this.#sprite.y
   }
 
   #updateBounds(v: Void<Tag, string>): void {

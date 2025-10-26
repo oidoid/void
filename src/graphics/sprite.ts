@@ -9,7 +9,7 @@ import type {Block} from '../mem/pool.ts'
 import {type Box, boxHits, type WH, type XY} from '../types/geo.ts'
 import type {Millis} from '../types/time.ts'
 import {mod} from '../utils/math.ts'
-import type {Layer} from './layer.ts'
+import {isUILayer, type Layer} from './layer.ts'
 
 export const drawableBytes: number = 12
 /** granularity (0.015625) of drawable coords. */
@@ -134,6 +134,10 @@ export abstract class Drawable implements Block, Box {
       this.i + 6,
       (sxyz_llll & ~0x80) | (-stretch & 0x80)
     )
+  }
+
+  get ui(): boolean {
+    return isUILayer(this.z)
   }
 
   get w(): number {
