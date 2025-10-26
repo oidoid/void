@@ -82,7 +82,7 @@ export class TextEnt implements Ent<TagFormat> {
 
   update(v: Void<TagFormat, string>): boolean | undefined {
     if (this.#layout === 'Rendered') return
-    if (this.#layout === 'Outdated') this.layout(v)
+    this.layout(v)
     this.#layout = 'Rendered'
     return true
   }

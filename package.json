@@ -9,7 +9,7 @@
     "esbuild": "0.25.11",
     "html-minifier-next": "3.0.0",
     "jsdom": "27.0.1",
-    "mem-font": "11.0.0-7"
+    "mem-font": "11.0.0-8"
   },
   "description": "basic 2D game library.",
   "devDependencies": {

@@ -21,7 +21,7 @@ export type TextLayoutOpts = {
 export function layoutText(opts: Readonly<TextLayoutOpts>): TextLayout {
   const chars = []
   const scale = opts.scale ?? 1
-  const start = opts.start ?? {x: 0, y: 0}
+  const start: Readonly<XY> = opts.start ?? {x: 0, y: 0}
   const maxW = opts.maxW ?? Infinity
   let cursor = {x: start.x, y: start.y}
   let w = 0
