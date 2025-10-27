@@ -131,12 +131,14 @@ export class Pointer {
       ev.metaKey || ev.altKey || ev.ctrlKey
         ? 0
         : this.#evButtonsToBits(ev.buttons)
-    if (bits) ev.preventDefault() // only prevent mapped buttons.
     const locked = this.locked
-    if (ev.type === 'pointerdown' && !locked)
-      try {
-        this.#target.setPointerCapture(ev.pointerId)
-      } catch {}
+    if (bits && ev.type === 'pointerdown') {
+      ev.preventDefault()
+      if (!locked)
+        try {
+          this.#target.setPointerCapture(ev.pointerId)
+        } catch {}
+    }
 
     const prevPt = ev.isPrimary ? this.primary : this.secondary[ev.pointerId]
 
@@ -177,7 +179,9 @@ export class Pointer {
         ev.pointerType as keyof typeof pointTypeByPointerType
       ]
     let clickClient
-    if (ev.type === 'pointerdown') clickClient = {x: xyClient.x, y: xyClient.y}
+    if (!bits) {
+    } else if (ev.type === 'pointerdown')
+      clickClient = {x: xyClient.x, y: xyClient.y}
     else if (ev.type === 'pointermove') clickClient = prevPt?.clickClient
     const drag =
       !!bits &&
