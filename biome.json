@@ -25,7 +25,6 @@
         "noMisusedPromises": "error",
         "recommended": true
       },
-      "performance": {"noDelete": "off"},
       "complexity": {"noThisInStatic": "off"},
       "style": {
         "noInferrableTypes": "off",
