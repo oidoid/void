@@ -8,7 +8,7 @@
     "Atlas": {
       "type": "object",
       "description": "sprite sheet config.",
-      "additionalProperties": false,
+      "unevaluatedProperties": false,
       "required": ["dir", "image", "json"],
       "properties": {
         "dir": {
@@ -29,7 +29,7 @@
       }
     }
   },
-  "additionalProperties": false,
+  "unevaluatedProperties": false,
   "properties": {
     "$schema": {
       "type": "string",
@@ -49,7 +49,7 @@
     "out": {
       "type": "object",
       "description": "output config.",
-      "additionalProperties": false,
+      "unevaluatedProperties": false,
       "properties": {
         "dir": {
           "type": "string",
