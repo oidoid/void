@@ -7,7 +7,7 @@ export class WorkCounterEnt implements V.Ent<Tag> {
   #updates: number = 0
 
   constructor() {
-    this.#text.z = V.Layer.A
+    this.#text.z = V.Layer.UIG
   }
 
   free(v: Game): void {

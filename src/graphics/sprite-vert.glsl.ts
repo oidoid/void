@@ -40,14 +40,14 @@ void main() {
   int h = int((ii11_c5_h12_w4 >> 4) & 0xfffu);
 
   // https://www.patternsgameprog.com/opengl-2d-facade-25-get-the-z-of-a-pixel
-  float depth = float((z + 1) * maxY - (y + (zend ? 0 : h))) / float(maxDepth);
+  float depth = float((${Layer.Top} - z + 1) * maxY - (y + (zend ? 0 : h))) / float(maxDepth);
 
   ivec2 targetWH = iUV * ivec2(w, h);
 
   vec2 end = vec2(x + targetWH.x, y + targetWH.y);
   // UI layers are always given in screen coordinates.
   // to-do: how to handle non-int mode?
-  vec2 camXY = z < ${Layer.A} ? vec2(0, 0) : vec2(uCam.xy);
+  vec2 camXY = z >= ${Layer.UIA} ? vec2(0, 0) : vec2(uCam.xy);
   vec2 clip = ((-2. * camXY  + 2. * end) / vec2(uCam.zw) - 1.) * vec2(1, -1);
   gl_Position = vec4(clip, depth, 1);
 

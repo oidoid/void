@@ -61,10 +61,10 @@ export class Game extends V.Void<Tag> {
       n: {tag: 'background--Black'},
       origin: {tag: 'background--Transparent'},
       border: {n: 1},
-      z: V.Layer.UIA
+      z: V.Layer.UIG
     })
     this.zoo.add(border)
-    const box = this.cam.follow({w: 0, h: 0}, V.Layer.UIA, 'NW', {fill: 'XY'})
+    const box = this.cam.follow({w: 0, h: 0}, V.Layer.UIG, 'NW', {fill: 'XY'})
     border.xy = box
     border.wh = box
 
@@ -78,7 +78,7 @@ export class Game extends V.Void<Tag> {
     backpacker.h *= 5
 
     const oidoid = new V.FollowCamEnt(this, 'oidoid--Default', 'SW')
-    oidoid.z = V.Layer.UIG
+    oidoid.z = V.Layer.UIA
     oidoid.margin = {w: 4, h: 4}
 
     this.zoo.add(
@@ -93,7 +93,7 @@ export class Game extends V.Void<Tag> {
     overlay.tag = 'background--GreyCheckerboard'
     overlay.w = V.drawableMaxWH.w
     overlay.h = V.drawableMaxWH.h
-    overlay.z = V.Layer.UIA
+    overlay.z = V.Layer.UIG
   }
 
   #printInput(): void {

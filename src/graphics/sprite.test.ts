@@ -374,11 +374,11 @@ test('z', () => {
   assert.equal(draw.z, 1)
   assert.equal(toHex(view), '000000000000010000000000')
 
-  draw.z = Layer.Hidden
-  assert.equal(draw.z, Layer.Hidden)
+  draw.z = Layer.Top
+  assert.equal(draw.z, Layer.Top)
   assert.equal(toHex(view), '0000000000000f0000000000')
 
-  draw.z = (Layer.Hidden + 1) as Layer
+  draw.z = (Layer.Top + 1) as Layer
   assert.equal(draw.z, 0)
   assert.equal(toHex(view), '000000000000000000000000')
 })

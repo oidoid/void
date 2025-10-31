@@ -48,11 +48,11 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
     })
     this.#pressed = {
       sprite: v.sprites.alloc(),
-      z: opts.pressed.z ?? layerOffset(buttonZ, 2)
+      z: opts.pressed.z ?? layerOffset(buttonZ, -2)
     }
     this.#selected = {
       sprite: v.sprites.alloc(),
-      z: opts.selected.z ?? layerOffset(this.#pressed.z, -1)
+      z: opts.selected.z ?? layerOffset(this.#pressed.z, 1)
     }
 
     this.#pressed.sprite.tag = opts.pressed.tag
@@ -74,7 +74,7 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
     this.#text.layout(v)
     this.#moveText(v)
     this.#text.maxW = opts.w ?? this.#button.wh.w
-    this.#text.z = opts.text?.z ?? layerOffset(buttonZ, -1)
+    this.#text.z = opts.text?.z ?? layerOffset(buttonZ, 1)
 
     this.#toggle = opts.toggle ?? false
   }

@@ -7,7 +7,7 @@ export class ClockEnt implements V.Ent<Tag> {
 
   constructor() {
     this.#time.scale = 3
-    this.#time.z = V.Layer.A
+    this.#time.z = V.Layer.UIG
   }
 
   free(v: Game): void {

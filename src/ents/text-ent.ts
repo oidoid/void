@@ -11,7 +11,7 @@ import type {Ent} from './ent.ts'
 export class TextEnt implements Ent<TagFormat> {
   #maxW: number = Infinity
   #layout: 'Rendered' | 'Updated' | 'Outdated' = 'Outdated'
-  #z: Layer = Layer.UIA
+  #z: Layer = Layer.UIG
   #scale: number = 1
   readonly #sprites: Sprite<TagFormat>[] = []
   #str: string = ''
