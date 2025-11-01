@@ -129,7 +129,7 @@ export class Game extends V.Void<Tag> {
     let render = this.input.isAnyOn('L', 'R', 'U', 'D')
 
     if (this.input.isAnyOnStart('L', 'R', 'U', 'D'))
-      this.cam.syncFloat(this.input.dir)
+      this.cam.diagonalize(this.input.dir)
 
     const len = V.truncDrawableEpsilon(25 * this.tick.s)
     if (this.input.isOn('L')) this.cam.x -= len

@@ -67,6 +67,10 @@ export class Cam {
     }
   }
 
+  diagonalize(dir: Readonly<XY>): void {
+    diagonalize(this, dir.x * dir.y)
+  }
+
   follow(
     wh: Readonly<WH>,
     z: Layer,
@@ -192,10 +196,6 @@ export class Cam {
 
   toString(): string {
     return `Cam{(${this.x} ${this.y}) ${this.w}×${this.h}}`
-  }
-
-  syncFloat(dir: Readonly<XY>): void {
-    diagonalize(this, dir.x * dir.y)
   }
 
   /**
