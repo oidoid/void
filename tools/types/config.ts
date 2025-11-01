@@ -1,15 +1,22 @@
 import path from 'node:path'
-import type {AtlasConfig, ConfigFile} from '../../schema/config-file.ts'
+import {
+  type AtlasConfig,
+  type ConfigFile,
+  parseConfigFile
+} from '../../schema/config-file.ts'
 import type {Bundle} from '../../src/types/bundle.ts'
-import type {Argv} from '../utils/argv.ts'
+import type {InitConfig} from '../../src/types/game-config.ts'
+import {Argv} from '../utils/argv.ts'
+import {exec} from '../utils/exec.ts'
 import type {PackageJSON} from './package-json.ts'
 
 export type Config = {
   $schema: string
   entry: string
   meta: string | undefined
-  out: {dir: string; filename: string}
+  out: {dir: string; game: string; filename: string}
   preloadAtlas: AtlasConfig | undefined
+  init: InitConfig
 
   /** config directory name. */
   dirname: string
@@ -21,6 +28,18 @@ export type Config = {
   watch: boolean
 
   bundle: Bundle
+
+  argv: Argv
+}
+
+export async function readConfig(args: readonly string[]): Promise<Config> {
+  const argv = Argv(args)
+  const configFile = await parseConfigFile(argv.opts['--config'] ?? 'void.json')
+  const hash = (await exec('git', 'rev-parse', '--short', 'HEAD')).trim()
+  const packageJSON: PackageJSON = JSON.parse(
+    (await exec('npm', 'pkg', 'get', 'version', 'published')) || '{}'
+  )
+  return Config(argv, configFile, hash, packageJSON)
 }
 
 export function Config(
@@ -46,8 +65,13 @@ export function Config(
     $schema: configFile.$schema,
     entry: configFile.entry,
     meta: configFile.meta,
-    out: {dir: configFile.out.dir, filename: `${fileStem}${fileSuffix}`},
+    out: {
+      dir: configFile.out.dir,
+      game: configFile.out.game,
+      filename: `${fileStem}${fileSuffix}`
+    },
     preloadAtlas: configFile.preloadAtlas,
+    init: configFile.init,
     dirname: configFile.dirname,
     filename: configFile.filename,
     minify: argv.opts['--minify'] ?? false,
@@ -57,6 +81,7 @@ export function Config(
       hash,
       published: packageJSON.published,
       version: packageJSON.version
-    }
+    },
+    argv
   }
 }

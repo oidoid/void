@@ -3,12 +3,8 @@
 // compiles images into an atlas and bundles an HTML entrypoint.
 
 import path from 'node:path'
-import {parseConfigFile} from '../schema/config-file.ts'
 import {bundle} from './bundle/bundle.ts'
-import {Config} from './types/config.ts'
-import type {PackageJSON} from './types/package-json.ts'
-import {Argv} from './utils/argv.ts'
-import {exec} from './utils/exec.ts'
+import {readConfig} from './types/config.ts'
 import {parseHTML} from './utils/html-parser.ts'
 
 declare module './utils/argv.ts' {
@@ -26,13 +22,7 @@ declare module './utils/argv.ts' {
 }
 
 export async function build(args: readonly string[]): Promise<void> {
-  const argv = Argv(args)
-  const configFile = await parseConfigFile(argv.opts['--config'] ?? 'void.json')
-  const hash = (await exec('git', 'rev-parse', '--short', 'HEAD')).trim()
-  const packageJSON: PackageJSON = JSON.parse(
-    (await exec('npm', 'pkg', 'get', 'version', 'published')) || '{}'
-  )
-  const config = Config(argv, configFile, hash, packageJSON)
+  const config = await readConfig(args)
 
   const doc = await parseHTML(config.entry)
   const srcFilenames = [

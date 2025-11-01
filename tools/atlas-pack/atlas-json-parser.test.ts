@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import {describe, test} from 'node:test'
-import type {Anim, AtlasJSON} from '../../src/graphics/atlas.ts'
+import type {Anim} from '../../src/graphics/atlas.ts'
+import type {AtlasJSON} from '../../src/types/game-config.ts'
 import type {XY} from '../../src/types/geo.ts'
 import {
   AsepriteDirection,

@@ -1,5 +1,5 @@
 import * as V from '../index.ts'
-import preloadAtlasJSON from './assets/preload-atlas.json' with {type: 'json'}
+import config from './assets/game.json' with {type: 'json'}
 import {ClockEnt} from './ents/clock-ent.ts'
 import {RenderToggleEnt} from './ents/render-toggle-ent.ts'
 import {WorkCounterEnt} from './ents/work-counter-ent.ts'
@@ -12,11 +12,8 @@ export class Game extends V.Void<Tag> {
 
   constructor() {
     super({
-      preloadAtlas: {
-        image: document.querySelector('#preload-atlas')!,
-        json: preloadAtlasJSON
-      },
-      minWH: {w: 320, h: 240},
+      config,
+      preloadAtlas: document.querySelector<HTMLImageElement>('#preload-atlas'),
       poll: {
         delay: () => renderDelayMillis(new Date(), V.debug?.seconds),
         period: ((V.debug?.seconds ? 1 : 60) * 1000) as V.Millis

@@ -2,10 +2,14 @@
   "$schema": "../../schema/config-file.v0.json",
   "entry": "assets/index.html",
   "meta": "../../dist/meta.json",
-  "out": {"dir": "../../dist/public/", "name": "void"},
+  "out": {
+    "dir": "../../dist/public/",
+    "name": "void",
+    "game": "assets/game.json"
+  },
   "preloadAtlas": {
     "dir": "assets/preload-atlas/",
-    "image": "../../dist/public/preload-atlas.webp",
-    "json": "assets/preload-atlas.json"
-  }
+    "image": "../../dist/public/preload-atlas.webp"
+  },
+  "init": {"minWH": {"w": 320, "h": 240}}
 }

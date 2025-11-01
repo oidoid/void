@@ -1,5 +1,5 @@
 import {Zoo} from './ents/zoo.ts'
-import type {Anim, Atlas, AtlasJSON, TagFormat} from './graphics/atlas.ts'
+import type {Anim, Atlas, TagFormat} from './graphics/atlas.ts'
 import {parseAtlas} from './graphics/atlas-parser.ts'
 import {Cam} from './graphics/cam.ts'
 import {Renderer} from './graphics/renderer.ts'
@@ -7,7 +7,7 @@ import {drawableBytes, Sprite} from './graphics/sprite.ts'
 import {type DefaultButton, Input} from './input/input.ts'
 import {Looper} from './looper.ts'
 import {Pool, type PoolOpts} from './mem/pool.ts'
-import type {WH} from './types/geo.ts'
+import type {GameConfig} from './types/game-config.ts'
 import type {Millis, Secs} from './types/time.ts'
 import {initCanvas} from './utils/canvas-util.ts'
 import {parseComputedColor} from './utils/color-util.ts'
@@ -16,13 +16,10 @@ import {initBody, initMetaViewport} from './utils/dom-util.ts'
 import {loadImage} from './utils/fetch-util.ts'
 
 export type VoidOpts<Tag extends TagFormat> = {
-  backgroundRGBA?: number
   canvas?: HTMLCanvasElement | undefined
-  input?: 'Custom' | 'Default' | undefined
-  minWH?: WH | undefined
-  mode?: 'Float' | 'Int' | undefined
+  config: GameConfig
   poll?: {delay?: (() => Millis) | undefined; period: Millis} | undefined
-  preloadAtlas?: {image: HTMLImageElement; json: AtlasJSON} | undefined
+  preloadAtlas?: HTMLImageElement | null | undefined
   sprites?:
     | Partial<Omit<PoolOpts<Sprite<Tag>>, 'alloc' | 'allocBytes'>>
     | undefined
@@ -56,29 +53,32 @@ export class Void<
         () => this.onPoll()
       )
 
-    const mode = opts.mode ?? 'Int'
+    const mode = opts.config.init.mode
     initMetaViewport()
-    this.canvas = initCanvas(opts.canvas, mode)
+    this.canvas = initCanvas(opts.canvas, mode as 'Float' | 'Int')
     if (!this.canvas.parentElement) throw Error('no canvas parent')
     this.#backgroundRGBA =
-      opts.backgroundRGBA ??
+      opts.config.init.background ??
       parseComputedColor(
         getComputedStyle(this.canvas.parentElement).backgroundColor
       )
     initBody(this.canvas, this.#backgroundRGBA)
 
-    if (opts.minWH) this.cam.minWH = opts.minWH
-    this.cam.mode = mode
+    this.cam.minWH = {
+      w: opts.config.init.minWH.w ?? Infinity,
+      h: opts.config.init.minWH.h ?? Infinity
+    }
+    this.cam.mode = mode as 'Float' | 'Int'
     this.cam.update(this.canvas)
 
     this.input = new Input(this.cam, this.canvas)
-    if (opts.input !== 'Custom') this.input.mapDefault()
+    if (opts.config.init.input !== 'Custom') this.input.mapDefault()
     this.input.onEvent = () => this.onEvent()
 
-    if (opts.preloadAtlas) this.#preloadAtlasImage = opts.preloadAtlas.image
+    this.#preloadAtlasImage = opts.preloadAtlas ?? undefined
 
-    this.preload = opts.preloadAtlas
-      ? parseAtlas(opts.preloadAtlas.json)
+    this.preload = opts.config.atlas
+      ? parseAtlas(opts.config.atlas)
       : {anim: {} as {[tag in Tag]: Anim}, celXYWH: [], tags: []}
 
     this.renderer = new Renderer(this.preload ?? {}, this.canvas, this.looper)

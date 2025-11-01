@@ -14,7 +14,8 @@ test('parses empty.', () => {
   assert.deepEqual<Argv>(Argv(['/usr/local/bin/node', 'tools/void.ts']), {
     args: [],
     opts: {},
-    posargs: []
+    posargs: [],
+    argv: ['/usr/local/bin/node', 'tools/void.ts']
   })
 })
 
@@ -35,7 +36,19 @@ test('parses nonempty.', () => {
     {
       args: ['a.aseprite', 'b.aseprite'],
       opts: {'--config': 'config', '--minify': true, '--watch': true},
-      posargs: ['posarg0', 'posarg1']
+      posargs: ['posarg0', 'posarg1'],
+      argv: [
+        '/usr/local/bin/node',
+        'tools/void.ts',
+        '--config=config',
+        '--minify',
+        '--watch',
+        'a.aseprite',
+        'b.aseprite',
+        '--',
+        'posarg0',
+        'posarg1'
+      ]
     }
   )
 })

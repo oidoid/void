@@ -5,6 +5,8 @@ export type Argv = {
   opts: Opts
   /** everything after `--`. */
   posargs: string[]
+  /** original argument string. */
+  argv: string[]
 }
 
 /** string-string|bool map. Eg, `'--config'?: string; '--minify'?: string | true` */
@@ -25,5 +27,5 @@ export function Argv(argv: readonly string[]): Argv {
       opts[k!] = v ?? true
     } else args.push(argv[i]!)
   }
-  return {args, opts, posargs}
+  return {args, opts, posargs, argv: [...argv]}
 }

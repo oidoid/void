@@ -1,11 +1,11 @@
 import {
   type Anim,
-  type AtlasJSON,
   animCels,
   animMillis,
   celMillis,
   type TagFormat
 } from '../../src/graphics/atlas.ts'
+import type {AtlasJSON} from '../../src/types/game-config.ts'
 import {type Box, boxEq, type XY} from '../../src/types/geo.ts'
 import {
   type Aseprite,

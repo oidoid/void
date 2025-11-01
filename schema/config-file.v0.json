@@ -9,7 +9,7 @@
       "type": "object",
       "description": "sprite sheet config.",
       "unevaluatedProperties": false,
-      "required": ["dir", "image", "json"],
+      "required": ["dir", "image"],
       "properties": {
         "dir": {
           "type": "string",
@@ -20,15 +20,28 @@
           "type": "string",
           "description": "sprite sheet image output.",
           "examples": ["dist/public/atlas.webp", "atlas.png"]
-        },
-        "json": {
-          "type": "string",
-          "description": "sprite sheet JSON output.",
-          "examples": ["src/assets/atlas.json", "atlas.json"]
         }
+      }
+    },
+    "RGBA": {
+      "type": "string",
+      "description": "color (red, green, blue, alpha) in hex.",
+      "unevaluatedProperties": false,
+      "pattern": "^[A-Fa-f0-9]{8}$",
+      "default": 0,
+      "examples": ["01234567"]
+    },
+    "WH": {
+      "type": "object",
+      "description": "area.",
+      "unevaluatedProperties": false,
+      "properties": {
+        "w": {"type": "integer", "description": "width.", "default": 0},
+        "h": {"type": "integer", "description": "height.", "default": 0}
       }
     }
   },
+  "required": ["out"],
   "unevaluatedProperties": false,
   "properties": {
     "$schema": {
@@ -49,12 +62,18 @@
     "out": {
       "type": "object",
       "description": "output config.",
+      "required": ["game"],
       "unevaluatedProperties": false,
       "properties": {
         "dir": {
           "type": "string",
           "description": "HTML and JavaScript output directory.",
           "default": "dist/public/"
+        },
+        "game": {
+          "type": "string",
+          "description": "game config output.",
+          "examples": ["src/assets/game.json", "game.json"]
         },
         "name": {
           "type": "string",
@@ -63,6 +82,43 @@
         }
       }
     },
-    "preloadAtlas": {"$ref": "#/$defs/Atlas"}
+    "preloadAtlas": {"$ref": "#/$defs/Atlas"},
+    "init": {
+      "type": "object",
+      "description": "init config.",
+      "unevaluatedProperties": false,
+      "properties": {
+        "background": {
+          "$ref": "#/$defs/RGBA",
+          "description": "render clear color. defaults to canvas parent background color."
+        },
+        "input": {
+          "enum": ["Custom", "Default"],
+          "description": "button mapping. default to init all default buttons, custom to leave all unmapped. to-do: support mapping here",
+          "default": "Default"
+        },
+        "minWH": {
+          "$ref": "#/$defs/WH",
+          "description": "min cam dimensions. zero is infinity (always use min scale)."
+        },
+        "minScale": {
+          "type": "integer",
+          "description": "min cam scale.",
+          "default": 1,
+          "minimum": 1
+        },
+        "mode": {
+          "enum": ["Float", "Int"],
+          "description": "use fractional or integral rendering.",
+          "default": "Int"
+        },
+        "zoomOut": {
+          "type": "number",
+          "description": "cam zoom offset.",
+          "default": 0,
+          "minimum": 0
+        }
+      }
+    }
   }
 }

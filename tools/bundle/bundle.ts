@@ -1,9 +1,10 @@
 import fs from 'node:fs'
 import esbuild from 'esbuild'
-import type {AtlasConfig} from '../../schema/config-file.ts'
 import * as V from '../../src/index.ts'
+import type {AtlasJSON, GameConfig} from '../../src/types/game-config.ts'
 import {packAtlas} from '../atlas-pack/atlas-pack.ts'
-import type {Config} from '../types/config.ts'
+import {type Config, readConfig} from '../types/config.ts'
+import {exec} from '../utils/exec.ts'
 import {HTMLPlugin} from './html-plugin.ts'
 
 export async function bundle(
@@ -32,11 +33,20 @@ export async function bundle(
     target: 'es2024' // https://esbuild.github.io/content-types/#tsconfig-json
   }
 
-  if (config.preloadAtlas) await packAtlas(config.preloadAtlas)
-  if (config.preloadAtlas && config.watch) {
-    fs.watch(config.preloadAtlas.dir, {recursive: true}, (ev, type) =>
-      onWatch(config.preloadAtlas!, ev, type)
-    )
+  let atlas
+  if (config.preloadAtlas) atlas = await packAtlas(config.preloadAtlas)
+  await writeGameConfig(atlas, config)
+
+  if (config.watch) {
+    if (config.preloadAtlas)
+      fs.watch(config.preloadAtlas.dir, {recursive: true}, (ev, type) =>
+        onWatchAssets(config, ev, type)
+      )
+    fs.watch(config.filename, async (ev, type) => {
+      console.log(`config ${type} ${ev}.`)
+      config = await readConfig(config.argv.argv)
+      onWatchConfig(config)
+    })
     const ctx = await esbuild.context(opts)
     await Promise.all([
       ctx.watch(),
@@ -49,14 +59,35 @@ export async function bundle(
   }
 }
 
-const onWatch = V.debounce(
+const onWatchAssets = V.debounce(
   async (
-    config: Readonly<AtlasConfig>,
+    config: Readonly<Config>,
     ev: fs.WatchEventType,
     file: string | null
-  ) => {
+  ): Promise<void> => {
     console.log(`asset ${file} ${ev}.`)
-    await packAtlas(config)
+    const atlas = await packAtlas(config.preloadAtlas!)
+    await writeGameConfig(atlas, config)
   },
   500 as V.Millis
 )
+
+const onWatchConfig = V.debounce(
+  async (config: Readonly<Config>): Promise<void> => {
+    let atlas
+    if (config.preloadAtlas) atlas = await packAtlas(config.preloadAtlas)
+    await writeGameConfig(atlas, config)
+  },
+  500 as V.Millis
+)
+
+async function writeGameConfig(
+  atlas: Readonly<AtlasJSON> | undefined,
+  config: Readonly<Config>
+): Promise<void> {
+  const gameConfig: GameConfig = {atlas, init: config.init}
+  await fs.promises.writeFile(config.out.game, JSON.stringify(gameConfig))
+  try {
+    await exec('biome', 'check', '--fix', config.out.game)
+  } catch {}
+}

@@ -1,12 +1,14 @@
-import fs from 'node:fs/promises'
 import path from 'node:path'
 import type {AtlasConfig} from '../../schema/config-file.ts'
+import type {AtlasJSON} from '../../src/types/game-config.ts'
 import {exec} from '../utils/exec.ts'
 import {globAll} from '../utils/file-util.ts'
 import {parseAtlasJSON} from './atlas-json-parser.ts'
 
 // to-do: separate executable?
-export async function packAtlas(config: Readonly<AtlasConfig>): Promise<void> {
+export async function packAtlas(
+  config: Readonly<AtlasConfig>
+): Promise<AtlasJSON | undefined> {
   const filenames = await globAll(path.join(config.dir, '**.aseprite'))
   if (!filenames.length) return
 
@@ -40,12 +42,5 @@ export async function packAtlas(config: Readonly<AtlasConfig>): Promise<void> {
       config.image
     )
 
-  await fs.writeFile(
-    config.json,
-    JSON.stringify(parseAtlasJSON(JSON.parse(json)))
-  )
-
-  try {
-    await exec('biome', 'check', '--fix', config.json)
-  } catch {}
+  return parseAtlasJSON(JSON.parse(json))
 }

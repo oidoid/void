@@ -19,15 +19,6 @@ export type Atlas<Tag extends TagFormat> = {
   tags: Tag[]
 }
 
-export type AtlasJSON = {
-  anim: {[tag: string]: Anim}
-  /**
-   * cel source XY by `Anim.id` and `Anim.cel` for one cycle. truncated to
-   * `animCels`.
-   */
-  celXY: number[]
-}
-
 export type Anim = {
   /**
    * number of cels in a full animation cycle including cels extended for
