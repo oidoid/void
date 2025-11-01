@@ -1,6 +1,6 @@
 {
   "author": "oidoid",
-  "background_color": "#ffffb1",
+  "background_color": "#e6e6e6",
   "description": "void 2D game library demo.",
   "display": "standalone",
   "homepage_url": "https://oidoid.com/",
@@ -36,6 +36,6 @@
   "orientation": "any",
   "short_name": "void",
   "start_url": "https://oidoid.com/",
-  "theme_color": "#ffffb1",
+  "theme_color": "#e6e6e6",
   "version": "0.0.0"
 }

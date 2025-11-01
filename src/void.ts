@@ -10,6 +10,7 @@ import {Pool, type PoolOpts} from './mem/pool.ts'
 import type {WH} from './types/geo.ts'
 import type {Millis, Secs} from './types/time.ts'
 import {initCanvas} from './utils/canvas-util.ts'
+import {parseComputedColor} from './utils/color-util.ts'
 import {DelayInterval} from './utils/delay-interval.ts'
 import {initBody, initMetaViewport} from './utils/dom-util.ts'
 import {loadImage} from './utils/fetch-util.ts'
@@ -58,7 +59,12 @@ export class Void<
     const mode = opts.mode ?? 'Int'
     initMetaViewport()
     this.canvas = initCanvas(opts.canvas, mode)
-    this.#backgroundRGBA = opts.backgroundRGBA ?? 0x000000ff
+    if (!this.canvas.parentElement) throw Error('no canvas parent')
+    this.#backgroundRGBA =
+      opts.backgroundRGBA ??
+      parseComputedColor(
+        getComputedStyle(this.canvas.parentElement).backgroundColor
+      )
     initBody(this.canvas, this.#backgroundRGBA)
 
     if (opts.minWH) this.cam.minWH = opts.minWH
@@ -128,9 +134,8 @@ export class Void<
     this.input.register(op)
     this.renderer.register(op)
     this.looper.register(op)
-    if (!this.canvas.parentElement) throw Error('no canvas parent')
-    if (op === 'add') this.#resizeObserver.observe(this.canvas.parentElement)
-    else this.#resizeObserver.unobserve(this.canvas.parentElement)
+    if (op === 'add') this.#resizeObserver.observe(this.canvas.parentElement!)
+    else this.#resizeObserver.unobserve(this.canvas.parentElement!)
 
     if (op === 'add') this.looper.requestFrame()
     this.#poll?.register(op)

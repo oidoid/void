@@ -12,7 +12,6 @@ export class Game extends V.Void<Tag> {
 
   constructor() {
     super({
-      backgroundRGBA: 0xffffb1ff,
       preloadAtlas: {
         image: document.querySelector('#preload-atlas')!,
         json: preloadAtlasJSON
