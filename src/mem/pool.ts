@@ -2,6 +2,7 @@ import {debug} from '../utils/debug.ts'
 
 export type PoolOpts<out T extends Block> = {
   alloc(pool: Pool<T>): T
+  init?(block: T): void
   allocBytes: number
   minPages?: number
   pageBlocks: number
@@ -32,7 +33,11 @@ export class Pool<out T extends Block> {
   constructor(opts: Readonly<PoolOpts<T>>) {
     if (opts.allocBytes <= 0) throw Error('byte allocation must be > 0')
     if (opts.pageBlocks <= 0) throw Error('page blocks must be > 0')
-    this.#opts = {...opts, minPages: opts.minPages ?? 1}
+    this.#opts = {
+      ...opts,
+      init: opts.init ?? (() => {}),
+      minPages: opts.minPages ?? 1
+    }
     const initSize = this.#opts.minPages * opts.pageBlocks
     this.#blocks = new Array(initSize)
     this.#u8 = new Uint8Array()
@@ -45,6 +50,7 @@ export class Pool<out T extends Block> {
     const block = this.#blocks[this.#size]!
     block.i = this.#size * this.#opts.allocBytes
     this.#size++
+    this.#opts.init(block)
     return block
   }
 

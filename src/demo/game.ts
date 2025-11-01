@@ -25,6 +25,7 @@ export class Game extends V.Void<Tag> {
     })
     this.#filterSprites = new V.Pool<V.Sprite<Tag>>({
       alloc: pool => new V.Sprite(pool, 0, this.preload, this.looper),
+      init: sprite => sprite.init(),
       allocBytes: V.drawableBytes,
       pageBlocks: 10
     })

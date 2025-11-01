@@ -14,7 +14,7 @@ import {DelayInterval} from './utils/delay-interval.ts'
 import {initBody, initMetaViewport} from './utils/dom-util.ts'
 import {loadImage} from './utils/fetch-util.ts'
 
-export type VoidOpts<out Tag extends TagFormat> = {
+export type VoidOpts<Tag extends TagFormat> = {
   backgroundRGBA?: number
   canvas?: HTMLCanvasElement | undefined
   input?: 'Custom' | 'Default' | undefined
@@ -80,6 +80,7 @@ export class Void<
     this.sprites = new Pool({
       alloc: pool => this.onAllocSprite(pool),
       allocBytes: drawableBytes,
+      init: sprite => sprite.init(),
       minPages: opts.sprites?.minPages ?? 3,
       pageBlocks: opts.sprites?.pageBlocks ?? 1000
     })

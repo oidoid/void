@@ -9,7 +9,7 @@ import type {Block} from '../mem/pool.ts'
 import {type Box, boxHits, type WH, type XY} from '../types/geo.ts'
 import type {Millis} from '../types/time.ts'
 import {mod} from '../utils/math.ts'
-import {isUILayer, type Layer} from './layer.ts'
+import {isUILayer, Layer} from './layer.ts'
 
 export const drawableBytes: number = 12
 /** granularity (0.015625) of drawable coords. */
@@ -120,6 +120,20 @@ export abstract class Drawable implements Block, Box {
       (i11_c5 & ~(0x7ff << 5)) | ((id & 0x7ff) << 5),
       true
     )
+  }
+
+  /**
+   * reset most values that wouldn't be configured when setting the tag. used
+   * for reinitialization on pool allocation.
+   */
+  init(): void {
+    this.flipX = false
+    this.flipY = false
+    this.stretch = false
+    this.x = 0
+    this.y = 0
+    this.z = Layer.Hidden
+    this.zend = false
   }
 
   get stretch(): boolean {
@@ -331,6 +345,12 @@ export class Sprite<Tag extends TagFormat> extends Drawable {
     return mod(this.looperCel - this.cel, animCels * 2) >= this.anim.cels
   }
 
+  /** current fractional cel in [0, 2 * anim.cels). */
+  get looperCel(): number {
+    const cel = this.#looper.age / celMillis
+    return cel % (this.anim.cels * 2)
+  }
+
   /** sets cel to animation start. */
   reset(): void {
     this.cel = this.looperCel // setter truncates.
@@ -390,12 +410,6 @@ export class Sprite<Tag extends TagFormat> extends Drawable {
     super.y = y
     this.#hitbox = undefined
     this.#hurtbox = undefined
-  }
-
-  /** current fractional cel in [0, 2 * anim.cels). */
-  get looperCel(): number {
-    const cel = this.#looper.age / celMillis
-    return cel % (this.anim.cels * 2)
   }
 }
 
