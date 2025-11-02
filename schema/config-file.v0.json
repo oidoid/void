@@ -8,7 +8,6 @@
     "Atlas": {
       "type": "object",
       "description": "sprite sheet config.",
-      "unevaluatedProperties": false,
       "required": ["dir", "image"],
       "properties": {
         "dir": {
@@ -26,7 +25,6 @@
     "RGBA": {
       "type": "string",
       "description": "color (red, green, blue, alpha) in hex.",
-      "unevaluatedProperties": false,
       "pattern": "^[A-Fa-f0-9]{8}$",
       "default": 0,
       "examples": ["01234567"]
@@ -34,7 +32,6 @@
     "WH": {
       "type": "object",
       "description": "area.",
-      "unevaluatedProperties": false,
       "properties": {
         "w": {"type": "integer", "description": "width.", "default": 0},
         "h": {"type": "integer", "description": "height.", "default": 0}
@@ -82,7 +79,7 @@
         }
       }
     },
-    "preloadAtlas": {"$ref": "#/$defs/Atlas"},
+    "preloadAtlas": {"$ref": "#/$defs/Atlas", "unevaluatedProperties": false},
     "init": {
       "type": "object",
       "description": "init config.",
@@ -99,7 +96,8 @@
         },
         "minWH": {
           "$ref": "#/$defs/WH",
-          "description": "min cam dimensions. zero is infinity (always use min scale)."
+          "description": "min cam dimensions. zero is infinity (always use min scale).",
+          "unevaluatedProperties": false
         },
         "minScale": {
           "type": "integer",
