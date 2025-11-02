@@ -4,6 +4,7 @@
   "formatter": {
     "bracketSpacing": false,
     "enabled": true,
+    "formatWithErrors": true,
     "indentStyle": "space"
   },
   "html": {"formatter": {"enabled": true, "indentScriptAndStyle": true}},
