@@ -19,7 +19,7 @@ export class TextEnt implements Ent<TagFormat> {
   readonly #xy: XY = {x: 0, y: 0}
 
   free(v: Void<TagFormat, string>): void {
-    v.sprites.free(...this.#sprites)
+    v.pool.default.free(...this.#sprites)
   }
 
   layout(v: Void<TagFormat, string>): boolean {
@@ -35,7 +35,7 @@ export class TextEnt implements Ent<TagFormat> {
     this.#wh = {w: layout.wh.w, h: layout.wh.h}
     for (const [i, char] of layout.chars.entries()) {
       if (char == null) continue
-      const sprite = (this.#sprites[len] ??= v.sprites.alloc())
+      const sprite = (this.#sprites[len] ??= v.pool.default.alloc())
       sprite.x = char.x
       sprite.y = char.y
       sprite.tag = fontCharToTag(memProp5x6, this.#str[i]!)
@@ -45,7 +45,7 @@ export class TextEnt implements Ent<TagFormat> {
       sprite.z = this.#z
       len++
     }
-    while (this.#sprites.length > len) v.sprites.free(this.#sprites.pop()!)
+    while (this.#sprites.length > len) v.pool.default.free(this.#sprites.pop()!)
     this.#layout = 'Updated'
     return true
   }

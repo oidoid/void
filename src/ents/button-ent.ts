@@ -47,11 +47,11 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
       wh: {w: opts.w, h: opts.h}
     })
     this.#pressed = {
-      sprite: v.sprites.alloc(),
+      sprite: v.pool.default.alloc(),
       z: opts.pressed.z ?? layerOffset(buttonZ, -2)
     }
     this.#selected = {
-      sprite: v.sprites.alloc(),
+      sprite: v.pool.default.alloc(),
       z: opts.selected.z ?? layerOffset(this.#pressed.z, 1)
     }
 
@@ -86,7 +86,7 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
   free(v: Void<Tag, string>): void {
     this.#button.free(v)
     this.#text.free(v)
-    v.sprites.free(this.#selected.sprite, this.#pressed.sprite)
+    v.pool.default.free(this.#selected.sprite, this.#pressed.sprite)
   }
 
   get on(): boolean {

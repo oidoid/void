@@ -22,7 +22,7 @@ export class FollowCamEnt<Tag extends TagFormat> implements Ent<Tag> {
   readonly #sprite: Sprite<Tag>
 
   constructor(v: Void<Tag, string>, tag: Tag, pivot: CompassDir) {
-    this.#sprite = v.sprites.alloc()
+    this.#sprite = v.pool.default.alloc()
     this.#sprite.tag = tag
     this.#pivot = pivot
   }
@@ -38,7 +38,7 @@ export class FollowCamEnt<Tag extends TagFormat> implements Ent<Tag> {
   }
 
   free(v: Void<Tag, string>): void {
-    v.sprites.free(this.#sprite)
+    v.pool.default.free(this.#sprite)
   }
 
   get h(): number {

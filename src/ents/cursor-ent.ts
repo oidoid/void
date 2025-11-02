@@ -20,14 +20,14 @@ export class CursorEnt<Tag extends TagFormat> implements Ent<Tag> {
   constructor(v: Void<Tag, string>, point: Tag, pick?: Tag | undefined) {
     this.#point = point
     this.#pick = pick ?? this.#point
-    this.#sprite = v.sprites.alloc()
+    this.#sprite = v.pool.default.alloc()
     this.#sprite.tag = point
     this.#sprite.z = Layer.Hidden
     this.#updateBounds(v)
   }
 
   free(v: Void<Tag, string>): void {
-    v.sprites.free(this.#sprite)
+    v.pool.default.free(this.#sprite)
   }
 
   hitbox(v: Readonly<Void<Tag, string>>, coords: 'Level' | 'UI'): Box {

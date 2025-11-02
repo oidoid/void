@@ -32,9 +32,9 @@ export class Void<
   readonly cam: Cam = new Cam()
   readonly canvas: HTMLCanvasElement
   readonly input: Input<Button>
+  readonly pool: {default: Pool<Sprite<Tag>>}
   readonly preload: Atlas<Tag>
   readonly renderer: Renderer
-  readonly sprites: Pool<Sprite<Tag>>
   readonly zoo: Zoo<Tag> = new Zoo()
   readonly looper: Looper = new Looper()
   /** delta since frame request. */
@@ -83,13 +83,15 @@ export class Void<
 
     this.renderer = new Renderer(this.preload ?? {}, this.canvas, this.looper)
 
-    this.sprites = new Pool({
-      alloc: pool => this.onAllocSprite(pool),
-      allocBytes: drawableBytes,
-      init: sprite => sprite.init(),
-      minPages: opts.sprites?.minPages ?? 3,
-      pageBlocks: opts.sprites?.pageBlocks ?? 1000
-    })
+    this.pool = {
+      default: new Pool({
+        alloc: pool => this.onAllocSprite(pool),
+        allocBytes: drawableBytes,
+        init: sprite => sprite.init(),
+        minPages: opts.sprites?.minPages ?? 3,
+        pageBlocks: opts.sprites?.pageBlocks ?? 1000
+      })
+    }
 
     this.looper.onFrame = millis => this.onFrame(millis)
   }

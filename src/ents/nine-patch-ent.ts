@@ -39,15 +39,15 @@ export class NinePatchEnt<Tag extends TagFormat> implements Ent<Tag> {
 
   constructor(v: Void<Tag, string>, opts: Readonly<NinePatchOpts<Tag>>) {
     this.#dir = {
-      w: v.sprites.alloc(),
-      nw: v.sprites.alloc(),
-      n: v.sprites.alloc(),
-      ne: v.sprites.alloc(),
-      e: v.sprites.alloc(),
-      se: v.sprites.alloc(),
-      s: v.sprites.alloc(),
-      sw: v.sprites.alloc(),
-      origin: v.sprites.alloc()
+      w: v.pool.default.alloc(),
+      nw: v.pool.default.alloc(),
+      n: v.pool.default.alloc(),
+      ne: v.pool.default.alloc(),
+      e: v.pool.default.alloc(),
+      se: v.pool.default.alloc(),
+      s: v.pool.default.alloc(),
+      sw: v.pool.default.alloc(),
+      origin: v.pool.default.alloc()
     }
     this.#dir.w.tag = opts.w?.tag ?? opts.e?.tag ?? opts.n.tag
     this.#dir.n.tag = opts.n.tag
@@ -130,7 +130,7 @@ export class NinePatchEnt<Tag extends TagFormat> implements Ent<Tag> {
   }
 
   free(v: Void<Tag, string>): void {
-    v.sprites.free(
+    v.pool.default.free(
       this.#dir.w,
       this.#dir.nw,
       this.#dir.n,

@@ -6,7 +6,9 @@ import {WorkCounterEnt} from './ents/work-counter-ent.ts'
 import type {Tag} from './types/tag.ts'
 
 export class Game extends V.Void<Tag> {
-  #filterSprites: V.Pool<V.Sprite<Tag>>
+  declare readonly pool: V.Void<Tag>['pool'] & {
+    overlay: V.Pool<V.Sprite<Tag>>
+  }
   #renderToggle: RenderToggleEnt
   #workCounter: WorkCounterEnt
 
@@ -19,7 +21,7 @@ export class Game extends V.Void<Tag> {
         period: ((V.debug?.seconds ? 1 : 60) * 1000) as V.Millis
       }
     })
-    this.#filterSprites = new V.Pool<V.Sprite<Tag>>({
+    this.pool.overlay = new V.Pool<V.Sprite<Tag>>({
       alloc: pool => new V.Sprite(pool, 0, this.preload, this.looper),
       init: sprite => sprite.init(),
       allocBytes: V.drawableBytes,
@@ -47,9 +49,9 @@ export class Game extends V.Void<Tag> {
       this.renderer.clear(this.backgroundRGBA)
       this.renderer.predraw(this.cam)
       this.renderer.setDepth(true)
-      this.renderer.draw(this.sprites)
+      this.renderer.draw(this.pool.default)
       this.renderer.setDepth(false)
-      this.renderer.draw(this.#filterSprites)
+      this.renderer.draw(this.pool.overlay)
     }
   }
 
@@ -65,7 +67,7 @@ export class Game extends V.Void<Tag> {
     border.xy = box
     border.wh = box
 
-    const backpacker = this.sprites.alloc()
+    const backpacker = this.pool.default.alloc()
     backpacker.tag = 'backpacker--WalkRight'
     backpacker.x = 7
     backpacker.y = 7
@@ -86,7 +88,7 @@ export class Game extends V.Void<Tag> {
       oidoid
     )
 
-    const overlay = this.#filterSprites.alloc()
+    const overlay = this.pool.overlay.alloc()
     overlay.tag = 'background--GreyCheckerboard'
     overlay.w = V.drawableMaxWH.w
     overlay.h = V.drawableMaxWH.h
