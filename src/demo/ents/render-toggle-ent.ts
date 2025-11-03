@@ -37,8 +37,8 @@ export class RenderToggleEnt implements V.Ent<Tag> {
     this.#toggle.on = on
   }
 
-  free(v: Game): void {
-    this.#toggle.free(v)
+  free(): void {
+    this.#toggle.free()
   }
 
   /** always updates but never invalidates. */

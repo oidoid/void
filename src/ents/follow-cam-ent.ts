@@ -37,8 +37,8 @@ export class FollowCamEnt<Tag extends TagFormat> implements Ent<Tag> {
     this.#invalid = true
   }
 
-  free(v: Void<Tag, string>): void {
-    v.pool.default.free(this.#sprite)
+  free(): void {
+    this.#sprite.free()
   }
 
   get h(): number {

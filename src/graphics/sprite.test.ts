@@ -564,8 +564,11 @@ test('truncDrawableEpsilon()', () => {
     assert.equal(truncDrawableEpsilon(x), out, `${x}`)
 })
 
-function TestPool(): {view: DataView<ArrayBuffer>} {
-  return {view: new DataView(new ArrayBuffer(drawableBytes), 0, drawableBytes)}
+function TestPool(): {free(): void; view: DataView<ArrayBuffer>} {
+  return {
+    free() {},
+    view: new DataView(new ArrayBuffer(drawableBytes), 0, drawableBytes)
+  }
 }
 
 function toHex(pool: {readonly view: DataView<ArrayBuffer>}): string {

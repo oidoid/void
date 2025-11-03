@@ -11,6 +11,8 @@ import type {Millis} from '../types/time.ts'
 import {mod} from '../utils/math.ts'
 import {isUILayer, Layer} from './layer.ts'
 
+type Pool = {free(block: Block): void; view: DataView<ArrayBuffer>}
+
 export const drawableBytes: number = 12
 /** granularity (0.015625) of drawable coords. */
 export const drawableEpsilon: number = 1 / 64
@@ -38,9 +40,9 @@ export const drawableMaxWH: Readonly<WH> = {w: 4095, h: 4095}
  */
 export abstract class Drawable implements Block, Box {
   i: number
-  readonly #pool: {readonly view: DataView<ArrayBuffer>}
+  readonly #pool: Readonly<Pool>
 
-  constructor(pool: {readonly view: DataView<ArrayBuffer>}, i: number) {
+  constructor(pool: Readonly<Pool>, i: number) {
     this.#pool = pool
     this.i = i
   }
@@ -90,6 +92,10 @@ export abstract class Drawable implements Block, Box {
   set flipY(flip: boolean) {
     const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
     this.#pool.view.setUint8(this.i + 6, (sxyz_llll & ~0x20) | (-flip & 0x20))
+  }
+
+  free(): void {
+    this.#pool.free(this)
   }
 
   get h(): number {
@@ -239,7 +245,7 @@ export class Sprite<Tag extends TagFormat> extends Drawable {
   readonly #looper: {readonly age: Millis}
 
   constructor(
-    pool: {readonly view: DataView<ArrayBuffer>},
+    pool: Readonly<Pool>,
     i: number,
     atlas: Readonly<Atlas<Tag>>,
     looper: {readonly age: Millis}

@@ -10,8 +10,8 @@ export class WorkCounterEnt implements V.Ent<Tag> {
     this.#text.z = V.Layer.UIG
   }
 
-  free(v: Game): void {
-    this.#text.free(v)
+  free(): void {
+    this.#text.free()
   }
 
   /** always updates but never invalidates. */

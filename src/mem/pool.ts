@@ -60,8 +60,27 @@ export class Pool<out T extends Block> {
     if (this.#currentCapacity > minCapacity) this.#resize(minCapacity, 'Call')
   }
 
-  free(...blocks: readonly T[]): void {
-    for (const block of blocks) this.#freeBlock(block)
+  free(block: T): void {
+    if (!this.#size) throw Error('pool underflow')
+
+    this.#size--
+    const start = this.#size * this.#opts.allocBytes
+    this.#u8.copyWithin(block.i, start, start + this.#opts.allocBytes)
+    this.#blocks[this.#size]!.i = block.i
+    ;[this.#blocks[block.i], this.#blocks[this.#size]] = [
+      this.#blocks[this.#size]!,
+      this.#blocks[block.i]!
+    ]
+
+    const free = Math.floor(
+      (this.#currentCapacity - this.#size) / this.#opts.pageBlocks
+    )
+    if (
+      free &&
+      this.#currentCapacity / this.#opts.pageBlocks - free >=
+        this.#opts.minPages
+    )
+      this.#resize(this.#currentCapacity - free * this.#opts.pageBlocks, 'Call')
   }
 
   get size(): number {
@@ -83,29 +102,6 @@ export class Pool<out T extends Block> {
 
   get #currentCapacity(): number {
     return this.#u8.buffer.byteLength / this.#opts.allocBytes
-  }
-
-  #freeBlock(block: T): void {
-    if (!this.#size) throw Error('pool underflow')
-
-    this.#size--
-    const start = this.#size * this.#opts.allocBytes
-    this.#u8.copyWithin(block.i, start, start + this.#opts.allocBytes)
-    this.#blocks[this.#size]!.i = block.i
-    ;[this.#blocks[block.i], this.#blocks[this.#size]] = [
-      this.#blocks[this.#size]!,
-      this.#blocks[block.i]!
-    ]
-
-    const free = Math.floor(
-      (this.#currentCapacity - this.#size) / this.#opts.pageBlocks
-    )
-    if (
-      free &&
-      this.#currentCapacity / this.#opts.pageBlocks - free >=
-        this.#opts.minPages
-    )
-      this.#resize(this.#currentCapacity - free * this.#opts.pageBlocks, 'Call')
   }
 
   #resize(capacity: number, origin: 'Init' | 'Call'): void {

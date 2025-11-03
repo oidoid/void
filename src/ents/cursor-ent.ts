@@ -26,8 +26,8 @@ export class CursorEnt<Tag extends TagFormat> implements Ent<Tag> {
     this.#updateBounds(v)
   }
 
-  free(v: Void<Tag, string>): void {
-    v.pool.default.free(this.#sprite)
+  free(): void {
+    this.#sprite.free()
   }
 
   hitbox(v: Readonly<Void<Tag, string>>, coords: 'Level' | 'UI'): Box {

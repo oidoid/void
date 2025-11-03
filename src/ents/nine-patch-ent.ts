@@ -129,18 +129,16 @@ export class NinePatchEnt<Tag extends TagFormat> implements Ent<Tag> {
     this.xy = {x: opts.x ?? 0, y: opts.y ?? 0}
   }
 
-  free(v: Void<Tag, string>): void {
-    v.pool.default.free(
-      this.#dir.w,
-      this.#dir.nw,
-      this.#dir.n,
-      this.#dir.ne,
-      this.#dir.e,
-      this.#dir.se,
-      this.#dir.s,
-      this.#dir.sw,
-      this.#dir.origin
-    )
+  free(): void {
+    this.#dir.w.free()
+    this.#dir.nw.free()
+    this.#dir.n.free()
+    this.#dir.ne.free()
+    this.#dir.e.free()
+    this.#dir.se.free()
+    this.#dir.s.free()
+    this.#dir.sw.free()
+    this.#dir.origin.free()
   }
 
   update(): boolean | undefined {

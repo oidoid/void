@@ -83,10 +83,11 @@ export class ButtonEnt<Tag extends TagFormat, Button extends string>
     return this.#selected.z !== Layer.Hidden
   }
 
-  free(v: Void<Tag, string>): void {
-    this.#button.free(v)
-    this.#text.free(v)
-    v.pool.default.free(this.#selected.sprite, this.#pressed.sprite)
+  free(): void {
+    this.#button.free()
+    this.#text.free()
+    this.#selected.sprite.free()
+    this.#pressed.sprite.free()
   }
 
   get on(): boolean {

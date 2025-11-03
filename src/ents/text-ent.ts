@@ -18,8 +18,8 @@ export class TextEnt implements Ent<TagFormat> {
   #wh: WH = {w: 0, h: 0}
   readonly #xy: XY = {x: 0, y: 0}
 
-  free(v: Void<TagFormat, string>): void {
-    v.pool.default.free(...this.#sprites)
+  free(): void {
+    for (const sprite of this.#sprites) sprite.free()
   }
 
   layout(v: Void<TagFormat, string>): boolean {

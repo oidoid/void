@@ -10,8 +10,8 @@ export class ClockEnt implements V.Ent<Tag> {
     this.#time.z = V.Layer.UIG
   }
 
-  free(v: Game): void {
-    this.#time.free(v)
+  free(): void {
+    this.#time.free()
   }
 
   update(v: Game): boolean | undefined {
