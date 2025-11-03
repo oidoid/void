@@ -22,19 +22,30 @@
         }
       }
     },
+    "UnboundedUInt": {
+      "oneOf": [{"type": "integer", "minimum": 0}, {"enum": ["Infinity"]}]
+    },
     "RGBA": {
       "type": "string",
       "description": "color (red, green, blue, alpha) in hex.",
       "pattern": "^[A-Fa-f0-9]{8}$",
-      "default": 0,
+      "default": "0",
       "examples": ["01234567"]
     },
     "WH": {
       "type": "object",
       "description": "area.",
       "properties": {
-        "w": {"type": "integer", "description": "width.", "default": 0},
-        "h": {"type": "integer", "description": "height.", "default": 0}
+        "w": {
+          "$ref": "#/$defs/UnboundedUInt",
+          "description": "width.",
+          "default": 0
+        },
+        "h": {
+          "$ref": "#/$defs/UnboundedUInt",
+          "description": "height.",
+          "default": 0
+        }
       }
     }
   },
@@ -90,17 +101,17 @@
           "description": "render clear color. defaults to canvas parent background color."
         },
         "input": {
-          "enum": ["Custom", "Default"],
-          "description": "button mapping. default to init all default buttons, custom to leave all unmapped. to-do: support mapping here",
+          "enum": ["Unmapped", "Default"],
+          "description": "button mapping. default to init all default buttons, custom to leave all unmapped. to-do: support custom mapping here.",
           "default": "Default"
         },
         "minWH": {
           "$ref": "#/$defs/WH",
-          "description": "min cam dimensions. zero is infinity (always use min scale).",
+          "description": "min cam dimensions. infinity always uses min scale.",
           "unevaluatedProperties": false
         },
         "minScale": {
-          "type": "integer",
+          "type": "number",
           "description": "min cam scale.",
           "default": 1,
           "minimum": 1
