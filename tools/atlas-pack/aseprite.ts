@@ -3,7 +3,17 @@ import type * as V from '../../src/index.ts'
 /** https://github.com/aseprite/aseprite/blob/master/docs/ase-file-specs.md */
 export type Aseprite = {meta: AsepriteMeta; frames: AsepriteFrameMap}
 
+/** eg, `#000000ff`. */
+export type AsepriteColor = `#${string}`
+
 export type AsepriteFrameMap = {[tag: AsepriteFrameTag]: AsepriteFrame}
+
+export type AsepriteKey = {
+  /** slice dimensions. */
+  bounds: V.Box
+  /** inclusive `AsepriteFrame` start offset. */
+  frame: number
+}
 
 export type AsepriteMeta = {
   /** e.g., `http://www.aseprite.org/`. */
@@ -41,35 +51,27 @@ export type AsepriteFrame = {
   sourceSize: V.WH
 }
 
+export type AsepriteSlice = {
+  /** `#ff0000ff` is hitbox, `#00ff00ff` is hurtbox, `#0000ffff` is both. */
+  color: AsepriteColor
+  name: V.TagFormat
+  keys: AsepriteKey[]
+}
+
 /**
  * a label and animation behavior. references `AsepriteFrame`s to form an
  * animation.
  */
 export type AsepriteTagSpan = {
-  /** eg, `#000000ff`. */
-  color: string
+  color: AsepriteColor
   name: V.TagFormat
   /** inclusive starting Frame index. */
   from: number
   /** inclusive ending index, possibly equal to from. */
   to: number
-  direction: AsepriteDirection | string
-  /** number of times to replay the animation. */
-  repeat?: `${bigint}` | string
-}
-
-export type AsepriteSlice = {
-  /** `#ff0000ff` is hitbox, `#00ff00ff` is hurtbox, `#0000ffff` is both. */
-  color: string
-  name: V.TagFormat
-  keys: AsepriteKey[]
-}
-
-export type AsepriteKey = {
-  /** slice dimensions. */
-  bounds: V.Box
-  /** inclusive `AsepriteFrame` start offset. */
-  frame: number
+  direction: AsepriteDirection
+  /** number of times to replay the animation. undefined is infinite. */
+  repeat?: `${bigint}`
 }
 
 export type AsepriteDirection =

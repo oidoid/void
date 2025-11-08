@@ -5,6 +5,7 @@ import {
   AsepriteDirection,
   type AsepriteFrame,
   type AsepriteFrameMap,
+  type AsepriteSlice,
   type AsepriteTagSpan
 } from './aseprite.ts'
 import {
@@ -19,7 +20,16 @@ describe('parseAtlasJSON()', () => {
   test('parses empty.', () => {
     assert.deepEqual<V.AtlasJSON>(
       parseAtlasJSON({
-        meta: {frameTags: [], size: {w: 0, h: 0}, slices: []},
+        meta: {
+          app: 'http://www.aseprite.org/',
+          frameTags: [],
+          size: {w: 0, h: 0},
+          slices: [],
+          version: '1.3.15.4-x64',
+          image: 'atlas.png',
+          format: 'RGBA8888',
+          scale: '1'
+        },
         frames: {}
       }),
       {anim: {}, celXY: []}
@@ -27,81 +37,150 @@ describe('parseAtlasJSON()', () => {
   })
 
   test('parses nonempty.', () => {
-    const frameTags = [
-      {name: 'scenery--Cloud', from: 0, to: 0, direction: 'forward'},
-      {name: 'palette--red', from: 1, to: 1, direction: 'forward'},
-      {name: 'scenery--Conifer', from: 2, to: 2, direction: 'forward'},
-      {name: 'scenery--ConiferShadow', from: 3, to: 3, direction: 'forward'},
-      {name: 'backpacker--WalkRight', from: 0, to: 7, direction: 'pingpong'}
+    const frameTags: AsepriteTagSpan[] = [
+      {
+        color: '#000000ff',
+        name: 'scenery--Cloud',
+        from: 0,
+        to: 0,
+        direction: 'forward'
+      },
+      {
+        color: '#000000ff',
+        name: 'palette--red',
+        from: 1,
+        to: 1,
+        direction: 'forward'
+      },
+      {
+        color: '#000000ff',
+        name: 'scenery--Conifer',
+        from: 2,
+        to: 2,
+        direction: 'forward'
+      },
+      {
+        color: '#000000ff',
+        name: 'scenery--ConiferShadow',
+        from: 3,
+        to: 3,
+        direction: 'forward'
+      },
+      {
+        color: '#000000ff',
+        name: 'backpacker--WalkRight',
+        from: 0,
+        to: 7,
+        direction: 'pingpong'
+      }
     ]
-    const frames = {
+    const frames: AsepriteFrameMap = {
       'scenery--Cloud--0': {
         frame: {x: 220, y: 18, w: 18, h: 18},
+        rotated: false,
         sourceSize: {w: 16, h: 16},
+        spriteSourceSize: {x: 0, y: 0, w: 16, h: 16},
+        trimmed: false,
         duration: 1
       },
       'palette--red--1': {
         frame: {x: 90, y: 54, w: 18, h: 18},
+        rotated: false,
         sourceSize: {w: 16, h: 16},
+        spriteSourceSize: {x: 0, y: 0, w: 16, h: 16},
+        trimmed: false,
         duration: 65535
       },
       'scenery--Conifer--2': {
         frame: {x: 72, y: 54, w: 18, h: 18},
+        rotated: false,
         sourceSize: {w: 16, h: 16},
+        spriteSourceSize: {x: 0, y: 0, w: 16, h: 16},
+        trimmed: false,
         duration: 65535
       },
       'scenery--ConiferShadow--3': {
         frame: {x: 54, y: 54, w: 18, h: 18},
+        rotated: false,
         sourceSize: {w: 16, h: 16},
+        spriteSourceSize: {x: 0, y: 0, w: 16, h: 16},
+        trimmed: false,
         duration: 65535
       },
       'backpacker--WalkRight--0': {
         frame: {x: 1408, y: 28, w: 8, h: 13},
+        rotated: false,
         sourceSize: {w: 8, h: 13},
+        spriteSourceSize: {x: 0, y: 0, w: 8, h: 13},
+        trimmed: false,
         duration: 62
       },
       'backpacker--WalkRight--1': {
         frame: {x: 1400, y: 28, w: 8, h: 13},
+        rotated: false,
         sourceSize: {w: 8, h: 13},
+        spriteSourceSize: {x: 0, y: 0, w: 8, h: 13},
+        trimmed: false,
         duration: 62
       },
       'backpacker--WalkRight--2': {
         frame: {x: 1392, y: 28, w: 8, h: 13},
+        rotated: false,
         sourceSize: {w: 8, h: 13},
+        spriteSourceSize: {x: 0, y: 0, w: 8, h: 13},
+        trimmed: false,
         duration: 62
       },
       'backpacker--WalkRight--3': {
         frame: {x: 1384, y: 28, w: 8, h: 13},
+        rotated: false,
         sourceSize: {w: 8, h: 13},
+        spriteSourceSize: {x: 0, y: 0, w: 8, h: 13},
+        trimmed: false,
         duration: 62
       },
       'backpacker--WalkRight--4': {
         frame: {x: 1376, y: 28, w: 8, h: 13},
+        rotated: false,
         sourceSize: {w: 8, h: 13},
+        spriteSourceSize: {x: 0, y: 0, w: 8, h: 13},
+        trimmed: false,
         duration: 62
       },
       'backpacker--WalkRight--5': {
         frame: {x: 1416, y: 28, w: 8, h: 13},
+        rotated: false,
         sourceSize: {w: 8, h: 13},
+        spriteSourceSize: {x: 0, y: 0, w: 8, h: 13},
+        trimmed: false,
         duration: 62
       },
       'backpacker--WalkRight--6': {
         frame: {x: 1392, y: 28, w: 8, h: 13},
+        rotated: false,
         sourceSize: {w: 8, h: 13},
+        spriteSourceSize: {x: 0, y: 0, w: 8, h: 13},
+        trimmed: false,
         duration: 62
       },
       'backpacker--WalkRight--7': {
         frame: {x: 1368, y: 28, w: 8, h: 13},
+        rotated: false,
         sourceSize: {w: 8, h: 13},
+        spriteSourceSize: {x: 0, y: 0, w: 8, h: 13},
+        trimmed: false,
         duration: 62
       },
       'backpacker--WalkDown--8': {
         frame: {x: 1360, y: 28, w: 8, h: 13},
+        rotated: false,
         sourceSize: {w: 8, h: 13},
+        spriteSourceSize: {x: 0, y: 0, w: 8, h: 13},
+        trimmed: false,
         duration: 62
       }
     }
-    const slices = [
+    const slices: AsepriteSlice[] = [
       {
         name: 'scenery--Cloud',
         color: '#ff0000ff',
@@ -134,7 +213,19 @@ describe('parseAtlasJSON()', () => {
       }
     ]
     assert.deepEqual<V.AtlasJSON>(
-      parseAtlasJSON({meta: {frameTags, size: {w: 0, h: 0}, slices}, frames}),
+      parseAtlasJSON({
+        meta: {
+          app: 'http://www.aseprite.org/',
+          frameTags,
+          size: {w: 0, h: 0},
+          slices,
+          version: '1.3.15.4-x64',
+          image: 'atlas.png',
+          format: 'RGBA8888',
+          scale: '1'
+        },
+        frames
+      }),
       {
         anim: {
           'scenery--Cloud': {
@@ -188,27 +279,60 @@ describe('parseAtlasJSON()', () => {
   })
 
   test('throws Error on duplicate FrameTag.', () => {
-    const frameTags = [
-      {name: 'scenery--Cloud', from: 0, to: 0, direction: 'forward'},
-      {name: 'palette--red', from: 1, to: 1, direction: 'forward'},
-      {name: 'scenery--Cloud', from: 0, to: 0, direction: 'forward'}
+    const frameTags: AsepriteTagSpan[] = [
+      {
+        color: '#000000ff',
+        name: 'scenery--Cloud',
+        from: 0,
+        to: 0,
+        direction: 'forward'
+      },
+      {
+        color: '#000000ff',
+        name: 'palette--red',
+        from: 1,
+        to: 1,
+        direction: 'forward'
+      },
+      {
+        color: '#000000ff',
+        name: 'scenery--Cloud',
+        from: 0,
+        to: 0,
+        direction: 'forward'
+      }
     ]
-    const frames = {
+    const frames: AsepriteFrameMap = {
       'scenery--Cloud--0': {
         frame: {x: 220, y: 18, w: 18, h: 18},
+        rotated: false,
         sourceSize: {w: 16, h: 16},
+        spriteSourceSize: {x: 0, y: 0, w: 16, h: 16},
+        trimmed: false,
         duration: 1
       },
       'palette--red--1': {
         frame: {x: 90, y: 54, w: 18, h: 18},
+        rotated: false,
         sourceSize: {w: 16, h: 16},
+        spriteSourceSize: {x: 0, y: 0, w: 16, h: 16},
+        trimmed: false,
         duration: 65535
       }
     }
     assert.throws(
       () =>
         parseAtlasJSON({
-          meta: {frameTags, size: {w: 0, h: 0}, slices: []},
+          meta: {
+            app: 'http://www.aseprite.org/',
+            frameTags,
+            size: {w: 0, h: 0},
+            slices: [],
+            version: '1.3.15.4-x64',
+            image: 'atlas.png',
+            format: 'RGBA8888',
+            scale: '1'
+          },
           frames
         }),
       Error('atlas tag "scenery--Cloud" duplicate')
@@ -251,19 +375,19 @@ describe('parseAnim()', () => {
         duration: 65535
       }
     }
-    const slices = [
+    const slices: AsepriteSlice[] = [
       {
-        name: 'cloud--xs' as const,
+        name: 'cloud--xs',
         color: '#ff0000ff',
         keys: [{frame: 0, bounds: {x: 4, y: 12, w: 7, h: 3}}]
       },
       {
-        name: 'cloud--s' as const,
+        name: 'cloud--s',
         color: '#ff0000ff',
         keys: [{frame: 0, bounds: {x: 4, y: 11, w: 9, h: 4}}]
       },
       {
-        name: 'cloud--m' as const,
+        name: 'cloud--m',
         color: '#ff0000ff',
         keys: [{frame: 0, bounds: {x: 3, y: 11, w: 10, h: 4}}]
       }
@@ -645,9 +769,9 @@ describe('parseHitboxes()', () => {
       from: 0,
       to: 0
     }
-    const slices = [
+    const slices: AsepriteSlice[] = [
       {
-        name: 'stem--foo' as const,
+        name: 'stem--foo',
         color: '#ff0000ff',
         keys: [{frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}}]
       }
@@ -666,9 +790,9 @@ describe('parseHitboxes()', () => {
       from: 0,
       to: 0
     }
-    const slices = [
+    const slices: AsepriteSlice[] = [
       {
-        name: 'stem--foo' as const,
+        name: 'stem--foo',
         color: '#00ff00ff',
         keys: [{frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}}]
       }
@@ -687,9 +811,9 @@ describe('parseHitboxes()', () => {
       from: 0,
       to: 0
     }
-    const slices = [
+    const slices: AsepriteSlice[] = [
       {
-        name: 'stem--foo' as const,
+        name: 'stem--foo',
         color: '#0000ffff',
         keys: [{frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}}]
       }
@@ -708,14 +832,14 @@ describe('parseHitboxes()', () => {
       from: 0,
       to: 0
     }
-    const slices = [
+    const slices: AsepriteSlice[] = [
       {
-        name: 'stem--foo' as const,
+        name: 'stem--foo',
         color: '#ff0000ff',
         keys: [{frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}}]
       },
       {
-        name: 'stem--foo' as const,
+        name: 'stem--foo',
         color: '#00ff00ff',
         keys: [{frame: 0, bounds: {x: 4, y: 5, w: 6, h: 7}}]
       }
@@ -734,14 +858,14 @@ describe('parseHitboxes()', () => {
       from: 0,
       to: 0
     }
-    const slices = [
+    const slices: AsepriteSlice[] = [
       {
-        name: 'unrelated--bar' as const,
+        name: 'unrelated--bar',
         color: '#ff0000ff',
         keys: [{frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}}]
       },
       {
-        name: 'stem--foo' as const,
+        name: 'stem--foo',
         color: '#ff0000ff',
         keys: [{frame: 0, bounds: {x: 4, y: 5, w: 6, h: 7}}]
       }
@@ -760,10 +884,10 @@ describe('parseHitboxes()', () => {
       from: 0,
       to: 2
     }
-    const slices = [
+    const slices: AsepriteSlice[] = [
       {
-        name: 'stem--foo' as const,
-        color: '0000ffff',
+        name: 'stem--foo',
+        color: '#0000ffff',
         keys: [
           {frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}},
           {frame: 1, bounds: {x: 4, y: 5, w: 6, h: 7}},
@@ -799,9 +923,9 @@ describe('parseHitboxes()', () => {
       from: 0,
       to: 0
     }
-    const slices = [
+    const slices: AsepriteSlice[] = [
       {
-        name: 'stem--foo' as const,
+        name: 'stem--foo',
         color: '#ff00ffff',
         keys: [{frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}}]
       }
@@ -820,9 +944,9 @@ describe('parseHitboxes()', () => {
       from: 0,
       to: 1
     }
-    const slices = [
+    const slices: AsepriteSlice[] = [
       {
-        name: 'stem--foo' as const,
+        name: 'stem--foo',
         color: '#ff0000ff',
         keys: [
           {frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}},
@@ -831,7 +955,7 @@ describe('parseHitboxes()', () => {
         ]
       },
       {
-        name: 'stem--foo' as const,
+        name: 'stem--foo',
         color: '#ff0000ff',
         keys: [{frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}}]
       }
@@ -850,9 +974,9 @@ describe('parseHitboxes()', () => {
       from: 0,
       to: 1
     }
-    const slices = [
+    const slices: AsepriteSlice[] = [
       {
-        name: 'stem--foo' as const,
+        name: 'stem--foo',
         color: '#00ff00ff',
         keys: [
           {frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}},
@@ -861,7 +985,7 @@ describe('parseHitboxes()', () => {
         ]
       },
       {
-        name: 'stem--foo' as const,
+        name: 'stem--foo',
         color: '#00ff00ff',
         keys: [{frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}}]
       }

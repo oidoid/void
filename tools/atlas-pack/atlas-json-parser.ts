@@ -9,19 +9,18 @@ import {
   type AsepriteTagSpan
 } from './aseprite.ts'
 
-export function parseAtlasJSON(json: Readonly<V.JSONObject>): V.AtlasJSON {
-  const ase = json as Readonly<Aseprite>
+export function parseAtlasJSON(json: Readonly<Aseprite>): V.AtlasJSON {
   const anim: {[tag: string]: V.Anim} = {}
   const cels: number[] = []
-  for (const span of ase.meta.frameTags) {
+  for (const span of json.meta.frameTags) {
     const tag = parseTag(span.name)
     if (anim[tag]) throw Error(`atlas tag "${tag}" duplicate`)
     const id = Object.keys(anim).length
-    anim[tag] = parseAnim(id, span, ase.frames, ase.meta.slices)
-    for (const cel of parseAnimFrames(span, ase.frames).map(parseCel))
+    anim[tag] = parseAnim(id, span, json.frames, json.meta.slices)
+    for (const cel of parseAnimFrames(span, json.frames).map(parseCel))
       cels.push(cel.x, cel.y)
   }
-  for (const slice of ase.meta.slices)
+  for (const slice of json.meta.slices)
     if (!anim[parseTag(slice.name)])
       throw Error(`atlas hitbox "${slice.name}" has no animation`)
   return {anim, celXY: cels}
