@@ -32,6 +32,6 @@ jobs:
           path: schema
   deploy:
     runs-on: ubuntu-latest
-    needs: build
+    needs: test
     steps:
       - uses: actions/deploy-pages@v4
