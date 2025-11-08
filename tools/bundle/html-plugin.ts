@@ -18,6 +18,8 @@ type Manifest = {
   version?: string | undefined
 }
 
+// to-do: a generic utility that recursively inlines all resources in an HTML
+//        file.
 export function HTMLPlugin(config: Readonly<Config>): esbuild.Plugin {
   return {
     name: 'HTMLPlugin',
