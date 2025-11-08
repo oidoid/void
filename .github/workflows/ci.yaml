@@ -9,6 +9,7 @@ on:
 
 # actions/deploy-pages.
 permissions:
+  pages: write
   id-token: write
 
 jobs:
