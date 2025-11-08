@@ -1,13 +1,13 @@
 import path from 'node:path'
-import {
-  type AtlasConfig,
-  type ConfigFile,
-  parseConfigFile
-} from '../../schema/config-file.ts'
 import type {Bundle} from '../../src/types/bundle.ts'
 import type {InitConfig} from '../../src/types/game-config.ts'
 import {Argv} from '../utils/argv.ts'
 import {exec} from '../utils/exec.ts'
+import {
+  type AtlasConfig,
+  type ConfigFile,
+  parseConfigFile
+} from './config-file.ts'
 import type {PackageJSON} from './package-json.ts'
 
 export type Config = {

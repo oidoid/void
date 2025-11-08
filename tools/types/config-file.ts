@@ -1,8 +1,8 @@
 import {readFile} from 'node:fs/promises'
 import path from 'node:path'
-import type {WH} from '../src/index.ts'
-import type {InitConfig} from '../src/types/game-config.ts'
-import schema from './config-file.v0.json' with {type: 'json'}
+import schema from '../../schema/config-file.v0.json' with {type: 'json'}
+import type {WH} from '../../src/index.ts'
+import type {InitConfig} from '../../src/types/game-config.ts'
 
 export type AtlasConfig = {dir: string; image: string}
 
