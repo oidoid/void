@@ -37,6 +37,8 @@ jobs:
           path: schema
 
   deploy:
+    environment:
+      name: github-pages
     # skip PRs.
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
