@@ -1,8 +1,7 @@
 import {readFile} from 'node:fs/promises'
 import path from 'node:path'
 import schema from '../../schema/config-file.v0.json' with {type: 'json'}
-import type {WH} from '../../src/index.ts'
-import type {InitConfig} from '../../src/types/game-config.ts'
+import type * as V from '../../src/index.ts'
 
 export type AtlasConfig = {dir: string; image: string}
 
@@ -12,7 +11,7 @@ export type ConfigFile = {
   meta: string | undefined
   out: {dir: string; game: string; name: string | undefined}
   preloadAtlas: AtlasConfig | undefined
-  init: InitConfig
+  init: V.InitConfig
 
   /** config directory name. */
   dirname: string
@@ -29,7 +28,7 @@ export type ConfigFileSchema = {
   init?: {
     background?: string | undefined
     input?: 'Custom' | 'Default' | undefined
-    minWH?: Partial<WH> | undefined
+    minWH?: Partial<V.WH> | undefined
     minScale?: number | undefined
     mode?: 'Float' | 'Int' | undefined
     zoomOut?: number
@@ -57,7 +56,7 @@ export function parse(filename: string, str: string): ConfigFile {
     throw Error(`config ${filename} unparsable`, {cause: err})
   }
 
-  const minWH: Partial<WH> = parseWH(json.init?.minWH)
+  const minWH: Partial<V.WH> = parseWH(json.init?.minWH)
   if (!minWH.w) delete minWH.w
   if (!minWH.h) delete minWH.h
   return {
@@ -101,6 +100,6 @@ export function parse(filename: string, str: string): ConfigFile {
   }
 }
 
-function parseWH(wh: Readonly<Partial<WH>> | undefined): WH {
+function parseWH(wh: Readonly<Partial<V.WH>> | undefined): V.WH {
   return {w: wh?.w ?? 0, h: wh?.h ?? 0}
 }

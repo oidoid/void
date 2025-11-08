@@ -1,5 +1,5 @@
 import path from 'node:path'
-import type {AtlasJSON} from '../../src/types/game-config.ts'
+import type * as V from '../../src/index.ts'
 import type {AtlasConfig} from '../types/config-file.ts'
 import {exec} from '../utils/exec.ts'
 import {globAll} from '../utils/file-util.ts'
@@ -8,7 +8,7 @@ import {parseAtlasJSON} from './atlas-json-parser.ts'
 // to-do: separate executable?
 export async function packAtlas(
   config: Readonly<AtlasConfig>
-): Promise<AtlasJSON | undefined> {
+): Promise<V.AtlasJSON | undefined> {
   const filenames = await globAll(path.join(config.dir, '**.aseprite'))
   if (!filenames.length) return
 

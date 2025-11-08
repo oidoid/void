@@ -1,8 +1,6 @@
 import assert from 'node:assert/strict'
 import {describe, test} from 'node:test'
-import type {Anim} from '../../src/graphics/atlas.ts'
-import type {AtlasJSON} from '../../src/types/game-config.ts'
-import type {XY} from '../../src/types/geo.ts'
+import type * as V from '../../src/index.ts'
 import {
   AsepriteDirection,
   type AsepriteFrameMap,
@@ -18,7 +16,7 @@ import {
 
 describe('parseAtlasJSON()', () => {
   test('parses empty.', () => {
-    assert.deepEqual<AtlasJSON>(
+    assert.deepEqual<V.AtlasJSON>(
       parseAtlasJSON({
         meta: {frameTags: [], size: {w: 0, h: 0}, slices: []},
         frames: {}
@@ -134,7 +132,7 @@ describe('parseAtlasJSON()', () => {
         keys: [{frame: 0, bounds: {x: 2, y: 0, w: 4, h: 4}}]
       }
     ]
-    assert.deepEqual<AtlasJSON>(
+    assert.deepEqual<V.AtlasJSON>(
       parseAtlasJSON({meta: {frameTags, size: {w: 0, h: 0}, slices}, frames}),
       {
         anim: {
@@ -259,7 +257,7 @@ describe('parseAnim()', () => {
         keys: [{frame: 0, bounds: {x: 3, y: 11, w: 10, h: 4}}]
       }
     ]
-    assert.deepEqual<Anim>(parseAnim(16, frameTag, frames, slices), {
+    assert.deepEqual<V.Anim>(parseAnim(16, frameTag, frames, slices), {
       cels: 1,
       id: 16,
       w: 16,
@@ -523,7 +521,7 @@ describe('parseCel()', () => {
       sourceSize: {w: 3, h: 4},
       duration: 1
     }
-    assert.deepEqual<XY>(parseCel(frame), {x: 1, y: 2})
+    assert.deepEqual<V.XY>(parseCel(frame), {x: 1, y: 2})
   })
 
   test('parses texture mapping with padding', () => {
@@ -534,7 +532,7 @@ describe('parseCel()', () => {
       sourceSize: {w: 3, h: 4},
       duration: 1
     }
-    assert.deepEqual<XY>(parseCel(frame), {x: 2, y: 3})
+    assert.deepEqual<V.XY>(parseCel(frame), {x: 2, y: 3})
   })
 })
 

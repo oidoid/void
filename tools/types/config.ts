@@ -1,6 +1,5 @@
 import path from 'node:path'
-import type {Bundle} from '../../src/types/bundle.ts'
-import type {InitConfig} from '../../src/types/game-config.ts'
+import type * as V from '../../src/index.ts'
 import {Argv} from '../utils/argv.ts'
 import {exec} from '../utils/exec.ts'
 import {
@@ -16,7 +15,7 @@ export type Config = {
   meta: string | undefined
   out: {dir: string; game: string; filename: string}
   preloadAtlas: AtlasConfig | undefined
-  init: InitConfig
+  init: V.InitConfig
 
   /** config directory name. */
   dirname: string
@@ -27,7 +26,7 @@ export type Config = {
   oneFile: boolean
   watch: boolean
 
-  bundle: Bundle
+  bundle: V.Bundle
 
   argv: Argv
 }

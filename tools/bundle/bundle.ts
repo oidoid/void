@@ -1,7 +1,6 @@
 import fs from 'node:fs'
 import esbuild from 'esbuild'
 import * as V from '../../src/index.ts'
-import type {AtlasJSON, GameConfig} from '../../src/types/game-config.ts'
 import {packAtlas} from '../atlas-pack/atlas-pack.ts'
 import {type Config, readConfig} from '../types/config.ts'
 import {exec} from '../utils/exec.ts'
@@ -82,10 +81,10 @@ const onWatchConfig = V.debounce(
 )
 
 async function writeGameConfig(
-  atlas: Readonly<AtlasJSON> | undefined,
+  atlas: Readonly<V.AtlasJSON> | undefined,
   config: Readonly<Config>
 ): Promise<void> {
-  const gameConfig: GameConfig = {atlas, init: config.init}
+  const gameConfig: V.GameConfig = {atlas, init: config.init}
   await fs.promises.writeFile(config.out.game, JSON.stringify(gameConfig))
   try {
     await exec('biome', 'check', '--fix', config.out.game)

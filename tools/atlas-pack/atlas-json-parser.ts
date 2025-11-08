@@ -1,12 +1,4 @@
-import {
-  type Anim,
-  animCels,
-  animMillis,
-  celMillis,
-  type TagFormat
-} from '../../src/graphics/atlas.ts'
-import type {AtlasJSON} from '../../src/types/game-config.ts'
-import {type Box, boxEq, type XY} from '../../src/types/geo.ts'
+import * as V from '../../src/index.ts'
 import {
   type Aseprite,
   AsepriteDirection,
@@ -17,8 +9,8 @@ import {
   type AsepriteTagSpan
 } from './aseprite.ts'
 
-export function parseAtlasJSON(ase: Readonly<Aseprite>): AtlasJSON {
-  const anim: {[tag: string]: Anim} = {}
+export function parseAtlasJSON(ase: Readonly<Aseprite>): V.AtlasJSON {
+  const anim: {[tag: string]: V.Anim} = {}
   const cels: number[] = []
   for (const span of ase.meta.frameTags) {
     const tag = parseTag(span.name)
@@ -40,7 +32,7 @@ export function parseAnim(
   span: Readonly<AsepriteTagSpan>,
   map: Readonly<AsepriteFrameMap>,
   slices: readonly Readonly<AsepriteSlice>[]
-): Anim {
+): V.Anim {
   const cels = parseAnimFrames(span, map)
   if (!cels[0]) throw Error(`no atlas frame "${span.name}"`)
   const {hitbox, hurtbox} = parseHitboxes(span, slices)
@@ -84,7 +76,7 @@ export function parseAnimFrames(
   const frameIndex = indexByDir[span.direction as AsepriteDirection]
   for (
     let i = 0;
-    i < end && cels.length < animCels && animDuration < animMillis;
+    i < end && cels.length < V.animCels && animDuration < V.animMillis;
     i++
   ) {
     const frameTag = `${span.name}--${frameIndex(i)}` as AsepriteFrameTag
@@ -93,9 +85,9 @@ export function parseAnimFrames(
     for (
       let celDuration = 0;
       celDuration < frame.duration &&
-      cels.length < animCels &&
-      animDuration < animMillis;
-      celDuration += celMillis, animDuration += celMillis
+      cels.length < V.animCels &&
+      animDuration < V.animMillis;
+      celDuration += V.celMillis, animDuration += V.celMillis
     ) {
       cels.push(frame)
 
@@ -106,7 +98,7 @@ export function parseAnimFrames(
 }
 
 /** @internal */
-export function parseCel(frame: Readonly<AsepriteFrame>): XY {
+export function parseCel(frame: Readonly<AsepriteFrame>): V.XY {
   return {
     x: frame.frame.x + (frame.frame.w - frame.sourceSize.w) / 2,
     y: frame.frame.y + (frame.frame.h - frame.sourceSize.h) / 2
@@ -117,7 +109,7 @@ export function parseCel(frame: Readonly<AsepriteFrame>): XY {
 export function parseHitboxes(
   span: Readonly<AsepriteTagSpan>,
   slices: readonly Readonly<AsepriteSlice>[]
-): {hitbox: Box | undefined; hurtbox: Box | undefined} {
+): {hitbox: V.Box | undefined; hurtbox: V.Box | undefined} {
   let hitbox
   let hurtbox
   // https://github.com/aseprite/aseprite/issues/3524
@@ -127,7 +119,7 @@ export function parseHitboxes(
     if (!slice.keys[0]) continue
 
     for (const k of slice.keys)
-      if (!boxEq(k.bounds, slice.keys[0].bounds))
+      if (!V.boxEq(k.bounds, slice.keys[0].bounds))
         throw Error(
           `atlas tag "${span.name}" hitbox bounds varies across frames`
         )
@@ -152,8 +144,8 @@ export function parseHitboxes(
   return {hitbox, hurtbox}
 }
 
-function parseTag(tag: string): TagFormat {
+function parseTag(tag: string): V.TagFormat {
   if (!tag.includes('--'))
     throw Error(`atlas tag "${tag}" not in <filestem>--<animation> format`)
-  return tag as TagFormat
+  return tag as V.TagFormat
 }
