@@ -1,4 +1,5 @@
 import type * as V from '../../src/index.ts'
+import './aseprite-json.d.ts'
 
 /** https://github.com/aseprite/aseprite/blob/master/docs/ase-file-specs.md */
 export type Aseprite = {meta: AsepriteMeta; frames: AsepriteFrameMap}

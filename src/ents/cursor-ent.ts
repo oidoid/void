@@ -17,7 +17,7 @@ export class CursorEnt<Tag extends TagFormat> implements Ent<Tag> {
   readonly #pick: Tag
   readonly #point: Tag
 
-  constructor(v: Void<Tag, string>, point: Tag, pick?: Tag | undefined) {
+  constructor(v: Void<Tag, string>, point: Tag, pick?: Tag) {
     this.#point = point
     this.#pick = pick ?? this.#point
     this.#sprite = v.pool.default.alloc()
