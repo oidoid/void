@@ -1,15 +1,9 @@
 import * as V from '../../src/index.ts'
-import {
-  type Aseprite,
-  AsepriteDirection,
-  type AsepriteFrame,
-  type AsepriteFrameMap,
-  type AsepriteFrameTag,
-  type AsepriteSlice,
-  type AsepriteTagSpan
-} from './aseprite.ts'
+import * as ase from './aseprite.ts'
 
-export function parseAtlasJSON(json: Readonly<Aseprite>): V.AtlasJSON {
+import './aseprite-json.d.ts'
+
+export function parseAtlasJSON(json: Readonly<ase.Aseprite>): V.AtlasJSON {
   const anim: {[tag: string]: V.Anim} = {}
   const cels: number[] = []
   for (const span of json.meta.frameTags) {
@@ -29,9 +23,9 @@ export function parseAtlasJSON(json: Readonly<Aseprite>): V.AtlasJSON {
 /** @internal */
 export function parseAnim(
   id: number,
-  span: Readonly<AsepriteTagSpan>,
-  map: Readonly<AsepriteFrameMap>,
-  slices: readonly Readonly<AsepriteSlice>[]
+  span: Readonly<ase.TagSpan>,
+  map: Readonly<ase.FrameMap>,
+  slices: readonly Readonly<ase.Slice>[]
 ): V.Anim {
   const cels = parseAnimFrames(span, map)
   if (!cels[0]) throw Error(`no atlas frame "${span.name}"`)
@@ -54,32 +48,32 @@ export function parseAnim(
  * @internal
  */
 export function parseAnimFrames(
-  span: AsepriteTagSpan,
-  map: AsepriteFrameMap
-): AsepriteFrame[] {
+  span: ase.TagSpan,
+  map: ase.FrameMap
+): ase.Frame[] {
   const cels = []
   let animDuration = 0
   const len = span.to - span.from + 1
   const peak = len - 1
   const cycle = Math.max(1, 2 * peak)
   const end =
-    span.direction === AsepriteDirection.Forward ||
-    span.direction === AsepriteDirection.Reverse
+    span.direction === ase.Direction.Forward ||
+    span.direction === ase.Direction.Reverse
       ? len
       : cycle
-  const indexByDir: {[dir in AsepriteDirection]: (i: number) => number} = {
+  const indexByDir: {[dir in ase.Direction]: (i: number) => number} = {
     forward: i => span.from + (i % len),
     pingpong: i => span.from + peak - Math.abs((i % cycle) - peak),
     pingpong_reverse: i => span.to - (peak - Math.abs((i % cycle) - peak)),
     reverse: i => span.to - (i % len)
   }
-  const frameIndex = indexByDir[span.direction as AsepriteDirection]
+  const frameIndex = indexByDir[span.direction as ase.Direction]
   for (
     let i = 0;
     i < end && cels.length < V.animCels && animDuration < V.animMillis;
     i++
   ) {
-    const frameTag = `${span.name}--${frameIndex(i)}` as AsepriteFrameTag
+    const frameTag = `${span.name}--${frameIndex(i)}` as ase.FrameTag
     const frame = map[frameTag]
     if (!frame) throw Error(`no atlas frame "${frameTag}"`)
     for (
@@ -98,7 +92,7 @@ export function parseAnimFrames(
 }
 
 /** @internal */
-export function parseCel(frame: Readonly<AsepriteFrame>): V.XY {
+export function parseCel(frame: Readonly<ase.Frame>): V.XY {
   return {
     x: frame.frame.x + (frame.frame.w - frame.sourceSize.w) / 2,
     y: frame.frame.y + (frame.frame.h - frame.sourceSize.h) / 2
@@ -107,8 +101,8 @@ export function parseCel(frame: Readonly<AsepriteFrame>): V.XY {
 
 /** @internal */
 export function parseHitboxes(
-  span: Readonly<AsepriteTagSpan>,
-  slices: readonly Readonly<AsepriteSlice>[]
+  span: Readonly<ase.TagSpan>,
+  slices: readonly Readonly<ase.Slice>[]
 ): {hitbox: V.Box | undefined; hurtbox: V.Box | undefined} {
   let hitbox
   let hurtbox

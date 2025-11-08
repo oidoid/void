@@ -1,14 +1,7 @@
 import assert from 'node:assert/strict'
 import {describe, test} from 'node:test'
 import type * as V from '../../src/index.ts'
-import {
-  type Aseprite,
-  AsepriteDirection,
-  type AsepriteFrame,
-  type AsepriteFrameMap,
-  type AsepriteSlice,
-  type AsepriteTagSpan
-} from './aseprite.ts'
+import * as ase from './aseprite.ts'
 import atlas from './atlas.test.aseprite.json' with {type: 'json'}
 import {
   parseAnim,
@@ -21,7 +14,7 @@ import {
 describe('parseAtlasJSON()', () => {
   test('parses file.', () => {
     // to-do: *.aseprite.json isn't working but *.aseprite.json2 does.
-    assert.deepEqual<V.AtlasJSON>(parseAtlasJSON(atlas as Aseprite), {
+    assert.deepEqual<V.AtlasJSON>(parseAtlasJSON(atlas as ase.Aseprite), {
       anim: {
         'background--OrangeCheckerboard': {
           cels: 1,
@@ -1206,7 +1199,7 @@ describe('parseAtlasJSON()', () => {
   })
 
   test('parses nonempty.', () => {
-    const frameTags: AsepriteTagSpan[] = [
+    const frameTags: ase.TagSpan[] = [
       {
         color: '#000000ff',
         name: 'scenery--Cloud',
@@ -1243,7 +1236,7 @@ describe('parseAtlasJSON()', () => {
         direction: 'pingpong'
       }
     ]
-    const frames: AsepriteFrameMap = {
+    const frames: ase.FrameMap = {
       'scenery--Cloud--0': {
         frame: {x: 220, y: 18, w: 18, h: 18},
         rotated: false,
@@ -1349,7 +1342,7 @@ describe('parseAtlasJSON()', () => {
         duration: 62
       }
     }
-    const slices: AsepriteSlice[] = [
+    const slices: ase.Slice[] = [
       {
         name: 'scenery--Cloud',
         color: '#ff0000ff',
@@ -1448,7 +1441,7 @@ describe('parseAtlasJSON()', () => {
   })
 
   test('throws Error on duplicate FrameTag.', () => {
-    const frameTags: AsepriteTagSpan[] = [
+    const frameTags: ase.TagSpan[] = [
       {
         color: '#000000ff',
         name: 'scenery--Cloud',
@@ -1471,7 +1464,7 @@ describe('parseAtlasJSON()', () => {
         direction: 'forward'
       }
     ]
-    const frames: AsepriteFrameMap = {
+    const frames: ase.FrameMap = {
       'scenery--Cloud--0': {
         frame: {x: 220, y: 18, w: 18, h: 18},
         rotated: false,
@@ -1511,14 +1504,14 @@ describe('parseAtlasJSON()', () => {
 
 describe('parseAnim()', () => {
   test('parses FrameTag, Frame from Frame[], and Slice.', () => {
-    const frameTag: AsepriteTagSpan = {
+    const frameTag: ase.TagSpan = {
       color: '#000000ff',
       direction: 'pingpong',
       name: 'cloud--s',
       from: 1,
       to: 1
     }
-    const frames: AsepriteFrameMap = {
+    const frames: ase.FrameMap = {
       'cloud--xs--0': {
         frame: {x: 202, y: 36, w: 18, h: 18},
         rotated: false,
@@ -1544,7 +1537,7 @@ describe('parseAnim()', () => {
         duration: 65535
       }
     }
-    const slices: AsepriteSlice[] = [
+    const slices: ase.Slice[] = [
       {
         name: 'cloud--xs',
         color: '#ff0000ff',
@@ -1572,7 +1565,7 @@ describe('parseAnim()', () => {
   })
 
   test('throws error when no frame is associated with tag.', () => {
-    const frameTag: AsepriteTagSpan = {
+    const frameTag: ase.TagSpan = {
       color: '#000000ff',
       direction: 'pingpong',
       name: 'frog--walk',
@@ -1588,15 +1581,15 @@ describe('parseAnim()', () => {
 
 describe('parseAnimFrames()', () => {
   test('single cell', () => {
-    for (const direction of Object.values(AsepriteDirection)) {
-      const span: AsepriteTagSpan = {
+    for (const direction of Object.values(ase.Direction)) {
+      const span: ase.TagSpan = {
         color: '#000000ff',
         direction,
         name: 'stem--foo',
         from: 0,
         to: 0
       }
-      const map: AsepriteFrameMap = {
+      const map: ase.FrameMap = {
         'stem--foo--0': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
@@ -1611,21 +1604,21 @@ describe('parseAnimFrames()', () => {
   })
 
   test('full anim', () => {
-    const expected: {[dir in AsepriteDirection]: number[]} = {
+    const expected: {[dir in ase.Direction]: number[]} = {
       forward: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
       pingpong: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
       pingpong_reverse: [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0],
       reverse: [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
     }
-    for (const direction of Object.values(AsepriteDirection)) {
-      const span: AsepriteTagSpan = {
+    for (const direction of Object.values(ase.Direction)) {
+      const span: ase.TagSpan = {
         color: '#000000ff',
         direction,
         name: 'stem--foo',
         from: 0,
         to: 15
       }
-      const map: AsepriteFrameMap = {
+      const map: ase.FrameMap = {
         'stem--foo--0': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
@@ -1760,21 +1753,21 @@ describe('parseAnimFrames()', () => {
   })
 
   test('short anim', () => {
-    const expected: {[dir in AsepriteDirection]: number[]} = {
+    const expected: {[dir in ase.Direction]: number[]} = {
       forward: [0, 1, 2],
       pingpong: [0, 1, 2, 1],
       pingpong_reverse: [2, 1, 0, 1],
       reverse: [2, 1, 0]
     }
-    for (const direction of Object.values(AsepriteDirection)) {
-      const span: AsepriteTagSpan = {
+    for (const direction of Object.values(ase.Direction)) {
+      const span: ase.TagSpan = {
         color: '#000000ff',
         direction,
         name: 'stem--foo',
         from: 0,
         to: 2
       }
-      const map: AsepriteFrameMap = {
+      const map: ase.FrameMap = {
         'stem--foo--0': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
@@ -1805,21 +1798,21 @@ describe('parseAnimFrames()', () => {
   })
 
   test('short anim with another anim', () => {
-    const expected: {[dir in AsepriteDirection]: number[]} = {
+    const expected: {[dir in ase.Direction]: number[]} = {
       forward: [1, 2, 3],
       pingpong: [1, 2, 3, 2],
       pingpong_reverse: [3, 2, 1, 2],
       reverse: [3, 2, 1]
     }
-    for (const direction of Object.values(AsepriteDirection)) {
-      const span: AsepriteTagSpan = {
+    for (const direction of Object.values(ase.Direction)) {
+      const span: ase.TagSpan = {
         color: '#000000ff',
         direction,
         name: 'stem--bar',
         from: 1,
         to: 3
       }
-      const map: AsepriteFrameMap = {
+      const map: ase.FrameMap = {
         'stem--foo--0': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
@@ -1858,21 +1851,21 @@ describe('parseAnimFrames()', () => {
   })
 
   test('short anim with multi-cel durations', () => {
-    const expected: {[dir in AsepriteDirection]: number[]} = {
+    const expected: {[dir in ase.Direction]: number[]} = {
       forward: [0, 1, 1, 2],
       pingpong: [0, 1, 1, 2, 1, 1],
       pingpong_reverse: [2, 1, 1, 0, 1, 1],
       reverse: [2, 1, 1, 0]
     }
-    for (const direction of Object.values(AsepriteDirection)) {
-      const span: AsepriteTagSpan = {
+    for (const direction of Object.values(ase.Direction)) {
+      const span: ase.TagSpan = {
         color: '#000000ff',
         direction,
         name: 'stem--foo',
         from: 0,
         to: 2
       }
-      const map: AsepriteFrameMap = {
+      const map: ase.FrameMap = {
         'stem--foo--0': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
@@ -1905,7 +1898,7 @@ describe('parseAnimFrames()', () => {
 
 describe('parseCel()', () => {
   test('parses 1:1 texture mapping/', () => {
-    const frame: AsepriteFrame = {
+    const frame: ase.Frame = {
       frame: {x: 1, y: 2, w: 3, h: 4},
       rotated: false,
       trimmed: false,
@@ -1917,7 +1910,7 @@ describe('parseCel()', () => {
   })
 
   test('parses texture mapping with padding', () => {
-    const frame: AsepriteFrame = {
+    const frame: ase.Frame = {
       frame: {x: 1, y: 2, w: 5, h: 6},
       rotated: false,
       trimmed: false,
@@ -1931,14 +1924,14 @@ describe('parseCel()', () => {
 
 describe('parseHitboxes()', () => {
   test('parses hitbox.', () => {
-    const span: AsepriteTagSpan = {
+    const span: ase.TagSpan = {
       color: '#000000ff',
       direction: 'pingpong',
       name: 'stem--foo',
       from: 0,
       to: 0
     }
-    const slices: AsepriteSlice[] = [
+    const slices: ase.Slice[] = [
       {
         name: 'stem--foo',
         color: '#ff0000ff',
@@ -1952,14 +1945,14 @@ describe('parseHitboxes()', () => {
   })
 
   test('parses hurtbox.', () => {
-    const span: AsepriteTagSpan = {
+    const span: ase.TagSpan = {
       color: '#000000ff',
       direction: 'pingpong',
       name: 'stem--foo',
       from: 0,
       to: 0
     }
-    const slices: AsepriteSlice[] = [
+    const slices: ase.Slice[] = [
       {
         name: 'stem--foo',
         color: '#00ff00ff',
@@ -1973,14 +1966,14 @@ describe('parseHitboxes()', () => {
   })
 
   test('parses hitbox and hurtbox (blue).', () => {
-    const span: AsepriteTagSpan = {
+    const span: ase.TagSpan = {
       color: '#000000ff',
       direction: 'pingpong',
       name: 'stem--foo',
       from: 0,
       to: 0
     }
-    const slices: AsepriteSlice[] = [
+    const slices: ase.Slice[] = [
       {
         name: 'stem--foo',
         color: '#0000ffff',
@@ -1994,14 +1987,14 @@ describe('parseHitboxes()', () => {
   })
 
   test('parses hitbox and hurtbox.', () => {
-    const span: AsepriteTagSpan = {
+    const span: ase.TagSpan = {
       color: '#000000ff',
       direction: 'pingpong',
       name: 'stem--foo',
       from: 0,
       to: 0
     }
-    const slices: AsepriteSlice[] = [
+    const slices: ase.Slice[] = [
       {
         name: 'stem--foo',
         color: '#ff0000ff',
@@ -2020,14 +2013,14 @@ describe('parseHitboxes()', () => {
   })
 
   test('filters out unrelated tags.', () => {
-    const span: AsepriteTagSpan = {
+    const span: ase.TagSpan = {
       color: '#000000ff',
       direction: 'pingpong',
       name: 'stem--foo',
       from: 0,
       to: 0
     }
-    const slices: AsepriteSlice[] = [
+    const slices: ase.Slice[] = [
       {
         name: 'unrelated--bar',
         color: '#ff0000ff',
@@ -2046,14 +2039,14 @@ describe('parseHitboxes()', () => {
   })
 
   test('throws on frame with multiple keys.', () => {
-    const span: AsepriteTagSpan = {
+    const span: ase.TagSpan = {
       color: '#000000ff',
       direction: 'pingpong',
       name: 'stem--foo',
       from: 0,
       to: 2
     }
-    const slices: AsepriteSlice[] = [
+    const slices: ase.Slice[] = [
       {
         name: 'stem--foo',
         color: '#0000ffff',
@@ -2071,7 +2064,7 @@ describe('parseHitboxes()', () => {
   })
 
   test('defaults to undefined hitbox.', () => {
-    const span: AsepriteTagSpan = {
+    const span: ase.TagSpan = {
       color: '#000000ff',
       direction: 'pingpong',
       name: 'stem--foo',
@@ -2085,14 +2078,14 @@ describe('parseHitboxes()', () => {
   })
 
   test('throws on unsupported color.', () => {
-    const span: AsepriteTagSpan = {
+    const span: ase.TagSpan = {
       color: '#000000ff',
       direction: 'pingpong',
       name: 'stem--foo',
       from: 0,
       to: 0
     }
-    const slices: AsepriteSlice[] = [
+    const slices: ase.Slice[] = [
       {
         name: 'stem--foo',
         color: '#ff00ffff',
@@ -2106,14 +2099,14 @@ describe('parseHitboxes()', () => {
   })
 
   test('throws on multiple hitboxes.', () => {
-    const span: AsepriteTagSpan = {
+    const span: ase.TagSpan = {
       color: '#000000ff',
       direction: 'pingpong',
       name: 'stem--foo',
       from: 0,
       to: 1
     }
-    const slices: AsepriteSlice[] = [
+    const slices: ase.Slice[] = [
       {
         name: 'stem--foo',
         color: '#ff0000ff',
@@ -2136,14 +2129,14 @@ describe('parseHitboxes()', () => {
   })
 
   test('throws on multiple hurtboxes.', () => {
-    const span: AsepriteTagSpan = {
+    const span: ase.TagSpan = {
       color: '#000000ff',
       direction: 'pingpong',
       name: 'stem--foo',
       from: 0,
       to: 1
     }
-    const slices: AsepriteSlice[] = [
+    const slices: ase.Slice[] = [
       {
         name: 'stem--foo',
         color: '#00ff00ff',
@@ -2167,8 +2160,8 @@ describe('parseHitboxes()', () => {
 })
 
 function assertAnimFrames(
-  span: Readonly<AsepriteTagSpan>,
-  map: Readonly<AsepriteFrameMap>,
+  span: Readonly<ase.TagSpan>,
+  map: Readonly<ase.FrameMap>,
   expected: number[],
   msg?: string
 ): void {
