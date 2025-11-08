@@ -9,8 +9,7 @@ test('defaults', () => {
   assert.deepEqual<ConfigFile>(
     parse('dirname/filename', JSON.stringify(config)),
     {
-      $schema:
-        'https://raw.githubusercontent.com/oidoid/void/refs/heads/main/schema/config-file.v0.json',
+      $schema: 'https://oidoid.github.io/void/config-file.v0.json',
       entry: 'dirname/src/assets/index.html',
       meta: 'dirname/dist/meta.json',
       out: {dir: 'dirname/dist/public/', game: 'dirname/game', name: undefined},

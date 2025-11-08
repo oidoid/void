@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/oidoid/void/refs/heads/main/schema/config-file.v0.json",
+  "$id": "https://oidoid.github.io/void/config-file.v0.json",
   "title": "void Config File Schema",
   "type": "object",
   "description": "a JSON representation of a void config file.",
@@ -55,7 +55,7 @@
     "$schema": {
       "type": "string",
       "description": "the configuration schema URI.",
-      "default": "https://raw.githubusercontent.com/oidoid/void/refs/heads/main/schema/config-file.v0.json"
+      "default": "https://oidoid.github.io/void/config-file.v0.json"
     },
     "entry": {
       "type": "string",
