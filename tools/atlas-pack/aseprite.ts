@@ -6,38 +6,70 @@ export type Aseprite = {meta: AsepriteMeta; frames: AsepriteFrameMap}
 export type AsepriteFrameMap = {[tag: AsepriteFrameTag]: AsepriteFrame}
 
 export type AsepriteMeta = {
-  /** `--list-tags`. */
-  frameTags: AsepriteTagSpan[]
+  /** e.g., `http://www.aseprite.org/`. */
+  app: string
+  /** e.g., `1.3.15.4-x64`. */
+  version: string
+  /** output basename. e.g., `atlas.png`. */
+  image: string
+  /** e.g., `RGBA8888` or `I8`. */
+  format: string
+  /** output dimensions (`--sheet-pack`). */
   size: V.WH
-  /** `--list-slices`. */
+  /** e.g., `1`. */
+  scale: string
+  /** all `AsepriteTagSpan`s for all files packed (`--list-tags`). */
+  frameTags: AsepriteTagSpan[]
+  /** all slices for all files packed (`--list-slices`). */
   slices: AsepriteSlice[]
 }
 
 /** `--filename-format='{title}--{tag}--{frame}'`. */
 export type AsepriteFrameTag = `${V.TagFormat}--${bigint}`
 
+/** a cel. */
 export type AsepriteFrame = {
-  /** positive animation length in milliseconds. */
+  /** animation length in milliseconds. */
   duration: number
-  /** bounds including padding. */
+  /** bounds including padding (`--inner-padding=n`). */
   frame: V.Box
+  rotated: boolean
+  trimmed: boolean
+  /** bounds not including padding. x and y are always zero. */
+  spriteSourceSize: V.Box
   /** WH without padding. */
   sourceSize: V.WH
 }
 
+/**
+ * a label and animation behavior. references `AsepriteFrame`s to form an
+ * animation.
+ */
 export type AsepriteTagSpan = {
-  direction: AsepriteDirection
+  /** eg, `#000000ff`. */
+  color: string
   name: V.TagFormat
+  /** inclusive starting Frame index. */
   from: number
   /** inclusive ending index, possibly equal to from. */
   to: number
+  direction: AsepriteDirection | string
+  /** number of times to replay the animation. */
+  repeat?: `${bigint}` | string
 }
 
 export type AsepriteSlice = {
-  /** '#ff0000ff' is hitbox, '#00ff00ff' is hurtbox, '#0000ffff is both. */
+  /** `#ff0000ff` is hitbox, `#00ff00ff` is hurtbox, `#0000ffff` is both. */
   color: string
   name: V.TagFormat
-  keys: {bounds: V.Box}[]
+  keys: AsepriteKey[]
+}
+
+export type AsepriteKey = {
+  /** slice dimensions. */
+  bounds: V.Box
+  /** inclusive `AsepriteFrame` start offset. */
+  frame: number
 }
 
 export type AsepriteDirection =

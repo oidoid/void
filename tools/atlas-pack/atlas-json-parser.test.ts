@@ -3,6 +3,7 @@ import {describe, test} from 'node:test'
 import type * as V from '../../src/index.ts'
 import {
   AsepriteDirection,
+  type AsepriteFrame,
   type AsepriteFrameMap,
   type AsepriteTagSpan
 } from './aseprite.ts'
@@ -218,24 +219,34 @@ describe('parseAtlasJSON()', () => {
 describe('parseAnim()', () => {
   test('parses FrameTag, Frame from Frame[], and Slice.', () => {
     const frameTag: AsepriteTagSpan = {
+      color: '#000000ff',
       direction: 'pingpong',
       name: 'cloud--s',
       from: 1,
       to: 1
     }
-    const frames = {
+    const frames: AsepriteFrameMap = {
       'cloud--xs--0': {
         frame: {x: 202, y: 36, w: 18, h: 18},
+        rotated: false,
+        trimmed: false,
+        spriteSourceSize: {x: 0, y: 0, w: 16, h: 16},
         sourceSize: {w: 16, h: 16},
         duration: 65535
       },
       'cloud--s--1': {
         frame: {x: 184, y: 36, w: 18, h: 18},
+        rotated: false,
+        trimmed: false,
+        spriteSourceSize: {x: 0, y: 0, w: 16, h: 16},
         sourceSize: {w: 16, h: 16},
         duration: 65535
       },
       'cloud--m--2': {
         frame: {x: 166, y: 36, w: 18, h: 18},
+        rotated: false,
+        trimmed: false,
+        spriteSourceSize: {x: 0, y: 0, w: 16, h: 16},
         sourceSize: {w: 16, h: 16},
         duration: 65535
       }
@@ -269,6 +280,7 @@ describe('parseAnim()', () => {
 
   test('throws error when no frame is associated with tag.', () => {
     const frameTag: AsepriteTagSpan = {
+      color: '#000000ff',
       direction: 'pingpong',
       name: 'frog--walk',
       from: 0,
@@ -285,6 +297,7 @@ describe('parseAnimFrames()', () => {
   test('single cell', () => {
     for (const direction of Object.values(AsepriteDirection)) {
       const span: AsepriteTagSpan = {
+        color: '#000000ff',
         direction,
         name: 'stem--foo',
         from: 0,
@@ -294,6 +307,9 @@ describe('parseAnimFrames()', () => {
         'stem--foo--0': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         }
       }
@@ -310,6 +326,7 @@ describe('parseAnimFrames()', () => {
     }
     for (const direction of Object.values(AsepriteDirection)) {
       const span: AsepriteTagSpan = {
+        color: '#000000ff',
         direction,
         name: 'stem--foo',
         from: 0,
@@ -319,81 +336,129 @@ describe('parseAnimFrames()', () => {
         'stem--foo--0': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         },
         'stem--foo--1': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         },
         'stem--foo--2': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         },
         'stem--foo--3': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         },
         'stem--foo--4': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         },
         'stem--foo--5': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         },
         'stem--foo--6': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         },
         'stem--foo--7': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         },
         'stem--foo--8': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         },
         'stem--foo--9': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         },
         'stem--foo--10': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         },
         'stem--foo--11': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         },
         'stem--foo--12': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         },
         'stem--foo--13': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         },
         'stem--foo--14': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         },
         'stem--foo--15': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         }
       }
@@ -410,6 +475,7 @@ describe('parseAnimFrames()', () => {
     }
     for (const direction of Object.values(AsepriteDirection)) {
       const span: AsepriteTagSpan = {
+        color: '#000000ff',
         direction,
         name: 'stem--foo',
         from: 0,
@@ -419,16 +485,25 @@ describe('parseAnimFrames()', () => {
         'stem--foo--0': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         },
         'stem--foo--1': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         },
         'stem--foo--2': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         }
       }
@@ -445,6 +520,7 @@ describe('parseAnimFrames()', () => {
     }
     for (const direction of Object.values(AsepriteDirection)) {
       const span: AsepriteTagSpan = {
+        color: '#000000ff',
         direction,
         name: 'stem--bar',
         from: 1,
@@ -454,21 +530,33 @@ describe('parseAnimFrames()', () => {
         'stem--foo--0': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         },
         'stem--bar--1': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         },
         'stem--bar--2': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         },
         'stem--bar--3': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         }
       }
@@ -485,6 +573,7 @@ describe('parseAnimFrames()', () => {
     }
     for (const direction of Object.values(AsepriteDirection)) {
       const span: AsepriteTagSpan = {
+        color: '#000000ff',
         direction,
         name: 'stem--foo',
         from: 0,
@@ -494,16 +583,25 @@ describe('parseAnimFrames()', () => {
         'stem--foo--0': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         },
         'stem--foo--1': {
           duration: 63,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         },
         'stem--foo--2': {
           duration: 1,
           frame: {x: 0, y: 0, w: 0, h: 0},
+          rotated: false,
+          trimmed: false,
+          spriteSourceSize: {x: 0, y: 0, w: 0, h: 0},
           sourceSize: {w: 0, h: 0}
         }
       }
@@ -514,10 +612,11 @@ describe('parseAnimFrames()', () => {
 
 describe('parseCel()', () => {
   test('parses 1:1 texture mapping/', () => {
-    const frame = {
+    const frame: AsepriteFrame = {
       frame: {x: 1, y: 2, w: 3, h: 4},
       rotated: false,
       trimmed: false,
+      spriteSourceSize: {x: 0, y: 0, w: 3, h: 4},
       sourceSize: {w: 3, h: 4},
       duration: 1
     }
@@ -525,10 +624,11 @@ describe('parseCel()', () => {
   })
 
   test('parses texture mapping with padding', () => {
-    const frame = {
+    const frame: AsepriteFrame = {
       frame: {x: 1, y: 2, w: 5, h: 6},
       rotated: false,
       trimmed: false,
+      spriteSourceSize: {x: 0, y: 0, w: 3, h: 4},
       sourceSize: {w: 3, h: 4},
       duration: 1
     }
@@ -539,6 +639,7 @@ describe('parseCel()', () => {
 describe('parseHitboxes()', () => {
   test('parses hitbox.', () => {
     const span: AsepriteTagSpan = {
+      color: '#000000ff',
       direction: 'pingpong',
       name: 'stem--foo',
       from: 0,
@@ -559,6 +660,7 @@ describe('parseHitboxes()', () => {
 
   test('parses hurtbox.', () => {
     const span: AsepriteTagSpan = {
+      color: '#000000ff',
       direction: 'pingpong',
       name: 'stem--foo',
       from: 0,
@@ -579,6 +681,7 @@ describe('parseHitboxes()', () => {
 
   test('parses hitbox and hurtbox (blue).', () => {
     const span: AsepriteTagSpan = {
+      color: '#000000ff',
       direction: 'pingpong',
       name: 'stem--foo',
       from: 0,
@@ -599,6 +702,7 @@ describe('parseHitboxes()', () => {
 
   test('parses hitbox and hurtbox.', () => {
     const span: AsepriteTagSpan = {
+      color: '#000000ff',
       direction: 'pingpong',
       name: 'stem--foo',
       from: 0,
@@ -624,6 +728,7 @@ describe('parseHitboxes()', () => {
 
   test('filters out unrelated tags.', () => {
     const span: AsepriteTagSpan = {
+      color: '#000000ff',
       direction: 'pingpong',
       name: 'stem--foo',
       from: 0,
@@ -649,6 +754,7 @@ describe('parseHitboxes()', () => {
 
   test('throws on frame with multiple keys.', () => {
     const span: AsepriteTagSpan = {
+      color: '#000000ff',
       direction: 'pingpong',
       name: 'stem--foo',
       from: 0,
@@ -673,6 +779,7 @@ describe('parseHitboxes()', () => {
 
   test('defaults to undefined hitbox.', () => {
     const span: AsepriteTagSpan = {
+      color: '#000000ff',
       direction: 'pingpong',
       name: 'stem--foo',
       from: 0,
@@ -686,6 +793,7 @@ describe('parseHitboxes()', () => {
 
   test('throws on unsupported color.', () => {
     const span: AsepriteTagSpan = {
+      color: '#000000ff',
       direction: 'pingpong',
       name: 'stem--foo',
       from: 0,
@@ -706,6 +814,7 @@ describe('parseHitboxes()', () => {
 
   test('throws on multiple hitboxes.', () => {
     const span: AsepriteTagSpan = {
+      color: '#000000ff',
       direction: 'pingpong',
       name: 'stem--foo',
       from: 0,
@@ -735,6 +844,7 @@ describe('parseHitboxes()', () => {
 
   test('throws on multiple hurtboxes.', () => {
     const span: AsepriteTagSpan = {
+      color: '#000000ff',
       direction: 'pingpong',
       name: 'stem--foo',
       from: 0,
