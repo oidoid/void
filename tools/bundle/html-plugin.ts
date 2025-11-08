@@ -7,15 +7,9 @@ import {exec} from '../utils/exec.ts'
 import {parseHTML} from '../utils/html-parser.ts'
 
 type Manifest = {
-  icons?:
-    | {
-        src?: string | undefined
-        size?: string | undefined
-        type?: string | undefined
-      }[]
-    | undefined
-  start_url?: string | undefined
-  version?: string | undefined
+  icons?: {src?: string; size?: string; type?: string}[]
+  start_url?: string
+  version?: string
 }
 
 // to-do: a generic utility that recursively inlines all resources in an HTML

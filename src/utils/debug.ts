@@ -36,11 +36,11 @@ export function Debug(url: string | undefined): Debug | undefined {
   const target: {[k: string]: string} = {}
   for (const k in map) target[k.toLowerCase()] = map[k] || 'true'
 
-  const voidKeyset: {[_ in keyof Omit<Debug, 'invalid'>]-?: undefined} = {
-    cam: undefined,
-    input: undefined,
-    mem: undefined,
-    render: undefined
+  const voidKeyset: Required<Omit<Debug, 'invalid'>> = {
+    cam: '',
+    input: '',
+    mem: '',
+    render: ''
   }
 
   return new Proxy<{[k: string]: string}>(target, {

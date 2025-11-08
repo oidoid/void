@@ -9,20 +9,14 @@ import {TextEnt} from './text-ent.ts'
 
 export type ButtonOpts<Tag extends TagFormat> = {
   button: Omit<NinePatchOpts<Tag>, 'x' | 'y' | 'wh'>
-  pressed: {tag: Tag; z?: Layer | undefined}
-  selected: {tag: Tag; z?: Layer | undefined}
-  toggle?: boolean | undefined
-  text?:
-    | {
-        text?: string | undefined
-        scale?: number | undefined
-        z?: Layer | undefined
-      }
-    | undefined
-  w?: number | undefined
-  h?: number | undefined
-  x?: number | undefined
-  y?: number | undefined
+  pressed: {tag: Tag; z?: Layer}
+  selected: {tag: Tag; z?: Layer}
+  toggle?: boolean
+  text?: {text?: string; scale?: number; z?: Layer}
+  w?: number
+  h?: number
+  x?: number
+  y?: number
 }
 
 export class ButtonEnt<Tag extends TagFormat, Button extends string>

@@ -3,12 +3,10 @@ import util from 'node:util'
 
 export async function exec(
   exe: string,
-  ...args:
-    | readonly [...string[], {stdin?: string | undefined}]
-    | readonly string[]
+  ...args: readonly [...string[], {stdin?: string}] | readonly string[]
 ): Promise<string> {
   const opts = (typeof args.at(-1) === 'object' ? args.at(-1) : undefined) as
-    | {stdin?: string | undefined}
+    | {stdin?: string}
     | undefined
   args = (opts ? args.slice(0, -1) : args) as string[]
   const promise = util.promisify(execFile)(exe, args, {})

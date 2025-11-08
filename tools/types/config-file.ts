@@ -20,17 +20,17 @@ export type ConfigFile = {
 }
 
 export type ConfigFileSchema = {
-  $schema?: string | undefined
-  entry?: string | undefined
-  meta?: string | undefined
-  out: {dir?: string | undefined; game: string; name?: string | undefined}
-  preloadAtlas?: AtlasConfig | undefined
+  $schema?: string
+  entry?: string
+  meta?: string
+  out: {dir?: string; game: string; name?: string}
+  preloadAtlas?: AtlasConfig
   init?: {
-    background?: string | undefined
-    input?: 'Custom' | 'Default' | undefined
-    minWH?: Partial<V.WH> | undefined
-    minScale?: number | undefined
-    mode?: 'Float' | 'Int' | undefined
+    background?: string
+    input?: 'Custom' | 'Default'
+    minWH?: Partial<V.WH>
+    minScale?: number
+    mode?: 'Float' | 'Int'
     zoomOut?: number
   }
 }
@@ -56,9 +56,6 @@ export function parse(filename: string, str: string): ConfigFile {
     throw Error(`config ${filename} unparsable`, {cause: err})
   }
 
-  const minWH: Partial<V.WH> = parseWH(json.init?.minWH)
-  if (!minWH.w) delete minWH.w
-  if (!minWH.h) delete minWH.h
   return {
     $schema: json.$schema ?? schema.properties.$schema.default,
     entry: path.join(dirname, json.entry ?? schema.properties.entry.default),
@@ -84,7 +81,7 @@ export function parse(filename: string, str: string): ConfigFile {
         (schema.properties.init.properties.input.default as
           | 'Default'
           | 'Custom'),
-      minWH,
+      minWH: json.init?.minWH,
       minScale:
         json.init?.minScale ??
         schema.properties.init.properties.minScale.default,
@@ -98,8 +95,4 @@ export function parse(filename: string, str: string): ConfigFile {
     dirname,
     filename
   }
-}
-
-function parseWH(wh: Readonly<Partial<V.WH>> | undefined): V.WH {
-  return {w: wh?.w ?? 0, h: wh?.h ?? 0}
 }

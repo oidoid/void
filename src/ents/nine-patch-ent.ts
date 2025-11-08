@@ -13,23 +13,29 @@ import type {Void} from '../void.ts'
 import type {Ent} from './ent.ts'
 
 export type NinePatchOpts<Tag extends TagFormat> = {
-  margin?: {w?: number | undefined; h?: number | undefined} | undefined
+  margin?: Partial<WH>
   n: NinePatchDirOpts<Tag>
   origin: NinePatchDirOpts<Tag>
-  border?: {[dir in Lowercase<CardinalDir>]?: number | undefined}
-  wh?: {w?: number | undefined; h?: number | undefined} | undefined
-  x?: number | undefined
-  y?: number | undefined
-  z?: Layer | undefined
+  border?: {[dir in Lowercase<CardinalDir>]?: number}
+  wh?: Partial<WH>
+  x?: number
+  y?: number
+  z?: Layer
 } & {
-  [dir in 'w' | 'nw' | 'n' | 'ne' | 'e' | 'se' | 's' | 'sw']?:
-    | NinePatchDirOpts<Tag>
-    | undefined
+  [dir in
+    | 'w'
+    | 'nw'
+    | 'n'
+    | 'ne'
+    | 'e'
+    | 'se'
+    | 's'
+    | 'sw']?: NinePatchDirOpts<Tag>
 }
 export type NinePatchDirOpts<Tag extends TagFormat> = {
-  flip?: {x?: boolean; y?: boolean} | undefined
+  flip?: {x?: boolean; y?: boolean}
   tag: Tag
-  stretch?: boolean | undefined
+  stretch?: boolean
 }
 
 export class NinePatchEnt<Tag extends TagFormat> implements Ent<Tag> {

@@ -10,13 +10,13 @@ export type AtlasJSON = {
   celXY: number[]
 }
 
-export type GameConfig = {atlas?: AtlasJSON | undefined; init: InitConfig}
+export type GameConfig = {atlas?: AtlasJSON; init: InitConfig}
 
 export type InitConfig = {
-  background?: number | undefined
+  background?: number
   input: 'Custom' | 'Default' | string
   /** undefined means infinite. */
-  minWH: Partial<WH>
+  minWH?: Partial<WH>
   minScale: number
   mode: 'Float' | 'Int' | string
   zoomOut: number

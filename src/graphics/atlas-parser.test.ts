@@ -29,24 +29,21 @@ describe('parseAtlas()', () => {
             id: 1,
             w: 16,
             h: 16,
-            hitbox: {x: 7, y: 11, w: 3, h: 4},
-            hurtbox: undefined
+            hitbox: {x: 7, y: 11, w: 3, h: 4}
           },
           'scenery--Conifer': {
             cels: 1,
             id: 2,
             w: 16,
             h: 16,
-            hitbox: {x: 7, y: 10, w: 3, h: 5},
-            hurtbox: undefined
+            hitbox: {x: 7, y: 10, w: 3, h: 5}
           },
           'scenery--ConiferShadow': {
             cels: 1,
             id: 3,
             w: 16,
             h: 16,
-            hitbox: {x: 7, y: 9, w: 3, h: 6},
-            hurtbox: undefined
+            hitbox: {x: 7, y: 9, w: 3, h: 6}
           }
         },
         celXY: [221, 19, 91, 55, 73, 55, 55, 55]
@@ -66,24 +63,21 @@ describe('parseAtlas()', () => {
             id: 1,
             w: 16,
             h: 16,
-            hitbox: {x: 7, y: 11, w: 3, h: 4},
-            hurtbox: undefined
+            hitbox: {x: 7, y: 11, w: 3, h: 4}
           },
           'scenery--Conifer': {
             cels: 1,
             id: 2,
             w: 16,
             h: 16,
-            hitbox: {x: 7, y: 10, w: 3, h: 5},
-            hurtbox: undefined
+            hitbox: {x: 7, y: 10, w: 3, h: 5}
           },
           'scenery--ConiferShadow': {
             cels: 1,
             id: 3,
             w: 16,
             h: 16,
-            hitbox: {x: 7, y: 9, w: 3, h: 6},
-            hurtbox: undefined
+            hitbox: {x: 7, y: 9, w: 3, h: 6}
           }
         },
         celXYWH: [

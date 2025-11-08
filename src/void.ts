@@ -16,13 +16,11 @@ import {initBody, initMetaViewport} from './utils/dom-util.ts'
 import {loadImage} from './utils/fetch-util.ts'
 
 export type VoidOpts<Tag extends TagFormat> = {
-  canvas?: HTMLCanvasElement | undefined
+  canvas?: HTMLCanvasElement
   config: GameConfig
-  poll?: {delay?: (() => Millis) | undefined; period: Millis} | undefined
-  preloadAtlas?: HTMLImageElement | null | undefined
-  sprites?:
-    | Partial<Omit<PoolOpts<Sprite<Tag>>, 'alloc' | 'allocBytes'>>
-    | undefined
+  poll?: {delay?: () => Millis; period: Millis}
+  preloadAtlas?: HTMLImageElement | null
+  sprites?: Partial<Omit<PoolOpts<Sprite<Tag>>, 'alloc' | 'allocBytes'>>
 }
 
 export class Void<
@@ -65,8 +63,8 @@ export class Void<
     initBody(this.canvas, this.#backgroundRGBA)
 
     this.cam.minWH = {
-      w: opts.config.init.minWH.w ?? Infinity,
-      h: opts.config.init.minWH.h ?? Infinity
+      w: opts.config.init.minWH?.w ?? Infinity,
+      h: opts.config.init.minWH?.h ?? Infinity
     }
     this.cam.mode = mode as 'Float' | 'Int'
     this.cam.update(this.canvas)
@@ -146,7 +144,7 @@ export class Void<
     this.renderer.load(this.#preloadAtlasImage)
   }
 
-  requestFrame(force?: 'Force' | undefined): void {
+  requestFrame(force?: 'Force'): void {
     if (force || this.renderer.always || this.input.anyOn || this.input.gamepad)
       this.looper.requestFrame()
   }

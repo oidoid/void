@@ -1,4 +1,1 @@
-export type PackageJSON = {
-  version?: string | undefined
-  published?: string | undefined
-}
+export type PackageJSON = {version?: string; published?: string}

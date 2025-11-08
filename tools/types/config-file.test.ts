@@ -22,7 +22,7 @@ test('defaults', () => {
       init: {
         background: undefined,
         input: 'Default',
-        minWH: {},
+        minWH: undefined,
         minScale: 1,
         mode: 'Int',
         zoomOut: 0

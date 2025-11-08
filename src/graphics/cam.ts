@@ -76,9 +76,9 @@ export class Cam {
     z: Layer,
     pivot: CompassDir,
     opts?: {
-      readonly fill?: 'X' | 'Y' | 'XY' | undefined
-      readonly margin?: Partial<Readonly<WH>> | undefined
-      readonly modulo?: Partial<Readonly<XY>> | undefined
+      readonly fill?: 'X' | 'Y' | 'XY'
+      readonly margin?: Partial<Readonly<WH>>
+      readonly modulo?: Partial<Readonly<XY>>
     }
   ): Box {
     const marginW = opts?.margin?.w ?? 0

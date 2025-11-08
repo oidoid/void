@@ -26,9 +26,9 @@ export type Anim = {
    */
   cels: number
   /** outgoing collision rectangle (red / blue). */
-  hitbox?: Box | undefined
+  hitbox?: Box
   /** incoming collision rectangle (green / blue). */
-  hurtbox?: Box | undefined
+  hurtbox?: Box
   /** atlas tag index. */
   id: number
   /** clipbox / source width. */

@@ -877,7 +877,7 @@ function assertAnimFrames(
   span: Readonly<AsepriteTagSpan>,
   map: Readonly<AsepriteFrameMap>,
   expected: number[],
-  msg?: string | undefined
+  msg?: string
 ): void {
   assert.deepEqual(
     [...parseAnimFrames(span, map)].map(frame =>
