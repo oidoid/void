@@ -242,17 +242,17 @@ describe('parseAnim()', () => {
     }
     const slices = [
       {
-        name: 'cloud--xs',
+        name: 'cloud--xs' as const,
         color: '#ff0000ff',
         keys: [{frame: 0, bounds: {x: 4, y: 12, w: 7, h: 3}}]
       },
       {
-        name: 'cloud--s',
+        name: 'cloud--s' as const,
         color: '#ff0000ff',
         keys: [{frame: 0, bounds: {x: 4, y: 11, w: 9, h: 4}}]
       },
       {
-        name: 'cloud--m',
+        name: 'cloud--m' as const,
         color: '#ff0000ff',
         keys: [{frame: 0, bounds: {x: 3, y: 11, w: 10, h: 4}}]
       }
@@ -546,7 +546,7 @@ describe('parseHitboxes()', () => {
     }
     const slices = [
       {
-        name: 'stem--foo',
+        name: 'stem--foo' as const,
         color: '#ff0000ff',
         keys: [{frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}}]
       }
@@ -566,7 +566,7 @@ describe('parseHitboxes()', () => {
     }
     const slices = [
       {
-        name: 'stem--foo',
+        name: 'stem--foo' as const,
         color: '#00ff00ff',
         keys: [{frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}}]
       }
@@ -586,7 +586,7 @@ describe('parseHitboxes()', () => {
     }
     const slices = [
       {
-        name: 'stem--foo',
+        name: 'stem--foo' as const,
         color: '#0000ffff',
         keys: [{frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}}]
       }
@@ -606,12 +606,12 @@ describe('parseHitboxes()', () => {
     }
     const slices = [
       {
-        name: 'stem--foo',
+        name: 'stem--foo' as const,
         color: '#ff0000ff',
         keys: [{frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}}]
       },
       {
-        name: 'stem--foo',
+        name: 'stem--foo' as const,
         color: '#00ff00ff',
         keys: [{frame: 0, bounds: {x: 4, y: 5, w: 6, h: 7}}]
       }
@@ -631,12 +631,12 @@ describe('parseHitboxes()', () => {
     }
     const slices = [
       {
-        name: 'unrelated--bar',
+        name: 'unrelated--bar' as const,
         color: '#ff0000ff',
         keys: [{frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}}]
       },
       {
-        name: 'stem--foo',
+        name: 'stem--foo' as const,
         color: '#ff0000ff',
         keys: [{frame: 0, bounds: {x: 4, y: 5, w: 6, h: 7}}]
       }
@@ -656,7 +656,7 @@ describe('parseHitboxes()', () => {
     }
     const slices = [
       {
-        name: 'stem--foo',
+        name: 'stem--foo' as const,
         color: '0000ffff',
         keys: [
           {frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}},
@@ -693,7 +693,7 @@ describe('parseHitboxes()', () => {
     }
     const slices = [
       {
-        name: 'stem--foo',
+        name: 'stem--foo' as const,
         color: '#ff00ffff',
         keys: [{frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}}]
       }
@@ -713,7 +713,7 @@ describe('parseHitboxes()', () => {
     }
     const slices = [
       {
-        name: 'stem--foo',
+        name: 'stem--foo' as const,
         color: '#ff0000ff',
         keys: [
           {frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}},
@@ -722,7 +722,7 @@ describe('parseHitboxes()', () => {
         ]
       },
       {
-        name: 'stem--foo',
+        name: 'stem--foo' as const,
         color: '#ff0000ff',
         keys: [{frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}}]
       }
@@ -742,7 +742,7 @@ describe('parseHitboxes()', () => {
     }
     const slices = [
       {
-        name: 'stem--foo',
+        name: 'stem--foo' as const,
         color: '#00ff00ff',
         keys: [
           {frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}},
@@ -751,7 +751,7 @@ describe('parseHitboxes()', () => {
         ]
       },
       {
-        name: 'stem--foo',
+        name: 'stem--foo' as const,
         color: '#00ff00ff',
         keys: [{frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}}]
       }

@@ -9,7 +9,8 @@ import {
   type AsepriteTagSpan
 } from './aseprite.ts'
 
-export function parseAtlasJSON(ase: Readonly<Aseprite>): V.AtlasJSON {
+export function parseAtlasJSON(json: Readonly<V.JSONObject>): V.AtlasJSON {
+  const ase = json as Readonly<Aseprite>
   const anim: {[tag: string]: V.Anim} = {}
   const cels: number[] = []
   for (const span of ase.meta.frameTags) {

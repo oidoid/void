@@ -26,8 +26,8 @@ export type AsepriteFrame = {
 }
 
 export type AsepriteTagSpan = {
-  direction: AsepriteDirection | string
-  name: V.TagFormat | string
+  direction: AsepriteDirection
+  name: V.TagFormat
   from: number
   /** inclusive ending index, possibly equal to from. */
   to: number
@@ -36,7 +36,7 @@ export type AsepriteTagSpan = {
 export type AsepriteSlice = {
   /** '#ff0000ff' is hitbox, '#00ff00ff' is hurtbox, '#0000ffff is both. */
   color: string
-  name: V.TagFormat | string
+  name: V.TagFormat
   keys: {bounds: V.Box}[]
 }
 
