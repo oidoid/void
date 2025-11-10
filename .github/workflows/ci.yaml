@@ -34,7 +34,7 @@ jobs:
       - name: Upload schema/
         uses: actions/upload-pages-artifact@v4
         with:
-          path: schema
+          path: schema/
 
   deploy:
     environment:
