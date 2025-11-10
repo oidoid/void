@@ -22,6 +22,11 @@
         }
       }
     },
+    "MinCamWH": {
+      "$ref": "#/$defs/WH",
+      "description": "min cam dimensions. infinity always uses min scale.",
+      "properties": {"w": {"default": "Infinity"}, "h": {"default": "Infinity"}}
+    },
     "UnboundedUInt": {
       "oneOf": [{"type": "integer", "minimum": 0}, {"enum": ["Infinity"]}]
     },
@@ -29,23 +34,14 @@
       "type": "string",
       "description": "color (red, green, blue, alpha) in hex.",
       "pattern": "^[A-Fa-f0-9]{8}$",
-      "default": "0",
       "examples": ["01234567"]
     },
     "WH": {
       "type": "object",
       "description": "area.",
       "properties": {
-        "w": {
-          "$ref": "#/$defs/UnboundedUInt",
-          "description": "width.",
-          "default": 0
-        },
-        "h": {
-          "$ref": "#/$defs/UnboundedUInt",
-          "description": "height.",
-          "default": 0
-        }
+        "w": {"$ref": "#/$defs/UnboundedUInt", "description": "width."},
+        "h": {"$ref": "#/$defs/UnboundedUInt", "description": "height."}
       }
     }
   },
@@ -59,13 +55,13 @@
     },
     "entry": {
       "type": "string",
-      "default": "src/assets/index.html",
-      "description": "HTML entrypoint input. the file should include a script tag sourcing the TypeScript / JavaScript entrypoint."
+      "description": "HTML entrypoint input. the file should include a script tag sourcing the TypeScript / JavaScript entrypoint.",
+      "default": "src/assets/index.html"
     },
     "meta": {
       "type": "string",
-      "default": "dist/meta.json",
-      "description": "esbuild bundle metadata file output."
+      "description": "esbuild bundle metadata file output.",
+      "default": "dist/meta.json"
     },
     "out": {
       "type": "object",
@@ -101,30 +97,23 @@
           "description": "render clear color. defaults to canvas parent background color."
         },
         "input": {
-          "enum": ["Unmapped", "Default"],
-          "description": "button mapping. default to init all default buttons, custom to leave all unmapped. to-do: support custom mapping here.",
-          "default": "Default"
+          "description": "button mapping. defaults to init all default buttons, custom to leave all unmapped.",
+          "enum": ["Default", "Unmapped"],
+          "$comment": "to-do: support custom mapping here."
         },
-        "minWH": {
-          "$ref": "#/$defs/WH",
-          "description": "min cam dimensions. infinity always uses min scale.",
-          "unevaluatedProperties": false
-        },
+        "minWH": {"$ref": "#/$defs/MinCamWH", "unevaluatedProperties": false},
         "minScale": {
           "type": "number",
           "description": "min cam scale.",
-          "default": 1,
           "minimum": 1
         },
         "mode": {
-          "enum": ["Float", "Int"],
           "description": "use fractional or integral rendering.",
-          "default": "Int"
+          "enum": ["Int", "Float"]
         },
         "zoomOut": {
           "type": "number",
           "description": "cam zoom offset.",
-          "default": 0,
           "minimum": 0
         }
       }

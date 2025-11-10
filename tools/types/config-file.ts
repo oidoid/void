@@ -76,18 +76,11 @@ export function parse(filename: string, str: string): ConfigFile {
       background: json.init?.background
         ? parseInt(json.init.background, 16)
         : undefined,
-      input:
-        json.init?.input ??
-        (schema.properties.init.properties.input.default as V.InputMode),
+      input: json.init?.input ?? 'Default',
       minWH: json.init?.minWH,
-      minScale:
-        json.init?.minScale ??
-        schema.properties.init.properties.minScale.default,
-      mode:
-        json.init?.mode ??
-        (schema.properties.init.properties.mode.default as V.RenderMode),
-      zoomOut:
-        json.init?.zoomOut ?? schema.properties.init.properties.zoomOut.default
+      minScale: json.init?.minScale ?? 1,
+      mode: json.init?.mode ?? 'Int',
+      zoomOut: json.init?.zoomOut ?? 0
     },
 
     dirname,
