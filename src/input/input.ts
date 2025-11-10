@@ -11,9 +11,11 @@ import {Wheel} from './wheel.ts'
 export type Chord<Button> = [Button, ...Button[]]
 export type Combo<Button> = [Chord<Button>, ...Chord<Button>[]]
 
+export type InputMode = 'Default' | 'Custom'
+
 // biome-ignore format:;
 export type DefaultButton =
-  | 'L' | 'R' | 'U' | 'D' // dpad.
+  | 'U' | 'D' | 'L' | 'R' // dpad.
   | 'A' | 'B' | 'C'       // primary, secondary, tertiary.
   | 'Click' | 'Click2' | 'ClickMiddle'
   | 'Menu' | 'Back'
@@ -253,10 +255,10 @@ export class Input<Button extends string> {
 
   mapDefault(): Input<Button | DefaultButton> {
     const input = this as Input<Button | DefaultButton>
-    input.mapKeyboardCode('L', 'ArrowLeft')
-    input.mapKeyboardCode('R', 'ArrowRight')
     input.mapKeyboardCode('U', 'ArrowUp')
     input.mapKeyboardCode('D', 'ArrowDown')
+    input.mapKeyboardCode('L', 'ArrowLeft')
+    input.mapKeyboardCode('R', 'ArrowRight')
     input.mapKeyboardCode('C', 'KeyC')
     input.mapKeyboardCode('A', 'KeyX')
     input.mapKeyboardCode('B', 'KeyZ')
@@ -264,12 +266,12 @@ export class Input<Button extends string> {
     input.mapKeyboardCode('Back', 'Escape')
 
     // https://w3c.github.io/gamepad/#remapping
-    input.mapGamepadAxis('L', 'R', 0, 2)
     input.mapGamepadAxis('U', 'D', 1, 3)
-    input.mapGamepadButton('L', 14)
-    input.mapGamepadButton('R', 15)
+    input.mapGamepadAxis('L', 'R', 0, 2)
     input.mapGamepadButton('U', 12)
     input.mapGamepadButton('D', 13)
+    input.mapGamepadButton('L', 14)
+    input.mapGamepadButton('R', 15)
     input.mapGamepadButton('C', 2)
     input.mapGamepadButton('B', 0) // to-do: not good from PS perspective.
     input.mapGamepadButton('A', 1) // to-do: not good from PS perspective.
@@ -382,16 +384,6 @@ export class Input<Button extends string> {
 
     this.#dir.x = this.#dir.y = 0
     if (
-      (this.#bitByButton['L' as Button]! & this.#bits) ===
-      this.#bitByButton['L' as Button]
-    )
-      this.#dir.x -= 1
-    if (
-      (this.#bitByButton['R' as Button]! & this.#bits) ===
-      this.#bitByButton['R' as Button]
-    )
-      this.#dir.x += 1
-    if (
       (this.#bitByButton['U' as Button]! & this.#bits) ===
       this.#bitByButton['U' as Button]
     )
@@ -401,6 +393,16 @@ export class Input<Button extends string> {
       this.#bitByButton['D' as Button]
     )
       this.#dir.y += 1
+    if (
+      (this.#bitByButton['L' as Button]! & this.#bits) ===
+      this.#bitByButton['L' as Button]
+    )
+      this.#dir.x -= 1
+    if (
+      (this.#bitByButton['R' as Button]! & this.#bits) ===
+      this.#bitByButton['R' as Button]
+    )
+      this.#dir.x += 1
 
     if (
       (millis > this.comboMaxIntervalMillis && this.#bits !== this.#prevBits) ||

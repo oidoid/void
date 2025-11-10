@@ -65,7 +65,7 @@ export class CursorEnt<Tag extends TagFormat> implements Ent<Tag> {
     )
   }
 
-  update(v: Void<Tag, 'L' | 'R' | 'U' | 'D' | 'A'>): boolean | undefined {
+  update(v: Void<Tag, 'U' | 'D' | 'L' | 'R' | 'A'>): boolean | undefined {
     if (v.input.point?.invalid) {
       this.#sprite.tag = v.input.point.click ? this.#pick : this.#point
       this.#sprite.xy = v.input.point.local
@@ -87,7 +87,7 @@ export class CursorEnt<Tag extends TagFormat> implements Ent<Tag> {
       const len = truncDrawableEpsilon(this.keyboard * v.tick.s)
 
       if (
-        v.input.isAnyOnStart('L', 'R', 'U', 'D') &&
+        v.input.isAnyOnStart('U', 'D', 'L', 'R') &&
         v.input.dir.x &&
         v.input.dir.y
       )

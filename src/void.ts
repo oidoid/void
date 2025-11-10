@@ -53,7 +53,7 @@ export class Void<
 
     const mode = opts.config.init.mode
     initMetaViewport()
-    this.canvas = initCanvas(opts.canvas, mode as 'Float' | 'Int')
+    this.canvas = initCanvas(opts.canvas, mode)
     if (!this.canvas.parentElement) throw Error('no canvas parent')
     this.#backgroundRGBA =
       opts.config.init.background ??
@@ -66,7 +66,7 @@ export class Void<
       w: opts.config.init.minWH?.w ?? Infinity,
       h: opts.config.init.minWH?.h ?? Infinity
     }
-    this.cam.mode = mode as 'Float' | 'Int'
+    this.cam.mode = mode
     this.cam.update(this.canvas)
 
     this.input = new Input(this.cam, this.canvas)

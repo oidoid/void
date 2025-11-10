@@ -7,6 +7,7 @@ import {
 } from '../types/geo.ts'
 import {debug} from '../utils/debug.ts'
 import {isUILayer, type Layer} from './layer.ts'
+import type {RenderMode} from './render-mode.ts'
 import {diagonalize} from './sprite.ts'
 
 export type LevelClientLocalXY = {
@@ -37,7 +38,7 @@ export class Cam {
   #invalid: boolean = true
   #minScale: number = 1
   readonly #minWH: WH = {w: Infinity, h: Infinity}
-  #mode: 'Float' | 'Int' = 'Int'
+  #mode: RenderMode = 'Int'
   #scale: number = 1
   #w: number = 1
   readonly #whClient: WH = {w: 1, h: 1}
@@ -171,11 +172,11 @@ export class Cam {
     this.#invalidateWH()
   }
 
-  get mode(): 'Float' | 'Int' {
+  get mode(): RenderMode {
     return this.#mode
   }
 
-  set mode(mode: 'Float' | 'Int') {
+  set mode(mode: RenderMode) {
     if (this.#mode === mode) return
     this.#mode = mode
     this.#invalidateWH()

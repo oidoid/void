@@ -27,10 +27,10 @@ export type ConfigFileSchema = {
   preloadAtlas?: AtlasConfig
   init?: {
     background?: string
-    input?: 'Custom' | 'Default'
+    input?: V.InputMode
     minWH?: Partial<V.WH>
     minScale?: number
-    mode?: 'Float' | 'Int'
+    mode?: V.RenderMode
     zoomOut?: number
   }
 }
@@ -78,16 +78,14 @@ export function parse(filename: string, str: string): ConfigFile {
         : undefined,
       input:
         json.init?.input ??
-        (schema.properties.init.properties.input.default as
-          | 'Default'
-          | 'Custom'),
+        (schema.properties.init.properties.input.default as V.InputMode),
       minWH: json.init?.minWH,
       minScale:
         json.init?.minScale ??
         schema.properties.init.properties.minScale.default,
       mode:
         json.init?.mode ??
-        (schema.properties.init.properties.mode.default as 'Float' | 'Int'),
+        (schema.properties.init.properties.mode.default as V.RenderMode),
       zoomOut:
         json.init?.zoomOut ?? schema.properties.init.properties.zoomOut.default
     },

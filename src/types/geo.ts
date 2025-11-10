@@ -3,8 +3,8 @@ export type WH = {w: number; h: number}
 export type XY = {x: number; y: number}
 export type XYZ = {x: number; y: number; z: number}
 
-export type CardinalDir = 'W' | 'N' | 'E' | 'S'
-export type CompassDir = CardinalDir | 'NE' | 'SE' | 'SW' | 'NW' | 'Origin'
+export type CardinalDir = 'N' | 'S' | 'W' | 'E'
+export type CompassDir = 'Origin' | CardinalDir | 'NW' | 'NE' | 'SW' | 'SE'
 
 export function boxEq(l: Readonly<Box>, r: Readonly<Box>): boolean {
   return xyEq(l, r) && whEq(l, r)

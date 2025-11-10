@@ -81,7 +81,7 @@
         "game": {
           "type": "string",
           "description": "game config output.",
-          "examples": ["src/assets/game.json", "game.json"]
+          "examples": ["src/assets/game.void.json", "game.void.json"]
         },
         "name": {
           "type": "string",

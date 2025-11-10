@@ -1,3 +1,4 @@
+import type {RenderMode} from '../graphics/render-mode.ts'
 import {dateToTimestamp} from '../types/time.ts'
 import {download} from './dom-util.ts'
 
@@ -11,7 +12,7 @@ export async function downloadScreenshot(
 
 export function initCanvas(
   canvas: HTMLCanvasElement | undefined,
-  mode: 'Float' | 'Int'
+  mode: RenderMode
 ): HTMLCanvasElement {
   canvas ??= document.createElement('canvas')
   canvas.width = 0 // guarantee Renderer.#resize().

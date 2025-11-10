@@ -1,5 +1,5 @@
 import * as V from '../index.ts'
-import config from './assets/game.json' with {type: 'json'}
+import config from './assets/game.void.json' with {type: 'json'}
 import {ClockEnt} from './ents/clock-ent.ts'
 import {RenderToggleEnt} from './ents/render-toggle-ent.ts'
 import {WorkCounterEnt} from './ents/work-counter-ent.ts'
@@ -14,7 +14,7 @@ export class Game extends V.Void<Tag> {
 
   constructor() {
     super({
-      config,
+      config: config as V.GameConfig,
       preloadAtlas: document.querySelector<HTMLImageElement>('#preload-atlas'),
       poll: {
         delay: () => renderDelayMillis(new Date(), V.debug?.seconds),
@@ -125,16 +125,16 @@ export class Game extends V.Void<Tag> {
   }
 
   #updateCam(): boolean {
-    let render = this.input.isAnyOn('L', 'R', 'U', 'D')
+    let render = this.input.isAnyOn('U', 'D', 'L', 'R')
 
-    if (this.input.isAnyOnStart('L', 'R', 'U', 'D'))
+    if (this.input.isAnyOnStart('U', 'D', 'L', 'R'))
       this.cam.diagonalize(this.input.dir)
 
     const len = V.truncDrawableEpsilon(25 * this.tick.s)
-    if (this.input.isOn('L')) this.cam.x -= len
-    if (this.input.isOn('R')) this.cam.x += len
     if (this.input.isOn('U')) this.cam.y -= len
     if (this.input.isOn('D')) this.cam.y += len
+    if (this.input.isOn('L')) this.cam.x -= len
+    if (this.input.isOn('R')) this.cam.x += len
 
     if (this.input.wheel?.delta.xy.y) {
       render = true
