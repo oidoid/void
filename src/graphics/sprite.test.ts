@@ -485,13 +485,17 @@ test('reset()', () => {
 test('tag', () => {
   const looper = {age: 0 as Millis}
   const sprite = new Sprite(TestPool(), 0, atlas, looper)
+
   sprite.tag = 'stem--AnimA'
+  assert.equal(sprite.tag, 'stem--AnimA')
   assert.equal(sprite.w, 10)
   assert.equal(sprite.h, 20)
   assert.equal(sprite.id, 0)
   assert.equal(sprite.cel, 0)
+
   looper.age = (celMillis * 1) as Millis
   sprite.tag = 'stem--AnimB'
+  assert.equal(sprite.tag, 'stem--AnimB')
   assert.equal(sprite.w, 30)
   assert.equal(sprite.h, 40)
   assert.equal(sprite.id, 1)

@@ -133,9 +133,13 @@ export abstract class Drawable implements Block, Box {
    * for reinitialization on pool allocation.
    */
   init(): void {
+    this.cel = 0
     this.flipX = false
     this.flipY = false
+    this.h = 0
+    this.id = 0
     this.stretch = false
+    this.w = 0
     this.x = 0
     this.y = 0
     this.z = Layer.Hidden
@@ -237,7 +241,6 @@ export abstract class Drawable implements Block, Box {
   }
 }
 
-// to-do: can I declaration merge or namespace merge away from the tag type?
 export class Sprite<Tag extends TagFormat> extends Drawable {
   readonly #atlas: Readonly<Atlas<Tag>>
   #hitbox: Box | undefined
@@ -365,8 +368,6 @@ export class Sprite<Tag extends TagFormat> extends Drawable {
   diagonalize(dir: Readonly<XY>): void {
     diagonalize(this, dir.x * dir.y)
   }
-
-  // to-do: unit test and catch up on unit tests elsewhere.
 
   get tag(): Tag {
     return this.#atlas.tags[this.id] as Tag
