@@ -173,6 +173,37 @@ test('index', () => {
   assert.equal(draw.i, 1)
 })
 
+test('init()', () => {
+  const view = TestPool()
+  const draw = new TestDrawable(view, 0)
+
+  draw.cel = 5
+  draw.flipX = true
+  draw.flipY = true
+  draw.h = 100
+  draw.id = 42
+  draw.stretch = true
+  draw.w = 200
+  draw.x = 10
+  draw.y = 20
+  draw.z = 10
+  draw.zend = true
+
+  draw.init()
+
+  assert.equal(draw.cel, 0)
+  assert.equal(draw.flipX, false)
+  assert.equal(draw.flipY, false)
+  assert.equal(draw.h, 0)
+  assert.equal(draw.id, 0)
+  assert.equal(draw.stretch, false)
+  assert.equal(draw.w, 0)
+  assert.equal(draw.x, 0)
+  assert.equal(draw.y, 0)
+  assert.equal(draw.z, Layer.Hidden)
+  assert.equal(draw.zend, false)
+})
+
 test('id', () => {
   const view = TestPool()
   const draw = new TestDrawable(view, 0)
