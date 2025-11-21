@@ -1497,7 +1497,7 @@ describe('parseAtlasJSON()', () => {
           },
           frames
         }),
-      Error('atlas tag "scenery--Cloud" duplicate')
+      /atlas tag "scenery--Cloud" duplicate/
     )
   })
 })
@@ -1574,7 +1574,7 @@ describe('parseAnim()', () => {
     }
     assert.throws(
       () => parseAnim(16, frameTag, {}, []),
-      Error('no atlas frame "frog--walk--0"')
+      /no atlas frame "frog--walk--0"/
     )
   })
 })
@@ -2059,7 +2059,7 @@ describe('parseHitboxes()', () => {
     ]
     assert.throws(
       () => parseHitboxes(span, slices),
-      Error('atlas tag "stem--foo" hitbox bounds varies across frames')
+      /atlas tag "stem--foo" hitbox bounds varies across frames/
     )
   })
 
@@ -2094,7 +2094,7 @@ describe('parseHitboxes()', () => {
     ]
     assert.throws(
       () => parseHitboxes(span, slices),
-      Error('atlas tag "stem--foo" hitbox color #ff00ffff unsupported')
+      /atlas tag "stem--foo" hitbox color #ff00ffff unsupported/
     )
   })
 
@@ -2124,7 +2124,7 @@ describe('parseHitboxes()', () => {
     ]
     assert.throws(
       () => parseHitboxes(span, slices),
-      Error('atlas tag "stem--foo" hitbox bounds varies across frames')
+      /atlas tag "stem--foo" hitbox bounds varies across frames/
     )
   })
 
@@ -2154,7 +2154,7 @@ describe('parseHitboxes()', () => {
     ]
     assert.throws(
       () => parseHitboxes(span, slices),
-      Error('atlas tag "stem--foo" hitbox bounds varies across frames')
+      /atlas tag "stem--foo" hitbox bounds varies across frames/
     )
   })
 })

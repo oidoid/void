@@ -72,6 +72,6 @@ test('overrides', () => {
 test('overrides', () => {
   assert.throws(
     () => parse('dirname/filename', ''),
-    Error('config dirname/filename unparsable')
+    /config dirname\/filename unparsable/
   )
 })

@@ -24,6 +24,7 @@ export function layerOffset(layer: Layer, offset: number): Layer {
   return Math.max(Layer.Bottom, Math.min(Layer.Top, layer + offset)) as Layer
 }
 
+/** true if UI or top layer. */
 export function isUILayer(layer: Layer): boolean {
   return layer >= Layer.UIA
 }

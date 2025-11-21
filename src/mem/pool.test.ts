@@ -43,7 +43,7 @@ test('free()', ctx => {
   const blocks: Block[] = []
 
   ctx.test('underflows when nothing to free', () => {
-    assert.throws(() => pool.free({i: 0}))
+    assert.throws(() => pool.free({i: 0}), /underflow/)
   })
 
   ctx.test('shrinks', () => {
