@@ -24,7 +24,8 @@ export type LevelClientLocalXY = {
   y: number
 }
 
-type Canvas = {
+/** @internal */
+export type Canvas = {
   width: number
   height: number
   style: {width: string; height: string}
