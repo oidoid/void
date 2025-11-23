@@ -57,3 +57,23 @@ test('two buttons mapped to the same bit are unioned', ctx => {
     assert(kbd.bits, 0)
   })
 })
+
+test('modifiers and untrusted', ctx => {
+  const target = new EventTarget()
+  using kbd = new Keyboard(target).register('add')
+  kbd.bitByCode.KeyA = 1
+
+  ctx.test('modifiers', () => {
+    target.dispatchEvent(KeyTestEvent('keydown', {code: 'KeyA', ctrlKey: true}))
+    assert(kbd.bits, 0)
+    target.dispatchEvent(KeyTestEvent('keydown', {code: 'KeyA', altKey: true}))
+    assert(kbd.bits, 0)
+    target.dispatchEvent(KeyTestEvent('keydown', {code: 'KeyA', metaKey: true}))
+    assert(kbd.bits, 0)
+  })
+
+  ctx.test('untrusted', () => {
+    target.dispatchEvent(Object.assign(new Event('keydown'), {code: 'KeyA'}))
+    assert(kbd.bits, 0)
+  })
+})
