@@ -79,14 +79,16 @@ export type UnboundedWHSchema = {
   h?: number | 'Infinity'
 }
 
+export type ComponentHook<Tag extends TagFormat> = (
+  json: Readonly<EntSchema<Tag>>,
+  k: keyof EntSchema<Tag>,
+  pools: Readonly<PoolMap<Tag>>
+) => Ent<Tag>[typeof k]
+
 export function parseLevel<Tag extends TagFormat>(
   json: Readonly<LevelSchema<Tag>>,
   pools: Readonly<PoolMap<Tag>>,
-  hook: (
-    json: Readonly<EntSchema<Tag>>,
-    pools: Readonly<PoolMap<Tag>>,
-    k: keyof EntSchema<Tag>
-  ) => Ent<Tag>[typeof k]
+  hook: ComponentHook<Tag>
 ): Level<Tag> {
   return {
     ents: json.ents?.map(ent => parseEnt(ent, pools, hook)) ?? [],
@@ -109,24 +111,20 @@ export function parseButton<Tag extends TagFormat>(
 export function parseEnt<Tag extends TagFormat>(
   json: Readonly<EntSchema<Tag>>,
   pools: Readonly<PoolMap<Tag>>,
-  hook: (
-    json: Readonly<EntSchema<Tag>>,
-    pools: Readonly<PoolMap<Tag>>,
-    k: keyof EntSchema<Tag>
-  ) => Ent<Tag>[typeof k]
+  hook: ComponentHook<Tag>
 ): Ent<Tag> {
   const ent: {[k: string]: Ent<Tag>[keyof Ent<Tag>]} = {}
   for (const _k in json) {
     const k = _k as keyof EntSchema<Tag>
-    ent[k] = hook(json, pools, k) ?? parseEntComponent(json, pools, k)
+    ent[k] = hook(json, k, pools) ?? parseEntComponent(json, k, pools)
   }
   return ent
 }
 
 export function parseEntComponent<Tag extends TagFormat>(
   json: Readonly<EntSchema<Tag>>,
-  pools: Readonly<PoolMap<Tag>>,
-  k: keyof EntSchema<Tag>
+  k: keyof EntSchema<Tag>,
+  pools: Readonly<PoolMap<Tag>>
 ): Ent<Tag>[typeof k] {
   if (json[k] == null) return
   switch (k) {

@@ -8,6 +8,7 @@ import type {PoolMap} from '../mem/pool-map.ts'
 import {assert} from '../test/assert.ts'
 import type {Box} from '../types/geo.ts'
 import {
+  type ComponentHook,
   type EntSchema,
   parseButton,
   parseEnt,
@@ -21,7 +22,7 @@ import {
   parseWH,
   parseXY,
   type SpriteSchema
-} from './level-file.ts'
+} from './level.ts'
 
 declare module '../ents/ent.ts' {
   // biome-ignore lint/correctness/noUnusedVariables:;
@@ -30,7 +31,7 @@ declare module '../ents/ent.ts' {
   }
 }
 
-declare module './level-file.ts' {
+declare module './level.ts' {
   // biome-ignore lint/correctness/noUnusedVariables:;
   interface EntSchema<Tag extends TagFormat> {
     widget?: {gears: number}
@@ -81,13 +82,46 @@ test('parseEnt() with parseComponent override hook', () => {
   assert((ent as {widget: number}).widget, undefined)
 
   // hook.
-  ent = parseEnt(json, pools, (json, _pools, k) => {
+  ent = parseEnt(json, pools, (json, k) => {
     if (json[k] == null) return
     if (k === 'widget') return json[k].gears satisfies Ent<Tag>[typeof k]
   })
   assert(ent.name, 'X')
   assert(ent.sprite?.tag, 'stem--A')
   assert((ent as {widget: number}).widget, 5)
+})
+
+test('parseEnt() preserves key insertion order', () => {
+  const pools = TestPools()
+  const hook: ComponentHook<Tag> = (json, k) => {
+    if (json[k] == null) return
+    if (k === 'widget') return json[k].gears satisfies Ent<Tag>[typeof k]
+  }
+
+  const a: EntSchema<Tag> = {
+    name: 'Name',
+    id: '1',
+    text: 'hello',
+    button: {type: 'Toggle'},
+    sprite: 'stem--A',
+    ninePatch: {border: 1, patch: {}},
+    followCam: {dir: 'N'},
+    followCursor: {keyboard: 1, pick: 'stem--B'},
+    widget: {gears: 3},
+    textUI: {dir: 'S', maxW: 100, scale: 2}
+  }
+  assert(Object.keys(parseEnt(a, pools, hook)), Object.keys(a))
+
+  const b: EntSchema<Tag> = {
+    widget: {gears: 3},
+    text: 'first',
+    sprite: 'stem--B',
+    name: 'Second',
+    id: '2',
+    textUI: {dir: 'E'},
+    button: {type: 'Button'}
+  }
+  assert(Object.keys(parseEnt(b, pools, hook)), Object.keys(b))
 })
 
 test('parseEntComponent() routes fields', () => {
@@ -104,14 +138,14 @@ test('parseEntComponent() routes fields', () => {
     button: {type: 'Toggle'}
   }
 
-  assert(parseEntComponent(json, pools, 'id'), '1')
-  assert(parseEntComponent(json, pools, 'name'), 'Name')
-  assert(parseEntComponent(json, pools, 'text'), 'text')
+  assert(parseEntComponent(json, 'id', pools), '1')
+  assert(parseEntComponent(json, 'name', pools), 'Name')
+  assert(parseEntComponent(json, 'text', pools), 'text')
   assert(
-    (parseEntComponent(json, pools, 'sprite') as Sprite<Tag>).tag,
+    (parseEntComponent(json, 'sprite', pools) as Sprite<Tag>).tag,
     'stem--A'
   )
-  assert(parseEntComponent(json, pools, 'ninePatch'), {
+  assert(parseEntComponent(json, 'ninePatch', pools), {
     border: {n: 1, s: 1, w: 1, e: 1},
     margin: {w: 0, h: 0},
     patch: {
@@ -126,28 +160,28 @@ test('parseEntComponent() routes fields', () => {
       se: undefined
     }
   })
-  assert(parseEntComponent(json, pools, 'followCam'), {
+  assert(parseEntComponent(json, 'followCam', pools), {
     dir: 'N',
     fill: undefined,
     margin: {w: 2, h: 2},
     modulo: {x: 0, y: 0}
   })
-  assert(parseEntComponent(json, pools, 'followCursor'), {
+  assert(parseEntComponent(json, 'followCursor', pools), {
     keyboard: 1,
     pick: 'stem--B'
   })
-  assert(parseEntComponent(json, pools, 'textUI'), {
+  assert(parseEntComponent(json, 'textUI', pools), {
     dir: 'S',
     maxW: 100,
     scale: 2
   })
   assert(
-    (parseEntComponent(json, pools, 'button') as Button<Tag>).type,
+    (parseEntComponent(json, 'button', pools) as Button<Tag>).type,
     'Toggle'
   )
 
   assert(
-    parseEntComponent({}, pools, 'missing' as keyof EntSchema<Tag>),
+    parseEntComponent({}, 'missing' as keyof EntSchema<Tag>, pools),
     undefined
   )
 })
