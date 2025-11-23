@@ -28,7 +28,7 @@ test('multiple vals and params', () => {
     unknown0: 'Bar',
     unknown1: 'true',
     render: 'baz'
-  })
+  } as Debug)
   assert((debug as unknown as {Unknown1: string}).Unknown1, 'true')
   assert((debug as unknown as {unknown2: undefined}).unknown2, undefined)
 })
