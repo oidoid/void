@@ -18,8 +18,11 @@ export function KeyTestEvent(
   return Object.assign(TestEvent(type), init)
 }
 
-export function MenuTestEvent(type: string, preventDefault: () => void): Event {
-  return Object.assign(TestEvent(type), {preventDefault})
+export function MenuTestEvent(
+  type: string,
+  init: Partial<Readonly<PointerEvent>>
+): Event {
+  return Object.assign(TestEvent(type), init)
 }
 
 export function PointerTestEvent(
