@@ -9,6 +9,7 @@ export function debounce<T extends unknown[]>(
   return Object.assign(
     (...args: T) => {
       cancel()
+      // biome-ignore lint/nursery/useSpread:;
       timeout = setTimeout(() => fn.apply(undefined, args), delay)
     },
     {cancel}
@@ -45,6 +46,7 @@ export function throttle<T extends unknown[]>(
       const delay = Math.max(0, period - (performance.now() - exec))
       timeout = setTimeout(() => {
         exec = performance.now()
+        // biome-ignore lint/nursery/useSpread:;
         fn.apply(undefined, args)
       }, delay)
     },
