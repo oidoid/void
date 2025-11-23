@@ -1,5 +1,5 @@
-import assert from 'node:assert/strict'
 import {test} from 'node:test'
+import {assert} from '../test/assert.ts'
 import {Gamepad} from './gamepad.ts'
 
 test('Gamepad', ctx => {
@@ -10,22 +10,22 @@ test('Gamepad', ctx => {
 
   ctx.test('init', () => {
     Object.assign(globalThis.navigator, {getGamepads: () => [null]})
-    assert.equal(gamepad.bits, 0)
+    assert(gamepad.bits, 0)
   })
 
   ctx.test('no pads', () => {
     Object.assign(globalThis.navigator, {getGamepads: () => []})
     gamepad.update()
-    assert.equal(gamepad.bits, 0)
-    assert.equal(gamepad.connected, false)
+    assert(gamepad.bits, 0)
+    assert(gamepad.connected, false)
   })
 
   ctx.test('one pad', () => {
     Object.assign(globalThis.navigator, {
       getGamepads: () => [{axes: [], buttons: [{pressed: true}]}]
     })
-    assert.equal(gamepad.connected, true)
+    assert(gamepad.connected, true)
     gamepad.update()
-    assert.equal(gamepad.bits, 1)
+    assert(gamepad.bits, 1)
   })
 })

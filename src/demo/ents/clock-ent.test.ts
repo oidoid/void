@@ -1,5 +1,5 @@
-import assert from 'node:assert/strict'
 import test from 'node:test'
+import {assert} from '../../test/assert.ts'
 import {timeString} from './clock-ent.ts'
 
 for (const [input, expected] of [
@@ -20,5 +20,5 @@ for (const [input, expected] of [
     const time = new Date()
     const [hours, mins, secs] = input.split(':').map(Number)
     time.setHours(hours!, mins, secs)
-    assert.equal(timeString(time), expected)
+    assert(timeString(time), expected)
   })

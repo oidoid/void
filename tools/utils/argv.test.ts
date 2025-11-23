@@ -1,5 +1,5 @@
-import assert from 'node:assert/strict'
 import {test} from 'node:test'
+import {assert} from '../../src/test/assert.ts'
 import {Argv} from './argv.ts'
 
 declare module './argv.ts' {
@@ -11,7 +11,7 @@ declare module './argv.ts' {
 }
 
 test('parses empty.', () => {
-  assert.deepEqual<Argv>(Argv(['/usr/local/bin/node', 'tools/void.ts']), {
+  assert(Argv(['/usr/local/bin/node', 'tools/void.ts']), {
     args: [],
     opts: {},
     posargs: [],
@@ -20,7 +20,7 @@ test('parses empty.', () => {
 })
 
 test('parses nonempty.', () => {
-  assert.deepEqual<Argv>(
+  assert(
     Argv([
       '/usr/local/bin/node',
       'tools/void.ts',

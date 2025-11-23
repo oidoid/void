@@ -1,5 +1,5 @@
-import assert from 'node:assert/strict'
 import test from 'node:test'
+import {assert} from '../test/assert.ts'
 import {Random} from './random.ts'
 
 // 0 is same as 1.
@@ -32,6 +32,6 @@ for (const [name, seed, expected] of [
     const random = new Random(seed)
     // test seed instead of integer since we have a hack to give better initial
     // values not in the paper.
-    assert.equal(random.seed, expected)
+    assert(random.seed, expected)
   })
 }

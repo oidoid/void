@@ -1,5 +1,5 @@
-import assert from 'node:assert/strict'
 import {test} from 'node:test'
+import {assert} from '../test/assert.ts'
 import {
   boxHits,
   whEq,
@@ -627,34 +627,30 @@ test('boxHits()', ctx => {
   for (const [diagram, l, r, hits] of cases) {
     const lBox = {x: l[0], y: l[1], w: l[2], h: l[3]}
     const rBox = {x: r[0], y: r[1], w: r[2], h: r[3]}
-    ctx.test(`hits(l, r): ${diagram}`, () =>
-      assert.equal(boxHits(lBox, rBox), hits)
-    )
-    ctx.test(`hits(r, l): ${diagram}`, () =>
-      assert.equal(boxHits(rBox, lBox), hits)
-    )
+    ctx.test(`hits(l, r): ${diagram}`, () => assert(boxHits(lBox, rBox), hits))
+    ctx.test(`hits(r, l): ${diagram}`, () => assert(boxHits(rBox, lBox), hits))
   }
 
   ctx.test("empty box doesn't hit nonempty box", () =>
-    assert.equal(
+    assert(
       boxHits({x: 0.5, y: 0.5, w: 0, h: 0}, {x: 0, y: 0, w: 1, h: 1}),
       false
     )
   )
 
   ctx.test("nonempty box doesn't hit empty box", () =>
-    assert.equal(
+    assert(
       boxHits({x: 0, y: 0, w: 1, h: 1}, {x: 0.5, y: 0.5, w: 0, h: 0}),
       false
     )
   )
 
   ctx.test('box hits point', () =>
-    assert.equal(boxHits({x: 0, y: 0, w: 1, h: 1}, {x: 0.5, y: 0.5}), true)
+    assert(boxHits({x: 0, y: 0, w: 1, h: 1}, {x: 0.5, y: 0.5}), true)
   )
 
   ctx.test("flipped box doesn't hit nonempty box", () =>
-    assert.equal(
+    assert(
       boxHits({x: 0.5, y: 0.5, w: -1, h: -1}, {x: 0, y: 0, w: 1, h: 1}),
       false
     )
@@ -662,39 +658,34 @@ test('boxHits()', ctx => {
 })
 
 test('whEq()', () => {
-  assert.deepEqual(whEq({w: 1, h: 2}, {w: 1, h: 2}), true)
-  assert.deepEqual(whEq({w: 1, h: 2}, {w: 3, h: 2}), false)
-  assert.deepEqual(whEq({w: 1, h: 2}, {w: 1, h: 3}), false)
+  assert(whEq({w: 1, h: 2}, {w: 1, h: 2}), true)
+  assert(whEq({w: 1, h: 2}, {w: 3, h: 2}), false)
+  assert(whEq({w: 1, h: 2}, {w: 1, h: 3}), false)
 })
 
-test('xyAdd()', () =>
-  assert.deepEqual(xyAdd({x: 1, y: 2}, {x: 3, y: 4}), {x: 4, y: 6}))
+test('xyAdd()', () => assert(xyAdd({x: 1, y: 2}, {x: 3, y: 4}), {x: 4, y: 6}))
 
 test('xyAddTo()', () => {
   const xy = {x: 1, y: 2}
   xyAddTo(xy, {x: 3, y: 4})
-  assert.deepEqual(xy, {x: 4, y: 6})
+  assert(xy, {x: 4, y: 6})
 })
 
-test('xyDistance()', () =>
-  assert.deepEqual(xyDistance({x: 1, y: 2}, {x: 6, y: 14}), 13))
+test('xyDistance()', () => assert(xyDistance({x: 1, y: 2}, {x: 6, y: 14}), 13))
 
 test('xyDiv()', () =>
-  assert.deepEqual(xyDiv({x: 1, y: 2}, {x: 3, y: 4}), {x: 1 / 3, y: 2 / 4}))
+  assert(xyDiv({x: 1, y: 2}, {x: 3, y: 4}), {x: 1 / 3, y: 2 / 4}))
 
 test('xyEq()', () => {
-  assert.deepEqual(xyEq({x: 1, y: 2}, {x: 1, y: 2}), true)
-  assert.deepEqual(xyEq({x: 1, y: 2}, {x: 3, y: 2}), false)
-  assert.deepEqual(xyEq({x: 1, y: 2}, {x: 1, y: 3}), false)
+  assert(xyEq({x: 1, y: 2}, {x: 1, y: 2}), true)
+  assert(xyEq({x: 1, y: 2}, {x: 3, y: 2}), false)
+  assert(xyEq({x: 1, y: 2}, {x: 1, y: 3}), false)
 })
 
-test('xyMagnitude()', () => assert.deepEqual(xyMagnitude({x: 3, y: 4}), 5))
+test('xyMagnitude()', () => assert(xyMagnitude({x: 3, y: 4}), 5))
 
-test('xyMax()', () =>
-  assert.deepEqual(xyMax({x: 1, y: 2}, {x: 3, y: 4}), {x: 3, y: 4}))
+test('xyMax()', () => assert(xyMax({x: 1, y: 2}, {x: 3, y: 4}), {x: 3, y: 4}))
 
-test('xyMin()', () =>
-  assert.deepEqual(xyMin({x: 1, y: 2}, {x: 3, y: 4}), {x: 1, y: 2}))
+test('xyMin()', () => assert(xyMin({x: 1, y: 2}, {x: 3, y: 4}), {x: 1, y: 2}))
 
-test('xySub()', () =>
-  assert.deepEqual(xySub({x: 1, y: 2}, {x: 3, y: 4}), {x: -2, y: -2}))
+test('xySub()', () => assert(xySub({x: 1, y: 2}, {x: 3, y: 4}), {x: -2, y: -2}))

@@ -1,6 +1,5 @@
-import assert from 'node:assert/strict'
 import {describe, test} from 'node:test'
-import type * as V from '../../src/index.ts'
+import {assert} from '../../src/test/assert.ts'
 import * as ase from './aseprite.ts'
 import atlas from './atlas.test.aseprite.json' with {type: 'json'}
 import {
@@ -14,7 +13,7 @@ import {
 describe('parseAtlasJSON()', () => {
   test('parses file.', () => {
     // to-do: *.aseprite.json isn't working but *.aseprite.json2 does.
-    assert.deepEqual<V.AtlasJSON>(parseAtlasJSON(atlas as ase.Aseprite), {
+    assert(parseAtlasJSON(atlas as ase.Aseprite), {
       anim: {
         'background--OrangeCheckerboard': {
           cels: 1,
@@ -1180,7 +1179,7 @@ describe('parseAtlasJSON()', () => {
   })
 
   test('parses empty.', () => {
-    assert.deepEqual<V.AtlasJSON>(
+    assert(
       parseAtlasJSON({
         meta: {
           app: 'http://www.aseprite.org/',
@@ -1374,7 +1373,7 @@ describe('parseAtlasJSON()', () => {
         keys: [{frame: 0, bounds: {x: 2, y: 0, w: 4, h: 4}}]
       }
     ]
-    assert.deepEqual<V.AtlasJSON>(
+    assert(
       parseAtlasJSON({
         meta: {
           app: 'http://www.aseprite.org/',
@@ -1554,7 +1553,7 @@ describe('parseAnim()', () => {
         keys: [{frame: 0, bounds: {x: 3, y: 11, w: 10, h: 4}}]
       }
     ]
-    assert.deepEqual<V.Anim>(parseAnim(16, frameTag, frames, slices), {
+    assert(parseAnim(16, frameTag, frames, slices), {
       cels: 1,
       id: 16,
       w: 16,
@@ -1906,7 +1905,7 @@ describe('parseCel()', () => {
       sourceSize: {w: 3, h: 4},
       duration: 1
     }
-    assert.deepEqual<V.XY>(parseCel(frame), {x: 1, y: 2})
+    assert(parseCel(frame), {x: 1, y: 2})
   })
 
   test('parses texture mapping with padding', () => {
@@ -1918,7 +1917,7 @@ describe('parseCel()', () => {
       sourceSize: {w: 3, h: 4},
       duration: 1
     }
-    assert.deepEqual<V.XY>(parseCel(frame), {x: 2, y: 3})
+    assert(parseCel(frame), {x: 2, y: 3})
   })
 })
 
@@ -1938,7 +1937,7 @@ describe('parseHitboxes()', () => {
         keys: [{frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}}]
       }
     ]
-    assert.deepEqual(parseHitboxes(span, slices), {
+    assert(parseHitboxes(span, slices), {
       hitbox: {x: 0, y: 1, w: 2, h: 3},
       hurtbox: undefined
     })
@@ -1959,7 +1958,7 @@ describe('parseHitboxes()', () => {
         keys: [{frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}}]
       }
     ]
-    assert.deepEqual(parseHitboxes(span, slices), {
+    assert(parseHitboxes(span, slices), {
       hitbox: undefined,
       hurtbox: {x: 0, y: 1, w: 2, h: 3}
     })
@@ -1980,7 +1979,7 @@ describe('parseHitboxes()', () => {
         keys: [{frame: 0, bounds: {x: 0, y: 1, w: 2, h: 3}}]
       }
     ]
-    assert.deepEqual(parseHitboxes(span, slices), {
+    assert(parseHitboxes(span, slices), {
       hitbox: {x: 0, y: 1, w: 2, h: 3},
       hurtbox: {x: 0, y: 1, w: 2, h: 3}
     })
@@ -2006,7 +2005,7 @@ describe('parseHitboxes()', () => {
         keys: [{frame: 0, bounds: {x: 4, y: 5, w: 6, h: 7}}]
       }
     ]
-    assert.deepEqual(parseHitboxes(span, slices), {
+    assert(parseHitboxes(span, slices), {
       hitbox: {x: 0, y: 1, w: 2, h: 3},
       hurtbox: {x: 4, y: 5, w: 6, h: 7}
     })
@@ -2032,7 +2031,7 @@ describe('parseHitboxes()', () => {
         keys: [{frame: 0, bounds: {x: 4, y: 5, w: 6, h: 7}}]
       }
     ]
-    assert.deepEqual(parseHitboxes(span, slices), {
+    assert(parseHitboxes(span, slices), {
       hitbox: {x: 4, y: 5, w: 6, h: 7},
       hurtbox: undefined
     })
@@ -2071,7 +2070,7 @@ describe('parseHitboxes()', () => {
       from: 0,
       to: 0
     }
-    assert.deepEqual(parseHitboxes(span, []), {
+    assert(parseHitboxes(span, []), {
       hitbox: undefined,
       hurtbox: undefined
     })
@@ -2165,7 +2164,7 @@ function assertAnimFrames(
   expected: number[],
   msg?: string
 ): void {
-  assert.deepEqual(
+  assert(
     [...parseAnimFrames(span, map)].map(frame =>
       Object.values(map).indexOf(frame)
     ),

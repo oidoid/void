@@ -1,5 +1,5 @@
-import assert from 'node:assert/strict'
 import {test} from 'node:test'
+import {assert} from '../test/assert.ts'
 import {TestEvent} from '../test/test-event.ts'
 import {type Context, Renderer} from './renderer.ts'
 
@@ -8,22 +8,22 @@ test('renderer', ctx => {
   using renderer = TestRenderer(canvas)
 
   ctx.test('no context before loading', () =>
-    assert.equal(renderer.hasContext, false)
+    assert(renderer.hasContext, false)
   )
 
   ctx.test('context after loading', () => {
     renderer.load({} as HTMLImageElement)
-    assert.equal(renderer.hasContext, true)
+    assert(renderer.hasContext, true)
   })
 
   ctx.test('context lost', () => {
     canvas.dispatchEvent(TestEvent('webglcontextlost'))
-    assert.equal(renderer.hasContext, false)
+    assert(renderer.hasContext, false)
   })
 
   ctx.test('context restored', () => {
     canvas.dispatchEvent(TestEvent('webglcontextrestored'))
-    assert.equal(renderer.hasContext, true)
+    assert(renderer.hasContext, true)
   })
 })
 

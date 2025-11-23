@@ -1,5 +1,6 @@
-import assert from 'node:assert/strict'
 import test from 'node:test'
+import {assert} from '../test/assert.ts'
+import type {Millis} from '../types/time.ts'
 import {renderDelayMillis} from './game.ts'
 
 for (const [debugSeconds, millis, delay] of [
@@ -19,5 +20,5 @@ for (const [debugSeconds, millis, delay] of [
   test(`renderDelayMillis(${debugSeconds}, ${millis})`, () => {
     const time = new Date()
     time.setSeconds(Math.trunc(millis / 1000), millis % 1000)
-    assert.equal(renderDelayMillis(time, debugSeconds), delay)
+    assert(renderDelayMillis(time, debugSeconds), delay as Millis)
   })

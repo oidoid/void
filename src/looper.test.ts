@@ -1,6 +1,6 @@
-import assert from 'node:assert/strict'
 import {afterEach, beforeEach, test} from 'node:test'
 import {Looper} from './looper.ts'
+import {assert} from './test/assert.ts'
 import {TestEvent} from './test/test-event.ts'
 import type {Millis} from './types/time.ts'
 
@@ -29,12 +29,12 @@ test('Looper', ctx => {
   let frame = 0
   framer.onFrame = () => ++frame
 
-  ctx.test('init', () => assert.equal(frame, 0))
+  ctx.test('init', () => assert(frame, 0))
 
   ctx.test('register', () => {
     framer.register('add')
-    assert.equal(frame, 0)
-    assert.equal(framer.age, 0)
+    assert(frame, 0)
+    assert(framer.age, 0)
   })
 
   ctx.test('onFrame', () => {
@@ -42,25 +42,25 @@ test('Looper', ctx => {
     framer.requestFrame()
     performance.now = () => 10 as Millis
     onFrame!()
-    assert.equal(frame, 1)
-    assert.equal(framer.age, 10)
+    assert(frame, 1)
+    assert(framer.age, 10 as Millis)
     framer.requestFrame()
     performance.now = () => 20 as Millis
     onFrame!()
-    assert.equal(frame, 2)
-    assert.equal(framer.age, 20)
+    assert(frame, 2)
+    assert(framer.age, 20 as Millis)
     framer.requestFrame()
     performance.now = () => 30 as Millis
     onFrame!()
-    assert.equal(frame, 3)
-    assert.equal(framer.age, 30)
+    assert(frame, 3)
+    assert(framer.age, 30 as Millis)
   })
 
   ctx.test('hidden', () => {
     framer.requestFrame()
     doc.hidden = true
     doc.dispatchEvent(TestEvent('visibilitychange'))
-    assert.equal(onFrame, undefined)
+    assert(onFrame, undefined)
   })
 
   ctx.test('shown', () => {
@@ -68,7 +68,7 @@ test('Looper', ctx => {
     doc.dispatchEvent(TestEvent('visibilitychange'))
     performance.now = () => 40 as Millis
     onFrame!()
-    assert.equal(frame, 4)
-    assert.equal(framer.age, 40)
+    assert(frame, 4)
+    assert(framer.age, 40 as Millis)
   })
 })
