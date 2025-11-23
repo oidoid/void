@@ -9,6 +9,28 @@ test('Wheel', ctx => {
 
   ctx.test('init', () => assert(wheel.deltaClient, undefined))
 
+  ctx.test('modifiers', () => {
+    target.dispatchEvent(
+      WheelTestEvent({deltaX: 1, deltaY: 2, deltaZ: 3, metaKey: true})
+    )
+    assert(wheel.deltaClient, undefined)
+    target.dispatchEvent(
+      WheelTestEvent({deltaX: 1, deltaY: 2, deltaZ: 3, altKey: true})
+    )
+    assert(wheel.deltaClient, undefined)
+    target.dispatchEvent(
+      WheelTestEvent({deltaX: 1, deltaY: 2, deltaZ: 3, ctrlKey: true})
+    )
+    assert(wheel.deltaClient, undefined)
+  })
+
+  ctx.test('untrusted', () => {
+    target.dispatchEvent(
+      Object.assign(new Event('wheel'), {deltaX: 4, deltaY: 5, deltaZ: 6})
+    )
+    assert(wheel.deltaClient, undefined)
+  })
+
   ctx.test('event', () => {
     target.dispatchEvent(WheelTestEvent({deltaX: 1, deltaY: 2, deltaZ: 3}))
     assert(wheel.deltaClient, {x: 1, y: 2, z: 3})
