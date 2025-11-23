@@ -106,7 +106,6 @@ export function parseButton<Tag extends TagFormat>(
   return {pressed, selected, type: json.type ?? 'Button'}
 }
 
-/** @internal */
 export function parseEnt<Tag extends TagFormat>(
   json: Readonly<EntSchema<Tag>>,
   pools: Readonly<PoolMap<Tag>>,
