@@ -1,3 +1,6 @@
+// ╭>°╮┬╭─╮╭──╮┬╭─╮
+// ╰──╰┴╯─╯╯──└┴╯─╯
+
 export {type Font, memProp5x6} from 'mem-font'
 export * from './ents/button-ent.ts'
 export * from './ents/cursor-ent.ts'
