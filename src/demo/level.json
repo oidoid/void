@@ -1,0 +1,75 @@
+{
+  "$schema": "schema/level-file.json",
+  "ents": [
+    {
+      "name": "overlay",
+      "sprite": {
+        "pool": "Overlay",
+        "tag": "background--GreyCheckerboard",
+        "w": "Infinity",
+        "h": "Infinity",
+        "z": "Top"
+      }
+    },
+
+    {
+      "id": "renderToggle",
+      "name": "renderToggle",
+      "text": "render",
+      "sprite": {"w": 64, "h": 22, "x": 50, "y": 25, "z": "UID"},
+      "textUI": {"scale": 2},
+      "ninePatch": {
+        "patch": {
+          "origin": "background--Grape",
+          "n": "background--Bubblegum",
+          "s": "background--Kiwi",
+          "w": "background--Strawberry",
+          "e": "background--Blueberry",
+          "nw": "background--Transparent"
+        },
+        "border": 1,
+        "margin": 2
+      },
+      "button": {
+        "pressed": "background--Bubblegum",
+        "selected": "background--OrangeCheckerboard",
+        "type": "Toggle"
+      }
+    },
+    {
+      "name": "clock",
+      "text": "",
+      "sprite": {"z": "UIF"},
+      "textUI": {"scale": 3},
+      "clock": true
+    },
+    {
+      "name": "logo",
+      "sprite": {"tag": "oidoid--Default", "z": "UIF"},
+      "followCam": {"dir": "SW", "margin": 4}
+    },
+    {
+      "name": "border",
+      "sprite": {"z": "UIG"},
+      "ninePatch": {"patch": {"n": "background--Black"}, "border": 1},
+      "followCam": {"dir": "NW", "fill": "XY"}
+    },
+    {
+      "id": "cursor",
+      "sprite": {"tag": "cursor--Pointer", "z": "Top"},
+      "followCursor": {}
+    },
+
+    {
+      "name": "backpacker",
+      "sprite": {
+        "tag": "backpacker--WalkRight",
+        "x": 7,
+        "y": 7,
+        "z": "C",
+        "stretch": true,
+        "scale": 5
+      }
+    }
+  ]
+}

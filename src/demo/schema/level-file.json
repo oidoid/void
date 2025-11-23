@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/oidoid/void/refs/heads/main/src/demo/schema/level-file.json",
+  "allOf": [{"$ref": "../../../schema/level-file.v0.json"}],
+  "$defs": {
+    "Clock": {"type": "boolean", "description": "clock config."},
+    "Ent": {
+      "allOf": [
+        {"$ref": "../../../schema/level-file.v0.json#/$defs/Ent"},
+        {
+          "type": "object",
+          "properties": {
+            "clock": {"$ref": "#/$defs/Clock", "unevaluatedProperties": false}
+          }
+        }
+      ],
+      "$comment": "to-do: `\"$dynamicAnchor\": \"Ent\"`."
+    },
+    "Pool": {
+      "$ref": "../../../schema/level-file.v0.json#/$defs/Pool",
+      "enum": ["Default", "Overlay"],
+      "$comment": "to-do: `\"$dynamicAnchor\": \"Pool\"`."
+    },
+    "Tag": {
+      "$ref": "../../../schema/level-file.v0.json#/$defs/Tag",
+      "$comment": "to-do: `\"$dynamicAnchor\": \"Tag\"` and populate tags from tools/void.ts."
+    }
+  },
+  "unevaluatedProperties": false,
+  "properties": {
+    "ents": {
+      "allOf": [
+        {"$ref": "../../../schema/level-file.v0.json#/properties/ents"}
+      ],
+      "items": {
+        "$dynamicRef": "#Ent",
+        "$ref": "#/$defs/Ent",
+        "$comment": "to-do: delete root properties once dynamic refs are supported.",
+        "unevaluatedProperties": false
+      }
+    }
+  }
+}

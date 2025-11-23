@@ -19,8 +19,7 @@ export type GameConfig = {atlas?: AtlasJSON; init: InitConfig}
 export type InitConfig = {
   background?: number
   input: InputMode
-  /** undefined means infinite. */
-  minWH?: Partial<WH>
+  minWH: WH
   minScale: number
   mode: RenderMode
   zoomOut: number

@@ -1,7 +1,7 @@
 import {readFile} from 'node:fs/promises'
 import path from 'node:path'
 import schema from '../../schema/config-file.v0.json' with {type: 'json'}
-import type * as V from '../../src/index.ts'
+import * as V from '../../src/index.ts'
 
 export type AtlasConfig = {dir: string; image: string}
 
@@ -27,10 +27,10 @@ export type ConfigFileSchema = {
   preloadAtlas?: AtlasConfig
   init?: {
     background?: string
-    input?: V.InputMode
-    minWH?: Partial<V.WH>
+    input: V.InputMode
+    minWH: V.UnboundedWHSchema
     minScale?: number
-    mode?: V.RenderMode
+    mode: V.RenderMode
     zoomOut?: number
   }
 }
@@ -77,7 +77,9 @@ export function parse(filename: string, str: string): ConfigFile {
         ? parseInt(json.init.background, 16)
         : undefined,
       input: json.init?.input ?? 'Default',
-      minWH: json.init?.minWH,
+      minWH: json.init?.minWH
+        ? V.parseWH(json.init.minWH)
+        : {w: Infinity, h: Infinity},
       minScale: json.init?.minScale ?? 1,
       mode: json.init?.mode ?? 'Int',
       zoomOut: json.init?.zoomOut ?? 0

@@ -3,8 +3,10 @@ import {debug} from '../utils/debug.ts'
 export type PoolOpts<out T extends Block> = {
   alloc(pool: Pool<T>): T
   init?(block: T): void
+  /** bytes per block. */
   allocBytes: number
   minPages?: number
+  /** blocks per page. */
   pageBlocks: number
 }
 

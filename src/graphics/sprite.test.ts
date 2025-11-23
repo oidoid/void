@@ -201,7 +201,7 @@ test('init()', () => {
   assert(draw.w, 0)
   assert(draw.x, 0)
   assert(draw.y, 0)
-  assert<Layer>(draw.z, Layer.Hidden)
+  assert(draw.z, Layer.Hidden)
   assert(draw.zend, false)
 })
 

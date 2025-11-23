@@ -19,7 +19,7 @@ test('defaults', () => {
     init: {
       background: undefined,
       input: 'Default',
-      minWH: undefined,
+      minWH: {w: Infinity, h: Infinity},
       minScale: 1,
       mode: 'Int',
       zoomOut: 0

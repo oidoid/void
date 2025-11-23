@@ -1,0 +1,371 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oidoid.github.io/void/level-file.v0.json",
+  "title": "void Level File Schema",
+  "type": "object",
+  "description": "a JSON representation of a void level file.",
+  "$defs": {
+    "Button": {
+      "type": "object",
+      "description": "button config.",
+      "properties": {
+        "pressed": {
+          "$ref": "#/$defs/SpriteProps",
+          "description": "pressed config.",
+          "unevaluatedProperties": false
+        },
+        "selected": {
+          "$ref": "#/$defs/SpriteProps",
+          "description": "selected config.",
+          "unevaluatedProperties": false
+        },
+        "type": {
+          "description": "whether to operate as push to engage or push to toggle.",
+          "enum": ["Button", "Toggle"]
+        }
+      }
+    },
+    "CompassDir": {
+      "description": "cardinal and ordinal directions and center.",
+      "enum": ["Origin", "N", "S", "W", "E", "NW", "NE", "SW", "SE"]
+    },
+    "Ent": {
+      "$dynamicAnchor": "Ent",
+      "type": "object",
+      "description": "ent config.",
+      "properties": {
+        "button": {"$ref": "#/$defs/Button", "unevaluatedProperties": false},
+        "followCam": {
+          "$ref": "#/$defs/FollowCam",
+          "unevaluatedProperties": false
+        },
+        "followCursor": {
+          "$ref": "#/$defs/FollowCursor",
+          "unevaluatedProperties": false
+        },
+        "id": {"type": "string", "description": "unique lookup identifier."},
+        "name": {"type": "string", "description": "debug identifier."},
+        "ninePatch": {
+          "$ref": "#/$defs/NinePatch",
+          "unevaluatedProperties": false
+        },
+        "sprite": {"$ref": "#/$defs/Sprite", "unevaluatedProperties": false},
+        "text": {"$ref": "#/$defs/Text"},
+        "textUI": {"$ref": "#/$defs/TextUI", "unevaluatedProperties": false}
+      }
+    },
+    "FollowCam": {
+      "type": "object",
+      "description": "follow cam config.",
+      "required": ["dir"],
+      "properties": {
+        "dir": {
+          "$ref": "#/$defs/CompassDir",
+          "description": "position relative to."
+        },
+        "fill": {
+          "$ref": "#/$defs/XYFlag",
+          "description": "whether to adjust the width or height to fill empty space."
+        },
+        "margin": {"$ref": "#/$defs/Margin", "unevaluatedProperties": false},
+        "modulo": {
+          "description": "mod margin. useful for snapping to tile.",
+          "oneOf": [
+            {"type": "integer", "minimum": 0},
+            {"$ref": "#/$defs/UIntXY", "unevaluatedProperties": false}
+          ]
+        }
+      }
+    },
+    "FollowCursor": {
+      "type": "object",
+      "description": "follow cursor config.",
+      "properties": {
+        "keyboard": {
+          "$ref": "#/$defs/Speed",
+          "description": "if greater than zero, follow keyboard movement in pixels per second."
+        },
+        "pick": {
+          "$dynamicRef": "#Tag",
+          "$ref": "#/$defs/Tag",
+          "description": "tag for click state. defaults to point tag.",
+          "$comment": "to-do: delete `$ref` for `$dynamicRef`."
+        }
+      }
+    },
+    "IntXY": {
+      "$ref": "#/$defs/XY",
+      "properties": {"x": {"type": "integer"}, "y": {"type": "integer"}}
+    },
+    "Layer": {
+      "description": "z.",
+      "enum": [
+        "Hidden",
+        "Bottom",
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "UIA",
+        "UIB",
+        "UIC",
+        "UID",
+        "UIE",
+        "UIF",
+        "UIG",
+        "Top"
+      ],
+      "$comment": "to-do: `$dynamicAnchor` and parser support."
+    },
+    "Margin": {
+      "description": "outside spacing.",
+      "oneOf": [
+        {"type": "integer", "minimum": 0},
+        {"$ref": "#/$defs/WH", "unevaluatedProperties": false}
+      ]
+    },
+    "NinePatch": {
+      "type": "object",
+      "description": "nine patch config.",
+      "properties": {
+        "border": {
+          "description": "border config.",
+          "oneOf": [
+            {"type": "integer", "minimum": 0},
+            {
+              "type": "object",
+              "unevaluatedProperties": false,
+              "properties": {
+                "n": {
+                  "type": "integer",
+                  "description": "north border height.",
+                  "minimum": 0
+                },
+                "s": {
+                  "type": "integer",
+                  "description": "south border height.",
+                  "minimum": 0
+                },
+                "w": {
+                  "type": "integer",
+                  "description": "west border width.",
+                  "minimum": 0
+                },
+                "e": {
+                  "type": "integer",
+                  "description": "east border width.",
+                  "minimum": 0
+                }
+              }
+            }
+          ]
+        },
+        "margin": {"$ref": "#/$defs/Margin", "unevaluatedProperties": false},
+        "patch": {
+          "type": "object",
+          "description": "sprite config.",
+          "unevaluatedProperties": false,
+          "properties": {
+            "origin": {
+              "$ref": "#/$defs/SpriteProps",
+              "description": "center patch config.",
+              "unevaluatedProperties": false
+            },
+            "n": {
+              "$ref": "#/$defs/SpriteProps",
+              "description": "north patch config.",
+              "unevaluatedProperties": false
+            },
+            "s": {
+              "$ref": "#/$defs/SpriteProps",
+              "description": "south patch config.",
+              "unevaluatedProperties": false
+            },
+            "w": {
+              "$ref": "#/$defs/SpriteProps",
+              "description": "west patch config.",
+              "unevaluatedProperties": false
+            },
+            "e": {
+              "$ref": "#/$defs/SpriteProps",
+              "description": "east patch config.",
+              "unevaluatedProperties": false
+            },
+            "nw": {
+              "$ref": "#/$defs/SpriteProps",
+              "description": "northwest patch config.",
+              "unevaluatedProperties": false
+            },
+            "ne": {
+              "$ref": "#/$defs/SpriteProps",
+              "description": "northeast patch config.",
+              "unevaluatedProperties": false
+            },
+            "sw": {
+              "$ref": "#/$defs/SpriteProps",
+              "description": "southwest patch config.",
+              "unevaluatedProperties": false
+            },
+            "se": {
+              "$ref": "#/$defs/SpriteProps",
+              "description": "southeast patch config.",
+              "unevaluatedProperties": false
+            }
+          }
+        }
+      }
+    },
+    "Pool": {
+      "$dynamicAnchor": "Pool",
+      "type": "string",
+      "description": "allocator pool.",
+      "$comment": "to-do: `\"enum\": [\"Default\"]` and remove `type` and `$ref` for `$dynamicRef`."
+    },
+    "Speed": {
+      "type": "number",
+      "description": "velocity in pixels per second."
+    },
+    "Sprite": {
+      "type": "object",
+      "description": "sprite config.",
+      "allOf": [
+        {"$ref": "#/$defs/SpriteProps"},
+        {"$ref": "#/$defs/WH"},
+        {"$ref": "#/$defs/XY"}
+      ],
+      "properties": {
+        "scale": {
+          "oneOf": [
+            {"type": "integer", "minimum": 1},
+            {
+              "$ref": "#/$defs/UIntXY",
+              "unevaluatedProperties": false,
+              "properties": {"x": {"minimum": 1}, "y": {"minimum": 1}}
+            }
+          ]
+        }
+      }
+    },
+    "SpriteProps": {
+      "description": "sprite config except box-related.",
+      "oneOf": [
+        {
+          "$dynamicRef": "#Tag",
+          "$ref": "#/$defs/Tag",
+          "$comment": "to-do: delete `$ref` for `$dynamicRef`."
+        },
+        {
+          "type": "object",
+          "properties": {
+            "flip": {"$ref": "#/$defs/XYFlag"},
+            "pool": {
+              "$dynamicRef": "#Pool",
+              "$ref": "#/$defs/Pool",
+              "$comment": "to-do: delete `$ref` for `$dynamicRef`."
+            },
+            "stretch": {
+              "type": "boolean",
+              "description": "wrap texture (default) or stretch to width and height."
+            },
+            "tag": {
+              "$dynamicRef": "#Tag",
+              "$ref": "#/$defs/Tag",
+              "$comment": "to-do: delete `$ref` for `$dynamicRef`."
+            },
+            "z": {"$ref": "#/$defs/Layer"},
+            "zend": {
+              "type": "boolean",
+              "description": "z-order by top (default) or bottom of box."
+            }
+          }
+        }
+      ]
+    },
+    "Tag": {
+      "$dynamicAnchor": "Tag",
+      "type": "string",
+      "description": "animation tag.",
+      "pattern": ".*--.*"
+    },
+    "Text": {"type": "string", "description": "string."},
+    "TextUI": {
+      "type": "object",
+      "description": "text config.",
+      "properties": {
+        "dir": {
+          "$ref": "#/$defs/CompassDir",
+          "description": "position relative to."
+        },
+        "maxW": {
+          "type": "integer",
+          "description": "maximum width.",
+          "minimum": 0,
+          "maximum": 4095
+        },
+        "scale": {
+          "type": "integer",
+          "description": "text scalar.",
+          "minimum": 1
+        }
+      }
+    },
+    "UIntXY": {
+      "$ref": "#/$defs/IntXY",
+      "properties": {"x": {"minimum": 0}, "y": {"minimum": 0}}
+    },
+    "WH": {
+      "$ref": "https://oidoid.github.io/void/config-file.v0.json#/$defs/WH"
+    },
+    "XY": {
+      "type": "object",
+      "description": "horizontal and vertical dimensions.",
+      "properties": {
+        "x": {
+          "type": "number",
+          "description": "horizontal dimension.",
+          "minimum": -131072,
+          "maximum": 131071.984375
+        },
+        "y": {
+          "type": "number",
+          "description": "vertical dimension.",
+          "minimum": -131072,
+          "maximum": 131071.984375
+        }
+      }
+    },
+    "XYFlag": {
+      "description": "horizontal and vertical state.",
+      "enum": ["XY", "X", "Y"]
+    }
+  },
+  "unevaluatedProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "the configuration schema URI.",
+      "default": "https://oidoid.github.io/void/level-file.v0.json"
+    },
+    "ents": {
+      "type": "array",
+      "description": "ents config.",
+      "items": {
+        "$dynamicRef": "#Ent",
+        "$ref": "#/$defs/Ent",
+        "$comment": "to-do: delete `$ref` for `$dynamicRef`."
+      },
+      "uniqueItemProperties": ["id"],
+      "$comment": "`uniqueItemProperties` is ajv-keywords only."
+    },
+    "keepZoo": {
+      "type": "boolean",
+      "description": "don't clear the zoo on load."
+    },
+    "minWH": {
+      "$ref": "https://oidoid.github.io/void/config-file.v0.json#/$defs/MinCamWH",
+      "unevaluatedProperties": false
+    }
+  }
+}

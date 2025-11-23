@@ -5,10 +5,13 @@ import {RenderToggleEnt} from './ents/render-toggle-ent.ts'
 import {WorkCounterEnt} from './ents/work-counter-ent.ts'
 import type {Tag} from './types/tag.ts'
 
-export class Game extends V.Void<Tag> {
-  declare readonly pool: V.Void<Tag>['pool'] & {
+declare module '../index.ts' {
+  interface PoolMap<Tag extends V.TagFormat> {
     overlay: V.Pool<V.Sprite<Tag>>
   }
+}
+
+export class Game extends V.Void<Tag> {
   #renderToggle: RenderToggleEnt
   #workCounter: WorkCounterEnt
 

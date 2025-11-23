@@ -12,8 +12,8 @@ beforeEach(() => {
   oldNow = performance.now
   globalThis.document = doc as Document
   globalThis.cancelAnimationFrame = () => (onFrame = undefined)
-  globalThis.requestAnimationFrame = cb => {
-    onFrame = cb as () => void
+  globalThis.requestAnimationFrame = hook => {
+    onFrame = hook as () => void
     return 1
   }
 })

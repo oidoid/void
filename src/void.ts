@@ -7,6 +7,7 @@ import {drawableBytes, Sprite} from './graphics/sprite.ts'
 import {type DefaultButton, Input} from './input/input.ts'
 import {Looper} from './looper.ts'
 import {Pool, type PoolOpts} from './mem/pool.ts'
+import type {PoolMap} from './mem/pool-map.ts'
 import type {GameConfig} from './types/game-config.ts'
 import type {Millis, Secs} from './types/time.ts'
 import {initCanvas} from './utils/canvas-util.ts'
@@ -30,7 +31,7 @@ export class Void<
   readonly cam: Cam = new Cam()
   readonly canvas: HTMLCanvasElement
   readonly input: Input<Button>
-  readonly pool: {default: Pool<Sprite<Tag>>}
+  readonly pool: PoolMap<Tag>
   readonly preload: Atlas<Tag>
   readonly renderer: Renderer
   readonly zoo: Zoo<Tag> = new Zoo()
@@ -51,9 +52,8 @@ export class Void<
         () => this.onPoll()
       )
 
-    const mode = opts.config.init.mode
     initMetaViewport()
-    this.canvas = initCanvas(opts.canvas, mode)
+    this.canvas = initCanvas(opts.canvas, opts.config.init.mode)
     if (!this.canvas.parentElement) throw Error('no canvas parent')
     this.#backgroundRGBA =
       opts.config.init.background ??
@@ -62,11 +62,8 @@ export class Void<
       )
     initBody(this.canvas, this.#backgroundRGBA)
 
-    this.cam.minWH = {
-      w: opts.config.init.minWH?.w ?? Infinity,
-      h: opts.config.init.minWH?.h ?? Infinity
-    }
-    this.cam.mode = mode
+    this.cam.minWH = opts.config.init.minWH
+    this.cam.mode = opts.config.init.mode
     this.cam.update(this.canvas)
 
     this.input = new Input(this.cam, this.canvas)

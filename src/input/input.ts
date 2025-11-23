@@ -316,11 +316,11 @@ export class Input<Button extends string> {
     return on.sort()
   }
 
-  set onEvent(cb: () => void) {
-    this.#gamepad.onEvent = cb
-    this.#keyboard.onEvent = cb
-    this.#pointer.onEvent = cb
-    this.#wheel.onEvent = cb
+  set onEvent(hook: () => void) {
+    this.#gamepad.onEvent = hook
+    this.#keyboard.onEvent = hook
+    this.#pointer.onEvent = hook
+    this.#wheel.onEvent = hook
   }
 
   /** doesn't consider handled. */

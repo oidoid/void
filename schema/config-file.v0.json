@@ -25,10 +25,10 @@
     "MinCamWH": {
       "$ref": "#/$defs/WH",
       "description": "min cam dimensions. infinity always uses min scale.",
-      "properties": {"w": {"default": "Infinity"}, "h": {"default": "Infinity"}}
-    },
-    "UnboundedUInt": {
-      "oneOf": [{"type": "integer", "minimum": 0}, {"enum": ["Infinity"]}]
+      "properties": {
+        "w": {"$ref": "#/$defs/UnboundedUInt"},
+        "h": {"$ref": "#/$defs/UnboundedUInt"}
+      }
     },
     "RGBA": {
       "type": "string",
@@ -36,12 +36,25 @@
       "pattern": "^[A-Fa-f0-9]{8}$",
       "examples": ["01234567"]
     },
+    "UnboundedUInt": {
+      "oneOf": [{"type": "integer", "minimum": 0}, {"enum": ["Infinity"]}]
+    },
     "WH": {
       "type": "object",
       "description": "area.",
       "properties": {
-        "w": {"$ref": "#/$defs/UnboundedUInt", "description": "width."},
-        "h": {"$ref": "#/$defs/UnboundedUInt", "description": "height."}
+        "w": {
+          "type": "integer",
+          "description": "width.",
+          "minimum": 0,
+          "maximum": 4095
+        },
+        "h": {
+          "type": "integer",
+          "description": "height.",
+          "minimum": 0,
+          "maximum": 4095
+        }
       }
     }
   },
