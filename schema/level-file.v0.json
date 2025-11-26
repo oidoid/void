@@ -5,6 +5,39 @@
   "type": "object",
   "description": "a JSON representation of a void level file.",
   "$defs": {
+    "Border": {
+      "description": "border area config.",
+      "oneOf": [
+        {"type": "integer", "minimum": 0},
+        {"$ref": "#/$defs/XY", "unevaluatedProperties": false},
+        {
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "n": {
+              "type": "integer",
+              "description": "north border height.",
+              "minimum": 0
+            },
+            "s": {
+              "type": "integer",
+              "description": "south border height.",
+              "minimum": 0
+            },
+            "w": {
+              "type": "integer",
+              "description": "west border width.",
+              "minimum": 0
+            },
+            "e": {
+              "type": "integer",
+              "description": "east border width.",
+              "minimum": 0
+            }
+          }
+        }
+      ]
+    },
     "Button": {
       "type": "object",
       "description": "button config.",
@@ -67,7 +100,11 @@
           "$ref": "#/$defs/XYFlag",
           "description": "whether to adjust the width or height to fill empty space."
         },
-        "margin": {"$ref": "#/$defs/Margin", "unevaluatedProperties": false},
+        "margin": {
+          "$ref": "#/$defs/Border",
+          "description": "spacing outside the sprite.",
+          "unevaluatedProperties": false
+        },
         "modulo": {
           "description": "mod margin. useful for snapping to tile.",
           "oneOf": [
@@ -119,50 +156,20 @@
       ],
       "$comment": "to-do: `$dynamicAnchor` and parser support."
     },
-    "Margin": {
-      "description": "outside spacing.",
-      "oneOf": [
-        {"type": "integer", "minimum": 0},
-        {"$ref": "#/$defs/WH", "unevaluatedProperties": false}
-      ]
-    },
     "NinePatch": {
       "type": "object",
       "description": "nine patch config.",
       "properties": {
         "border": {
-          "description": "border config.",
-          "oneOf": [
-            {"type": "integer", "minimum": 0},
-            {
-              "type": "object",
-              "unevaluatedProperties": false,
-              "properties": {
-                "n": {
-                  "type": "integer",
-                  "description": "north border height.",
-                  "minimum": 0
-                },
-                "s": {
-                  "type": "integer",
-                  "description": "south border height.",
-                  "minimum": 0
-                },
-                "w": {
-                  "type": "integer",
-                  "description": "west border width.",
-                  "minimum": 0
-                },
-                "e": {
-                  "type": "integer",
-                  "description": "east border width.",
-                  "minimum": 0
-                }
-              }
-            }
-          ]
+          "$ref": "#/$defs/Border",
+          "description": "widths and heights of patches.",
+          "unevaluatedProperties": false
         },
-        "margin": {"$ref": "#/$defs/Margin", "unevaluatedProperties": false},
+        "pad": {
+          "$ref": "#/$defs/Border",
+          "description": "spacing between sprite and patches.",
+          "unevaluatedProperties": false
+        },
         "patch": {
           "type": "object",
           "description": "sprite config.",

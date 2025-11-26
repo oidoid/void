@@ -1,8 +1,7 @@
 import type {TagFormat} from '../graphics/atlas.ts'
 import type {Sprite} from '../graphics/sprite.ts'
-import type {CardinalDir, CompassDir, WH, XY} from '../types/geo.ts'
+import type {Border, CompassDir, XY} from '../types/geo.ts'
 import type {Void} from '../void.ts'
-import type {FollowCursor} from './follow-cursor.ts'
 
 export interface Ent<Tag extends TagFormat> {
   free?(): void
@@ -31,13 +30,18 @@ export interface Ent<Tag extends TagFormat> {
 export type FollowCam = {
   dir: CompassDir
   fill?: XYFlag
-  margin: WH
+  margin: Border
   modulo: XY
 }
-
+export type FollowCursor<Tag extends TagFormat> = {
+  // readonly bounds: Box
+  keyboard: number
+  readonly pick?: Tag
+  // readonly point: Tag
+}
 export type NinePatch<Tag extends TagFormat> = {
-  border: {[dir in Lowercase<CardinalDir>]: number}
-  margin: WH
+  border: Border
+  pad: Border
   patch: {[dir in Lowercase<CompassDir>]?: Sprite<Tag>}
 }
 export type TextUI = {dir: CompassDir; maxW: number; scale: number}

@@ -1,3 +1,5 @@
+export type Border = {[dir in Lowercase<CardinalDir>]: number}
+
 export type Box = XY & WH
 export type WH = {w: number; h: number}
 export type XY = {x: number; y: number}

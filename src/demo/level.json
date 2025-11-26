@@ -19,6 +19,8 @@
       "sprite": {"w": 64, "h": 22, "x": 50, "y": 25, "z": "UID"},
       "textUI": {"scale": 2},
       "ninePatch": {
+        "border": 1,
+        "pad": 2,
         "patch": {
           "origin": "background--Grape",
           "n": "background--Bubblegum",
@@ -26,9 +28,7 @@
           "w": "background--Strawberry",
           "e": "background--Blueberry",
           "nw": "background--Transparent"
-        },
-        "border": 1,
-        "margin": 2
+        }
       },
       "button": {
         "pressed": "background--Bubblegum",

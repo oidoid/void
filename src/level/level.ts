@@ -3,17 +3,17 @@ import type {
   ButtonType,
   Ent,
   FollowCam,
+  FollowCursor,
   NinePatch,
   TextUI,
   XYFlag
 } from '../ents/ent.ts'
-import type {FollowCursor} from '../ents/follow-cursor.ts'
 import type {TagFormat} from '../graphics/atlas.ts'
 import {Layer} from '../graphics/layer.ts'
 import {drawableMaxWH, type Sprite} from '../graphics/sprite.ts'
 import type {Pool} from '../mem/pool.ts'
 import type {PoolMap} from '../mem/pool-map.ts'
-import type {CardinalDir, CompassDir, WH, XY} from '../types/geo.ts'
+import type {Border, CompassDir, WH, XY} from '../types/geo.ts'
 import {uncapitalize} from '../utils/str-util.ts'
 
 export type Level<Tag extends TagFormat> = {
@@ -22,6 +22,7 @@ export type Level<Tag extends TagFormat> = {
   minWH: WH
 }
 
+export type BorderSchema = number | Partial<XY> | Partial<Border>
 export type ButtonSchema<Tag extends TagFormat> = {
   pressed?: SpriteSchema<Tag> | Tag
   selected?: SpriteSchema<Tag> | Tag
@@ -45,7 +46,7 @@ export interface EntSchema<Tag extends TagFormat> {
 export type FollowCamSchema = {
   dir: CompassDir
   fill?: XYFlag
-  margin?: number | Partial<WH>
+  margin?: BorderSchema
   modulo?: number | Partial<XY>
 }
 export type FollowCursorSchema<Tag extends TagFormat> = {
@@ -60,8 +61,8 @@ export type LevelSchema<Tag extends TagFormat> = {
   minWH?: UnboundedWHSchema
 }
 export type NinePatchSchema<Tag extends TagFormat> = {
-  border?: number | {[dir in Lowercase<CardinalDir>]: number}
-  margin?: number | Partial<WH>
+  border?: BorderSchema
+  pad?: BorderSchema
   patch: {[dir in Lowercase<CompassDir>]?: SpriteSchema<Tag> | Tag}
 }
 export type PoolSchema = 'Default' | string
@@ -94,6 +95,21 @@ export function parseLevel<Tag extends TagFormat>(
     ents: json.ents?.map(ent => parseEnt(ent, pools, hook)) ?? [],
     keepZoo: json.keepZoo ?? false,
     minWH: json.minWH ? parseWH(json.minWH) : {w: Infinity, h: Infinity}
+  }
+}
+
+export function parseBorder(json: Readonly<BorderSchema> | undefined): Border {
+  if (!json || typeof json === 'number') {
+    const w = json ?? 0
+    return {n: w, s: w, w, e: w}
+  }
+  if ('x' in json || 'y' in json)
+    return {n: json.y ?? 0, s: json.y ?? 0, w: json.x ?? 0, e: json.x ?? 0}
+  return {
+    n: (json as Partial<Border>).n ?? 0,
+    s: (json as Partial<Border>).s ?? 0,
+    w: (json as Partial<Border>).w ?? 0,
+    e: (json as Partial<Border>).e ?? 0
   }
 }
 
@@ -153,21 +169,6 @@ export function parseNinePatch<Tag extends TagFormat>(
   json: Readonly<NinePatchSchema<Tag>>,
   pools: Readonly<PoolMap<Tag>>
 ): NinePatch<Tag> {
-  let border
-  if (typeof json.border === 'object')
-    border = {
-      n: json.border.n ?? 0,
-      s: json.border.s ?? 0,
-      w: json.border.w ?? 0,
-      e: json.border.e ?? 0
-    }
-  else {
-    const w = json.border ?? 0
-    border = {n: w, s: w, w: w, e: w}
-  }
-
-  const margin = parseWH(json.margin ?? 0)
-
   const patch = {
     origin:
       json.patch.origin == null
@@ -183,7 +184,7 @@ export function parseNinePatch<Tag extends TagFormat>(
     se: json.patch.se == null ? undefined : parseSprite(json.patch.se, pools)
   }
 
-  return {border, margin, patch}
+  return {border: parseBorder(json.border), pad: parseBorder(json.pad), patch}
 }
 
 export function parseFollowCursor<Tag extends TagFormat>(
@@ -196,7 +197,7 @@ export function parseFollowCam(json: Readonly<FollowCamSchema>): FollowCam {
   return {
     dir: json.dir,
     fill: json.fill,
-    margin: parseWH(json.margin ?? 0),
+    margin: parseBorder(json.margin ?? 0),
     modulo: parseXY(json.modulo ?? 0)
   }
 }

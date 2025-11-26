@@ -10,6 +10,7 @@ import type {Box} from '../types/geo.ts'
 import {
   type ComponentHook,
   type EntSchema,
+  parseBorder,
   parseButton,
   parseEnt,
   parseEntComponent,
@@ -53,6 +54,12 @@ const atlas: Readonly<Atlas<Tag>> = {
   celXYWH: [],
   tags: ['stem--A', 'stem--B']
 }
+
+test('parseBorder()', () => {
+  assert(parseBorder(3), {n: 3, s: 3, w: 3, e: 3})
+  assert(parseBorder({x: 2, y: 1}), {n: 1, s: 1, w: 2, e: 2})
+  assert(parseBorder({n: 4, w: 5}), {n: 4, s: 0, w: 5, e: 0})
+})
 
 test('parseButton()', () => {
   const pools = TestPools()
@@ -147,7 +154,7 @@ test('parseEntComponent() routes fields', () => {
   )
   assert(parseEntComponent(json, 'ninePatch', pools), {
     border: {n: 1, s: 1, w: 1, e: 1},
-    margin: {w: 0, h: 0},
+    pad: {n: 0, s: 0, w: 0, e: 0},
     patch: {
       origin: undefined,
       n: undefined,
@@ -163,7 +170,7 @@ test('parseEntComponent() routes fields', () => {
   assert(parseEntComponent(json, 'followCam', pools), {
     dir: 'N',
     fill: undefined,
-    margin: {w: 2, h: 2},
+    margin: {n: 2, s: 2, w: 2, e: 2},
     modulo: {x: 0, y: 0}
   })
   assert(parseEntComponent(json, 'followCursor', pools), {
@@ -190,27 +197,37 @@ test('parseFollowCam()', () => {
   assert(parseFollowCam({dir: 'Origin'}), {
     dir: 'Origin',
     fill: undefined,
-    margin: {w: 0, h: 0},
+    margin: {n: 0, s: 0, w: 0, e: 0},
     modulo: {x: 0, y: 0}
   })
 
   assert(parseFollowCam({dir: 'NE', fill: 'XY', margin: 3, modulo: 5}), {
     dir: 'NE',
     fill: 'XY',
-    margin: {w: 3, h: 3},
+    margin: {n: 3, s: 3, w: 3, e: 3},
     modulo: {x: 5, y: 5}
   })
 
   assert(parseFollowCam({dir: 'S', margin: {w: 1}, modulo: {y: 2}}), {
     dir: 'S',
     fill: undefined,
-    margin: {w: 1, h: 0},
+    margin: {n: 0, s: 0, w: 1, e: 0},
     modulo: {x: 0, y: 2}
+  })
+
+  assert(parseFollowCam({dir: 'S', margin: {y: 1}, modulo: {}}), {
+    dir: 'S',
+    fill: undefined,
+    margin: {n: 1, s: 1, w: 0, e: 0},
+    modulo: {x: 0, y: 0}
   })
 })
 
 test('parseFollowCursor()', () => {
-  assert(parseFollowCursor({}), {keyboard: 0, pick: undefined})
+  assert(parseFollowCursor({}), {
+    keyboard: 0,
+    pick: undefined
+  })
   assert(parseFollowCursor({keyboard: 2, pick: 'stem--B'}), {
     keyboard: 2,
     pick: 'stem--B'
@@ -252,13 +269,13 @@ test('parseNinePatch()', () => {
   const nineA = parseNinePatch(
     {
       border: 2,
-      margin: 3,
+      pad: 3,
       patch: {origin: {tag: 'stem--A'}, n: {tag: 'stem--B'}}
     },
     pools
   )
   assert(nineA.border, {n: 2, s: 2, w: 2, e: 2})
-  assert(nineA.margin, {w: 3, h: 3})
+  assert(nineA.pad, {n: 3, s: 3, w: 3, e: 3})
   assert(nineA.patch.origin?.tag, 'stem--A')
   assert(nineA.patch.n?.tag, 'stem--B')
   assert(nineA.patch.s, undefined)
@@ -273,13 +290,13 @@ test('parseNinePatch()', () => {
   const nineC = parseNinePatch(
     {
       border: {n: 1, s: 2, w: 3, e: 4},
-      margin: {w: 7},
+      pad: {w: 7},
       patch: {nw: 'stem--A', se: 'stem--B'}
     },
     pools
   )
   assert(nineC.border, {n: 1, s: 2, w: 3, e: 4})
-  assert(nineC.margin, {w: 7, h: 0})
+  assert(nineC.pad, {n: 0, s: 0, w: 7, e: 0})
   assert(nineC.patch.nw?.tag, 'stem--A')
   assert(nineC.patch.se?.tag, 'stem--B')
 })
