@@ -1,4 +1,4 @@
-import type {TagFormat} from '../graphics/atlas.ts'
+import type {AnyTag} from '../graphics/atlas.ts'
 import type {Layer} from '../graphics/layer.ts'
 import type {Sprite} from '../graphics/sprite.ts'
 import {
@@ -13,7 +13,7 @@ import {
 import type {Void} from '../void.ts'
 import type {Ent} from './ent.ts'
 
-export class FollowCamEnt<Tag extends TagFormat> implements Ent<Tag> {
+export class FollowCamEnt<Tag extends AnyTag> implements Ent<Tag> {
   #fill: 'X' | 'Y' | 'XY' | undefined
   #invalid: boolean = true
   readonly #margin: WH = {w: 0, h: 0}

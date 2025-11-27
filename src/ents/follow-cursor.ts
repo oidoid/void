@@ -1,4 +1,4 @@
-// export class FollowCursorSystem<Tag extends TagFormat> {
+// export class FollowCursorSystem<Tag extends AnyTag> {
 //   /** returns true if a render is required. */
 //   update?(
 //     v: Void<Tag, string>,

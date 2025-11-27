@@ -1,9 +1,9 @@
 import {
   type Anim,
+  type AnyTag,
   type Atlas,
   animCels,
-  celMillis,
-  type TagFormat
+  celMillis
 } from '../graphics/atlas.ts'
 import type {Block} from '../mem/pool.ts'
 import {type Box, boxHits, type WH, type XY} from '../types/geo.ts'
@@ -241,7 +241,7 @@ export abstract class Drawable implements Block, Box {
   }
 }
 
-export class Sprite<Tag extends TagFormat> extends Drawable {
+export class Sprite<Tag extends AnyTag> extends Drawable {
   readonly #atlas: Readonly<Atlas<Tag>>
   #hitbox: Box | undefined
   #hurtbox: Box | undefined

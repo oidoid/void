@@ -1,7 +1,7 @@
 import type {Font} from 'mem-font'
-import type {TagFormat} from '../graphics/atlas.ts'
+import type {AnyTag} from '../graphics/atlas.ts'
 
-export function fontCharToTag(font: Readonly<Font>, char: string): TagFormat {
+export function fontCharToTag(font: Readonly<Font>, char: string): AnyTag {
   let pt = char.codePointAt(0)
   if (pt == null || pt > 0xff) pt = 63 // ?
   return `${font.id}--${pt.toString(16).padStart(2, '0')}`

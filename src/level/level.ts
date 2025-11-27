@@ -8,7 +8,7 @@ import type {
   TextUI,
   XYFlag
 } from '../ents/ent.ts'
-import type {TagFormat} from '../graphics/atlas.ts'
+import type {AnyTag} from '../graphics/atlas.ts'
 import {Layer} from '../graphics/layer.ts'
 import {drawableMaxWH, type Sprite} from '../graphics/sprite.ts'
 import type {Pool} from '../mem/pool.ts'
@@ -17,21 +17,21 @@ import type {Border, CompassDir, WH, XY} from '../types/geo.ts'
 import {uncapitalize} from '../utils/str-util.ts'
 
 export type OrderByComponent = {
-  [K in keyof Ent<TagFormat>]?: number
+  [K in keyof Ent<AnyTag>]?: number
 }
-export type Level<Tag extends TagFormat> = {
+export type Level<Tag extends AnyTag> = {
   ents: Ent<Tag>[]
   keepZoo: boolean
   minWH: WH
 }
 
 export type BorderSchema = number | Partial<XY> | Partial<Border>
-export type ButtonSchema<Tag extends TagFormat> = {
+export type ButtonSchema<Tag extends AnyTag> = {
   pressed?: SpriteSchema<Tag> | Tag
   selected?: SpriteSchema<Tag> | Tag
   type?: ButtonType
 }
-export interface EntSchema<Tag extends TagFormat> {
+export interface EntSchema<Tag extends AnyTag> {
   button?: ButtonSchema<Tag>
   followCam?: FollowCamSchema
   followCursor?: FollowCursorSchema<Tag>
@@ -52,24 +52,24 @@ export type FollowCamSchema = {
   margin?: BorderSchema
   modulo?: number | Partial<XY>
 }
-export type FollowCursorSchema<Tag extends TagFormat> = {
+export type FollowCursorSchema<Tag extends AnyTag> = {
   keyboard?: number
   pick?: Tag
 }
 export type LayerSchema = keyof typeof Layer
-export type LevelSchema<Tag extends TagFormat> = {
+export type LevelSchema<Tag extends AnyTag> = {
   $schema?: string
   ents?: EntSchema<Tag>[]
   keepZoo?: boolean
   minWH?: UnboundedWHSchema
 }
-export type NinePatchSchema<Tag extends TagFormat> = {
+export type NinePatchSchema<Tag extends AnyTag> = {
   border?: BorderSchema
   pad?: BorderSchema
   patch: {[dir in Lowercase<CompassDir>]?: SpriteSchema<Tag> | Tag}
 }
 export type PoolSchema = 'Default' | string
-export type SpriteSchema<Tag extends TagFormat> = {
+export type SpriteSchema<Tag extends AnyTag> = {
   flip?: XYFlag
   pool?: PoolSchema
   stretch?: boolean
@@ -83,7 +83,7 @@ export type UnboundedWHSchema = {
   h?: number | 'Infinity'
 }
 
-export type ComponentHook<Tag extends TagFormat> = (
+export type ComponentHook<Tag extends AnyTag> = (
   json: Readonly<EntSchema<Tag>>,
   k: keyof EntSchema<Tag>,
   pools: Readonly<PoolMap<Tag>>
@@ -96,7 +96,7 @@ export const parseOrderByComponent: Readonly<OrderByComponent> = {
   sprite: 1000
 }
 
-export function parseLevel<Tag extends TagFormat>(
+export function parseLevel<Tag extends AnyTag>(
   json: Readonly<LevelSchema<Tag>>,
   pools: Readonly<PoolMap<Tag>>,
   hook: ComponentHook<Tag>
@@ -123,7 +123,7 @@ export function parseBorder(json: Readonly<BorderSchema> | undefined): Border {
   }
 }
 
-export function parseButton<Tag extends TagFormat>(
+export function parseButton<Tag extends AnyTag>(
   json: Readonly<ButtonSchema<Tag>>,
   pools: Readonly<PoolMap<Tag>>
 ): Button<Tag> {
@@ -134,7 +134,7 @@ export function parseButton<Tag extends TagFormat>(
   return {pressed, selected, type: json.type ?? 'Button'}
 }
 
-export function parseEnt<Tag extends TagFormat>(
+export function parseEnt<Tag extends AnyTag>(
   json: Readonly<EntSchema<Tag>>,
   pools: Readonly<PoolMap<Tag>>,
   hook: ComponentHook<Tag>,
@@ -148,7 +148,7 @@ export function parseEnt<Tag extends TagFormat>(
   return ent
 }
 
-export function parseEntComponent<Tag extends TagFormat>(
+export function parseEntComponent<Tag extends AnyTag>(
   json: Readonly<EntSchema<Tag>>,
   k: keyof EntSchema<Tag>,
   pools: Readonly<PoolMap<Tag>>
@@ -176,7 +176,7 @@ export function parseEntComponent<Tag extends TagFormat>(
   }
 }
 
-export function parseNinePatch<Tag extends TagFormat>(
+export function parseNinePatch<Tag extends AnyTag>(
   json: Readonly<NinePatchSchema<Tag>>,
   pools: Readonly<PoolMap<Tag>>
 ): NinePatch<Tag> {
@@ -198,7 +198,7 @@ export function parseNinePatch<Tag extends TagFormat>(
   return {border: parseBorder(json.border), pad: parseBorder(json.pad), patch}
 }
 
-export function parseFollowCursor<Tag extends TagFormat>(
+export function parseFollowCursor<Tag extends AnyTag>(
   json: Readonly<FollowCursorSchema<Tag>>
 ): FollowCursor<Tag> {
   return {keyboard: json.keyboard ?? 0, pick: json.pick}
@@ -213,7 +213,7 @@ export function parseFollowCam(json: Readonly<FollowCamSchema>): FollowCam {
   }
 }
 
-export function parseSprite<Tag extends TagFormat>(
+export function parseSprite<Tag extends AnyTag>(
   json:
     | Readonly<
         SpriteSchema<Tag> &
@@ -275,7 +275,7 @@ export function parseXY(json: Readonly<Partial<XY>> | number): XY {
  * order JSON keys by priority with fallback to insertion order.
  * @internal
  */
-export function componentKeys<Tag extends TagFormat>(
+export function componentKeys<Tag extends AnyTag>(
   json: Readonly<EntSchema<Tag>>,
   order: Readonly<OrderByComponent>
 ): (keyof Ent<Tag>)[] {

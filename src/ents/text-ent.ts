@@ -1,5 +1,5 @@
 import {memProp5x6} from 'mem-font'
-import type {TagFormat} from '../graphics/atlas.ts'
+import type {AnyTag} from '../graphics/atlas.ts'
 import {Layer} from '../graphics/layer.ts'
 import type {Sprite} from '../graphics/sprite.ts'
 import {fontCharToTag} from '../text/font.ts'
@@ -8,12 +8,12 @@ import {type WH, type XY, xyEq} from '../types/geo.ts'
 import type {Void} from '../void.ts'
 import type {Ent} from './ent.ts'
 
-export class TextEnt implements Ent<TagFormat> {
+export class TextEnt implements Ent<AnyTag> {
   #maxW: number = Infinity
   #layout: 'Rendered' | 'Updated' | 'Outdated' = 'Outdated'
   #z: Layer = Layer.UIG
   #scale: number = 1
-  readonly #sprites: Sprite<TagFormat>[] = []
+  readonly #sprites: Sprite<AnyTag>[] = []
   #str: string = ''
   #wh: WH = {w: 0, h: 0}
   readonly #xy: XY = {x: 0, y: 0}
@@ -22,7 +22,7 @@ export class TextEnt implements Ent<TagFormat> {
     for (const sprite of this.#sprites) sprite.free()
   }
 
-  layout(v: Void<TagFormat, string>): boolean {
+  layout(v: Void<AnyTag, string>): boolean {
     if (this.#layout !== 'Outdated') return false
     let len = 0
     const layout = layoutText({
@@ -80,7 +80,7 @@ export class TextEnt implements Ent<TagFormat> {
     this.#layout = 'Outdated'
   }
 
-  update(v: Void<TagFormat, string>): boolean | undefined {
+  update(v: Void<AnyTag, string>): boolean | undefined {
     if (this.#layout === 'Rendered') return
     this.layout(v)
     this.#layout = 'Rendered'

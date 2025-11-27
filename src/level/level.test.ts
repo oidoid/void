@@ -1,6 +1,6 @@
 import {describe, test} from 'node:test'
 import type {Button, Ent} from '../ents/ent.ts'
-import type {Anim, Atlas, TagFormat} from '../graphics/atlas.ts'
+import type {Anim, AnyTag, Atlas} from '../graphics/atlas.ts'
 import {Layer} from '../graphics/layer.ts'
 import {drawableBytes, Sprite} from '../graphics/sprite.ts'
 import {Pool} from '../mem/pool.ts'
@@ -29,20 +29,20 @@ import {
 
 declare module '../ents/ent.ts' {
   // biome-ignore lint/correctness/noUnusedVariables:;
-  interface Ent<Tag extends TagFormat> {
+  interface Ent<Tag extends AnyTag> {
     widget?: number
   }
 }
 
 declare module './level.ts' {
   // biome-ignore lint/correctness/noUnusedVariables:;
-  interface EntSchema<Tag extends TagFormat> {
+  interface EntSchema<Tag extends AnyTag> {
     widget?: {gears: number}
   }
 }
 
 declare module '../mem/pool-map.ts' {
-  interface PoolMap<Tag extends TagFormat> {
+  interface PoolMap<Tag extends AnyTag> {
     secondary: Pool<Sprite<Tag>>
   }
 }

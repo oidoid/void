@@ -6,7 +6,7 @@ import {WorkCounterEnt} from './ents/work-counter-ent.ts'
 import type {Tag} from './types/tag.ts'
 
 declare module '../index.ts' {
-  interface PoolMap<Tag extends V.TagFormat> {
+  interface PoolMap<Tag extends V.AnyTag> {
     overlay: V.Pool<V.Sprite<Tag>>
   }
 }

@@ -1,5 +1,5 @@
 import {Zoo} from './ents/zoo.ts'
-import type {Anim, Atlas, TagFormat} from './graphics/atlas.ts'
+import type {Anim, AnyTag, Atlas} from './graphics/atlas.ts'
 import {parseAtlas} from './graphics/atlas-parser.ts'
 import {Cam} from './graphics/cam.ts'
 import {Renderer} from './graphics/renderer.ts'
@@ -16,7 +16,7 @@ import {DelayInterval} from './utils/delay-interval.ts'
 import {initBody, initMetaViewport} from './utils/dom-util.ts'
 import {loadImage} from './utils/fetch-util.ts'
 
-export type VoidOpts<Tag extends TagFormat> = {
+export type VoidOpts<Tag extends AnyTag> = {
   canvas?: HTMLCanvasElement
   config: GameConfig
   poll?: {delay?: () => Millis; period: Millis}
@@ -24,10 +24,7 @@ export type VoidOpts<Tag extends TagFormat> = {
   sprites?: Partial<Omit<PoolOpts<Sprite<Tag>>, 'alloc' | 'allocBytes'>>
 }
 
-export class Void<
-  Tag extends TagFormat,
-  Button extends string = DefaultButton
-> {
+export class Void<Tag extends AnyTag, Button extends string = DefaultButton> {
   readonly cam: Cam = new Cam()
   readonly canvas: HTMLCanvasElement
   readonly input: Input<Button>

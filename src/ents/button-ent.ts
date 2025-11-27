@@ -1,4 +1,4 @@
-import type {TagFormat} from '../graphics/atlas.ts'
+import type {AnyTag} from '../graphics/atlas.ts'
 import {Layer, layerOffset} from '../graphics/layer.ts'
 import type {Sprite} from '../graphics/sprite.ts'
 import {type XY, xyEq} from '../types/geo.ts'
@@ -7,7 +7,7 @@ import type {Ent} from './ent.ts'
 import {NinePatchEnt, type NinePatchOpts} from './nine-patch-ent.ts'
 import {TextEnt} from './text-ent.ts'
 
-export type ButtonOpts<Tag extends TagFormat> = {
+export type ButtonOpts<Tag extends AnyTag> = {
   button: Omit<NinePatchOpts<Tag>, 'x' | 'y' | 'wh'>
   pressed: {tag: Tag; z?: Layer}
   selected: {tag: Tag; z?: Layer}
@@ -19,7 +19,7 @@ export type ButtonOpts<Tag extends TagFormat> = {
   y?: number
 }
 
-export class ButtonEnt<Tag extends TagFormat, Button extends string>
+export class ButtonEnt<Tag extends AnyTag, Button extends string>
   implements Ent<Tag>
 {
   readonly #button: NinePatchEnt<Tag>

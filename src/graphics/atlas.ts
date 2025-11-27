@@ -8,7 +8,7 @@ export const animMillis: Millis = 1000 as Millis
 /** 62.5 millis. */
 export const celMillis: Millis = (animMillis / animCels) as Millis
 
-export type Atlas<Tag extends TagFormat> = {
+export type Atlas<Tag extends AnyTag> = {
   anim: {[tag in Tag]: Anim}
   /**
    * cell source XYWH by `Anim.id` and `Anim.cel`. every animation is padded to
@@ -38,4 +38,4 @@ export type Anim = {
 }
 
 /** `--tagname-format={filestem}--{animation}`. */
-export type TagFormat = `${string}--${string}`
+export type AnyTag = `${string}--${string}`

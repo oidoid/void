@@ -1,4 +1,4 @@
-import type {TagFormat} from '../graphics/atlas.ts'
+import type {AnyTag} from '../graphics/atlas.ts'
 import type {Layer} from '../graphics/layer.ts'
 import type {Sprite} from '../graphics/sprite.ts'
 import {
@@ -12,7 +12,7 @@ import {
 import type {Void} from '../void.ts'
 import type {Ent} from './ent.ts'
 
-export type NinePatchOpts<Tag extends TagFormat> = {
+export type NinePatchOpts<Tag extends AnyTag> = {
   margin?: Partial<WH>
   n: NinePatchDirOpts<Tag>
   origin: NinePatchDirOpts<Tag>
@@ -32,13 +32,13 @@ export type NinePatchOpts<Tag extends TagFormat> = {
     | 's'
     | 'sw']?: NinePatchDirOpts<Tag>
 }
-export type NinePatchDirOpts<Tag extends TagFormat> = {
+export type NinePatchDirOpts<Tag extends AnyTag> = {
   flip?: {x?: boolean; y?: boolean}
   tag: Tag
   stretch?: boolean
 }
 
-export class NinePatchEnt<Tag extends TagFormat> implements Ent<Tag> {
+export class NinePatchEnt<Tag extends AnyTag> implements Ent<Tag> {
   readonly #dir: {readonly [dir in Lowercase<CompassDir>]: Sprite<Tag>}
   readonly #margin: Readonly<WH>
   #invalid: boolean = true

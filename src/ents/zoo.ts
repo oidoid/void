@@ -1,4 +1,4 @@
-import type {TagFormat} from '../graphics/atlas.ts'
+import type {AnyTag} from '../graphics/atlas.ts'
 import {debug} from '../utils/debug.ts'
 import type {Void} from '../void.ts'
 import {CursorEnt} from './cursor-ent.ts'
@@ -8,7 +8,7 @@ import type {Ent} from './ent.ts'
  * ents are updated in insertion order. composed ents are updated by their
  * owning ents.
  */
-export class Zoo<Tag extends TagFormat> {
+export class Zoo<Tag extends AnyTag> {
   #cursor: CursorEnt<Tag> | undefined
   readonly #ents: Set<Ent<Tag>> = new Set()
   #invalid: boolean = false

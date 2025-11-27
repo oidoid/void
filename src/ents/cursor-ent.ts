@@ -1,4 +1,4 @@
-import type {TagFormat} from '../graphics/atlas.ts'
+import type {AnyTag} from '../graphics/atlas.ts'
 import {Layer} from '../graphics/layer.ts'
 import {type Sprite, truncDrawableEpsilon} from '../graphics/sprite.ts'
 import {type Box, boxHits, type WH, type XY} from '../types/geo.ts'
@@ -9,7 +9,7 @@ import type {Ent} from './ent.ts'
  * update this ent first. always prefer testing against cursor, not input, in
  * other ents. the cursor may be moved by keyboard and has a hitbox.
  */
-export class CursorEnt<Tag extends TagFormat> implements Ent<Tag> {
+export class CursorEnt<Tag extends AnyTag> implements Ent<Tag> {
   /** px / sec, 0 to disable keyboard. */
   keyboard: number = 0
   readonly #bounds: Box = {x: 0, y: 0, w: 0, h: 0}
