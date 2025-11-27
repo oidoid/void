@@ -114,7 +114,11 @@
           "enum": ["Default", "Unmapped"],
           "$comment": "to-do: support custom mapping here."
         },
-        "minWH": {"$ref": "#/$defs/MinCamWH", "unevaluatedProperties": false},
+        "minWH": {
+          "$ref": "#/$defs/MinCamWH",
+          "description": "min cam dimensions. infinity always uses min scale. defaults to infinity.",
+          "unevaluatedProperties": false
+        },
         "minScale": {
           "type": "number",
           "description": "min cam scale.",

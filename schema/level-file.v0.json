@@ -372,6 +372,7 @@
     },
     "minWH": {
       "$ref": "https://oidoid.github.io/void/config-file.v0.json#/$defs/MinCamWH",
+      "description": "min cam dimensions. infinity always uses min scale. defaults to infinity.",
       "unevaluatedProperties": false
     }
   }
