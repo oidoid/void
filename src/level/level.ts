@@ -16,6 +16,9 @@ import type {PoolMap} from '../mem/pool-map.ts'
 import type {Border, CompassDir, WH, XY} from '../types/geo.ts'
 import {uncapitalize} from '../utils/str-util.ts'
 
+export type OrderByComponent = {
+  [K in keyof Ent<TagFormat>]?: number
+}
 export type Level<Tag extends TagFormat> = {
   ents: Ent<Tag>[]
   keepZoo: boolean
@@ -86,6 +89,13 @@ export type ComponentHook<Tag extends TagFormat> = (
   pools: Readonly<PoolMap<Tag>>
 ) => Ent<Tag>[typeof k]
 
+/** defaults to insertion order. */
+export const parseOrderByComponent: Readonly<OrderByComponent> = {
+  id: 0,
+  name: 1,
+  sprite: 1000
+}
+
 export function parseLevel<Tag extends TagFormat>(
   json: Readonly<LevelSchema<Tag>>,
   pools: Readonly<PoolMap<Tag>>,
@@ -127,10 +137,11 @@ export function parseButton<Tag extends TagFormat>(
 export function parseEnt<Tag extends TagFormat>(
   json: Readonly<EntSchema<Tag>>,
   pools: Readonly<PoolMap<Tag>>,
-  hook: ComponentHook<Tag>
+  hook: ComponentHook<Tag>,
+  order: Readonly<OrderByComponent> = parseOrderByComponent
 ): Ent<Tag> {
   const ent: {[k: string]: Ent<Tag>[keyof Ent<Tag>]} = {}
-  for (const _k in json) {
+  for (const _k of componentKeys(json, order)) {
     const k = _k as keyof EntSchema<Tag>
     ent[k] = hook(json, k, pools) ?? parseEntComponent(json, k, pools)
   }
@@ -258,4 +269,19 @@ export function parseWH(json: Readonly<UnboundedWHSchema> | number): WH {
 export function parseXY(json: Readonly<Partial<XY>> | number): XY {
   if (typeof json === 'number') return {x: json, y: json}
   return {x: json.x ?? 0, y: json.y ?? 0}
+}
+
+/**
+ * order JSON keys by priority with fallback to insertion order.
+ * @internal
+ */
+export function componentKeys<Tag extends TagFormat>(
+  json: Readonly<EntSchema<Tag>>,
+  order: Readonly<OrderByComponent>
+): (keyof Ent<Tag>)[] {
+  return Object.keys(json).sort(
+    (l, r) =>
+      (order[l as keyof Ent<Tag>] ?? Infinity) -
+      (order[r as keyof Ent<Tag>] ?? Infinity)
+  ) as (keyof Ent<Tag>)[]
 }

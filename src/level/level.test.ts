@@ -9,7 +9,9 @@ import {assert} from '../test/assert.ts'
 import type {Box} from '../types/geo.ts'
 import {
   type ComponentHook,
+  componentKeys,
   type EntSchema,
+  type OrderByComponent,
   parseBorder,
   parseButton,
   parseEnt,
@@ -98,7 +100,7 @@ test('parseEnt() with parseComponent override hook', () => {
   assert((ent as {widget: number}).widget, 5)
 })
 
-test('parseEnt() preserves key insertion order', () => {
+test('parseEnt() key order', () => {
   const pools = TestPools()
   const hook: ComponentHook<Tag> = (json, k) => {
     if (json[k] == null) return
@@ -117,7 +119,18 @@ test('parseEnt() preserves key insertion order', () => {
     widget: {gears: 3},
     textUI: {dir: 'S', maxW: 100, scale: 2}
   }
-  assert(Object.keys(parseEnt(a, pools, hook)), Object.keys(a))
+  assert(Object.keys(parseEnt(a, pools, hook)), [
+    'id',
+    'name',
+    'sprite',
+    'text',
+    'button',
+    'ninePatch',
+    'followCam',
+    'followCursor',
+    'widget',
+    'textUI'
+  ])
 
   const b: EntSchema<Tag> = {
     widget: {gears: 3},
@@ -128,7 +141,18 @@ test('parseEnt() preserves key insertion order', () => {
     textUI: {dir: 'E'},
     button: {type: 'Button'}
   }
-  assert(Object.keys(parseEnt(b, pools, hook)), Object.keys(b))
+  assert(Object.keys(parseEnt(b, pools, hook)), [
+    'id',
+    'name',
+    'sprite',
+    'widget',
+    'text',
+    'textUI',
+    'button'
+  ])
+
+  const c: EntSchema<Tag> = {name: 'name', id: '2'}
+  assert(Object.keys(parseEnt(c, pools, hook)), ['id', 'name'])
 })
 
 test('parseEntComponent() routes fields', () => {
@@ -369,6 +393,50 @@ test('parseXY()', () => {
   assert(parseXY({x: 1}), {x: 1, y: 0})
   assert(parseXY({y: 2}), {x: 0, y: 2})
   assert(parseXY({x: 3, y: 4}), {x: 3, y: 4})
+})
+
+test('componentKeys() sort by priority', () => {
+  const json: EntSchema<Tag> = {
+    name: 'Name',
+    id: '1',
+    text: 'hello',
+    button: {type: 'Button'},
+    sprite: 'stem--A',
+    textUI: {dir: 'S'}
+  }
+  const order: OrderByComponent = {
+    sprite: 0,
+    name: 10,
+    id: 20,
+    text: 30,
+    button: 40,
+    textUI: 50
+  }
+  const keys = componentKeys(json, order)
+  assert(keys, ['sprite', 'name', 'id', 'text', 'button', 'textUI'])
+})
+
+test('componentKeys() default to insertion order', () => {
+  const json: EntSchema<Tag> = {
+    text: 't',
+    name: 'n',
+    id: 'i',
+    sprite: 'stem--A',
+    button: {type: 'Button'}
+  }
+
+  const keys1 = componentKeys(json, {})
+  assert(keys1, ['text', 'name', 'id', 'sprite', 'button'])
+
+  // equal priorities preserve insertion order.
+  const keys2 = componentKeys(json, {
+    text: 1,
+    name: 1,
+    id: 1,
+    sprite: 1,
+    button: 1
+  })
+  assert(keys2, ['text', 'name', 'id', 'sprite', 'button'])
 })
 
 function TestPools(): PoolMap<Tag> {
