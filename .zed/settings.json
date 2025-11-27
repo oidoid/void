@@ -2,11 +2,12 @@
 {
   "auto_install_extensions": {"biome": true},
   "languages": {
-    "Markdown": {"formatter": {"language_server": {"name": "biome"}}},
+    "CSS": {"formatter": {"language_server": {"name": "biome"}}},
     "HTML": {"formatter": {"language_server": {"name": "biome"}}},
-    "TypeScript": {"formatter": {"language_server": {"name": "biome"}}},
     "JSON": {"formatter": {"language_server": {"name": "biome"}}},
     "JSONC": {"formatter": {"language_server": {"name": "biome"}}},
-    "CSS": {"formatter": {"language_server": {"name": "biome"}}}
+    "Markdown": {"formatter": {"language_server": {"name": "biome"}}},
+    "TypeScript": {"formatter": {"language_server": {"name": "biome"}}},
+    "YAML": {"formatter": {"language_server": {"name": "biome"}}}
   }
 }
