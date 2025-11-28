@@ -65,15 +65,18 @@ test('parseBorder()', () => {
 
 test('parseButton()', () => {
   const pools = TestPools()
-  const btn = parseButton(
+  const a = parseButton(
     {type: 'Toggle', pressed: {tag: 'stem--A'}, selected: 'stem--B'},
     pools
   )
-  assert(btn.type, 'Toggle')
-  assert(btn.pressed?.tag, 'stem--A')
-  assert(btn.selected?.tag, 'stem--B')
+  assert(a.type, 'Toggle')
+  assert(a.pressed.tag, 'stem--A')
+  assert(a.selected.tag, 'stem--B')
 
-  assert(parseButton({}, pools).type, 'Button')
+  const b = parseButton({pressed: 'stem--A', selected: 'stem--B'}, pools)
+  assert(b.type, 'Button')
+  assert(b.pressed.tag, 'stem--A')
+  assert(b.selected.tag, 'stem--B')
 })
 
 test('parseEnt() with parseComponent override hook', () => {
@@ -111,7 +114,7 @@ test('parseEnt() key order', () => {
     name: 'Name',
     id: '1',
     text: 'hello',
-    button: {type: 'Toggle'},
+    button: {pressed: 'stem--A', selected: 'stem--B'},
     sprite: 'stem--A',
     ninePatch: {border: 1, patch: {}},
     followCam: {origin: 'N'},
@@ -139,7 +142,7 @@ test('parseEnt() key order', () => {
     name: 'Second',
     id: '2',
     textUI: {origin: 'E'},
-    button: {type: 'Button'}
+    button: {pressed: 'stem--A', selected: 'stem--B'}
   }
   assert(Object.keys(parseEnt(b, pools, hook)), [
     'id',
@@ -166,7 +169,7 @@ test('parseEntComponent() routes fields', () => {
     followCam: {margin: 2, origin: 'N'},
     followCursor: {keyboard: 1, pick: 'stem--B'},
     textUI: {maxW: 100, origin: 'S', scale: 2},
-    button: {type: 'Toggle'}
+    button: {pressed: 'stem--A', selected: 'stem--B', type: 'Toggle'}
   }
 
   assert(parseEntComponent(json, 'id', pools), '1')
@@ -400,7 +403,7 @@ test('componentKeys() sort by priority', () => {
     name: 'Name',
     id: '1',
     text: 'hello',
-    button: {type: 'Button'},
+    button: {pressed: 'stem--A', selected: 'stem--B'},
     sprite: 'stem--A',
     textUI: {origin: 'S'}
   }
@@ -422,7 +425,7 @@ test('componentKeys() default to insertion order', () => {
     name: 'n',
     id: 'i',
     sprite: 'stem--A',
-    button: {type: 'Button'}
+    button: {pressed: 'stem--A', selected: 'stem--B'}
   }
 
   const keys1 = componentKeys(json, {})

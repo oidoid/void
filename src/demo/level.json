@@ -6,8 +6,8 @@
       "sprite": {
         "pool": "Overlay",
         "tag": "background--GreyCheckerboard",
-        "w": "Infinity",
-        "h": "Infinity",
+        "w": 4095,
+        "h": 4095,
         "z": "Top"
       }
     },
@@ -22,7 +22,7 @@
         "border": 1,
         "pad": 2,
         "patch": {
-          "origin": "background--Grape",
+          "center": "background--Grape",
           "n": "background--Bubblegum",
           "s": "background--Kiwi",
           "w": "background--Strawberry",
@@ -46,13 +46,13 @@
     {
       "name": "logo",
       "sprite": {"tag": "oidoid--Default", "z": "UIF"},
-      "followCam": {"dir": "SW", "margin": 4}
+      "followCam": {"origin": "SW", "margin": 4}
     },
     {
       "name": "border",
       "sprite": {"z": "UIG"},
       "ninePatch": {"patch": {"n": "background--Black"}, "border": 1},
-      "followCam": {"dir": "NW", "fill": "XY"}
+      "followCam": {"origin": "NW", "fill": "XY"}
     },
     {
       "id": "cursor",

@@ -41,6 +41,7 @@
     "Button": {
       "type": "object",
       "description": "button config.",
+      "required": ["pressed", "selected"],
       "properties": {
         "pressed": {
           "$ref": "#/$defs/SpriteProps",

@@ -9,13 +9,6 @@ export interface Ent<Tag extends AnyTag> {
   update?(v: Void<Tag, string>): boolean | undefined
 }
 
-export type Button<Tag extends AnyTag> = {
-  pressed?: Sprite<Tag>
-  selected?: Sprite<Tag>
-  type: ButtonType
-}
-export type ButtonType = 'Button' | 'Toggle'
-
 export interface Ent<Tag extends AnyTag> {
   button?: Button<Tag>
   followCam?: FollowCam
@@ -27,6 +20,13 @@ export interface Ent<Tag extends AnyTag> {
   text?: string
   textUI?: TextUI
 }
+
+export type Button<Tag extends AnyTag> = {
+  pressed: Sprite<Tag>
+  selected: Sprite<Tag>
+  type: ButtonType
+}
+export type ButtonType = 'Button' | 'Toggle'
 export type FollowCam = {
   fill?: XYFlag
   margin: Border

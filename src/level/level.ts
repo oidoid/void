@@ -27,8 +27,8 @@ export type Level<Tag extends AnyTag> = {
 
 export type BorderSchema = number | Partial<XY> | Partial<Border>
 export type ButtonSchema<Tag extends AnyTag> = {
-  pressed?: SpriteSchema<Tag> | Tag
-  selected?: SpriteSchema<Tag> | Tag
+  pressed: SpriteSchema<Tag> | Tag
+  selected: SpriteSchema<Tag> | Tag
   type?: ButtonType
 }
 export interface EntSchema<Tag extends AnyTag> {
@@ -127,10 +127,8 @@ export function parseButton<Tag extends AnyTag>(
   json: Readonly<ButtonSchema<Tag>>,
   pools: Readonly<PoolMap<Tag>>
 ): Button<Tag> {
-  const pressed =
-    json.pressed == null ? undefined : parseSprite(json.pressed, pools)
-  const selected =
-    json.selected == null ? undefined : parseSprite(json.selected, pools)
+  const pressed = parseSprite(json.pressed, pools)
+  const selected = parseSprite(json.selected, pools)
   return {pressed, selected, type: json.type ?? 'Button'}
 }
 

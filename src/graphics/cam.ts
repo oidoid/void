@@ -76,7 +76,7 @@ export class Cam {
   follow(
     wh: Readonly<WH>,
     z: Layer,
-    pivot: CompassDir,
+    origin: CompassDir,
     opts?: {
       readonly fill?: 'X' | 'Y' | 'XY'
       readonly margin?: Partial<Readonly<WH>>
@@ -85,7 +85,7 @@ export class Cam {
   ): Box {
     const marginW = opts?.margin?.w ?? 0
     let x = isUILayer(z) ? 0 : Math.floor(this.x)
-    switch (pivot) {
+    switch (origin) {
       case 'SW':
       case 'W':
       case 'NW':
@@ -106,7 +106,7 @@ export class Cam {
 
     const marginH = opts?.margin?.h ?? 0
     let y = isUILayer(z) ? 0 : Math.floor(this.y)
-    switch (pivot) {
+    switch (origin) {
       case 'N':
       case 'NE':
       case 'NW':
