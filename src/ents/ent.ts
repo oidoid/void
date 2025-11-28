@@ -28,10 +28,10 @@ export interface Ent<Tag extends AnyTag> {
   textUI?: TextUI
 }
 export type FollowCam = {
-  dir: CompassDir
   fill?: XYFlag
   margin: Border
   modulo: XY
+  origin: CompassDir
 }
 export type FollowCursor<Tag extends AnyTag> = {
   // readonly bounds: Box
@@ -44,5 +44,5 @@ export type NinePatch<Tag extends AnyTag> = {
   pad: Border
   patch: {[dir in Lowercase<CompassDir>]?: Sprite<Tag>}
 }
-export type TextUI = {dir: CompassDir; maxW: number; scale: number}
+export type TextUI = {maxW: number; scale: number; origin: CompassDir}
 export type XYFlag = 'XY' | 'X' | 'Y'

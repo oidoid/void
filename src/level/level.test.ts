@@ -114,10 +114,10 @@ test('parseEnt() key order', () => {
     button: {type: 'Toggle'},
     sprite: 'stem--A',
     ninePatch: {border: 1, patch: {}},
-    followCam: {dir: 'N'},
+    followCam: {origin: 'N'},
     followCursor: {keyboard: 1, pick: 'stem--B'},
     widget: {gears: 3},
-    textUI: {dir: 'S', maxW: 100, scale: 2}
+    textUI: {maxW: 100, origin: 'S', scale: 2}
   }
   assert(Object.keys(parseEnt(a, pools, hook)), [
     'id',
@@ -138,7 +138,7 @@ test('parseEnt() key order', () => {
     sprite: 'stem--B',
     name: 'Second',
     id: '2',
-    textUI: {dir: 'E'},
+    textUI: {origin: 'E'},
     button: {type: 'Button'}
   }
   assert(Object.keys(parseEnt(b, pools, hook)), [
@@ -163,9 +163,9 @@ test('parseEntComponent() routes fields', () => {
     text: 'text',
     sprite: 'stem--A',
     ninePatch: {border: 1, patch: {}},
-    followCam: {dir: 'N', margin: 2},
+    followCam: {margin: 2, origin: 'N'},
     followCursor: {keyboard: 1, pick: 'stem--B'},
-    textUI: {dir: 'S', maxW: 100, scale: 2},
+    textUI: {maxW: 100, origin: 'S', scale: 2},
     button: {type: 'Toggle'}
   }
 
@@ -192,18 +192,18 @@ test('parseEntComponent() routes fields', () => {
     }
   })
   assert(parseEntComponent(json, 'followCam', pools), {
-    dir: 'N',
     fill: undefined,
     margin: {n: 2, s: 2, w: 2, e: 2},
-    modulo: {x: 0, y: 0}
+    modulo: {x: 0, y: 0},
+    origin: 'N'
   })
   assert(parseEntComponent(json, 'followCursor', pools), {
     keyboard: 1,
     pick: 'stem--B'
   })
   assert(parseEntComponent(json, 'textUI', pools), {
-    dir: 'S',
     maxW: 100,
+    origin: 'S',
     scale: 2
   })
   assert(
@@ -218,32 +218,32 @@ test('parseEntComponent() routes fields', () => {
 })
 
 test('parseFollowCam()', () => {
-  assert(parseFollowCam({dir: 'Center'}), {
-    dir: 'Center',
+  assert(parseFollowCam({origin: 'Center'}), {
     fill: undefined,
     margin: {n: 0, s: 0, w: 0, e: 0},
-    modulo: {x: 0, y: 0}
+    modulo: {x: 0, y: 0},
+    origin: 'Center'
   })
 
-  assert(parseFollowCam({dir: 'NE', fill: 'XY', margin: 3, modulo: 5}), {
-    dir: 'NE',
+  assert(parseFollowCam({fill: 'XY', margin: 3, modulo: 5, origin: 'NE'}), {
     fill: 'XY',
     margin: {n: 3, s: 3, w: 3, e: 3},
-    modulo: {x: 5, y: 5}
+    modulo: {x: 5, y: 5},
+    origin: 'NE'
   })
 
-  assert(parseFollowCam({dir: 'S', margin: {w: 1}, modulo: {y: 2}}), {
-    dir: 'S',
+  assert(parseFollowCam({margin: {w: 1}, modulo: {y: 2}, origin: 'S'}), {
     fill: undefined,
     margin: {n: 0, s: 0, w: 1, e: 0},
-    modulo: {x: 0, y: 2}
+    modulo: {x: 0, y: 2},
+    origin: 'S'
   })
 
-  assert(parseFollowCam({dir: 'S', margin: {y: 1}, modulo: {}}), {
-    dir: 'S',
+  assert(parseFollowCam({margin: {y: 1}, modulo: {}, origin: 'S'}), {
     fill: undefined,
     margin: {n: 1, s: 1, w: 0, e: 0},
-    modulo: {x: 0, y: 0}
+    modulo: {x: 0, y: 0},
+    origin: 'S'
   })
 })
 
@@ -373,10 +373,10 @@ describe('parseSprite()', () => {
 })
 
 test('parseTextUI()', () => {
-  assert(parseTextUI({}), {dir: 'Center', maxW: 4095, scale: 1})
-  assert(parseTextUI({dir: 'N', maxW: 100, scale: 2}), {
-    dir: 'N',
+  assert(parseTextUI({}), {maxW: 4095, origin: 'Center', scale: 1})
+  assert(parseTextUI({maxW: 100, origin: 'N', scale: 2}), {
     maxW: 100,
+    origin: 'N',
     scale: 2
   })
 })
@@ -402,7 +402,7 @@ test('componentKeys() sort by priority', () => {
     text: 'hello',
     button: {type: 'Button'},
     sprite: 'stem--A',
-    textUI: {dir: 'S'}
+    textUI: {origin: 'S'}
   }
   const order: OrderByComponent = {
     sprite: 0,

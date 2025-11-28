@@ -47,10 +47,10 @@ export interface EntSchema<Tag extends AnyTag> {
   textUI?: TextUISchema
 }
 export type FollowCamSchema = {
-  dir: CompassDir
   fill?: XYFlag
   margin?: BorderSchema
   modulo?: number | Partial<XY>
+  origin: CompassDir
 }
 export type FollowCursorSchema<Tag extends AnyTag> = {
   keyboard?: number
@@ -77,7 +77,7 @@ export type SpriteSchema<Tag extends AnyTag> = {
   z?: LayerSchema
   zend?: boolean
 }
-export type TextUISchema = {dir?: CompassDir; maxW?: number; scale?: number}
+export type TextUISchema = {maxW?: number; origin?: CompassDir; scale?: number}
 export type UnboundedWHSchema = {
   w?: number | 'Infinity'
   h?: number | 'Infinity'
@@ -206,10 +206,10 @@ export function parseFollowCursor<Tag extends AnyTag>(
 
 export function parseFollowCam(json: Readonly<FollowCamSchema>): FollowCam {
   return {
-    dir: json.dir,
     fill: json.fill,
     margin: parseBorder(json.margin ?? 0),
-    modulo: parseXY(json.modulo ?? 0)
+    modulo: parseXY(json.modulo ?? 0),
+    origin: json.origin
   }
 }
 
@@ -255,8 +255,8 @@ export function parseSprite<Tag extends AnyTag>(
 
 export function parseTextUI(json: Readonly<TextUISchema>): TextUI {
   return {
-    dir: json.dir ?? 'Center',
     maxW: json.maxW ?? drawableMaxWH.w,
+    origin: json.origin ?? 'Center',
     scale: json.scale ?? 1
   }
 }

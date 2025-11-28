@@ -90,12 +90,8 @@
     "FollowCam": {
       "type": "object",
       "description": "follow cam config.",
-      "required": ["dir"],
+      "required": ["origin"],
       "properties": {
-        "dir": {
-          "$ref": "#/$defs/CompassDir",
-          "description": "position relative to."
-        },
         "fill": {
           "$ref": "#/$defs/XYFlag",
           "description": "whether to adjust the width or height to fill empty space."
@@ -111,6 +107,10 @@
             {"type": "integer", "minimum": 0},
             {"$ref": "#/$defs/UIntXY", "unevaluatedProperties": false}
           ]
+        },
+        "origin": {
+          "$ref": "#/$defs/CompassDir",
+          "description": "position relative to."
         }
       }
     },
@@ -301,15 +301,15 @@
       "type": "object",
       "description": "text config.",
       "properties": {
-        "dir": {
-          "$ref": "#/$defs/CompassDir",
-          "description": "position relative to."
-        },
         "maxW": {
           "type": "integer",
           "description": "maximum width.",
           "minimum": 0,
           "maximum": 4095
+        },
+        "origin": {
+          "$ref": "#/$defs/CompassDir",
+          "description": "position relative to."
         },
         "scale": {
           "type": "integer",
