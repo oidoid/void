@@ -41,11 +41,11 @@ export class ButtonEnt<Tag extends AnyTag, Button extends string>
       wh: {w: opts.w, h: opts.h}
     })
     this.#pressed = {
-      sprite: v.pool.default.alloc(),
+      sprite: v.alloc(),
       z: opts.pressed.z ?? layerOffset(buttonZ, -2)
     }
     this.#selected = {
-      sprite: v.pool.default.alloc(),
+      sprite: v.alloc(),
       z: opts.selected.z ?? layerOffset(this.#pressed.z, 1)
     }
 

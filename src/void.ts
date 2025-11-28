@@ -88,6 +88,10 @@ export class Void<Tag extends AnyTag, Button extends string = DefaultButton> {
     this.looper.onFrame = millis => this.onFrame(millis)
   }
 
+  alloc(k: keyof PoolMap<Tag> = 'default'): Sprite<Tag> {
+    return this.pool[k].alloc()
+  }
+
   get backgroundRGBA(): number {
     return this.#backgroundRGBA
   }

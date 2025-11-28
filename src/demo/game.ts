@@ -70,7 +70,7 @@ export class Game extends V.Void<Tag> {
     border.xy = box
     border.wh = box
 
-    const backpacker = this.pool.default.alloc()
+    const backpacker = this.alloc()
     backpacker.tag = 'backpacker--WalkRight'
     backpacker.x = 7
     backpacker.y = 7
@@ -91,7 +91,7 @@ export class Game extends V.Void<Tag> {
       oidoid
     )
 
-    const overlay = this.pool.overlay.alloc()
+    const overlay = this.alloc('overlay')
     overlay.tag = 'background--GreyCheckerboard'
     overlay.w = V.drawableMaxWH.w
     overlay.h = V.drawableMaxWH.h

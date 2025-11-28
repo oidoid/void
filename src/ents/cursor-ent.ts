@@ -20,7 +20,7 @@ export class CursorEnt<Tag extends AnyTag> implements Ent<Tag> {
   constructor(v: Void<Tag, string>, point: Tag, pick?: Tag) {
     this.#point = point
     this.#pick = pick ?? this.#point
-    this.#sprite = v.pool.default.alloc()
+    this.#sprite = v.alloc()
     this.#sprite.tag = point
     this.#sprite.z = Layer.Hidden
     this.#updateBounds(v)

@@ -312,6 +312,7 @@ export class Sprite<Tag extends AnyTag> extends Drawable {
     })
   }
 
+  /** use `clips()` to test clipbox of this and box. */
   hits(box: Readonly<XY | Box>): boolean {
     const hitbox = this.hitbox
     if (!hitbox) return false

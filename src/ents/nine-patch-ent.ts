@@ -45,15 +45,15 @@ export class NinePatchEnt<Tag extends AnyTag> implements Ent<Tag> {
 
   constructor(v: Void<Tag, string>, opts: Readonly<NinePatchOpts<Tag>>) {
     this.#dir = {
-      center: v.pool.default.alloc(),
-      w: v.pool.default.alloc(),
-      nw: v.pool.default.alloc(),
-      n: v.pool.default.alloc(),
-      ne: v.pool.default.alloc(),
-      e: v.pool.default.alloc(),
-      se: v.pool.default.alloc(),
-      s: v.pool.default.alloc(),
-      sw: v.pool.default.alloc()
+      center: v.alloc(),
+      w: v.alloc(),
+      nw: v.alloc(),
+      n: v.alloc(),
+      ne: v.alloc(),
+      e: v.alloc(),
+      se: v.alloc(),
+      s: v.alloc(),
+      sw: v.alloc()
     }
     this.#dir.w.tag = opts.w?.tag ?? opts.e?.tag ?? opts.n.tag
     this.#dir.n.tag = opts.n.tag

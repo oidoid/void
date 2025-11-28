@@ -22,7 +22,7 @@ export class FollowCamEnt<Tag extends AnyTag> implements Ent<Tag> {
   readonly #sprite: Sprite<Tag>
 
   constructor(v: Void<Tag, string>, tag: Tag, pivot: CompassDir) {
-    this.#sprite = v.pool.default.alloc()
+    this.#sprite = v.alloc()
     this.#sprite.tag = tag
     this.#pivot = pivot
   }

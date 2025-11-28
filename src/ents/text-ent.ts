@@ -35,7 +35,7 @@ export class TextEnt implements Ent<AnyTag> {
     this.#wh = {w: layout.wh.w, h: layout.wh.h}
     for (const [i, char] of layout.chars.entries()) {
       if (char == null) continue
-      const sprite = (this.#sprites[len] ??= v.pool.default.alloc())
+      const sprite = (this.#sprites[len] ??= v.alloc())
       sprite.x = char.x
       sprite.y = char.y
       sprite.tag = fontCharToTag(memProp5x6, this.#str[i]!)
@@ -45,7 +45,7 @@ export class TextEnt implements Ent<AnyTag> {
       sprite.z = this.#z
       len++
     }
-    while (this.#sprites.length > len) v.pool.default.free(this.#sprites.pop()!)
+    while (this.#sprites.length > len) this.#sprites.pop()!.free()
     this.#layout = 'Updated'
     return true
   }
