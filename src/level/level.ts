@@ -181,10 +181,10 @@ export function parseNinePatch<Tag extends AnyTag>(
   pools: Readonly<PoolMap<Tag>>
 ): NinePatch<Tag> {
   const patch = {
-    origin:
-      json.patch.origin == null
+    center:
+      json.patch.center == null
         ? undefined
-        : parseSprite(json.patch.origin, pools),
+        : parseSprite(json.patch.center, pools),
     n: json.patch.n == null ? undefined : parseSprite(json.patch.n, pools),
     s: json.patch.s == null ? undefined : parseSprite(json.patch.s, pools),
     w: json.patch.w == null ? undefined : parseSprite(json.patch.w, pools),
@@ -255,7 +255,7 @@ export function parseSprite<Tag extends AnyTag>(
 
 export function parseTextUI(json: Readonly<TextUISchema>): TextUI {
   return {
-    dir: json.dir ?? 'Origin',
+    dir: json.dir ?? 'Center',
     maxW: json.maxW ?? drawableMaxWH.w,
     scale: json.scale ?? 1
   }

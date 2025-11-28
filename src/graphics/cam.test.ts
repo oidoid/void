@@ -182,7 +182,7 @@ test('follow() Origin pivot with modulo snapping', () => {
   cam.x = 10
   cam.y = 20
 
-  const box = cam.follow({w: 10, h: 10}, Layer.A, 'Origin', {
+  const box = cam.follow({w: 10, h: 10}, Layer.A, 'Center', {
     modulo: {x: 16, y: 8}
   })
   assert(box, {x: 48, y: 40, w: 10, h: 10})

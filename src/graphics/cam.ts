@@ -98,7 +98,7 @@ export class Cam {
         break
       case 'N':
       case 'S':
-      case 'Origin':
+      case 'Center':
         x += Math.trunc(this.w / 2) - Math.trunc(wh.w / 2)
         break
     }
@@ -119,7 +119,7 @@ export class Cam {
         break
       case 'E':
       case 'W':
-      case 'Origin':
+      case 'Center':
         y += Math.trunc(this.h / 2) - Math.trunc(wh.h / 2)
         break
     }

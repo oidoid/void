@@ -180,7 +180,7 @@ test('parseEntComponent() routes fields', () => {
     border: {n: 1, s: 1, w: 1, e: 1},
     pad: {n: 0, s: 0, w: 0, e: 0},
     patch: {
-      origin: undefined,
+      center: undefined,
       n: undefined,
       s: undefined,
       w: undefined,
@@ -218,8 +218,8 @@ test('parseEntComponent() routes fields', () => {
 })
 
 test('parseFollowCam()', () => {
-  assert(parseFollowCam({dir: 'Origin'}), {
-    dir: 'Origin',
+  assert(parseFollowCam({dir: 'Center'}), {
+    dir: 'Center',
     fill: undefined,
     margin: {n: 0, s: 0, w: 0, e: 0},
     modulo: {x: 0, y: 0}
@@ -294,13 +294,13 @@ test('parseNinePatch()', () => {
     {
       border: 2,
       pad: 3,
-      patch: {origin: {tag: 'stem--A'}, n: {tag: 'stem--B'}}
+      patch: {center: {tag: 'stem--A'}, n: {tag: 'stem--B'}}
     },
     pools
   )
   assert(nineA.border, {n: 2, s: 2, w: 2, e: 2})
   assert(nineA.pad, {n: 3, s: 3, w: 3, e: 3})
-  assert(nineA.patch.origin?.tag, 'stem--A')
+  assert(nineA.patch.center?.tag, 'stem--A')
   assert(nineA.patch.n?.tag, 'stem--B')
   assert(nineA.patch.s, undefined)
   assert(nineA.patch.w, undefined)
@@ -373,7 +373,7 @@ describe('parseSprite()', () => {
 })
 
 test('parseTextUI()', () => {
-  assert(parseTextUI({}), {dir: 'Origin', maxW: 4095, scale: 1})
+  assert(parseTextUI({}), {dir: 'Center', maxW: 4095, scale: 1})
   assert(parseTextUI({dir: 'N', maxW: 100, scale: 2}), {
     dir: 'N',
     maxW: 100,

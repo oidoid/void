@@ -45,6 +45,7 @@ export class NinePatchEnt<Tag extends AnyTag> implements Ent<Tag> {
 
   constructor(v: Void<Tag, string>, opts: Readonly<NinePatchOpts<Tag>>) {
     this.#dir = {
+      center: v.pool.default.alloc(),
       w: v.pool.default.alloc(),
       nw: v.pool.default.alloc(),
       n: v.pool.default.alloc(),
@@ -52,8 +53,7 @@ export class NinePatchEnt<Tag extends AnyTag> implements Ent<Tag> {
       e: v.pool.default.alloc(),
       se: v.pool.default.alloc(),
       s: v.pool.default.alloc(),
-      sw: v.pool.default.alloc(),
-      origin: v.pool.default.alloc()
+      sw: v.pool.default.alloc()
     }
     this.#dir.w.tag = opts.w?.tag ?? opts.e?.tag ?? opts.n.tag
     this.#dir.n.tag = opts.n.tag
@@ -66,7 +66,7 @@ export class NinePatchEnt<Tag extends AnyTag> implements Ent<Tag> {
     this.#dir.se.tag = opts.se?.tag ?? this.#dir.nw.tag
     this.#dir.sw.tag = opts.sw?.tag ?? this.#dir.ne.tag
 
-    this.#dir.origin.tag = opts.origin.tag
+    this.#dir.center.tag = opts.origin.tag
 
     this.#dir.w.z =
       this.#dir.nw.z =
@@ -76,7 +76,7 @@ export class NinePatchEnt<Tag extends AnyTag> implements Ent<Tag> {
       this.#dir.se.z =
       this.#dir.s.z =
       this.#dir.sw.z =
-      this.#dir.origin.z =
+      this.#dir.center.z =
         opts.z ?? 0
 
     this.#dir.w.stretch = opts.w?.stretch ?? opts.e?.stretch ?? false
@@ -89,7 +89,7 @@ export class NinePatchEnt<Tag extends AnyTag> implements Ent<Tag> {
     this.#dir.se.stretch = opts.se?.stretch ?? this.#dir.nw.stretch
     this.#dir.sw.stretch = opts.sw?.stretch ?? this.#dir.ne.stretch
 
-    this.#dir.origin.stretch = opts.origin.stretch ?? false
+    this.#dir.center.stretch = opts.origin.stretch ?? false
 
     this.#dir.w.flipX = opts.w?.flip?.x ?? !opts.e?.flip?.x
     this.#dir.w.flipY = opts.w?.flip?.y ?? !!opts.e?.flip?.y
@@ -99,8 +99,8 @@ export class NinePatchEnt<Tag extends AnyTag> implements Ent<Tag> {
     this.#dir.e.flipY = opts.e?.flip?.y ?? this.#dir.w.flipY
     this.#dir.s.flipX = opts.s?.flip?.x ?? this.#dir.n.flipX
     this.#dir.s.flipY = opts.s?.flip?.y ?? !this.#dir.n.flipY
-    this.#dir.origin.flipX = !!opts.origin.flip?.x
-    this.#dir.origin.flipY = !!opts.origin.flip?.y
+    this.#dir.center.flipX = !!opts.origin.flip?.x
+    this.#dir.center.flipY = !!opts.origin.flip?.y
 
     this.#dir.n.h = opts.border?.n ?? opts.border?.s ?? this.#dir.n.h
     this.#dir.w.w = opts.border?.w ?? opts.border?.e ?? this.#dir.n.h
@@ -144,7 +144,7 @@ export class NinePatchEnt<Tag extends AnyTag> implements Ent<Tag> {
     this.#dir.se.free()
     this.#dir.s.free()
     this.#dir.sw.free()
-    this.#dir.origin.free()
+    this.#dir.center.free()
   }
 
   update(): boolean | undefined {
@@ -168,8 +168,8 @@ export class NinePatchEnt<Tag extends AnyTag> implements Ent<Tag> {
     this.#dir.s.w = this.#dir.n.w
     this.#dir.e.h = this.#dir.w.h
 
-    this.#dir.origin.w = this.#dir.n.w
-    this.#dir.origin.h = this.#dir.e.h
+    this.#dir.center.w = this.#dir.n.w
+    this.#dir.center.h = this.#dir.e.h
 
     this.#setXYRight()
 
@@ -193,8 +193,8 @@ export class NinePatchEnt<Tag extends AnyTag> implements Ent<Tag> {
     this.#dir.n.x = this.#dir.nw.x + this.#dir.nw.w
     this.#dir.n.y = this.#dir.nw.y
 
-    this.#dir.origin.x = this.#dir.n.x
-    this.#dir.origin.y = this.#dir.nw.y + this.#dir.ne.h
+    this.#dir.center.x = this.#dir.n.x
+    this.#dir.center.y = this.#dir.nw.y + this.#dir.ne.h
 
     this.#setXYRight()
 

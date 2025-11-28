@@ -6,7 +6,7 @@ export type XY = {x: number; y: number}
 export type XYZ = {x: number; y: number; z: number}
 
 export type CardinalDir = 'N' | 'S' | 'W' | 'E'
-export type CompassDir = 'Origin' | CardinalDir | 'NW' | 'NE' | 'SW' | 'SE'
+export type CompassDir = 'Center' | CardinalDir | 'NW' | 'NE' | 'SW' | 'SE'
 
 export function boxEq(l: Readonly<Box>, r: Readonly<Box>): boolean {
   return xyEq(l, r) && whEq(l, r)

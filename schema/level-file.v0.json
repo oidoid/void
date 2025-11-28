@@ -60,7 +60,7 @@
     },
     "CompassDir": {
       "description": "cardinal and ordinal directions and center.",
-      "enum": ["Origin", "N", "S", "W", "E", "NW", "NE", "SW", "SE"]
+      "enum": ["Center", "N", "S", "W", "E", "NW", "NE", "SW", "SE"]
     },
     "Ent": {
       "$dynamicAnchor": "Ent",
@@ -175,7 +175,7 @@
           "description": "sprite config.",
           "unevaluatedProperties": false,
           "properties": {
-            "origin": {
+            "center": {
               "$ref": "#/$defs/SpriteProps",
               "description": "center patch config.",
               "unevaluatedProperties": false
