@@ -1,8 +1,8 @@
 import * as V from '../index.ts'
 import config from './assets/game.void.json' with {type: 'json'}
-import {ClockEnt} from './ents/clock-ent.ts'
-import {RenderToggleEnt} from './ents/render-toggle-ent.ts'
-import {WorkCounterEnt} from './ents/work-counter-ent.ts'
+import {ClockEnt} from './ents/clock.ts'
+import {RenderToggleEnt} from './ents/render-toggle.ts'
+import {WorkCounterEnt} from './ents/work-counter.ts'
 import type {Tag} from './types/tag.ts'
 
 declare module '../index.ts' {
@@ -79,7 +79,7 @@ export class Game extends V.Void<Tag> {
     backpacker.w *= 5
     backpacker.h *= 5
 
-    const oidoid = new V.FollowCamEnt(this, 'oidoid--Default', 'SW')
+    const oidoid = new V.HUDEnt(this, 'oidoid--Default', 'SW')
     oidoid.z = V.Layer.UIA
     oidoid.margin = {w: 4, h: 4}
 

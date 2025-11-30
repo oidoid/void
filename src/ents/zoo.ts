@@ -1,7 +1,7 @@
 import type {AnyTag} from '../graphics/atlas.ts'
 import {debug} from '../utils/debug.ts'
 import type {Void} from '../void.ts'
-import {CursorEnt} from './cursor-ent.ts'
+import {CursorEnt} from './cursor.ts'
 import type {Ent} from './ent.ts'
 
 /**

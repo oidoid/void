@@ -1,9 +1,9 @@
 import type {
   Button,
   ButtonType,
+  Cursor,
   Ent,
-  FollowCam,
-  FollowCursor,
+  HUD,
   NinePatch,
   TextUI,
   XYFlag
@@ -30,8 +30,8 @@ export type ButtonSchema<Tag extends AnyTag> = {
 }
 export interface EntSchema<Tag extends AnyTag> {
   button?: ButtonSchema<Tag>
-  followCam?: FollowCamSchema
-  followCursor?: FollowCursorSchema<Tag>
+  cursor?: CursorSchema<Tag>
+  hud?: HUDSchema
   id?: string
   name?: string
   ninePatch?: NinePatchSchema<Tag>
@@ -43,15 +43,12 @@ export interface EntSchema<Tag extends AnyTag> {
   text?: string
   textUI?: TextUISchema
 }
-export type FollowCamSchema = {
+export type CursorSchema<Tag extends AnyTag> = {keyboard?: number; pick?: Tag}
+export type HUDSchema = {
   fill?: XYFlag
   margin?: BorderSchema
   modulo?: number | Partial<XY>
   origin: CompassDir
-}
-export type FollowCursorSchema<Tag extends AnyTag> = {
-  keyboard?: number
-  pick?: Tag
 }
 export type LayerSchema = keyof typeof Layer
 export type LevelSchema<Tag extends AnyTag> = {
@@ -144,10 +141,10 @@ export function parseEntComponent<Tag extends AnyTag>(
   switch (k) {
     case 'button':
       return parseButton(json[k], pools) satisfies Ent<Tag>[typeof k]
-    case 'followCam':
-      return parseFollowCam(json[k]) satisfies Ent<Tag>[typeof k]
-    case 'followCursor':
-      return parseFollowCursor(json[k]) satisfies Ent<Tag>[typeof k]
+    case 'cursor':
+      return parseCursor(json[k]) satisfies Ent<Tag>[typeof k]
+    case 'hud':
+      return parseHUD(json[k]) satisfies Ent<Tag>[typeof k]
     case 'id':
     case 'name':
     case 'text':
@@ -185,13 +182,13 @@ export function parseNinePatch<Tag extends AnyTag>(
   return {border: parseBorder(json.border), pad: parseBorder(json.pad), patch}
 }
 
-export function parseFollowCursor<Tag extends AnyTag>(
-  json: Readonly<FollowCursorSchema<Tag>>
-): FollowCursor<Tag> {
+export function parseCursor<Tag extends AnyTag>(
+  json: Readonly<CursorSchema<Tag>>
+): Cursor<Tag> {
   return {keyboard: json.keyboard ?? 0, pick: json.pick}
 }
 
-export function parseFollowCam(json: Readonly<FollowCamSchema>): FollowCam {
+export function parseHUD(json: Readonly<HUDSchema>): HUD {
   return {
     fill: json.fill,
     margin: parseBorder(json.margin ?? 0),

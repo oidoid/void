@@ -1,6 +1,6 @@
 import test from 'node:test'
 import {assert} from '../../test/assert.ts'
-import {timeString} from './clock-ent.ts'
+import {timeString} from './clock.ts'
 
 for (const [input, expected] of [
   ['00:00:00', '12:00:00'],

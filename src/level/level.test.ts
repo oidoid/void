@@ -12,10 +12,10 @@ import {
   type EntSchema,
   parseBorder,
   parseButton,
+  parseCursor,
   parseEnt,
   parseEntComponent,
-  parseFollowCam,
-  parseFollowCursor,
+  parseHUD,
   parseLevel,
   parseNinePatch,
   parseSprite,
@@ -115,8 +115,8 @@ test('parseEnt() preserves key insertion order', () => {
     button: {pressed: 'stem--A', selected: 'stem--B'},
     sprite: 'stem--A',
     ninePatch: {border: 1, patch: {}},
-    followCam: {origin: 'N'},
-    followCursor: {keyboard: 1, pick: 'stem--B'},
+    hud: {origin: 'N'},
+    cursor: {keyboard: 1, pick: 'stem--B'},
     widget: {gears: 3},
     textUI: {maxW: 100, origin: 'S', scale: 2}
   }
@@ -142,8 +142,8 @@ test('parseEntComponent() routes fields', () => {
     text: 'text',
     sprite: 'stem--A',
     ninePatch: {border: 1, patch: {}},
-    followCam: {margin: 2, origin: 'N'},
-    followCursor: {keyboard: 1, pick: 'stem--B'},
+    hud: {margin: 2, origin: 'N'},
+    cursor: {keyboard: 1, pick: 'stem--B'},
     textUI: {maxW: 100, origin: 'S', scale: 2},
     button: {pressed: 'stem--A', selected: 'stem--B', type: 'Toggle'}
   }
@@ -170,13 +170,13 @@ test('parseEntComponent() routes fields', () => {
       se: undefined
     }
   })
-  assert(parseEntComponent(json, 'followCam', pools), {
+  assert(parseEntComponent(json, 'hud', pools), {
     fill: undefined,
     margin: {n: 2, s: 2, w: 2, e: 2},
     modulo: {x: 0, y: 0},
     origin: 'N'
   })
-  assert(parseEntComponent(json, 'followCursor', pools), {
+  assert(parseEntComponent(json, 'cursor', pools), {
     keyboard: 1,
     pick: 'stem--B'
   })
@@ -196,44 +196,44 @@ test('parseEntComponent() routes fields', () => {
   )
 })
 
-test('parseFollowCam()', () => {
-  assert(parseFollowCam({origin: 'Center'}), {
+test('parseCursor()', () => {
+  assert(parseCursor({}), {
+    keyboard: 0,
+    pick: undefined
+  })
+  assert(parseCursor({keyboard: 2, pick: 'stem--B'}), {
+    keyboard: 2,
+    pick: 'stem--B'
+  })
+})
+
+test('parseHUD()', () => {
+  assert(parseHUD({origin: 'Center'}), {
     fill: undefined,
     margin: {n: 0, s: 0, w: 0, e: 0},
     modulo: {x: 0, y: 0},
     origin: 'Center'
   })
 
-  assert(parseFollowCam({fill: 'XY', margin: 3, modulo: 5, origin: 'NE'}), {
+  assert(parseHUD({fill: 'XY', margin: 3, modulo: 5, origin: 'NE'}), {
     fill: 'XY',
     margin: {n: 3, s: 3, w: 3, e: 3},
     modulo: {x: 5, y: 5},
     origin: 'NE'
   })
 
-  assert(parseFollowCam({margin: {w: 1}, modulo: {y: 2}, origin: 'S'}), {
+  assert(parseHUD({margin: {w: 1}, modulo: {y: 2}, origin: 'S'}), {
     fill: undefined,
     margin: {n: 0, s: 0, w: 1, e: 0},
     modulo: {x: 0, y: 2},
     origin: 'S'
   })
 
-  assert(parseFollowCam({margin: {y: 1}, modulo: {}, origin: 'S'}), {
+  assert(parseHUD({margin: {y: 1}, modulo: {}, origin: 'S'}), {
     fill: undefined,
     margin: {n: 1, s: 1, w: 0, e: 0},
     modulo: {x: 0, y: 0},
     origin: 'S'
-  })
-})
-
-test('parseFollowCursor()', () => {
-  assert(parseFollowCursor({}), {
-    keyboard: 0,
-    pick: undefined
-  })
-  assert(parseFollowCursor({keyboard: 2, pick: 'stem--B'}), {
-    keyboard: 2,
-    pick: 'stem--B'
   })
 })
 

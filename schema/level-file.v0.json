@@ -69,14 +69,8 @@
       "description": "ent config.",
       "properties": {
         "button": {"$ref": "#/$defs/Button", "unevaluatedProperties": false},
-        "followCam": {
-          "$ref": "#/$defs/FollowCam",
-          "unevaluatedProperties": false
-        },
-        "followCursor": {
-          "$ref": "#/$defs/FollowCursor",
-          "unevaluatedProperties": false
-        },
+        "cursor": {"$ref": "#/$defs/Cursor", "unevaluatedProperties": false},
+        "hud": {"$ref": "#/$defs/HUD", "unevaluatedProperties": false},
         "id": {"type": "string", "description": "unique lookup identifier."},
         "name": {"type": "string", "description": "debug identifier."},
         "ninePatch": {
@@ -88,9 +82,25 @@
         "textUI": {"$ref": "#/$defs/TextUI", "unevaluatedProperties": false}
       }
     },
-    "FollowCam": {
+    "Cursor": {
       "type": "object",
-      "description": "follow cam config.",
+      "description": "cursor config.",
+      "properties": {
+        "keyboard": {
+          "$ref": "#/$defs/Speed",
+          "description": "if greater than zero, follow keyboard movement in pixels per second."
+        },
+        "pick": {
+          "$dynamicRef": "#Tag",
+          "$ref": "#/$defs/Tag",
+          "description": "tag for click state. defaults to point tag.",
+          "$comment": "to-do: delete `$ref` for `$dynamicRef`."
+        }
+      }
+    },
+    "HUD": {
+      "type": "object",
+      "description": "HUD config.",
       "required": ["origin"],
       "properties": {
         "fill": {
@@ -112,22 +122,6 @@
         "origin": {
           "$ref": "#/$defs/CompassDir",
           "description": "position relative to."
-        }
-      }
-    },
-    "FollowCursor": {
-      "type": "object",
-      "description": "follow cursor config.",
-      "properties": {
-        "keyboard": {
-          "$ref": "#/$defs/Speed",
-          "description": "if greater than zero, follow keyboard movement in pixels per second."
-        },
-        "pick": {
-          "$dynamicRef": "#Tag",
-          "$ref": "#/$defs/Tag",
-          "description": "tag for click state. defaults to point tag.",
-          "$comment": "to-do: delete `$ref` for `$dynamicRef`."
         }
       }
     },

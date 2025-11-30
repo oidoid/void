@@ -4,8 +4,8 @@ import type {Sprite} from '../graphics/sprite.ts'
 import {type XY, xyEq} from '../types/geo.ts'
 import type {Void} from '../void.ts'
 import type {Ent} from './ent.ts'
-import {NinePatchEnt, type NinePatchOpts} from './nine-patch-ent.ts'
-import {TextEnt} from './text-ent.ts'
+import {NinePatchEnt, type NinePatchOpts} from './nine-patch.ts'
+import {TextEnt} from './text.ts'
 
 export type ButtonOpts<Tag extends AnyTag> = {
   button: Omit<NinePatchOpts<Tag>, 'x' | 'y' | 'wh'>

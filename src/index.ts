@@ -2,13 +2,12 @@
 // ╰──╰┴╯─╯╯──└┴╯─╯
 
 export {type Font, memProp5x6} from 'mem-font'
-export * from './ents/button-ent.ts'
-export * from './ents/cursor-ent.ts'
+export * from './ents/button.ts'
+export * from './ents/cursor.ts'
 export * from './ents/ent.ts'
-export * from './ents/follow-cam-ent.ts'
-// export * from './ents/follow-cursor.ts'
-export * from './ents/nine-patch-ent.ts'
-export * from './ents/text-ent.ts'
+export * from './ents/hud.ts'
+export * from './ents/nine-patch.ts'
+export * from './ents/text.ts'
 export * from './ents/zoo.ts'
 export * from './graphics/atlas.ts'
 export * from './graphics/atlas-parser.ts'

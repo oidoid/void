@@ -13,7 +13,7 @@ import {
 import type {Void} from '../void.ts'
 import type {Ent} from './ent.ts'
 
-export class FollowCamEnt<Tag extends AnyTag> implements Ent<Tag> {
+export class HUDEnt<Tag extends AnyTag> implements Ent<Tag> {
   #fill: 'X' | 'Y' | 'XY' | undefined
   #invalid: boolean = true
   readonly #margin: WH = {w: 0, h: 0}

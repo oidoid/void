@@ -11,8 +11,8 @@ export interface Ent<Tag extends AnyTag> {
 
 export interface Ent<Tag extends AnyTag> {
   button?: Button<Tag>
-  followCam?: FollowCam
-  followCursor?: FollowCursor<Tag>
+  cursor?: Cursor<Tag>
+  hud?: HUD
   id?: string
   name?: string
   ninePatch?: NinePatch<Tag>
@@ -27,17 +27,17 @@ export type Button<Tag extends AnyTag> = {
   type: ButtonType
 }
 export type ButtonType = 'Button' | 'Toggle'
-export type FollowCam = {
-  fill?: XYFlag
-  margin: Border
-  modulo: XY
-  origin: CompassDir
-}
-export type FollowCursor<Tag extends AnyTag> = {
+export type Cursor<Tag extends AnyTag> = {
   // readonly bounds: Box
   keyboard: number
   readonly pick?: Tag
   // readonly point: Tag
+}
+export type HUD = {
+  fill?: XYFlag
+  margin: Border
+  modulo: XY
+  origin: CompassDir
 }
 export type NinePatch<Tag extends AnyTag> = {
   border: Border
