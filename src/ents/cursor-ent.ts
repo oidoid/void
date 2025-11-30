@@ -68,7 +68,8 @@ export class CursorEnt<Tag extends AnyTag> implements Ent<Tag> {
   update(v: Void<Tag, 'U' | 'D' | 'L' | 'R' | 'A'>): boolean | undefined {
     if (v.input.point?.invalid) {
       this.#sprite.tag = v.input.point.click ? this.#pick : this.#point
-      this.#sprite.xy = v.input.point.local
+      this.#sprite.x = v.input.point.local.x
+      this.#sprite.y = v.input.point.local.y
       this.#sprite.z =
         v.input.point?.type === 'Mouse' ? Layer.Top : Layer.Hidden
       return true

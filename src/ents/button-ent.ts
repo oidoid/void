@@ -148,8 +148,10 @@ export class ButtonEnt<Tag extends AnyTag, Button extends string>
     this.#xy.y = xy.y
     this.#button.xy = xy
     this.#moveText(v)
-    this.#pressed.sprite.xy = xy
-    this.#selected.sprite.xy = xy
+    this.#pressed.sprite.x = xy.x
+    this.#pressed.sprite.y = xy.y
+    this.#selected.sprite.x = xy.x
+    this.#selected.sprite.y = xy.y
     this.#invalid = true
   }
 

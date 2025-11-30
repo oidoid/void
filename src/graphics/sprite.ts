@@ -194,15 +194,6 @@ export abstract class Drawable implements Block, Box {
     )
   }
 
-  get xy(): XY {
-    return {x: this.x, y: this.y}
-  }
-
-  set xy(xy: Readonly<XY>) {
-    this.x = xy.x
-    this.y = xy.y
-  }
-
   get y(): number {
     const sxyz_llll_y24 = this.#pool.view.getUint32(this.i + 3, true)
     return ((sxyz_llll_y24 << 8) >> 8) / 64 // signed shift.
