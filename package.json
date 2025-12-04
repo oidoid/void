@@ -5,16 +5,16 @@
   },
   "bugs": "https://github.com/oidoid/void/issues",
   "dependencies": {
-    "esbuild": "0.27.0",
+    "@biomejs/biome": "2.3.8",
+    "esbuild": "0.27.1",
+    "html-minifier-next": "4.6.1",
     "jsdom": "27.2.0",
     "mem-font": "11.0.0-8"
   },
   "description": "basic 2D game library.",
   "devDependencies": {
-    "@biomejs/biome": "2.3.8",
     "@types/jsdom": "27.0.0",
     "@types/node": "24.4.0",
-    "html-minifier-next": "4.6.0",
     "typescript": "5.9.3"
   },
   "engines": {
