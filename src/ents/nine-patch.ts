@@ -55,6 +55,16 @@ export class NinePatchEnt<Tag extends AnyTag> implements Ent<Tag> {
       s: v.alloc(),
       sw: v.alloc()
     }
+    this.#dir.center.visible = true
+    this.#dir.w.visible = true
+    this.#dir.nw.visible = true
+    this.#dir.n.visible = true
+    this.#dir.ne.visible = true
+    this.#dir.e.visible = true
+    this.#dir.se.visible = true
+    this.#dir.s.visible = true
+    this.#dir.sw.visible = true
+
     this.#dir.w.tag = opts.w?.tag ?? opts.e?.tag ?? opts.n.tag
     this.#dir.n.tag = opts.n.tag
     this.#dir.e.tag = opts.e?.tag ?? this.#dir.w.tag

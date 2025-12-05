@@ -23,6 +23,7 @@ export class HUDEnt<Tag extends AnyTag> implements Ent<Tag> {
 
   constructor(v: Void<Tag, string>, tag: Tag, pivot: CompassDir) {
     this.#sprite = v.alloc()
+    this.#sprite.visible = true
     this.#sprite.tag = tag
     this.#pivot = pivot
   }

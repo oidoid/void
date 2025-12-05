@@ -132,7 +132,6 @@
     "Layer": {
       "description": "z.",
       "enum": [
-        "Hidden",
         "Bottom",
         "A",
         "B",
@@ -140,6 +139,7 @@
         "D",
         "E",
         "F",
+        "G",
         "UIA",
         "UIB",
         "UIC",
@@ -251,7 +251,7 @@
       }
     },
     "SpriteProps": {
-      "description": "sprite config except box-related.",
+      "description": "sprite config except box-related. sprites are hidden when no tag is specified.",
       "oneOf": [
         {
           "$dynamicRef": "#Tag",

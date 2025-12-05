@@ -13,7 +13,8 @@ import {isUILayer, Layer} from './layer.ts'
 
 type Pool = {free(block: Block): void; view: DataView<ArrayBuffer>}
 
-export const drawableBytes: number = 12
+/** must be a multiple of 4 (`UNSIGNED_INT`). */
+export const drawableBytes: number = 16
 /** granularity (0.015625) of drawable coords. */
 export const drawableEpsilon: number = 1 / 64
 export const drawableMaxWH: Readonly<WH> = {w: 4095, h: 4095}
@@ -34,6 +35,10 @@ export const drawableMaxWH: Readonly<WH> = {w: 4095, h: 4095}
  * 9 hhhh hhhh
  * a iiic cccc animation ID [0, 2047], animation cel [0, 31].
  * b iiii iiii
+ * c rrrr rrrv reserved, visible.
+ * d rrrr rrrr
+ * e rrrr rrrr
+ * f rrrr rrrr
  *
  * animations default to looping without CPU interaction.
  * @internal
@@ -139,10 +144,11 @@ export abstract class Drawable implements Block, Box {
     this.h = 0
     this.id = 0
     this.stretch = false
+    this.visible = false
     this.w = 0
     this.x = 0
     this.y = 0
-    this.z = Layer.Hidden
+    this.z = Layer.Bottom
     this.zend = false
   }
 
@@ -162,6 +168,19 @@ export abstract class Drawable implements Block, Box {
 
   get ui(): boolean {
     return isUILayer(this.z)
+  }
+
+  get visible(): boolean {
+    const rrrr_rrrv = this.#pool.view.getUint8(this.i + 12)
+    return (rrrr_rrrv & 0x1) === 0x1
+  }
+
+  set visible(visible: boolean) {
+    const rrrr_rrrv = this.#pool.view.getUint8(this.i + 12)
+    this.#pool.view.setUint8(
+      this.i + 12,
+      (rrrr_rrrv & ~0x1) | (visible ? 0x1 : 0x0)
+    )
   }
 
   get w(): number {

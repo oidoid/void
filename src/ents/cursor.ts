@@ -22,7 +22,7 @@ export class CursorEnt<Tag extends AnyTag> implements Ent<Tag> {
     this.#pick = pick ?? this.#point
     this.#sprite = v.alloc()
     this.#sprite.tag = point
-    this.#sprite.z = Layer.Hidden
+    this.#sprite.z = Layer.Top
     this.#updateBounds(v)
   }
 
@@ -70,8 +70,7 @@ export class CursorEnt<Tag extends AnyTag> implements Ent<Tag> {
       this.#sprite.tag = v.input.point.click ? this.#pick : this.#point
       this.#sprite.x = v.input.point.local.x
       this.#sprite.y = v.input.point.local.y
-      this.#sprite.z =
-        v.input.point?.type === 'Mouse' ? Layer.Top : Layer.Hidden
+      this.#sprite.visible = v.input.point?.type === 'Mouse'
       return true
     }
 
@@ -104,14 +103,13 @@ export class CursorEnt<Tag extends AnyTag> implements Ent<Tag> {
           this.#bounds.y + this.#bounds.h,
           Math.max(this.#bounds.y, this.#sprite.y + v.input.dir.y * len)
         )
-      this.#sprite.z = Layer.Top
 
       return true
     }
   }
 
   get visible(): boolean {
-    return this.#sprite.z !== Layer.Hidden
+    return this.#sprite.visible
   }
 
   get x(): number {

@@ -15,6 +15,7 @@ layout (location=0) in ivec2 iUV;
 layout (location=1) in uint iy8_x24;
 layout (location=2) in uint iw8_sxyz_llll_y16;
 layout (location=3) in uint ii11_c5_h12_w4;
+layout (location=4) in uint r31_v;
 
 const int maxY = 0x20000;
 const int layers = 16;
@@ -22,7 +23,7 @@ const int maxDepth = maxY * layers;
 
 flat out uint vStretch;
 flat out ivec4 vTexXYWH;
-flat out int vZ;
+flat out uint vVisible;
 out vec2 vDstWH;
 flat out ivec2 vDstWHFixed;
 
@@ -38,6 +39,7 @@ void main() {
   int cel = int((ii11_c5_h12_w4 >> 16) & 0xfu); // ignore the MSB.
   int w = int(((ii11_c5_h12_w4 & 0xfu) << 8) | (iw8_sxyz_llll_y16 >> 24));
   int h = int((ii11_c5_h12_w4 >> 4) & 0xfffu);
+  bool visible = bool(r31_v & 0x1u);
 
   // https://www.patternsgameprog.com/opengl-2d-facade-25-get-the-z-of-a-pixel
   float depth = float((${Layer.Top} - z + 1) * maxY - (y + (zend ? 0 : h))) / float(maxDepth);
@@ -54,7 +56,7 @@ void main() {
   int frame = (((int(uAge / ${celMillis}) & 0x1f) - cel) + ${animCels}) & 0xf;
   uvec4 texXYWH = texelFetch(uCels, ivec2(0, id + frame), 0);
   vTexXYWH = ivec4(texXYWH);
-  vZ = z;
+  vVisible = uint(visible);
 
   vDstWH = vec2(targetWH * ivec2(flipX ? -1 : 1, flipY ? -1 : 1));
   vDstWHFixed = ivec2(w, h) * ivec2(flipX ? -1 : 1, flipY ? -1 : 1);

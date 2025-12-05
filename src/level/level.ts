@@ -214,6 +214,7 @@ export function parseSprite<Tag extends AnyTag>(
   const sprite = _pools[pool].alloc()
   if (typeof json === 'string') {
     sprite.tag = json
+    sprite.visible = true
     return sprite
   }
   if (json.tag != null) sprite.tag = json.tag

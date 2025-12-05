@@ -187,6 +187,9 @@ export class Renderer {
     gl.enableVertexAttribArray(3)
     gl.vertexAttribIPointer(3, 1, gl.UNSIGNED_INT, drawableBytes, 8)
     gl.vertexAttribDivisor(3, 1)
+    gl.enableVertexAttribArray(4)
+    gl.vertexAttribIPointer(4, 1, gl.UNSIGNED_INT, drawableBytes, 12)
+    gl.vertexAttribDivisor(4, 1)
     gl.bindBuffer(gl.ARRAY_BUFFER, null)
 
     gl.bindTexture(gl.TEXTURE_2D, shader.textures[0]!)

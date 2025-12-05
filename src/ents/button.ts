@@ -24,8 +24,8 @@ export class ButtonEnt<Tag extends AnyTag, Button extends string>
 {
   readonly #button: NinePatchEnt<Tag>
   #invalid: boolean = true
-  readonly #pressed: {sprite: Sprite<Tag>; z: Layer}
-  readonly #selected: {sprite: Sprite<Tag>; z: Layer}
+  readonly #pressed: Sprite<Tag>
+  readonly #selected: Sprite<Tag>
   #started: boolean = false
   readonly #toggle: boolean = false
   readonly #text: TextEnt = new TextEnt()
@@ -40,28 +40,22 @@ export class ButtonEnt<Tag extends AnyTag, Button extends string>
       z: buttonZ,
       wh: {w: opts.w, h: opts.h}
     })
-    this.#pressed = {
-      sprite: v.alloc(),
-      z: opts.pressed.z ?? layerOffset(buttonZ, -2)
-    }
-    this.#selected = {
-      sprite: v.alloc(),
-      z: opts.selected.z ?? layerOffset(this.#pressed.z, 1)
-    }
+    this.#pressed = v.alloc()
+    this.#pressed.z = opts.pressed.z ?? layerOffset(buttonZ, -2)
+    this.#selected = v.alloc()
+    this.#selected.z = opts.selected.z ?? layerOffset(this.#pressed.z, 1)
 
-    this.#pressed.sprite.tag = opts.pressed.tag
-    this.#pressed.sprite.x = opts.x ?? 0
-    this.#pressed.sprite.y = opts.y ?? 0
-    this.#pressed.sprite.w = opts.w ?? this.#button.wh.w
-    this.#pressed.sprite.h = opts.h ?? this.#button.wh.h
-    this.#pressed.sprite.z = Layer.Hidden
+    this.#pressed.tag = opts.pressed.tag
+    this.#pressed.x = opts.x ?? 0
+    this.#pressed.y = opts.y ?? 0
+    this.#pressed.w = opts.w ?? this.#button.wh.w
+    this.#pressed.h = opts.h ?? this.#button.wh.h
 
-    this.#selected.sprite.tag = opts.selected.tag
-    this.#selected.sprite.x = opts.x ?? 0
-    this.#selected.sprite.y = opts.y ?? 0
-    this.#selected.sprite.w = opts.w ?? this.#button.wh.w
-    this.#selected.sprite.h = opts.h ?? this.#button.wh.h
-    this.#selected.sprite.z = Layer.Hidden
+    this.#selected.tag = opts.selected.tag
+    this.#selected.x = opts.x ?? 0
+    this.#selected.y = opts.y ?? 0
+    this.#selected.w = opts.w ?? this.#button.wh.w
+    this.#selected.h = opts.h ?? this.#button.wh.h
 
     this.#text.text = opts.text?.text ?? ''
     this.#text.scale = opts.text?.scale ?? 1
@@ -74,22 +68,22 @@ export class ButtonEnt<Tag extends AnyTag, Button extends string>
   }
 
   get selected(): boolean {
-    return this.#selected.z !== Layer.Hidden
+    return this.#selected.visible
   }
 
   free(): void {
     this.#button.free()
     this.#text.free()
-    this.#selected.sprite.free()
-    this.#pressed.sprite.free()
+    this.#selected.free()
+    this.#pressed.free()
   }
 
   get on(): boolean {
-    return this.#pressed.sprite.z !== Layer.Hidden
+    return this.#pressed.visible
   }
 
   set on(on: boolean) {
-    this.#pressed.sprite.z = on ? this.#pressed.z : Layer.Hidden
+    this.#pressed.visible = on
   }
 
   // to-do: offStart() for pointer up listen? would need a boundary check too.
@@ -107,7 +101,7 @@ export class ButtonEnt<Tag extends AnyTag, Button extends string>
     if (this.#text.update(v)) invalid = true
 
     const hitsCursor =
-      !v.input.handled && !!v.zoo.cursor?.hits(v, this.#selected.sprite, 'UI')
+      !v.input.handled && !!v.zoo.cursor?.hits(v, this.#selected, 'UI')
     const clickStarted =
       (hitsCursor && v.input.isOnStart('Click')) ||
       (v.zoo.cursor?.keyboard && v.input.isOnStart('A'))
@@ -126,16 +120,11 @@ export class ButtonEnt<Tag extends AnyTag, Button extends string>
       invalid = true
     }
 
-    if (
-      hitsCursor &&
-      (v.input.point?.click || v.input.point?.type === 'Mouse')
-    ) {
-      invalid ||= this.#selected.sprite.z !== this.#selected.z
-      this.#selected.sprite.z = this.#selected.z
-    } else {
-      invalid ||= this.#selected.sprite.z !== Layer.Hidden
-      this.#selected.sprite.z = Layer.Hidden
-    }
+    const selected =
+      hitsCursor && !!(v.input.point?.click || v.input.point?.type === 'Mouse')
+
+    invalid ||= selected !== this.selected
+    this.#selected.visible = selected
 
     v.input.handled ||= hitsCursor
     this.#invalid = false
@@ -148,10 +137,10 @@ export class ButtonEnt<Tag extends AnyTag, Button extends string>
     this.#xy.y = xy.y
     this.#button.xy = xy
     this.#moveText(v)
-    this.#pressed.sprite.x = xy.x
-    this.#pressed.sprite.y = xy.y
-    this.#selected.sprite.x = xy.x
-    this.#selected.sprite.y = xy.y
+    this.#pressed.x = xy.x
+    this.#pressed.y = xy.y
+    this.#selected.x = xy.x
+    this.#selected.y = xy.y
     this.#invalid = true
   }
 

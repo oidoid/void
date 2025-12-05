@@ -80,23 +80,23 @@ test('cel', () => {
   const draw = new TestDrawable(view, 0)
 
   assert(draw.cel, 0)
-  assert(toHex(view), '000000000000000000000000')
+  assert(toHex(view), '00000000000000000000000000000000')
 
   draw.cel = 1
   assert(draw.cel, 1)
-  assert(toHex(view), '000000000000000000000100')
+  assert(toHex(view), '00000000000000000000010000000000')
 
   draw.cel = animCels
   assert(draw.cel, animCels)
-  assert(toHex(view), '000000000000000000001000')
+  assert(toHex(view), '00000000000000000000100000000000')
 
   draw.cel = animCels * 2 - 1
   assert(draw.cel, animCels * 2 - 1)
-  assert(toHex(view), '000000000000000000001f00')
+  assert(toHex(view), '000000000000000000001f0000000000')
 
   draw.cel = animCels * 2
   assert(draw.cel, 0)
-  assert(toHex(view), '000000000000000000000000')
+  assert(toHex(view), '00000000000000000000000000000000')
 })
 
 test('clips()', () => {
@@ -114,15 +114,15 @@ test('flipX', () => {
   const draw = new TestDrawable(view, 0)
 
   assert(draw.flipX, false)
-  assert(toHex(view), '000000000000000000000000')
+  assert(toHex(view), '00000000000000000000000000000000')
 
   draw.flipX = true
   assert(draw.flipX, true)
-  assert(toHex(view), '000000000000400000000000')
+  assert(toHex(view), '00000000000040000000000000000000')
 
   draw.flipX = false
   assert(draw.flipX, false)
-  assert(toHex(view), '000000000000000000000000')
+  assert(toHex(view), '00000000000000000000000000000000')
 })
 
 test('flipY', () => {
@@ -130,15 +130,15 @@ test('flipY', () => {
   const draw = new TestDrawable(view, 0)
 
   assert(draw.flipY, false)
-  assert(toHex(view), '000000000000000000000000')
+  assert(toHex(view), '00000000000000000000000000000000')
 
   draw.flipY = true
   assert(draw.flipY, true)
-  assert(toHex(view), '000000000000200000000000')
+  assert(toHex(view), '00000000000020000000000000000000')
 
   draw.flipY = false
   assert(draw.flipY, false)
-  assert(toHex(view), '000000000000000000000000')
+  assert(toHex(view), '00000000000000000000000000000000')
 })
 
 test('height', () => {
@@ -146,23 +146,23 @@ test('height', () => {
   const draw = new TestDrawable(view, 0)
 
   assert(draw.h, 0)
-  assert(toHex(view), '000000000000000000000000')
+  assert(toHex(view), '00000000000000000000000000000000')
 
   draw.h = 1
   assert(draw.h, 1)
-  assert(toHex(view), '000000000000000010000000')
+  assert(toHex(view), '00000000000000001000000000000000')
 
   draw.h = 1024
   assert(draw.h, 1024)
-  assert(toHex(view), '000000000000000000400000')
+  assert(toHex(view), '00000000000000000040000000000000')
 
   draw.h = 4095
   assert(draw.h, 4095)
-  assert(toHex(view), '0000000000000000f0ff0000')
+  assert(toHex(view), '0000000000000000f0ff000000000000')
 
   draw.h = 4096
   assert(draw.h, 0)
-  assert(toHex(view), '000000000000000000000000')
+  assert(toHex(view), '00000000000000000000000000000000')
 })
 
 test('index', () => {
@@ -184,6 +184,7 @@ test('init()', () => {
   draw.h = 100
   draw.id = 42
   draw.stretch = true
+  draw.visible = true
   draw.w = 200
   draw.x = 10
   draw.y = 20
@@ -198,10 +199,11 @@ test('init()', () => {
   assert(draw.h, 0)
   assert(draw.id, 0)
   assert(draw.stretch, false)
+  assert(draw.visible, false)
   assert(draw.w, 0)
   assert(draw.x, 0)
   assert(draw.y, 0)
-  assert(draw.z, Layer.Hidden)
+  assert(draw.z, Layer.Bottom)
   assert(draw.zend, false)
 })
 
@@ -210,27 +212,27 @@ test('id', () => {
   const draw = new TestDrawable(view, 0)
 
   assert(draw.id, 0)
-  assert(toHex(view), '000000000000000000000000')
+  assert(toHex(view), '00000000000000000000000000000000')
 
   draw.id = 1
   assert(draw.id, 1)
-  assert(toHex(view), '000000000000000000002000')
+  assert(toHex(view), '00000000000000000000200000000000')
 
   draw.id = 1023
   assert(draw.id, 1023)
-  assert(toHex(view), '00000000000000000000e07f')
+  assert(toHex(view), '00000000000000000000e07f00000000')
 
   draw.id = 1024
   assert(draw.id, 1024)
-  assert(toHex(view), '000000000000000000000080')
+  assert(toHex(view), '00000000000000000000008000000000')
 
   draw.id = 2047
   assert(draw.id, 2047)
-  assert(toHex(view), '00000000000000000000e0ff')
+  assert(toHex(view), '00000000000000000000e0ff00000000')
 
   draw.id = 2048
   assert(draw.id, 0)
-  assert(toHex(view), '000000000000000000000000')
+  assert(toHex(view), '00000000000000000000000000000000')
 })
 
 test('stretch', () => {
@@ -238,15 +240,31 @@ test('stretch', () => {
   const draw = new TestDrawable(view, 0)
 
   assert(draw.stretch, false)
-  assert(toHex(view), '000000000000000000000000')
+  assert(toHex(view), '00000000000000000000000000000000')
 
   draw.stretch = true
   assert(draw.stretch, true)
-  assert(toHex(view), '000000000000800000000000')
+  assert(toHex(view), '00000000000080000000000000000000')
 
   draw.stretch = false
   assert(draw.stretch, false)
-  assert(toHex(view), '000000000000000000000000')
+  assert(toHex(view), '00000000000000000000000000000000')
+})
+
+test('visible', () => {
+  const view = TestPool()
+  const draw = new TestDrawable(view, 0)
+
+  assert(draw.visible, false)
+  assert(toHex(view), '00000000000000000000000000000000')
+
+  draw.visible = true
+  assert(draw.visible, true)
+  assert(toHex(view), '00000000000000000000000001000000')
+
+  draw.visible = false
+  assert(draw.visible, false)
+  assert(toHex(view), '00000000000000000000000000000000')
 })
 
 test('width', () => {
@@ -254,19 +272,19 @@ test('width', () => {
   const draw = new TestDrawable(view, 0)
 
   assert(draw.w, 0)
-  assert(toHex(view), '000000000000000000000000')
+  assert(toHex(view), '00000000000000000000000000000000')
 
   draw.w = 1
   assert(draw.w, 1)
-  assert(toHex(view), '000000000000000100000000')
+  assert(toHex(view), '00000000000000010000000000000000')
 
   draw.w = 4095
   assert(draw.w, 4095)
-  assert(toHex(view), '00000000000000ff0f000000')
+  assert(toHex(view), '00000000000000ff0f00000000000000')
 
   draw.w = 4096
   assert(draw.w, 0)
-  assert(toHex(view), '000000000000000000000000')
+  assert(toHex(view), '00000000000000000000000000000000')
 })
 
 test('x', () => {
@@ -275,55 +293,55 @@ test('x', () => {
 
   draw.x = -131073
   assert(draw.x, 131071)
-  assert(toHex(view), 'c0ff7f000000000000000000')
+  assert(toHex(view), 'c0ff7f00000000000000000000000000')
 
   draw.x = -131072.015625
   assert(draw.x, 131071.984375)
-  assert(toHex(view), 'ffff7f000000000000000000')
+  assert(toHex(view), 'ffff7f00000000000000000000000000')
 
   draw.x = -131072
   assert(draw.x, -131072)
-  assert(toHex(view), '000080000000000000000000')
+  assert(toHex(view), '00008000000000000000000000000000')
 
   draw.x = -0.999
   assert(draw.x, -0.984375)
-  assert(toHex(view), 'c1ffff000000000000000000')
+  assert(toHex(view), 'c1ffff00000000000000000000000000')
 
   draw.x = -0.984375
   assert(draw.x, -0.984375)
-  assert(toHex(view), 'c1ffff000000000000000000')
+  assert(toHex(view), 'c1ffff00000000000000000000000000')
 
   draw.x = -0.015625
   assert(draw.x, -0.015625)
-  assert(toHex(view), 'ffffff000000000000000000')
+  assert(toHex(view), 'ffffff00000000000000000000000000')
 
   draw.x = 0
   assert(draw.x, 0)
-  assert(toHex(view), '000000000000000000000000')
+  assert(toHex(view), '00000000000000000000000000000000')
 
   draw.x = 0.015625
   assert(draw.x, 0.015625)
-  assert(toHex(view), '010000000000000000000000')
+  assert(toHex(view), '01000000000000000000000000000000')
 
   draw.x = 0.984375
   assert(draw.x, 0.984375)
-  assert(toHex(view), '3f0000000000000000000000')
+  assert(toHex(view), '3f000000000000000000000000000000')
 
   draw.x = 0.999
   assert(draw.x, 0.984375)
-  assert(toHex(view), '3f0000000000000000000000')
+  assert(toHex(view), '3f000000000000000000000000000000')
 
   draw.x = 1
   assert(draw.x, 1)
-  assert(toHex(view), '400000000000000000000000')
+  assert(toHex(view), '40000000000000000000000000000000')
 
   draw.x = 131071.984375
   assert(draw.x, 131071.984375)
-  assert(toHex(view), 'ffff7f000000000000000000')
+  assert(toHex(view), 'ffff7f00000000000000000000000000')
 
   draw.x = 131072
   assert(draw.x, -131072)
-  assert(toHex(view), '000080000000000000000000')
+  assert(toHex(view), '00008000000000000000000000000000')
 })
 
 test('y', () => {
@@ -332,55 +350,55 @@ test('y', () => {
 
   draw.y = -131073
   assert(draw.y, 131071)
-  assert(toHex(view), '000000c0ff7f000000000000')
+  assert(toHex(view), '000000c0ff7f00000000000000000000')
 
   draw.y = -131072.015625
   assert(draw.y, 131071.984375)
-  assert(toHex(view), '000000ffff7f000000000000')
+  assert(toHex(view), '000000ffff7f00000000000000000000')
 
   draw.y = -131072
   assert(draw.y, -131072)
-  assert(toHex(view), '000000000080000000000000')
+  assert(toHex(view), '00000000008000000000000000000000')
 
   draw.y = -0.999
   assert(draw.y, -0.984375)
-  assert(toHex(view), '000000c1ffff000000000000')
+  assert(toHex(view), '000000c1ffff00000000000000000000')
 
   draw.y = -0.984375
   assert(draw.y, -0.984375)
-  assert(toHex(view), '000000c1ffff000000000000')
+  assert(toHex(view), '000000c1ffff00000000000000000000')
 
   draw.y = -0.015625
   assert(draw.y, -0.015625)
-  assert(toHex(view), '000000ffffff000000000000')
+  assert(toHex(view), '000000ffffff00000000000000000000')
 
   draw.y = 0
   assert(draw.y, 0)
-  assert(toHex(view), '000000000000000000000000')
+  assert(toHex(view), '00000000000000000000000000000000')
 
   draw.y = 0.015625
   assert(draw.y, 0.015625)
-  assert(toHex(view), '000000010000000000000000')
+  assert(toHex(view), '00000001000000000000000000000000')
 
   draw.y = 0.984375
   assert(draw.y, 0.984375)
-  assert(toHex(view), '0000003f0000000000000000')
+  assert(toHex(view), '0000003f000000000000000000000000')
 
   draw.y = 0.999
   assert(draw.y, 0.984375)
-  assert(toHex(view), '0000003f0000000000000000')
+  assert(toHex(view), '0000003f000000000000000000000000')
 
   draw.y = 1
   assert(draw.y, 1)
-  assert(toHex(view), '000000400000000000000000')
+  assert(toHex(view), '00000040000000000000000000000000')
 
   draw.y = 131071.984375
   assert(draw.y, 131071.984375)
-  assert(toHex(view), '000000ffff7f000000000000')
+  assert(toHex(view), '000000ffff7f00000000000000000000')
 
   draw.y = 131072
   assert(draw.y, -131072)
-  assert(toHex(view), '000000000080000000000000')
+  assert(toHex(view), '00000000008000000000000000000000')
 })
 
 test('z', () => {
@@ -389,19 +407,19 @@ test('z', () => {
 
   draw.z = 0
   assert(draw.z, 0)
-  assert(toHex(view), '000000000000000000000000')
+  assert(toHex(view), '00000000000000000000000000000000')
 
   draw.z = 1
   assert(draw.z, 1)
-  assert(toHex(view), '000000000000010000000000')
+  assert(toHex(view), '00000000000001000000000000000000')
 
   draw.z = Layer.Top
   assert(draw.z, Layer.Top)
-  assert(toHex(view), '0000000000000f0000000000')
+  assert(toHex(view), '0000000000000f000000000000000000')
 
   draw.z = (Layer.Top + 1) as Layer
   assert(draw.z, 0)
-  assert(toHex(view), '000000000000000000000000')
+  assert(toHex(view), '00000000000000000000000000000000')
 })
 
 test('zend', () => {
@@ -409,15 +427,15 @@ test('zend', () => {
   const draw = new TestDrawable(view, 0)
 
   assert(draw.zend, false)
-  assert(toHex(view), '000000000000000000000000')
+  assert(toHex(view), '00000000000000000000000000000000')
 
   draw.zend = true
   assert(draw.zend, true)
-  assert(toHex(view), '000000000000100000000000')
+  assert(toHex(view), '00000000000010000000000000000000')
 
   draw.zend = false
   assert(draw.zend, false)
-  assert(toHex(view), '000000000000000000000000')
+  assert(toHex(view), '00000000000000000000000000000000')
 })
 
 test('anim', () => {

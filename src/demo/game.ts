@@ -71,10 +71,11 @@ export class Game extends V.Void<Tag> {
     border.wh = box
 
     const backpacker = this.alloc()
+    backpacker.visible = true
     backpacker.tag = 'backpacker--WalkRight'
     backpacker.x = 7
     backpacker.y = 7
-    backpacker.z = V.Layer.C
+    backpacker.z = V.Layer.D
     backpacker.stretch = true
     backpacker.w *= 5
     backpacker.h *= 5
@@ -92,6 +93,7 @@ export class Game extends V.Void<Tag> {
     )
 
     const overlay = this.alloc('overlay')
+    overlay.visible = true
     overlay.tag = 'background--GreyCheckerboard'
     overlay.w = V.drawableMaxWH.w
     overlay.h = V.drawableMaxWH.h

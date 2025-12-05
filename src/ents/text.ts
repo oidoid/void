@@ -36,6 +36,7 @@ export class TextEnt implements Ent<AnyTag> {
     for (const [i, char] of layout.chars.entries()) {
       if (char == null) continue
       const sprite = (this.#sprites[len] ??= v.alloc())
+      sprite.visible = true
       sprite.x = char.x
       sprite.y = char.y
       sprite.tag = fontCharToTag(memProp5x6, this.#str[i]!)
