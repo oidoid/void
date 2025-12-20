@@ -98,7 +98,7 @@ export function layoutWord(
     // of five pixels and a one pixel kerning for a given pair of characters, it
     // will have a span of six pixels which is greater than the maximal five
     // pixel sprite that can be rendered.
-    chars.push({x, y, w: fontCharWidth(font, char), h: font.cellHeight})
+    chars.push({x, y, w: fontCharWidth(font, char), h: font.cellH})
     x += span
   }
   return {chars, cursor: {x, y}}
@@ -110,7 +110,7 @@ function nextLine(
   curY: number,
   scale: number
 ): XY {
-  return {x: startX, y: curY + font.lineHeight * scale}
+  return {x: startX, y: curY + font.lineH * scale}
 }
 
 function layoutNewline(

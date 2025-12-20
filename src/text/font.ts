@@ -20,5 +20,5 @@ export function fontKerning(
 }
 
 export function fontCharWidth(font: Readonly<Font>, letter: string): number {
-  return font.charWidth[letter] ?? font.defaultCharWidth
+  return font.charW[letter] ?? font.defaultCharW
 }

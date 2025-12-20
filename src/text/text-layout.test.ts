@@ -6,62 +6,62 @@ import memProp5x6 from './mem-prop-5x6.json' with {type: 'json'}
 import {layoutText, layoutWord, type TextLayout} from './text-layout.ts'
 
 const font: Font = memProp5x6
-const maxWidth = 8191
+const maxW = 8191
 describe('layoutText()', () => {
   const cases: [string, number, TextLayout][] = [
     [
       '',
-      maxWidth,
+      maxW,
       {
         chars: [],
-        cursor: {x: 0, y: 0 * font.lineHeight},
+        cursor: {x: 0, y: 0 * font.lineH},
         wh: {h: 7, w: 0}
       }
     ],
     [
       ' ',
-      maxWidth,
+      maxW,
       {
         chars: [undefined],
-        cursor: {x: 4, y: 0 * font.lineHeight},
+        cursor: {x: 4, y: 0 * font.lineH},
         wh: {h: 7, w: 4}
       }
     ],
     [
       '\n',
-      maxWidth,
+      maxW,
       {
         chars: [undefined],
-        cursor: {x: 0, y: 1 * font.lineHeight},
+        cursor: {x: 0, y: 1 * font.lineH},
         wh: {h: 14, w: 0}
       }
     ],
     [
       'abc def ghi jkl mno',
-      maxWidth,
+      maxW,
       {
         chars: [
-          {x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 8, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
+          {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 8, y: 0 * font.lineH, w: 3, h: font.cellH},
           undefined,
-          {x: 13, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 17, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 21, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
+          {x: 13, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 17, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 21, y: 0 * font.lineH, w: 3, h: font.cellH},
           undefined,
-          {x: 26, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 30, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 34, y: 0 * font.lineHeight, w: 1, h: font.cellHeight},
+          {x: 26, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 30, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 34, y: 0 * font.lineH, w: 1, h: font.cellH},
           undefined,
-          {x: 37, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 41, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 45, y: 0 * font.lineHeight, w: 1, h: font.cellHeight},
+          {x: 37, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 41, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 45, y: 0 * font.lineH, w: 1, h: font.cellH},
           undefined,
-          {x: 48, y: 0 * font.lineHeight, w: 5, h: font.cellHeight},
-          {x: 54, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 58, y: 0 * font.lineHeight, w: 3, h: font.cellHeight}
+          {x: 48, y: 0 * font.lineH, w: 5, h: font.cellH},
+          {x: 54, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 58, y: 0 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 61, y: 0 * font.lineHeight},
+        cursor: {x: 61, y: 0 * font.lineH},
         wh: {h: 7, w: 61}
       }
     ],
@@ -70,27 +70,27 @@ describe('layoutText()', () => {
       10,
       {
         chars: [
-          {x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 8, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
+          {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 8, y: 0 * font.lineH, w: 3, h: font.cellH},
           undefined,
-          {x: 0, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 8, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
+          {x: 0, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 8, y: 1 * font.lineH, w: 3, h: font.cellH},
           undefined,
-          {x: 0, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 8, y: 2 * font.lineHeight, w: 1, h: font.cellHeight},
+          {x: 0, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 8, y: 2 * font.lineH, w: 1, h: font.cellH},
           undefined,
-          {x: 0, y: 3 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 3 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 8, y: 3 * font.lineHeight, w: 1, h: font.cellHeight},
+          {x: 0, y: 3 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 3 * font.lineH, w: 3, h: font.cellH},
+          {x: 8, y: 3 * font.lineH, w: 1, h: font.cellH},
           undefined,
-          {x: 0, y: 4 * font.lineHeight, w: 5, h: font.cellHeight},
-          {x: 6, y: 4 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 5 * font.lineHeight, w: 3, h: font.cellHeight}
+          {x: 0, y: 4 * font.lineH, w: 5, h: font.cellH},
+          {x: 6, y: 4 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 5 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 3, y: 5 * font.lineHeight},
+        cursor: {x: 3, y: 5 * font.lineH},
         wh: {h: 42, w: 10}
       }
     ],
@@ -99,27 +99,27 @@ describe('layoutText()', () => {
       20,
       {
         chars: [
-          {x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 8, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
+          {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 8, y: 0 * font.lineH, w: 3, h: font.cellH},
           undefined,
-          {x: 0, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 8, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
+          {x: 0, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 8, y: 1 * font.lineH, w: 3, h: font.cellH},
           undefined,
-          {x: 0, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 8, y: 2 * font.lineHeight, w: 1, h: font.cellHeight},
+          {x: 0, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 8, y: 2 * font.lineH, w: 1, h: font.cellH},
           undefined,
-          {x: 11, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 15, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 19, y: 2 * font.lineHeight, w: 1, h: font.cellHeight},
+          {x: 11, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 15, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 19, y: 2 * font.lineH, w: 1, h: font.cellH},
           undefined,
-          {x: 0, y: 3 * font.lineHeight, w: 5, h: font.cellHeight},
-          {x: 6, y: 3 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 10, y: 3 * font.lineHeight, w: 3, h: font.cellHeight}
+          {x: 0, y: 3 * font.lineH, w: 5, h: font.cellH},
+          {x: 6, y: 3 * font.lineH, w: 3, h: font.cellH},
+          {x: 10, y: 3 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 13, y: 3 * font.lineHeight},
+        cursor: {x: 13, y: 3 * font.lineH},
         wh: {h: 28, w: 19}
       }
     ],
@@ -128,27 +128,27 @@ describe('layoutText()', () => {
       21,
       {
         chars: [
-          {x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 8, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
+          {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 8, y: 0 * font.lineH, w: 3, h: font.cellH},
           undefined,
-          {x: 0, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 8, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
+          {x: 0, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 8, y: 1 * font.lineH, w: 3, h: font.cellH},
           undefined,
-          {x: 13, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 17, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 21, y: 1 * font.lineHeight, w: 1, h: font.cellHeight},
+          {x: 13, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 17, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 21, y: 1 * font.lineH, w: 1, h: font.cellH},
           undefined,
-          {x: 0, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 8, y: 2 * font.lineHeight, w: 1, h: font.cellHeight},
+          {x: 0, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 8, y: 2 * font.lineH, w: 1, h: font.cellH},
           undefined,
-          {x: 0, y: 3 * font.lineHeight, w: 5, h: font.cellHeight},
-          {x: 6, y: 3 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 10, y: 3 * font.lineHeight, w: 3, h: font.cellHeight}
+          {x: 0, y: 3 * font.lineH, w: 5, h: font.cellH},
+          {x: 6, y: 3 * font.lineH, w: 3, h: font.cellH},
+          {x: 10, y: 3 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 13, y: 3 * font.lineHeight},
+        cursor: {x: 13, y: 3 * font.lineH},
         wh: {h: 28, w: 21}
       }
     ],
@@ -157,12 +157,12 @@ describe('layoutText()', () => {
       4,
       {
         chars: [
-          {x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
+          {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
           undefined,
           undefined,
-          {x: 0, y: 2 * font.lineHeight, w: 3, h: font.cellHeight}
+          {x: 0, y: 2 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 3, y: 2 * font.lineHeight},
+        cursor: {x: 3, y: 2 * font.lineH},
         wh: {h: 21, w: 3}
       }
     ],
@@ -171,13 +171,13 @@ describe('layoutText()', () => {
       4,
       {
         chars: [
-          {x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
+          {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
           undefined,
           undefined,
-          {x: 0, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
+          {x: 0, y: 2 * font.lineH, w: 3, h: font.cellH},
           undefined
         ],
-        cursor: {x: 0, y: 3 * font.lineHeight},
+        cursor: {x: 0, y: 3 * font.lineH},
         wh: {h: 28, w: 3}
       }
     ]
@@ -191,446 +191,446 @@ describe('layoutText()', () => {
 describe('layoutWord()', () => {
   const cases: [XY, number, string, number, Omit<TextLayout, 'wh'>][] = [
     [
-      {x: 0, y: 0 * font.lineHeight},
-      maxWidth,
+      {x: 0, y: 0 * font.lineH},
+      maxW,
       ' ',
       0,
-      {chars: [], cursor: {x: 0, y: 0 * font.lineHeight}}
+      {chars: [], cursor: {x: 0, y: 0 * font.lineH}}
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
-      maxWidth,
+      {x: 0, y: 0 * font.lineH},
+      maxW,
       '',
       0,
-      {chars: [], cursor: {x: 0, y: 0 * font.lineHeight}}
+      {chars: [], cursor: {x: 0, y: 0 * font.lineH}}
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
-      maxWidth,
+      {x: 0, y: 0 * font.lineH},
+      maxW,
       '\n',
       0,
-      {chars: [], cursor: {x: 0, y: 0 * font.lineHeight}}
+      {chars: [], cursor: {x: 0, y: 0 * font.lineH}}
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
-      maxWidth,
+      {x: 0, y: 0 * font.lineH},
+      maxW,
       'a',
       0,
       {
-        chars: [{x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight}],
-        cursor: {x: 3, y: 0 * font.lineHeight}
+        chars: [{x: 0, y: 0 * font.lineH, w: 3, h: font.cellH}],
+        cursor: {x: 3, y: 0 * font.lineH}
       }
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
-      maxWidth,
+      {x: 0, y: 0 * font.lineH},
+      maxW,
       '.',
       0,
       {
-        chars: [{x: 0, y: 0 * font.lineHeight, w: 1, h: font.cellHeight}],
-        cursor: {x: 1, y: 0 * font.lineHeight}
+        chars: [{x: 0, y: 0 * font.lineH, w: 1, h: font.cellH}],
+        cursor: {x: 1, y: 0 * font.lineH}
       }
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
-      maxWidth,
+      {x: 0, y: 0 * font.lineH},
+      maxW,
       'a ',
       0,
       {
-        chars: [{x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight}],
-        cursor: {x: 2, y: 0 * font.lineHeight}
+        chars: [{x: 0, y: 0 * font.lineH, w: 3, h: font.cellH}],
+        cursor: {x: 2, y: 0 * font.lineH}
       }
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
-      maxWidth,
+      {x: 0, y: 0 * font.lineH},
+      maxW,
       'a\n',
       0,
       {
-        chars: [{x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight}],
-        cursor: {x: 2, y: 0 * font.lineHeight}
+        chars: [{x: 0, y: 0 * font.lineH, w: 3, h: font.cellH}],
+        cursor: {x: 2, y: 0 * font.lineH}
       }
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
-      maxWidth,
+      {x: 0, y: 0 * font.lineH},
+      maxW,
       'a a',
       0,
       {
-        chars: [{x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight}],
-        cursor: {x: 2, y: 0 * font.lineHeight}
+        chars: [{x: 0, y: 0 * font.lineH, w: 3, h: font.cellH}],
+        cursor: {x: 2, y: 0 * font.lineH}
       }
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
-      maxWidth,
+      {x: 0, y: 0 * font.lineH},
+      maxW,
       'a.',
       0,
       {
         chars: [
-          {x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 0 * font.lineHeight, w: 1, h: font.cellHeight}
+          {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 0 * font.lineH, w: 1, h: font.cellH}
         ],
-        cursor: {x: 5, y: 0 * font.lineHeight}
+        cursor: {x: 5, y: 0 * font.lineH}
       }
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
-      maxWidth,
+      {x: 0, y: 0 * font.lineH},
+      maxW,
       'aa',
       0,
       {
         chars: [
-          {x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 0 * font.lineHeight, w: 3, h: font.cellHeight}
+          {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 0 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 7, y: 0 * font.lineHeight}
+        cursor: {x: 7, y: 0 * font.lineH}
       }
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
-      maxWidth,
+      {x: 0, y: 0 * font.lineH},
+      maxW,
       'aa\n',
       0,
       {
         chars: [
-          {x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 0 * font.lineHeight, w: 3, h: font.cellHeight}
+          {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 0 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 6, y: 0 * font.lineHeight}
+        cursor: {x: 6, y: 0 * font.lineH}
       }
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
-      maxWidth,
+      {x: 0, y: 0 * font.lineH},
+      maxW,
       'aa aa',
       0,
       {
         chars: [
-          {x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 0 * font.lineHeight, w: 3, h: font.cellHeight}
+          {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 0 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 6, y: 0 * font.lineHeight}
+        cursor: {x: 6, y: 0 * font.lineH}
       }
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
-      maxWidth,
+      {x: 0, y: 0 * font.lineH},
+      maxW,
       'g',
       0,
       {
-        chars: [{x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight}],
-        cursor: {x: 3, y: 0 * font.lineHeight}
+        chars: [{x: 0, y: 0 * font.lineH, w: 3, h: font.cellH}],
+        cursor: {x: 3, y: 0 * font.lineH}
       }
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
-      maxWidth,
+      {x: 0, y: 0 * font.lineH},
+      maxW,
       'abcdefgh',
       0,
       {
         chars: [
-          {x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 8, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 12, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 16, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 20, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 24, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 28, y: 0 * font.lineHeight, w: 3, h: font.cellHeight}
+          {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 8, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 12, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 16, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 20, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 24, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 28, y: 0 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 31, y: 0 * font.lineHeight}
+        cursor: {x: 31, y: 0 * font.lineH}
       }
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
-      maxWidth,
+      {x: 0, y: 0 * font.lineH},
+      maxW,
       'abcdefgh',
       1,
       {
         chars: [
-          {x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 8, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 12, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 16, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 20, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 24, y: 0 * font.lineHeight, w: 3, h: font.cellHeight}
+          {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 8, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 12, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 16, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 20, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 24, y: 0 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 27, y: 0 * font.lineHeight}
+        cursor: {x: 27, y: 0 * font.lineH}
       }
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
-      maxWidth,
+      {x: 0, y: 0 * font.lineH},
+      maxW,
       'abcdefgh',
       8,
-      {chars: [], cursor: {x: 0, y: 0 * font.lineHeight}}
+      {chars: [], cursor: {x: 0, y: 0 * font.lineH}}
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
+      {x: 0, y: 0 * font.lineH},
       0,
       'abcdefgh',
       0,
       {
         chars: [
-          {x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 3 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 4 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 5 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 6 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 7 * font.lineHeight, w: 3, h: font.cellHeight}
+          {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 3 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 4 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 5 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 6 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 7 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 3, y: 7 * font.lineHeight}
+        cursor: {x: 3, y: 7 * font.lineH}
       }
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
+      {x: 0, y: 0 * font.lineH},
       1,
       'abcdefgh',
       0,
       {
         chars: [
-          {x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 3 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 4 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 5 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 6 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 7 * font.lineHeight, w: 3, h: font.cellHeight}
+          {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 3 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 4 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 5 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 6 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 7 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 3, y: 7 * font.lineHeight}
+        cursor: {x: 3, y: 7 * font.lineH}
       }
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
+      {x: 0, y: 0 * font.lineH},
       3,
       'abcdefgh',
       0,
       {
         chars: [
-          {x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 3 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 4 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 5 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 6 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 7 * font.lineHeight, w: 3, h: font.cellHeight}
+          {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 3 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 4 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 5 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 6 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 7 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 3, y: 7 * font.lineHeight}
+        cursor: {x: 3, y: 7 * font.lineH}
       }
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
+      {x: 0, y: 0 * font.lineH},
       5,
       'abcdefgh',
       0,
       {
         chars: [
-          {x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 3 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 4 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 5 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 6 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 7 * font.lineHeight, w: 3, h: font.cellHeight}
+          {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 3 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 4 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 5 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 6 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 7 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 3, y: 7 * font.lineHeight}
+        cursor: {x: 3, y: 7 * font.lineH}
       }
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
+      {x: 0, y: 0 * font.lineH},
       6,
       'abcdefgh',
       0,
       {
         chars: [
-          {x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 3 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 4 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 5 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 6 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 7 * font.lineHeight, w: 3, h: font.cellHeight}
+          {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 3 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 4 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 5 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 6 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 7 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 3, y: 7 * font.lineHeight}
+        cursor: {x: 3, y: 7 * font.lineH}
       }
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
+      {x: 0, y: 0 * font.lineH},
       7,
       'abcdefgh',
       0,
       {
         chars: [
-          {x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 3 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 4 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 5 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 6 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 6 * font.lineHeight, w: 3, h: font.cellHeight}
+          {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 3 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 4 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 5 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 6 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 6 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 7, y: 6 * font.lineHeight}
+        cursor: {x: 7, y: 6 * font.lineH}
       }
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
+      {x: 0, y: 0 * font.lineH},
       8,
       'abcdefgh',
       0,
       {
         chars: [
-          {x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 3 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 3 * font.lineHeight, w: 3, h: font.cellHeight}
+          {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 3 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 3 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 7, y: 3 * font.lineHeight}
+        cursor: {x: 7, y: 3 * font.lineH}
       }
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
+      {x: 0, y: 0 * font.lineH},
       9,
       'abcdefgh',
       0,
       {
         chars: [
-          {x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 3 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 3 * font.lineHeight, w: 3, h: font.cellHeight}
+          {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 3 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 3 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 7, y: 3 * font.lineHeight}
+        cursor: {x: 7, y: 3 * font.lineH}
       }
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
+      {x: 0, y: 0 * font.lineH},
       10,
       'abcdefgh',
       0,
       {
         chars: [
-          {x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 3 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 3 * font.lineHeight, w: 3, h: font.cellHeight}
+          {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 3 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 3 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 7, y: 3 * font.lineHeight}
+        cursor: {x: 7, y: 3 * font.lineH}
       }
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
+      {x: 0, y: 0 * font.lineH},
       11,
       'abcdefgh',
       0,
       {
         chars: [
-          {x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 3 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 3 * font.lineHeight, w: 3, h: font.cellHeight}
+          {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 3 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 3 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 7, y: 3 * font.lineHeight}
+        cursor: {x: 7, y: 3 * font.lineH}
       }
     ],
     [
-      {x: 0, y: 0 * font.lineHeight},
+      {x: 0, y: 0 * font.lineH},
       12,
       'abcdefgh',
       0,
       {
         chars: [
-          {x: 0, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 8, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 8, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 4, y: 2 * font.lineHeight, w: 3, h: font.cellHeight}
+          {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 8, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 8, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 4, y: 2 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 7, y: 2 * font.lineHeight}
+        cursor: {x: 7, y: 2 * font.lineH}
       }
     ],
     [
-      {x: 1, y: 0 * font.lineHeight},
+      {x: 1, y: 0 * font.lineH},
       5,
       'abcdefgh',
       0,
       {
         chars: [
-          {x: 1, y: 0 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 3 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 4 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 5 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 6 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 7 * font.lineHeight, w: 3, h: font.cellHeight}
+          {x: 1, y: 0 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 3 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 4 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 5 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 6 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 7 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 3, y: 7 * font.lineHeight}
+        cursor: {x: 3, y: 7 * font.lineH}
       }
     ],
     [
-      {x: 2, y: 0 * font.lineHeight},
+      {x: 2, y: 0 * font.lineH},
       5,
       'abcdefgh',
       0,
       {
         chars: [
-          {x: 0, y: 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 3 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 4 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 5 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 6 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 7 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 8 * font.lineHeight, w: 3, h: font.cellHeight}
+          {x: 0, y: 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 3 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 4 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 5 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 6 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 7 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 8 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 3, y: 8 * font.lineHeight}
+        cursor: {x: 3, y: 8 * font.lineH}
       }
     ],
     [
-      {x: 2, y: 1 + 0 * font.lineHeight},
+      {x: 2, y: 1 + 0 * font.lineH},
       5,
       'abcdefgh',
       0,
       {
         chars: [
-          {x: 0, y: 1 + 1 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 1 + 2 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 1 + 3 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 1 + 4 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 1 + 5 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 1 + 6 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 1 + 7 * font.lineHeight, w: 3, h: font.cellHeight},
-          {x: 0, y: 1 + 8 * font.lineHeight, w: 3, h: font.cellHeight}
+          {x: 0, y: 1 + 1 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 1 + 2 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 1 + 3 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 1 + 4 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 1 + 5 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 1 + 6 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 1 + 7 * font.lineH, w: 3, h: font.cellH},
+          {x: 0, y: 1 + 8 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 3, y: 1 + 8 * font.lineHeight}
+        cursor: {x: 3, y: 1 + 8 * font.lineH}
       }
     ]
   ]
