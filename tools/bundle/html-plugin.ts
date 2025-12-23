@@ -1,9 +1,7 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import type esbuild from 'esbuild'
-import {minify} from 'html-minifier-next'
 import type {Config} from '../types/config.ts'
-import {exec} from '../utils/exec.ts'
 import {parseHTML} from '../utils/html-parser.ts'
 
 type Manifest = {
@@ -99,30 +97,8 @@ export function HTMLPlugin(config: Readonly<Config>): esbuild.Plugin {
           }
         }
 
-        let html = `<!doctype html>\n${doc.documentElement.outerHTML}`
-
-        if (config.minify)
-          html = await minify(html, {
-            caseSensitive: true,
-            collapseBooleanAttributes: true,
-            html5: true,
-            minifyCSS: true,
-            removeAttributeQuotes: true,
-            removeComments: true,
-            removeEmptyAttributes: true
-          })
-        else
-          try {
-            html = await exec(
-              'biome',
-              'check',
-              '--fix',
-              `--stdin-file-path=${config.entry}`,
-              {stdin: html}
-            )
-          } catch {}
-
         // to-do: test.
+        const html = `<!doctype html>\n${doc.documentElement.outerHTML}`
         const outHTMLFilename = path.join(config.out.dir, config.out.filename)
         await fs.writeFile(outHTMLFilename, html)
       })
