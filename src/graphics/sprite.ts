@@ -1,6 +1,6 @@
 import {
   type Anim,
-  type AnyTag,
+  type AnimTag,
   type Atlas,
   animCels,
   celMillis
@@ -275,8 +275,8 @@ export abstract class Drawable implements Block, Box {
   }
 }
 
-export class Sprite<Tag extends AnyTag> extends Drawable {
-  readonly #atlas: Readonly<Atlas<Tag>>
+export class Sprite extends Drawable {
+  readonly #atlas: Readonly<Atlas>
   #hitbox: Box | undefined
   #hurtbox: Box | undefined
   readonly #looper: {readonly age: Millis}
@@ -284,7 +284,7 @@ export class Sprite<Tag extends AnyTag> extends Drawable {
   constructor(
     pool: Readonly<DrawablePool>,
     i: number,
-    atlas: Readonly<Atlas<Tag>>,
+    atlas: Readonly<Atlas>,
     looper: {readonly age: Millis}
   ) {
     super(pool, i)
@@ -419,12 +419,12 @@ export class Sprite<Tag extends AnyTag> extends Drawable {
     diagonalize(this, dir.x * dir.y)
   }
 
-  get tag(): Tag {
-    return this.#atlas.tags[this.id] as Tag
+  get tag(): AnimTag {
+    return this.#atlas.tags[this.id]!
   }
 
   /** sets animation, resets cel, dimensions, hitbox, and hurtbox. */
-  set tag(tag: Tag) {
+  set tag(tag: AnimTag) {
     const anim = this.#atlas.anim[tag]!
     this.w = anim.w
     this.h = anim.h

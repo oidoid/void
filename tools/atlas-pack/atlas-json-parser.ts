@@ -138,8 +138,8 @@ export function parseHitboxes(
   return {hitbox, hurtbox}
 }
 
-function parseTag(tag: string): V.AnyTag {
+function parseTag(tag: string): V.AnimTag {
   if (!tag.includes('--'))
     throw Error(`atlas tag "${tag}" not in <filestem>--<animation> format`)
-  return tag as V.AnyTag
+  return tag as V.AnimTag
 }

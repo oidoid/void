@@ -1,8 +1,5 @@
-import type * as V from '../../index.ts'
-
 declare module '../../index.ts' {
-  // biome-ignore lint/correctness/noUnusedVariables:;
-  interface Ent<Tag extends V.AnyTag> {
+  interface Ent {
     clock: Clock
     debugInput: DebugInput
     renderToggle: RenderToggle

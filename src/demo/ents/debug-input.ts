@@ -1,10 +1,9 @@
 import * as V from '../../index.ts'
 import type {Game} from '../game.ts'
-import type {Tag} from '../types/tag.ts'
 
-export type DebutInputEnt = V.QueryEnt<Tag, DebutInputSys['query']>
+export type DebutInputEnt = V.QueryEnt<DebutInputSys['query']>
 
-export class DebutInputSys implements V.Sys<Tag> {
+export class DebutInputSys implements V.Sys {
   readonly query = 'debugInput' as const
 
   update(_ent: DebutInputEnt, v: Game): void {

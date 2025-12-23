@@ -1,12 +1,12 @@
-import type {AnyTag} from '../graphics/atlas.ts'
+import type {AnimTag} from '../graphics/atlas.ts'
 import type {Layer} from '../graphics/layer.ts'
 import type {Sprite} from '../graphics/sprite.ts'
 import type {TextLayout} from '../text/text-layout.ts'
 import type {Border, Box, CompassDir, XY} from '../types/geo.ts'
 
-export interface Ent<Tag extends AnyTag> {
-  button?: Button<Tag>
-  cursor?: Cursor<Tag>
+export interface Ent {
+  button?: Button
+  cursor?: Cursor
   hud?: HUD
   id?: string
   /**
@@ -17,30 +17,30 @@ export interface Ent<Tag extends AnyTag> {
    */
   invalid?: boolean
   name?: string
-  ninePatch?: NinePatch<Tag>
+  ninePatch?: NinePatch
   override?: Override
-  sprite?: Sprite<Tag>
+  sprite?: Sprite
   text?: string
   textWH?: TextWH
-  textXY?: TextXY<Tag>
+  textXY?: TextXY
 }
 
-export type Button<Tag extends AnyTag> = {
+export type Button = {
   started: boolean
   // to-do: naming?
-  pressed: Sprite<Tag>
-  selected: Sprite<Tag>
+  pressed: Sprite
+  selected: Sprite
   type: ButtonType
 }
 
 export type ButtonType = 'Button' | 'Toggle'
 
-export type Cursor<Tag extends AnyTag> = {
+export type Cursor = {
   /** screen area cursor may move within. */
   bounds: Box
   keyboard: number
-  pick?: Tag
-  point: Tag
+  pick?: AnimTag
+  point: AnimTag
 }
 
 export type HUD = {
@@ -50,10 +50,10 @@ export type HUD = {
   origin: CompassDir
 }
 
-export type NinePatch<Tag extends AnyTag> = {
+export type NinePatch = {
   border: Border
   pad: Border
-  patch: {[dir in Lowercase<CompassDir>]?: Sprite<Tag>}
+  patch: {[dir in Lowercase<CompassDir>]?: Sprite}
 }
 
 export type Override = {invalid?: boolean}
@@ -68,6 +68,6 @@ export type TextWH = {
 
 export type Trim = 'Leading' | 'Descender'
 
-export type TextXY<Tag extends AnyTag> = {chars: Sprite<Tag>[]; z: Layer}
+export type TextXY = {chars: Sprite[]; z: Layer}
 
 export type XYFlag = 'XY' | 'X' | 'Y'

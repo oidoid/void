@@ -13,8 +13,6 @@ import {
   truncDrawableEpsilon
 } from './sprite.ts'
 
-type Tag = 'stem--AnimA' | 'stem--AnimB'
-
 const animA: Readonly<Anim> = {
   cels: 10,
   id: 0,
@@ -32,7 +30,7 @@ const animB: Readonly<Anim> = {
   hurtbox: {x: 1, y: 2, w: 3, h: 4}
 }
 
-const atlas: Readonly<Atlas<Tag>> = {
+const atlas: Readonly<Atlas> = {
   anim: {'stem--AnimA': animA, 'stem--AnimB': animB},
   celXYWH: [],
   tags: ['stem--AnimA', 'stem--AnimB']
@@ -726,7 +724,7 @@ test('truncDrawableEpsilon()', () => {
     assert(truncDrawableEpsilon(x), out, `${x}`)
 })
 
-function TestSprite(): Sprite<Tag> {
+function TestSprite(): Sprite {
   return new Sprite(TestPool(), 0, atlas, {age: 0})
 }
 

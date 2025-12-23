@@ -8,7 +8,7 @@ import type {
   TextWH,
   TextXY
 } from '../ents/ent.ts'
-import type {AnyTag, Atlas} from '../graphics/atlas.ts'
+import type {AnimTag, Atlas} from '../graphics/atlas.ts'
 import {Layer} from '../graphics/layer.ts'
 import {drawableMaxWH, type Sprite} from '../graphics/sprite.ts'
 import type {PoolMap} from '../mem/pool-map.ts'
@@ -30,20 +30,20 @@ import type {
   UnboundedWHSchema
 } from './level-schema.ts'
 
-export type ComponentHook<Tag extends AnyTag> = (
-  ent: Ent<Tag>,
-  json: Readonly<EntSchema<Tag>>,
-  k: keyof EntSchema<Tag>,
-  pools: Readonly<PoolMap<Tag>>,
-  atlas: Readonly<Atlas<Tag>>
-) => Ent<Tag>[typeof k]
+export type ComponentHook = (
+  ent: Ent,
+  json: Readonly<EntSchema>,
+  k: keyof EntSchema,
+  pools: Readonly<PoolMap>,
+  atlas: Readonly<Atlas>
+) => Ent[typeof k]
 
-export function parseLevel<Tag extends AnyTag>(
-  json: Readonly<LevelSchema<Tag>>,
-  pools: Readonly<PoolMap<Tag>>,
-  hook: ComponentHook<Tag>,
-  atlas: Readonly<Atlas<Tag>>
-): Level<Tag> {
+export function parseLevel(
+  json: Readonly<LevelSchema>,
+  pools: Readonly<PoolMap>,
+  hook: ComponentHook,
+  atlas: Readonly<Atlas>
+): Level {
   return {
     ents: json.ents?.map(ent => parseEnt(ent, pools, hook, atlas)) ?? [],
     keepZoo: json.keepZoo ?? false,
@@ -66,11 +66,11 @@ export function parseBorder(json: Readonly<BorderSchema> | undefined): Border {
   }
 }
 
-export function parseButton<Tag extends AnyTag>(
-  json: Readonly<ButtonSchema<Tag>>,
-  pools: Readonly<PoolMap<Tag>>,
-  atlas: Readonly<Atlas<Tag>>
-): Button<Tag> {
+export function parseButton(
+  json: Readonly<ButtonSchema>,
+  pools: Readonly<PoolMap>,
+  atlas: Readonly<Atlas>
+): Button {
   const pressed = parseSprite(json.pressed, pools, atlas)
   if (json.z) pressed.z = Layer[json.z]
   pressed.visible = false // button state is based on visibility.
@@ -79,10 +79,7 @@ export function parseButton<Tag extends AnyTag>(
   return {pressed, selected, started: false, type: json.type ?? 'Button'}
 }
 
-export function parseCursor<Tag extends AnyTag>(
-  ent: Ent<Tag>,
-  json: Readonly<CursorSchema<Tag>>
-): Cursor<Tag> {
+export function parseCursor(ent: Ent, json: Readonly<CursorSchema>): Cursor {
   if (!ent.sprite) throw Error('cursor missing sprite')
   return {
     bounds: {x: 0, y: 0, w: 0, h: 0},
@@ -92,15 +89,15 @@ export function parseCursor<Tag extends AnyTag>(
   }
 }
 
-export function parseEnt<Tag extends AnyTag>(
-  json: Readonly<EntSchema<Tag>>,
-  pools: Readonly<PoolMap<Tag>>,
-  hook: ComponentHook<Tag>,
-  atlas: Readonly<Atlas<Tag>>
-): Ent<Tag> {
-  const ent: {[k: string]: Ent<Tag>[keyof Ent<Tag>]} = {}
+export function parseEnt(
+  json: Readonly<EntSchema>,
+  pools: Readonly<PoolMap>,
+  hook: ComponentHook,
+  atlas: Readonly<Atlas>
+): Ent {
+  const ent: {[k: string]: Ent[keyof Ent]} = {}
   for (const _k in json) {
-    const k = _k as keyof EntSchema<Tag>
+    const k = _k as keyof EntSchema
     ent[k] =
       hook(ent, json, k, pools, atlas) ??
       parseEntComponent(ent, json, k, pools, atlas)
@@ -109,40 +106,35 @@ export function parseEnt<Tag extends AnyTag>(
   return ent
 }
 
-export function parseEntComponent<Tag extends AnyTag>(
-  ent: Ent<Tag>,
-  json: Readonly<EntSchema<Tag>>,
-  k: keyof EntSchema<Tag>,
-  pools: Readonly<PoolMap<Tag>>,
-  atlas: Readonly<Atlas<Tag>>
-): Ent<Tag>[typeof k] {
+export function parseEntComponent(
+  ent: Ent,
+  json: Readonly<EntSchema>,
+  k: keyof EntSchema,
+  pools: Readonly<PoolMap>,
+  atlas: Readonly<Atlas>
+): Ent[typeof k] {
   if (json[k] == null) return
   switch (k) {
     case 'button':
-      return parseButton(json[k], pools, atlas) satisfies Ent<Tag>[typeof k]
+      return parseButton(json[k], pools, atlas) satisfies Ent[typeof k]
     case 'cursor':
-      return parseCursor(ent, json[k]) satisfies Ent<Tag>[typeof k]
+      return parseCursor(ent, json[k]) satisfies Ent[typeof k]
     case 'hud':
-      return parseHUD(json[k]) satisfies Ent<Tag>[typeof k]
+      return parseHUD(json[k]) satisfies Ent[typeof k]
     case 'id':
     case 'name':
     case 'text':
-      return json[k] satisfies Ent<Tag>[typeof k]
+      return json[k] satisfies Ent[typeof k]
     case 'ninePatch':
-      return parseNinePatch(
-        ent,
-        json[k],
-        pools,
-        atlas
-      ) satisfies Ent<Tag>[typeof k]
+      return parseNinePatch(ent, json[k], pools, atlas) satisfies Ent[typeof k]
     case 'override':
-      return parseOverride(json[k]) satisfies Ent<Tag>[typeof k]
+      return parseOverride(json[k]) satisfies Ent[typeof k]
     case 'sprite':
-      return parseSprite(json[k], pools, atlas) satisfies Ent<Tag>[typeof k]
+      return parseSprite(json[k], pools, atlas) satisfies Ent[typeof k]
     case 'textWH':
-      return parseTextWH(json[k]) satisfies Ent<Tag>[typeof k]
+      return parseTextWH(json[k]) satisfies Ent[typeof k]
     case 'textXY':
-      return parseTextXY(ent, json[k]) satisfies Ent<Tag>[typeof k]
+      return parseTextXY(ent, json[k]) satisfies Ent[typeof k]
     default:
       k satisfies never
   }
@@ -157,12 +149,12 @@ export function parseHUD(json: Readonly<HUDSchema>): HUD {
   }
 }
 
-export function parseNinePatch<Tag extends AnyTag>(
-  ent: Ent<Tag>,
-  json: Readonly<NinePatchSchema<Tag>>,
-  pools: Readonly<PoolMap<Tag>>,
-  atlas: Readonly<Atlas<Tag>>
-): NinePatch<Tag> {
+export function parseNinePatch(
+  ent: Ent,
+  json: Readonly<NinePatchSchema>,
+  pools: Readonly<PoolMap>,
+  atlas: Readonly<Atlas>
+): NinePatch {
   if (!ent.sprite) throw Error('nine patch missing sprite')
   const patch = {
     center:
@@ -248,21 +240,21 @@ export function parseOverride(json: Readonly<OverrideSchema>): Override {
   return {invalid: json.invalid}
 }
 
-export function parseSprite<Tag extends AnyTag>(
+export function parseSprite(
   json:
     | Readonly<
-        SpriteSchema<Tag> &
+        SpriteSchema &
           Partial<WH> &
           Partial<XY> & {scale?: number | Partial<XY>}
       >
-    | Tag,
-  pools: Readonly<PoolMap<Tag>>,
-  atlas: Readonly<Atlas<Tag>>
-): Sprite<Tag> {
+    | AnimTag,
+  pools: Readonly<PoolMap>,
+  atlas: Readonly<Atlas>
+): Sprite {
   const pool =
     typeof json === 'string' ? 'default' : uncapitalize(json.pool ?? 'Default')
-  if (!pools[pool as keyof PoolMap<Tag>]) throw Error(`no ${pool} sprite pool`)
-  const sprite = pools[pool as keyof PoolMap<Tag>].alloc()
+  if (!pools[pool as keyof PoolMap]) throw Error(`no ${pool} sprite pool`)
+  const sprite = pools[pool as keyof PoolMap].alloc()
   if (typeof json === 'string') {
     if (!(json in atlas.anim)) throw Error(`no tag "${json}"`)
     sprite.tag = json
@@ -294,7 +286,7 @@ export function parseSprite<Tag extends AnyTag>(
   return sprite
 }
 
-export function parseTextWH<_Tag extends AnyTag>(
+export function parseTextWH<_Tag extends AnimTag>(
   json: Readonly<TextWHSchema>
 ): TextWH {
   return {
@@ -306,10 +298,7 @@ export function parseTextWH<_Tag extends AnyTag>(
   }
 }
 
-export function parseTextXY<Tag extends AnyTag>(
-  ent: Ent<Tag>,
-  json: Readonly<TextXYSchema>
-): TextXY<Tag> {
+export function parseTextXY(ent: Ent, json: Readonly<TextXYSchema>): TextXY {
   return {
     chars: [],
     z: json.z ? Layer[json.z] : (ent.sprite?.z ?? Layer.Bottom)

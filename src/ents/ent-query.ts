@@ -1,9 +1,7 @@
-import type {AnyTag} from '../graphics/atlas.ts'
 import type {Ent} from './ent.ts'
 
 /** map Query to a subset of Ent and a Partial<T>. */
-export type QueryEnt<Tag extends AnyTag, Query> = Ent<Tag> &
-  ExactQueryEnt<Required<Ent<Tag>>, Query>
+export type QueryEnt<Query> = Ent & ExactQueryEnt<Required<Ent>, Query>
 
 /** map Query to a subset of Ent. */
 type ExactQueryEnt<Ent, Query> = Query extends keyof Ent
@@ -30,8 +28,8 @@ export type EQL<Ent, Query> = Query extends `${'!' | ''}${keyof Ent & string}`
       ? `${Term} | ${EQL<Ent, Rest>}`
       : never
 
-export function eql<const Query>(str: Query): EQL<Ent<AnyTag>, Query> {
-  return str as EQL<Ent<AnyTag>, Query>
+export function eql<const Query>(str: Query): EQL<Ent, Query> {
+  return str as EQL<Ent, Query>
 }
 
 // why set?

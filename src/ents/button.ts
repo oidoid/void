@@ -1,26 +1,17 @@
-import type {AnyTag} from '../graphics/atlas.ts'
 import type {Void} from '../void.ts'
 import type {QueryEnt} from './ent-query.ts'
 import type {Sys} from './sys.ts'
 
-export type ButtonEnt<Tag extends AnyTag, Button extends string> = QueryEnt<
-  Tag,
-  ButtonSys<Tag, Button>['query']
->
+export type ButtonEnt = QueryEnt<ButtonSys['query']>
 
-export class ButtonSys<Tag extends AnyTag, Button extends string>
-  implements Sys<Tag>
-{
+export class ButtonSys implements Sys {
   readonly query = 'button & sprite' as const
 
-  free(ent: ButtonEnt<Tag, Button>): void {
+  free(ent: ButtonEnt): void {
     buttonFree(ent)
   }
 
-  update(
-    ent: ButtonEnt<Tag, Button>,
-    v: Void<Tag, 'A' | 'Click' | Button>
-  ): void {
+  update(ent: ButtonEnt, v: Void): void {
     // to-do: !v.zoo.cursor?.invalid? I should never read another ent's invalid state.
     if (!ent.invalid && !v.input.point?.invalid) return
     ent.invalid = true // to-do: every cursor movement!?
@@ -64,31 +55,27 @@ export class ButtonSys<Tag extends AnyTag, Button extends string>
   }
 }
 
-export function buttonFree(ent: ButtonEnt<AnyTag, string>): void {
+export function buttonFree(ent: ButtonEnt): void {
   ent.button.pressed.free()
   ent.button.selected.free()
   ent.invalid = true
   // to-do: how to update zoo synchronously to remove the component and not run update()?
 }
 
-export function buttonSetOn(ent: ButtonEnt<AnyTag, string>, on: boolean): void {
+export function buttonSetOn(ent: ButtonEnt, on: boolean): void {
   ent.button.pressed.visible = on
   ent.invalid = true
 }
 
-export function buttonOn(ent: Readonly<ButtonEnt<AnyTag, string>>): boolean {
+export function buttonOn(ent: Readonly<ButtonEnt>): boolean {
   return ent.button.pressed.visible
 }
 
 // to-do: offStart() for pointer up listen? would need a boundary check too.
-export function buttonOnStart(
-  ent: Readonly<ButtonEnt<AnyTag, string>>
-): boolean {
+export function buttonOnStart(ent: Readonly<ButtonEnt>): boolean {
   return ent.button.started && buttonOn(ent)
 }
 
-export function buttonSelected(
-  ent: Readonly<ButtonEnt<AnyTag, string>>
-): boolean {
+export function buttonSelected(ent: Readonly<ButtonEnt>): boolean {
   return ent.button.selected.visible
 }

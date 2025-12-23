@@ -8,15 +8,15 @@ export const animMillis: Millis = 1000 as Millis
 /** 62.5 millis. */
 export const celMillis: Millis = (animMillis / animCels) as Millis
 
-export type Atlas<Tag extends AnyTag> = {
-  anim: {[tag in Tag]: Anim}
+export type Atlas = {
+  anim: {[tag: AnimTag]: Anim}
   /**
    * cell source XYWH by `Anim.id` and `Anim.cel`. every animation is padded to
    * 16 cels (`maxAnimCels`) as needed by repeating the sequence.
    */
   celXYWH: number[]
   /** tag by `Anim.id`. */
-  tags: Tag[]
+  tags: AnimTag[]
 }
 
 export type Anim = {
@@ -38,4 +38,4 @@ export type Anim = {
 }
 
 /** `--tagname-format={filestem}--{animation}`. */
-export type AnyTag = `${string}--${string}`
+export type AnimTag = `${string}--${string}`

@@ -1,6 +1,6 @@
 import {describe, test} from 'node:test'
 import type {Button, Ent} from '../ents/ent.ts'
-import type {Anim, AnyTag, Atlas} from '../graphics/atlas.ts'
+import type {Anim, Atlas} from '../graphics/atlas.ts'
 import {Layer} from '../graphics/layer.ts'
 import type {Sprite} from '../graphics/sprite.ts'
 import type {Pool} from '../mem/pool.ts'
@@ -28,30 +28,26 @@ import {
 import type {EntSchema, SpriteSchema} from './level-schema.ts'
 
 declare module '../ents/ent.ts' {
-  // biome-ignore lint/correctness/noUnusedVariables:;
-  interface Ent<Tag extends AnyTag> {
+  interface Ent {
     widget?: number
   }
 }
 
 declare module './level-schema.ts' {
-  // biome-ignore lint/correctness/noUnusedVariables:;
-  interface EntSchema<Tag extends AnyTag> {
+  interface EntSchema {
     widget?: {gears: number}
   }
 }
 
 declare module '../mem/pool-map.ts' {
-  interface PoolMap<Tag extends AnyTag> {
-    secondary: Pool<Sprite<Tag>>
+  interface PoolMap {
+    secondary: Pool<Sprite>
   }
 }
 
-type Tag = 'stem--A' | 'stem--B'
-
 const animA: Readonly<Anim> = {cels: 4, id: 0, w: 10, h: 20}
 
-const atlas: Readonly<Atlas<Tag>> = {
+const atlas: Readonly<Atlas> = {
   anim: {'stem--A': animA, 'stem--B': {cels: 8, id: 1, w: 30, h: 40}},
   celXYWH: [],
   tags: ['stem--A', 'stem--B']
@@ -82,7 +78,7 @@ test('parseButton()', () => {
 
 test('parseEnt() with parseComponent override hook', () => {
   const pools = TestPools()
-  const json: EntSchema<Tag> = {
+  const json: EntSchema = {
     name: 'X',
     sprite: 'stem--A',
     widget: {gears: 5}
@@ -100,7 +96,7 @@ test('parseEnt() with parseComponent override hook', () => {
     pools,
     (_ent, json, k) => {
       if (json[k] == null) return
-      if (k === 'widget') return json[k].gears satisfies Ent<Tag>[typeof k]
+      if (k === 'widget') return json[k].gears satisfies Ent[typeof k]
     },
     atlas
   )
@@ -111,12 +107,12 @@ test('parseEnt() with parseComponent override hook', () => {
 
 test('parseEnt() preserves key insertion order', () => {
   const pools = TestPools()
-  const hook: ComponentHook<Tag> = (_ent, json, k) => {
+  const hook: ComponentHook = (_ent, json, k) => {
     if (json[k] == null) return
-    if (k === 'widget') return json[k].gears satisfies Ent<Tag>[typeof k]
+    if (k === 'widget') return json[k].gears satisfies Ent[typeof k]
   }
 
-  const a: EntSchema<Tag> = {
+  const a: EntSchema = {
     name: 'Name',
     id: '1',
     text: 'hello',
@@ -133,7 +129,7 @@ test('parseEnt() preserves key insertion order', () => {
     'invalid'
   ])
 
-  const b: EntSchema<Tag> = {
+  const b: EntSchema = {
     widget: {gears: 3},
     text: 'first',
     sprite: 'stem--B',
@@ -147,7 +143,7 @@ test('parseEnt() preserves key insertion order', () => {
     'invalid'
   ])
 
-  const c: EntSchema<Tag> = {name: 'name', id: '2'}
+  const c: EntSchema = {name: 'name', id: '2'}
   assert(Object.keys(parseEnt(c, pools, hook, atlas)), [
     'name',
     'id',
@@ -157,7 +153,7 @@ test('parseEnt() preserves key insertion order', () => {
 
 test('parseEntComponent()', () => {
   const pools = TestPools()
-  const json: EntSchema<Tag> = {
+  const json: EntSchema = {
     id: '1',
     name: 'Name',
     text: 'text',
@@ -173,7 +169,7 @@ test('parseEntComponent()', () => {
   assert(parseEntComponent({}, json, 'name', pools, atlas), 'Name')
   assert(parseEntComponent({}, json, 'text', pools, atlas), 'text')
   assert(
-    (parseEntComponent({}, json, 'sprite', pools, atlas) as Sprite<Tag>).tag,
+    (parseEntComponent({}, json, 'sprite', pools, atlas) as Sprite).tag,
     'stem--A'
   )
   assert(
@@ -229,12 +225,12 @@ test('parseEntComponent()', () => {
     trim: undefined
   })
   assert(
-    (parseEntComponent({}, json, 'button', pools, atlas) as Button<Tag>).type,
+    (parseEntComponent({}, json, 'button', pools, atlas) as Button).type,
     'Toggle'
   )
 
   assert(
-    parseEntComponent({}, {}, 'missing' as keyof EntSchema<Tag>, pools, atlas),
+    parseEntComponent({}, {}, 'missing' as keyof EntSchema, pools, atlas),
     undefined
   )
 })
@@ -372,7 +368,7 @@ describe('parseSprite()', () => {
   })
 
   test('object', () => {
-    const json: Required<SpriteSchema<Tag>> & Box & {scale: number} = {
+    const json: Required<SpriteSchema> & Box & {scale: number} = {
       flip: 'XY',
       pool: 'Default',
       stretch: true,
@@ -473,7 +469,7 @@ test('parseXY()', () => {
   assert(parseXY({x: 3, y: 4}), {x: 3, y: 4})
 })
 
-function TestPools(): PoolMap<Tag> {
+function TestPools(): PoolMap {
   return {
     default: SpritePool({atlas: atlas, looper: {age: 0}, pageBlocks: 4}),
     secondary: SpritePool({atlas: atlas, looper: {age: 0}, pageBlocks: 4})

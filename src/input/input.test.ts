@@ -8,7 +8,7 @@ import {
   WheelTestEvent
 } from '../test/test-event.ts'
 import type {Millis} from '../types/time.ts'
-import {type Combo, type DefaultButton, Input} from './input.ts'
+import {type AnyButton, type Combo, Input} from './input.ts'
 
 beforeEach(() => {
   globalThis.devicePixelRatio = 1
@@ -957,8 +957,8 @@ test('wheel', () => {
 })
 
 function assertButton(
-  input: Input<DefaultButton>,
-  btn: DefaultButton,
+  input: Input,
+  btn: AnyButton,
   state: 'On' | 'Off',
   edge?: 'Start'
 ): void {
@@ -971,8 +971,8 @@ function assertButton(
 }
 
 function assertCombo(
-  input: Input<DefaultButton>,
-  combo: Readonly<Combo<DefaultButton>>,
+  input: Input,
+  combo: Readonly<Combo>,
   state: 'EndsWith' | 'Equal' | 'Unequal',
   edge?: 'Start'
 ): void {
@@ -1000,9 +1000,8 @@ function DefaultCam(): Cam {
   return cam
 }
 
-function DefaultInput(
-  cam: Readonly<Cam>,
-  target: Element
-): Input<DefaultButton> {
-  return new Input<DefaultButton>(cam, target).mapDefault()
+function DefaultInput(cam: Readonly<Cam>, target: Element): Input {
+  const input = new Input(cam, target)
+  input.mapDefault()
+  return input
 }

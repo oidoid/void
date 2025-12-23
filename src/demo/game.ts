@@ -6,15 +6,14 @@ import {RenderToggleSys} from './ents/render-toggle.ts'
 import {TallySys} from './ents/tally.ts'
 import levelJSON from './level/level.json' with {type: 'json'}
 import {parseLevel} from './level/level-parser.ts'
-import type {Tag} from './types/tag.ts'
 
 declare module '../index.ts' {
-  interface PoolMap<Tag extends V.AnyTag> {
-    overlay: V.Pool<V.Sprite<Tag>>
+  interface PoolMap {
+    overlay: V.Pool<V.Sprite>
   }
 }
 
-export class Game extends V.Void<Tag> {
+export class Game extends V.Void {
   constructor() {
     super({
       // to-do: figure out `*.json` ambient type issue.
@@ -40,7 +39,7 @@ export class Game extends V.Void<Tag> {
       tally: new TallySys()
     })
     const level = parseLevel(
-      levelJSON as V.LevelSchema<Tag>,
+      levelJSON as V.LevelSchema,
       this.pool,
       this.preload
     )

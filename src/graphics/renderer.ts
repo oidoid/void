@@ -2,7 +2,7 @@ import type {Pool} from '../mem/pool.ts'
 import {type WH, whEq} from '../types/geo.ts'
 import type {Millis} from '../types/time.ts'
 import {debug} from '../utils/debug.ts'
-import type {AnyTag, Atlas} from './atlas.ts'
+import type {Atlas} from './atlas.ts'
 import type {Cam} from './cam.ts'
 import {type GL2, Shader} from './gl.ts'
 import {drawableBytes, type Sprite} from './sprite.ts'
@@ -29,11 +29,11 @@ export class Renderer {
   #depth: boolean = true
   #ctx: Context | undefined
   readonly #looper: {readonly age: Millis}
-  readonly #preloadAtlas: Readonly<Atlas<AnyTag>>
+  readonly #preloadAtlas: Readonly<Atlas>
   #preloadAtlasImage: Readonly<HTMLImageElement> | undefined
 
   constructor(
-    preloadAtlas: Readonly<Atlas<AnyTag>>,
+    preloadAtlas: Readonly<Atlas>,
     canvas: HTMLCanvasElement,
     looper: {readonly age: Millis}
   ) {
@@ -58,7 +58,7 @@ export class Renderer {
     this.clears++
   }
 
-  draw(pool: Readonly<Pool<Sprite<AnyTag>>>): void {
+  draw(pool: Readonly<Pool<Sprite>>): void {
     if (!this.#preloadAtlasImage || !this.#ctx) return
     const {gl, spriteShader} = this.#ctx
 

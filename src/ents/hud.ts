@@ -1,4 +1,3 @@
-import type {AnyTag} from '../graphics/atlas.ts'
 import {
   type Border,
   borderAssign,
@@ -13,13 +12,13 @@ import type {Void} from '../void.ts'
 import type {QueryEnt} from './ent-query.ts'
 import type {Sys} from './sys.ts'
 
-export type HUDEnt<Tag extends AnyTag> = QueryEnt<Tag, HUDSys<Tag>['query']>
+export type HUDEnt = QueryEnt<HUDSys['query']>
 
 /** reads invalid, hud, sprite WH and z; writes invalid, sprite XY, WH. */
-export class HUDSys<Tag extends AnyTag> implements Sys<Tag> {
+export class HUDSys implements Sys {
   readonly query = 'hud & sprite' as const
 
-  update(ent: HUDEnt<Tag>, v: Void<Tag, string>): void {
+  update(ent: HUDEnt, v: Void): void {
     if (!ent.invalid && !v.cam.invalid) return
     const follow = v.cam.follow(
       ent.sprite,
@@ -33,8 +32,8 @@ export class HUDSys<Tag extends AnyTag> implements Sys<Tag> {
   }
 }
 
-export function hudSetFill<Tag extends AnyTag>(
-  ent: HUDEnt<Tag>,
+export function hudSetFill(
+  ent: HUDEnt,
   fill: 'X' | 'Y' | 'XY' | undefined
 ): void {
   if (ent.hud.fill === fill) return
@@ -42,28 +41,19 @@ export function hudSetFill<Tag extends AnyTag>(
   ent.invalid = true
 }
 
-export function hudSetMargin<Tag extends AnyTag>(
-  ent: HUDEnt<Tag>,
-  margin: Readonly<Border>
-): void {
+export function hudSetMargin(ent: HUDEnt, margin: Readonly<Border>): void {
   if (borderEq(ent.hud.margin, margin)) return
   borderAssign(ent.hud.margin, margin)
   ent.invalid = true
 }
 
-export function hudSetModulo<Tag extends AnyTag>(
-  ent: HUDEnt<Tag>,
-  modulo: Readonly<XY>
-): void {
+export function hudSetModulo(ent: HUDEnt, modulo: Readonly<XY>): void {
   if (xyEq(ent.hud.modulo, modulo)) return
   xyAssign(ent.hud.modulo, modulo)
   ent.invalid = true
 }
 
-export function hudSetOrigin<Tag extends AnyTag>(
-  ent: HUDEnt<Tag>,
-  origin: CompassDir
-): void {
+export function hudSetOrigin(ent: HUDEnt, origin: CompassDir): void {
   if (ent.hud.origin === origin) return
   ent.hud.origin = origin
   ent.invalid = true

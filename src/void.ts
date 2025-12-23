@@ -1,10 +1,10 @@
 import {Zoo} from './ents/zoo.ts'
-import type {Anim, AnyTag, Atlas} from './graphics/atlas.ts'
+import type {Atlas} from './graphics/atlas.ts'
 import {parseAtlas} from './graphics/atlas-parser.ts'
 import {Cam} from './graphics/cam.ts'
 import {Renderer} from './graphics/renderer.ts'
 import type {Sprite} from './graphics/sprite.ts'
-import {type DefaultButton, Input} from './input/input.ts'
+import {Input} from './input/input.ts'
 import {Looper} from './looper.ts'
 import type {PoolOpts} from './mem/pool.ts'
 import type {PoolMap} from './mem/pool-map.ts'
@@ -17,22 +17,22 @@ import {DelayInterval} from './utils/delay-interval.ts'
 import {initBody, initMetaViewport} from './utils/dom-util.ts'
 import {loadImage} from './utils/fetch-util.ts'
 
-export type VoidOpts<Tag extends AnyTag> = {
+export type VoidOpts = {
   canvas?: HTMLCanvasElement
   config: GameConfig
   poll?: {delay?: () => Millis; period: Millis}
   preloadAtlas?: HTMLImageElement | null
-  sprites?: Partial<Omit<PoolOpts<Sprite<Tag>>, 'alloc' | 'allocBytes'>>
+  sprites?: Partial<Omit<PoolOpts<Sprite>, 'alloc' | 'allocBytes'>>
 }
 
-export class Void<Tag extends AnyTag, Button extends string = DefaultButton> {
+export class Void {
   readonly cam: Cam = new Cam()
   readonly canvas: HTMLCanvasElement
-  readonly input: Input<Button>
-  readonly pool: PoolMap<Tag>
-  readonly preload: Atlas<Tag>
+  readonly input: Input
+  readonly pool: PoolMap
+  readonly preload: Atlas
   readonly renderer: Renderer
-  readonly zoo: Zoo<Tag> = new Zoo()
+  readonly zoo: Zoo = new Zoo()
   readonly looper: Looper = new Looper()
   /** delta since frame request. */
   readonly tick: {ms: Millis; s: Secs} = {ms: 0, s: 0}
@@ -42,7 +42,7 @@ export class Void<Tag extends AnyTag, Button extends string = DefaultButton> {
   // may trigger an initial force update.
   readonly #resizeObserver = new ResizeObserver(() => this.onResize())
 
-  constructor(opts: Readonly<VoidOpts<Tag>>) {
+  constructor(opts: Readonly<VoidOpts>) {
     if (opts.poll != null)
       this.#poll = new DelayInterval(
         opts.poll.delay ?? (() => 0),
@@ -72,7 +72,7 @@ export class Void<Tag extends AnyTag, Button extends string = DefaultButton> {
 
     this.preload = opts.config.atlas
       ? parseAtlas(opts.config.atlas)
-      : {anim: {} as {[tag in Tag]: Anim}, celXYWH: [], tags: []}
+      : {anim: {}, celXYWH: [], tags: []}
 
     this.renderer = new Renderer(this.preload ?? {}, this.canvas, this.looper)
 
@@ -88,7 +88,7 @@ export class Void<Tag extends AnyTag, Button extends string = DefaultButton> {
     this.looper.onFrame = millis => this.onFrame(millis)
   }
 
-  alloc(k: keyof PoolMap<Tag> = 'default'): Sprite<Tag> {
+  alloc(k: keyof PoolMap = 'default'): Sprite {
     return this.pool[k].alloc()
   }
 

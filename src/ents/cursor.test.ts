@@ -104,8 +104,8 @@ describe('onKey()', () => {
   })
 })
 
-function TestCursorEnt(opts?: {keyboard?: number; pick?: Tag}): CursorEnt<Tag> {
-  const atlas: Atlas<Tag> = {
+function TestCursorEnt(opts?: {keyboard?: number; pick?: Tag}): CursorEnt {
+  const atlas: Atlas = {
     anim: {
       'stem--point': {cels: 1, id: 0, w: 8, h: 8},
       'stem--pick': {cels: 1, id: 1, w: 8, h: 8}
@@ -134,11 +134,11 @@ function TestInput(opts: {
   readonly dir?: Readonly<XY>
   readonly isOn?: () => boolean
   readonly isAnyOnStart?: () => boolean
-}): Input<'U' | 'D' | 'L' | 'R' | 'A'> {
+}): Input {
   return {
     dir: opts.dir ?? {x: 0, y: 0},
     handled: false,
     isOn: opts.isOn ?? (() => false),
     isAnyOnStart: opts.isAnyOnStart ?? (() => false)
-  } as unknown as Input<'U' | 'D' | 'L' | 'R' | 'A'>
+  } as unknown as Input
 }

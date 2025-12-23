@@ -1,33 +1,33 @@
 import type {ButtonType, Trim, XYFlag} from '../ents/ent.ts'
-import type {AnyTag} from '../graphics/atlas.ts'
+import type {AnimTag} from '../graphics/atlas.ts'
 import type {Layer} from '../graphics/layer.ts'
 import type {Border, CompassDir, WH, XY} from '../types/geo.ts'
 
 export type BorderSchema = number | Partial<XY> | Partial<Border>
-export type ButtonSchema<Tag extends AnyTag> = {
-  pressed: SpriteSchema<Tag> | Tag
-  selected: SpriteSchema<Tag> | Tag
+export type ButtonSchema = {
+  pressed: SpriteSchema | AnimTag
+  selected: SpriteSchema | AnimTag
   type?: ButtonType
   z?: LayerSchema
 }
-export interface EntSchema<Tag extends AnyTag> {
-  button?: ButtonSchema<Tag>
-  cursor?: CursorSchema<Tag>
+export interface EntSchema {
+  button?: ButtonSchema
+  cursor?: CursorSchema
   hud?: HUDSchema
   id?: string
   name?: string
-  ninePatch?: NinePatchSchema<Tag>
+  ninePatch?: NinePatchSchema
   override?: OverrideSchema
   sprite?:
-    | (SpriteSchema<Tag> &
+    | (SpriteSchema &
         Partial<WH> &
         Partial<XY> & {scale?: number | Partial<XY>})
-    | Tag
+    | AnimTag
   text?: string
   textWH?: TextWHSchema
   textXY?: TextXYSchema
 }
-export type CursorSchema<Tag extends AnyTag> = {keyboard?: number; pick?: Tag}
+export type CursorSchema = {keyboard?: number; pick?: AnimTag}
 export type HUDSchema = {
   fill?: XYFlag
   margin?: BorderSchema
@@ -35,24 +35,24 @@ export type HUDSchema = {
   origin: CompassDir
 }
 export type LayerSchema = keyof typeof Layer
-export type LevelSchema<Tag extends AnyTag> = {
+export type LevelSchema = {
   $schema?: string
-  ents?: EntSchema<Tag>[]
+  ents?: EntSchema[]
   keepZoo?: boolean
   minWH?: UnboundedWHSchema
 }
-export type NinePatchSchema<Tag extends AnyTag> = {
+export type NinePatchSchema = {
   border?: BorderSchema
   pad?: BorderSchema
-  patch: {[dir in Lowercase<CompassDir>]?: SpriteSchema<Tag> | Tag}
+  patch: {[dir in Lowercase<CompassDir>]?: SpriteSchema | AnimTag}
 }
 export type OverrideSchema = {invalid?: boolean}
 export type PoolSchema = 'Default' | string
-export type SpriteSchema<Tag extends AnyTag> = {
+export type SpriteSchema = {
   flip?: XYFlag
   pool?: PoolSchema
   stretch?: boolean
-  tag?: Tag
+  tag?: AnimTag
   z?: LayerSchema
   zend?: boolean
 }

@@ -1,11 +1,10 @@
 import * as V from '../../index.ts'
 import type {Game} from '../game.ts'
-import type {Tag} from '../types/tag.ts'
 
-export type TallyEnt = V.QueryEnt<Tag, TallySys['query']>
+export type TallyEnt = V.QueryEnt<TallySys['query']>
 
 /** writes to text, invalid. */
-export class TallySys implements V.Sys<Tag> {
+export class TallySys implements V.Sys {
   readonly query = 'tally & text' as const
 
   update(ent: TallyEnt, v: Game): void {

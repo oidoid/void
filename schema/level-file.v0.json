@@ -305,7 +305,7 @@
       "$dynamicAnchor": "Tag",
       "type": "string",
       "description": "animation tag.",
-      "pattern": ".*--.*"
+      "pattern": ".+--.*"
     },
     "Text": {"type": "string", "description": "string."},
     "TextWH": {

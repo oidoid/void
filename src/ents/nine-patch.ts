@@ -1,22 +1,18 @@
-import type {AnyTag} from '../graphics/atlas.ts'
 import type {XY} from '../types/geo.ts'
 import type {QueryEnt} from './ent-query.ts'
 import type {Sys} from './sys.ts'
 
-export type NinePatchEnt<Tag extends AnyTag> = QueryEnt<
-  Tag,
-  NinePatchSys<Tag>['query']
->
+export type NinePatchEnt = QueryEnt<NinePatchSys['query']>
 
 /** reads invalid, sprite XY and WH; writes ninePatch, invalid. */
-export class NinePatchSys<Tag extends AnyTag> implements Sys<Tag> {
+export class NinePatchSys implements Sys {
   readonly query = 'ninePatch & sprite' as const
 
-  free(ent: NinePatchEnt<Tag>): void {
+  free(ent: NinePatchEnt): void {
     ninePatchFree(ent)
   }
 
-  update(ent: NinePatchEnt<Tag>): void {
+  update(ent: NinePatchEnt): void {
     if (!ent.invalid) return
     const start = getStart(ent)
     setXYStart(ent, start)
@@ -25,7 +21,7 @@ export class NinePatchSys<Tag extends AnyTag> implements Sys<Tag> {
   }
 }
 
-export function ninePatchFree(ent: NinePatchEnt<AnyTag>): void {
+export function ninePatchFree(ent: NinePatchEnt): void {
   ent.ninePatch.patch.w?.free()
   ent.ninePatch.patch.nw?.free()
   ent.ninePatch.patch.n?.free()
@@ -39,13 +35,13 @@ export function ninePatchFree(ent: NinePatchEnt<AnyTag>): void {
   // to-do: how to update zoo synchronously to remove the component and not run update()?
 }
 
-function getStart(ent: Readonly<NinePatchEnt<AnyTag>>): XY {
+function getStart(ent: Readonly<NinePatchEnt>): XY {
   const {sprite, ninePatch} = ent
   return {x: sprite.x + ninePatch.pad.w, y: sprite.y + ninePatch.pad.n}
 }
 
 /** @internal */
-export function setWH(ent: NinePatchEnt<AnyTag>): void {
+export function setWH(ent: NinePatchEnt): void {
   const {border, pad, patch} = ent.ninePatch
 
   const w = ent.sprite.w - border.w - border.e - pad.w - pad.e
@@ -62,7 +58,7 @@ export function setWH(ent: NinePatchEnt<AnyTag>): void {
 
 /** @internal */
 export function setXYEnd(
-  ent: Readonly<NinePatchEnt<AnyTag>>,
+  ent: Readonly<NinePatchEnt>,
   start: Readonly<XY>
 ): void {
   const {patch, pad, border} = ent.ninePatch
@@ -93,10 +89,7 @@ export function setXYEnd(
 }
 
 /** @internal */
-export function setXYStart(
-  ent: NinePatchEnt<AnyTag>,
-  start: Readonly<XY>
-): void {
+export function setXYStart(ent: NinePatchEnt, start: Readonly<XY>): void {
   const {border, patch} = ent.ninePatch
 
   if (patch.nw) {

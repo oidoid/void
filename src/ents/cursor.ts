@@ -1,4 +1,3 @@
-import type {AnyTag} from '../graphics/atlas.ts'
 import {Layer} from '../graphics/layer.ts'
 import {truncDrawableEpsilon} from '../graphics/sprite.ts'
 import type {Input, Point} from '../input/input.ts'
@@ -15,16 +14,13 @@ import type {Sys} from './sys.ts'
  * update this ent first.  always prefer testing against cursor, not input, in
  * other ents. the cursor may be moved by keyboard and has a hitbox.
  */
-export type CursorEnt<Tag extends AnyTag> = QueryEnt<
-  Tag,
-  CursorSys<Tag>['query']
->
+export type CursorEnt = QueryEnt<CursorSys['query']>
 
-export class CursorSys<Tag extends AnyTag> implements Sys<Tag> {
+export class CursorSys implements Sys {
   readonly query = 'cursor & sprite' as const
 
-  update(ent: CursorEnt<Tag>, v: Void<Tag, 'U' | 'D' | 'L' | 'R' | 'A'>): void {
-    if (v.input.point?.invalid) onPoint<Tag>(ent, v.input.point)
+  update(ent: CursorEnt, v: Void): void {
+    if (v.input.point?.invalid) onPoint(ent, v.input.point)
 
     // assume the sprite dimensions don't vary between point and pick. always
     // update in case cam invalidates while keyboard is temporarily off.
@@ -34,16 +30,12 @@ export class CursorSys<Tag extends AnyTag> implements Sys<Tag> {
       ent.cursor.keyboard &&
       (v.input.dir.x || v.input.dir.y || v.input.isAnyStarted('A'))
     )
-      onKey<Tag>(ent, v.input, v.tick.s)
+      onKey(ent, v.input, v.tick.s)
   }
 }
 
 /** @internal */
-export function onKey<Tag extends AnyTag>(
-  ent: CursorEnt<Tag>,
-  input: Input<'U' | 'D' | 'L' | 'R' | 'A'>,
-  tick: Secs
-): void {
+export function onKey(ent: CursorEnt, input: Input, tick: Secs): void {
   if (ent.cursor.pick)
     ent.sprite.tag = input.isOn('A') ? ent.cursor.pick : ent.cursor.point
 
@@ -67,8 +59,8 @@ export function onKey<Tag extends AnyTag>(
 }
 
 /** @internal */
-export function onPoint<Tag extends AnyTag>(
-  ent: CursorEnt<Tag>,
+export function onPoint(
+  ent: CursorEnt,
   point: Readonly<Pick<Point, 'local' | 'click' | 'type'>>
 ): void {
   if (ent.cursor.pick)
@@ -80,7 +72,7 @@ export function onPoint<Tag extends AnyTag>(
   ent.invalid = true
 }
 
-function updateBounds(ent: CursorEnt<AnyTag>, v: Void<AnyTag, string>): void {
+function updateBounds(ent: CursorEnt, v: Void): void {
   if (!v.cam.invalid) return
   ent.cursor.bounds.x = -ent.sprite.w
   ent.cursor.bounds.y = -ent.sprite.h

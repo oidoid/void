@@ -35,7 +35,7 @@ export type Meta = {
 }
 
 /** `--filename-format='{title}--{tag}--{frame}'`. */
-export type FrameTag = `${V.AnyTag}--${bigint}`
+export type FrameTag = `${V.AnimTag}--${bigint}`
 
 /** a cel. */
 export type Frame = {
@@ -54,14 +54,14 @@ export type Frame = {
 export type Slice = {
   /** `#ff0000ff` is hitbox, `#00ff00ff` is hurtbox, `#0000ffff` is both. */
   color: Color
-  name: V.AnyTag
+  name: V.AnimTag
   keys: Key[]
 }
 
 /** a label and animation behavior. references `Frame`s to form an animation. */
 export type TagSpan = {
   color: Color
-  name: V.AnyTag
+  name: V.AnimTag
   /** inclusive starting Frame index. */
   from: number
   /** inclusive ending index, possibly equal to from. */

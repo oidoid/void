@@ -1,8 +1,7 @@
-import type * as V from '../../index.ts'
+import '../../index.ts'
 
 declare module '../../index.ts' {
-  // biome-ignore lint/correctness/noUnusedVariables:;
-  export interface EntSchema<Tag extends V.AnyTag> {
+  export interface EntSchema {
     clock?: ClockSchema
     debugInput?: DebugInputSchema
     renderToggle?: RenderToggleSchema

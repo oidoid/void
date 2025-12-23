@@ -1,10 +1,9 @@
 import * as V from '../../index.ts'
-import type {Tag} from '../types/tag.ts'
 
-export type ClockEnt = V.QueryEnt<Tag, ClockSys['query']>
+export type ClockEnt = V.QueryEnt<ClockSys['query']>
 
 /** writes to text, invalid. */
-export class ClockSys implements V.Sys<Tag> {
+export class ClockSys implements V.Sys {
   readonly query = 'clock & text' as const
 
   update(ent: ClockEnt): void {
