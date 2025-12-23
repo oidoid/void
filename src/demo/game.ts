@@ -7,12 +7,6 @@ import {TallySys} from './ents/tally.ts'
 import levelJSON from './level/level.json' with {type: 'json'}
 import {parseLevel} from './level/level-parser.ts'
 
-declare module '../index.ts' {
-  interface PoolMap {
-    overlay: V.Pool<V.Sprite>
-  }
-}
-
 export class Game extends V.Void {
   constructor() {
     super({

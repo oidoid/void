@@ -85,7 +85,7 @@ export function parseCursor(ent: Ent, json: Readonly<CursorSchema>): Cursor {
     bounds: {x: 0, y: 0, w: 0, h: 0},
     keyboard: json.keyboard ?? 0,
     pick: json.pick,
-    point: ent.sprite.tag
+    point: ent.sprite.getTag()
   }
 }
 
@@ -257,13 +257,13 @@ export function parseSprite(
   const sprite = pools[pool as keyof PoolMap].alloc()
   if (typeof json === 'string') {
     if (!(json in atlas.anim)) throw Error(`no tag "${json}"`)
-    sprite.tag = json
+    sprite.setTag(json)
     sprite.visible = true // to-do: expose in schema but keep this default logic.
     return sprite
   }
   if (json.tag != null) {
     if (!(json.tag in atlas.anim)) throw Error(`no tag "${json.tag}"`)
-    sprite.tag = json.tag
+    sprite.setTag(json.tag)
     sprite.visible = true // to-do: expose in schema but keep this default logic.
   }
   if (json.flip) {

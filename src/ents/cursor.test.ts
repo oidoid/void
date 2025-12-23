@@ -40,13 +40,13 @@ describe('onPoint()', () => {
       type: 'Mouse',
       click: {client: {x: 0, y: 0}, local: {x: 0, y: 0}, x: 0, y: 0}
     })
-    assert(ent.sprite.tag, 'stem--pick')
+    assert(ent.sprite.getTag(), 'stem--pick')
   })
 
   test('point tag when not clicking', () => {
     const ent = TestCursorEnt({pick: 'stem--pick'})
     onPoint(ent, {local: {x: 0, y: 0}, type: 'Mouse', click: undefined})
-    assert(ent.sprite.tag, 'stem--point')
+    assert(ent.sprite.getTag(), 'stem--point')
   })
 })
 
@@ -86,13 +86,13 @@ describe('onKey()', () => {
   test('pick tag when A on', () => {
     const ent = TestCursorEnt({keyboard: 100, pick: 'stem--pick'})
     onKey(ent, TestInput({dir: {x: 1, y: 0}, isOn: () => true}), 0.1 as Secs)
-    assert(ent.sprite.tag, 'stem--pick')
+    assert(ent.sprite.getTag(), 'stem--pick')
   })
 
   test('point tag when A off', () => {
     const ent = TestCursorEnt({keyboard: 100, pick: 'stem--pick'})
     onKey(ent, TestInput({dir: {x: 1, y: 0}, isOn: () => false}), 0.1 as Secs)
-    assert(ent.sprite.tag, 'stem--point')
+    assert(ent.sprite.getTag(), 'stem--point')
   })
 
   test('sets visible', () => {
@@ -115,7 +115,7 @@ function TestCursorEnt(opts?: {keyboard?: number; pick?: Tag}): CursorEnt {
   }
   const pool = SpritePool({atlas, looper: {age: 0}, pageBlocks: 4})
   const sprite = pool.alloc()
-  sprite.tag = 'stem--point'
+  sprite.setTag('stem--point')
   sprite.w = 8
   sprite.h = 8
   return {

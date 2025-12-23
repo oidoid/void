@@ -293,7 +293,11 @@ export class Sprite extends Drawable {
   }
 
   get anim(): Anim {
-    return this.#atlas.anim[this.tag]!
+    return this.#atlas.anim[this.getTag()]!
+  }
+
+  diagonalize(dir: Readonly<XY>): void {
+    diagonalize(this, dir.x * dir.y)
   }
 
   override get flipX(): boolean {
@@ -316,6 +320,10 @@ export class Sprite extends Drawable {
     super.flipY = flip
     this.#hitbox = undefined
     this.#hurtbox = undefined
+  }
+
+  getTag(): never {
+    return this.#atlas.tags[this.id]! satisfies AnimTag as never
   }
 
   override get h(): number {
@@ -415,16 +423,8 @@ export class Sprite extends Drawable {
     this.cel = this.looperCel // setter truncates.
   }
 
-  diagonalize(dir: Readonly<XY>): void {
-    diagonalize(this, dir.x * dir.y)
-  }
-
-  get tag(): AnimTag {
-    return this.#atlas.tags[this.id]!
-  }
-
   /** sets animation, resets cel, dimensions, hitbox, and hurtbox. */
-  set tag(tag: AnimTag) {
+  setTag(tag: never): void {
     const anim = this.#atlas.anim[tag]!
     this.w = anim.w
     this.h = anim.h
@@ -433,7 +433,7 @@ export class Sprite extends Drawable {
   }
 
   override toString(): string {
-    return `Sprite{${this.tag} (${this.x} ${this.y} ${this.z}) ${this.w}×${this.h}}`
+    return `Sprite{${this.getTag()} (${this.x} ${this.y} ${this.z}) ${this.w}×${this.h}}`
   }
 
   override get w(): number {

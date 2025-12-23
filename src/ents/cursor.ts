@@ -37,7 +37,7 @@ export class CursorSys implements Sys {
 /** @internal */
 export function onKey(ent: CursorEnt, input: Input, tick: Secs): void {
   if (ent.cursor.pick)
-    ent.sprite.tag = input.isOn('A') ? ent.cursor.pick : ent.cursor.point
+    ent.sprite.setTag(input.isOn('A') ? ent.cursor.pick : ent.cursor.point)
 
   const len = truncDrawableEpsilon(ent.cursor.keyboard * tick)
 
@@ -64,7 +64,7 @@ export function onPoint(
   point: Readonly<Pick<Point, 'local' | 'click' | 'type'>>
 ): void {
   if (ent.cursor.pick)
-    ent.sprite.tag = point.click ? ent.cursor.pick : ent.cursor.point
+    ent.sprite.setTag(point.click ? ent.cursor.pick : ent.cursor.point)
   ent.sprite.x = point.local.x
   ent.sprite.y = point.local.y
   ent.sprite.z = Layer.Top
