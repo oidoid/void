@@ -1,130 +1,89 @@
 import type {AnyTag} from '../graphics/atlas.ts'
 import {Layer} from '../graphics/layer.ts'
-import {type Sprite, truncDrawableEpsilon} from '../graphics/sprite.ts'
-import {type Box, boxHits, type WH, type XY} from '../types/geo.ts'
+import {truncDrawableEpsilon} from '../graphics/sprite.ts'
+import type {Input, Point} from '../input/input.ts'
+import type {Secs} from '../types/time.ts'
 import type {Void} from '../void.ts'
-import type {Ent} from './ent.ts'
+import type {QueryEnt} from './ent-query.ts'
+import type {Sys} from './sys.ts'
+
+//  to-do: i do pass ent data here. maybe I should do that for mem pool as SpritePool(i).
 
 /**
- * update this ent first. always prefer testing against cursor, not input, in
+ * writes to sprite XYZ and tag, invalid.
+ *
+ * update this ent first.  always prefer testing against cursor, not input, in
  * other ents. the cursor may be moved by keyboard and has a hitbox.
  */
-export class CursorEnt<Tag extends AnyTag> implements Ent<Tag> {
-  /** px / sec, 0 to disable keyboard. */
-  keyboard: number = 0
-  readonly #bounds: Box = {x: 0, y: 0, w: 0, h: 0}
-  readonly #sprite: Sprite<Tag>
-  readonly #pick: Tag
-  readonly #point: Tag
+export type CursorEnt<Tag extends AnyTag> = QueryEnt<
+  Tag,
+  CursorSys<Tag>['query']
+>
 
-  constructor(v: Void<Tag, string>, point: Tag, pick?: Tag) {
-    this.#point = point
-    this.#pick = pick ?? this.#point
-    this.#sprite = v.alloc()
-    this.#sprite.tag = point
-    this.#sprite.z = Layer.Top
-    this.#updateBounds(v)
-  }
+export class CursorSys<Tag extends AnyTag> implements Sys<Tag> {
+  readonly query = 'cursor & sprite' as const
 
-  free(): void {
-    this.#sprite.free()
-  }
-
-  hitbox(v: Readonly<Void<Tag, string>>, coords: 'Level' | 'UI'): Box {
-    const lvl = coords === 'Level'
-    const hitbox = this.#sprite.hitbox
-    if (!hitbox) throw Error('cursor has no hitbox')
-    return {
-      x: (lvl ? Math.floor(v.cam.x) : 0) + hitbox.x,
-      y: (lvl ? Math.floor(v.cam.y) : 0) + hitbox.y,
-      w: hitbox.w,
-      h: hitbox.h
-    }
-  }
-
-  hits(v: Readonly<Void<Tag, string>>, sprite: Readonly<Sprite<Tag>>): boolean
-  hits(
-    v: Readonly<Void<Tag, string>>,
-    box: Readonly<XY & Partial<WH>>,
-    coords: 'Level' | 'UI'
-  ): boolean
-  hits(
-    v: Readonly<Void<Tag, string>>,
-    box: Readonly<XY & Partial<WH>>,
-    coords?: 'Level' | 'UI'
-  ): boolean {
-    return (
-      this.visible &&
-      boxHits(
-        this.hitbox(
-          v,
-          coords == null ? ((box as Sprite<Tag>).ui ? 'UI' : 'Level') : coords
-        ),
-        box
-      )
-    )
-  }
-
-  update(v: Void<Tag, 'U' | 'D' | 'L' | 'R' | 'A'>): boolean | undefined {
-    if (v.input.point?.invalid) {
-      this.#sprite.tag = v.input.point.click ? this.#pick : this.#point
-      this.#sprite.x = v.input.point.local.x
-      this.#sprite.y = v.input.point.local.y
-      this.#sprite.visible = v.input.point?.type === 'Mouse'
-      return true
-    }
+  update(ent: CursorEnt<Tag>, v: Void<Tag, 'U' | 'D' | 'L' | 'R' | 'A'>): void {
+    if (v.input.point?.invalid) onPoint<Tag>(ent, v.input.point)
 
     // assume the sprite dimensions don't vary between point and pick. always
     // update in case cam invalidates while keyboard is temporarily off.
-    this.#updateBounds(v)
+    updateBounds(ent, v)
 
     if (
-      this.keyboard &&
+      ent.cursor.keyboard &&
       (v.input.dir.x || v.input.dir.y || v.input.isAnyStarted('A'))
-    ) {
-      this.#sprite.tag = v.input.isOn('A') ? this.#pick : this.#point
-
-      const len = truncDrawableEpsilon(this.keyboard * v.tick.s)
-
-      if (
-        v.input.isAnyOnStart('U', 'D', 'L', 'R') &&
-        v.input.dir.x &&
-        v.input.dir.y
-      )
-        this.#sprite.diagonalize(v.input.dir)
-
-      if (v.input.dir.x)
-        this.#sprite.x = Math.min(
-          this.#bounds.x + this.#bounds.w,
-          Math.max(this.#bounds.x, this.#sprite.x + v.input.dir.x * len)
-        )
-      if (v.input.dir.y)
-        this.#sprite.y = Math.min(
-          this.#bounds.y + this.#bounds.h,
-          Math.max(this.#bounds.y, this.#sprite.y + v.input.dir.y * len)
-        )
-
-      return true
-    }
+    )
+      onKey<Tag>(ent, v.input, v.tick.s)
   }
+}
 
-  get visible(): boolean {
-    return this.#sprite.visible
-  }
+/** @internal */
+export function onKey<Tag extends AnyTag>(
+  ent: CursorEnt<Tag>,
+  input: Input<'U' | 'D' | 'L' | 'R' | 'A'>,
+  tick: Secs
+): void {
+  if (ent.cursor.pick)
+    ent.sprite.tag = input.isOn('A') ? ent.cursor.pick : ent.cursor.point
 
-  get x(): number {
-    return this.#sprite.x
-  }
+  const len = truncDrawableEpsilon(ent.cursor.keyboard * tick)
 
-  get y(): number {
-    return this.#sprite.y
-  }
+  if (input.isAnyOnStart('U', 'D', 'L', 'R') && input.dir.x && input.dir.y)
+    ent.sprite.diagonalize(input.dir)
 
-  #updateBounds(v: Void<Tag, string>): void {
-    if (!v.cam.invalid) return
-    this.#bounds.x = -this.#sprite.w
-    this.#bounds.y = -this.#sprite.h
-    this.#bounds.w = v.cam.w + this.#sprite.w
-    this.#bounds.h = v.cam.h + this.#sprite.h
-  }
+  if (input.dir.x)
+    ent.sprite.x = Math.min(
+      ent.cursor.bounds.x + ent.cursor.bounds.w,
+      Math.max(ent.cursor.bounds.x, ent.sprite.x + input.dir.x * len)
+    )
+  if (input.dir.y)
+    ent.sprite.y = Math.min(
+      ent.cursor.bounds.y + ent.cursor.bounds.h,
+      Math.max(ent.cursor.bounds.y, ent.sprite.y + input.dir.y * len)
+    )
+  ent.sprite.visible = true
+  ent.invalid = true
+}
+
+/** @internal */
+export function onPoint<Tag extends AnyTag>(
+  ent: CursorEnt<Tag>,
+  point: Readonly<Pick<Point, 'local' | 'click' | 'type'>>
+): void {
+  if (ent.cursor.pick)
+    ent.sprite.tag = point.click ? ent.cursor.pick : ent.cursor.point
+  ent.sprite.x = point.local.x
+  ent.sprite.y = point.local.y
+  ent.sprite.z = Layer.Top
+  ent.sprite.visible = point.type === 'Mouse'
+  ent.invalid = true
+}
+
+function updateBounds(ent: CursorEnt<AnyTag>, v: Void<AnyTag, string>): void {
+  if (!v.cam.invalid) return
+  ent.cursor.bounds.x = -ent.sprite.w
+  ent.cursor.bounds.y = -ent.sprite.h
+  ent.cursor.bounds.w = v.cam.w + ent.sprite.w
+  ent.cursor.bounds.h = v.cam.h + ent.sprite.h
 }

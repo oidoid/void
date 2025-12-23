@@ -1,6 +1,8 @@
 import {test} from 'node:test'
 import {assert} from '../test/assert.ts'
 import {
+  borderAssign,
+  borderEq,
   boxHits,
   whEq,
   xyAdd,
@@ -13,6 +15,25 @@ import {
   xyMin,
   xySub
 } from './geo.ts'
+
+test('borderEq()', () => {
+  assert(borderEq({n: 0, s: 0, w: 0, e: 0}, {n: 0, s: 0, w: 0, e: 0}), true)
+  assert(borderEq({n: 1, s: 2, w: 3, e: 4}, {n: 1, s: 2, w: 3, e: 4}), true)
+  assert(borderEq({n: 1, s: 2, w: 3, e: 4}, {n: 0, s: 2, w: 3, e: 4}), false)
+  assert(borderEq({n: 1, s: 2, w: 3, e: 4}, {n: 1, s: 0, w: 3, e: 4}), false)
+  assert(borderEq({n: 1, s: 2, w: 3, e: 4}, {n: 1, s: 2, w: 0, e: 4}), false)
+  assert(borderEq({n: 1, s: 2, w: 3, e: 4}, {n: 1, s: 2, w: 3, e: 0}), false)
+})
+
+test('borderAssign()', () => {
+  const l = {n: 0, s: 0, w: 0, e: 0}
+  const r0 = {n: 1, s: 2, w: 3, e: 4}
+  borderAssign(l, r0)
+  assert(l, r0)
+  const r1 = {n: -1, s: -2, w: -3, e: -4}
+  borderAssign(l, r1)
+  assert(l, r1)
+})
 
 test('boxHits()', ctx => {
   type TestCase = readonly [

@@ -9,10 +9,10 @@ export async function fetchAudio(url: string): Promise<ArrayBuffer> {
   return await rsp.arrayBuffer()
 }
 
-export function fetchImage(url: string): Promise<HTMLImageElement> {
+export function fetchImage(uri: string): Promise<HTMLImageElement> {
   const img = new Image()
   const promise = loadImage(img)
-  img.src = url
+  img.src = uri
   return promise
 }
 

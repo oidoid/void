@@ -1,4 +1,5 @@
 import {
+  type Border,
   type Box,
   boxHits,
   type CompassDir,
@@ -79,22 +80,21 @@ export class Cam {
     origin: CompassDir,
     opts?: {
       readonly fill?: 'X' | 'Y' | 'XY'
-      readonly margin?: Partial<Readonly<WH>>
+      readonly margin?: Partial<Readonly<Border>>
       readonly modulo?: Partial<Readonly<XY>>
     }
   ): Box {
-    const marginW = opts?.margin?.w ?? 0
     let x = isUILayer(z) ? 0 : Math.floor(this.x)
     switch (origin) {
       case 'SW':
       case 'W':
       case 'NW':
-        x += marginW
+        x += opts?.margin?.w ?? 0
         break
       case 'SE':
       case 'E':
       case 'NE':
-        x += this.w - (wh.w + marginW)
+        x += this.w - (wh.w + (opts?.margin?.e ?? 0))
         break
       case 'N':
       case 'S':
@@ -104,18 +104,17 @@ export class Cam {
     }
     x -= x % ((opts?.modulo?.x ?? x) || 1)
 
-    const marginH = opts?.margin?.h ?? 0
     let y = isUILayer(z) ? 0 : Math.floor(this.y)
     switch (origin) {
       case 'N':
       case 'NE':
       case 'NW':
-        y += marginH
+        y += opts?.margin?.n ?? 0
         break
       case 'SE':
       case 'S':
       case 'SW':
-        y += this.h - (wh.h + marginH)
+        y += this.h - (wh.h + (opts?.margin?.s ?? 0))
         break
       case 'E':
       case 'W':
@@ -126,9 +125,13 @@ export class Cam {
     y -= y % ((opts?.modulo?.y ?? y) || 1)
 
     const w =
-      opts?.fill === 'X' || opts?.fill === 'XY' ? this.w - 2 * marginW : wh.w
+      opts?.fill === 'X' || opts?.fill === 'XY'
+        ? this.w - (opts?.margin?.w ?? 0) - (opts?.margin?.e ?? 0)
+        : wh.w
     const h =
-      opts?.fill === 'Y' || opts?.fill === 'XY' ? this.h - 2 * marginH : wh.h
+      opts?.fill === 'Y' || opts?.fill === 'XY'
+        ? this.h - (opts?.margin?.n ?? 0) - (opts?.margin?.s ?? 0)
+        : wh.h
 
     return {x, y, w, h}
   }

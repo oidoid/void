@@ -1,13 +1,19 @@
 import type {Font} from 'mem-font'
-import type {Box, WH, XY} from '../types/geo.ts'
-import {fontCharWidth, fontKerning} from './font.ts'
+import type {Box, XY} from '../types/geo.ts'
+import {fontCharH, fontCharW, fontKerning} from './font.ts'
 
 export type TextLayout = {
-  /** the length of this array matches the string length. */
+  /**
+   * the length of this array matches the string length. undefines are
+   * whitespace.
+   */
   chars: (Box | undefined)[]
   /** the offset in pixels. */
   cursor: XY
-  wh: WH
+  w: number
+  h: number
+  /** the height without without leading and only actually used height of characters. */
+  trimmedH: number
 }
 
 export type TextLayoutOpts = {
@@ -15,7 +21,12 @@ export type TextLayoutOpts = {
   maxW?: number
   scale?: number
   start?: XY
-  str: string
+  text: string
+}
+
+// to-do: refactor so inputs and outputs of each function is a TextLayout.
+type IntermediateTextLayout = Omit<TextLayout, 'h' | 'trimmedH'> & {
+  trimmedLineH: number
 }
 
 export function layoutText(opts: Readonly<TextLayoutOpts>): TextLayout {
@@ -25,22 +36,37 @@ export function layoutText(opts: Readonly<TextLayoutOpts>): TextLayout {
   const maxW = opts.maxW ?? Infinity
   let cursor = {x: start.x, y: start.y}
   let w = 0
-  while (chars.length < opts.str.length) {
+  let trimmedLineH = 0
+  while (chars.length < opts.text.length) {
     const i = chars.length
-    const char = opts.str[i]!
+    const ch = opts.text[i]!
     let layout
-    if (char === '\n') layout = layoutNewline(opts.font, cursor, start.x, scale)
-    else if (/^\s*$/.test(char)) {
+    if (ch === '\n')
+      layout = layoutNewline(opts.font, cursor, start.x, scale, w)
+    else if (/^\s*$/.test(ch))
       layout = layoutSpace(
         opts.font,
         cursor,
         maxW,
-        tracking(opts.font, char, opts.str[i + 1], scale),
+        tracking(opts.font, ch, opts.text[i + 1], scale),
         start.x,
-        scale
+        scale,
+        trimmedLineH,
+        ch,
+        w
       )
-    } else {
-      layout = layoutWord(opts.font, cursor, maxW, opts.str, i, start.x, scale)
+    else {
+      layout = layoutWord(
+        opts.font,
+        cursor,
+        maxW,
+        opts.text,
+        i,
+        start.x,
+        scale,
+        trimmedLineH,
+        w
+      )
       if (
         cursor.x > 0 &&
         layout.cursor.y === nextLine(opts.font, start.x, cursor.y, scale).y
@@ -53,10 +79,12 @@ export function layoutText(opts: Readonly<TextLayoutOpts>): TextLayout {
             opts.font,
             cursor,
             maxW,
-            opts.str,
+            opts.text,
             i,
             start.x,
-            scale
+            scale,
+            trimmedLineH,
+            w
           )
         }
       }
@@ -64,12 +92,15 @@ export function layoutText(opts: Readonly<TextLayoutOpts>): TextLayout {
     chars.push(...layout.chars)
     cursor.x = layout.cursor.x
     cursor.y = layout.cursor.y
-    w = Math.max(w, layout.cursor.x - start.x)
+    w = layout.w
+    trimmedLineH = layout.trimmedLineH
   }
   return {
     chars,
     cursor,
-    wh: {w, h: nextLine(opts.font, start.x, cursor.y, scale).y - start.y}
+    w,
+    h: nextLine(opts.font, cursor.x, cursor.y, scale).y - start.y,
+    trimmedH: cursor.y + trimmedLineH * scale - start.y
   }
 }
 
@@ -81,27 +112,32 @@ export function layoutWord(
   word: string,
   index: number,
   startX: number,
-  scale: number
-): Omit<TextLayout, 'wh'> {
+  scale: number,
+  trimmedLineH: number,
+  w: number
+): IntermediateTextLayout {
   const chars = []
   let {x, y} = cursor
   for (; ; index++) {
-    const char = word[index]
-    if (!char || /^\s*$/.test(char)) break
+    const ch = word[index]
+    if (!ch || /^\s*$/.test(ch)) break
+    const chH = fontCharH(font, ch)
 
-    const span = tracking(font, char, word[index + 1], scale)
-    if (x > startX && x + span > startX + maxW)
-      ({x, y} = nextLine(font, startX, y, scale))
+    const span = tracking(font, ch, word[index + 1], scale)
+    const next = x > startX && x + span > startX + maxW
+    if (next) ({x, y} = nextLine(font, startX, y, scale))
+    trimmedLineH = next ? chH : Math.max(trimmedLineH, chH)
 
     // width is not span since, with kerning, that may exceed the actual
     // width of the character's sprite. eg, if w has the maximal character width
     // of five pixels and a one pixel kerning for a given pair of characters, it
     // will have a span of six pixels which is greater than the maximal five
     // pixel sprite that can be rendered.
-    chars.push({x, y, w: fontCharWidth(font, char), h: font.cellH})
+    chars.push({x, y, w: fontCharW(font, ch), h: font.cellH})
     x += span
+    w = Math.max(w, x - startX)
   }
-  return {chars, cursor: {x, y}}
+  return {chars, cursor: {x, y}, trimmedLineH, w}
 }
 
 function nextLine(
@@ -117,9 +153,16 @@ function layoutNewline(
   font: Readonly<Font>,
   cursor: Readonly<XY>,
   startX: number,
-  scale: number
-): Omit<TextLayout, 'wh'> {
-  return {chars: [undefined], cursor: nextLine(font, startX, cursor.y, scale)}
+  scale: number,
+  w: number
+): IntermediateTextLayout {
+  const nextCursor = nextLine(font, startX, cursor.y, scale)
+  return {
+    chars: [undefined],
+    cursor: nextCursor,
+    trimmedLineH: 0,
+    w: Math.max(w, cursor.x - startX)
+  }
 }
 
 /**
@@ -129,21 +172,30 @@ function layoutNewline(
 function layoutSpace(
   font: Readonly<Font>,
   cursor: Readonly<XY>,
-  w: number,
+  maxW: number,
   span: number,
   startX: number,
-  scale: number
-): Omit<TextLayout, 'wh'> {
+  scale: number,
+  trimmmedLineH: number,
+  ch: string,
+  w: number
+): IntermediateTextLayout {
   const nextCursor =
-    cursor.x > 0 && cursor.x + span >= w
+    cursor.x > startX && cursor.x + span >= maxW
       ? nextLine(font, startX, cursor.y, scale)
       : {x: cursor.x + span, y: cursor.y}
-  return {chars: [undefined], cursor: nextCursor}
+  const chH = fontCharH(font, ch)
+  return {
+    chars: [undefined],
+    cursor: nextCursor,
+    trimmedLineH:
+      cursor.y === nextCursor.y ? Math.max(trimmmedLineH, chH) : chH,
+    w: Math.max(w, cursor.x - startX)
+  }
 }
 
 /**
- * the distance in pixels from the start of lhs to the start of rhs including
- * scale.
+ * the distance in pixels from the start of l to the start of r including scale.
  */
 function tracking(
   font: Readonly<Font>,
@@ -151,5 +203,5 @@ function tracking(
   r: string | undefined,
   scale: number
 ): number {
-  return scale * (fontCharWidth(font, l) + fontKerning(font, l, r))
+  return scale * (fontCharW(font, l) + fontKerning(font, l, r))
 }

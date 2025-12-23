@@ -1,8 +1,11 @@
 import * as V from '../index.ts'
 import config from './assets/game.void.json' with {type: 'json'}
-import {ClockEnt} from './ents/clock.ts'
-import {RenderToggleEnt} from './ents/render-toggle.ts'
-import {WorkCounterEnt} from './ents/work-counter.ts'
+import {ClockSys} from './ents/clock.ts'
+import {DebutInputSys} from './ents/debug-input.ts'
+import {RenderToggleSys} from './ents/render-toggle.ts'
+import {TallySys} from './ents/tally.ts'
+import levelJSON from './level/level.json' with {type: 'json'}
+import {parseLevel} from './level/level-parser.ts'
 import type {Tag} from './types/tag.ts'
 
 declare module '../index.ts' {
@@ -12,11 +15,9 @@ declare module '../index.ts' {
 }
 
 export class Game extends V.Void<Tag> {
-  #renderToggle: RenderToggleEnt
-  #workCounter: WorkCounterEnt
-
   constructor() {
     super({
+      // to-do: figure out `*.json` ambient type issue.
       config: config as V.GameConfig,
       preloadAtlas: document.querySelector<HTMLImageElement>('#preload-atlas'),
       poll: {
@@ -24,22 +25,30 @@ export class Game extends V.Void<Tag> {
         period: ((V.debug?.seconds ? 1 : 60) * 1000) as V.Millis
       }
     })
-    this.pool.overlay = new V.Pool<V.Sprite<Tag>>({
-      alloc: pool => new V.Sprite(pool, 0, this.preload, this.looper),
-      init: sprite => sprite.init(),
-      allocBytes: V.drawableBytes,
+    this.pool.overlay = V.SpritePool({
+      atlas: this.preload,
+      looper: this.looper,
       pageBlocks: 10
     })
-    this.#renderToggle = new RenderToggleEnt(this)
-    this.#renderToggle.on = this.renderer.always
-    this.#workCounter = new WorkCounterEnt()
-    this.#initZoo()
+
+    // to-do: move under Void helper methods and hide zoo? same for other APIs.
+    this.zoo.addDefaultSystems()
+    this.zoo.addSystem({
+      clock: new ClockSys(),
+      debugInput: new DebutInputSys(),
+      renderToggle: new RenderToggleSys(),
+      tally: new TallySys()
+    })
+    const level = parseLevel(
+      levelJSON as V.LevelSchema<Tag>,
+      this.pool,
+      this.preload
+    )
+    // to-do: validate all ents on a system add.
+    this.zoo.add(...level.ents)
   }
 
   override onLoop(): void {
-    if (V.debug?.input) this.#printInput()
-    this.renderer.always = this.#renderToggle.on
-
     let render = this.#updateCam()
     this.zoo.update(this)
 
@@ -56,77 +65,6 @@ export class Game extends V.Void<Tag> {
       this.renderer.setDepth(false)
       this.renderer.draw(this.pool.overlay)
     }
-  }
-
-  #initZoo(): void {
-    const border = new V.NinePatchEnt<Tag>(this, {
-      n: {tag: 'background--Black'},
-      origin: {tag: 'background--Transparent'},
-      border: {n: 1},
-      z: V.Layer.UIG
-    })
-    this.zoo.add(border)
-    const box = this.cam.follow({w: 0, h: 0}, V.Layer.UIG, 'NW', {fill: 'XY'})
-    border.xy = box
-    border.wh = box
-
-    const backpacker = this.alloc()
-    backpacker.visible = true
-    backpacker.tag = 'backpacker--WalkRight'
-    backpacker.x = 7
-    backpacker.y = 7
-    backpacker.z = V.Layer.D
-    backpacker.stretch = true
-    backpacker.w *= 5
-    backpacker.h *= 5
-
-    const oidoid = new V.HUDEnt(this, 'oidoid--Default', 'SW')
-    oidoid.z = V.Layer.UIA
-    oidoid.margin = {w: 4, h: 4}
-
-    this.zoo.add(
-      new V.CursorEnt(this, 'cursor--Pointer'),
-      this.#renderToggle,
-      new ClockEnt(),
-      this.#workCounter,
-      oidoid
-    )
-
-    const overlay = this.alloc('overlay')
-    overlay.visible = true
-    overlay.tag = 'background--GreyCheckerboard'
-    overlay.w = V.drawableMaxWH.w
-    overlay.h = V.drawableMaxWH.h
-    overlay.z = V.Layer.UIG
-  }
-
-  #printInput(): void {
-    if (this.input.started) {
-      const on = !!this.input.on.length
-      if (on) console.debug(`[input] buttons on: ${this.input.on.join(' ')}.`)
-      else console.debug(`[input] buttons off.`)
-      const combo = this.input.combo
-      if (combo.length > 1 && on)
-        console.debug(
-          `[input] combo: ${combo.map(set => set.join('+')).join(' ')}.`
-        )
-    }
-    if (
-      this.input.point?.invalid &&
-      this.input.point?.click &&
-      !this.input.point.pinch
-    )
-      console.debug(
-        `[input] ${this.input.point.drag.on ? 'drag' : 'click'} xy: ${this.input.point.x} ${this.input.point.y}.`
-      )
-    if (this.input.point?.pinch)
-      console.debug(
-        `[input] pinch xy: ${this.input.point.pinch.xy.x} ${this.input.point.pinch.xy.y}.`
-      )
-    if (this.input.wheel)
-      console.debug(
-        `[input] wheel xy: ${this.input.wheel.delta.xy.x} ${this.input.wheel.delta.xy.y}.`
-      )
   }
 
   #updateCam(): boolean {

@@ -8,8 +8,27 @@ export type XYZ = {x: number; y: number; z: number}
 export type CardinalDir = 'N' | 'S' | 'W' | 'E'
 export type CompassDir = 'Center' | CardinalDir | 'NW' | 'NE' | 'SW' | 'SE'
 
+export function boxAssign(l: Box, r: Readonly<Box>): void {
+  l.x = r.x
+  l.y = r.y
+  l.w = r.w
+  l.h = r.h
+}
+
 export function boxEq(l: Readonly<Box>, r: Readonly<Box>): boolean {
   return xyEq(l, r) && whEq(l, r)
+}
+
+// to-do: this is an example where I do want the helper. it's so errorprone to write this.
+export function borderEq(l: Readonly<Border>, r: Readonly<Border>): boolean {
+  return l.n === r.n && l.s === r.s && l.w === r.w && l.e === r.e
+}
+
+export function borderAssign(l: Border, r: Readonly<Border>): void {
+  l.n = r.n
+  l.s = r.s
+  l.w = r.w
+  l.e = r.e
 }
 
 export function boxHits(

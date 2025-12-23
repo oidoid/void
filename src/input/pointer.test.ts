@@ -1,5 +1,6 @@
 import {test} from 'node:test'
 import {assert} from '../test/assert.ts'
+import {DPIMock} from '../test/dpi-mock.ts'
 import {TestElement} from '../test/test-element.ts'
 import {PointerTestEvent} from '../test/test-event.ts'
 import {Pointer} from './pointer.ts'
@@ -220,6 +221,60 @@ test('drag', ctx => {
     assert(pointer.primary?.drag, false)
     assert(pointer.invalid, true)
   })
+})
+
+test('locked pointer movement with DPR scaling and clamping', () => {
+  using _dpi = new DPIMock(2)
+  const target = TestElement()
+  Object.defineProperty(target, 'clientWidth', {value: 100})
+  Object.defineProperty(target, 'clientHeight', {value: 50})
+  using pointer = DefaultPointer(target)
+
+  target.dispatchEvent(
+    PointerTestEvent('pointerdown', {buttons: 1, offsetX: 10, offsetY: 10})
+  )
+  pointer.update()
+  assert(pointer.primary?.xyClient, {x: 10, y: 10})
+
+  Object.defineProperty(target, 'pointerLockElement', {value: target})
+
+  // move by movementX=10, movementY=-6 => scaled delta (+5, -3).
+  target.dispatchEvent(
+    PointerTestEvent('pointermove', {buttons: 1, movementX: 10, movementY: -6})
+  )
+  pointer.update()
+  assert(pointer.primary?.xyClient, {x: 15, y: 7})
+
+  // large movement should clamp to element bounds.
+  target.dispatchEvent(
+    PointerTestEvent('pointermove', {
+      buttons: 1,
+      movementX: 1000,
+      movementY: 1000
+    })
+  )
+  pointer.update()
+  assert(pointer.primary?.xyClient, {x: 100, y: 50})
+})
+
+test('modifier', () => {
+  const target = TestElement()
+  using pointer = DefaultPointer(target)
+
+  target.dispatchEvent(
+    PointerTestEvent('pointerdown', {buttons: 1, ctrlKey: true})
+  )
+  pointer.update()
+  assert(pointer.primary?.bits, 0)
+})
+
+test('unmapped button', () => {
+  const target = TestElement()
+  using pointer = DefaultPointer(target)
+
+  target.dispatchEvent(PointerTestEvent('pointerdown', {buttons: 8}))
+  pointer.update()
+  assert(pointer.primary?.bits, 0)
 })
 
 function DefaultPointer(target: Element): Pointer {

@@ -1,4 +1,4 @@
-import {test} from 'node:test'
+import {describe, test} from 'node:test'
 import {assert} from '../test/assert.ts'
 import type {XY} from '../types/geo.ts'
 import type {Millis} from '../types/time.ts'
@@ -6,11 +6,14 @@ import {type Anim, type Atlas, animCels, celMillis} from './atlas.ts'
 import {Layer} from './layer.ts'
 import {
   Drawable,
+  type DrawablePool,
   diagonalize,
   drawableBytes,
   Sprite,
   truncDrawableEpsilon
 } from './sprite.ts'
+
+type Tag = 'stem--AnimA' | 'stem--AnimB'
 
 const animA: Readonly<Anim> = {
   cels: 10,
@@ -29,17 +32,15 @@ const animB: Readonly<Anim> = {
   hurtbox: {x: 1, y: 2, w: 3, h: 4}
 }
 
-const atlas: Readonly<Atlas<'stem--AnimA' | 'stem--AnimB'>> = {
+const atlas: Readonly<Atlas<Tag>> = {
   anim: {'stem--AnimA': animA, 'stem--AnimB': animB},
   celXYWH: [],
   tags: ['stem--AnimA', 'stem--AnimB']
 }
 
-class TestDrawable extends Drawable {}
-
 test('above() layer', () => {
-  const l = new TestDrawable(TestPool(), 0)
-  const r = new TestDrawable(TestPool(), 0)
+  const l = TestDrawable()
+  const r = TestDrawable()
 
   l.z = 1
   r.z = 2
@@ -58,8 +59,8 @@ test('above() layer', () => {
 })
 
 test('above() zend', () => {
-  const l = new TestDrawable(TestPool(), 0)
-  const r = new TestDrawable(TestPool(), 0)
+  const l = TestDrawable()
+  const r = TestDrawable()
 
   l.h = 10
   r.h = 100
@@ -76,31 +77,31 @@ test('above() zend', () => {
 })
 
 test('cel', () => {
-  const view = TestPool()
-  const draw = new TestDrawable(view, 0)
+  const pool = TestPool()
+  const draw = TestDrawable(pool, 0)
 
   assert(draw.cel, 0)
-  assert(toHex(view), '00000000000000000000000000000000')
+  assert(toHex(pool), '00000000000000000000000000000000')
 
   draw.cel = 1
   assert(draw.cel, 1)
-  assert(toHex(view), '00000000000000000000010000000000')
+  assert(toHex(pool), '00000000000000000000010000000000')
 
   draw.cel = animCels
   assert(draw.cel, animCels)
-  assert(toHex(view), '00000000000000000000100000000000')
+  assert(toHex(pool), '00000000000000000000100000000000')
 
   draw.cel = animCels * 2 - 1
   assert(draw.cel, animCels * 2 - 1)
-  assert(toHex(view), '000000000000000000001f0000000000')
+  assert(toHex(pool), '000000000000000000001f0000000000')
 
   draw.cel = animCels * 2
   assert(draw.cel, 0)
-  assert(toHex(view), '00000000000000000000000000000000')
+  assert(toHex(pool), '00000000000000000000000000000000')
 })
 
 test('clips()', () => {
-  const draw = new TestDrawable(TestPool(), 0)
+  const draw = TestDrawable()
   assert(draw.clips({x: 1, y: 1}), false)
 
   draw.w = draw.h = 10
@@ -109,64 +110,126 @@ test('clips()', () => {
   assert(draw.clips({x: 11, y: 11}), false)
 })
 
+describe('clipsZ()', () => {
+  test('non-sprite box delegates to clips()', () => {
+    const draw = TestDrawable()
+    draw.w = draw.h = 10
+    const cam = {x: 100, y: 100}
+
+    assert(draw.clipsZ({x: 1, y: 1}, cam), true)
+    assert(draw.clipsZ({x: 11, y: 11}, cam), false)
+  })
+
+  test('same layer type delegates to clips()', () => {
+    const a = TestSprite()
+    const b = TestSprite()
+    a.tag = 'stem--AnimA'
+    b.tag = 'stem--AnimA'
+    a.z = Layer.A
+    b.z = Layer.B
+    const cam = {x: 100, y: 100}
+
+    assert(a.clipsZ(b, cam), true)
+    assert(b.clipsZ(a, cam), true)
+  })
+
+  test('different layer types adjusts for cam', () => {
+    const world = TestSprite()
+    world.tag = 'stem--AnimA'
+    world.z = Layer.A
+    const ui = TestSprite()
+    ui.tag = 'stem--AnimA'
+    ui.z = Layer.UIA
+    const cam = {x: 50, y: 50}
+
+    assert(world.clipsZ(ui, cam), false)
+    assert(ui.clipsZ(world, cam), false)
+
+    world.x = 50
+    world.y = 50
+    assert(world.clipsZ(ui, cam), true)
+    assert(ui.clipsZ(world, cam), true)
+  })
+
+  test('UI checking world adjusts with negative offset', () => {
+    const world = TestSprite()
+    world.tag = 'stem--AnimA'
+    world.z = Layer.A
+    const ui = TestSprite()
+    ui.tag = 'stem--AnimA'
+    ui.z = Layer.UIA
+    const cam = {x: 50, y: 50}
+
+    ui.x = 0
+    ui.y = 0
+    assert(ui.clipsZ(world, cam), false)
+    assert(world.clipsZ(ui, cam), false)
+
+    ui.x = -50
+    ui.y = -50
+    assert(ui.clipsZ(world, cam), true)
+    assert(world.clipsZ(ui, cam), true)
+  })
+})
+
 test('flipX', () => {
-  const view = TestPool()
-  const draw = new TestDrawable(view, 0)
+  const pool = TestPool()
+  const draw = TestDrawable(pool, 0)
 
   assert(draw.flipX, false)
-  assert(toHex(view), '00000000000000000000000000000000')
+  assert(toHex(pool), '00000000000000000000000000000000')
 
   draw.flipX = true
   assert(draw.flipX, true)
-  assert(toHex(view), '00000000000040000000000000000000')
+  assert(toHex(pool), '00000000000040000000000000000000')
 
   draw.flipX = false
   assert(draw.flipX, false)
-  assert(toHex(view), '00000000000000000000000000000000')
+  assert(toHex(pool), '00000000000000000000000000000000')
 })
 
 test('flipY', () => {
-  const view = TestPool()
-  const draw = new TestDrawable(view, 0)
+  const pool = TestPool()
+  const draw = TestDrawable(pool, 0)
 
   assert(draw.flipY, false)
-  assert(toHex(view), '00000000000000000000000000000000')
+  assert(toHex(pool), '00000000000000000000000000000000')
 
   draw.flipY = true
   assert(draw.flipY, true)
-  assert(toHex(view), '00000000000020000000000000000000')
+  assert(toHex(pool), '00000000000020000000000000000000')
 
   draw.flipY = false
   assert(draw.flipY, false)
-  assert(toHex(view), '00000000000000000000000000000000')
+  assert(toHex(pool), '00000000000000000000000000000000')
 })
 
 test('height', () => {
-  const view = TestPool()
-  const draw = new TestDrawable(view, 0)
+  const pool = TestPool()
+  const draw = TestDrawable(pool, 0)
 
   assert(draw.h, 0)
-  assert(toHex(view), '00000000000000000000000000000000')
+  assert(toHex(pool), '00000000000000000000000000000000')
 
   draw.h = 1
   assert(draw.h, 1)
-  assert(toHex(view), '00000000000000001000000000000000')
+  assert(toHex(pool), '00000000000000001000000000000000')
 
   draw.h = 1024
   assert(draw.h, 1024)
-  assert(toHex(view), '00000000000000000040000000000000')
+  assert(toHex(pool), '00000000000000000040000000000000')
 
   draw.h = 4095
   assert(draw.h, 4095)
-  assert(toHex(view), '0000000000000000f0ff000000000000')
+  assert(toHex(pool), '0000000000000000f0ff000000000000')
 
   draw.h = 4096
   assert(draw.h, 0)
-  assert(toHex(view), '00000000000000000000000000000000')
+  assert(toHex(pool), '00000000000000000000000000000000')
 })
 
 test('index', () => {
-  const draw = new TestDrawable(TestPool(), 0)
+  const draw = TestDrawable()
 
   assert(draw.i, 0)
 
@@ -175,8 +238,8 @@ test('index', () => {
 })
 
 test('init()', () => {
-  const view = TestPool()
-  const draw = new TestDrawable(view, 0)
+  const pool = TestPool()
+  const draw = TestDrawable(pool, 0)
 
   draw.cel = 5
   draw.flipX = true
@@ -208,244 +271,244 @@ test('init()', () => {
 })
 
 test('id', () => {
-  const view = TestPool()
-  const draw = new TestDrawable(view, 0)
+  const pool = TestPool()
+  const draw = TestDrawable(pool, 0)
 
   assert(draw.id, 0)
-  assert(toHex(view), '00000000000000000000000000000000')
+  assert(toHex(pool), '00000000000000000000000000000000')
 
   draw.id = 1
   assert(draw.id, 1)
-  assert(toHex(view), '00000000000000000000200000000000')
+  assert(toHex(pool), '00000000000000000000200000000000')
 
   draw.id = 1023
   assert(draw.id, 1023)
-  assert(toHex(view), '00000000000000000000e07f00000000')
+  assert(toHex(pool), '00000000000000000000e07f00000000')
 
   draw.id = 1024
   assert(draw.id, 1024)
-  assert(toHex(view), '00000000000000000000008000000000')
+  assert(toHex(pool), '00000000000000000000008000000000')
 
   draw.id = 2047
   assert(draw.id, 2047)
-  assert(toHex(view), '00000000000000000000e0ff00000000')
+  assert(toHex(pool), '00000000000000000000e0ff00000000')
 
   draw.id = 2048
   assert(draw.id, 0)
-  assert(toHex(view), '00000000000000000000000000000000')
+  assert(toHex(pool), '00000000000000000000000000000000')
 })
 
 test('stretch', () => {
-  const view = TestPool()
-  const draw = new TestDrawable(view, 0)
+  const pool = TestPool()
+  const draw = TestDrawable(pool, 0)
 
   assert(draw.stretch, false)
-  assert(toHex(view), '00000000000000000000000000000000')
+  assert(toHex(pool), '00000000000000000000000000000000')
 
   draw.stretch = true
   assert(draw.stretch, true)
-  assert(toHex(view), '00000000000080000000000000000000')
+  assert(toHex(pool), '00000000000080000000000000000000')
 
   draw.stretch = false
   assert(draw.stretch, false)
-  assert(toHex(view), '00000000000000000000000000000000')
+  assert(toHex(pool), '00000000000000000000000000000000')
 })
 
 test('visible', () => {
-  const view = TestPool()
-  const draw = new TestDrawable(view, 0)
+  const pool = TestPool()
+  const draw = TestDrawable(pool, 0)
 
   assert(draw.visible, false)
-  assert(toHex(view), '00000000000000000000000000000000')
+  assert(toHex(pool), '00000000000000000000000000000000')
 
   draw.visible = true
   assert(draw.visible, true)
-  assert(toHex(view), '00000000000000000000000001000000')
+  assert(toHex(pool), '00000000000000000000000001000000')
 
   draw.visible = false
   assert(draw.visible, false)
-  assert(toHex(view), '00000000000000000000000000000000')
+  assert(toHex(pool), '00000000000000000000000000000000')
 })
 
 test('width', () => {
-  const view = TestPool()
-  const draw = new TestDrawable(view, 0)
+  const pool = TestPool()
+  const draw = TestDrawable(pool, 0)
 
   assert(draw.w, 0)
-  assert(toHex(view), '00000000000000000000000000000000')
+  assert(toHex(pool), '00000000000000000000000000000000')
 
   draw.w = 1
   assert(draw.w, 1)
-  assert(toHex(view), '00000000000000010000000000000000')
+  assert(toHex(pool), '00000000000000010000000000000000')
 
   draw.w = 4095
   assert(draw.w, 4095)
-  assert(toHex(view), '00000000000000ff0f00000000000000')
+  assert(toHex(pool), '00000000000000ff0f00000000000000')
 
   draw.w = 4096
   assert(draw.w, 0)
-  assert(toHex(view), '00000000000000000000000000000000')
+  assert(toHex(pool), '00000000000000000000000000000000')
 })
 
 test('x', () => {
-  const view = TestPool()
-  const draw = new TestDrawable(view, 0)
+  const pool = TestPool()
+  const draw = TestDrawable(pool, 0)
 
   draw.x = -131073
   assert(draw.x, 131071)
-  assert(toHex(view), 'c0ff7f00000000000000000000000000')
+  assert(toHex(pool), 'c0ff7f00000000000000000000000000')
 
   draw.x = -131072.015625
   assert(draw.x, 131071.984375)
-  assert(toHex(view), 'ffff7f00000000000000000000000000')
+  assert(toHex(pool), 'ffff7f00000000000000000000000000')
 
   draw.x = -131072
   assert(draw.x, -131072)
-  assert(toHex(view), '00008000000000000000000000000000')
+  assert(toHex(pool), '00008000000000000000000000000000')
 
   draw.x = -0.999
   assert(draw.x, -0.984375)
-  assert(toHex(view), 'c1ffff00000000000000000000000000')
+  assert(toHex(pool), 'c1ffff00000000000000000000000000')
 
   draw.x = -0.984375
   assert(draw.x, -0.984375)
-  assert(toHex(view), 'c1ffff00000000000000000000000000')
+  assert(toHex(pool), 'c1ffff00000000000000000000000000')
 
   draw.x = -0.015625
   assert(draw.x, -0.015625)
-  assert(toHex(view), 'ffffff00000000000000000000000000')
+  assert(toHex(pool), 'ffffff00000000000000000000000000')
 
   draw.x = 0
   assert(draw.x, 0)
-  assert(toHex(view), '00000000000000000000000000000000')
+  assert(toHex(pool), '00000000000000000000000000000000')
 
   draw.x = 0.015625
   assert(draw.x, 0.015625)
-  assert(toHex(view), '01000000000000000000000000000000')
+  assert(toHex(pool), '01000000000000000000000000000000')
 
   draw.x = 0.984375
   assert(draw.x, 0.984375)
-  assert(toHex(view), '3f000000000000000000000000000000')
+  assert(toHex(pool), '3f000000000000000000000000000000')
 
   draw.x = 0.999
   assert(draw.x, 0.984375)
-  assert(toHex(view), '3f000000000000000000000000000000')
+  assert(toHex(pool), '3f000000000000000000000000000000')
 
   draw.x = 1
   assert(draw.x, 1)
-  assert(toHex(view), '40000000000000000000000000000000')
+  assert(toHex(pool), '40000000000000000000000000000000')
 
   draw.x = 131071.984375
   assert(draw.x, 131071.984375)
-  assert(toHex(view), 'ffff7f00000000000000000000000000')
+  assert(toHex(pool), 'ffff7f00000000000000000000000000')
 
   draw.x = 131072
   assert(draw.x, -131072)
-  assert(toHex(view), '00008000000000000000000000000000')
+  assert(toHex(pool), '00008000000000000000000000000000')
 })
 
 test('y', () => {
-  const view = TestPool()
-  const draw = new TestDrawable(view, 0)
+  const pool = TestPool()
+  const draw = TestDrawable(pool, 0)
 
   draw.y = -131073
   assert(draw.y, 131071)
-  assert(toHex(view), '000000c0ff7f00000000000000000000')
+  assert(toHex(pool), '000000c0ff7f00000000000000000000')
 
   draw.y = -131072.015625
   assert(draw.y, 131071.984375)
-  assert(toHex(view), '000000ffff7f00000000000000000000')
+  assert(toHex(pool), '000000ffff7f00000000000000000000')
 
   draw.y = -131072
   assert(draw.y, -131072)
-  assert(toHex(view), '00000000008000000000000000000000')
+  assert(toHex(pool), '00000000008000000000000000000000')
 
   draw.y = -0.999
   assert(draw.y, -0.984375)
-  assert(toHex(view), '000000c1ffff00000000000000000000')
+  assert(toHex(pool), '000000c1ffff00000000000000000000')
 
   draw.y = -0.984375
   assert(draw.y, -0.984375)
-  assert(toHex(view), '000000c1ffff00000000000000000000')
+  assert(toHex(pool), '000000c1ffff00000000000000000000')
 
   draw.y = -0.015625
   assert(draw.y, -0.015625)
-  assert(toHex(view), '000000ffffff00000000000000000000')
+  assert(toHex(pool), '000000ffffff00000000000000000000')
 
   draw.y = 0
   assert(draw.y, 0)
-  assert(toHex(view), '00000000000000000000000000000000')
+  assert(toHex(pool), '00000000000000000000000000000000')
 
   draw.y = 0.015625
   assert(draw.y, 0.015625)
-  assert(toHex(view), '00000001000000000000000000000000')
+  assert(toHex(pool), '00000001000000000000000000000000')
 
   draw.y = 0.984375
   assert(draw.y, 0.984375)
-  assert(toHex(view), '0000003f000000000000000000000000')
+  assert(toHex(pool), '0000003f000000000000000000000000')
 
   draw.y = 0.999
   assert(draw.y, 0.984375)
-  assert(toHex(view), '0000003f000000000000000000000000')
+  assert(toHex(pool), '0000003f000000000000000000000000')
 
   draw.y = 1
   assert(draw.y, 1)
-  assert(toHex(view), '00000040000000000000000000000000')
+  assert(toHex(pool), '00000040000000000000000000000000')
 
   draw.y = 131071.984375
   assert(draw.y, 131071.984375)
-  assert(toHex(view), '000000ffff7f00000000000000000000')
+  assert(toHex(pool), '000000ffff7f00000000000000000000')
 
   draw.y = 131072
   assert(draw.y, -131072)
-  assert(toHex(view), '00000000008000000000000000000000')
+  assert(toHex(pool), '00000000008000000000000000000000')
 })
 
 test('z', () => {
-  const view = TestPool()
-  const draw = new TestDrawable(view, 0)
+  const pool = TestPool()
+  const draw = TestDrawable(pool, 0)
 
   draw.z = 0
   assert(draw.z, 0)
-  assert(toHex(view), '00000000000000000000000000000000')
+  assert(toHex(pool), '00000000000000000000000000000000')
 
   draw.z = 1
   assert(draw.z, 1)
-  assert(toHex(view), '00000000000001000000000000000000')
+  assert(toHex(pool), '00000000000001000000000000000000')
 
   draw.z = Layer.Top
   assert(draw.z, Layer.Top)
-  assert(toHex(view), '0000000000000f000000000000000000')
+  assert(toHex(pool), '0000000000000f000000000000000000')
 
   draw.z = (Layer.Top + 1) as Layer
   assert(draw.z, 0)
-  assert(toHex(view), '00000000000000000000000000000000')
+  assert(toHex(pool), '00000000000000000000000000000000')
 })
 
 test('zend', () => {
-  const view = TestPool()
-  const draw = new TestDrawable(view, 0)
+  const pool = TestPool()
+  const draw = TestDrawable(pool, 0)
 
   assert(draw.zend, false)
-  assert(toHex(view), '00000000000000000000000000000000')
+  assert(toHex(pool), '00000000000000000000000000000000')
 
   draw.zend = true
   assert(draw.zend, true)
-  assert(toHex(view), '00000000000010000000000000000000')
+  assert(toHex(pool), '00000000000010000000000000000000')
 
   draw.zend = false
   assert(draw.zend, false)
-  assert(toHex(view), '00000000000000000000000000000000')
+  assert(toHex(pool), '00000000000000000000000000000000')
 })
 
 test('anim', () => {
-  const sprite = new Sprite(TestPool(), 0, atlas, {age: 0})
+  const sprite = TestSprite()
   sprite.tag = 'stem--AnimA'
   assert(sprite.anim, animA)
 })
 
 test('hitbox', () => {
-  const sprite = new Sprite(TestPool(), 0, atlas, {age: 0})
+  const sprite = TestSprite()
   sprite.tag = 'stem--AnimA'
   assert(sprite.hitbox, {x: 1, y: 2, w: 3, h: 4})
   sprite.flipX = true
@@ -459,14 +522,69 @@ test('hitbox', () => {
 })
 
 test('hits', () => {
-  const sprite = new Sprite(TestPool(), 0, atlas, {age: 0})
+  const sprite = TestSprite()
   sprite.tag = 'stem--AnimA'
   assert(sprite.hits({x: 1, y: 2}), true)
   assert(sprite.hits({x: 4, y: 6}), false)
 })
 
+describe('hitsZ()', () => {
+  test('non-sprite box delegates to hits()', () => {
+    const sprite = TestSprite()
+    sprite.tag = 'stem--AnimA'
+    const cam = {x: 100, y: 100}
+
+    assert(sprite.hitsZ({x: 1, y: 2}, cam), true)
+    assert(sprite.hitsZ({x: 4, y: 6}, cam), false)
+  })
+
+  test('same layer type delegates to hits()', () => {
+    const a = TestSprite()
+    a.tag = 'stem--AnimA'
+    a.z = Layer.A
+    const b = TestSprite()
+    b.tag = 'stem--AnimA'
+    b.z = Layer.B
+    const cam = {x: 100, y: 100}
+
+    assert(a.hitsZ(b, cam), true)
+  })
+
+  test('different layer types adjusts for cam', () => {
+    const world = TestSprite()
+    world.tag = 'stem--AnimA'
+    world.z = Layer.A
+    const ui = TestSprite()
+    ui.tag = 'stem--AnimA'
+    ui.z = Layer.UIA
+    const cam = {x: 50, y: 50}
+
+    assert(world.hitsZ(ui, cam), false)
+
+    world.x = 50
+    world.y = 50
+    assert(world.hitsZ(ui, cam), true)
+  })
+
+  test('UI checking world adjusts with negative offset', () => {
+    const world = TestSprite()
+    world.tag = 'stem--AnimA'
+    world.z = Layer.A
+    const ui = TestSprite()
+    ui.tag = 'stem--AnimA'
+    ui.z = Layer.UIA
+    const cam = {x: 50, y: 50}
+
+    assert(ui.hitsZ(world, cam), false)
+
+    ui.x = -50
+    ui.y = -50
+    assert(ui.hitsZ(world, cam), true)
+  })
+})
+
 test('hurtbox', () => {
-  const sprite = new Sprite(TestPool(), 0, atlas, {age: 0})
+  const sprite = TestSprite()
   sprite.tag = 'stem--AnimA'
   assert(sprite.hurtbox, {x: 1, y: 2, w: 3, h: 4})
   sprite.flipX = true
@@ -575,7 +693,7 @@ test('diagonalize()', () => {
 })
 
 test('toString()', () => {
-  const sprite = new Sprite(TestPool(), 0, atlas, {age: 0})
+  const sprite = TestSprite()
   sprite.tag = 'stem--AnimA'
   assert(sprite.toString(), 'Sprite{stem--AnimA (0 0 0) 10×20}')
   sprite.tag = 'stem--AnimB'
@@ -608,7 +726,18 @@ test('truncDrawableEpsilon()', () => {
     assert(truncDrawableEpsilon(x), out, `${x}`)
 })
 
-function TestPool(): {free(): void; view: DataView<ArrayBuffer>} {
+function TestSprite(): Sprite<Tag> {
+  return new Sprite(TestPool(), 0, atlas, {age: 0})
+}
+
+function TestDrawable(
+  pool: Readonly<DrawablePool> = TestPool(),
+  i: number = 0
+): Drawable {
+  return new (class extends Drawable {})(pool, i)
+}
+
+function TestPool(): DrawablePool {
   return {
     free() {},
     view: new DataView(new ArrayBuffer(drawableBytes), 0, drawableBytes)

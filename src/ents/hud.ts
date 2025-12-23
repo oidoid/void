@@ -1,116 +1,70 @@
 import type {AnyTag} from '../graphics/atlas.ts'
-import type {Layer} from '../graphics/layer.ts'
-import type {Sprite} from '../graphics/sprite.ts'
 import {
+  type Border,
+  borderAssign,
+  borderEq,
+  boxAssign,
   type CompassDir,
-  type WH,
-  whAssign,
-  whEq,
   type XY,
   xyAssign,
   xyEq
 } from '../types/geo.ts'
 import type {Void} from '../void.ts'
-import type {Ent} from './ent.ts'
+import type {QueryEnt} from './ent-query.ts'
+import type {Sys} from './sys.ts'
 
-export class HUDEnt<Tag extends AnyTag> implements Ent<Tag> {
-  #fill: 'X' | 'Y' | 'XY' | undefined
-  #invalid: boolean = true
-  readonly #margin: WH = {w: 0, h: 0}
-  readonly #modulo: XY = {x: 0, y: 0}
-  #pivot: CompassDir
-  readonly #sprite: Sprite<Tag>
+export type HUDEnt<Tag extends AnyTag> = QueryEnt<Tag, HUDSys<Tag>['query']>
 
-  constructor(v: Void<Tag, string>, tag: Tag, pivot: CompassDir) {
-    this.#sprite = v.alloc()
-    this.#sprite.visible = true
-    this.#sprite.tag = tag
-    this.#pivot = pivot
-  }
+/** reads invalid, hud, sprite WH and z; writes invalid, sprite XY, WH. */
+export class HUDSys<Tag extends AnyTag> implements Sys<Tag> {
+  readonly query = 'hud & sprite' as const
 
-  get fill(): 'X' | 'Y' | 'XY' | undefined {
-    return this.#fill
-  }
-
-  set fill(fill: 'X' | 'Y' | 'XY' | undefined) {
-    if (this.#fill === fill) return
-    this.#fill = fill
-    this.#invalid = true
-  }
-
-  free(): void {
-    this.#sprite.free()
-  }
-
-  get h(): number {
-    return this.#sprite.h
-  }
-
-  set h(h: number) {
-    if (this.#sprite.h === h) return
-    this.#sprite.h = h
-    this.#invalid = true
-  }
-
-  get margin(): Readonly<WH> {
-    return this.#margin
-  }
-
-  set margin(margin: Readonly<WH>) {
-    if (whEq(margin, this.#margin)) return
-    whAssign(this.#margin, margin)
-    this.#invalid = true
-  }
-
-  get modulo(): Readonly<XY> {
-    return this.#modulo
-  }
-
-  set modulo(modulo: Readonly<XY>) {
-    if (xyEq(modulo, this.#modulo)) return
-    xyAssign(this.#modulo, modulo)
-    this.#invalid = true
-  }
-
-  get pivot(): CompassDir {
-    return this.#pivot
-  }
-
-  set pivot(pivot: CompassDir) {
-    if (this.#pivot === pivot) return
-    this.#pivot = pivot
-    this.#invalid = true
-  }
-
-  update(v: Void<Tag, string>): boolean | undefined {
-    if (!this.#invalid && !v.cam.invalid) return
+  update(ent: HUDEnt<Tag>, v: Void<Tag, string>): void {
+    if (!ent.invalid && !v.cam.invalid) return
     const follow = v.cam.follow(
-      {w: this.#sprite.w, h: this.#sprite.h},
-      this.#sprite.z,
-      this.#pivot,
-      {fill: this.#fill, modulo: this.#modulo, margin: this.#margin}
+      ent.sprite,
+      ent.sprite.z,
+      ent.hud.origin,
+      ent.hud
     )
-    this.#sprite.x = follow.x
-    this.#sprite.y = follow.y
-    this.#invalid = false
-    return true
+    boxAssign(ent.sprite, follow)
+    ent.invalid = true // to-do: unclear if having wrappers for uniformly like
+    //  textSetText() is worth it.
   }
+}
 
-  get w(): number {
-    return this.#sprite.w
-  }
+export function hudSetFill<Tag extends AnyTag>(
+  ent: HUDEnt<Tag>,
+  fill: 'X' | 'Y' | 'XY' | undefined
+): void {
+  if (ent.hud.fill === fill) return
+  ent.hud.fill = fill
+  ent.invalid = true
+}
 
-  set w(w: number) {
-    if (this.#sprite.w === w) return
-    this.#sprite.w = w
-    this.#invalid = true
-  }
+export function hudSetMargin<Tag extends AnyTag>(
+  ent: HUDEnt<Tag>,
+  margin: Readonly<Border>
+): void {
+  if (borderEq(ent.hud.margin, margin)) return
+  borderAssign(ent.hud.margin, margin)
+  ent.invalid = true
+}
 
-  get z(): Layer {
-    return this.#sprite.z
-  }
+export function hudSetModulo<Tag extends AnyTag>(
+  ent: HUDEnt<Tag>,
+  modulo: Readonly<XY>
+): void {
+  if (xyEq(ent.hud.modulo, modulo)) return
+  xyAssign(ent.hud.modulo, modulo)
+  ent.invalid = true
+}
 
-  set z(z: Layer) {
-    this.#sprite.z = z
-  }
+export function hudSetOrigin<Tag extends AnyTag>(
+  ent: HUDEnt<Tag>,
+  origin: CompassDir
+): void {
+  if (ent.hud.origin === origin) return
+  ent.hud.origin = origin
+  ent.invalid = true
 }

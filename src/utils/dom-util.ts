@@ -8,6 +8,7 @@ export function download(uri: string, filename: string): void {
   a.remove()
 }
 
+/** @internal */
 export function initBody(
   canvas: Readonly<HTMLCanvasElement>,
   rgba: number

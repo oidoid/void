@@ -3,14 +3,24 @@
   "$id": "https://raw.githubusercontent.com/oidoid/void/refs/heads/main/src/demo/schema/level-file.json",
   "allOf": [{"$ref": "../../../schema/level-file.v0.json"}],
   "$defs": {
-    "Clock": {"type": "boolean", "description": "clock config."},
+    "Clock": {"const": true, "description": "clock config."},
+    "DebugInput": {"const": true, "description": "debug input config."},
     "Ent": {
       "allOf": [
         {"$ref": "../../../schema/level-file.v0.json#/$defs/Ent"},
         {
           "type": "object",
           "properties": {
-            "clock": {"$ref": "#/$defs/Clock", "unevaluatedProperties": false}
+            "clock": {"$ref": "#/$defs/Clock", "unevaluatedProperties": false},
+            "debugInput": {
+              "$ref": "#/$defs/DebugInput",
+              "unevaluatedProperties": false
+            },
+            "renderToggle": {
+              "$ref": "#/$defs/RenderToggle",
+              "unevaluatedProperties": false
+            },
+            "tally": {"$ref": "#/$defs/Tally", "unevaluatedProperties": false}
           }
         }
       ],
@@ -21,10 +31,12 @@
       "enum": ["Default", "Overlay"],
       "$comment": "to-do: `\"$dynamicAnchor\": \"Pool\"`."
     },
+    "RenderToggle": {"const": true, "description": "render toggle config."},
     "Tag": {
       "$ref": "../../../schema/level-file.v0.json#/$defs/Tag",
       "$comment": "to-do: `\"$dynamicAnchor\": \"Tag\"` and populate tags from tools/void.ts."
-    }
+    },
+    "Tally": {"const": true, "description": "tally config."}
   },
   "unevaluatedProperties": false,
   "properties": {

@@ -1,10 +1,14 @@
 import type {Font} from 'mem-font'
 import type {AnyTag} from '../graphics/atlas.ts'
 
-export function fontCharToTag(font: Readonly<Font>, char: string): AnyTag {
-  let pt = char.codePointAt(0)
+export function fontCharToTag(font: Readonly<Font>, ch: string): AnyTag {
+  let pt = ch.codePointAt(0)
   if (pt == null || pt > 0xff) pt = 63 // ?
   return `${font.id}--${pt.toString(16).padStart(2, '0')}`
+}
+
+export function fontCharH(font: Readonly<Font>, ch: string): number {
+  return font.cellH - (font.descends[ch] ? 0 : font.baseline)
 }
 
 /** @arg r undefined means end of line. */
@@ -13,12 +17,12 @@ export function fontKerning(
   l: string,
   r: string | undefined
 ): number {
-  if (r == null) return font.endOfLineKerning
+  if (l === '\n' || r == null || r === '\n') return font.endOfLineKerning
   if (font.kerning[l + r] != null) return font.kerning[l + r]!
   if (/^\s?$/.test(l) || /^\s?$/.test(r)) return font.defaultWhitespaceKerning
   return font.defaultKerning
 }
 
-export function fontCharWidth(font: Readonly<Font>, letter: string): number {
-  return font.charW[letter] ?? font.defaultCharW
+export function fontCharW(font: Readonly<Font>, ch: string): number {
+  return font.charW[ch] ?? font.defaultCharW
 }

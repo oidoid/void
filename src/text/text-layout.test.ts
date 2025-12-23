@@ -15,7 +15,9 @@ describe('layoutText()', () => {
       {
         chars: [],
         cursor: {x: 0, y: 0 * font.lineH},
-        wh: {h: 7, w: 0}
+        w: 0,
+        h: 7,
+        trimmedH: 0
       }
     ],
     [
@@ -24,7 +26,9 @@ describe('layoutText()', () => {
       {
         chars: [undefined],
         cursor: {x: 4, y: 0 * font.lineH},
-        wh: {h: 7, w: 4}
+        w: 0,
+        h: 7,
+        trimmedH: 5
       }
     ],
     [
@@ -33,7 +37,9 @@ describe('layoutText()', () => {
       {
         chars: [undefined],
         cursor: {x: 0, y: 1 * font.lineH},
-        wh: {h: 14, w: 0}
+        w: 0,
+        h: 14,
+        trimmedH: 7
       }
     ],
     [
@@ -62,7 +68,9 @@ describe('layoutText()', () => {
           {x: 58, y: 0 * font.lineH, w: 3, h: font.cellH}
         ],
         cursor: {x: 61, y: 0 * font.lineH},
-        wh: {h: 7, w: 61}
+        w: 61,
+        h: 7,
+        trimmedH: 6
       }
     ],
     [
@@ -91,7 +99,9 @@ describe('layoutText()', () => {
           {x: 0, y: 5 * font.lineH, w: 3, h: font.cellH}
         ],
         cursor: {x: 3, y: 5 * font.lineH},
-        wh: {h: 42, w: 10}
+        w: 10,
+        h: 42,
+        trimmedH: 40
       }
     ],
     [
@@ -120,7 +130,9 @@ describe('layoutText()', () => {
           {x: 10, y: 3 * font.lineH, w: 3, h: font.cellH}
         ],
         cursor: {x: 13, y: 3 * font.lineH},
-        wh: {h: 28, w: 19}
+        w: 19,
+        h: 28,
+        trimmedH: 26
       }
     ],
     [
@@ -149,7 +161,9 @@ describe('layoutText()', () => {
           {x: 10, y: 3 * font.lineH, w: 3, h: font.cellH}
         ],
         cursor: {x: 13, y: 3 * font.lineH},
-        wh: {h: 28, w: 21}
+        w: 21,
+        h: 28,
+        trimmedH: 27
       }
     ],
     [
@@ -163,7 +177,9 @@ describe('layoutText()', () => {
           {x: 0, y: 2 * font.lineH, w: 3, h: font.cellH}
         ],
         cursor: {x: 3, y: 2 * font.lineH},
-        wh: {h: 21, w: 3}
+        w: 3,
+        h: 21,
+        trimmedH: 19
       }
     ],
     [
@@ -178,38 +194,57 @@ describe('layoutText()', () => {
           undefined
         ],
         cursor: {x: 0, y: 3 * font.lineH},
-        wh: {h: 28, w: 3}
+        w: 2,
+        h: 28,
+        trimmedH: 26
+      }
+    ],
+    [
+      'a\n',
+      3,
+      {
+        chars: [{x: 0, y: 0 * font.lineH, w: 3, h: font.cellH}, undefined],
+        cursor: {x: 0, y: 1 * font.lineH},
+        w: 3,
+        h: 14,
+        trimmedH: 7
       }
     ]
   ]
   for (const [i, [str, w, expected]] of cases.entries()) {
     test(`Case ${i}: str="${str}" w=${w}.`, () =>
-      assert(layoutText({font, str, maxW: w}), expected))
+      assert(layoutText({font, text: str, maxW: w}), expected))
   }
 })
 
 describe('layoutWord()', () => {
-  const cases: [XY, number, string, number, Omit<TextLayout, 'wh'>][] = [
+  const cases: [
+    XY,
+    number,
+    string,
+    number,
+    Omit<TextLayout, 'h' | 'trimmedH'> & {trimmedLineH: number}
+  ][] = [
     [
       {x: 0, y: 0 * font.lineH},
       maxW,
       ' ',
       0,
-      {chars: [], cursor: {x: 0, y: 0 * font.lineH}}
+      {chars: [], cursor: {x: 0, y: 0 * font.lineH}, trimmedLineH: 0, w: 0}
     ],
     [
       {x: 0, y: 0 * font.lineH},
       maxW,
       '',
       0,
-      {chars: [], cursor: {x: 0, y: 0 * font.lineH}}
+      {chars: [], cursor: {x: 0, y: 0 * font.lineH}, trimmedLineH: 0, w: 0}
     ],
     [
       {x: 0, y: 0 * font.lineH},
       maxW,
       '\n',
       0,
-      {chars: [], cursor: {x: 0, y: 0 * font.lineH}}
+      {chars: [], cursor: {x: 0, y: 0 * font.lineH}, trimmedLineH: 0, w: 0}
     ],
     [
       {x: 0, y: 0 * font.lineH},
@@ -218,7 +253,9 @@ describe('layoutWord()', () => {
       0,
       {
         chars: [{x: 0, y: 0 * font.lineH, w: 3, h: font.cellH}],
-        cursor: {x: 3, y: 0 * font.lineH}
+        cursor: {x: 3, y: 0 * font.lineH},
+        trimmedLineH: 5,
+        w: 3
       }
     ],
     [
@@ -228,7 +265,9 @@ describe('layoutWord()', () => {
       0,
       {
         chars: [{x: 0, y: 0 * font.lineH, w: 1, h: font.cellH}],
-        cursor: {x: 1, y: 0 * font.lineH}
+        cursor: {x: 1, y: 0 * font.lineH},
+        trimmedLineH: 5,
+        w: 1
       }
     ],
     [
@@ -238,7 +277,9 @@ describe('layoutWord()', () => {
       0,
       {
         chars: [{x: 0, y: 0 * font.lineH, w: 3, h: font.cellH}],
-        cursor: {x: 2, y: 0 * font.lineH}
+        cursor: {x: 2, y: 0 * font.lineH},
+        trimmedLineH: 5,
+        w: 2
       }
     ],
     [
@@ -248,7 +289,9 @@ describe('layoutWord()', () => {
       0,
       {
         chars: [{x: 0, y: 0 * font.lineH, w: 3, h: font.cellH}],
-        cursor: {x: 2, y: 0 * font.lineH}
+        cursor: {x: 3, y: 0 * font.lineH},
+        trimmedLineH: 5,
+        w: 3
       }
     ],
     [
@@ -258,7 +301,9 @@ describe('layoutWord()', () => {
       0,
       {
         chars: [{x: 0, y: 0 * font.lineH, w: 3, h: font.cellH}],
-        cursor: {x: 2, y: 0 * font.lineH}
+        cursor: {x: 2, y: 0 * font.lineH},
+        trimmedLineH: 5,
+        w: 2
       }
     ],
     [
@@ -271,7 +316,9 @@ describe('layoutWord()', () => {
           {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
           {x: 4, y: 0 * font.lineH, w: 1, h: font.cellH}
         ],
-        cursor: {x: 5, y: 0 * font.lineH}
+        cursor: {x: 5, y: 0 * font.lineH},
+        trimmedLineH: 5,
+        w: 5
       }
     ],
     [
@@ -284,7 +331,9 @@ describe('layoutWord()', () => {
           {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
           {x: 4, y: 0 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 7, y: 0 * font.lineH}
+        cursor: {x: 7, y: 0 * font.lineH},
+        trimmedLineH: 5,
+        w: 7
       }
     ],
     [
@@ -297,7 +346,9 @@ describe('layoutWord()', () => {
           {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
           {x: 4, y: 0 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 6, y: 0 * font.lineH}
+        cursor: {x: 7, y: 0 * font.lineH},
+        trimmedLineH: 5,
+        w: 7
       }
     ],
     [
@@ -310,7 +361,9 @@ describe('layoutWord()', () => {
           {x: 0, y: 0 * font.lineH, w: 3, h: font.cellH},
           {x: 4, y: 0 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 6, y: 0 * font.lineH}
+        cursor: {x: 6, y: 0 * font.lineH},
+        trimmedLineH: 5,
+        w: 6
       }
     ],
     [
@@ -320,7 +373,9 @@ describe('layoutWord()', () => {
       0,
       {
         chars: [{x: 0, y: 0 * font.lineH, w: 3, h: font.cellH}],
-        cursor: {x: 3, y: 0 * font.lineH}
+        cursor: {x: 3, y: 0 * font.lineH},
+        trimmedLineH: 6,
+        w: 3
       }
     ],
     [
@@ -339,7 +394,9 @@ describe('layoutWord()', () => {
           {x: 24, y: 0 * font.lineH, w: 3, h: font.cellH},
           {x: 28, y: 0 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 31, y: 0 * font.lineH}
+        cursor: {x: 31, y: 0 * font.lineH},
+        trimmedLineH: 6,
+        w: 31
       }
     ],
     [
@@ -357,7 +414,9 @@ describe('layoutWord()', () => {
           {x: 20, y: 0 * font.lineH, w: 3, h: font.cellH},
           {x: 24, y: 0 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 27, y: 0 * font.lineH}
+        cursor: {x: 27, y: 0 * font.lineH},
+        trimmedLineH: 6,
+        w: 27
       }
     ],
     [
@@ -365,7 +424,7 @@ describe('layoutWord()', () => {
       maxW,
       'abcdefgh',
       8,
-      {chars: [], cursor: {x: 0, y: 0 * font.lineH}}
+      {chars: [], cursor: {x: 0, y: 0 * font.lineH}, trimmedLineH: 0, w: 0}
     ],
     [
       {x: 0, y: 0 * font.lineH},
@@ -383,7 +442,9 @@ describe('layoutWord()', () => {
           {x: 0, y: 6 * font.lineH, w: 3, h: font.cellH},
           {x: 0, y: 7 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 3, y: 7 * font.lineH}
+        cursor: {x: 3, y: 7 * font.lineH},
+        trimmedLineH: 5,
+        w: 4
       }
     ],
     [
@@ -402,7 +463,9 @@ describe('layoutWord()', () => {
           {x: 0, y: 6 * font.lineH, w: 3, h: font.cellH},
           {x: 0, y: 7 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 3, y: 7 * font.lineH}
+        cursor: {x: 3, y: 7 * font.lineH},
+        trimmedLineH: 5,
+        w: 4
       }
     ],
     [
@@ -421,7 +484,9 @@ describe('layoutWord()', () => {
           {x: 0, y: 6 * font.lineH, w: 3, h: font.cellH},
           {x: 0, y: 7 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 3, y: 7 * font.lineH}
+        cursor: {x: 3, y: 7 * font.lineH},
+        trimmedLineH: 5,
+        w: 4
       }
     ],
     [
@@ -440,7 +505,9 @@ describe('layoutWord()', () => {
           {x: 0, y: 6 * font.lineH, w: 3, h: font.cellH},
           {x: 0, y: 7 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 3, y: 7 * font.lineH}
+        cursor: {x: 3, y: 7 * font.lineH},
+        trimmedLineH: 5,
+        w: 4
       }
     ],
     [
@@ -459,7 +526,9 @@ describe('layoutWord()', () => {
           {x: 0, y: 6 * font.lineH, w: 3, h: font.cellH},
           {x: 0, y: 7 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 3, y: 7 * font.lineH}
+        cursor: {x: 3, y: 7 * font.lineH},
+        trimmedLineH: 5,
+        w: 4
       }
     ],
     [
@@ -478,7 +547,9 @@ describe('layoutWord()', () => {
           {x: 0, y: 6 * font.lineH, w: 3, h: font.cellH},
           {x: 4, y: 6 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 7, y: 6 * font.lineH}
+        cursor: {x: 7, y: 6 * font.lineH},
+        trimmedLineH: 6,
+        w: 7
       }
     ],
     [
@@ -497,7 +568,9 @@ describe('layoutWord()', () => {
           {x: 0, y: 3 * font.lineH, w: 3, h: font.cellH},
           {x: 4, y: 3 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 7, y: 3 * font.lineH}
+        cursor: {x: 7, y: 3 * font.lineH},
+        trimmedLineH: 6,
+        w: 8
       }
     ],
     [
@@ -516,7 +589,9 @@ describe('layoutWord()', () => {
           {x: 0, y: 3 * font.lineH, w: 3, h: font.cellH},
           {x: 4, y: 3 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 7, y: 3 * font.lineH}
+        cursor: {x: 7, y: 3 * font.lineH},
+        trimmedLineH: 6,
+        w: 8
       }
     ],
     [
@@ -535,7 +610,9 @@ describe('layoutWord()', () => {
           {x: 0, y: 3 * font.lineH, w: 3, h: font.cellH},
           {x: 4, y: 3 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 7, y: 3 * font.lineH}
+        cursor: {x: 7, y: 3 * font.lineH},
+        trimmedLineH: 6,
+        w: 8
       }
     ],
     [
@@ -554,7 +631,9 @@ describe('layoutWord()', () => {
           {x: 0, y: 3 * font.lineH, w: 3, h: font.cellH},
           {x: 4, y: 3 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 7, y: 3 * font.lineH}
+        cursor: {x: 7, y: 3 * font.lineH},
+        trimmedLineH: 6,
+        w: 8
       }
     ],
     [
@@ -573,7 +652,9 @@ describe('layoutWord()', () => {
           {x: 0, y: 2 * font.lineH, w: 3, h: font.cellH},
           {x: 4, y: 2 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 7, y: 2 * font.lineH}
+        cursor: {x: 7, y: 2 * font.lineH},
+        trimmedLineH: 6,
+        w: 12
       }
     ],
     [
@@ -592,7 +673,9 @@ describe('layoutWord()', () => {
           {x: 0, y: 6 * font.lineH, w: 3, h: font.cellH},
           {x: 0, y: 7 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 3, y: 7 * font.lineH}
+        cursor: {x: 3, y: 7 * font.lineH},
+        trimmedLineH: 5,
+        w: 5
       }
     ],
     [
@@ -611,7 +694,9 @@ describe('layoutWord()', () => {
           {x: 0, y: 7 * font.lineH, w: 3, h: font.cellH},
           {x: 0, y: 8 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 3, y: 8 * font.lineH}
+        cursor: {x: 3, y: 8 * font.lineH},
+        trimmedLineH: 5,
+        w: 4
       }
     ],
     [
@@ -630,12 +715,14 @@ describe('layoutWord()', () => {
           {x: 0, y: 1 + 7 * font.lineH, w: 3, h: font.cellH},
           {x: 0, y: 1 + 8 * font.lineH, w: 3, h: font.cellH}
         ],
-        cursor: {x: 3, y: 1 + 8 * font.lineH}
+        cursor: {x: 3, y: 1 + 8 * font.lineH},
+        trimmedLineH: 5,
+        w: 4
       }
     ]
   ]
-  for (const [i, [xy, width, string, index, expected]] of cases.entries()) {
-    test(`case ${i}: xy=(${xy.x}, ${xy.y}), width=${width}, string="${string}", index=${index}.`, () =>
-      assert(layoutWord(font, xy, width, string, index, 0, 1), expected))
+  for (const [i, [xy, maxW, string, index, expected]] of cases.entries()) {
+    test(`case ${i}: xy=(${xy.x}, ${xy.y}), maxW=${maxW}, string="${string}", index=${index}.`, () =>
+      assert(layoutWord(font, xy, maxW, string, index, 0, 1, 0, 0), expected))
   }
 })

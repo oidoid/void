@@ -56,7 +56,8 @@
         "type": {
           "description": "whether to operate as push to engage or push to toggle.",
           "enum": ["Button", "Toggle"]
-        }
+        },
+        "z": {"$ref": "#/$defs/Layer"}
       }
     },
     "CompassDir": {
@@ -77,9 +78,14 @@
           "$ref": "#/$defs/NinePatch",
           "unevaluatedProperties": false
         },
+        "override": {
+          "$ref": "#/$defs/Override",
+          "unevaluatedProperties": false
+        },
         "sprite": {"$ref": "#/$defs/Sprite", "unevaluatedProperties": false},
         "text": {"$ref": "#/$defs/Text"},
-        "textUI": {"$ref": "#/$defs/TextUI", "unevaluatedProperties": false}
+        "textWH": {"$ref": "#/$defs/TextWH", "unevaluatedProperties": false},
+        "textXY": {"$ref": "#/$defs/TextXY", "unevaluatedProperties": false}
       }
     },
     "Cursor": {
@@ -219,6 +225,16 @@
         }
       }
     },
+    "Override": {
+      "type": "object",
+      "description": "override config.",
+      "properties": {
+        "invalid": {
+          "type": "boolean",
+          "description": "whether to recompute and render update."
+        }
+      }
+    },
     "Pool": {
       "$dynamicAnchor": "Pool",
       "type": "string",
@@ -292,9 +308,9 @@
       "pattern": ".*--.*"
     },
     "Text": {"type": "string", "description": "string."},
-    "TextUI": {
+    "TextWH": {
       "type": "object",
-      "description": "text config.",
+      "description": "text WH config.",
       "properties": {
         "maxW": {
           "type": "integer",
@@ -306,12 +322,26 @@
           "$ref": "#/$defs/CompassDir",
           "description": "position relative to."
         },
+        "pad": {
+          "$ref": "#/$defs/Border",
+          "description": "spacing between sprite and patches.",
+          "unevaluatedProperties": false
+        },
         "scale": {
           "type": "integer",
           "description": "text scalar.",
           "minimum": 1
+        },
+        "trim": {
+          "enum": ["Leading", "Descender"],
+          "description": "whether to cut the trailing line leading and descenders."
         }
       }
+    },
+    "TextXY": {
+      "type": "object",
+      "description": "text XY config.",
+      "properties": {"z": {"$ref": "#/$defs/Layer"}}
     },
     "UIntXY": {
       "$ref": "#/$defs/IntXY",
@@ -367,7 +397,6 @@
     },
     "minWH": {
       "$ref": "https://oidoid.github.io/void/config-file.v0.json#/$defs/MinCamWH",
-      "description": "min cam dimensions. infinity always uses min scale. defaults to infinity.",
       "unevaluatedProperties": false
     }
   }

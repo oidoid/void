@@ -1,0 +1,105 @@
+{
+  "$schema": "../schema/level-file.json",
+  "ents": [
+    {"debugInput": true},
+
+    {
+      "id": "Cursor",
+      "sprite": {"tag": "cursor--Pointer", "z": "Top"},
+      "cursor": {}
+    },
+
+    {
+      "name": "Overlay",
+      "sprite": {
+        "pool": "Overlay",
+        "tag": "background--GreyCheckerboard",
+        "w": 4095,
+        "h": 4095,
+        "z": "Top"
+      }
+    },
+    {
+      "id": "RenderToggle",
+      "name": "RenderToggle",
+      "text": "render",
+      "sprite": {"z": "UID"},
+      "textWH": {"pad": 2, "scale": 2, "trim": "Leading"},
+      "hud": {"origin": "NE", "margin": {"n": 2, "e": 2}},
+      "ninePatch": {
+        "border": 1,
+        "pad": 2,
+        "patch": {
+          "center": "background--Grape",
+          "n": "background--Bubblegum",
+          "s": "background--Kiwi",
+          "w": "background--Strawberry",
+          "e": "background--Blueberry"
+        }
+      },
+      "button": {
+        "pressed": "background--Bubblegum",
+        "selected": "background--OrangeCheckerboard",
+        "type": "Toggle",
+        "z": "UIC"
+      },
+      "renderToggle": true,
+      "textXY": {"z": "UIE"}
+    },
+    {
+      "name": "Clock",
+      "text": "",
+      "sprite": {"z": "UIF"},
+      "clock": true,
+      "textWH": {"scale": 2, "trim": "Descender"},
+      "hud": {"margin": {"y": 4}, "origin": "S"},
+      "textXY": {}
+    },
+    {
+      "name": "Logo",
+      "sprite": {"tag": "oidoid--Default", "z": "UIF"},
+      "hud": {"origin": "SW", "margin": 4}
+    },
+    {
+      "name": "Border",
+      "sprite": {"z": "UIG"},
+      "hud": {"origin": "NW", "fill": "XY"},
+      "ninePatch": {
+        "patch": {
+          "n": "background--Black",
+          "s": "background--Black",
+          "w": "background--Black",
+          "e": "background--Black",
+          "nw": "background--Black",
+          "ne": "background--Black",
+          "sw": "background--Black",
+          "se": "background--Black"
+        },
+        "border": 1
+      }
+    },
+
+    {
+      "name": "Backpacker",
+      "sprite": {
+        "tag": "backpacker--WalkRight",
+        "x": 7,
+        "y": 7,
+        "z": "C",
+        "stretch": true,
+        "scale": 5
+      }
+    },
+
+    {
+      "name": "Tally",
+      "text": "",
+      "sprite": {"z": "UIA"},
+      "tally": true,
+      "textWH": {},
+      "hud": {"origin": "NE", "margin": {"n": 4, "e": 60}},
+      "textXY": {},
+      "override": {"invalid": false}
+    }
+  ]
+}

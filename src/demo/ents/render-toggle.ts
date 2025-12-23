@@ -2,47 +2,12 @@ import * as V from '../../index.ts'
 import type {Game} from '../game.ts'
 import type {Tag} from '../types/tag.ts'
 
-// to-do: follow cam sw.
-export class RenderToggleEnt implements V.Ent<Tag> {
-  readonly #toggle: V.ButtonEnt<Tag, V.DefaultButton>
+export type RenderToggleEnt = V.QueryEnt<Tag, RenderToggleSys['query']>
 
-  constructor(v: Game) {
-    this.#toggle = new V.ButtonEnt(v, {
-      button: {
-        w: {tag: 'background--Strawberry'},
-        nw: {tag: 'background--Transparent'},
-        n: {tag: 'background--Bubblegum'},
-        e: {tag: 'background--Blueberry'},
-        s: {tag: 'background--Kiwi'},
-        origin: {tag: 'background--Grape'},
-        border: {n: 1},
-        margin: {w: 2, h: 2}
-      },
-      selected: {tag: 'background--OrangeCheckerboard'},
-      toggle: true,
-      text: {text: 'render', scale: 2},
-      w: 64,
-      h: 22,
-      x: 50,
-      y: 25,
-      pressed: {tag: 'background--Bubblegum'}
-    })
-  }
+export class RenderToggleSys implements V.Sys<Tag> {
+  readonly query = 'button & renderToggle & sprite' as const
 
-  get on(): boolean {
-    return this.#toggle.on
-  }
-
-  set on(on: boolean) {
-    this.#toggle.on = on
-  }
-
-  free(): void {
-    this.#toggle.free()
-  }
-
-  /** always updates but never invalidates. */
-  update(v: Game): boolean | undefined {
-    return this.#toggle.update(v)
+  update(ent: RenderToggleEnt, v: Game): void {
+    v.renderer.always = V.buttonOn(ent)
   }
 }

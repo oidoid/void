@@ -2,9 +2,12 @@ type PointerTestEventInit = {
   buttons: number
   offsetX: number
   offsetY: number
+  movementX: number
+  movementY: number
   pointerId: number
   isPrimary: boolean
   pointerType: 'mouse' | 'pen' | 'touch'
+  ctrlKey: boolean
 }
 
 export function TestEvent(type: string): Event {
@@ -35,9 +38,12 @@ export function PointerTestEvent(
       buttons: 0,
       offsetX: 0,
       offsetY: 0,
+      movementX: 0,
+      movementY: 0,
       pointerId: 1,
       isPrimary: (init.pointerId ?? 1) === 1,
-      pointerType: 'mouse'
+      pointerType: 'mouse',
+      ctrlKey: false
     } satisfies PointerTestEventInit,
     init
   )

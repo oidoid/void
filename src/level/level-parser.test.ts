@@ -2,14 +2,14 @@ import {describe, test} from 'node:test'
 import type {Button, Ent} from '../ents/ent.ts'
 import type {Anim, AnyTag, Atlas} from '../graphics/atlas.ts'
 import {Layer} from '../graphics/layer.ts'
-import {drawableBytes, Sprite} from '../graphics/sprite.ts'
-import {Pool} from '../mem/pool.ts'
+import type {Sprite} from '../graphics/sprite.ts'
+import type {Pool} from '../mem/pool.ts'
 import type {PoolMap} from '../mem/pool-map.ts'
+import {SpritePool} from '../mem/sprite-pool.ts'
 import {assert} from '../test/assert.ts'
 import type {Box} from '../types/geo.ts'
 import {
   type ComponentHook,
-  type EntSchema,
   parseBorder,
   parseButton,
   parseCursor,
@@ -18,12 +18,14 @@ import {
   parseHUD,
   parseLevel,
   parseNinePatch,
+  parseOverride,
   parseSprite,
-  parseTextUI,
+  parseTextWH,
+  parseTextXY,
   parseWH,
-  parseXY,
-  type SpriteSchema
-} from './level.ts'
+  parseXY
+} from './level-parser.ts'
+import type {EntSchema, SpriteSchema} from './level-schema.ts'
 
 declare module '../ents/ent.ts' {
   // biome-ignore lint/correctness/noUnusedVariables:;
@@ -32,7 +34,7 @@ declare module '../ents/ent.ts' {
   }
 }
 
-declare module './level.ts' {
+declare module './level-schema.ts' {
   // biome-ignore lint/correctness/noUnusedVariables:;
   interface EntSchema<Tag extends AnyTag> {
     widget?: {gears: number}
@@ -65,13 +67,14 @@ test('parseButton()', () => {
   const pools = TestPools()
   const a = parseButton(
     {type: 'Toggle', pressed: {tag: 'stem--A'}, selected: 'stem--B'},
-    pools
+    pools,
+    atlas
   )
   assert(a.type, 'Toggle')
   assert(a.pressed.tag, 'stem--A')
   assert(a.selected.tag, 'stem--B')
 
-  const b = parseButton({pressed: 'stem--A', selected: 'stem--B'}, pools)
+  const b = parseButton({pressed: 'stem--A', selected: 'stem--B'}, pools, atlas)
   assert(b.type, 'Button')
   assert(b.pressed.tag, 'stem--A')
   assert(b.selected.tag, 'stem--B')
@@ -86,16 +89,21 @@ test('parseEnt() with parseComponent override hook', () => {
   }
 
   // no hook.
-  let ent = parseEnt(json, pools, () => undefined)
+  let ent = parseEnt(json, pools, () => undefined, atlas)
   assert(ent.name, 'X')
   assert(ent.sprite?.tag, 'stem--A')
   assert((ent as {widget: number}).widget, undefined)
 
   // hook.
-  ent = parseEnt(json, pools, (json, k) => {
-    if (json[k] == null) return
-    if (k === 'widget') return json[k].gears satisfies Ent<Tag>[typeof k]
-  })
+  ent = parseEnt(
+    json,
+    pools,
+    (_ent, json, k) => {
+      if (json[k] == null) return
+      if (k === 'widget') return json[k].gears satisfies Ent<Tag>[typeof k]
+    },
+    atlas
+  )
   assert(ent.name, 'X')
   assert(ent.sprite?.tag, 'stem--A')
   assert((ent as {widget: number}).widget, 5)
@@ -103,7 +111,7 @@ test('parseEnt() with parseComponent override hook', () => {
 
 test('parseEnt() preserves key insertion order', () => {
   const pools = TestPools()
-  const hook: ComponentHook<Tag> = (json, k) => {
+  const hook: ComponentHook<Tag> = (_ent, json, k) => {
     if (json[k] == null) return
     if (k === 'widget') return json[k].gears satisfies Ent<Tag>[typeof k]
   }
@@ -118,9 +126,12 @@ test('parseEnt() preserves key insertion order', () => {
     hud: {origin: 'N'},
     cursor: {keyboard: 1, pick: 'stem--B'},
     widget: {gears: 3},
-    textUI: {maxW: 100, origin: 'S', scale: 2}
+    textWH: {maxW: 100, scale: 2}
   }
-  assert(Object.keys(parseEnt(a, pools, hook)), Object.keys(a))
+  assert(Object.keys(parseEnt(a, pools, hook, atlas)), [
+    ...Object.keys(a),
+    'invalid'
+  ])
 
   const b: EntSchema<Tag> = {
     widget: {gears: 3},
@@ -128,13 +139,23 @@ test('parseEnt() preserves key insertion order', () => {
     sprite: 'stem--B',
     name: 'Second',
     id: '2',
-    textUI: {origin: 'E'},
+    textWH: {},
     button: {pressed: 'stem--A', selected: 'stem--B'}
   }
-  assert(Object.keys(parseEnt(b, pools, hook)), Object.keys(b))
+  assert(Object.keys(parseEnt(b, pools, hook, atlas)), [
+    ...Object.keys(b),
+    'invalid'
+  ])
+
+  const c: EntSchema<Tag> = {name: 'name', id: '2'}
+  assert(Object.keys(parseEnt(c, pools, hook, atlas)), [
+    'name',
+    'id',
+    'invalid'
+  ])
 })
 
-test('parseEntComponent() routes fields', () => {
+test('parseEntComponent()', () => {
   const pools = TestPools()
   const json: EntSchema<Tag> = {
     id: '1',
@@ -144,67 +165,100 @@ test('parseEntComponent() routes fields', () => {
     ninePatch: {border: 1, patch: {}},
     hud: {margin: 2, origin: 'N'},
     cursor: {keyboard: 1, pick: 'stem--B'},
-    textUI: {maxW: 100, origin: 'S', scale: 2},
+    textWH: {maxW: 100, scale: 2},
     button: {pressed: 'stem--A', selected: 'stem--B', type: 'Toggle'}
   }
 
-  assert(parseEntComponent(json, 'id', pools), '1')
-  assert(parseEntComponent(json, 'name', pools), 'Name')
-  assert(parseEntComponent(json, 'text', pools), 'text')
+  assert(parseEntComponent({}, json, 'id', pools, atlas), '1')
+  assert(parseEntComponent({}, json, 'name', pools, atlas), 'Name')
+  assert(parseEntComponent({}, json, 'text', pools, atlas), 'text')
   assert(
-    (parseEntComponent(json, 'sprite', pools) as Sprite<Tag>).tag,
+    (parseEntComponent({}, json, 'sprite', pools, atlas) as Sprite<Tag>).tag,
     'stem--A'
   )
-  assert(parseEntComponent(json, 'ninePatch', pools), {
-    border: {n: 1, s: 1, w: 1, e: 1},
-    pad: {n: 0, s: 0, w: 0, e: 0},
-    patch: {
-      center: undefined,
-      n: undefined,
-      s: undefined,
-      w: undefined,
-      e: undefined,
-      nw: undefined,
-      ne: undefined,
-      sw: undefined,
-      se: undefined
+  assert(
+    parseEntComponent(
+      {sprite: parseSprite('stem--A', pools, atlas)},
+      json,
+      'ninePatch',
+      pools,
+      atlas
+    ),
+    {
+      border: {n: 1, s: 1, w: 1, e: 1},
+      pad: {n: 0, s: 0, w: 0, e: 0},
+      patch: {
+        center: undefined,
+        n: undefined,
+        s: undefined,
+        w: undefined,
+        e: undefined,
+        nw: undefined,
+        ne: undefined,
+        sw: undefined,
+        se: undefined
+      }
     }
-  })
-  assert(parseEntComponent(json, 'hud', pools), {
+  )
+  assert(parseEntComponent({}, json, 'hud', pools, atlas), {
     fill: undefined,
     margin: {n: 2, s: 2, w: 2, e: 2},
     modulo: {x: 0, y: 0},
     origin: 'N'
   })
-  assert(parseEntComponent(json, 'cursor', pools), {
-    keyboard: 1,
-    pick: 'stem--B'
-  })
-  assert(parseEntComponent(json, 'textUI', pools), {
+  assert(
+    parseEntComponent(
+      {sprite: parseSprite('stem--B', pools, atlas)},
+      json,
+      'cursor',
+      pools,
+      atlas
+    ),
+    {
+      bounds: {x: 0, y: 0, w: 0, h: 0},
+      keyboard: 1,
+      pick: 'stem--B',
+      point: 'stem--B'
+    }
+  )
+  assert(parseEntComponent({}, json, 'textWH', pools, atlas), {
+    layout: {chars: [], cursor: {x: 0, y: 0}, w: 0, h: 0, trimmedH: 0},
     maxW: 100,
-    origin: 'S',
-    scale: 2
+    pad: {n: 0, s: 0, w: 0, e: 0},
+    scale: 2,
+    trim: undefined
   })
   assert(
-    (parseEntComponent(json, 'button', pools) as Button<Tag>).type,
+    (parseEntComponent({}, json, 'button', pools, atlas) as Button<Tag>).type,
     'Toggle'
   )
 
   assert(
-    parseEntComponent({}, 'missing' as keyof EntSchema<Tag>, pools),
+    parseEntComponent({}, {}, 'missing' as keyof EntSchema<Tag>, pools, atlas),
     undefined
   )
 })
 
 test('parseCursor()', () => {
-  assert(parseCursor({}), {
+  const pools = TestPools()
+  assert(parseCursor({sprite: parseSprite('stem--A', pools, atlas)}, {}), {
+    bounds: {x: 0, y: 0, w: 0, h: 0},
     keyboard: 0,
-    pick: undefined
+    pick: undefined,
+    point: 'stem--A'
   })
-  assert(parseCursor({keyboard: 2, pick: 'stem--B'}), {
-    keyboard: 2,
-    pick: 'stem--B'
-  })
+  assert(
+    parseCursor(
+      {sprite: parseSprite('stem--A', pools, atlas)},
+      {keyboard: 2, pick: 'stem--B'}
+    ),
+    {
+      bounds: {x: 0, y: 0, w: 0, h: 0},
+      keyboard: 2,
+      pick: 'stem--B',
+      point: 'stem--A'
+    }
+  )
 })
 
 test('parseHUD()', () => {
@@ -249,7 +303,8 @@ test('parseLevel() aggregates ents and defaults', () => {
       minWH: {w: 3}
     },
     pools,
-    () => undefined
+    () => undefined,
+    atlas
   )
   assert(lvl.ents.length, 2)
   assert(lvl.keepZoo, true)
@@ -257,7 +312,7 @@ test('parseLevel() aggregates ents and defaults', () => {
   assert(lvl.ents[0]?.sprite?.tag, 'stem--A')
   assert(lvl.ents[1]?.text, 'hello')
 
-  const emptyLvl = parseLevel({}, pools, () => undefined)
+  const emptyLvl = parseLevel({}, pools, () => undefined, atlas)
   assert(emptyLvl, {
     ents: [],
     keepZoo: false,
@@ -270,12 +325,14 @@ test('parseNinePatch()', () => {
 
   // number border and margin.
   const nineA = parseNinePatch(
+    {sprite: parseSprite('stem--A', pools, atlas)},
     {
       border: 2,
       pad: 3,
       patch: {center: {tag: 'stem--A'}, n: {tag: 'stem--B'}}
     },
-    pools
+    pools,
+    atlas
   )
   assert(nineA.border, {n: 2, s: 2, w: 2, e: 2})
   assert(nineA.pad, {n: 3, s: 3, w: 3, e: 3})
@@ -289,24 +346,26 @@ test('parseNinePatch()', () => {
   assert(nineA.patch.sw, undefined)
   assert(nineA.patch.se, undefined)
 
-  // object border and margin.
-  const nineC = parseNinePatch(
+  // object border and pad.
+  const nineB = parseNinePatch(
+    {sprite: parseSprite('stem--A', pools, atlas)},
     {
       border: {n: 1, s: 2, w: 3, e: 4},
       pad: {w: 7},
       patch: {nw: 'stem--A', se: 'stem--B'}
     },
-    pools
+    pools,
+    atlas
   )
-  assert(nineC.border, {n: 1, s: 2, w: 3, e: 4})
-  assert(nineC.pad, {n: 0, s: 0, w: 7, e: 0})
-  assert(nineC.patch.nw?.tag, 'stem--A')
-  assert(nineC.patch.se?.tag, 'stem--B')
+  assert(nineB.border, {n: 1, s: 2, w: 3, e: 4})
+  assert(nineB.pad, {n: 0, s: 0, w: 7, e: 0})
+  assert(nineB.patch.nw?.tag, 'stem--A')
+  assert(nineB.patch.se?.tag, 'stem--B')
 })
 
 describe('parseSprite()', () => {
   test('tag', () => {
-    const sprite = parseSprite('stem--A', TestPools())
+    const sprite = parseSprite('stem--A', TestPools(), atlas)
     assert(sprite.tag, 'stem--A')
     assert(sprite.w, animA.w)
     assert(sprite.h, animA.h)
@@ -326,7 +385,7 @@ describe('parseSprite()', () => {
       h: 8,
       scale: 2
     }
-    const sprite = parseSprite(json, TestPools())
+    const sprite = parseSprite(json, TestPools(), atlas)
     assert(sprite.tag, 'stem--B')
     assert(sprite.flipX, true)
     assert(sprite.flipY, true)
@@ -340,24 +399,64 @@ describe('parseSprite()', () => {
   })
 
   test('nondefault pool', () => {
-    const sprite = parseSprite({pool: 'Secondary', tag: 'stem--A'}, TestPools())
+    const sprite = parseSprite(
+      {pool: 'Secondary', tag: 'stem--A'},
+      TestPools(),
+      atlas
+    )
     assert(sprite.tag, 'stem--A')
   })
 
   test('missing pool', () =>
     assert.throws(
-      () => parseSprite({pool: 'Missing', tag: 'stem--A'}, TestPools()),
+      () => parseSprite({pool: 'Missing', tag: 'stem--A'}, TestPools(), atlas),
       /no missing sprite pool/
     ))
 })
 
+test('parseOverride()', () => {
+  assert(parseOverride({}), {invalid: undefined})
+  assert(parseOverride({invalid: true}), {invalid: true})
+})
+
 test('parseTextUI()', () => {
-  assert(parseTextUI({}), {maxW: 4095, origin: 'Center', scale: 1})
-  assert(parseTextUI({maxW: 100, origin: 'N', scale: 2}), {
-    maxW: 100,
-    origin: 'N',
-    scale: 2
+  assert(parseTextWH({}), {
+    maxW: 4095,
+    scale: 1,
+    layout: {chars: [], cursor: {x: 0, y: 0}, w: 0, h: 0, trimmedH: 0},
+    pad: {n: 0, s: 0, w: 0, e: 0},
+    trim: undefined
   })
+  assert(
+    parseTextWH({
+      maxW: 100,
+      scale: 2,
+      trim: 'Leading',
+      pad: {n: 1, s: 2, w: 3, e: 4}
+    }),
+    {
+      maxW: 100,
+      scale: 2,
+      trim: 'Leading',
+      layout: {chars: [], cursor: {x: 0, y: 0}, w: 0, h: 0, trimmedH: 0},
+      pad: {n: 1, s: 2, w: 3, e: 4}
+    }
+  )
+})
+
+test('parseTextXY()', () => {
+  const pools = TestPools()
+
+  // defaults when no ent.sprite.
+  assert(parseTextXY({}, {}), {chars: [], z: Layer.Bottom})
+
+  // uses ent.sprite.z when available.
+  const sprite = parseSprite('stem--A', pools, atlas)
+  sprite.z = Layer.UIA
+  assert(parseTextXY({sprite}, {}), {chars: [], z: Layer.UIA})
+
+  // json.z overrides ent.sprite.z.
+  assert(parseTextXY({sprite}, {z: 'UIB'}), {chars: [], z: Layer.UIB})
 })
 
 test('parseWH()', () => {
@@ -375,14 +474,8 @@ test('parseXY()', () => {
 })
 
 function TestPools(): PoolMap<Tag> {
-  return {default: TestPool(), secondary: TestPool()}
-}
-
-function TestPool(): Pool<Sprite<Tag>> {
-  return new Pool({
-    alloc: pool => new Sprite(pool, 0, atlas, {age: 0}),
-    init: block => block.init(),
-    allocBytes: drawableBytes,
-    pageBlocks: 4
-  })
+  return {
+    default: SpritePool({atlas: atlas, looper: {age: 0}, pageBlocks: 4}),
+    secondary: SpritePool({atlas: atlas, looper: {age: 0}, pageBlocks: 4})
+  }
 }

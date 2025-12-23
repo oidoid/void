@@ -1,32 +1,14 @@
 import * as V from '../../index.ts'
-import type {Game} from '../game.ts'
 import type {Tag} from '../types/tag.ts'
 
-export class ClockEnt implements V.Ent<Tag> {
-  readonly #time: V.TextEnt = new V.TextEnt()
+export type ClockEnt = V.QueryEnt<Tag, ClockSys['query']>
 
-  constructor() {
-    this.#time.scale = 3
-    this.#time.z = V.Layer.UIG
-  }
+/** writes to text, invalid. */
+export class ClockSys implements V.Sys<Tag> {
+  readonly query = 'clock & text' as const
 
-  free(): void {
-    this.#time.free()
-  }
-
-  update(v: Game): boolean | undefined {
-    const now = new Date()
-    this.#time.text = timeString(now)
-
-    if (this.#time.layout(v) || v.cam.invalid)
-      this.#time.xy = v.cam.follow(
-        {w: this.#time.wh.w, h: this.#time.wh.h - this.#time.scaledLeading},
-        this.#time.z,
-        'N',
-        {margin: {h: 8}}
-      )
-
-    return this.#time.update(v)
+  update(ent: ClockEnt): void {
+    V.textSetText(ent, timeString(new Date()))
   }
 }
 

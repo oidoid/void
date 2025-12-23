@@ -1,226 +1,118 @@
 import type {AnyTag} from '../graphics/atlas.ts'
-import type {Layer} from '../graphics/layer.ts'
-import type {Sprite} from '../graphics/sprite.ts'
-import {
-  type CardinalDir,
-  type CompassDir,
-  type WH,
-  whEq,
-  type XY,
-  xyEq
-} from '../types/geo.ts'
-import type {Void} from '../void.ts'
-import type {Ent} from './ent.ts'
+import type {XY} from '../types/geo.ts'
+import type {QueryEnt} from './ent-query.ts'
+import type {Sys} from './sys.ts'
 
-export type NinePatchOpts<Tag extends AnyTag> = {
-  margin?: Partial<WH>
-  n: NinePatchDirOpts<Tag>
-  origin: NinePatchDirOpts<Tag>
-  border?: {[dir in Lowercase<CardinalDir>]?: number}
-  wh?: Partial<WH>
-  x?: number
-  y?: number
-  z?: Layer
-} & {
-  [dir in
-    | 'w'
-    | 'nw'
-    | 'n'
-    | 'ne'
-    | 'e'
-    | 'se'
-    | 's'
-    | 'sw']?: NinePatchDirOpts<Tag>
-}
-export type NinePatchDirOpts<Tag extends AnyTag> = {
-  flip?: {x?: boolean; y?: boolean}
-  tag: Tag
-  stretch?: boolean
+export type NinePatchEnt<Tag extends AnyTag> = QueryEnt<
+  Tag,
+  NinePatchSys<Tag>['query']
+>
+
+/** reads invalid, sprite XY and WH; writes ninePatch, invalid. */
+export class NinePatchSys<Tag extends AnyTag> implements Sys<Tag> {
+  readonly query = 'ninePatch & sprite' as const
+
+  free(ent: NinePatchEnt<Tag>): void {
+    ninePatchFree(ent)
+  }
+
+  update(ent: NinePatchEnt<Tag>): void {
+    if (!ent.invalid) return
+    const start = getStart(ent)
+    setXYStart(ent, start)
+    setWH(ent)
+    setXYEnd(ent, start)
+  }
 }
 
-export class NinePatchEnt<Tag extends AnyTag> implements Ent<Tag> {
-  readonly #dir: {readonly [dir in Lowercase<CompassDir>]: Sprite<Tag>}
-  readonly #margin: Readonly<WH>
-  #invalid: boolean = true
+export function ninePatchFree(ent: NinePatchEnt<AnyTag>): void {
+  ent.ninePatch.patch.w?.free()
+  ent.ninePatch.patch.nw?.free()
+  ent.ninePatch.patch.n?.free()
+  ent.ninePatch.patch.ne?.free()
+  ent.ninePatch.patch.e?.free()
+  ent.ninePatch.patch.se?.free()
+  ent.ninePatch.patch.s?.free()
+  ent.ninePatch.patch.sw?.free()
+  ent.ninePatch.patch.center?.free()
+  ent.invalid = true
+  // to-do: how to update zoo synchronously to remove the component and not run update()?
+}
 
-  constructor(v: Void<Tag, string>, opts: Readonly<NinePatchOpts<Tag>>) {
-    this.#dir = {
-      center: v.alloc(),
-      w: v.alloc(),
-      nw: v.alloc(),
-      n: v.alloc(),
-      ne: v.alloc(),
-      e: v.alloc(),
-      se: v.alloc(),
-      s: v.alloc(),
-      sw: v.alloc()
-    }
-    this.#dir.center.visible = true
-    this.#dir.w.visible = true
-    this.#dir.nw.visible = true
-    this.#dir.n.visible = true
-    this.#dir.ne.visible = true
-    this.#dir.e.visible = true
-    this.#dir.se.visible = true
-    this.#dir.s.visible = true
-    this.#dir.sw.visible = true
+function getStart(ent: Readonly<NinePatchEnt<AnyTag>>): XY {
+  const {sprite, ninePatch} = ent
+  return {x: sprite.x + ninePatch.pad.w, y: sprite.y + ninePatch.pad.n}
+}
 
-    this.#dir.w.tag = opts.w?.tag ?? opts.e?.tag ?? opts.n.tag
-    this.#dir.n.tag = opts.n.tag
-    this.#dir.e.tag = opts.e?.tag ?? this.#dir.w.tag
-    this.#dir.s.tag = opts.s?.tag ?? this.#dir.n.tag
+/** @internal */
+export function setWH(ent: NinePatchEnt<AnyTag>): void {
+  const {border, pad, patch} = ent.ninePatch
 
-    this.#dir.nw.tag = opts.nw?.tag ?? opts.se?.tag ?? opts.n.tag
-    this.#dir.ne.tag =
-      opts.ne?.tag ?? opts.sw?.tag ?? opts.nw?.tag ?? opts.n.tag
-    this.#dir.se.tag = opts.se?.tag ?? this.#dir.nw.tag
-    this.#dir.sw.tag = opts.sw?.tag ?? this.#dir.ne.tag
-
-    this.#dir.center.tag = opts.origin.tag
-
-    this.#dir.w.z =
-      this.#dir.nw.z =
-      this.#dir.n.z =
-      this.#dir.ne.z =
-      this.#dir.e.z =
-      this.#dir.se.z =
-      this.#dir.s.z =
-      this.#dir.sw.z =
-      this.#dir.center.z =
-        opts.z ?? 0
-
-    this.#dir.w.stretch = opts.w?.stretch ?? opts.e?.stretch ?? false
-    this.#dir.n.stretch = opts.n.stretch ?? opts.s?.stretch ?? false
-    this.#dir.e.stretch = opts.e?.stretch ?? this.#dir.w.stretch
-    this.#dir.s.stretch = opts.s?.stretch ?? this.#dir.n.stretch
-
-    this.#dir.nw.stretch = opts.nw?.stretch ?? opts.se?.stretch ?? false
-    this.#dir.ne.stretch = opts.ne?.stretch ?? opts.sw?.stretch ?? false
-    this.#dir.se.stretch = opts.se?.stretch ?? this.#dir.nw.stretch
-    this.#dir.sw.stretch = opts.sw?.stretch ?? this.#dir.ne.stretch
-
-    this.#dir.center.stretch = opts.origin.stretch ?? false
-
-    this.#dir.w.flipX = opts.w?.flip?.x ?? !opts.e?.flip?.x
-    this.#dir.w.flipY = opts.w?.flip?.y ?? !!opts.e?.flip?.y
-    this.#dir.n.flipX = opts.n.flip?.x ?? !!opts.s?.flip?.x
-    this.#dir.n.flipY = opts.n.flip?.y ?? !opts.s?.flip?.y
-    this.#dir.e.flipX = opts.e?.flip?.x ?? !this.#dir.w.flipX
-    this.#dir.e.flipY = opts.e?.flip?.y ?? this.#dir.w.flipY
-    this.#dir.s.flipX = opts.s?.flip?.x ?? this.#dir.n.flipX
-    this.#dir.s.flipY = opts.s?.flip?.y ?? !this.#dir.n.flipY
-    this.#dir.center.flipX = !!opts.origin.flip?.x
-    this.#dir.center.flipY = !!opts.origin.flip?.y
-
-    this.#dir.n.h = opts.border?.n ?? opts.border?.s ?? this.#dir.n.h
-    this.#dir.w.w = opts.border?.w ?? opts.border?.e ?? this.#dir.n.h
-    this.#dir.e.w = opts.border?.e ?? this.#dir.w.w
-    this.#dir.s.h = opts.border?.s ?? this.#dir.n.h
-
-    this.#dir.nw.w = this.#dir.w.w
-    this.#dir.nw.h = this.#dir.n.h
-    this.#dir.ne.w = this.#dir.e.w
-    this.#dir.ne.h = this.#dir.n.h
-    this.#dir.se.w = this.#dir.e.w
-    this.#dir.se.h = this.#dir.s.h
-    this.#dir.sw.w = this.#dir.w.w
-    this.#dir.sw.h = this.#dir.s.h
-
-    this.#margin = {w: opts.margin?.w ?? 0, h: opts.margin?.h ?? 0}
-
-    const w =
-      opts.wh?.w == null
-        ? this.#dir.w.w + this.#dir.n.w + this.#dir.e.w
-        : opts.wh.w
-    this.#dir.n.w = w - 1 // force resize
-    this.wh = {
-      w,
-      h:
-        opts.wh?.h == null
-          ? this.#dir.n.h + this.#dir.e.h + this.#dir.s.h
-          : opts.wh.h
-    }
-
-    this.#dir.nw.x = (opts.x ?? 0) - 1 // force move.
-    this.xy = {x: opts.x ?? 0, y: opts.y ?? 0}
+  const w = ent.sprite.w - border.w - border.e - pad.w - pad.e
+  const h = ent.sprite.h - border.n - border.s - pad.n - pad.s
+  if (patch.n) patch.n.w = w
+  if (patch.s) patch.s.w = w
+  if (patch.w) patch.w.h = h
+  if (patch.e) patch.e.h = h
+  if (patch.center) {
+    patch.center.w = w
+    patch.center.h = h
   }
+}
 
-  free(): void {
-    this.#dir.w.free()
-    this.#dir.nw.free()
-    this.#dir.n.free()
-    this.#dir.ne.free()
-    this.#dir.e.free()
-    this.#dir.se.free()
-    this.#dir.s.free()
-    this.#dir.sw.free()
-    this.#dir.center.free()
+/** @internal */
+export function setXYEnd(
+  ent: Readonly<NinePatchEnt<AnyTag>>,
+  start: Readonly<XY>
+): void {
+  const {patch, pad, border} = ent.ninePatch
+  const end = {
+    x: ent.sprite.x + ent.sprite.w - border.e - pad.e,
+    y: ent.sprite.y + ent.sprite.h - border.s - pad.s
   }
-
-  update(): boolean | undefined {
-    if (!this.#invalid) return
-    this.#invalid = false
-    return true
+  if (patch.ne) {
+    patch.ne.x = end.x
+    patch.ne.y = start.y
   }
-
-  get wh(): WH {
-    return {
-      w: this.#dir.w.w + this.#dir.n.w + this.#dir.e.w + this.#margin.w,
-      h: this.#dir.n.h + this.#dir.w.h + this.#dir.s.h + this.#margin.h
-    }
+  if (patch.e) {
+    patch.e.x = end.x
+    patch.e.y = start.y + border.n
   }
-
-  set wh(wh: Readonly<WH>) {
-    if (whEq(wh, this.wh)) return
-
-    this.#dir.w.h = wh.h - this.#dir.n.h - this.#dir.s.h - this.#margin.h
-    this.#dir.n.w = wh.w - this.#dir.w.w - this.#dir.e.w - this.#margin.w
-    this.#dir.s.w = this.#dir.n.w
-    this.#dir.e.h = this.#dir.w.h
-
-    this.#dir.center.w = this.#dir.n.w
-    this.#dir.center.h = this.#dir.e.h
-
-    this.#setXYRight()
-
-    this.#invalid = true
+  if (patch.se) {
+    patch.se.x = end.x
+    patch.se.y = end.y
   }
-
-  get xy(): XY {
-    return {
-      x: this.#dir.nw.x - this.#margin.w / 2,
-      y: this.#dir.nw.y - this.#margin.h / 2
-    }
+  if (patch.s) {
+    patch.s.x = start.x + border.w
+    patch.s.y = end.y
   }
-
-  set xy(xy: Readonly<XY>) {
-    if (xyEq(xy, this.xy)) return
-
-    this.#dir.nw.x = xy.x + this.#margin.w / 2
-    this.#dir.nw.y = xy.y + this.#margin.h / 2
-    this.#dir.w.x = this.#dir.nw.x
-    this.#dir.w.y = this.#dir.nw.y + this.#dir.nw.h
-    this.#dir.n.x = this.#dir.nw.x + this.#dir.nw.w
-    this.#dir.n.y = this.#dir.nw.y
-
-    this.#dir.center.x = this.#dir.n.x
-    this.#dir.center.y = this.#dir.nw.y + this.#dir.ne.h
-
-    this.#setXYRight()
-
-    this.#invalid = true
+  if (patch.sw) {
+    patch.sw.x = start.x
+    patch.sw.y = end.y
   }
+}
 
-  #setXYRight() {
-    this.#dir.ne.x = this.#dir.n.x + this.#dir.n.w
-    this.#dir.ne.y = this.#dir.nw.y
-    this.#dir.e.x = this.#dir.ne.x
-    this.#dir.e.y = this.#dir.nw.y + this.#dir.ne.h
-    this.#dir.se.x = this.#dir.e.x
-    this.#dir.se.y = this.#dir.e.y + this.#dir.e.h
-    this.#dir.s.x = this.#dir.n.x
-    this.#dir.s.y = this.#dir.se.y
-    this.#dir.sw.x = this.#dir.nw.x
-    this.#dir.sw.y = this.#dir.se.y
+/** @internal */
+export function setXYStart(
+  ent: NinePatchEnt<AnyTag>,
+  start: Readonly<XY>
+): void {
+  const {border, patch} = ent.ninePatch
+
+  if (patch.nw) {
+    patch.nw.x = start.x
+    patch.nw.y = start.y
+  }
+  if (patch.w) {
+    patch.w.x = start.x
+    patch.w.y = start.y + border.n
+  }
+  if (patch.n) {
+    patch.n.x = start.x + border.w
+    patch.n.y = start.y
+  }
+  if (patch.center) {
+    patch.center.x = start.x + border.w
+    patch.center.y = start.y + border.n
   }
 }

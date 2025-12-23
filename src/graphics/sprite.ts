@@ -11,7 +11,10 @@ import type {Millis} from '../types/time.ts'
 import {mod} from '../utils/math.ts'
 import {isUILayer, Layer} from './layer.ts'
 
-type Pool = {free(block: Block): void; view: DataView<ArrayBuffer>}
+export type DrawablePool = {
+  free(block: Block): void
+  view: DataView<ArrayBuffer>
+}
 
 /** must be a multiple of 4 (`UNSIGNED_INT`). */
 export const drawableBytes: number = 16
@@ -45,9 +48,9 @@ export const drawableMaxWH: Readonly<WH> = {w: 4095, h: 4095}
  */
 export abstract class Drawable implements Block, Box {
   i: number
-  readonly #pool: Readonly<Pool>
+  readonly #pool: Readonly<DrawablePool>
 
-  constructor(pool: Readonly<Pool>, i: number) {
+  constructor(pool: Readonly<DrawablePool>, i: number) {
     this.#pool = pool
     this.i = i
   }
@@ -74,9 +77,30 @@ export abstract class Drawable implements Block, Box {
     this.#pool.view.setUint8(this.i + 10, (iiic_cccc & ~0x1f) | (cel & 0x1f))
   }
 
+  /**
+   * `this` is a clipbox but sometimes a copy or non-Sprite instance is needed.
+   */
+  get clipbox(): Box {
+    return {x: this.x, y: this.y, w: this.w, h: this.h}
+  }
+
   /** test if render area overlaps box or sprite render area. */
   clips(box: Readonly<XY & Partial<WH>>): boolean {
     return boxHits(this, box)
+  }
+
+  /** like `clips()` but can supports different world and UI layers. */
+  clipsZ(box: Readonly<XY & Partial<WH>>, cam: Readonly<XY>): boolean {
+    if (!(box instanceof Sprite) || this.ui === box.ui) return this.clips(box)
+
+    const d = box.ui ? 1 : -1
+    const clipbox = {
+      x: box.x + d * Math.floor(cam.x),
+      y: box.y + d * Math.floor(cam.y),
+      w: box.w,
+      h: box.h
+    }
+    return boxHits(this, clipbox)
   }
 
   get flipX(): boolean {
@@ -258,7 +282,7 @@ export class Sprite<Tag extends AnyTag> extends Drawable {
   readonly #looper: {readonly age: Millis}
 
   constructor(
-    pool: Readonly<Pool>,
+    pool: Readonly<DrawablePool>,
     i: number,
     atlas: Readonly<Atlas<Tag>>,
     looper: {readonly age: Millis}
@@ -328,6 +352,21 @@ export class Sprite<Tag extends AnyTag> extends Drawable {
     if (!hitbox) return false
     const hurtbox = box instanceof Sprite ? box.hurtbox : box
     return !!hurtbox && boxHits(hitbox, hurtbox)
+  }
+
+  /** like `hits()` but can supports different world and UI layers. */
+  hitsZ(box: Readonly<XY & Partial<WH>>, cam: Readonly<XY>): boolean {
+    if (!(box instanceof Sprite) || this.ui === box.ui) return this.hits(box)
+    if (!this.hitbox || !box.hurtbox) return false
+
+    const d = box.ui ? 1 : -1
+    const hurtbox = {
+      x: box.hurtbox.x + d * Math.floor(cam.x),
+      y: box.hurtbox.y + d * Math.floor(cam.y),
+      w: box.hurtbox.w,
+      h: box.hurtbox.h
+    }
+    return boxHits(this.hitbox, hurtbox)
   }
 
   /** floored hurtbox. */

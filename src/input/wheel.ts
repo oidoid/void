@@ -1,6 +1,10 @@
 import type {XYZ} from '../types/geo.ts'
 
-/** @internal */
+/**
+ * note: visual viewport magnification, a pinch on trackpad, dispatches a wheel
+ * event. prevent default to disable that zoom mechanism.
+ * @internal
+ */
 export class Wheel {
   deltaClient: Readonly<XYZ> | undefined
   onEvent: () => void = () => {}

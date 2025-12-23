@@ -199,9 +199,9 @@ test('follow() fill XY with margins', () => {
 
   const box = cam.follow({w: 10, h: 10}, Layer.A, 'NW', {
     fill: 'XY',
-    margin: {w: 2, h: 3}
+    margin: {n: 2, s: 2, w: 3, e: 3}
   })
-  assert(box, {x: 12, y: 23, w: 96, h: 44})
+  assert(box, {x: 13, y: 22, w: 94, h: 46})
 })
 
 test('follow() UI layer ignores cam offset', () => {

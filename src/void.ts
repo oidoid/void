@@ -3,11 +3,12 @@ import type {Anim, AnyTag, Atlas} from './graphics/atlas.ts'
 import {parseAtlas} from './graphics/atlas-parser.ts'
 import {Cam} from './graphics/cam.ts'
 import {Renderer} from './graphics/renderer.ts'
-import {drawableBytes, Sprite} from './graphics/sprite.ts'
+import type {Sprite} from './graphics/sprite.ts'
 import {type DefaultButton, Input} from './input/input.ts'
 import {Looper} from './looper.ts'
-import {Pool, type PoolOpts} from './mem/pool.ts'
+import type {PoolOpts} from './mem/pool.ts'
 import type {PoolMap} from './mem/pool-map.ts'
+import {SpritePool} from './mem/sprite-pool.ts'
 import type {GameConfig} from './types/game-config.ts'
 import type {Millis, Secs} from './types/time.ts'
 import {initCanvas} from './utils/canvas-util.ts'
@@ -76,10 +77,9 @@ export class Void<Tag extends AnyTag, Button extends string = DefaultButton> {
     this.renderer = new Renderer(this.preload ?? {}, this.canvas, this.looper)
 
     this.pool = {
-      default: new Pool({
-        alloc: pool => this.onAllocSprite(pool),
-        allocBytes: drawableBytes,
-        init: sprite => sprite.init(),
+      default: SpritePool({
+        atlas: this.preload,
+        looper: this.looper,
         minPages: opts.sprites?.minPages ?? 3,
         pageBlocks: opts.sprites?.pageBlocks ?? 1000
       })
@@ -94,10 +94,6 @@ export class Void<Tag extends AnyTag, Button extends string = DefaultButton> {
 
   get backgroundRGBA(): number {
     return this.#backgroundRGBA
-  }
-
-  onAllocSprite(pool: Pool<Sprite<Tag>>): Sprite<Tag> {
-    return new Sprite(pool, 0, this.preload, this.looper)
   }
 
   onEvent(): void {
