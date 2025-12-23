@@ -64,6 +64,23 @@
       "description": "cardinal and ordinal directions and center.",
       "enum": ["Center", "N", "S", "W", "E", "NW", "NE", "SW", "SE"]
     },
+    "Cursor": {
+      "type": "object",
+      "description": "cursor config.",
+      "properties": {
+        "keyboard": {
+          "$ref": "#/$defs/Speed",
+          "description": "if greater than zero, follow keyboard movement in pixels per second."
+        },
+        "pick": {
+          "$dynamicRef": "#Tag",
+          "$ref": "#/$defs/Tag",
+          "description": "tag for click state. defaults to point tag.",
+          "$comment": "to-do: delete `$ref` for `$dynamicRef`."
+        }
+      }
+    },
+    "DebugInput": {"const": true, "description": "debug input config."},
     "Ent": {
       "$dynamicAnchor": "Ent",
       "type": "object",
@@ -71,6 +88,10 @@
       "properties": {
         "button": {"$ref": "#/$defs/Button", "unevaluatedProperties": false},
         "cursor": {"$ref": "#/$defs/Cursor", "unevaluatedProperties": false},
+        "debugInput": {
+          "$ref": "#/$defs/DebugInput",
+          "unevaluatedProperties": false
+        },
         "hud": {"$ref": "#/$defs/HUD", "unevaluatedProperties": false},
         "id": {"type": "string", "description": "unique lookup identifier."},
         "name": {"type": "string", "description": "debug identifier."},
@@ -86,22 +107,6 @@
         "text": {"$ref": "#/$defs/Text"},
         "textWH": {"$ref": "#/$defs/TextWH", "unevaluatedProperties": false},
         "textXY": {"$ref": "#/$defs/TextXY", "unevaluatedProperties": false}
-      }
-    },
-    "Cursor": {
-      "type": "object",
-      "description": "cursor config.",
-      "properties": {
-        "keyboard": {
-          "$ref": "#/$defs/Speed",
-          "description": "if greater than zero, follow keyboard movement in pixels per second."
-        },
-        "pick": {
-          "$dynamicRef": "#Tag",
-          "$ref": "#/$defs/Tag",
-          "description": "tag for click state. defaults to point tag.",
-          "$comment": "to-do: delete `$ref` for `$dynamicRef`."
-        }
       }
     },
     "HUD": {

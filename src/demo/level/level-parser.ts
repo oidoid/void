@@ -13,7 +13,6 @@ export const parseComponent: V.ComponentHook = (ent, json, k) => {
   if (json[k] == null) throw Error('no component val')
   switch (k) {
     case 'clock':
-    case 'debugInput':
       return json[k] satisfies V.Ent[typeof k]
     case 'renderToggle':
       if (!ent.button) throw Error('no button in render toggle')

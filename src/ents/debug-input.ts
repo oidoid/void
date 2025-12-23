@@ -1,13 +1,15 @@
-import * as V from '../../index.ts'
-import type {Game} from '../game.ts'
+import {debug} from '../utils/debug.ts'
+import type {Void} from '../void.ts'
+import type {QueryEnt} from './ent-query.ts'
+import type {Sys} from './sys.ts'
 
-export type DebutInputEnt = V.QueryEnt<DebutInputSys['query']>
+export type DebutInputEnt = QueryEnt<DebutInputSys['query']>
 
-export class DebutInputSys implements V.Sys {
+export class DebutInputSys implements Sys {
   readonly query = 'debugInput' as const
 
-  update(_ent: DebutInputEnt, v: Game): void {
-    if (!V.debug?.input) return
+  update(_ent: DebutInputEnt, v: Void): void {
+    if (!debug?.input) return
 
     if (v.input.started) {
       const on = !!v.input.on.length

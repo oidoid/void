@@ -2,6 +2,7 @@ import {debug} from '../utils/debug.ts'
 import type {Void} from '../void.ts'
 import {ButtonSys} from './button.ts'
 import {type CursorEnt, CursorSys} from './cursor.ts'
+import {DebutInputSys} from './debug-input.ts'
 import type {Ent} from './ent.ts'
 import {parseQuerySet, type QuerySet} from './ent-query.ts'
 import {HUDSys} from './hud.ts'
@@ -30,6 +31,7 @@ export class Zoo {
     this.addSystem({
       button: new ButtonSys(),
       cursor: new CursorSys(),
+      debugInput: new DebutInputSys(),
       hud: new HUDSys(),
       ninePatch: new NinePatchSys(),
       override: new OverrideSys(),

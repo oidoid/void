@@ -7,6 +7,7 @@ import type {Border, Box, CompassDir, XY} from '../types/geo.ts'
 export interface Ent {
   button?: Button
   cursor?: Cursor
+  debugInput?: DebugInput
   hud?: HUD
   id?: string
   /**
@@ -42,6 +43,8 @@ export type Cursor = {
   pick?: AnimTag
   point: AnimTag
 }
+
+export type DebugInput = true
 
 export type HUD = {
   fill?: XYFlag

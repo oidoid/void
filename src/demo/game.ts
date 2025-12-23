@@ -1,7 +1,6 @@
 import * as V from '../index.ts'
 import config from './assets/game.void.json' with {type: 'json'}
 import {ClockSys} from './ents/clock.ts'
-import {DebutInputSys} from './ents/debug-input.ts'
 import {RenderToggleSys} from './ents/render-toggle.ts'
 import {TallySys} from './ents/tally.ts'
 import levelJSON from './level/level.json' with {type: 'json'}
@@ -28,7 +27,6 @@ export class Game extends V.Void {
     this.zoo.addDefaultSystems()
     this.zoo.addSystem({
       clock: new ClockSys(),
-      debugInput: new DebutInputSys(),
       renderToggle: new RenderToggleSys(),
       tally: new TallySys()
     })

@@ -121,6 +121,7 @@ export function parseEntComponent(
       return parseCursor(ent, json[k]) satisfies Ent[typeof k]
     case 'hud':
       return parseHUD(json[k]) satisfies Ent[typeof k]
+    case 'debugInput':
     case 'id':
     case 'name':
     case 'text':

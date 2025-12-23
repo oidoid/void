@@ -13,6 +13,7 @@ export type ButtonSchema = {
 export interface EntSchema {
   button?: ButtonSchema
   cursor?: CursorSchema
+  debugInput?: DebugInputSchema
   hud?: HUDSchema
   id?: string
   name?: string
@@ -28,6 +29,7 @@ export interface EntSchema {
   textXY?: TextXYSchema
 }
 export type CursorSchema = {keyboard?: number; pick?: AnimTag}
+export type DebugInputSchema = true
 export type HUDSchema = {
   fill?: XYFlag
   margin?: BorderSchema

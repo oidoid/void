@@ -4,7 +4,6 @@
   "allOf": [{"$ref": "../../../schema/level-file.v0.json"}],
   "$defs": {
     "Clock": {"const": true, "description": "clock config."},
-    "DebugInput": {"const": true, "description": "debug input config."},
     "Ent": {
       "allOf": [
         {"$ref": "../../../schema/level-file.v0.json#/$defs/Ent"},
@@ -12,10 +11,6 @@
           "type": "object",
           "properties": {
             "clock": {"$ref": "#/$defs/Clock", "unevaluatedProperties": false},
-            "debugInput": {
-              "$ref": "#/$defs/DebugInput",
-              "unevaluatedProperties": false
-            },
             "renderToggle": {
               "$ref": "#/$defs/RenderToggle",
               "unevaluatedProperties": false
