@@ -1,15 +1,15 @@
 import * as V from '../index.ts'
-import config from './assets/game.void.json' with {type: 'json'}
+import config from './assets/demo.game.json' with {type: 'json'}
 import {ClockSys} from './ents/clock.ts'
 import {RenderToggleSys} from './ents/render-toggle.ts'
 import {TallySys} from './ents/tally.ts'
-import levelJSON from './level/level.json' with {type: 'json'}
+import levelJSON from './level/demo.level.jsonc' with {type: 'json'}
 import {parseLevel} from './level/level-parser.ts'
+import {renderDelayMillis} from './utils/render-delay-millis.ts'
 
 export class Game extends V.Void {
   constructor() {
     super({
-      // to-do: figure out `*.json` ambient type issue.
       config: config as V.GameConfig,
       preloadAtlas: document.querySelector<HTMLImageElement>('#preload-atlas'),
       poll: {
@@ -30,11 +30,7 @@ export class Game extends V.Void {
       renderToggle: new RenderToggleSys(),
       tally: new TallySys()
     })
-    const level = parseLevel(
-      levelJSON as V.LevelSchema,
-      this.pool,
-      this.preload
-    )
+    const level = parseLevel(levelJSON, this.pool, this.preload)
     // to-do: validate all ents on a system add.
     this.zoo.add(...level.ents)
   }
@@ -79,18 +75,4 @@ export class Game extends V.Void {
 
     return render
   }
-}
-
-/**
- * returns [0, 59_999].
- * @internal
- */
-export function renderDelayMillis(
-  time: Readonly<Date>,
-  debugSecs: string | undefined
-): V.Millis {
-  return (((debugSecs ? 0 : (59 - (time.getSeconds() % 60)) * 1000) +
-    1000 -
-    (time.getMilliseconds() % 1000)) %
-    (debugSecs ? 1000 : 60_000)) as V.Millis
 }

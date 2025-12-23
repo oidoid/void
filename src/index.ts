@@ -1,7 +1,7 @@
 // ╭>°╮┬┌─╮╭─╮┬┌─╮
 // ╰──╰┴╯─╯╰─╰┴╯─╯
 
-import './types/game-config-json.d.ts'
+import './level/level-schema-json.d.ts'
 
 export {type Font, memProp5x6} from 'mem-font'
 export * from './audio.ts'

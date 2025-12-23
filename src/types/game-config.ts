@@ -3,8 +3,6 @@ import type {RenderMode} from '../graphics/render-mode.ts'
 import type {InputMode} from '../input/input.ts'
 import type {WH} from './geo.ts'
 
-import './game-config-json.d.ts'
-
 export type AtlasJSON = {
   anim: {[tag: string]: Anim}
   /**

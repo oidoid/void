@@ -1,7 +1,7 @@
 import test from 'node:test'
-import {assert} from '../test/assert.ts'
-import type {Millis} from '../types/time.ts'
-import {renderDelayMillis} from './game.ts'
+import {assert} from '../../test/assert.ts'
+import type {Millis} from '../../types/time.ts'
+import {renderDelayMillis} from './render-delay-millis.ts'
 
 for (const [debugSeconds, millis, delay] of [
   [undefined, 0, 0],
