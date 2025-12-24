@@ -31,6 +31,10 @@ declare module '../../index.ts' {
     tally?: TallySchema
   }
 
+  interface Loader {
+    level: undefined | 'Init'
+  }
+
   interface PoolMap {
     overlay: V.Pool<V.Sprite>
   }

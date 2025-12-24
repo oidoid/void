@@ -7,6 +7,7 @@ import type {Ent} from './ent.ts'
 import {parseQuerySet} from './ent-query.ts'
 import {FPSSys} from './fps.ts'
 import {HUDSys} from './hud.ts'
+import type {LoaderEnt} from './loader.ts'
 import {NinePatchSys} from './nine-patch.ts'
 import {OverrideSys} from './override.ts'
 import {SpriteSys} from './sprite.ts'
@@ -16,6 +17,7 @@ import {TextWHSys, TextXYSys} from './text.ts'
 /** ents are updated in insertion order. */
 export class Zoo {
   #cursor: CursorEnt | undefined
+  #loader!: LoaderEnt
   readonly #ents: Set<Ent> = new Set()
   #systems: {[component in keyof Ent]?: Sys} = {}
   #invalid: boolean = false
@@ -25,6 +27,7 @@ export class Zoo {
       if (debug) this.#validateQueries(ent)
       this.#ents.add(ent)
       if (ent.cursor) this.#cursor = ent as CursorEnt
+      else if (ent.loader) this.#loader = ent as LoaderEnt
     }
   }
 
@@ -49,12 +52,16 @@ export class Zoo {
 
   clear(): void {
     this.#cursor = undefined
-    this.#ents.clear() // to-do: run free on all systems.
+    this.#ents.clear() // to-do: run free on all systems. don't clear loader.
     this.#systems = {}
   }
 
   get cursor(): CursorEnt | undefined {
     return this.#cursor
+  }
+
+  get loader(): LoaderEnt {
+    return this.#loader
   }
 
   get invalid(): boolean {
@@ -63,8 +70,8 @@ export class Zoo {
 
   remove(...ents: readonly Readonly<Ent>[]): void {
     for (const ent of ents) {
-      this.#ents.delete(ent)
-      if (ent === this.#cursor) this.#cursor = undefined
+      if (ent !== this.#loader) this.#ents.delete(ent)
+      else if (ent === this.#cursor) this.#cursor = undefined
     }
   }
 

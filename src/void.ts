@@ -1,3 +1,5 @@
+import type {LoaderEnt} from './ents/loader.ts'
+import type {Sys} from './ents/sys.ts'
 import {Zoo} from './ents/zoo.ts'
 import type {Atlas} from './graphics/atlas.ts'
 import {parseAtlas} from './graphics/atlas-parser.ts'
@@ -21,7 +23,8 @@ import {loadImage} from './utils/fetch-util.ts'
 export type VoidOpts = {
   canvas?: HTMLCanvasElement
   config: GameConfig
-  poll?: {delay?: () => Millis; period: Millis}
+  loader: LoaderEnt
+  loaderSys: Sys
   preloadAtlas?: HTMLImageElement | null
   sprites?: Partial<Omit<PoolOpts<Sprite>, 'alloc' | 'allocBytes'>>
 }
@@ -39,19 +42,13 @@ export class Void {
   readonly zoo: Zoo = new Zoo()
   readonly #backgroundRGBA: number
   readonly #pixelRatioObserver: PixelRatioObserver = new PixelRatioObserver()
-  readonly #poll: DelayInterval | undefined
+  #poller: DelayInterval | undefined
   readonly #preloadAtlasImage: HTMLImageElement | undefined
-  // may trigger an initial force update.
+  #registered: boolean = false
+  /** may trigger an initial force update. */
   readonly #resizeObserver = new ResizeObserver(() => this.onResize())
 
   constructor(opts: Readonly<VoidOpts>) {
-    if (opts.poll != null)
-      this.#poll = new DelayInterval(
-        opts.poll.delay ?? (() => 0),
-        opts.poll.period,
-        () => this.onPoll()
-      )
-
     initMetaViewport()
     this.canvas = initCanvas(opts.canvas, opts.config.init.mode)
     if (!this.canvas.parentElement) throw Error('no canvas parent')
@@ -90,6 +87,9 @@ export class Void {
     }
 
     this.looper.onFrame = millis => this.onFrame(millis)
+
+    this.zoo.addSystem({loader: opts.loaderSys})
+    this.zoo.add(opts.loader)
   }
 
   alloc(k: keyof PoolMap = 'default'): Sprite {
@@ -126,6 +126,15 @@ export class Void {
     this.requestFrame('Force') // force cam reeval.
   }
 
+  // to-do: clear.
+  setPoller(period: Millis, delay?: () => Millis): void {
+    if (this.#poller) this.#poller.register('remove')
+    this.#poller = new DelayInterval(delay ?? (() => 0), period, () =>
+      this.onPoll()
+    )
+    if (this.#registered) this.#poller.register('add')
+  }
+
   async register(op: 'add' | 'remove'): Promise<void> {
     this.input.register(op)
     this.renderer.register(op)
@@ -135,10 +144,11 @@ export class Void {
     this.#pixelRatioObserver.register(op)
 
     if (op === 'add') this.looper.requestFrame()
-    this.#poll?.register(op)
+    this.#poller?.register(op)
 
     if (this.#preloadAtlasImage) await loadImage(this.#preloadAtlasImage)
     this.renderer.load(this.#preloadAtlasImage)
+    this.#registered = op === 'add'
   }
 
   requestFrame(force?: 'Force'): void {

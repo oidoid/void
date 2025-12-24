@@ -23,6 +23,7 @@ export interface Ent {
    * should not look at each other's invalid state since it's cleared on update.
    */
   invalid?: boolean
+  loader?: Loader
   name?: string
   ninePatch?: NinePatch
   override?: Override
@@ -63,6 +64,9 @@ export type HUD = {
   modulo: XY
   origin: CompassDir
 }
+
+// biome-ignore lint/suspicious/noEmptyInterface:;
+export interface Loader {}
 
 export type NinePatch = {
   border: Border

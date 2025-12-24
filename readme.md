@@ -17,16 +17,17 @@ npm install --save @oidoid/void
 
 ### Declaration Merging
 
-To avoid threading template parameters throughout all code, declaration merging is used for the following:
+to avoid threading template parameters throughout all code, declaration merging is used for the following:
 
   - `Debug`
   - `Ent`
   - `EntSchema`
+  - `Loader`
   - `PoolMap`
   - `Sprite`
   - `Sys`
 
-It's similar to modifying `HTMLElementTagNameMap`.
+it's similar to modifying `HTMLElementTagNameMap`.
 
 ### Queries
 
