@@ -2,9 +2,8 @@ import {debug} from '../utils/debug.ts'
 import type {Void} from '../void.ts'
 import {ButtonSys} from './button.ts'
 import {type CursorEnt, CursorSys} from './cursor.ts'
-import {DebutInputSys} from './debug-input.ts'
 import type {Ent} from './ent.ts'
-import {parseQuerySet, type QuerySet} from './ent-query.ts'
+import {parseQuerySet} from './ent-query.ts'
 import {HUDSys} from './hud.ts'
 import {NinePatchSys} from './nine-patch.ts'
 import {OverrideSys} from './override.ts'
@@ -31,7 +30,6 @@ export class Zoo {
     this.addSystem({
       button: new ButtonSys(),
       cursor: new CursorSys(),
-      debugInput: new DebutInputSys(),
       hud: new HUDSys(),
       ninePatch: new NinePatchSys(),
       override: new OverrideSys(),
@@ -51,7 +49,6 @@ export class Zoo {
     this.#systems = {}
   }
 
-  // to-do: not support Tag makes comparisons with ent.sprite.tag hard. do I even want tag? what if tags started with `tag-`
   get cursor(): CursorEnt | undefined {
     return this.#cursor
   }
@@ -86,7 +83,7 @@ export class Zoo {
     for (const k in ent) {
       const sys = this.#systems[k as keyof Ent]
       if (!sys) continue
-      sys.querySet ??= parseQuerySet(sys.query)
+      sys.querySet ??= parseQuerySet(sys.query as keyof Ent)
       if (!queryEnt(ent, sys.querySet))
         throw Error(
           `ent ${ent.id ?? ent.name ?? '?'} does not satisfy query: ${sys.query}`
@@ -96,10 +93,10 @@ export class Zoo {
 }
 
 function queryEnt<Ent>(
-  ent: Readonly<Partial<Ent>>,
-  query: QuerySet<Ent>
+  ent: Readonly<Ent>,
+  query: readonly (readonly string[])[]
 ): boolean {
   return query.some(keys =>
-    [...keys].every(k => (k[0] === '!' ? !(k.slice(1) in ent) : k in ent))
+    keys.every(k => (k[0] === '!' ? !(k.slice(1) in ent) : k in ent))
   )
 }

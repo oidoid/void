@@ -1,65 +1,6 @@
-parser
-  I will just process in order. should it be component insertion order or some kind of system priority? both make sense.
-  does sprite impact text and ninePatch and button??????
-  followCam only knows how to work with sprite, not ninepatch unless ninepatch caches location. maybe it can check sprite.invalid. sprite would need to be processed first. so it'd be followCam, sprite, text so that WH gets updated, ninepatch, button"
-
-  get demo working with parser that generates zoo graph. trying to make zoo init a one liner and strip down what's needed in the Void subclass. I will translate future level editor outputs to the schema. it's easy to keep lists distinct in the zoo using queries.
-  parser assembles initial queries using registered systems.
-  extract Sprite.pool to dyrnamicRef.
-  parseXY, parseWH, parseBox, parseFollowCursor.
-  minimize code size.
-    assume valid config. linter handles invalid.
-    how far can I get by using zero defaults for everything? not much breaks. just scale?
-    use nonstandard wild card JSON import and make a stripped down .min.json too.
-      https://esbuild.github.io/try/#YgAwLjI1LjEyAC0tYnVuZGxlIC0tZm9ybWF0PWVzbSBlbnRyeS5qcyAtLXRhcmdldD1lczIwMjQAZQBlbnRyeS5qcwBpbXBvcnQgKiBhcyBmb28gZnJvbSAnLi9mb28uanNvbicgLy93aXRoIHt0eXBlOiAnanNvbid9CmltcG9ydCAqIGFzIGJhciBmcm9tICcuL2Jhci5qc29uJyAvL3dpdGgge3R5cGU6ICdqc29uJ30KCmNvbnNvbGUubG9nKGZvby5mb28uYmF6LmJvbykKY29uc29sZS5sb2coYmFyLmZvby5iYXopAABmb28uanNvbgB7CiAgImZvbyI6IHsiYmF6IjogeyJib28iOiAiZG9uZSJ9fSwgImJhciI6ICJiYXIiCn0AAGJhci5qc29uAHsKICAiZm9vIjogeyJiYXoiOiAiZG9uZTIifSwgImJhciI6ICJiYXIiCn0
-ecs and zoo
-  review my research tabs and convos.
-  queries as tables.
-  consider clock prefab.
-  Look at ECS js benchmarks and design. Everyone doing typed arrays? What about iteration explosion 
-  pop out old void ECS. git show f812f85 -- src/ecs. What were the shortcomings of the old ECS? Sprites, grouping, complexity, ent with ents, ???
-    ```
-    import { FPS, QueryEnt, System, Text } from '@/void'
-
-    export type FPSEnt = QueryEnt<{ fps: FPS; text: Text }, typeof query>
-
-    const query = 'fps & text'
-
-    export class FPSSystem implements System<FPSEnt> {
-      readonly query = query
-
-      runEnt(ent: FPSEnt): void {
-        const now = performance.now()
-        if ((now - ent.fps.next.created) >= 1000) {
-          ent.fps.prev = ent.fps.next.frames
-          ent.fps.next = { created: now, frames: 0 }
-        }
-        ent.fps.next.frames++
-        ent.text.str = ent.fps.prev.toString().padStart(3, '0')
-      }
-    }
-    ```
-  compare current Super Patience (very tiny!) and previous Super Patience, bees demo.
-  zoo manages queries. results are registered bidir on ents as data and iteration is on ent and then system? systems are ordered by weight. just imagine an ent with all systems and then figure out the ideal order from that.
-  share identical queries both in terms of results **and iteration**. not sure how this guarantees system order though. the cursor ent needs to be processed by followCursor at least.
-  printZoo() in demo or debug flag if more universally useful.
-  all dimensional ents use Sprite which XYWH and z (defaulting to hidden) and do not require an extra copy. sprite groups will have a root `Sprite` that is likely hidden.
-  pull out all the old EQL and reconsider. is `cursor` just a query?
-  ents are ordered by weighted insertion (see old void). insertion should use swapping for constant time. can I reuse mem pool at all with a different backing instead of typed array?
-  private data is just a more specific component like `followCam {stateInitByParserNotJSON}'. most components are objects (`{}`).
-  instantiated ents retain ID, name, and are given an EID. debug lines print each.
-  ? components are saved to like arrays. queries are indices into arrays.
-    this makes a ton of sense for xy. Float16Array[index * 2] even works. less sense for a nine patch. could be both SoA (life, numbers) or AoS (sprites, classes).
-      it'd be easy to pool / reuse elements in a Float16Array.
-  review 1M+ particle test for iteration perf.
-  how do ents communicate, eg, test if colliding with another ent? just reach into map region to get local ents and iterate over those ents?
-level loader. level loader / state machine for flipping between different levels and screens. a good test would be menu to play to pause to play to menu. I don't want to have to do this boiletplate in each game. the level loader clears and populates the zoo if the level config says to. no logic in the game loop, everything is a system patched in.
-
 
 port super patience.
-  map space bar, cursor keys, wasd, that's it.
-
-
+  map space bar, cursor keys, wasd.
 
 
 demo
@@ -73,7 +14,7 @@ demo
     make a friendly note taking app that is Mario Paint fun.
 bugs
   reinvestigate fullscreen movement delta scaling. I can't get this to work.
-  I'm getting Node.js type suggestions in src and demo. types is empty. only happens when jsdom or html minifier are installed. `npx tsc -p src/ --listFiles` lists no @types files. everything is pure TS lib or project files. doesn't matter when I blank typeRoots and remove types: 'node' from other projects.
+  I'm getting Node.js type suggestions in src and demo. types is empty. only happens when jsdom is installed. `npx tsc -p src/ --listFiles` lists no @types files. everything is pure TS lib or project files. doesn't matter when I blank typeRoots and remove types: 'node' from other projects.
 perf
   review gamepad connection event support.
   experiment with caching `Sprite` hitbox and hurtbox.
@@ -86,7 +27,7 @@ perf
     https://github.com/UstymUkhman/vite-plugin-glsl/blob/main/src/loadShader.js
   mem pool should move hidden sprites to end and not send. could also just have sprite interface or list of sprites I don't send to GPU.
 input
-  restore left hand keys for DefaultButton.
+  restore left hand keys for AnyButton.
   how can I make two button combos friendlier? this is impossible to time at the same time and it's unclear how to resolve within a window. all buttons pressed sounds good. even if I remove gap requirement, you end up pressing A, A+B, B instead of A+B. generate multiple interpretations each press and union result. for "A, A+B", you can't slide from A to B without a release and releasing buttons after "A, A+B, A+B+C" doesn't cause "A, A+B, A+B+C, B+C, C". my ideal is: new sequence after an off release, otherwise aggregate for like 60ms. see test "combos require gaps between presses".
     A-off-A+B-off-A-off-A -> A-A+B-A-A
     A-off-A-B-off-A-off-A -> A-A+B-A-A, don't care if also A-A-B-A-A

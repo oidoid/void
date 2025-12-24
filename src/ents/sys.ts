@@ -1,10 +1,13 @@
 import type {Void} from '../void.ts'
 import type {Ent} from './ent.ts'
-import type {QuerySet} from './ent-query.ts'
 
 export type Sys = {
+  /**
+   * query of the form `[!]<key>[ <& or |><query>]`. eg, `'a & b | !a & c'`. no
+   * grouping is permitted.
+   */
   query: string
-  querySet?: QuerySet<Ent>
+  querySet?: string[][]
   free?(ent: Ent, v: Void): void
   update?(ent: Ent, v: Void): void
 }

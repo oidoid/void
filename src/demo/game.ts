@@ -27,6 +27,7 @@ export class Game extends V.Void {
     this.zoo.addDefaultSystems()
     this.zoo.addSystem({
       clock: new ClockSys(),
+      debugInput: new V.DebutInputSys(),
       renderToggle: new RenderToggleSys(),
       tally: new TallySys()
     })
