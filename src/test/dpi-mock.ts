@@ -1,4 +1,3 @@
-// to-do: use on other DPI tests.
 export class DPIMock {
   readonly #dpi = globalThis.devicePixelRatio
 

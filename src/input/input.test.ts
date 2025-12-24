@@ -1,6 +1,7 @@
 import {afterEach, beforeEach, test} from 'node:test'
 import {Cam} from '../graphics/cam.ts'
 import {assert} from '../test/assert.ts'
+import {DPIMock} from '../test/dpi-mock.ts'
 import {TestElement} from '../test/test-element.ts'
 import {
   KeyTestEvent,
@@ -11,20 +12,19 @@ import type {Millis} from '../types/time.ts'
 import {type AnyButton, type Combo, Input} from './input.ts'
 
 beforeEach(() => {
-  globalThis.devicePixelRatio = 1
   globalThis.isSecureContext = false
   globalThis.addEventListener = () => {}
   globalThis.removeEventListener = () => {}
 })
 
 afterEach(() => {
-  delete (globalThis as Partial<typeof globalThis>).devicePixelRatio
   delete (globalThis as Partial<typeof globalThis>).isSecureContext
   delete (globalThis as Partial<typeof globalThis>).addEventListener
   delete (globalThis as Partial<typeof globalThis>).removeEventListener
 })
 
 test('init', ctx => {
+  using _dpi = new DPIMock(1)
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -58,6 +58,7 @@ test('init', ctx => {
 })
 
 test('held off', () => {
+  using _dpi = new DPIMock(1)
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -73,6 +74,7 @@ test('held off', () => {
 })
 
 test('pressed buttons', ctx => {
+  using _dpi = new DPIMock(1)
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -175,6 +177,7 @@ test('pressed buttons', ctx => {
 })
 
 test('combos require gaps between presses', ctx => {
+  using _dpi = new DPIMock(1)
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -231,6 +234,7 @@ test('combos require gaps between presses', ctx => {
 })
 
 test('around-the-world combo', () => {
+  using _dpi = new DPIMock(1)
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -270,6 +274,7 @@ test('around-the-world combo', () => {
 })
 
 test('Up, Up, Down, Down, Left', ctx => {
+  using _dpi = new DPIMock(1)
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -378,6 +383,7 @@ test('Up, Up, Down, Down, Left', ctx => {
 })
 
 test('held combos stay active past expiry', ctx => {
+  using _dpi = new DPIMock(1)
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -414,6 +420,7 @@ test('held combos stay active past expiry', ctx => {
 })
 
 test('combo sequences can have multiple buttons', ctx => {
+  using _dpi = new DPIMock(1)
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -477,6 +484,7 @@ test('combo sequences can have multiple buttons', ctx => {
 })
 
 test('handled', () => {
+  using _dpi = new DPIMock(1)
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -541,6 +549,7 @@ test('handled', () => {
 })
 
 test('isAny', () => {
+  using _dpi = new DPIMock(1)
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -563,6 +572,7 @@ test('isAny', () => {
 })
 
 test('isStart', () => {
+  using _dpi = new DPIMock(1)
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -586,6 +596,7 @@ test('isStart', () => {
 })
 
 test('pointer movements update position', ctx => {
+  using _dpi = new DPIMock(1)
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -613,6 +624,7 @@ test('pointer movements update position', ctx => {
 })
 
 test('pointer clicks are buttons', () => {
+  using _dpi = new DPIMock(1)
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -627,6 +639,7 @@ test('pointer clicks are buttons', () => {
 })
 
 test('pointer secondary clicks are buttons', () => {
+  using _dpi = new DPIMock(1)
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -641,6 +654,7 @@ test('pointer secondary clicks are buttons', () => {
 })
 
 test('a pointer click can become a drag', ctx => {
+  using _dpi = new DPIMock(1)
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -736,6 +750,7 @@ test('a pointer click can become a drag', ctx => {
 })
 
 test('a pointer click can become a drag or a pinch', ctx => {
+  using _dpi = new DPIMock(1)
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -829,6 +844,7 @@ test('a pointer click can become a drag or a pinch', ctx => {
 })
 
 test('center', ctx => {
+  using _dpi = new DPIMock(1)
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -883,6 +899,7 @@ test('center', ctx => {
 })
 
 test('pinch', ctx => {
+  using _dpi = new DPIMock(1)
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
@@ -946,6 +963,7 @@ test('pinch', ctx => {
 })
 
 test('wheel', () => {
+  using _dpi = new DPIMock(1)
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
