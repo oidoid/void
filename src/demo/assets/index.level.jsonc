@@ -113,6 +113,8 @@
       "hud": {"origin": "NE", "margin": {"n": 4, "e": 60}},
       "textXY": {},
       "override": {"invalid": false}
-    }
+    },
+
+    {"name": "Draw", "draw": true}
   ]
 }

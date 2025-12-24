@@ -113,12 +113,10 @@ export class Void {
 
     this.requestFrame() // request frame before in case loop cancels.
 
-    this.onLoop()
+    this.zoo.update(this)
 
     this.cam.postupdate()
   }
-
-  onLoop(): void {}
 
   onPoll(): void {
     this.requestFrame('Force')

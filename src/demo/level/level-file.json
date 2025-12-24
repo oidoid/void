@@ -11,6 +11,7 @@
           "properties": {
             "cam": {"const": true, "description": "cam config."},
             "clock": {"const": true, "description": "clock config."},
+            "draw": {"const": true, "description": "draw config."},
             "renderToggle": {
               "const": true,
               "description": "render toggle config."

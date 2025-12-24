@@ -14,6 +14,7 @@ export const parseComponent: V.ComponentHook = (ent, json, k) => {
   switch (k) {
     case 'cam':
     case 'clock':
+    case 'draw':
       return json[k] satisfies V.Ent[typeof k]
     case 'renderToggle':
       if (!ent.button) throw Error('no button in render toggle')
