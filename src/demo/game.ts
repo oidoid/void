@@ -1,9 +1,10 @@
 import * as V from '../index.ts'
-import config from './assets/demo.game.json' with {type: 'json'}
+import levelJSON from './assets/index.level.jsonc' with {type: 'json'}
+import config from './assets/void.game.json' with {type: 'json'}
+import {CamSys} from './ents/cam.ts'
 import {ClockSys} from './ents/clock.ts'
 import {RenderToggleSys} from './ents/render-toggle.ts'
 import {TallySys} from './ents/tally.ts'
-import levelJSON from './level/demo.level.jsonc' with {type: 'json'}
 import {parseLevel} from './level/level-parser.ts'
 import {renderDelayMillis} from './utils/render-delay-millis.ts'
 
@@ -26,6 +27,7 @@ export class Game extends V.Void {
     // to-do: move under Void helper methods and hide zoo? same for other APIs.
     this.zoo.addDefaultSystems()
     this.zoo.addSystem({
+      cam: new CamSys(),
       clock: new ClockSys(),
       fps: new V.FPSSys(),
       debugInput: new V.DebutInputSys(),
@@ -53,21 +55,5 @@ export class Game extends V.Void {
       this.renderer.setDepth(false)
       this.renderer.draw(this.pool.overlay)
     }
-  }
-
-  override onUpdateCam(): void {
-    if (this.input.isAnyOnStart('U', 'D', 'L', 'R'))
-      this.cam.diagonalize(this.input.dir)
-
-    const len = V.truncDrawableEpsilon(25 * this.tick.s)
-    if (this.input.isOn('U')) this.cam.y -= len
-    if (this.input.isOn('D')) this.cam.y += len
-    if (this.input.isOn('L')) this.cam.x -= len
-    if (this.input.isOn('R')) this.cam.x += len
-
-    if (this.input.wheel?.delta.xy.y)
-      this.cam.zoomOut -= this.input.wheel.delta.client.y * 0.01
-
-    this.cam.update(this.canvas)
   }
 }

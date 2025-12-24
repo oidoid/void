@@ -5,7 +5,7 @@
   "out": {
     "dir": "../../dist/public/",
     "name": "void",
-    "game": "assets/demo.game.json"
+    "game": "assets/void.game.json"
   },
   "preloadAtlas": {
     "dir": "assets/preload-atlas/",

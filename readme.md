@@ -33,10 +33,9 @@ queries declare system dependencies.
 
 sprite is a kind of common denominator for position and area. if the ent should have no visual representation, leave the sprite as hidden.
 
-
 ### ECS Order
 
-ents are updated in insertion order. the cursor _ent_ should appear first so that `Input.handled` is never true.
+ents are updated in insertion order. the cam and then cursor _ents_ should appear first.
 
 components are parsed and updated in key order. the recommended order is:
 

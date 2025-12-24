@@ -113,7 +113,6 @@ export class Void {
 
     this.requestFrame() // request frame before in case loop cancels.
 
-    this.onUpdateCam()
     this.onLoop()
 
     this.cam.postupdate()
@@ -128,8 +127,6 @@ export class Void {
   onResize(): void {
     this.requestFrame('Force') // force cam reeval.
   }
-
-  onUpdateCam(): void {}
 
   async register(op: 'add' | 'remove'): Promise<void> {
     this.input.register(op)

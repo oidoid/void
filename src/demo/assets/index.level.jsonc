@@ -1,7 +1,9 @@
 {
-  "$schema": "../schema/level-file.json",
+  "$schema": "../level/level-file.json",
   "ents": [
-    {"debugInput": true},
+    {"name": "Debug", "debugInput": true},
+
+    {"name": "Cam", "cam": true},
 
     {
       "id": "Cursor",

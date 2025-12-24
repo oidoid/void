@@ -1,5 +1,4 @@
 
-move onUpdateCam() to ent so it can be swapped out.
 port super patience.
   map space bar, cursor keys, wasd.
 
