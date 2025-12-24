@@ -83,6 +83,7 @@ export function parseButton(
 
 export function parseCursor(ent: Ent, json: Readonly<CursorSchema>): Cursor {
   if (!ent.sprite) throw Error('cursor missing sprite')
+  ent.sprite.visible = false
   return {
     bounds: {x: 0, y: 0, w: 0, h: 0},
     keyboard: json.keyboard ?? 0,

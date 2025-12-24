@@ -59,7 +59,9 @@ systems are uniquely associated with a key. zero or one system per key. if multi
 
 ### Schema
 
-some schema components may only be applied at parse time.
+there are two schemas: a game configuration (`void.json`) and level configs (`*.level.jsonc`). the parser assumes a valid schema to minimize code size.
+
+levels are described with the level schema. some schema components may only be applied at parse time.
 
 ### Invalid
 
