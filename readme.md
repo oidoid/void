@@ -65,7 +65,7 @@ levels are described with the level schema. some schema components may only be a
 
 ### Invalid
 
-Ents and subsystems self-report as invalid when an update or render is required. Ents should avoid reading another ent's `invalid` state since it's cleared once that ent has been updated.
+ents and subsystems self-report as invalid when an update or render is required. ents should avoid reading another ent's `invalid` state since it's cleared once that ent has been updated.
 
 ## Copyright and License
 
