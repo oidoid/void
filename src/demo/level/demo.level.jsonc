@@ -16,7 +16,8 @@
       "sprite": {"z": "UIA"},
       "textWH": {"trim": "Descender"},
       "hud": {"origin": "SE", "margin": 4},
-      "textXY": {}
+      "textXY": {},
+      "override": {"invalid": false}
     },
 
     {

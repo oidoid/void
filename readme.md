@@ -27,25 +27,34 @@ To avoid threading template parameters throughout all code, declaration merging 
 
 It's similar to modifying `HTMLElementTagNameMap`.
 
+### Queries
+
+queries declare system dependencies.
+
+sprite is a kind of common denominator for position and area. if the ent should have no visual representation, leave the sprite as hidden.
+
+
 ### ECS Order
 
 ents are updated in insertion order. the cursor _ent_ should appear first so that `Input.handled` is never true.
 
 components are parsed and updated in key order. the recommended order is:
 
-  - `debugInput`
-  - `id`
-  - `name`
-  - `text`
-  - `sprite`
-  - `textWH`
-  - `cursor`
-  - `hud`
-  - `ninePatch`
-  - `button`
-  - `textXY`
-  - `invalid`
-  - `override`
+- `debugInput`
+- `id`
+- `name`
+- `text`
+- `sprite`
+- `textWH`
+- `cursor`
+- `hud`
+- `ninePatch`
+- `button`
+- `textXY`
+- `invalid`
+- `override`
+
+systems are uniquely associated with a key. zero or one system per key. if multiple keys on an ent are associated with a system, it will be run multiple times per update.
 
 ### Schema
 
