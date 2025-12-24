@@ -90,7 +90,7 @@
         "game": {
           "type": "string",
           "description": "game config output.",
-          "examples": ["src/assets/game.void.json", "game.void.json"]
+          "examples": ["src/assets/config.game.json", "config.game.json"]
         },
         "name": {
           "type": "string",

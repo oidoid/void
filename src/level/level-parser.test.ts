@@ -373,6 +373,7 @@ describe('parseSprite()', () => {
       pool: 'Default',
       stretch: true,
       tag: 'stem--B',
+      visible: false,
       z: 'UIA',
       zend: true,
       x: 5,
@@ -383,6 +384,7 @@ describe('parseSprite()', () => {
     }
     const sprite = parseSprite(json, TestPools(), atlas)
     assert(sprite.getTag(), 'stem--B')
+    assert(sprite.visible, false)
     assert(sprite.flipX, true)
     assert(sprite.flipY, true)
     assert(sprite.stretch, true)

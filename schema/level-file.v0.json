@@ -272,7 +272,7 @@
       }
     },
     "SpriteProps": {
-      "description": "sprite config except box-related. sprites are hidden when no tag is specified.",
+      "description": "sprite config except box-related.",
       "oneOf": [
         {
           "$dynamicRef": "#Tag",
@@ -296,6 +296,10 @@
               "$dynamicRef": "#Tag",
               "$ref": "#/$defs/Tag",
               "$comment": "to-do: delete `$ref` for `$dynamicRef`."
+            },
+            "visible": {
+              "type": "boolean",
+              "description": "whether sprite is rendered. defaults to true when tag is specified."
             },
             "z": {"$ref": "#/$defs/Layer"},
             "zend": {
@@ -363,13 +367,15 @@
           "type": "number",
           "description": "horizontal dimension.",
           "minimum": -131072,
-          "maximum": 131071.984375
+          "maximum": 131071.984375,
+          "multipleOf": 0.015625
         },
         "y": {
           "type": "number",
           "description": "vertical dimension.",
           "minimum": -131072,
-          "maximum": 131071.984375
+          "maximum": 131071.984375,
+          "multipleOf": 0.015625
         }
       }
     },

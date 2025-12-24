@@ -55,6 +55,7 @@ export type SpriteSchema = {
   pool?: PoolSchema
   stretch?: boolean
   tag?: AnimTag
+  visible?: boolean
   z?: LayerSchema
   zend?: boolean
 }

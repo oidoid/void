@@ -259,14 +259,15 @@ export function parseSprite(
   if (typeof json === 'string') {
     if (!(json in atlas.anim)) throw Error(`no tag "${json}"`)
     sprite.setTag(json)
-    sprite.visible = true // to-do: expose in schema but keep this default logic.
+    sprite.visible = true
     return sprite
   }
   if (json.tag != null) {
     if (!(json.tag in atlas.anim)) throw Error(`no tag "${json.tag}"`)
     sprite.setTag(json.tag)
-    sprite.visible = true // to-do: expose in schema but keep this default logic.
+    sprite.visible = true
   }
+  if (json.visible != null) sprite.visible = json.visible
   if (json.flip) {
     sprite.flipX = json.flip === 'X' || json.flip === 'XY'
     sprite.flipY = json.flip === 'Y' || json.flip === 'XY'
