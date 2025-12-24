@@ -36,10 +36,9 @@ export class Game extends V.Void {
   }
 
   override onLoop(): void {
-    let render = this.#updateCam()
     this.zoo.update(this)
 
-    render ||=
+    const render =
       this.zoo.invalid ||
       this.cam.invalid ||
       this.renderer.invalid ||
@@ -54,9 +53,7 @@ export class Game extends V.Void {
     }
   }
 
-  #updateCam(): boolean {
-    let render = this.input.isAnyOn('U', 'D', 'L', 'R')
-
+  override onUpdateCam(): void {
     if (this.input.isAnyOnStart('U', 'D', 'L', 'R'))
       this.cam.diagonalize(this.input.dir)
 
@@ -66,13 +63,9 @@ export class Game extends V.Void {
     if (this.input.isOn('L')) this.cam.x -= len
     if (this.input.isOn('R')) this.cam.x += len
 
-    if (this.input.wheel?.delta.xy.y) {
-      render = true
+    if (this.input.wheel?.delta.xy.y)
       this.cam.zoomOut -= this.input.wheel.delta.client.y * 0.01
-    }
 
     this.cam.update(this.canvas)
-
-    return render
   }
 }

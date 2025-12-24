@@ -29,13 +29,13 @@ export class Void {
   readonly cam: Cam = new Cam()
   readonly canvas: HTMLCanvasElement
   readonly input: Input
+  readonly looper: Looper = new Looper()
   readonly pool: PoolMap
   readonly preload: Atlas
   readonly renderer: Renderer
-  readonly zoo: Zoo = new Zoo()
-  readonly looper: Looper = new Looper()
   /** delta since frame request. */
   readonly tick: {ms: Millis; s: Secs} = {ms: 0, s: 0}
+  readonly zoo: Zoo = new Zoo()
   readonly #backgroundRGBA: number
   readonly #poll: DelayInterval | undefined
   readonly #preloadAtlasImage: HTMLImageElement | undefined
@@ -109,6 +109,7 @@ export class Void {
 
     this.requestFrame() // request frame before in case loop cancels.
 
+    this.onUpdateCam()
     this.onLoop()
 
     this.cam.postupdate()
@@ -123,6 +124,8 @@ export class Void {
   onResize(): void {
     this.requestFrame('Force') // force cam reeval.
   }
+
+  onUpdateCam(): void {}
 
   async register(op: 'add' | 'remove'): Promise<void> {
     this.input.register(op)
