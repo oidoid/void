@@ -1,12 +1,11 @@
 import * as V from '../../index.ts'
-import type {Game} from '../game.ts'
 
 export type CamEnt = V.QueryEnt<CamSys['query']>
 
 export class CamSys implements V.Sys {
   readonly query = 'cam' as const
 
-  update(_ent: CamEnt, v: Game): void {
+  update(_ent: CamEnt, v: V.Void): void {
     if (v.input.isAnyOnStart('U', 'D', 'L', 'R')) v.cam.diagonalize(v.input.dir)
 
     const len = V.truncDrawableEpsilon(25 * v.tick.s)

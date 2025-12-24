@@ -1,5 +1,4 @@
 import * as V from '../../index.ts'
-import type {Game} from '../game.ts'
 
 export type TallyEnt = V.QueryEnt<TallySys['query']>
 
@@ -7,7 +6,7 @@ export type TallyEnt = V.QueryEnt<TallySys['query']>
 export class TallySys implements V.Sys {
   readonly query = 'tally & text' as const
 
-  update(ent: TallyEnt, v: Game): void {
+  update(ent: TallyEnt, v: V.Void): void {
     ent.tally.updates++
     const text = [
       `${`${ent.tally.updates}`.padStart(8, ' ')} updates`,
