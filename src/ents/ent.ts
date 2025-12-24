@@ -3,11 +3,17 @@ import type {Layer} from '../graphics/layer.ts'
 import type {Sprite} from '../graphics/sprite.ts'
 import type {TextLayout} from '../text/text-layout.ts'
 import type {Border, Box, CompassDir, XY} from '../types/geo.ts'
+import type {Millis} from '../types/time.ts'
 
+/**
+ * it doesn't really make sense for ents to be classes because their shared
+ * independent component bags still need to be passed in.
+ */
 export interface Ent {
   button?: Button
   cursor?: Cursor
   debugInput?: DebugInput
+  fps?: FPS
   hud?: HUD
   id?: string
   /**
@@ -45,6 +51,11 @@ export type Cursor = {
 }
 
 export type DebugInput = true
+
+export type FPS = {
+  prevFrames: number
+  next: {created: Millis; frames: number}
+}
 
 export type HUD = {
   fill?: XYFlag

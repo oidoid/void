@@ -80,7 +80,6 @@
         }
       }
     },
-    "DebugInput": {"const": true, "description": "debug input config."},
     "Ent": {
       "$dynamicAnchor": "Ent",
       "type": "object",
@@ -88,10 +87,8 @@
       "properties": {
         "button": {"$ref": "#/$defs/Button", "unevaluatedProperties": false},
         "cursor": {"$ref": "#/$defs/Cursor", "unevaluatedProperties": false},
-        "debugInput": {
-          "$ref": "#/$defs/DebugInput",
-          "unevaluatedProperties": false
-        },
+        "debugInput": {"const": true, "description": "debug input config."},
+        "fps": {"const": true, "description": "FPS config."},
         "hud": {"$ref": "#/$defs/HUD", "unevaluatedProperties": false},
         "id": {"type": "string", "description": "unique lookup identifier."},
         "name": {"type": "string", "description": "debug identifier."},

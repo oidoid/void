@@ -2,6 +2,7 @@ import type {
   Button,
   Cursor,
   Ent,
+  FPS,
   HUD,
   NinePatch,
   Override,
@@ -20,6 +21,7 @@ import type {
   ButtonSchema,
   CursorSchema,
   EntSchema,
+  FPSSchema,
   HUDSchema,
   LevelSchema,
   NinePatchSchema,
@@ -119,6 +121,8 @@ export function parseEntComponent(
       return parseButton(json[k], pools, atlas) satisfies Ent[typeof k]
     case 'cursor':
       return parseCursor(ent, json[k]) satisfies Ent[typeof k]
+    case 'fps':
+      return parseFPS(json[k]) satisfies Ent[typeof k]
     case 'hud':
       return parseHUD(json[k]) satisfies Ent[typeof k]
     case 'debugInput':
@@ -138,6 +142,13 @@ export function parseEntComponent(
       return parseTextXY(ent, json[k]) satisfies Ent[typeof k]
     default:
       k satisfies never
+  }
+}
+
+export function parseFPS(_json: Readonly<FPSSchema>): FPS {
+  return {
+    prevFrames: 0,
+    next: {created: performance.now(), frames: 0}
   }
 }
 

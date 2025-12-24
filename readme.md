@@ -47,6 +47,10 @@ components are parsed and updated in key order. the recommended order is:
   - `invalid`
   - `override`
 
+### Schema
+
+some schema components may only be applied at parse time.
+
 ### Invalid
 
 Ents and subsystems self-report as invalid when an update or render is required. Ents should avoid reading another ent's `invalid` state since it's cleared once that ent has been updated.

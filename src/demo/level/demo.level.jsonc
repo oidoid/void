@@ -10,6 +10,16 @@
     },
 
     {
+      "name": "FPS",
+      "fps": true,
+      "text": "",
+      "sprite": {"z": "UIA"},
+      "textWH": {"trim": "Descender"},
+      "hud": {"origin": "SE", "margin": 4},
+      "textXY": {}
+    },
+
+    {
       "name": "Overlay",
       "sprite": {
         "pool": "Overlay",
