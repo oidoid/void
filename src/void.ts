@@ -2,6 +2,7 @@ import {Zoo} from './ents/zoo.ts'
 import type {Atlas} from './graphics/atlas.ts'
 import {parseAtlas} from './graphics/atlas-parser.ts'
 import {Cam} from './graphics/cam.ts'
+import {PixelRatioObserver} from './graphics/pixel-ratio-observer.ts'
 import {Renderer} from './graphics/renderer.ts'
 import type {Sprite} from './graphics/sprite.ts'
 import {Input} from './input/input.ts'
@@ -37,6 +38,7 @@ export class Void {
   readonly tick: {ms: Millis; s: Secs} = {ms: 0, s: 0}
   readonly zoo: Zoo = new Zoo()
   readonly #backgroundRGBA: number
+  readonly #pixelRatioObserver: PixelRatioObserver = new PixelRatioObserver()
   readonly #poll: DelayInterval | undefined
   readonly #preloadAtlasImage: HTMLImageElement | undefined
   // may trigger an initial force update.
@@ -67,6 +69,8 @@ export class Void {
     this.input = new Input(this.cam, this.canvas)
     if (opts.config.init.input !== 'Custom') this.input.mapDefault()
     this.input.onEvent = () => this.onEvent()
+
+    this.#pixelRatioObserver.onChange = () => this.onResize()
 
     this.#preloadAtlasImage = opts.preloadAtlas ?? undefined
 
@@ -133,6 +137,7 @@ export class Void {
     this.looper.register(op)
     if (op === 'add') this.#resizeObserver.observe(this.canvas.parentElement!)
     else this.#resizeObserver.unobserve(this.canvas.parentElement!)
+    this.#pixelRatioObserver.register(op)
 
     if (op === 'add') this.looper.requestFrame()
     this.#poll?.register(op)
