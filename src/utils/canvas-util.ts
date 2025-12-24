@@ -11,7 +11,7 @@ export async function downloadScreenshot(
 }
 
 export function initCanvas(
-  canvas: HTMLCanvasElement | undefined,
+  canvas: HTMLCanvasElement | null | undefined,
   mode: RenderMode
 ): HTMLCanvasElement {
   canvas ??= document.createElement('canvas')
@@ -25,7 +25,12 @@ export function initCanvas(
   canvas.style.touchAction = 'none'
   canvas.tabIndex = 0
   canvas.focus()
-  if (!canvas.parentNode) document.body.append(canvas)
+  if (!canvas.parentNode) {
+    const main = document.createElement('main') // a11y.
+    main.style.height = '100dvh'
+    main.append(canvas)
+    document.body.append(main)
+  }
   return canvas
 }
 

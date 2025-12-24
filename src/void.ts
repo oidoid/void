@@ -21,8 +21,9 @@ import {initBody, initMetaViewport} from './utils/dom-util.ts'
 import {loadImage} from './utils/fetch-util.ts'
 
 export type VoidOpts = {
-  canvas?: HTMLCanvasElement
+  canvas?: HTMLCanvasElement | null
   config: GameConfig
+  description?: string
   loader: LoaderEnt
   loaderSys: Sys
   preloadAtlas?: HTMLImageElement | null
@@ -49,7 +50,7 @@ export class Void {
   readonly #resizeObserver = new ResizeObserver(() => this.onResize())
 
   constructor(opts: Readonly<VoidOpts>) {
-    initMetaViewport()
+    initMetaViewport(opts.description)
     this.canvas = initCanvas(opts.canvas, opts.config.init.mode)
     if (!this.canvas.parentElement) throw Error('no canvas parent')
     this.#backgroundRGBA =
@@ -57,7 +58,7 @@ export class Void {
       parseComputedColor(
         getComputedStyle(this.canvas.parentElement).backgroundColor
       )
-    initBody(this.canvas, this.#backgroundRGBA)
+    if (!opts.canvas) initBody(this.#backgroundRGBA)
 
     this.cam.minWH = opts.config.init.minWH
     this.cam.mode = opts.config.init.mode

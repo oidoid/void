@@ -1,4 +1,5 @@
 import * as V from '../index.ts'
+import {description} from './assets/manifest.json' // non-standard import to treeshake.
 import config from './assets/void.game.json' with {type: 'json'}
 import {LoaderSys} from './ents/loader.ts'
 
@@ -8,6 +9,7 @@ console.debug(
 
 const v = new V.Void({
   config: config as V.GameConfig,
+  description,
   preloadAtlas: document.querySelector<HTMLImageElement>('#preload-atlas'),
   loader: {loader: {level: undefined}},
   loaderSys: new LoaderSys()
