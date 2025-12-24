@@ -1,6 +1,6 @@
 import * as V from '../../index.ts'
 
-export type ClockEnt = V.QueryEnt<ClockSys['query']>
+export type ClockEnt = V.SysEnt<ClockSys>
 
 /** writes to text, invalid. */
 export class ClockSys implements V.Sys {

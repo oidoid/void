@@ -3,11 +3,11 @@ import {fontCharToTag} from '../text/font.ts'
 import {layoutText} from '../text/text-layout.ts'
 import type {Void} from '../void.ts'
 import type {QueryEnt} from './ent-query.ts'
-import type {Sys} from './sys.ts'
+import type {Sys, SysEnt} from './sys.ts'
 
 export type TextEnt = QueryEnt<'text'>
-export type TextWHEnt = QueryEnt<TextWHSys['query']>
-export type TextXYEnt = QueryEnt<TextXYSys['query']>
+export type TextWHEnt = SysEnt<TextWHSys>
+export type TextXYEnt = SysEnt<TextXYSys>
 
 /** reads sprite text; writes sprite WH and invalid. */
 export class TextWHSys implements Sys {

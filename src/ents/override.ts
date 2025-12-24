@@ -1,8 +1,7 @@
-import type {QueryEnt} from './ent-query.ts'
-import type {Sys} from './sys.ts'
+import type {Sys, SysEnt} from './sys.ts'
 
 /** writes to invalid. */
-export type OverrideEnt = QueryEnt<OverrideSys['query']>
+export type OverrideEnt = SysEnt<OverrideSys>
 
 export class OverrideSys implements Sys {
   readonly query = 'override' as const

@@ -1,6 +1,6 @@
 import * as V from '../../index.ts'
 
-export type CamEnt = V.QueryEnt<CamSys['query']>
+export type CamEnt = V.SysEnt<CamSys>
 
 export class CamSys implements V.Sys {
   readonly query = 'cam' as const

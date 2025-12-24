@@ -1,6 +1,6 @@
 import * as V from '../../index.ts'
 
-export type TallyEnt = V.QueryEnt<TallySys['query']>
+export type TallyEnt = V.SysEnt<TallySys>
 
 /** writes to text, invalid. */
 export class TallySys implements V.Sys {

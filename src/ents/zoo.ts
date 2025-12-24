@@ -2,8 +2,10 @@ import {debug} from '../utils/debug.ts'
 import type {Void} from '../void.ts'
 import {ButtonSys} from './button.ts'
 import {type CursorEnt, CursorSys} from './cursor.ts'
+import {DebutInputSys} from './debug-input.ts'
 import type {Ent} from './ent.ts'
 import {parseQuerySet} from './ent-query.ts'
+import {FPSSys} from './fps.ts'
 import {HUDSys} from './hud.ts'
 import {NinePatchSys} from './nine-patch.ts'
 import {OverrideSys} from './override.ts'
@@ -30,6 +32,8 @@ export class Zoo {
     this.addSystem({
       button: new ButtonSys(),
       cursor: new CursorSys(),
+      debugInput: new DebutInputSys(),
+      fps: new FPSSys(),
       hud: new HUDSys(),
       ninePatch: new NinePatchSys(),
       override: new OverrideSys(),
@@ -71,7 +75,8 @@ export class Zoo {
   update(v: Void): void {
     this.#invalid = false
     for (const ent of this.#ents) {
-      for (const k in ent) this.#systems[k as keyof Ent]?.update?.(ent, v)
+      for (const k in ent)
+        this.#systems[k as keyof Ent]?.update?.(ent as never, v)
       if (ent.invalid && debug?.invalid)
         console.debug('ent update invalid', ent)
       this.#invalid ||= !!ent.invalid

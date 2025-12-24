@@ -9,10 +9,9 @@ import {
   xyEq
 } from '../types/geo.ts'
 import type {Void} from '../void.ts'
-import type {QueryEnt} from './ent-query.ts'
-import type {Sys} from './sys.ts'
+import type {Sys, SysEnt} from './sys.ts'
 
-export type HUDEnt = QueryEnt<HUDSys['query']>
+export type HUDEnt = SysEnt<HUDSys>
 
 /** reads invalid, hud, sprite WH and z; writes invalid, sprite XY, WH. */
 export class HUDSys implements Sys {

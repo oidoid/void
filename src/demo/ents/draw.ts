@@ -1,6 +1,6 @@
 import type * as V from '../../index.ts'
 
-export type DrawEnt = V.QueryEnt<DrawSys['query']>
+export type DrawEnt = V.SysEnt<DrawSys>
 
 export class DrawSys implements V.Sys {
   readonly query = 'draw' as const

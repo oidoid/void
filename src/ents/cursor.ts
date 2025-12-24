@@ -3,8 +3,7 @@ import {truncDrawableEpsilon} from '../graphics/sprite.ts'
 import type {Input, Point} from '../input/input.ts'
 import type {Secs} from '../types/time.ts'
 import type {Void} from '../void.ts'
-import type {QueryEnt} from './ent-query.ts'
-import type {Sys} from './sys.ts'
+import type {Sys, SysEnt} from './sys.ts'
 
 //  to-do: i do pass ent data here. maybe I should do that for mem pool as SpritePool(i).
 
@@ -14,7 +13,7 @@ import type {Sys} from './sys.ts'
  * update this ent first.  always prefer testing against cursor, not input, in
  * other ents. the cursor may be moved by keyboard and has a hitbox.
  */
-export type CursorEnt = QueryEnt<CursorSys['query']>
+export type CursorEnt = SysEnt<CursorSys>
 
 export class CursorSys implements Sys {
   readonly query = 'cursor & sprite' as const

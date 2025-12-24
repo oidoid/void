@@ -21,7 +21,6 @@ const v = new V.Void({
     period: ((V.debug?.seconds ? 1 : 60) * 1000) as V.Millis
   }
 })
-
 v.pool.overlay = V.SpritePool({
   atlas: v.preload,
   looper: v.looper,
@@ -34,8 +33,6 @@ v.zoo.addSystem({
   cam: new CamSys(),
   clock: new ClockSys(),
   draw: new DrawSys(),
-  fps: new V.FPSSys(),
-  debugInput: new V.DebutInputSys(),
   renderToggle: new RenderToggleSys(),
   tally: new TallySys()
 })

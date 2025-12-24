@@ -1,8 +1,7 @@
 import type {Void} from '../void.ts'
-import type {QueryEnt} from './ent-query.ts'
-import type {Sys} from './sys.ts'
+import type {Sys, SysEnt} from './sys.ts'
 
-export type ButtonEnt = QueryEnt<ButtonSys['query']>
+export type ButtonEnt = SysEnt<ButtonSys>
 
 export class ButtonSys implements Sys {
   readonly query = 'button & sprite' as const

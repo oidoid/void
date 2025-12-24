@@ -1,6 +1,6 @@
 import * as V from '../../index.ts'
 
-export type RenderToggleEnt = V.QueryEnt<RenderToggleSys['query']>
+export type RenderToggleEnt = V.SysEnt<RenderToggleSys>
 
 export class RenderToggleSys implements V.Sys {
   readonly query = 'button & renderToggle & sprite' as const

@@ -1,7 +1,6 @@
-import type {QueryEnt} from './ent-query.ts'
-import type {Sys} from './sys.ts'
+import type {Sys, SysEnt} from './sys.ts'
 
-export type FPSEnt = QueryEnt<FPSSys['query']>
+export type FPSEnt = SysEnt<FPSSys>
 
 export class FPSSys implements Sys {
   readonly query = 'fps & text' as const

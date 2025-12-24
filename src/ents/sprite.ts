@@ -1,7 +1,6 @@
-import type {QueryEnt} from './ent-query.ts'
-import type {Sys} from './sys.ts'
+import type {Sys, SysEnt} from './sys.ts'
 
-export type SpriteEnt = QueryEnt<SpriteSys['query']>
+export type SpriteEnt = SysEnt<SpriteSys>
 
 /** writes sprite, invalid. */
 export class SpriteSys implements Sys {

@@ -1,9 +1,8 @@
 import {debug} from '../utils/debug.ts'
 import type {Void} from '../void.ts'
-import type {QueryEnt} from './ent-query.ts'
-import type {Sys} from './sys.ts'
+import type {Sys, SysEnt} from './sys.ts'
 
-export type DebutInputEnt = QueryEnt<DebutInputSys['query']>
+export type DebutInputEnt = SysEnt<DebutInputSys>
 
 export class DebutInputSys implements Sys {
   readonly query = 'debugInput' as const

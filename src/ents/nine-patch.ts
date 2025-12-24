@@ -1,8 +1,7 @@
 import type {XY} from '../types/geo.ts'
-import type {QueryEnt} from './ent-query.ts'
-import type {Sys} from './sys.ts'
+import type {Sys, SysEnt} from './sys.ts'
 
-export type NinePatchEnt = QueryEnt<NinePatchSys['query']>
+export type NinePatchEnt = SysEnt<NinePatchSys>
 
 /** reads invalid, sprite XY and WH; writes ninePatch, invalid. */
 export class NinePatchSys implements Sys {
