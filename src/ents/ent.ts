@@ -11,7 +11,9 @@ import type {Millis} from '../types/time.ts'
  */
 export interface Ent {
   button?: Button
+  cam?: CamUpdater
   cursor?: Cursor
+  draw?: Draw
   debugInput?: DebugInput
   fps?: FPS
   hud?: HUD
@@ -43,6 +45,9 @@ export type Button = {
 
 export type ButtonType = 'Button' | 'Toggle'
 
+// biome-ignore lint/suspicious/noEmptyInterface:;
+export interface CamUpdater {}
+
 export type Cursor = {
   /** screen area cursor may move within. */
   bounds: Box
@@ -50,6 +55,9 @@ export type Cursor = {
   pick?: AnimTag
   point: AnimTag
 }
+
+// biome-ignore lint/suspicious/noEmptyInterface:;
+export interface Draw {}
 
 export type DebugInput = true
 

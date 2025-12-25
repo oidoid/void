@@ -1,11 +1,9 @@
 import * as V from '../../index.ts'
 
-export type CamEnt = V.SysEnt<CamSys>
-
 export class CamSys implements V.Sys {
   readonly query = 'cam' as const
 
-  update(_ent: CamEnt, v: V.Void): void {
+  update(_ent: V.CamEnt, v: V.Void): void {
     if (v.input.isAnyOnStart('U', 'D', 'L', 'R')) v.cam.diagonalize(v.input.dir)
 
     const len = V.truncDrawableEpsilon(25 * v.tick.s)

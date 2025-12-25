@@ -60,6 +60,11 @@
         "z": {"$ref": "#/$defs/Layer"}
       }
     },
+    "Cam": {
+      "$dynamicAnchor": "Cam",
+      "type": "object",
+      "description": "cam config."
+    },
     "CompassDir": {
       "description": "cardinal and ordinal directions and center.",
       "enum": ["Center", "N", "S", "W", "E", "NW", "NE", "SW", "SE"]
@@ -80,14 +85,21 @@
         }
       }
     },
+    "Draw": {
+      "$dynamicAnchor": "Draw",
+      "type": "object",
+      "description": "draw config."
+    },
     "Ent": {
       "$dynamicAnchor": "Ent",
       "type": "object",
       "description": "ent config.",
       "properties": {
         "button": {"$ref": "#/$defs/Button", "unevaluatedProperties": false},
+        "cam": {"$ref": "#/$defs/Cam", "unevaluatedProperties": false},
         "cursor": {"$ref": "#/$defs/Cursor", "unevaluatedProperties": false},
         "debugInput": {"const": true, "description": "debug input config."},
+        "draw": {"$ref": "#/$defs/Draw", "unevaluatedProperties": false},
         "fps": {"const": true, "description": "FPS config."},
         "hud": {"$ref": "#/$defs/HUD", "unevaluatedProperties": false},
         "id": {"type": "string", "description": "unique lookup identifier."},

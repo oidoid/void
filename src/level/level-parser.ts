@@ -126,6 +126,8 @@ export function parseEntComponent(
       return parseFPS(json[k]) satisfies Ent[typeof k]
     case 'hud':
       return parseHUD(json[k]) satisfies Ent[typeof k]
+    case 'cam':
+    case 'draw':
     case 'debugInput':
     case 'id':
     case 'name':

@@ -1,7 +1,7 @@
 import * as V from '../../src/index.ts'
 import * as ase from './aseprite.ts'
 
-import './aseprite-json.d.ts'
+import './aseprite-json.ts'
 
 export function parseAtlasJSON(json: Readonly<ase.Aseprite>): V.AtlasJSON {
   const anim: {[tag: string]: V.Anim} = {}

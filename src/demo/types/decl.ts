@@ -1,9 +1,7 @@
 import type * as V from '../../index.ts'
-import type {Cam, Clock, Draw, RenderToggle, Tally} from '../ents/ent.ts'
+import type {Clock, RenderToggle, Tally} from '../ents/ent.ts'
 import type {
-  CamSchema,
   ClockSchema,
-  DrawSchema,
   RenderToggleSchema,
   TallySchema
 } from '../level/level-schema.ts'
@@ -16,17 +14,13 @@ declare module '../../index.ts' {
   }
 
   interface Ent {
-    cam?: Cam
     clock?: Clock
-    draw?: Draw
     renderToggle?: RenderToggle
     tally?: Tally
   }
 
   interface EntSchema {
-    cam?: CamSchema
     clock?: ClockSchema
-    draw?: DrawSchema
     renderToggle?: RenderToggleSchema
     tally?: TallySchema
   }

@@ -12,9 +12,7 @@ export function parseLevel(
 export const parseComponent: V.ComponentHook = (ent, json, k) => {
   if (json[k] == null) throw Error('no component val')
   switch (k) {
-    case 'cam':
     case 'clock':
-    case 'draw':
       return json[k] satisfies V.Ent[typeof k]
     case 'renderToggle':
       if (!ent.button) throw Error('no button in render toggle')

@@ -12,8 +12,10 @@ export type ButtonSchema = {
 }
 export interface EntSchema {
   button?: ButtonSchema
+  cam?: CamSchema
   cursor?: CursorSchema
   debugInput?: DebugInputSchema
+  draw?: DrawSchema
   fps?: FPSSchema
   hud?: HUDSchema
   id?: string
@@ -29,8 +31,12 @@ export interface EntSchema {
   textWH?: TextWHSchema
   textXY?: TextXYSchema
 }
+// biome-ignore lint/suspicious/noEmptyInterface:;
+export interface CamSchema {}
 export type CursorSchema = {keyboard?: number; pick?: AnimTag}
 export type DebugInputSchema = true
+// biome-ignore lint/suspicious/noEmptyInterface:;
+export interface DrawSchema {}
 export type FPSSchema = true
 export type HUDSchema = {
   fill?: XYFlag

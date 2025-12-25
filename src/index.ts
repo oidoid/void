@@ -1,13 +1,15 @@
 // ╭>°╮┬┌─╮╭─╮┬┌─╮
 // ╰──╰┴╯─╯╰─╰┴╯─╯
 
-import './level/level-schema-json.d.ts'
+import './level/level-schema-json.ts'
 
 export {type Font, memProp5x6} from 'mem-font'
 export * from './audio.ts'
 export * from './ents/button.ts'
+export * from './ents/cam.ts'
 export * from './ents/cursor.ts'
 export * from './ents/debug-input.ts'
+export * from './ents/draw.ts'
 export * from './ents/ent.ts'
 export * from './ents/ent-query.ts'
 export * from './ents/fps.ts'

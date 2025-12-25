@@ -1,11 +1,9 @@
 import type * as V from '../../index.ts'
 
-export type DrawEnt = V.SysEnt<DrawSys>
-
 export class DrawSys implements V.Sys {
   readonly query = 'draw' as const
 
-  update(_ent: DrawEnt, v: V.Void): void {
+  update(_ent: V.DrawEnt, v: V.Void): void {
     const render =
       v.zoo.invalid || v.cam.invalid || v.renderer.invalid || v.renderer.always
     if (render) {

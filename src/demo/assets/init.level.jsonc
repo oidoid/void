@@ -3,7 +3,7 @@
   "ents": [
     {"name": "Debug", "debugInput": true},
 
-    {"name": "Cam", "cam": true},
+    {"name": "Cam", "cam": {}},
 
     {
       "id": "Cursor",
@@ -56,14 +56,14 @@
         "type": "Toggle",
         "z": "UIC"
       },
-      "renderToggle": true,
+      "renderToggle": {},
       "textXY": {"z": "UIE"}
     },
     {
       "name": "Clock",
       "text": "",
       "sprite": {"z": "UIF"},
-      "clock": true,
+      "clock": {},
       "textWH": {"scale": 2, "trim": "Descender"},
       "hud": {"margin": {"y": 4}, "origin": "S"},
       "textXY": {}
@@ -108,13 +108,13 @@
       "name": "Tally",
       "text": "",
       "sprite": {"z": "UIA"},
-      "tally": true,
+      "tally": {},
       "textWH": {},
       "hud": {"origin": "NE", "margin": {"n": 4, "e": 60}},
       "textXY": {},
       "override": {"invalid": false}
     },
 
-    {"name": "Draw", "draw": true}
+    {"name": "Draw", "draw": {}}
   ]
 }

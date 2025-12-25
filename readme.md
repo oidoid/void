@@ -19,13 +19,17 @@ npm install --save @oidoid/void
 
 to avoid threading template parameters throughout all code, declaration merging is used for the following:
 
-  - `Debug`
-  - `Ent`
-  - `EntSchema`
-  - `Loader`
-  - `PoolMap`
-  - `Sprite`
-  - `Sys`
+- `CamSchema`
+- `CamUpdater`
+- `Debug`
+- `Draw`
+- `DrawSchema`
+- `Ent`
+- `EntSchema`
+- `Loader`
+- `PoolMap`
+- `Sprite`
+- `Sys`
 
 it's similar to modifying `HTMLElementTagNameMap`.
 
