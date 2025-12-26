@@ -9,7 +9,7 @@ import {RenderToggleSys} from './render-toggle.ts'
 import {TallySys} from './tally.ts'
 
 export class LoaderSys implements V.Sys {
-  readonly query = 'loader' as const
+  readonly query = 'loader'
 
   update(ent: V.LoaderEnt, v: V.Void): void {
     switch (ent.loader.level) {

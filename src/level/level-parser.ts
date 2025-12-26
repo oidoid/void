@@ -14,6 +14,7 @@ import {Layer} from '../graphics/layer.ts'
 import {drawableMaxWH, type Sprite} from '../graphics/sprite.ts'
 import type {PoolMap} from '../mem/pool-map.ts'
 import type {Border, WH, XY} from '../types/geo.ts'
+import {isRecord} from '../utils/obj-util.ts'
 import {uncapitalize} from '../utils/str-util.ts'
 import type {Level} from './level.ts'
 import type {
@@ -214,39 +215,47 @@ export function parseNinePatch(
   if (patch.center) patch.center.z = ent.sprite.z
   if (patch.n) {
     patch.n.h = border.n
-    patch.n.z = ent.sprite.z
+    if (isRecord(json.patch.n) && json.patch.n.z !== null)
+      patch.n.z = ent.sprite.z
   }
   if (patch.s) {
     patch.s.h = border.s
-    patch.s.z = ent.sprite.z
+    if (!isRecord(json.patch.s) || json.patch.s.z !== null)
+      patch.s.z = ent.sprite.z
   }
   if (patch.w) {
     patch.w.w = border.w
-    patch.w.z = ent.sprite.z
+    if (!isRecord(json.patch.w) || json.patch.w.z == null)
+      patch.w.z = ent.sprite.z
   }
   if (patch.e) {
     patch.e.w = border.e
-    patch.e.z = ent.sprite.z
+    if (!isRecord(json.patch.e) || json.patch.e.z == null)
+      patch.e.z = ent.sprite.z
   }
   if (patch.nw) {
     patch.nw.w = border.w
     patch.nw.h = border.n
-    patch.nw.z = ent.sprite.z
+    if (!isRecord(json.patch.nw) || json.patch.nw.z == null)
+      patch.nw.z = ent.sprite.z
   }
   if (patch.ne) {
     patch.ne.w = border.e
     patch.ne.h = border.n
-    patch.ne.z = ent.sprite.z
+    if (!isRecord(json.patch.ne) || json.patch.ne.z == null)
+      patch.ne.z = ent.sprite.z
   }
   if (patch.sw) {
     patch.sw.w = border.w
     patch.sw.h = border.s
-    patch.sw.z = ent.sprite.z
+    if (!isRecord(json.patch.sw) || json.patch.sw.z == null)
+      patch.sw.z = ent.sprite.z
   }
   if (patch.se) {
     patch.se.w = border.e
     patch.se.h = border.s
-    patch.se.z = ent.sprite.z
+    if (!isRecord(json.patch.se) || json.patch.se.z == null)
+      patch.se.z = ent.sprite.z
   }
   return ninePatch
 }

@@ -3,7 +3,7 @@ import type {Sys, SysEnt} from './sys.ts'
 export type FPSEnt = SysEnt<FPSSys>
 
 export class FPSSys implements Sys {
-  readonly query = 'fps & text' as const
+  readonly query = 'fps & text'
 
   update(ent: FPSEnt): void {
     const now = performance.now()

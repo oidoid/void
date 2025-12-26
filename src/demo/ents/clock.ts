@@ -4,7 +4,7 @@ export type ClockEnt = V.SysEnt<ClockSys>
 
 /** writes to text, invalid. */
 export class ClockSys implements V.Sys {
-  readonly query = 'clock & text' as const
+  readonly query = 'clock & text'
 
   update(ent: ClockEnt): void {
     V.textSetText(ent, timeString(new Date()))

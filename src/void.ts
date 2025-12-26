@@ -12,6 +12,7 @@ import {Looper} from './looper.ts'
 import type {PoolOpts} from './mem/pool.ts'
 import type {PoolMap} from './mem/pool-map.ts'
 import {SpritePool} from './mem/sprite-pool.ts'
+import {Random} from './random/random.ts'
 import type {GameConfig} from './types/game-config.ts'
 import type {Millis, Secs} from './types/time.ts'
 import {initCanvas} from './utils/canvas-util.ts'
@@ -27,6 +28,7 @@ export type VoidOpts = {
   loader: LoaderEnt
   loaderSys: Sys
   preloadAtlas?: HTMLImageElement | null
+  random?: Random
   sprites?: Partial<Omit<PoolOpts<Sprite>, 'alloc' | 'allocBytes'>>
 }
 
@@ -37,6 +39,7 @@ export class Void {
   readonly looper: Looper = new Looper()
   readonly pool: PoolMap
   readonly preload: Atlas
+  readonly random: Random
   readonly renderer: Renderer
   /** delta since frame request. */
   readonly tick: {ms: Millis; s: Secs} = {ms: 0, s: 0}
@@ -64,6 +67,8 @@ export class Void {
     this.cam.mode = opts.config.init.mode
     this.cam.update(this.canvas)
 
+    this.random = opts.random ?? new Random(Date.now())
+
     this.input = new Input(this.cam, this.canvas)
     if (opts.config.init.input !== 'Custom') this.input.mapDefault()
     this.input.onEvent = () => this.onEvent()
@@ -71,6 +76,8 @@ export class Void {
     this.#pixelRatioObserver.onChange = () => this.onResize()
 
     this.#preloadAtlasImage = opts.preloadAtlas ?? undefined
+    if (!!this.#preloadAtlasImage !== !!opts.config.atlas)
+      throw Error('atlas misconfigured')
 
     this.preload = opts.config.atlas
       ? parseAtlas(opts.config.atlas)
@@ -99,6 +106,10 @@ export class Void {
 
   get backgroundRGBA(): number {
     return this.#backgroundRGBA
+  }
+
+  get invalid(): boolean {
+    return this.zoo.invalid || this.cam.invalid || this.renderer.invalid
   }
 
   onEvent(): void {

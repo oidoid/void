@@ -5,7 +5,7 @@ export type NinePatchEnt = SysEnt<NinePatchSys>
 
 /** reads invalid, sprite XY and WH; writes ninePatch, invalid. */
 export class NinePatchSys implements Sys {
-  readonly query = 'ninePatch & sprite' as const
+  readonly query = 'ninePatch & sprite'
 
   free(ent: NinePatchEnt): void {
     ninePatchFree(ent)

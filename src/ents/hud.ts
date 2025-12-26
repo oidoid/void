@@ -15,7 +15,7 @@ export type HUDEnt = SysEnt<HUDSys>
 
 /** reads invalid, hud, sprite WH and z; writes invalid, sprite XY, WH. */
 export class HUDSys implements Sys {
-  readonly query = 'hud & sprite' as const
+  readonly query = 'hud & sprite'
 
   update(ent: HUDEnt, v: Void): void {
     if (!ent.invalid && !v.cam.invalid) return

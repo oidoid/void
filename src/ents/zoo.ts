@@ -4,7 +4,7 @@ import {ButtonSys} from './button.ts'
 import {type CursorEnt, CursorSys} from './cursor.ts'
 import {DebutInputSys} from './debug-input.ts'
 import type {Ent} from './ent.ts'
-import {parseQuerySet} from './ent-query.ts'
+import {type EQL, parseQuerySet, type QueryEnt} from './ent-query.ts'
 import {FPSSys} from './fps.ts'
 import {HUDSys} from './hud.ts'
 import type {LoaderEnt} from './loader.ts'
@@ -66,6 +66,14 @@ export class Zoo {
 
   get invalid(): boolean {
     return this.#invalid
+  }
+
+  *query<const Query>(
+    query: EQL<Ent, Query>
+  ): IterableIterator<QueryEnt<Query>> {
+    const querySet = parseQuerySet(query)
+    for (const ent of this.#ents)
+      if (queryEnt(ent, querySet)) yield ent as QueryEnt<Query>
   }
 
   remove(...ents: readonly Readonly<Ent>[]): void {

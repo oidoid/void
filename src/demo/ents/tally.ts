@@ -4,7 +4,7 @@ export type TallyEnt = V.SysEnt<TallySys>
 
 /** writes to text, invalid. */
 export class TallySys implements V.Sys {
-  readonly query = 'tally & text' as const
+  readonly query = 'tally & text'
 
   update(ent: TallyEnt, v: V.Void): void {
     ent.tally.updates++

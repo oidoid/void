@@ -16,7 +16,7 @@ import type {Sys, SysEnt} from './sys.ts'
 export type CursorEnt = SysEnt<CursorSys>
 
 export class CursorSys implements Sys {
-  readonly query = 'cursor & sprite' as const
+  readonly query = 'cursor & sprite'
 
   update(ent: CursorEnt, v: Void): void {
     if (v.input.point?.invalid) onPoint(ent, v.input.point)

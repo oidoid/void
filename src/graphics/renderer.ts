@@ -19,15 +19,12 @@ export class Renderer {
   always: boolean = debug?.render === 'always'
   /** number of clears performed. often used to count render passes. */
   clears: number = 0
-  /**
-   * true when context has changed since last draw and screen should be redrawn.
-   */
-  invalid: boolean = false
   loseContext: WEBGL_lose_context | undefined
   readonly #canvas: HTMLCanvasElement
   #clearRGBA: number = 0
   #depth: boolean = true
   #ctx: Context | undefined
+  #invalid: boolean = false
   readonly #looper: {readonly age: Millis}
   readonly #preloadAtlas: Readonly<Atlas>
   #preloadAtlasImage: Readonly<HTMLImageElement> | undefined
@@ -81,11 +78,18 @@ export class Renderer {
     )
     gl.bindVertexArray(null)
 
-    this.invalid = false
+    this.#invalid = false
   }
 
   get hasContext(): boolean {
     return this.#ctx != null
+  }
+
+  /**
+   * true when context has changed since last draw and screen should be redrawn.
+   */
+  get invalid(): boolean {
+    return this.#invalid || this.always
   }
 
   load(preloadAtlas: Readonly<HTMLImageElement> | undefined): void {
@@ -233,8 +237,8 @@ export class Renderer {
         this.#preloadAtlasImage.naturalHeight
       )
 
-    if (!this.invalid && debug?.invalid) console.debug('renderer invalid')
-    this.invalid = true
+    if (!this.#invalid && debug?.invalid) console.debug('renderer invalid')
+    this.#invalid = true
     // keep outside of #context so it can be restored.
     this.loseContext = gl.getExtension('WEBGL_lose_context') ?? undefined
     return (this.#ctx = {gl, spriteShader: shader, viewport: {w: 0, h: 0}})

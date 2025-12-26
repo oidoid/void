@@ -27,7 +27,8 @@ export function initCanvas(
   canvas.focus()
   if (!canvas.parentNode) {
     const main = document.createElement('main') // a11y.
-    main.style.height = '100dvh'
+    main.style.backgroundColor = document.body.style.backgroundColor
+    main.style.height = '100%'
     main.append(canvas)
     document.body.append(main)
   }

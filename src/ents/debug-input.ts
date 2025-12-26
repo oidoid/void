@@ -5,7 +5,7 @@ import type {Sys, SysEnt} from './sys.ts'
 export type DebutInputEnt = SysEnt<DebutInputSys>
 
 export class DebutInputSys implements Sys {
-  readonly query = 'debugInput' as const
+  readonly query = 'debugInput'
 
   update(_ent: DebutInputEnt, v: Void): void {
     if (!debug?.input) return

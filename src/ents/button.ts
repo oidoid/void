@@ -4,7 +4,7 @@ import type {Sys, SysEnt} from './sys.ts'
 export type ButtonEnt = SysEnt<ButtonSys>
 
 export class ButtonSys implements Sys {
-  readonly query = 'button & sprite' as const
+  readonly query = 'button & sprite'
 
   free(ent: ButtonEnt): void {
     buttonFree(ent)

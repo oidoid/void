@@ -4,7 +4,7 @@ export type SpriteEnt = SysEnt<SpriteSys>
 
 /** writes sprite, invalid. */
 export class SpriteSys implements Sys {
-  readonly query = 'sprite' as const
+  readonly query = 'sprite'
 
   free(ent: SpriteEnt): void {
     ent.sprite.free()

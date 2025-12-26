@@ -4,7 +4,7 @@ import type {Sys, SysEnt} from './sys.ts'
 export type OverrideEnt = SysEnt<OverrideSys>
 
 export class OverrideSys implements Sys {
-  readonly query = 'override' as const
+  readonly query = 'override'
 
   update(ent: OverrideEnt): void {
     if (ent.override.invalid != null) ent.invalid = ent.override.invalid

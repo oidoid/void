@@ -11,7 +11,7 @@ export type TextXYEnt = SysEnt<TextXYSys>
 
 /** reads sprite text; writes sprite WH and invalid. */
 export class TextWHSys implements Sys {
-  readonly query = 'sprite & text & textWH' as const
+  readonly query = 'sprite & text & textWH'
 
   update(ent: TextWHEnt): void {
     if (!ent.invalid) return
@@ -21,7 +21,7 @@ export class TextWHSys implements Sys {
 
 /** reads sprite XYZ, text, text WH; writes invalid. */
 export class TextXYSys implements Sys {
-  readonly query = 'sprite & text & textWH & textXY' as const
+  readonly query = 'sprite & text & textWH & textXY'
 
   free(ent: TextXYEnt): void {
     for (const sprite of ent.textXY.chars) sprite.free()
