@@ -18,7 +18,7 @@ bugs
   I'm getting Node.js type suggestions in src and demo. types is empty. only happens when jsdom is installed. `npx tsc -p src/ --listFiles` lists no @types files. everything is pure TS lib or project files. doesn't matter when I blank typeRoots and remove types: 'node' from other projects.
 perf
   it doesn't make sense to insert static sprites as ents. just make an array sprite ent to hold a whole group.
-  review gamepad connection event support.
+  review gamepad connection event support so that `requestFrame()` doesn't need to run every frame.
   experiment with caching `Sprite` hitbox and hurtbox.
     add cached hit/hurtbox tests to sprite.
   provide quadtree.
