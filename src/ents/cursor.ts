@@ -27,7 +27,9 @@ export class CursorSys implements Sys {
 
     if (
       ent.cursor.keyboard &&
-      (v.input.dir.x || v.input.dir.y || v.input.isAnyStarted('A'))
+      (v.input.dir.x ||
+        v.input.dir.y ||
+        (!v.input.point && v.input.isAnyStarted('A')))
     )
       onKey(ent, v.input, v.tick.s)
 
@@ -53,6 +55,7 @@ export function onKey(ent: CursorEnt, input: Input, tick: Secs): void {
       ent.cursor.bounds.y + ent.cursor.bounds.h,
       Math.max(ent.cursor.bounds.y, ent.sprite.y + input.dir.y * len)
     )
+  ent.sprite.z = Layer.Top
   ent.sprite.visible = true
   ent.invalid = true
 }
