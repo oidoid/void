@@ -19,7 +19,6 @@ export function initCanvas(
   canvas.style.cursor = 'none'
   canvas.style.display = 'block' // no line height spacing.
   canvas.style.outline = 'none' // disable focus outline.
-  canvas.style.cursor = 'none'
   if (mode === 'Int') canvas.style.imageRendering = 'pixelated' // to-do: why doesn't cam mode set this?
   // update on each pointermove *touch* Event like *mouse* Events.
   canvas.style.touchAction = 'none'
