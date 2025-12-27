@@ -93,7 +93,6 @@ export function textSetXY(ent: TextXYEnt, v: Void): void {
     sprite.stretch = true
     sprite.w *= ent.textWH.scale
     sprite.h *= ent.textWH.scale
-    sprite.visible = true
     len++
   }
   while (ent.textXY.chars.length > len) ent.textXY.chars.pop()!.free()

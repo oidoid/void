@@ -278,7 +278,7 @@ export class Cam {
   }
 
   #invalidateWH(): void {
-    if (!this.#invalid && debug?.invalid) console.debug('cam invalid')
+    if (!this.#invalid && debug?.invalid) console.debug('[invalid] cam invalid')
     this.#invalid = true
 
     const phy = {

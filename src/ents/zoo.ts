@@ -93,7 +93,7 @@ export class Zoo {
       for (const k in ent)
         this.#systems[k as keyof Ent]?.update?.(ent as never, v)
       if (ent.invalid && debug?.invalid)
-        console.debug('ent update invalid', ent)
+        console.debug('[invalid] ent update invalid', ent)
       this.#invalid ||= !!ent.invalid
       ent.invalid = false
     }

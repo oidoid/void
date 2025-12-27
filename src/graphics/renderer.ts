@@ -78,6 +78,12 @@ export class Renderer {
     )
     gl.bindVertexArray(null)
 
+    if (debug?.render) {
+      const err = gl.getError()
+      if (err !== gl.NO_ERROR)
+        console.error(`[render] GL error x${err.toString(16)}`)
+    }
+
     this.#invalid = false
   }
 
@@ -237,7 +243,8 @@ export class Renderer {
         this.#preloadAtlasImage.naturalHeight
       )
 
-    if (!this.#invalid && debug?.invalid) console.debug('renderer invalid')
+    if (!this.#invalid && debug?.invalid)
+      console.debug('[invalid] renderer invalid')
     this.#invalid = true
     // keep outside of #context so it can be restored.
     this.loseContext = gl.getExtension('WEBGL_lose_context') ?? undefined
@@ -246,12 +253,12 @@ export class Renderer {
 
   #onContextLost = (ev: Event): void => {
     ev.preventDefault() // required.
-    console.debug('[render] WebGL context lost')
+    console.debug('[render] GL context lost')
     this.#ctx = undefined
   }
 
   #onContextRestored = (): void => {
-    console.debug('[render] WebGL context restored')
+    console.debug('[render] GL context restored')
     this.#ctx = this._Context()
   }
 }
@@ -272,7 +279,7 @@ function GL2(canvas: HTMLCanvasElement): GL2 | undefined {
   }
 
   if (debug?.render && !gl.getContextAttributes()?.desynchronized)
-    console.debug('[render] no WebGL DOM desynchronization')
+    console.debug('[render] no GL DOM desynchronization')
 
   return gl
 }

@@ -215,12 +215,12 @@ export function parseNinePatch(
   if (patch.center) patch.center.z = ent.sprite.z
   if (patch.n) {
     patch.n.h = border.n
-    if (isRecord(json.patch.n) && json.patch.n.z !== null)
+    if (!isRecord(json.patch.n) || json.patch.n.z == null)
       patch.n.z = ent.sprite.z
   }
   if (patch.s) {
     patch.s.h = border.s
-    if (!isRecord(json.patch.s) || json.patch.s.z !== null)
+    if (!isRecord(json.patch.s) || json.patch.s.z == null)
       patch.s.z = ent.sprite.z
   }
   if (patch.w) {
@@ -282,15 +282,13 @@ export function parseSprite(
   if (typeof json === 'string') {
     if (!(json in atlas.anim)) throw Error(`no tag "${json}"`)
     sprite.setTag(json)
-    sprite.visible = true
     return sprite
   }
   if (json.tag != null) {
     if (!(json.tag in atlas.anim)) throw Error(`no tag "${json.tag}"`)
     sprite.setTag(json.tag)
-    sprite.visible = true
   }
-  if (json.visible != null) sprite.visible = json.visible
+  sprite.visible = json.visible ?? json.tag != null
   if (json.flip) {
     sprite.flipX = json.flip === 'X' || json.flip === 'XY'
     sprite.flipY = json.flip === 'Y' || json.flip === 'XY'

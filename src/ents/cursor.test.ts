@@ -9,8 +9,6 @@ import type {Secs} from '../types/time.ts'
 import type {CursorEnt} from './cursor.ts'
 import {onKey, onPoint} from './cursor.ts'
 
-type Tag = 'stem--point' | 'stem--pick'
-
 describe('onPoint()', () => {
   test('sets sprite position from pointer local', () => {
     const ent = TestCursorEnt()
@@ -31,22 +29,6 @@ describe('onPoint()', () => {
     const ent = TestCursorEnt()
     onPoint(ent, {local: {x: 0, y: 0}, type: 'Touch', click: undefined})
     assert(ent.sprite.visible, false)
-  })
-
-  test('pick tag when clicking', () => {
-    const ent = TestCursorEnt({pick: 'stem--pick'})
-    onPoint(ent, {
-      local: {x: 0, y: 0},
-      type: 'Mouse',
-      click: {client: {x: 0, y: 0}, local: {x: 0, y: 0}, x: 0, y: 0}
-    })
-    assert(ent.sprite.getTag(), 'stem--pick')
-  })
-
-  test('point tag when not clicking', () => {
-    const ent = TestCursorEnt({pick: 'stem--pick'})
-    onPoint(ent, {local: {x: 0, y: 0}, type: 'Mouse', click: undefined})
-    assert(ent.sprite.getTag(), 'stem--point')
   })
 })
 
@@ -83,18 +65,6 @@ describe('onKey()', () => {
     assert(ent.sprite.y, 50)
   })
 
-  test('pick tag when A on', () => {
-    const ent = TestCursorEnt({keyboard: 100, pick: 'stem--pick'})
-    onKey(ent, TestInput({dir: {x: 1, y: 0}, isOn: () => true}), 0.1 as Secs)
-    assert(ent.sprite.getTag(), 'stem--pick')
-  })
-
-  test('point tag when A off', () => {
-    const ent = TestCursorEnt({keyboard: 100, pick: 'stem--pick'})
-    onKey(ent, TestInput({dir: {x: 1, y: 0}, isOn: () => false}), 0.1 as Secs)
-    assert(ent.sprite.getTag(), 'stem--point')
-  })
-
   test('sets visible', () => {
     const ent = TestCursorEnt({keyboard: 100})
     ent.sprite.visible = false
@@ -104,14 +74,11 @@ describe('onKey()', () => {
   })
 })
 
-function TestCursorEnt(opts?: {keyboard?: number; pick?: Tag}): CursorEnt {
+function TestCursorEnt(opts?: {keyboard?: number}): CursorEnt {
   const atlas: Atlas = {
-    anim: {
-      'stem--point': {cels: 1, id: 0, w: 8, h: 8},
-      'stem--pick': {cels: 1, id: 1, w: 8, h: 8}
-    },
+    anim: {'stem--point': {cels: 1, id: 0, w: 8, h: 8}},
     celXYWH: [],
-    tags: ['stem--point', 'stem--pick']
+    tags: ['stem--point']
   }
   const pool = SpritePool({atlas, looper: {age: 0}, pageBlocks: 4})
   const sprite = pool.alloc()
@@ -122,7 +89,6 @@ function TestCursorEnt(opts?: {keyboard?: number; pick?: Tag}): CursorEnt {
     cursor: {
       bounds: {x: -100, y: -100, w: 1000, h: 1000},
       keyboard: opts?.keyboard ?? 0,
-      pick: opts?.pick,
       point: 'stem--point'
     },
     sprite,

@@ -12,7 +12,6 @@ import {Wheel} from './wheel.ts'
 export type AnyButton =
   | 'U' | 'D' | 'L' | 'R' // dpad.
   | 'A' | 'B' | 'C'       // primary, secondary, tertiary.
-  | 'Click' | 'Click2' | 'ClickMiddle'
   | 'Menu' | 'Back'
 
 export type Chord = [AnyButton, ...AnyButton[]]
@@ -259,7 +258,7 @@ export class Input {
     this.mapKeyboardCode('L', 'ArrowLeft')
     this.mapKeyboardCode('R', 'ArrowRight')
     this.mapKeyboardCode('C', 'KeyC')
-    this.mapKeyboardCode('A', 'KeyX')
+    this.mapKeyboardCode('A', 'KeyX', 'Space')
     this.mapKeyboardCode('B', 'KeyZ')
     this.mapKeyboardCode('Menu', 'Enter')
     this.mapKeyboardCode('Back', 'Escape')
@@ -277,9 +276,9 @@ export class Input {
     this.mapGamepadButton('Menu', 9)
     this.mapGamepadButton('Back', 8)
 
-    this.mapPointerClick('Click', 1)
-    this.mapPointerClick('Click2', 2)
-    this.mapPointerClick('ClickMiddle', 4)
+    this.mapPointerClick('A', 1)
+    this.mapPointerClick('B', 2)
+    this.mapPointerClick('C', 4)
   }
 
   // to-do: support analog values.

@@ -42,8 +42,8 @@ test('above() layer', () => {
 
   l.z = 1
   r.z = 2
-  assert(l.above(r), true)
-  assert(r.above(l), false)
+  assert(l.above(r), false)
+  assert(r.above(l), true)
 
   l.z = 2
   r.z = 2
@@ -52,8 +52,8 @@ test('above() layer', () => {
 
   l.z = 3
   r.z = 2
-  assert(l.above(r), false)
-  assert(r.above(l), true)
+  assert(l.above(r), true)
+  assert(r.above(l), false)
 })
 
 test('above() zend', () => {
@@ -109,15 +109,6 @@ test('clips()', () => {
 })
 
 describe('clipsZ()', () => {
-  test('non-sprite box delegates to clips()', () => {
-    const draw = TestDrawable()
-    draw.w = draw.h = 10
-    const cam = {x: 100, y: 100}
-
-    assert(draw.clipsZ({x: 1, y: 1}, cam), true)
-    assert(draw.clipsZ({x: 11, y: 11}, cam), false)
-  })
-
   test('same layer type delegates to clips()', () => {
     const a = TestSprite()
     const b = TestSprite()
@@ -158,8 +149,6 @@ describe('clipsZ()', () => {
     ui.z = Layer.UIA
     const cam = {x: 50, y: 50}
 
-    ui.x = 0
-    ui.y = 0
     assert(ui.clipsZ(world, cam), false)
     assert(world.clipsZ(ui, cam), false)
 
@@ -260,7 +249,7 @@ test('init()', () => {
   assert(draw.h, 0)
   assert(draw.id, 0)
   assert(draw.stretch, false)
-  assert(draw.visible, false)
+  assert(draw.visible, true)
   assert(draw.w, 0)
   assert(draw.x, 0)
   assert(draw.y, 0)
@@ -527,15 +516,6 @@ test('hits', () => {
 })
 
 describe('hitsZ()', () => {
-  test('non-sprite box delegates to hits()', () => {
-    const sprite = TestSprite()
-    sprite.setTag('stem--AnimA')
-    const cam = {x: 100, y: 100}
-
-    assert(sprite.hitsZ({x: 1, y: 2}, cam), true)
-    assert(sprite.hitsZ({x: 4, y: 6}, cam), false)
-  })
-
   test('same layer type delegates to hits()', () => {
     const a = TestSprite()
     a.setTag('stem--AnimA')
@@ -546,6 +526,7 @@ describe('hitsZ()', () => {
     const cam = {x: 100, y: 100}
 
     assert(a.hitsZ(b, cam), true)
+    assert(b.hitsZ(a, cam), true)
   })
 
   test('different layer types adjusts for cam', () => {
@@ -558,9 +539,11 @@ describe('hitsZ()', () => {
     const cam = {x: 50, y: 50}
 
     assert(world.hitsZ(ui, cam), false)
+    assert(ui.hitsZ(world, cam), false)
 
     world.x = 50
     world.y = 50
+    assert(ui.hitsZ(world, cam), true)
     assert(world.hitsZ(ui, cam), true)
   })
 
@@ -574,10 +557,12 @@ describe('hitsZ()', () => {
     const cam = {x: 50, y: 50}
 
     assert(ui.hitsZ(world, cam), false)
+    assert(world.hitsZ(ui, cam), false)
 
     ui.x = -50
     ui.y = -50
     assert(ui.hitsZ(world, cam), true)
+    assert(world.hitsZ(ui, cam), true)
   })
 })
 

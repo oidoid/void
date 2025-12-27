@@ -30,14 +30,14 @@ export class CursorSys implements Sys {
       (v.input.dir.x || v.input.dir.y || v.input.isAnyStarted('A'))
     )
       onKey(ent, v.input, v.tick.s)
+
+    if (ent.cursor.pick)
+      ent.sprite.setTag(v.input.isOn('A') ? ent.cursor.pick : ent.cursor.point)
   }
 }
 
 /** @internal */
 export function onKey(ent: CursorEnt, input: Input, tick: Secs): void {
-  if (ent.cursor.pick)
-    ent.sprite.setTag(input.isOn('A') ? ent.cursor.pick : ent.cursor.point)
-
   const len = truncDrawableEpsilon(ent.cursor.keyboard * tick)
 
   if (input.isAnyOnStart('U', 'D', 'L', 'R') && input.dir.x && input.dir.y)
@@ -62,8 +62,6 @@ export function onPoint(
   ent: CursorEnt,
   point: Readonly<Pick<Point, 'local' | 'click' | 'type'>>
 ): void {
-  if (ent.cursor.pick)
-    ent.sprite.setTag(point.click ? ent.cursor.pick : ent.cursor.point)
   ent.sprite.x = point.local.x
   ent.sprite.y = point.local.y
   ent.sprite.z = Layer.Top

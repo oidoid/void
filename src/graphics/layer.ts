@@ -1,4 +1,4 @@
-/** greater is above. */
+/** [0 (bottom), 15 (top)]; greater is above. */
 export const Layer = {
   Bottom: 0,
   A: 1,

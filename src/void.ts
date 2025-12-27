@@ -45,6 +45,7 @@ export class Void {
   readonly tick: {ms: Millis; s: Secs} = {ms: 0, s: 0}
   readonly zoo: Zoo = new Zoo()
   readonly #backgroundRGBA: number
+  #invalid: boolean = false
   readonly #pixelRatioObserver: PixelRatioObserver = new PixelRatioObserver()
   #poller: DelayInterval | undefined
   readonly #preloadAtlasImage: HTMLImageElement | undefined
@@ -108,8 +109,21 @@ export class Void {
     return this.#backgroundRGBA
   }
 
+  /**
+   * invalid state only impacts drawing in the current frame not requesting a
+   * new frame.
+   */
   get invalid(): boolean {
-    return this.zoo.invalid || this.cam.invalid || this.renderer.invalid
+    return (
+      this.zoo.invalid ||
+      this.cam.invalid ||
+      this.renderer.invalid ||
+      this.#invalid
+    )
+  }
+
+  set invalid(invalid: true) {
+    this.#invalid = invalid
   }
 
   onEvent(): void {
@@ -123,8 +137,9 @@ export class Void {
     if (document.hidden) return
     this.input.update(millis)
 
-    this.requestFrame() // request frame before in case loop cancels.
+    this.requestFrame() // request frame before in case update cancels.
 
+    this.#invalid = false
     this.zoo.update(this)
 
     this.cam.postupdate()

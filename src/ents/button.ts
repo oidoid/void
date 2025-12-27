@@ -12,7 +12,7 @@ export class ButtonSys implements Sys {
 
   update(ent: ButtonEnt, v: Void): void {
     // to-do: !v.zoo.cursor?.invalid? I should never read another ent's invalid state.
-    if (!ent.invalid && !v.input.point?.invalid) return
+    if (!ent.invalid && !v.input.invalid) return
     ent.invalid = true // to-do: every cursor movement!?
 
     const {button} = ent
@@ -31,24 +31,22 @@ export class ButtonSys implements Sys {
     // in particular, ent.sprite.z needs to be applied more uniformly across the parser but lots of stuff isn't always checking sprite.
 
     const hitsCursor =
-      !!v.zoo.cursor && v.zoo.cursor.sprite.hitsZ(ent.sprite.clipbox, v.cam) // to-do: this won't work for world sprite since clipbox.
-    const clickStarted =
-      (hitsCursor && v.input.isOnStart('Click')) ||
-      (v.zoo.cursor?.cursor.keyboard && v.input.isOnStart('A'))
+      !!v.zoo.cursor && v.zoo.cursor.sprite.hitsZ(ent.sprite, v.cam)
+    console.log(hitsCursor, v.input.isOnStart('A'))
 
-    const on = clickStarted
-      ? toggle
-        ? !buttonOn(ent)
-        : true
-      : toggle
-        ? buttonOn(ent)
-        : v.input.isOn('Click') ||
-          (!!v.zoo.cursor?.cursor.keyboard && v.input.isOn('A'))
+    const on =
+      hitsCursor && v.input.isOnStart('A')
+        ? toggle
+          ? !buttonOn(ent)
+          : true
+        : toggle
+          ? buttonOn(ent)
+          : v.input.isOn('A') ||
+            (!!v.zoo.cursor?.cursor.keyboard && v.input.isOn('A'))
     button.started = buttonOn(ent) !== on
     button.pressed.visible = on
 
-    button.selected.visible =
-      hitsCursor && !!(v.input.point?.click || v.input.point?.type === 'Mouse')
+    button.selected.visible = hitsCursor
 
     v.input.handled ||= hitsCursor
   }

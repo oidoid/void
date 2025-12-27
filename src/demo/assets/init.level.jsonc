@@ -7,7 +7,7 @@
 
     {
       "id": "Cursor",
-      "sprite": {"tag": "cursor--Pointer", "z": "Top"},
+      "sprite": {"tag": "cursor--Pointer"},
       "cursor": {}
     },
 

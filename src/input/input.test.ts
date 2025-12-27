@@ -633,8 +633,8 @@ test('pointer clicks are buttons', () => {
   )
   input.update(16 as Millis)
 
-  assertButton(input, 'Click', 'On', 'Start')
-  assertCombo(input, [['Click']], 'Equal', 'Start')
+  assertButton(input, 'A', 'On', 'Start')
+  assertCombo(input, [['A']], 'Equal', 'Start')
   assert(input.point?.invalid, true)
 })
 
@@ -648,8 +648,8 @@ test('pointer secondary clicks are buttons', () => {
   )
   input.update(16 as Millis)
 
-  assertButton(input, 'Click2', 'On', 'Start')
-  assertCombo(input, [['Click2']], 'Equal', 'Start')
+  assertButton(input, 'B', 'On', 'Start')
+  assertCombo(input, [['B']], 'Equal', 'Start')
   assert(input.point?.invalid, true)
 })
 
@@ -672,8 +672,8 @@ test('a pointer click can become a drag', ctx => {
     )
     input.update(16 as Millis)
 
-    assertButton(input, 'Click', 'On', 'Start')
-    assertCombo(input, [['Click']], 'Equal', 'Start')
+    assertButton(input, 'A', 'On', 'Start')
+    assertCombo(input, [['A']], 'Equal', 'Start')
     assert(input.point?.drag.on, false)
     assert(input.point?.drag.start, false)
     assert(input.point?.drag.end, false)
@@ -687,8 +687,8 @@ test('a pointer click can become a drag', ctx => {
     )
     input.update(16 as Millis)
 
-    assertButton(input, 'Click', 'On')
-    assertCombo(input, [['Click']], 'Equal')
+    assertButton(input, 'A', 'On')
+    assertCombo(input, [['A']], 'Equal')
     assert(input.point?.drag.on, true)
     assert(input.point?.drag.start, true)
     assert(input.point?.drag.end, false)
@@ -699,8 +699,8 @@ test('a pointer click can become a drag', ctx => {
   ctx.test('pause', () => {
     input.update(16 as Millis)
 
-    assertButton(input, 'Click', 'On')
-    assertCombo(input, [['Click']], 'Equal')
+    assertButton(input, 'A', 'On')
+    assertCombo(input, [['A']], 'Equal')
     assert(input.point?.drag.on, true)
     assert(input.point?.drag.start, false)
     assert(input.point?.drag.end, false)
@@ -714,8 +714,8 @@ test('a pointer click can become a drag', ctx => {
     )
     input.update(16 as Millis)
 
-    assertButton(input, 'Click', 'On')
-    assertCombo(input, [['Click']], 'Equal')
+    assertButton(input, 'A', 'On')
+    assertCombo(input, [['A']], 'Equal')
     assert(input.point?.drag.on, true)
     assert(input.point?.drag.start, false)
     assert(input.point?.drag.end, false)
@@ -727,8 +727,8 @@ test('a pointer click can become a drag', ctx => {
     target.dispatchEvent(PointerTestEvent('pointerup', {}))
     input.update(16 as Millis)
 
-    assertButton(input, 'Click', 'Off', 'Start')
-    assertCombo(input, [['Click']], 'Equal')
+    assertButton(input, 'A', 'Off', 'Start')
+    assertCombo(input, [['A']], 'Equal')
     assert(input.point?.drag.on, false)
     assert(input.point?.drag.start, false)
     assert(input.point?.drag.end, true)
@@ -739,8 +739,8 @@ test('a pointer click can become a drag', ctx => {
   ctx.test('pause again', () => {
     input.update(16 as Millis)
 
-    assertButton(input, 'Click', 'Off')
-    assertCombo(input, [['Click']], 'Equal')
+    assertButton(input, 'A', 'Off')
+    assertCombo(input, [['A']], 'Equal')
     assert(input.point?.drag.on, false)
     assert(input.point?.drag.start, false)
     assert(input.point?.drag.end, false)
@@ -770,8 +770,8 @@ test('a pointer click can become a drag or a pinch', ctx => {
     )
     input.update(16 as Millis)
 
-    assertButton(input, 'Click', 'On', 'Start')
-    assertCombo(input, [['Click']], 'Equal', 'Start')
+    assertButton(input, 'A', 'On', 'Start')
+    assertCombo(input, [['A']], 'Equal', 'Start')
     assert(input.point?.drag.on, false)
     assert(input.point?.drag.start, false)
     assert(input.point?.drag.end, false)
@@ -787,8 +787,8 @@ test('a pointer click can become a drag or a pinch', ctx => {
     )
     input.update(16 as Millis)
 
-    assertButton(input, 'Click', 'On')
-    assertCombo(input, [['Click']], 'Equal')
+    assertButton(input, 'A', 'On')
+    assertCombo(input, [['A']], 'Equal')
     assert(input.point?.drag.on, true)
     assert(input.point?.drag.start, true)
     assert(input.point?.drag.end, false)
@@ -809,8 +809,8 @@ test('a pointer click can become a drag or a pinch', ctx => {
     )
     input.update(16 as Millis)
 
-    assertButton(input, 'Click', 'On')
-    assertCombo(input, [['Click']], 'Equal')
+    assertButton(input, 'A', 'On')
+    assertCombo(input, [['A']], 'Equal')
     assert(input.point?.drag.on, false)
     assert(input.point?.drag.start, false)
     assert(input.point?.drag.end, true)
@@ -831,8 +831,8 @@ test('a pointer click can become a drag or a pinch', ctx => {
     )
     input.update(16 as Millis)
 
-    assertButton(input, 'Click', 'On')
-    assertCombo(input, [['Click']], 'Equal')
+    assertButton(input, 'A', 'On')
+    assertCombo(input, [['A']], 'Equal')
     assert(input.point?.drag.on, false)
     assert(input.point?.drag.start, false)
     assert(input.point?.drag.end, false)

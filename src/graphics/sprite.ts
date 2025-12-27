@@ -58,10 +58,10 @@ export abstract class Drawable implements Block, Box {
   above(draw: Readonly<Drawable>): boolean {
     const compare =
       this.z === draw.z
-        ? (draw.zend ? draw.y + draw.h : draw.y) -
-          (this.zend ? this.y + this.h : this.y)
+        ? (this.zend ? this.y + this.h : this.y) -
+          (draw.zend ? draw.y + draw.h : draw.y)
         : this.z - draw.z
-    return compare < 0
+    return compare > 0
   }
 
   get cel(): number {
@@ -90,15 +90,13 @@ export abstract class Drawable implements Block, Box {
   }
 
   /** like `clips()` but can supports different world and UI layers. */
-  clipsZ(box: Readonly<XY & Partial<WH>>, cam: Readonly<XY>): boolean {
-    if (!(box instanceof Sprite) || this.ui === box.ui) return this.clips(box)
-
-    const d = box.ui ? 1 : -1
+  clipsZ(draw: Readonly<Drawable>, cam: Readonly<XY>): boolean {
+    if (this.ui === draw.ui) return this.clips(draw)
     const clipbox = {
-      x: box.x + d * Math.floor(cam.x),
-      y: box.y + d * Math.floor(cam.y),
-      w: box.w,
-      h: box.h
+      x: draw.x + (draw.ui ? 1 : -1) * Math.floor(cam.x),
+      y: draw.y + (draw.ui ? 1 : -1) * Math.floor(cam.y),
+      w: draw.w,
+      h: draw.h
     }
     return boxHits(this, clipbox)
   }
@@ -168,7 +166,7 @@ export abstract class Drawable implements Block, Box {
     this.h = 0
     this.id = 0
     this.stretch = false
-    this.visible = false
+    this.visible = true
     this.w = 0
     this.x = 0
     this.y = 0
@@ -257,7 +255,7 @@ export abstract class Drawable implements Block, Box {
     return (sxyz_llll & 0xf) as Layer
   }
 
-  /** layer [0 (closest), 14 (furthest)]; 15 is hidden. */
+  /** layer [0 (bottom), 15 (top)]. */
   set z(z: Layer) {
     const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
     this.#pool.view.setUint8(this.i + 6, (sxyz_llll & ~0xf) | (z & 0xf))
@@ -338,7 +336,7 @@ export class Sprite extends Drawable {
   }
 
   /** floored hitbox. */
-  get hitbox(): Box | undefined {
+  get hitbox(): Readonly<Box> | undefined {
     if (this.#hitbox) return this.#hitbox
     const {hitbox} = this.anim
     if (!hitbox) return
@@ -354,31 +352,26 @@ export class Sprite extends Drawable {
     })
   }
 
-  /** use `clips()` to test clipbox of this and box. */
+  /**
+   * use `clips()` to test only clipbox of this and box. hitbox and hurtbox
+   * default to clipbox.
+   */
   hits(box: Readonly<XY | Box>): boolean {
-    const hitbox = this.hitbox
-    if (!hitbox) return false
-    const hurtbox = box instanceof Sprite ? box.hurtbox : box
-    return !!hurtbox && boxHits(hitbox, hurtbox)
+    const hurtbox = box instanceof Sprite ? (box.hurtbox ?? box) : box
+    return boxHits(this.hitbox ?? this, hurtbox)
   }
 
   /** like `hits()` but can supports different world and UI layers. */
-  hitsZ(box: Readonly<XY & Partial<WH>>, cam: Readonly<XY>): boolean {
-    if (!(box instanceof Sprite) || this.ui === box.ui) return this.hits(box)
-    if (!this.hitbox || !box.hurtbox) return false
-
-    const d = box.ui ? 1 : -1
-    const hurtbox = {
-      x: box.hurtbox.x + d * Math.floor(cam.x),
-      y: box.hurtbox.y + d * Math.floor(cam.y),
-      w: box.hurtbox.w,
-      h: box.hurtbox.h
-    }
-    return boxHits(this.hitbox, hurtbox)
+  hitsZ(sprite: Readonly<Sprite>, cam: Readonly<XY>): boolean {
+    if (this.ui === sprite.ui) return this.hits(sprite)
+    const hurtbox = {...(sprite.hurtbox ?? sprite.clipbox)}
+    hurtbox.x += (sprite.ui ? 1 : -1) * Math.floor(cam.x)
+    hurtbox.y += (sprite.ui ? 1 : -1) * Math.floor(cam.y)
+    return boxHits(this.hitbox ?? this, hurtbox)
   }
 
   /** floored hurtbox. */
-  get hurtbox(): Box | undefined {
+  get hurtbox(): Readonly<Box> | undefined {
     if (this.#hurtbox) return this.#hurtbox
     const {hurtbox} = this.anim
     if (!hurtbox) return
