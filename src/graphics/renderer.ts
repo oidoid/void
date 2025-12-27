@@ -152,7 +152,7 @@ export class Renderer {
 
   /** @internal */
   _Context(): Context | undefined {
-    const gl = this.#ctx?.gl ?? GL2(this.#canvas)
+    const gl = this.#ctx?.gl ?? GL2(this.#canvas, this.always)
     if (!gl) return
 
     const shader = Shader(gl, spriteVertGLSL, spriteFragGLSL, [
@@ -263,15 +263,17 @@ export class Renderer {
   }
 }
 
-function GL2(canvas: HTMLCanvasElement): GL2 | undefined {
+function GL2(canvas: HTMLCanvasElement, always: boolean): GL2 | undefined {
   const gl = canvas.getContext('webgl2', {
-    // to-do: expose.
+    // to-do: expose with Int / Frac mode.
     antialias: false,
     powerPreference: 'low-power',
     // avoid flicker caused by clearing the drawing buffer. see
     // https://developer.chrome.com/blog/desynchronized/.
     preserveDrawingBuffer: true,
-    ...(!debug?.render && {desynchronized: true})
+    // disable desync in debug since it breaks FPS meter. only enable
+    // when canvas is known to draw next frame.
+    ...(!debug?.render && {desynchronized: always})
   })
   if (!gl) {
     console.debug('[render] no GL context')
