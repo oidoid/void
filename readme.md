@@ -28,7 +28,7 @@ to avoid threading template parameters throughout all code, declaration merging 
 - `EntSchema`
 - `Loader`
 - `PoolMap`
-- `Sprite`
+- `ReturnTag`
 - `Sys`
 
 it's similar to modifying `HTMLElementTagNameMap`.

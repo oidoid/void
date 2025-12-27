@@ -112,8 +112,8 @@ describe('clipsZ()', () => {
   test('same layer type delegates to clips()', () => {
     const a = TestSprite()
     const b = TestSprite()
-    a.setTag('stem--AnimA')
-    b.setTag('stem--AnimA')
+    a.tag = 'stem--AnimA'
+    b.tag = 'stem--AnimA'
     a.z = Layer.A
     b.z = Layer.B
     const cam = {x: 100, y: 100}
@@ -124,10 +124,10 @@ describe('clipsZ()', () => {
 
   test('different layer types adjusts for cam', () => {
     const world = TestSprite()
-    world.setTag('stem--AnimA')
+    world.tag = 'stem--AnimA'
     world.z = Layer.A
     const ui = TestSprite()
-    ui.setTag('stem--AnimA')
+    ui.tag = 'stem--AnimA'
     ui.z = Layer.UIA
     const cam = {x: 50, y: 50}
 
@@ -142,10 +142,10 @@ describe('clipsZ()', () => {
 
   test('UI checking world adjusts with negative offset', () => {
     const world = TestSprite()
-    world.setTag('stem--AnimA')
+    world.tag = 'stem--AnimA'
     world.z = Layer.A
     const ui = TestSprite()
-    ui.setTag('stem--AnimA')
+    ui.tag = 'stem--AnimA'
     ui.z = Layer.UIA
     const cam = {x: 50, y: 50}
 
@@ -490,13 +490,13 @@ test('zend', () => {
 
 test('anim', () => {
   const sprite = TestSprite()
-  sprite.setTag('stem--AnimA')
+  sprite.tag = 'stem--AnimA'
   assert(sprite.anim, animA)
 })
 
 test('hitbox', () => {
   const sprite = TestSprite()
-  sprite.setTag('stem--AnimA')
+  sprite.tag = 'stem--AnimA'
   assert(sprite.hitbox, {x: 1, y: 2, w: 3, h: 4})
   sprite.flipX = true
   assert(sprite.hitbox, {x: 6, y: 2, w: 3, h: 4})
@@ -510,7 +510,7 @@ test('hitbox', () => {
 
 test('hits', () => {
   const sprite = TestSprite()
-  sprite.setTag('stem--AnimA')
+  sprite.tag = 'stem--AnimA'
   assert(sprite.hits({x: 1, y: 2}), true)
   assert(sprite.hits({x: 4, y: 6}), false)
 })
@@ -518,10 +518,10 @@ test('hits', () => {
 describe('hitsZ()', () => {
   test('same layer type delegates to hits()', () => {
     const a = TestSprite()
-    a.setTag('stem--AnimA')
+    a.tag = 'stem--AnimA'
     a.z = Layer.A
     const b = TestSprite()
-    b.setTag('stem--AnimA')
+    b.tag = 'stem--AnimA'
     b.z = Layer.B
     const cam = {x: 100, y: 100}
 
@@ -531,10 +531,10 @@ describe('hitsZ()', () => {
 
   test('different layer types adjusts for cam', () => {
     const world = TestSprite()
-    world.setTag('stem--AnimA')
+    world.tag = 'stem--AnimA'
     world.z = Layer.A
     const ui = TestSprite()
-    ui.setTag('stem--AnimA')
+    ui.tag = 'stem--AnimA'
     ui.z = Layer.UIA
     const cam = {x: 50, y: 50}
 
@@ -549,10 +549,10 @@ describe('hitsZ()', () => {
 
   test('UI checking world adjusts with negative offset', () => {
     const world = TestSprite()
-    world.setTag('stem--AnimA')
+    world.tag = 'stem--AnimA'
     world.z = Layer.A
     const ui = TestSprite()
-    ui.setTag('stem--AnimA')
+    ui.tag = 'stem--AnimA'
     ui.z = Layer.UIA
     const cam = {x: 50, y: 50}
 
@@ -568,7 +568,7 @@ describe('hitsZ()', () => {
 
 test('hurtbox', () => {
   const sprite = TestSprite()
-  sprite.setTag('stem--AnimA')
+  sprite.tag = 'stem--AnimA'
   assert(sprite.hurtbox, {x: 1, y: 2, w: 3, h: 4})
   sprite.flipX = true
   assert(sprite.hurtbox, {x: 6, y: 2, w: 3, h: 4})
@@ -580,21 +580,21 @@ test('looped', () => {
   const looper = {age: 0 as Millis}
   const sprite = new Sprite(TestPool(), 0, atlas, looper)
 
-  sprite.setTag('stem--AnimA')
+  sprite.tag = 'stem--AnimA'
   for (let i = 0; i < animCels * 5; i++) {
     looper.age = (celMillis * i) as Millis
     assert(sprite.looped, i % (animA.cels * 2) >= animA.cels, `${i}`)
   }
 
   looper.age = 0
-  sprite.setTag('stem--AnimB')
+  sprite.tag = 'stem--AnimB'
   for (let i = 0; i < animCels * 5; i++) {
     looper.age = (celMillis * i) as Millis
     assert(sprite.looped, i % (animB.cels * 2) >= animB.cels, `${i}`)
   }
 
   looper.age = (celMillis * (animCels + 0)) as Millis
-  sprite.setTag('stem--AnimB')
+  sprite.tag = 'stem--AnimB'
   assert(sprite.cel, animCels)
   assert(sprite.looped, false)
 
@@ -613,7 +613,7 @@ test('looped', () => {
 test('reset()', () => {
   const looper = {age: 0 as Millis}
   const sprite = new Sprite(TestPool(), 0, atlas, looper)
-  sprite.setTag('stem--AnimA')
+  sprite.tag = 'stem--AnimA'
 
   for (let i = 0; i < animCels * 5; i++) {
     looper.age = (celMillis * i) as Millis
@@ -626,16 +626,16 @@ test('tag', () => {
   const looper = {age: 0 as Millis}
   const sprite = new Sprite(TestPool(), 0, atlas, looper)
 
-  sprite.setTag('stem--AnimA')
-  assert(sprite.getTag(), 'stem--AnimA')
+  sprite.tag = 'stem--AnimA'
+  assert(sprite.tag, 'stem--AnimA')
   assert(sprite.w, 10)
   assert(sprite.h, 20)
   assert(sprite.id, 0)
   assert(sprite.cel, 0)
 
   looper.age = (celMillis * 1) as Millis
-  sprite.setTag('stem--AnimB')
-  assert(sprite.getTag(), 'stem--AnimB')
+  sprite.tag = 'stem--AnimB'
+  assert(sprite.tag, 'stem--AnimB')
   assert(sprite.w, 30)
   assert(sprite.h, 40)
   assert(sprite.id, 1)
@@ -677,9 +677,9 @@ test('diagonalize()', () => {
 
 test('toString()', () => {
   const sprite = TestSprite()
-  sprite.setTag('stem--AnimA')
+  sprite.tag = 'stem--AnimA'
   assert(sprite.toString(), 'Sprite{stem--AnimA (0 0 0) 10×20}')
-  sprite.setTag('stem--AnimB')
+  sprite.tag = 'stem--AnimB'
   sprite.x = 1
   sprite.y = 2
   sprite.z = 3

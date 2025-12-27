@@ -1,11 +1,12 @@
 import type * as V from '../../index.ts'
+// biome-ignore lint/correctness/useJsonImportAttributes:;
+import type gameJSON from '../assets/void.game.json'
 import type {Clock, RenderToggle, Tally} from '../ents/ent.ts'
 import type {
   ClockSchema,
   RenderToggleSchema,
   TallySchema
 } from '../level/level-schema.ts'
-import type {Tag} from './tag.ts'
 
 declare module '../../index.ts' {
   interface Debug {
@@ -33,8 +34,8 @@ declare module '../../index.ts' {
     overlay: V.Pool<V.Sprite>
   }
 
-  interface Sprite {
-    getTag(): Tag
-    setTag(tag: Tag): void
+  interface ReturnTag {
+    // biome-ignore lint/style/useShorthandFunctionType:;
+    (): keyof typeof gameJSON.atlas.anim
   }
 }

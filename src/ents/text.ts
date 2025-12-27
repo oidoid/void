@@ -89,7 +89,7 @@ export function textSetXY(ent: TextXYEnt, v: Void): void {
       ent.textWH.pad.n +
       (ent.ninePatch ? ent.ninePatch.border.n + ent.ninePatch.pad.n : 0)
     sprite.z = ent.textXY.z
-    sprite.setTag(fontCharToTag(memProp5x6, ent.text[i]!))
+    sprite.tag = fontCharToTag(memProp5x6, ent.text[i]!)
     sprite.stretch = true
     sprite.w *= ent.textWH.scale
     sprite.h *= ent.textWH.scale

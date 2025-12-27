@@ -1,4 +1,4 @@
-import type {AnimTag} from '../graphics/atlas.ts'
+import type {Tag} from '../graphics/atlas.ts'
 import type {Layer} from '../graphics/layer.ts'
 import type {Sprite} from '../graphics/sprite.ts'
 import type {TextLayout} from '../text/text-layout.ts'
@@ -52,8 +52,8 @@ export type Cursor = {
   /** screen area cursor may move within. */
   bounds: Box
   keyboard: number
-  pick?: AnimTag
-  point: AnimTag
+  pick?: Tag
+  point: Tag
 }
 
 // biome-ignore lint/suspicious/noEmptyInterface:;

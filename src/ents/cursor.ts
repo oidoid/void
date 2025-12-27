@@ -32,7 +32,7 @@ export class CursorSys implements Sys {
       onKey(ent, v.input, v.tick.s)
 
     if (ent.cursor.pick)
-      ent.sprite.setTag(v.input.isOn('A') ? ent.cursor.pick : ent.cursor.point)
+      ent.sprite.tag = v.input.isOn('A') ? ent.cursor.pick : ent.cursor.point
   }
 }
 

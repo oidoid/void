@@ -82,7 +82,7 @@ function TestCursorEnt(opts?: {keyboard?: number}): CursorEnt {
   }
   const pool = SpritePool({atlas, looper: {age: 0}, pageBlocks: 4})
   const sprite = pool.alloc()
-  sprite.setTag('stem--point')
+  sprite.tag = 'stem--point'
   sprite.w = 8
   sprite.h = 8
   return {

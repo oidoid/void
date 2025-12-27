@@ -9,14 +9,14 @@ export const animMillis: Millis = 1000 as Millis
 export const celMillis: Millis = (animMillis / animCels) as Millis
 
 export type Atlas = {
-  anim: {[tag: AnimTag]: Anim}
+  anim: {[tag in Tag]: Anim}
   /**
    * cell source XYWH by `Anim.id` and `Anim.cel`. every animation is padded to
    * 16 cels (`maxAnimCels`) as needed by repeating the sequence.
    */
   celXYWH: number[]
   /** tag by `Anim.id`. */
-  tags: AnimTag[]
+  tags: Tag[]
 }
 
 export type Anim = {
@@ -38,4 +38,9 @@ export type Anim = {
 }
 
 /** `--tagname-format={filestem}--{animation}`. */
-export type AnimTag = `${string}--${string}`
+export type Tag = ReturnType<ReturnTag>
+
+export interface ReturnTag {
+  // biome-ignore lint/style/useShorthandFunctionType:;
+  (): `${string}--${string}`
+}

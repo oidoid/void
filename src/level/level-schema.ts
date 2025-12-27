@@ -1,12 +1,12 @@
 import type {ButtonType, Trim, XYFlag} from '../ents/ent.ts'
-import type {AnimTag} from '../graphics/atlas.ts'
+import type {Tag} from '../graphics/atlas.ts'
 import type {Layer} from '../graphics/layer.ts'
 import type {Border, CompassDir, WH, XY} from '../types/geo.ts'
 
 export type BorderSchema = number | Partial<XY> | Partial<Border>
 export type ButtonSchema = {
-  pressed: SpriteSchema | AnimTag
-  selected: SpriteSchema | AnimTag
+  pressed: SpriteSchema | Tag
+  selected: SpriteSchema | Tag
   type?: ButtonType
   z?: LayerSchema
 }
@@ -26,14 +26,14 @@ export interface EntSchema {
     | (SpriteSchema &
         Partial<WH> &
         Partial<XY> & {scale?: number | Partial<XY>})
-    | AnimTag
+    | Tag
   text?: string
   textWH?: TextWHSchema
   textXY?: TextXYSchema
 }
 // biome-ignore lint/suspicious/noEmptyInterface:;
 export interface CamSchema {}
-export type CursorSchema = {keyboard?: number; pick?: AnimTag}
+export type CursorSchema = {keyboard?: number; pick?: Tag}
 export type DebugInputSchema = true
 // biome-ignore lint/suspicious/noEmptyInterface:;
 export interface DrawSchema {}
@@ -54,7 +54,7 @@ export type LevelSchema = {
 export type NinePatchSchema = {
   border?: BorderSchema
   pad?: BorderSchema
-  patch: {[dir in Lowercase<CompassDir>]?: SpriteSchema | AnimTag}
+  patch: {[dir in Lowercase<CompassDir>]?: SpriteSchema | Tag}
 }
 export type OverrideSchema = {invalid?: boolean}
 export type PoolSchema = 'Default' | string
@@ -62,7 +62,7 @@ export type SpriteSchema = {
   flip?: XYFlag
   pool?: PoolSchema
   stretch?: boolean
-  tag?: AnimTag
+  tag?: Tag
   visible?: boolean
   z?: LayerSchema
   zend?: boolean

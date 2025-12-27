@@ -67,13 +67,13 @@ test('parseButton()', () => {
     atlas
   )
   assert(a.type, 'Toggle')
-  assert(a.pressed.getTag(), 'stem--A')
-  assert(a.selected.getTag(), 'stem--B')
+  assert(a.pressed.tag, 'stem--A')
+  assert(a.selected.tag, 'stem--B')
 
   const b = parseButton({pressed: 'stem--A', selected: 'stem--B'}, pools, atlas)
   assert(b.type, 'Button')
-  assert(b.pressed.getTag(), 'stem--A')
-  assert(b.selected.getTag(), 'stem--B')
+  assert(b.pressed.tag, 'stem--A')
+  assert(b.selected.tag, 'stem--B')
 })
 
 test('parseEnt() with parseComponent override hook', () => {
@@ -87,7 +87,7 @@ test('parseEnt() with parseComponent override hook', () => {
   // no hook.
   let ent = parseEnt(json, pools, () => undefined, atlas)
   assert(ent.name, 'X')
-  assert(ent.sprite?.getTag(), 'stem--A')
+  assert(ent.sprite?.tag, 'stem--A')
   assert((ent as {widget: number}).widget, undefined)
 
   // hook.
@@ -101,7 +101,7 @@ test('parseEnt() with parseComponent override hook', () => {
     atlas
   )
   assert(ent.name, 'X')
-  assert(ent.sprite?.getTag(), 'stem--A')
+  assert(ent.sprite?.tag, 'stem--A')
   assert((ent as {widget: number}).widget, 5)
 })
 
@@ -169,7 +169,7 @@ test('parseEntComponent()', () => {
   assert(parseEntComponent({}, json, 'name', pools, atlas), 'Name')
   assert(parseEntComponent({}, json, 'text', pools, atlas), 'text')
   assert(
-    (parseEntComponent({}, json, 'sprite', pools, atlas) as Sprite).getTag(),
+    (parseEntComponent({}, json, 'sprite', pools, atlas) as Sprite).tag,
     'stem--A'
   )
   assert(
@@ -305,7 +305,7 @@ test('parseLevel() aggregates ents and defaults', () => {
   assert(lvl.ents.length, 2)
   assert(lvl.keepZoo, true)
   assert(lvl.minWH, {w: 3, h: 0})
-  assert(lvl.ents[0]?.sprite?.getTag(), 'stem--A')
+  assert(lvl.ents[0]?.sprite?.tag, 'stem--A')
   assert(lvl.ents[1]?.text, 'hello')
 
   const emptyLvl = parseLevel({}, pools, () => undefined, atlas)
@@ -332,8 +332,8 @@ test('parseNinePatch()', () => {
   )
   assert(nineA.border, {n: 2, s: 2, w: 2, e: 2})
   assert(nineA.pad, {n: 3, s: 3, w: 3, e: 3})
-  assert(nineA.patch.center?.getTag(), 'stem--A')
-  assert(nineA.patch.n?.getTag(), 'stem--B')
+  assert(nineA.patch.center?.tag, 'stem--A')
+  assert(nineA.patch.n?.tag, 'stem--B')
   assert(nineA.patch.s, undefined)
   assert(nineA.patch.w, undefined)
   assert(nineA.patch.e, undefined)
@@ -355,14 +355,14 @@ test('parseNinePatch()', () => {
   )
   assert(nineB.border, {n: 1, s: 2, w: 3, e: 4})
   assert(nineB.pad, {n: 0, s: 0, w: 7, e: 0})
-  assert(nineB.patch.nw?.getTag(), 'stem--A')
-  assert(nineB.patch.se?.getTag(), 'stem--B')
+  assert(nineB.patch.nw?.tag, 'stem--A')
+  assert(nineB.patch.se?.tag, 'stem--B')
 })
 
 describe('parseSprite()', () => {
   test('tag', () => {
     const sprite = parseSprite('stem--A', TestPools(), atlas)
-    assert(sprite.getTag(), 'stem--A')
+    assert(sprite.tag, 'stem--A')
     assert(sprite.w, animA.w)
     assert(sprite.h, animA.h)
   })
@@ -383,7 +383,7 @@ describe('parseSprite()', () => {
       scale: 2
     }
     const sprite = parseSprite(json, TestPools(), atlas)
-    assert(sprite.getTag(), 'stem--B')
+    assert(sprite.tag, 'stem--B')
     assert(sprite.visible, false)
     assert(sprite.flipX, true)
     assert(sprite.flipY, true)
@@ -402,7 +402,7 @@ describe('parseSprite()', () => {
       TestPools(),
       atlas
     )
-    assert(sprite.getTag(), 'stem--A')
+    assert(sprite.tag, 'stem--A')
   })
 
   test('missing pool', () =>

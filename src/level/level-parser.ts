@@ -9,7 +9,7 @@ import type {
   TextWH,
   TextXY
 } from '../ents/ent.ts'
-import type {AnimTag, Atlas} from '../graphics/atlas.ts'
+import type {Atlas, Tag} from '../graphics/atlas.ts'
 import {Layer} from '../graphics/layer.ts'
 import {drawableMaxWH, type Sprite} from '../graphics/sprite.ts'
 import type {PoolMap} from '../mem/pool-map.ts'
@@ -89,7 +89,7 @@ export function parseCursor(ent: Ent, json: Readonly<CursorSchema>): Cursor {
     bounds: {x: 0, y: 0, w: 0, h: 0},
     keyboard: json.keyboard ?? 0,
     pick: json.pick,
-    point: ent.sprite.getTag()
+    point: ent.sprite.tag
   }
 }
 
@@ -271,7 +271,7 @@ export function parseSprite(
           Partial<WH> &
           Partial<XY> & {scale?: number | Partial<XY>}
       >
-    | AnimTag,
+    | Tag,
   pools: Readonly<PoolMap>,
   atlas: Readonly<Atlas>
 ): Sprite {
@@ -281,12 +281,12 @@ export function parseSprite(
   const sprite = pools[pool as keyof PoolMap].alloc()
   if (typeof json === 'string') {
     if (!(json in atlas.anim)) throw Error(`no tag "${json}"`)
-    sprite.setTag(json)
+    sprite.tag = json
     return sprite
   }
   if (json.tag != null) {
     if (!(json.tag in atlas.anim)) throw Error(`no tag "${json.tag}"`)
-    sprite.setTag(json.tag)
+    sprite.tag = json.tag
   }
   sprite.visible = json.visible ?? json.tag != null
   if (json.flip) {
@@ -309,7 +309,7 @@ export function parseSprite(
   return sprite
 }
 
-export function parseTextWH<_Tag extends AnimTag>(
+export function parseTextWH<_Tag extends Tag>(
   json: Readonly<TextWHSchema>
 ): TextWH {
   return {

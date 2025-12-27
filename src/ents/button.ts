@@ -32,7 +32,6 @@ export class ButtonSys implements Sys {
 
     const hitsCursor =
       !!v.zoo.cursor && v.zoo.cursor.sprite.hitsZ(ent.sprite, v.cam)
-    console.log(hitsCursor, v.input.isOnStart('A'))
 
     const on =
       hitsCursor && v.input.isOnStart('A')
