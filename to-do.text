@@ -1,7 +1,4 @@
 
-port super patience.
-  map space bar, cursor keys, wasd.
-
 
 demo
   add lose context trigger button.
@@ -13,7 +10,9 @@ demo
     tweet notes. either it fits in 140 or it doesn't. you have to be thoughtful. you can publish to a readonly queue though. maybe that just happens automatically to the last entry when a new entry is made. you lose editing. you can reorder though.
     make a friendly note taking app that is Mario Paint fun.
 bugs
-  Biome formatter is not working in prettier project at least.
+  gamepad is totally broken?
+  combo is no longer clearing. seems like a probable regression with click to A.
+  Biome formatter is not working in Prettier Super Patience project at least.
   reinvestigate fullscreen movement delta scaling. I can't get this to work.
   I'm getting Node.js type suggestions in src and demo. types is empty. only happens when jsdom is installed. `npx tsc -p src/ --listFiles` lists no @types files. everything is pure TS lib or project files. doesn't matter when I blank typeRoots and remove types: 'node' from other projects.
 perf
@@ -36,19 +35,33 @@ input
     A-off-A-B-off-A-off-A -> A-A+B-A-A, don't care if also A-A-B-A-A
     U-U+R-R-R+D-D-D+L-L-L+U -> U-U+R-R-R+D-D-D+L-L-L+U
   `isCombo('A+B', 'A', 'A', 'A', 'U+L+A')` syntax? +update get combo.
+  Input.point.click and Input.isOn('A') overlap is confusing, Input mouse / button overlap is confusing/
 output
   add disk saving to storage. https://github.com/GoogleChromeLabs/browser-fs-access.
 rendering
   add sprite rotation. switch between AABB collisions?
 parser
   populate tags in demo/schema/level-file.json from tools/void.ts once `$dynamicRef` is understood by IDEs. see https://github.com/microsoft/vscode/issues/155379.
+  validate json schemas themselves and usages.
   wrap AJV into linter and switch to dynamic refs.
 features
   consider adding a utility to sync palettes.
     find src/assets -name \*.aseprite -not -name palette.aseprite|
     xargs --no-run-if-empty --delimiter=\\n --replace \
       aseprite --batch {} --palette src/assets/atlas/palette.aseprite --save-as {}
+  support a query param for Void.random seeding.
+entish
+  querying ents from another ent is very clumsy. cant' really do it at parse time unless you know all those ents have been inserted so you have to wait until first update. maybe there needs to be an init() callback that is invoked by level loader zoo.initEnts().
+  consider getting rid of ent.invalid and always rendering on new frame. consider connected gamepad is always polling though.
+  should systems declare their primary key to allow Zoo to autoregister against it?
+  rename System to Updater?
+  some systems need to retain their order as running first or last. inserting systems is not expensive so sorted insert should be fine. I had some weighting logic in `git show f812f85`.
+  Void.invalid vs Ent.invalid vs Render.invalid vs Void.requestFrame() is confusing overlap.
+sprite
+  not really clear how to manipulate the clipbox / hurtbox for resized sprites, can't even consider scale.
+  sprites own too many responsiblities with position and collisioning and drawing. the common denominator is for GPU perf but is there a better way to make powerful independent basics I can shoot myself in the foot with?
 debug
   on free, test if item belongs to pool.
 research
-  review f812f85
+  decide on exactOptionalPropertyTypes in void and Super Patience.
+
