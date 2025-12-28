@@ -1,7 +1,6 @@
 import * as V from '../../index.ts'
 import levelJSON from '../assets/init.level.jsonc' with {type: 'json'}
 import {parseLevel} from '../level/level-parser.ts'
-import {renderDelayMillis} from '../utils/render-delay-millis.ts'
 import {CamSys} from './cam.ts'
 import {ClockSys} from './clock.ts'
 import {DrawSys} from './draw.ts'
@@ -32,7 +31,7 @@ function init(ent: V.LoaderEnt, v: V.Void): void {
     pageBlocks: 10
   })
   v.setPoller(((V.debug?.seconds ? 1 : 60) * 1000) as V.Millis, () =>
-    renderDelayMillis(new Date(), V.debug?.seconds)
+    V.millisUntilNext(new Date(), V.debug?.seconds ? 'Sec' : 'Min')
   )
   // to-do: move under Void helper methods and hide zoo? same for other APIs.
   v.zoo.addDefaultSystems()
