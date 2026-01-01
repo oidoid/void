@@ -1,6 +1,6 @@
 // TypeScript config for demo.
 {
-  "extends": "../../tools/tsconfig-base.json",
+  "extends": "@oidoid/config/tsconfig",
   "compilerOptions": {
     "lib": [
       "ES2024",
@@ -10,7 +10,10 @@
       "DOM.Iterable"
     ],
 
-    "customConditions": ["browser"]
+    "customConditions": ["browser"],
+
+    "outDir": "../../dist/",
+    "rootDir": "../../"
   },
   "references": [{"path": "../"}]
 }

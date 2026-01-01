@@ -1,12 +1,15 @@
 // TypeScript config for test code under src/**/*.test.ts and src/test/**/*.
 {
-  "extends": "../../tools/tsconfig-base.json",
+  "extends": "@oidoid/config/tsconfig",
   "compilerOptions": {
     "lib": ["ES2024", "ESNext.disposable", "DOM"],
 
     "noEmit": true, // tsc is only used for type-checking.
 
-    "types": ["node"]
+    "types": ["node"],
+
+    "outDir": "../../dist",
+    "rootDir": "../../"
   },
   "include": [
     "${configDir}/",
