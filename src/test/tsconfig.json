@@ -1,4 +1,4 @@
-// TypeScript config for test code.
+// TypeScript config for test code under src/**/*.test.ts and src/test/**/*.
 {
   "extends": "../../tools/tsconfig-base.json",
   "compilerOptions": {

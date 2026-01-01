@@ -48,7 +48,7 @@
     "build:favicon": "for s in 1 2 3 4 12; do f=dist/public/favicon/favicon$(($s * 16)); aseprite src/demo/assets/favicon.aseprite --batch --color-mode=indexed --scale=$s --save-as=$f.png && cwebp -exact -lossless -mt -quiet -z 9 $f.png -o $f.webp; done",
     "build:demo": "tools/void.ts --config=src/demo/void.json",
     "build:watch": "tsc --build --watch",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist/",
     "format": "npm run linter -- --fix",
     "lint": "npm run linter",
     "linter": "biome check --error-on-warnings",
@@ -56,7 +56,7 @@
     "prepublishOnly": "! git symbolic-ref --quiet HEAD || git push --follow-tags origin \"$(git branch --show-current)\"",
     "start": "npm run build:watch -- --preserveWatchOutput& npm run build:favicon && npm run build:demo -- --watch& wait",
     "test": "npm run lint && npm run test:unit && npm run build",
-    "test:unit": "sh -c 'node --experimental-test-coverage --test ${@:-$(find src schema tools -name \\*.test.ts -printf %p\\ )}' --",
+    "test:unit": "sh -c 'node --experimental-test-coverage --test ${@:-$(find src/ schema/ tools/ -name \\*.test.ts -printf %p\\ )}' --",
     "version": "npm pkg set published=$(date +%Y%m%d) && npm run clean && npm test"
   },
   "type": "module",

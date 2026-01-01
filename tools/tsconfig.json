@@ -14,5 +14,5 @@
     "../schema/**/*.test.*",
     "../schema/**/test/"
   ],
-  "references": [{"path": "../src"}]
+  "references": [{"path": "../src/"}]
 }
