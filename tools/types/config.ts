@@ -21,6 +21,8 @@ export type Config = {
   dirname: string
   /** config filename. */
   filename: string
+  /** tsconfig filename. */
+  tsconfig: string
 
   minify: boolean
   oneFile: boolean
@@ -73,6 +75,10 @@ export function Config(
     init: configFile.init,
     dirname: configFile.dirname,
     filename: configFile.filename,
+    tsconfig: path.resolve(
+      configFile.dirname,
+      argv.opts['--tsconfig'] ?? 'tsconfig.json'
+    ),
     minify: argv.opts['--minify'] ?? false,
     oneFile: argv.opts['--one-file'] ?? false,
     watch: argv.opts['--watch'] ?? false,

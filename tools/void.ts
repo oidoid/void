@@ -14,6 +14,11 @@ declare module './utils/argv.ts' {
     /** inline everything into a single HTML file output. */
     '--one-file'?: true
     /**
+     * tsconfig pathname relative config directory. defaults to
+     * `tsconfig.json`.
+     */
+    '--tsconfig'?: string
+    /**
      * run development server on http://localhost:1234 and reload on code
      * change.
      */

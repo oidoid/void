@@ -28,6 +28,7 @@ export async function bundle(
     minify: config.minify,
     outdir: config.out.dir,
     plugins: [HTMLPlugin(config)],
+    tsconfig: config.tsconfig,
     sourcemap: 'linked',
     target: 'es2024' // https://esbuild.github.io/content-types/#tsconfig-json
   }

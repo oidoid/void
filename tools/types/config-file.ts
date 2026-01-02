@@ -58,19 +58,19 @@ export function parse(filename: string, str: string): ConfigFile {
 
   return {
     $schema: json.$schema ?? schema.properties.$schema.default,
-    entry: path.join(dirname, json.entry ?? schema.properties.entry.default),
-    meta: path.join(dirname, json.meta ?? schema.properties.meta.default),
+    entry: path.resolve(dirname, json.entry ?? schema.properties.entry.default),
+    meta: path.resolve(dirname, json.meta ?? schema.properties.meta.default),
     out: {
-      dir: path.join(
+      dir: path.resolve(
         dirname,
         json.out.dir ?? schema.properties.out.properties.dir.default
       ),
-      game: path.join(dirname, json.out.game),
+      game: path.resolve(dirname, json.out.game),
       name: json.out.name
     },
     preloadAtlas: json.preloadAtlas && {
-      dir: path.join(dirname, json.preloadAtlas.dir),
-      image: path.join(dirname, json.preloadAtlas.image)
+      dir: path.resolve(dirname, json.preloadAtlas.dir),
+      image: path.resolve(dirname, json.preloadAtlas.image)
     },
     init: {
       background: json.init?.background

@@ -1,3 +1,4 @@
+import path from 'node:path'
 import {test} from 'node:test'
 import {assert} from '../../src/test/assert.ts'
 import {type ConfigFileSchema, parse} from './config-file.ts'
@@ -8,9 +9,13 @@ test('defaults', () => {
   }
   assert(parse('dirname/filename', JSON.stringify(config)), {
     $schema: 'https://oidoid.github.io/void/config-file.v0.json',
-    entry: 'dirname/src/assets/index.html',
-    meta: 'dirname/dist/meta.json',
-    out: {dir: 'dirname/dist/public/', game: 'dirname/game', name: undefined},
+    entry: path.resolve('dirname', 'src/assets/index.html'),
+    meta: path.resolve('dirname', 'dist/meta.json'),
+    out: {
+      dir: path.resolve('dirname', 'dist/public'),
+      game: path.resolve('dirname', 'game'),
+      name: undefined
+    },
     preloadAtlas: undefined,
 
     dirname: 'dirname',
@@ -45,10 +50,17 @@ test('overrides', () => {
   }
   assert(parse('dirname/filename', JSON.stringify(config)), {
     $schema: '$schema',
-    entry: 'dirname/entry',
-    meta: 'dirname/meta',
-    out: {dir: 'dirname/outDir', game: 'dirname/game', name: 'name'},
-    preloadAtlas: {dir: 'dirname/dir/', image: 'dirname/image.webp'},
+    entry: path.resolve('dirname', 'entry'),
+    meta: path.resolve('dirname', 'meta'),
+    out: {
+      dir: path.resolve('dirname', 'outDir'),
+      game: path.resolve('dirname', 'game'),
+      name: 'name'
+    },
+    preloadAtlas: {
+      dir: path.resolve('dirname', 'dir/'),
+      image: path.resolve('dirname', 'image.webp')
+    },
     init: {
       background: 0x01234567,
       input: 'Custom',
