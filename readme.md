@@ -15,6 +15,25 @@ npm install --save @oidoid/void
 
 ## Development
 
+### Local Development
+
+1. clone void as a sibling directory of the game.
+2. `npm link ../void` from the game.
+3. add `customConditions` to the root `tsconfig` for esbuild and a void reference for tsc. Eg:
+
+```jsonc
+{
+  "extends": "./tsconfig.prod.json",
+  "compilerOptions": {
+    "customConditions": ["dev"],
+  },
+  "references": [{"path": "../void"}]
+}
+```
+
+  it's possible to use `"paths": {"@oidoid/void": ["../void/src"]}` instead of or in addition to `customConditions`.
+4. for unit tests, run with `NODE_OPTIONS=--conditions=development`.
+
 ### Declaration Merging
 
 to avoid threading template parameters throughout all code, declaration merging is used for the following:
