@@ -17,6 +17,7 @@ export async function bundle(
         }
       : {},
     bundle: true,
+    conditions: config.conditions,
     define: {
       // define on globalThis to avoid ReferenceError in unit tests.
       'globalThis.bundle': JSON.stringify(config.bundle)
