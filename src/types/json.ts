@@ -28,4 +28,4 @@ export type PartialJSONValue =
   | PartialJSONObject
 export type PartialJSONObject = {[k in string]?: PartialJSONValue}
 export type PartialJSONArray = PartialJSONValue[]
-export type PartialJSONPrimitive = boolean | null | number | string | undefined
+export type PartialJSONPrimitive = JSONPrimitive | undefined
