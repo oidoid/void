@@ -96,12 +96,12 @@ describe('parseTSConfig()', () => {
 
   test('JSONC: single-line', () => {
     const jsonc = `{
-    // This is a comment.
-    "compilerOptions": {
-      // Another comment.
-      "customConditions": ["dev"]
-    }
-  }`
+      // This is a comment.
+      "compilerOptions": {
+        // Another comment.
+        "customConditions": ["dev"]
+      }
+    }`
     assert(parseTSConfig(jsonc, 'tsconfig.json'), {
       compilerOptions: {customConditions: ['dev']}
     })
@@ -109,10 +109,21 @@ describe('parseTSConfig()', () => {
 
   test('JSONC: end-of-line', () => {
     const jsonc = `{
-    "compilerOptions": { // inline comment.
-      "customConditions": ["dev"] // "another" inline.
-    }
-  }`
+      "compilerOptions": { // inline comment.
+        "customConditions": ["dev"] // "another" inline.
+      }
+    }`
+    assert(parseTSConfig(jsonc, 'tsconfig.json'), {
+      compilerOptions: {customConditions: ['dev']}
+    })
+  })
+
+  test('JSONC: trailing commas', () => {
+    const jsonc = `{
+      "compilerOptions": {
+        "customConditions": ["dev"],
+      },
+    }`
     assert(parseTSConfig(jsonc, 'tsconfig.json'), {
       compilerOptions: {customConditions: ['dev']}
     })
@@ -120,12 +131,28 @@ describe('parseTSConfig()', () => {
 
   test('JSONC: // in string with adjacent comment', () => {
     const jsonc = `{
-    "url": "https://example.com", // real comment
-    "path": "file://localhost/path"
-  }`
+      "url": "https://example.com", // real comment
+      "path": "file://localhost/path"
+    }`
     assert(parseTSConfig(jsonc, 'tsconfig.json'), {
       url: 'https://example.com',
       path: 'file://localhost/path'
+    } as TSConfig)
+  })
+
+  test('JSONC: commented out props', () => {
+    const jsonc = `{
+      "extends": "./tsconfig.prod.json",
+      "compilerOptions": {
+        "customConditions": ["dev"], // npm link
+        // "paths": {"@oidoid/void": ["../void/src"]} // esbuild
+      },
+      "references": [{"path": "../void"}] // ts build
+    }`
+    assert(parseTSConfig(jsonc, 'tsconfig.json'), {
+      extends: './tsconfig.prod.json',
+      compilerOptions: {customConditions: ['dev']},
+      references: [{path: '../void'}]
     } as TSConfig)
   })
 

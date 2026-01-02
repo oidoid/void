@@ -113,10 +113,12 @@ async function readTSConfig(filename: string): Promise<TSConfig> {
 
 /** @internal */
 export function parseTSConfig(jsonc: string, filename: string): TSConfig {
-  const stripped = jsonc.replace(
-    /("(?:\\.|[^"\\])*")|\/\/[^\r\n]*/g,
-    (_match, group0?: string) => group0 ?? ''
-  )
+  const stripped = jsonc
+    .replace(
+      /("(?:\\.|[^"\\])*")|\/\/[^\r\n]*/g,
+      (_match, group0?: string) => group0 ?? ''
+    )
+    .replace(/,(\s*[}\]])/g, '$1') // trailing commas.
 
   try {
     return JSON.parse(stripped)
