@@ -21,7 +21,10 @@
     "node": ">=24.0"
   },
   "exports": {
-    ".": "./dist/src/index.js"
+    ".": {
+      "dev": "./src/index.ts",
+      "default": "./dist/src/index.js"
+    }
   },
   "files": [
     "dist/",
