@@ -39,7 +39,12 @@ export type TSConfig = {compilerOptions?: {customConditions?: string[]}}
 export async function readConfig(args: readonly string[]): Promise<Config> {
   const argv = Argv(args)
   const configFile = await parseConfigFile(argv.opts['--config'] ?? 'void.json')
-  const hash = (await exec('git', 'rev-parse', '--short', 'HEAD')).trim()
+
+  let hash = '0000000'
+  try {
+    hash = (await exec('git', 'rev-parse', '--short', 'HEAD')).trim()
+  } catch {}
+
   const packageJSON: PackageJSON = JSON.parse(
     (await exec('npm', 'pkg', 'get', 'version', 'published')) || '{}'
   )
