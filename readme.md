@@ -32,7 +32,7 @@ npm install --save @oidoid/void
 ```
 
   it's possible to use `"paths": {"@oidoid/void": ["../void/src"]}` instead of or in addition to `customConditions`.
-4. for unit tests, run with `NODE_OPTIONS=--conditions=development`.
+4. for unit tests, run with `NODE_OPTIONS=--conditions=dev`.
 
 ### Declaration Merging
 
