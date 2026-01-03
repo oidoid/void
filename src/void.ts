@@ -17,6 +17,7 @@ import type {GameConfig} from './types/game-config.ts'
 import type {Millis, Secs} from './types/time.ts'
 import {initCanvas} from './utils/canvas-util.ts'
 import {parseComputedColor} from './utils/color-util.ts'
+import {debug} from './utils/debug.ts'
 import {DelayInterval} from './utils/delay-interval.ts'
 import {initBody, initMetaViewport} from './utils/dom-util.ts'
 import {loadImage} from './utils/fetch-util.ts'
@@ -99,6 +100,8 @@ export class Void {
 
     this.zoo.addSystem({loader: opts.loaderSys})
     this.zoo.add(opts.loader)
+
+    if (debug) (globalThis as {v?: Void}).v = this
   }
 
   alloc(k: keyof PoolMap = 'default'): Sprite {

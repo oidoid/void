@@ -18,4 +18,3 @@ v.setPoller(((V.debug?.seconds ? 1 : 60) * 1000) as V.Millis, () =>
   V.millisUntilNext(new Date(), V.debug?.seconds ? 'Sec' : 'Min')
 )
 await v.register('add')
-if (V.debug) (globalThis as {v?: V.Void}).v = v
