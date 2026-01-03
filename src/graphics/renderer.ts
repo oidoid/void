@@ -280,8 +280,5 @@ function GL2(canvas: HTMLCanvasElement, always: boolean): GL2 | undefined {
     return
   }
 
-  if (debug?.render && !gl.getContextAttributes()?.desynchronized)
-    console.debug('[render] no GL DOM desynchronization')
-
   return gl
 }
