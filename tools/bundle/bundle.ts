@@ -38,6 +38,8 @@ export async function bundle(
   if (config.preloadAtlas) atlas = await packAtlas(config.preloadAtlas)
   await writeGameConfig(atlas, config)
 
+  await writeTagSchema(atlas, config)
+
   if (config.watch) {
     if (config.preloadAtlas)
       fs.watch(config.preloadAtlas.dir, {recursive: true}, (ev, type) =>
@@ -90,5 +92,20 @@ async function writeGameConfig(
   await fs.promises.writeFile(config.out.game, JSON.stringify(gameConfig))
   try {
     await exec('biome', 'check', '--fix', config.out.game)
+  } catch {}
+}
+
+async function writeTagSchema(
+  atlas: Readonly<V.AtlasJSON> | undefined,
+  config: Readonly<Config>
+): Promise<void> {
+  const schema = {
+    $schema: 'https://json-schema.org/draft/2020-12/schema',
+    description: 'animation tag.',
+    enum: Object.keys(atlas?.anim ?? {})
+  }
+  await fs.promises.writeFile(config.out.tagSchema, JSON.stringify(schema))
+  try {
+    await exec('biome', 'check', '--fix', config.out.tagSchema)
   } catch {}
 }

@@ -79,7 +79,7 @@
     "out": {
       "type": "object",
       "description": "output config.",
-      "required": ["game"],
+      "required": ["game", "tagSchema"],
       "unevaluatedProperties": false,
       "properties": {
         "dir": {
@@ -96,6 +96,11 @@
           "type": "string",
           "description": "HTML output file stem when watch is disabled. defaults to entry.",
           "examples": ["index", "super-patience"]
+        },
+        "tagSchema": {
+          "type": "string",
+          "description": "tag schema.",
+          "examples": ["src/level/tags.json"]
         }
       }
     },

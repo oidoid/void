@@ -42,9 +42,9 @@ output
 rendering
   add sprite rotation. switch between AABB collisions?
 parser
-  populate tags in demo/schema/level-file.json from tools/void.ts once `$dynamicRef` is understood by IDEs. see https://github.com/microsoft/vscode/issues/155379.
+  use `$dynamicRef` once understood by IDEs. see https://github.com/microsoft/vscode/issues/155379.
   validate json schemas themselves and usages.
-  wrap AJV into linter and switch to dynamic refs.
+  wrap AJV into linter.
 features
   consider adding a utility to sync palettes.
     find src/assets -name \*.aseprite -not -name palette.aseprite|

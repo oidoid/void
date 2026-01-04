@@ -5,7 +5,7 @@ import {type ConfigFileSchema, parse} from './config-file.ts'
 
 test('defaults', () => {
   const config: ConfigFileSchema = {
-    out: {dir: undefined, game: 'game', name: undefined}
+    out: {dir: undefined, game: 'game', name: undefined, tagSchema: 'tagSchema'}
   }
   assert(parse('dirname/filename', JSON.stringify(config)), {
     $schema: 'https://oidoid.github.io/void/config-file.v0.json',
@@ -14,7 +14,8 @@ test('defaults', () => {
     out: {
       dir: path.resolve('dirname', 'dist/public'),
       game: path.resolve('dirname', 'game'),
-      name: undefined
+      name: undefined,
+      tagSchema: path.resolve('dirname', 'tagSchema')
     },
     preloadAtlas: undefined,
 
@@ -37,7 +38,7 @@ test('overrides', () => {
     $schema: '$schema',
     entry: 'entry',
     meta: 'meta',
-    out: {dir: 'outDir', game: 'game', name: 'name'},
+    out: {dir: 'outDir', game: 'game', name: 'name', tagSchema: 'tagSchema'},
     preloadAtlas: {dir: 'dir/', image: 'image.webp'},
     init: {
       background: '01234567',
@@ -55,7 +56,8 @@ test('overrides', () => {
     out: {
       dir: path.resolve('dirname', 'outDir'),
       game: path.resolve('dirname', 'game'),
-      name: 'name'
+      name: 'name',
+      tagSchema: path.resolve('dirname', 'tagSchema')
     },
     preloadAtlas: {
       dir: path.resolve('dirname', 'dir/'),

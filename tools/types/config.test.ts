@@ -9,7 +9,12 @@ describe('Config()', () => {
     $schema: 'schema',
     entry: '/project/src/index.ts',
     meta: '/project/meta.json',
-    out: {dir: '/project/dist', game: '/project/game', name: undefined},
+    out: {
+      dir: '/project/dist',
+      game: '/project/game',
+      name: undefined,
+      tagSchema: '/project/tagSchema'
+    },
     preloadAtlas: undefined,
     init: {
       background: undefined,

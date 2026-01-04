@@ -14,7 +14,7 @@ export type Config = {
   $schema: string
   entry: string
   meta: string | undefined
-  out: {dir: string; game: string; filename: string}
+  out: {dir: string; game: string; filename: string; tagSchema: string}
   preloadAtlas: AtlasConfig | undefined
   init: V.InitConfig
 
@@ -86,7 +86,8 @@ export function Config(
     out: {
       dir: configFile.out.dir,
       game: configFile.out.game,
-      filename: `${fileStem}${fileSuffix}`
+      filename: `${fileStem}${fileSuffix}`,
+      tagSchema: configFile.out.tagSchema
     },
     preloadAtlas: configFile.preloadAtlas,
     init: configFile.init,
