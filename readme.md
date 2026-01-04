@@ -45,6 +45,7 @@ to avoid threading template parameters throughout all code, declaration merging 
 - `DrawSchema`
 - `Ent`
 - `EntSchema`
+- `LevelZoo`
 - `Loader`
 - `PoolMap`
 - `ReturnTag`
