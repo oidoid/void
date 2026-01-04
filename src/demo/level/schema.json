@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "Clock": {"type": "object", "description": "clock config."},
+    "Ent": {
+      "allOf": [
+        {"$ref": "level-file.v0.json#/$defs/Ent"},
+        {
+          "type": "object",
+          "properties": {
+            "clock": {"$ref": "#/$defs/Clock", "unevaluatedProperties": false},
+            "renderToggle": {
+              "$ref": "#/$defs/RenderToggle",
+              "unevaluatedProperties": false
+            },
+            "tally": {"$ref": "#/$defs/Tally", "unevaluatedProperties": false}
+          }
+        }
+      ]
+    },
+    "RenderToggle": {"type": "object", "description": "render toggle config."},
+    "Tally": {"type": "object", "description": "tally config."}
+  }
+}

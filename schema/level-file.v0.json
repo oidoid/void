@@ -61,7 +61,6 @@
       }
     },
     "Cam": {
-      "$dynamicAnchor": "Cam",
       "type": "object",
       "description": "cam config."
     },
@@ -78,29 +77,26 @@
           "description": "if greater than zero, follow keyboard movement in pixels per second."
         },
         "pick": {
-          "$dynamicRef": "#Tag",
           "$ref": "#/$defs/Tag",
-          "description": "tag for click state. defaults to point tag.",
-          "$comment": "to-do: delete `$ref` for `$dynamicRef`."
+          "description": "tag for click state. defaults to point tag."
         }
       }
     },
-    "Draw": {
-      "$dynamicAnchor": "Draw",
-      "type": "object",
-      "description": "draw config."
-    },
+    "DebugInput": {"type": "object", "description": "debug input config."},
+    "Draw": {"type": "object", "description": "draw config."},
     "Ent": {
-      "$dynamicAnchor": "Ent",
       "type": "object",
       "description": "ent config.",
       "properties": {
         "button": {"$ref": "#/$defs/Button", "unevaluatedProperties": false},
         "cam": {"$ref": "#/$defs/Cam", "unevaluatedProperties": false},
         "cursor": {"$ref": "#/$defs/Cursor", "unevaluatedProperties": false},
-        "debugInput": {"const": true, "description": "debug input config."},
+        "debugInput": {
+          "$ref": "#/$defs/DebugInput",
+          "unevaluatedProperties": false
+        },
         "draw": {"$ref": "#/$defs/Draw", "unevaluatedProperties": false},
-        "fps": {"const": true, "description": "FPS config."},
+        "fps": {"$ref": "#/$defs/FPS", "unevaluatedProperties": false},
         "hud": {"$ref": "#/$defs/HUD", "unevaluatedProperties": false},
         "id": {"type": "string", "description": "unique lookup identifier."},
         "name": {"type": "string", "description": "debug identifier."},
@@ -118,6 +114,7 @@
         "textXY": {"$ref": "#/$defs/TextXY", "unevaluatedProperties": false}
       }
     },
+    "FPS": {"type": "object", "description": "FPS config."},
     "HUD": {
       "type": "object",
       "description": "HUD config.",
@@ -168,8 +165,7 @@
         "UIF",
         "UIG",
         "Top"
-      ],
-      "$comment": "to-do: `$dynamicAnchor` and parser support."
+      ]
     },
     "NinePatch": {
       "type": "object",
@@ -249,12 +245,6 @@
         }
       }
     },
-    "Pool": {
-      "$dynamicAnchor": "Pool",
-      "type": "string",
-      "description": "allocator pool.",
-      "$comment": "to-do: `\"enum\": [\"Default\"]` and remove `type` and `$ref` for `$dynamicRef`."
-    },
     "Speed": {
       "type": "number",
       "description": "velocity in pixels per second."
@@ -280,32 +270,21 @@
         }
       }
     },
+    "SpritePool": {"type": "string", "description": "allocator pool."},
     "SpriteProps": {
       "description": "sprite config except box-related.",
       "oneOf": [
-        {
-          "$dynamicRef": "#Tag",
-          "$ref": "#/$defs/Tag",
-          "$comment": "to-do: delete `$ref` for `$dynamicRef`."
-        },
+        {"$ref": "#/$defs/Tag"},
         {
           "type": "object",
           "properties": {
             "flip": {"$ref": "#/$defs/XYFlag"},
-            "pool": {
-              "$dynamicRef": "#Pool",
-              "$ref": "#/$defs/Pool",
-              "$comment": "to-do: delete `$ref` for `$dynamicRef`."
-            },
+            "pool": {"$ref": "#/$defs/SpritePool"},
             "stretch": {
               "type": "boolean",
               "description": "wrap texture (default) or stretch to width and height."
             },
-            "tag": {
-              "$dynamicRef": "#Tag",
-              "$ref": "#/$defs/Tag",
-              "$comment": "to-do: delete `$ref` for `$dynamicRef`."
-            },
+            "tag": {"$ref": "#/$defs/Tag"},
             "visible": {
               "type": "boolean",
               "description": "whether sprite is rendered. defaults to true when tag is specified."
@@ -320,7 +299,6 @@
       ]
     },
     "Tag": {
-      "$dynamicAnchor": "Tag",
       "type": "string",
       "description": "animation tag.",
       "pattern": ".+--.*"
@@ -366,7 +344,22 @@
       "properties": {"x": {"minimum": 0}, "y": {"minimum": 0}}
     },
     "WH": {
-      "$ref": "https://oidoid.github.io/void/config-file.v0.json#/$defs/WH"
+      "type": "object",
+      "description": "area.",
+      "properties": {
+        "w": {
+          "type": "integer",
+          "description": "width.",
+          "minimum": 0,
+          "maximum": 4095
+        },
+        "h": {
+          "type": "integer",
+          "description": "height.",
+          "minimum": 0,
+          "maximum": 4095
+        }
+      }
     },
     "XY": {
       "type": "object",
@@ -403,11 +396,7 @@
     "ents": {
       "type": "array",
       "description": "ents config.",
-      "items": {
-        "$dynamicRef": "#Ent",
-        "$ref": "#/$defs/Ent",
-        "$comment": "to-do: delete `$ref` for `$dynamicRef`."
-      },
+      "items": {"$ref": "schema.json#/$defs/Ent"},
       "uniqueItemProperties": ["id"],
       "$comment": "`uniqueItemProperties` is ajv-keywords only."
     },
@@ -416,8 +405,13 @@
       "description": "don't clear the zoo on load."
     },
     "minWH": {
-      "$ref": "https://oidoid.github.io/void/config-file.v0.json#/$defs/MinCamWH",
-      "unevaluatedProperties": false
+      "$ref": "#/$defs/WH",
+      "description": "min cam dimensions. infinity always uses min scale.",
+      "unevaluatedProperties": false,
+      "properties": {
+        "w": {"$ref": "#/$defs/UnboundedUInt"},
+        "h": {"$ref": "#/$defs/UnboundedUInt"}
+      }
     }
   }
 }

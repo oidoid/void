@@ -1,7 +1,7 @@
 {
-  "$schema": "../level/level-file.json",
+  "$schema": "../level/level-file.v0.json",
   "ents": [
-    {"name": "Debug", "debugInput": true},
+    {"name": "Debug", "debugInput": {}},
 
     {"name": "Cam", "cam": {}},
 
@@ -13,7 +13,7 @@
 
     {
       "name": "FPS",
-      "fps": true,
+      "fps": {},
       "text": "",
       "sprite": {"z": "UIA"},
       "textWH": {"trim": "Descender"},

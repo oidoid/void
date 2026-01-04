@@ -59,7 +59,7 @@ export type Cursor = {
 // biome-ignore lint/suspicious/noEmptyInterface:;
 export interface Draw {}
 
-export type DebugInput = true
+export type DebugInput = object
 
 export type FPS = {
   prevFrames: number

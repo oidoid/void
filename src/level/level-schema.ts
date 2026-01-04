@@ -10,6 +10,12 @@ export type ButtonSchema = {
   type?: ButtonType
   z?: LayerSchema
 }
+// biome-ignore lint/suspicious/noEmptyInterface:;
+export interface CamSchema {}
+export type CursorSchema = {keyboard?: number; pick?: Tag}
+export type DebugInputSchema = object
+// biome-ignore lint/suspicious/noEmptyInterface:;
+export interface DrawSchema {}
 export interface EntSchema {
   button?: ButtonSchema
   cam?: CamSchema
@@ -31,13 +37,7 @@ export interface EntSchema {
   textWH?: TextWHSchema
   textXY?: TextXYSchema
 }
-// biome-ignore lint/suspicious/noEmptyInterface:;
-export interface CamSchema {}
-export type CursorSchema = {keyboard?: number; pick?: Tag}
-export type DebugInputSchema = true
-// biome-ignore lint/suspicious/noEmptyInterface:;
-export interface DrawSchema {}
-export type FPSSchema = true
+export type FPSSchema = object
 export type HUDSchema = {
   fill?: XYFlag
   margin?: BorderSchema
