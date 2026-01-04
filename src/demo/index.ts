@@ -8,7 +8,7 @@ console.debug(
 )
 
 const v = new V.Void({
-  config: config as V.GameConfig,
+  config: config as V.VoidConfig,
   description,
   preloadAtlas: document.querySelector<HTMLImageElement>('#preload-atlas'),
   loader: {loader: {level: undefined}},

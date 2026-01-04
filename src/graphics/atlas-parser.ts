@@ -1,4 +1,4 @@
-import type {AtlasJSON} from '../types/game-config.ts'
+import type {AtlasJSON} from '../types/void-config.ts'
 import {type Anim, type Atlas, animCels, type Tag} from './atlas.ts'
 
 export function parseAtlas(json: Readonly<AtlasJSON>): Atlas {

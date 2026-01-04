@@ -13,10 +13,10 @@ import type {PoolOpts} from './mem/pool.ts'
 import type {PoolMap} from './mem/pool-map.ts'
 import {SpritePool} from './mem/sprite-pool.ts'
 import {Random} from './random/random.ts'
-import type {GameConfig} from './types/game-config.ts'
 import type {Millis, Secs} from './types/time.ts'
+import type {VoidConfig} from './types/void-config.ts'
 import {initCanvas} from './utils/canvas-util.ts'
-import {parseComputedColor} from './utils/color-util.ts'
+import {parseComputedColor, rgbaHex} from './utils/color-util.ts'
 import {debug} from './utils/debug.ts'
 import {DelayInterval} from './utils/delay-interval.ts'
 import {initBody, initMetaViewport} from './utils/dom-util.ts'
@@ -24,7 +24,7 @@ import {loadImage} from './utils/fetch-util.ts'
 
 export type VoidOpts = {
   canvas?: HTMLCanvasElement | null
-  config: GameConfig
+  config: VoidConfig
   description?: string
   loader: LoaderEnt
   loaderSys: Sys
@@ -45,7 +45,7 @@ export class Void {
   /** delta since frame request. */
   readonly tick: {ms: Millis; s: Secs} = {ms: 0, s: 0}
   readonly zoo: Zoo = new Zoo()
-  readonly #backgroundRGBA: number
+  #backgroundRGBA: number
   #invalid: boolean = false
   readonly #pixelRatioObserver: PixelRatioObserver = new PixelRatioObserver()
   #poller: DelayInterval | undefined
@@ -56,33 +56,30 @@ export class Void {
 
   constructor(opts: Readonly<VoidOpts>) {
     initMetaViewport(opts.description)
-    this.canvas = initCanvas(opts.canvas, opts.config.init.mode)
+    this.canvas = initCanvas(opts.canvas, opts.config.mode)
     if (!this.canvas.parentElement) throw Error('no canvas parent')
-    this.#backgroundRGBA =
-      opts.config.init.background ??
-      parseComputedColor(
-        getComputedStyle(this.canvas.parentElement).backgroundColor
-      )
-    if (!opts.canvas) initBody(this.#backgroundRGBA)
+    this.#backgroundRGBA = parseComputedColor(
+      getComputedStyle(this.canvas.parentElement).backgroundColor
+    )
+    if (!opts.canvas) initBody()
 
-    this.cam.minWH = opts.config.init.minWH
-    this.cam.mode = opts.config.init.mode
+    this.cam.mode = opts.config.mode
     this.cam.update(this.canvas)
 
     this.random = opts.random ?? new Random(Date.now())
 
     this.input = new Input(this.cam, this.canvas)
-    if (opts.config.init.input !== 'Custom') this.input.mapDefault()
+    if (opts.config.input !== 'Custom') this.input.mapDefault()
     this.input.onEvent = () => this.onEvent()
 
     this.#pixelRatioObserver.onChange = () => this.onResize()
 
     this.#preloadAtlasImage = opts.preloadAtlas ?? undefined
-    if (!!this.#preloadAtlasImage !== !!opts.config.atlas)
+    if (!!this.#preloadAtlasImage !== !!opts.config.preload)
       throw Error('atlas misconfigured')
 
-    this.preload = opts.config.atlas
-      ? parseAtlas(opts.config.atlas)
+    this.preload = opts.config.preload
+      ? parseAtlas(opts.config.preload)
       : {anim: {}, celXYWH: [], tags: []}
 
     this.renderer = new Renderer(this.preload ?? {}, this.canvas, this.looper)
@@ -110,6 +107,12 @@ export class Void {
 
   get backgroundRGBA(): number {
     return this.#backgroundRGBA
+  }
+
+  set backgroundRGBA(rgba: number) {
+    if (!this.canvas.parentElement) throw Error('no canvas parent')
+    this.canvas.parentElement.style.backgroundColor = rgbaHex(rgba)
+    this.#backgroundRGBA = rgba
   }
 
   /**

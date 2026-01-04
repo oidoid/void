@@ -1,5 +1,5 @@
 {
-  "atlas": {
+  "preload": {
     "anim": {
       "background--OrangeCheckerboard": {"cels": 1, "h": 2, "id": 0, "w": 2},
       "background--GreyCheckerboard": {"cels": 1, "h": 2, "id": 1, "w": 2},
@@ -192,11 +192,6 @@
       20, 39, 15, 39, 75, 38, 70, 38, 65, 38, 60, 38, 55, 38, 45, 56, 0, 0
     ]
   },
-  "init": {
-    "input": "Default",
-    "minWH": {"w": 320, "h": 240},
-    "minScale": 1,
-    "mode": "Int",
-    "zoomOut": 0
-  }
+  "input": "Default",
+  "mode": "Int"
 }

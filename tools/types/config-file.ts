@@ -1,17 +1,18 @@
 import {readFile} from 'node:fs/promises'
 import path from 'node:path'
 import schema from '../../schema/config-file.v0.json' with {type: 'json'}
-import * as V from '../../src/index.ts'
+import type * as V from '../../src/index.ts'
 
 export type AtlasConfig = {dir: string; image: string}
 
-export type ConfigFile = {
+export type VoidConfigFile = {
   $schema: string
   entry: string
   meta: string | undefined
   out: {dir: string; game: string; name: string | undefined; tagSchema: string}
   preloadAtlas: AtlasConfig | undefined
-  init: V.InitConfig
+  input: V.InputMode
+  mode: V.RenderMode
 
   /** config directory name. */
   dirname: string
@@ -19,23 +20,19 @@ export type ConfigFile = {
   filename: string
 }
 
-export type ConfigFileSchema = {
+export type VoidConfigFileSchema = {
   $schema?: string
   entry?: string
   meta?: string
   out: {dir?: string; game: string; name?: string; tagSchema: string}
   preloadAtlas?: AtlasConfig
-  init?: {
-    background?: string
-    input: V.InputMode
-    minWH: V.UnboundedWHSchema
-    minScale?: number
-    mode: V.RenderMode
-    zoomOut?: number
-  }
+  input?: V.InputMode
+  mode?: V.RenderMode
 }
 
-export async function parseConfigFile(filename: string): Promise<ConfigFile> {
+export async function parseConfigFile(
+  filename: string
+): Promise<VoidConfigFile> {
   let str
   try {
     str = await readFile(filename, 'utf8')
@@ -47,9 +44,9 @@ export async function parseConfigFile(filename: string): Promise<ConfigFile> {
 }
 
 /** @internal */
-export function parse(filename: string, str: string): ConfigFile {
+export function parse(filename: string, str: string): VoidConfigFile {
   const dirname = path.dirname(filename)
-  let json: ConfigFileSchema
+  let json: VoidConfigFileSchema
   try {
     json = JSON.parse(str)
   } catch (err) {
@@ -73,18 +70,8 @@ export function parse(filename: string, str: string): ConfigFile {
       dir: path.resolve(dirname, json.preloadAtlas.dir),
       image: path.resolve(dirname, json.preloadAtlas.image)
     },
-    init: {
-      background: json.init?.background
-        ? parseInt(json.init.background, 16)
-        : undefined,
-      input: json.init?.input ?? 'Default',
-      minWH: json.init?.minWH
-        ? V.parseWH(json.init.minWH)
-        : {w: Infinity, h: Infinity},
-      minScale: json.init?.minScale ?? 1,
-      mode: json.init?.mode ?? 'Int',
-      zoomOut: json.init?.zoomOut ?? 0
-    },
+    input: json.input ?? 'Default',
+    mode: json.mode ?? 'Int',
 
     dirname,
     filename

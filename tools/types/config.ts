@@ -5,8 +5,8 @@ import {Argv} from '../utils/argv.ts'
 import {exec} from '../utils/exec.ts'
 import {
   type AtlasConfig,
-  type ConfigFile,
-  parseConfigFile
+  parseConfigFile,
+  type VoidConfigFile
 } from './config-file.ts'
 import type {PackageJSON} from './package-json.ts'
 
@@ -16,7 +16,8 @@ export type Config = {
   meta: string | undefined
   out: {dir: string; game: string; filename: string; tagSchema: string}
   preloadAtlas: AtlasConfig | undefined
-  init: V.InitConfig
+  input: V.InputMode
+  mode: V.RenderMode
 
   /** config directory name. */
   dirname: string
@@ -60,7 +61,7 @@ export async function readConfig(args: readonly string[]): Promise<Config> {
 /** @internal */
 export function Config(
   argv: Readonly<Argv>,
-  configFile: Readonly<ConfigFile>,
+  configFile: Readonly<VoidConfigFile>,
   hash: string,
   packageJSON: Readonly<PackageJSON>,
   tsconfigFilename: string,
@@ -90,7 +91,8 @@ export function Config(
       tagSchema: configFile.out.tagSchema
     },
     preloadAtlas: configFile.preloadAtlas,
-    init: configFile.init,
+    input: configFile.input,
+    mode: configFile.mode,
     dirname: configFile.dirname,
     filename: configFile.filename,
     tsconfigFilename,

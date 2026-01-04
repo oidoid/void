@@ -51,8 +51,11 @@ export function parseLevel(
   for (const [list, ents] of Object.entries(json.zoo))
     zoo[list] = ents.map(ent => parseEnt(ent, pools, hook, atlas))
   return {
-    minWH: json.minWH ? parseWH(json.minWH) : {w: Infinity, h: Infinity},
-    zoo
+    background: json.background ? parseInt(json.background, 16) : undefined,
+    minScale: json.minScale,
+    minWH: json.minWH ? parseWH(json.minWH) : undefined,
+    zoo,
+    zoomOut: json.zoomOut
   }
 }
 

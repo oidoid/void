@@ -1,7 +1,6 @@
 import type {Anim} from '../graphics/atlas.ts'
 import type {RenderMode} from '../graphics/render-mode.ts'
 import type {InputMode} from '../input/input.ts'
-import type {WH} from './geo.ts'
 
 export type AtlasJSON = {
   anim: {[tag: string]: Anim}
@@ -12,13 +11,8 @@ export type AtlasJSON = {
   celXY: number[]
 }
 
-export type GameConfig = {atlas?: AtlasJSON; init: InitConfig}
-
-export type InitConfig = {
-  background?: number
+export type VoidConfig = {
   input: InputMode
-  minWH: WH
-  minScale: number
   mode: RenderMode
-  zoomOut: number
+  preload?: AtlasJSON
 }

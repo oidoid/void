@@ -2,10 +2,10 @@ import {describe, test} from 'node:test'
 import {assert} from '../../src/test/assert.ts'
 import type {Argv} from '../utils/argv.ts'
 import {Config, parseTSConfig, type TSConfig} from './config.ts'
-import type {ConfigFile} from './config-file.ts'
+import type {VoidConfigFile} from './config-file.ts'
 
 describe('Config()', () => {
-  const configFile: Readonly<ConfigFile> = {
+  const configFile: Readonly<VoidConfigFile> = {
     $schema: 'schema',
     entry: '/project/src/index.ts',
     meta: '/project/meta.json',
@@ -16,14 +16,8 @@ describe('Config()', () => {
       tagSchema: '/project/tagSchema'
     },
     preloadAtlas: undefined,
-    init: {
-      background: undefined,
-      input: 'Default',
-      minWH: {w: 256, h: 256},
-      minScale: 1,
-      mode: 'Int',
-      zoomOut: 0
-    },
+    input: 'Default',
+    mode: 'Int',
     dirname: '/project',
     filename: '/project/void.json'
   }

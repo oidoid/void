@@ -43,6 +43,11 @@ function init(ent: V.LoaderEnt, v: V.Void): void {
     tally: new TallySys()
   })
   const level = parseLevel(levelJSON, v.pool, v.preload)
+  if (level.background != null) v.backgroundRGBA = level.background
+  if (level.minScale != null) v.cam.minScale = level.minScale
+  if (level.minWH != null) v.cam.minWH = level.minWH
+  if (level.zoomOut != null) v.cam.zoomOut = level.zoomOut
+
   // to-do: validate all ents on a system add.
   v.zoo.add(...level.zoo.default)
   ent.loader.level = 'Init'

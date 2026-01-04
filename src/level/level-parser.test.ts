@@ -315,8 +315,11 @@ test('parseLevel() aggregates ents and defaults', () => {
     atlas
   )
   assert(emptyLvl, {
+    background: undefined,
+    minScale: undefined,
+    minWH: undefined,
     zoo: {default: []},
-    minWH: {w: Infinity, h: Infinity}
+    zoomOut: undefined
   })
 })
 

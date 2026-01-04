@@ -1,5 +1,3 @@
-import {rgbaHex} from './color-util.ts'
-
 export function download(uri: string, filename: string): void {
   const a = document.createElement('a')
   a.href = uri
@@ -8,13 +6,12 @@ export function download(uri: string, filename: string): void {
   a.remove()
 }
 
-export function initBody(rgba: number): void {
+export function initBody(): void {
   document.body.style.margin = '0'
   // fill the screen except for UI chrome.
   document.body.style.width = '100dvw'
   document.body.style.height = '100dvh'
   document.body.style.overflow = 'hidden'
-  document.body.style.background = rgbaHex(rgba)
 }
 
 export function initMetaViewport(description: string | undefined): void {

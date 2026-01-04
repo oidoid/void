@@ -11,6 +11,5 @@
   "preloadAtlas": {
     "dir": "assets/preload-atlas/",
     "image": "../../dist/public/preload-atlas.webp"
-  },
-  "init": {"minWH": {"w": 320, "h": 240}}
+  }
 }

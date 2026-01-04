@@ -1,10 +1,10 @@
 import path from 'node:path'
 import {test} from 'node:test'
 import {assert} from '../../src/test/assert.ts'
-import {type ConfigFileSchema, parse} from './config-file.ts'
+import {parse, type VoidConfigFileSchema} from './config-file.ts'
 
 test('defaults', () => {
-  const config: ConfigFileSchema = {
+  const config: VoidConfigFileSchema = {
     out: {dir: undefined, game: 'game', name: undefined, tagSchema: 'tagSchema'}
   }
   assert(parse('dirname/filename', JSON.stringify(config)), {
@@ -18,36 +18,23 @@ test('defaults', () => {
       tagSchema: path.resolve('dirname', 'tagSchema')
     },
     preloadAtlas: undefined,
+    input: 'Default',
+    mode: 'Int',
 
     dirname: 'dirname',
-    filename: 'dirname/filename',
-
-    init: {
-      background: undefined,
-      input: 'Default',
-      minWH: {w: Infinity, h: Infinity},
-      minScale: 1,
-      mode: 'Int',
-      zoomOut: 0
-    }
+    filename: 'dirname/filename'
   })
 })
 
 test('overrides', () => {
-  const config: Required<ConfigFileSchema> = {
+  const config: Required<VoidConfigFileSchema> = {
     $schema: '$schema',
     entry: 'entry',
     meta: 'meta',
     out: {dir: 'outDir', game: 'game', name: 'name', tagSchema: 'tagSchema'},
     preloadAtlas: {dir: 'dir/', image: 'image.webp'},
-    init: {
-      background: '01234567',
-      input: 'Custom',
-      minScale: 2,
-      minWH: {w: 1, h: 2},
-      mode: 'Float',
-      zoomOut: 1
-    }
+    input: 'Custom',
+    mode: 'Float'
   }
   assert(parse('dirname/filename', JSON.stringify(config)), {
     $schema: '$schema',
@@ -63,14 +50,8 @@ test('overrides', () => {
       dir: path.resolve('dirname', 'dir/'),
       image: path.resolve('dirname', 'image.webp')
     },
-    init: {
-      background: 0x01234567,
-      input: 'Custom',
-      minWH: {w: 1, h: 2},
-      minScale: 2,
-      mode: 'Float',
-      zoomOut: 1
-    },
+    input: 'Custom',
+    mode: 'Float',
 
     dirname: 'dirname',
     filename: 'dirname/filename'

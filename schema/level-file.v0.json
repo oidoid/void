@@ -255,6 +255,12 @@
         }
       }
     },
+    "RGBA": {
+      "type": "string",
+      "description": "color (red, green, blue, alpha) in hex.",
+      "pattern": "^[A-Fa-f0-9]{8}$",
+      "examples": ["01234567"]
+    },
     "Speed": {
       "type": "number",
       "description": "velocity in pixels per second."
@@ -348,6 +354,9 @@
       "$ref": "#/$defs/IntXY",
       "properties": {"x": {"minimum": 0}, "y": {"minimum": 0}}
     },
+    "UnboundedUInt": {
+      "oneOf": [{"type": "integer", "minimum": 0}, {"enum": ["Infinity"]}]
+    },
     "WH": {
       "type": "object",
       "description": "area.",
@@ -399,9 +408,18 @@
       "description": "the configuration schema URI.",
       "default": "https://oidoid.github.io/void/level-file.v0.json"
     },
+    "background": {
+      "$ref": "#/$defs/RGBA",
+      "description": "render clear color."
+    },
+    "minScale": {
+      "type": "number",
+      "description": "min cam scale.",
+      "minimum": 1
+    },
     "minWH": {
       "$ref": "#/$defs/WH",
-      "description": "min cam dimensions. infinity always uses min scale.",
+      "description": "min cam dimensions. infinity always uses min scale. defaults to infinity.",
       "unevaluatedProperties": false,
       "properties": {
         "w": {"$ref": "#/$defs/UnboundedUInt"},
@@ -415,6 +433,11 @@
       "unevaluatedProperties": false,
       "properties": {"default": {"$ref": "#/$defs/EntList"}},
       "patternProperties": {".+": {"$ref": "#/$defs/EntList"}}
+    },
+    "zoomOut": {
+      "type": "number",
+      "description": "cam zoom offset.",
+      "minimum": 0
     }
   }
 }

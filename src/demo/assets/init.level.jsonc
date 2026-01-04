@@ -1,5 +1,6 @@
 {
   "$schema": "../level/level-file.v0.json",
+  "minWH": {"w": 320, "h": 240},
   "zoo": {
     "default": [
       {"name": "Debug", "debugInput": {}},

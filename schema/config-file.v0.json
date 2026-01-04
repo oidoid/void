@@ -21,41 +21,6 @@
           "examples": ["dist/public/atlas.webp", "atlas.png"]
         }
       }
-    },
-    "MinCamWH": {
-      "$ref": "#/$defs/WH",
-      "description": "min cam dimensions. infinity always uses min scale.",
-      "properties": {
-        "w": {"$ref": "#/$defs/UnboundedUInt"},
-        "h": {"$ref": "#/$defs/UnboundedUInt"}
-      }
-    },
-    "RGBA": {
-      "type": "string",
-      "description": "color (red, green, blue, alpha) in hex.",
-      "pattern": "^[A-Fa-f0-9]{8}$",
-      "examples": ["01234567"]
-    },
-    "UnboundedUInt": {
-      "oneOf": [{"type": "integer", "minimum": 0}, {"enum": ["Infinity"]}]
-    },
-    "WH": {
-      "type": "object",
-      "description": "area.",
-      "properties": {
-        "w": {
-          "type": "integer",
-          "description": "width.",
-          "minimum": 0,
-          "maximum": 4095
-        },
-        "h": {
-          "type": "integer",
-          "description": "height.",
-          "minimum": 0,
-          "maximum": 4095
-        }
-      }
     }
   },
   "required": ["out"],
@@ -104,41 +69,15 @@
         }
       }
     },
-    "preloadAtlas": {"$ref": "#/$defs/Atlas", "unevaluatedProperties": false},
-    "init": {
-      "type": "object",
-      "description": "init config.",
-      "unevaluatedProperties": false,
-      "properties": {
-        "background": {
-          "$ref": "#/$defs/RGBA",
-          "description": "render clear color. defaults to canvas parent background color."
-        },
-        "input": {
-          "description": "button mapping. defaults to init all default buttons, custom to leave all unmapped.",
-          "enum": ["Default", "Unmapped"],
-          "$comment": "to-do: support custom mapping here."
-        },
-        "minWH": {
-          "$ref": "#/$defs/MinCamWH",
-          "description": "min cam dimensions. infinity always uses min scale. defaults to infinity.",
-          "unevaluatedProperties": false
-        },
-        "minScale": {
-          "type": "number",
-          "description": "min cam scale.",
-          "minimum": 1
-        },
-        "mode": {
-          "description": "use fractional or integral rendering.",
-          "enum": ["Int", "Float"]
-        },
-        "zoomOut": {
-          "type": "number",
-          "description": "cam zoom offset.",
-          "minimum": 0
-        }
-      }
-    }
+    "input": {
+      "description": "button mapping. defaults to init all default buttons, custom to leave all unmapped.",
+      "enum": ["Default", "Unmapped"],
+      "$comment": "to-do: support custom mapping here."
+    },
+    "mode": {
+      "description": "use fractional or integral rendering.",
+      "enum": ["Int", "Float"]
+    },
+    "preloadAtlas": {"$ref": "#/$defs/Atlas", "unevaluatedProperties": false}
   }
 }

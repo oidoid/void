@@ -69,8 +69,8 @@ const onWatchAssets = V.debounce(
     file: string | null
   ): Promise<void> => {
     console.log(`asset ${file} ${ev}.`)
-    const atlas = await packAtlas(config.preloadAtlas!)
-    await writeGameConfig(atlas, config)
+    const preload = await packAtlas(config.preloadAtlas!)
+    await writeGameConfig(preload, config)
   },
   500 as V.Millis
 )
@@ -85,10 +85,14 @@ const onWatchConfig = V.debounce(
 )
 
 async function writeGameConfig(
-  atlas: Readonly<V.AtlasJSON> | undefined,
+  preload: Readonly<V.AtlasJSON> | undefined,
   config: Readonly<Config>
 ): Promise<void> {
-  const gameConfig: V.GameConfig = {atlas, init: config.init}
+  const gameConfig: V.VoidConfig = {
+    preload,
+    input: config.input,
+    mode: config.mode
+  }
   await fs.promises.writeFile(config.out.game, JSON.stringify(gameConfig))
   try {
     await exec('biome', 'check', '--fix', config.out.game)
