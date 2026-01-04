@@ -117,7 +117,7 @@
     "EntList": {
       "type": "array",
       "description": "ents config.",
-      "items": {"$ref": "schema.json#/$defs/Ent"},
+      "items": {"$ref": "schema.json#/$defs/Ent", "unevaluatedProperties": false},
       "uniqueItemProperties": ["id"],
       "$comment": "`uniqueItemProperties` is ajv-keywords only."
     },
@@ -414,9 +414,9 @@
       "type": "object",
       "description": "zoo config.",
       "required": ["default"],
+      "unevaluatedProperties": false,
       "properties": {"default": {"$ref": "#/$defs/EntList"}},
-      "patternProperties": {".+": {"$ref": "#/$defs/EntList"}},
-      "unevaluatedProperties": false
+      "patternProperties": {".+": {"$ref": "#/$defs/EntList"}}
     }
   }
 }
