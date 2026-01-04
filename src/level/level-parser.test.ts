@@ -291,27 +291,31 @@ test('parseLevel() aggregates ents and defaults', () => {
   const pools = TestPools()
   const lvl = parseLevel(
     {
-      keepZoo: true,
-      ents: [
-        {id: 'a', sprite: 'stem--A'},
-        {id: 'b', text: 'hello'}
-      ],
+      zoo: {
+        default: [
+          {id: 'a', sprite: 'stem--A'},
+          {id: 'b', text: 'hello'}
+        ]
+      },
       minWH: {w: 3}
     },
     pools,
     () => undefined,
     atlas
   )
-  assert(lvl.ents.length, 2)
-  assert(lvl.keepZoo, true)
+  assert(lvl.zoo.default.length, 2)
   assert(lvl.minWH, {w: 3, h: 0})
-  assert(lvl.ents[0]?.sprite?.tag, 'stem--A')
-  assert(lvl.ents[1]?.text, 'hello')
+  assert(lvl.zoo.default[0]?.sprite?.tag, 'stem--A')
+  assert(lvl.zoo.default[1]?.text, 'hello')
 
-  const emptyLvl = parseLevel({}, pools, () => undefined, atlas)
+  const emptyLvl = parseLevel(
+    {zoo: {default: []}},
+    pools,
+    () => undefined,
+    atlas
+  )
   assert(emptyLvl, {
-    ents: [],
-    keepZoo: false,
+    zoo: {default: []},
     minWH: {w: Infinity, h: Infinity}
   })
 })

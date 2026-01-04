@@ -114,6 +114,13 @@
         "textXY": {"$ref": "#/$defs/TextXY", "unevaluatedProperties": false}
       }
     },
+    "EntList": {
+      "type": "array",
+      "description": "ents config.",
+      "items": {"$ref": "schema.json#/$defs/Ent"},
+      "uniqueItemProperties": ["id"],
+      "$comment": "`uniqueItemProperties` is ajv-keywords only."
+    },
     "FPS": {"type": "object", "description": "FPS config."},
     "HUD": {
       "type": "object",
@@ -387,22 +394,12 @@
     }
   },
   "unevaluatedProperties": false,
+  "required": ["zoo"],
   "properties": {
     "$schema": {
       "type": "string",
       "description": "the configuration schema URI.",
       "default": "https://oidoid.github.io/void/level-file.v0.json"
-    },
-    "ents": {
-      "type": "array",
-      "description": "ents config.",
-      "items": {"$ref": "schema.json#/$defs/Ent"},
-      "uniqueItemProperties": ["id"],
-      "$comment": "`uniqueItemProperties` is ajv-keywords only."
-    },
-    "keepZoo": {
-      "type": "boolean",
-      "description": "don't clear the zoo on load."
     },
     "minWH": {
       "$ref": "#/$defs/WH",
@@ -412,6 +409,14 @@
         "w": {"$ref": "#/$defs/UnboundedUInt"},
         "h": {"$ref": "#/$defs/UnboundedUInt"}
       }
+    },
+    "zoo": {
+      "type": "object",
+      "description": "zoo config.",
+      "required": ["default"],
+      "properties": {"default": {"$ref": "#/$defs/EntList"}},
+      "patternProperties": {".+": {"$ref": "#/$defs/EntList"}},
+      "unevaluatedProperties": false
     }
   }
 }

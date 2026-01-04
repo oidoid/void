@@ -47,9 +47,8 @@ export type HUDSchema = {
 export type LayerSchema = keyof typeof Layer
 export type LevelSchema = {
   $schema?: string
-  ents?: EntSchema[]
-  keepZoo?: boolean
   minWH?: UnboundedWHSchema
+  zoo: {default: EntSchema[]; [list: string]: EntSchema[]}
 }
 export type NinePatchSchema = {
   border?: BorderSchema

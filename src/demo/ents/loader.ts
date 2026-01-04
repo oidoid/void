@@ -44,6 +44,6 @@ function init(ent: V.LoaderEnt, v: V.Void): void {
   })
   const level = parseLevel(levelJSON, v.pool, v.preload)
   // to-do: validate all ents on a system add.
-  v.zoo.add(...level.ents)
+  v.zoo.add(...level.zoo.default)
   ent.loader.level = 'Init'
 }

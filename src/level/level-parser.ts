@@ -47,10 +47,12 @@ export function parseLevel(
   hook: ComponentHook,
   atlas: Readonly<Atlas>
 ): Level {
+  const zoo: {default: Ent[]; [list: string]: Ent[]} = {default: []}
+  for (const [list, ents] of Object.entries(json.zoo))
+    zoo[list] = ents.map(ent => parseEnt(ent, pools, hook, atlas))
   return {
-    ents: json.ents?.map(ent => parseEnt(ent, pools, hook, atlas)) ?? [],
-    keepZoo: json.keepZoo ?? false,
-    minWH: json.minWH ? parseWH(json.minWH) : {w: Infinity, h: Infinity}
+    minWH: json.minWH ? parseWH(json.minWH) : {w: Infinity, h: Infinity},
+    zoo
   }
 }
 

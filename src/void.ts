@@ -143,7 +143,7 @@ export class Void {
     this.requestFrame() // request frame before in case update cancels.
 
     this.#invalid = false
-    this.zoo.update(this)
+    this.zoo.update(this) // this should be like level.update. otherwise it's alist of zoos
 
     this.cam.postupdate()
   }
