@@ -2,7 +2,7 @@ import {describe, test} from 'node:test'
 import {assert} from '../test/assert.ts'
 import type {Box, XY} from '../types/geo.ts'
 import type {Ent} from './ent.ts'
-import {type EQL, parseQuerySet, type QueryEnt} from './ent-query.ts'
+import {type EQL, parseQuery, type QueryEnt} from './ent-query.ts'
 
 declare module './ent.ts' {
   interface Ent {
@@ -24,7 +24,7 @@ describe('parseQuerySet()', () => {
   ]
   for (const [i, [query, querySet]] of cases.entries()) {
     test(`parse query ${i}: ${query}`, () => {
-      assert(parseQuerySet(query as EQL<Ent, ''>), querySet)
+      assert(parseQuery(query as EQL<Ent, ''>), querySet)
     })
   }
 })

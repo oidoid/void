@@ -9,6 +9,7 @@ import type {
   TextWH,
   TextXY
 } from '../ents/ent.ts'
+import type {Zoo} from '../ents/zoo.ts'
 import type {Atlas, Tag} from '../graphics/atlas.ts'
 import {Layer} from '../graphics/layer.ts'
 import {drawableMaxWH, type Sprite} from '../graphics/sprite.ts'
@@ -16,7 +17,7 @@ import type {PoolMap} from '../mem/pool-map.ts'
 import type {Border, WH, XY} from '../types/geo.ts'
 import {isRecord} from '../utils/obj-util.ts'
 import {uncapitalize} from '../utils/str-util.ts'
-import type {Level, LevelZoo} from './level.ts'
+import type {Level} from './level.ts'
 import type {
   BorderSchema,
   ButtonSchema,
@@ -47,9 +48,9 @@ export function parseLevel(
   hook: ComponentHook,
   atlas: Readonly<Atlas>
 ): Level {
-  const zoo: LevelZoo & {[list: string]: Ent[]} = {default: []}
+  const zoo: Zoo & {[list: string]: Set<Ent>} = {default: new Set()}
   for (const [list, ents] of Object.entries(json.zoo))
-    zoo[list] = ents.map(ent => parseEnt(ent, pools, hook, atlas))
+    zoo[list] = new Set(ents.map(ent => parseEnt(ent, pools, hook, atlas)))
   return {
     background: json.background ? parseInt(json.background, 16) : undefined,
     minScale: json.minScale,

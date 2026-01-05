@@ -1,6 +1,4 @@
-import type {LoaderEnt} from './ents/loader.ts'
-import type {Sys} from './ents/sys.ts'
-import {Zoo} from './ents/zoo.ts'
+import type {Zoo} from './ents/zoo.ts'
 import type {AtlasMap} from './graphics/atlas.ts'
 import {parseAtlas} from './graphics/atlas-parser.ts'
 import {Cam} from './graphics/cam.ts'
@@ -8,9 +6,9 @@ import {PixelRatioObserver} from './graphics/pixel-ratio-observer.ts'
 import {Renderer} from './graphics/renderer.ts'
 import type {Sprite} from './graphics/sprite.ts'
 import {Input} from './input/input.ts'
-import type {LevelZoo} from './level/level.ts'
 import {type ComponentHook, parseLevel} from './level/level-parser.ts'
 import type {LevelSchema} from './level/level-schema.ts'
+import type {Loader} from './level/loader.ts'
 import {Looper} from './looper.ts'
 import type {PoolOpts} from './mem/pool.ts'
 import type {PoolMap} from './mem/pool-map.ts'
@@ -31,8 +29,7 @@ export type VoidOpts = {
   canvas?: HTMLCanvasElement | null
   config: VoidConfig
   description?: string
-  loader: LoaderEnt
-  loaderSys: Sys
+  loader: Loader
   random?: Random
   sprites?: Partial<Omit<PoolOpts<Sprite>, 'alloc' | 'allocBytes'>>
 }
@@ -42,13 +39,13 @@ export class Void {
   readonly cam: Cam = new Cam()
   readonly canvas: HTMLCanvasElement
   readonly input: Input
+  readonly loader: Loader
   readonly looper: Looper = new Looper()
   readonly pool: PoolMap
   readonly random: Random
   readonly renderer: Renderer
   /** delta since frame request. */
   readonly tick: {ms: Millis; s: Secs} = {ms: 0, s: 0}
-  readonly zoo: Zoo = new Zoo()
   readonly #atlasImage: HTMLImageElement
   #backgroundRGBA: number
   #invalid: boolean = false
@@ -100,8 +97,7 @@ export class Void {
 
     this.looper.onFrame = millis => this.onFrame(millis)
 
-    this.zoo.addSystem({loader: opts.loaderSys})
-    this.zoo.add(opts.loader)
+    this.loader = opts.loader
 
     if (debug) (globalThis as {v?: Void}).v = this
   }
@@ -125,12 +121,7 @@ export class Void {
    * new frame.
    */
   get invalid(): boolean {
-    return (
-      this.zoo.invalid ||
-      this.cam.invalid ||
-      this.renderer.invalid ||
-      this.#invalid
-    )
+    return this.cam.invalid || this.renderer.invalid || this.#invalid
   }
 
   set invalid(invalid: true) {
@@ -141,7 +132,7 @@ export class Void {
     json: Readonly<LevelSchema>,
     atlas: keyof AtlasMap,
     hook: ComponentHook
-  ): LevelZoo {
+  ): Zoo {
     const lvl = parseLevel(json, this.pool, hook, this.atlas[atlas])
     if (lvl.background != null) this.backgroundRGBA = lvl.background
     if (lvl.minScale != null) this.cam.minScale = lvl.minScale
@@ -164,7 +155,7 @@ export class Void {
     this.requestFrame() // request frame before in case update cancels.
 
     this.#invalid = false
-    this.zoo.update(this) // this should be like level.update. otherwise it's alist of zoos
+    this.loader.update(this)
 
     this.cam.postupdate()
   }

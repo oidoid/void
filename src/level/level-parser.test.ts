@@ -303,10 +303,11 @@ test('parseLevel() aggregates ents and defaults', () => {
     () => undefined,
     atlas
   )
-  assert(lvl.zoo.default.length, 2)
+  assert(lvl.zoo.default.size, 2)
   assert(lvl.minWH, {w: 3, h: 0})
-  assert(lvl.zoo.default[0]?.sprite?.tag, 'stem--A')
-  assert(lvl.zoo.default[1]?.text, 'hello')
+  const ents = [...lvl.zoo.default]
+  assert(ents[0]?.sprite?.tag, 'stem--A')
+  assert(ents[1]?.text, 'hello')
 
   const emptyLvl = parseLevel(
     {zoo: {default: []}},
@@ -318,7 +319,7 @@ test('parseLevel() aggregates ents and defaults', () => {
     background: undefined,
     minScale: undefined,
     minWH: undefined,
-    zoo: {default: []},
+    zoo: {default: new Set<Ent>()},
     zoomOut: undefined
   })
 })

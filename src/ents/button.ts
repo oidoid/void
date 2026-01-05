@@ -31,7 +31,7 @@ export class ButtonSys implements Sys {
     // in particular, ent.sprite.z needs to be applied more uniformly across the parser but lots of stuff isn't always checking sprite.
 
     const hitsCursor =
-      !!v.zoo.cursor && v.zoo.cursor.sprite.hitsZ(ent.sprite, v.cam)
+      !!v.loader.cursor && v.loader.cursor.sprite.hitsZ(ent.sprite, v.cam)
 
     const on =
       hitsCursor && v.input.isOnStart('A')
@@ -41,7 +41,7 @@ export class ButtonSys implements Sys {
         : toggle
           ? buttonOn(ent)
           : v.input.isOn('A') ||
-            (!!v.zoo.cursor?.cursor.keyboard && v.input.isOn('A'))
+            (!!v.loader.cursor?.cursor.keyboard && v.input.isOn('A'))
     button.started = buttonOn(ent) !== on
     button.pressed.visible = on
 

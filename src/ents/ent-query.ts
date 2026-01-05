@@ -30,7 +30,7 @@ export type EQL<Ent, Query> = Query extends `${'!' | ''}${keyof Ent & string}`
       ? `${Term} | ${EQL<Ent, Rest>}`
       : never
 
-export function parseQuerySet<const Query>(query: EQL<Ent, Query>): string[][] {
+export function parseQuery<const Query>(query: EQL<Ent, Query>): string[][] {
   return query
     .split(' | ')
     .sort(compareEn)

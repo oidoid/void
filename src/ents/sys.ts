@@ -9,7 +9,6 @@ export interface Sys {
    * grouping is permitted.
    */
   query: string
-  querySet?: string[][]
   free?(ent: SysEnt<this>, v: Void): void
   update?(ent: SysEnt<this>, v: Void): void
 }
