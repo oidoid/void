@@ -30,7 +30,8 @@
     "dist/",
     "!dist/meta.json",
     "!dist/public/**/*.png",
-    "!**/tsconfig.tsbuildinfo"
+    "!**/tsconfig.tsbuildinfo",
+    "schema/"
   ],
   "homepage": "https://github.com/oidoid/void",
   "keywords": [
