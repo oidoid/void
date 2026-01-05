@@ -26,7 +26,7 @@ export class LoaderSys implements V.Sys {
 
 function init(ent: V.LoaderEnt, v: V.Void): void {
   v.pool.overlay = V.SpritePool({
-    atlas: v.preload,
+    atlas: v.atlas.default,
     looper: v.looper,
     pageBlocks: 10
   })
@@ -51,7 +51,7 @@ function init(ent: V.LoaderEnt, v: V.Void): void {
     renderToggle: new RenderToggleSys(),
     tally: new TallySys()
   })
-  const zoo = v.loadLevel(levelJSON, parseComponent, v.preload)
+  const zoo = v.loadLevel(levelJSON, 'default', parseComponent)
   // to-do: validate all ents on a system add.
   v.zoo.add(...zoo.default)
   ent.loader.level = 'Init'

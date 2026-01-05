@@ -1,7 +1,7 @@
 import type {LoaderEnt} from './ents/loader.ts'
 import type {Sys} from './ents/sys.ts'
 import {Zoo} from './ents/zoo.ts'
-import type {Atlas} from './graphics/atlas.ts'
+import type {AtlasMap} from './graphics/atlas.ts'
 import {parseAtlas} from './graphics/atlas-parser.ts'
 import {Cam} from './graphics/cam.ts'
 import {PixelRatioObserver} from './graphics/pixel-ratio-observer.ts'
@@ -26,33 +26,34 @@ import {initBody, initMetaViewport} from './utils/dom-util.ts'
 import {loadImage} from './utils/fetch-util.ts'
 
 export type VoidOpts = {
+  /** the default atlas. */
+  atlas: HTMLImageElement | null
   canvas?: HTMLCanvasElement | null
   config: VoidConfig
   description?: string
   loader: LoaderEnt
   loaderSys: Sys
-  preloadAtlas?: HTMLImageElement | null
   random?: Random
   sprites?: Partial<Omit<PoolOpts<Sprite>, 'alloc' | 'allocBytes'>>
 }
 
 export class Void {
+  readonly atlas: AtlasMap
   readonly cam: Cam = new Cam()
   readonly canvas: HTMLCanvasElement
   readonly input: Input
   readonly looper: Looper = new Looper()
   readonly pool: PoolMap
-  readonly preload: Atlas
   readonly random: Random
   readonly renderer: Renderer
   /** delta since frame request. */
   readonly tick: {ms: Millis; s: Secs} = {ms: 0, s: 0}
   readonly zoo: Zoo = new Zoo()
+  readonly #atlasImage: HTMLImageElement
   #backgroundRGBA: number
   #invalid: boolean = false
   readonly #pixelRatioObserver: PixelRatioObserver = new PixelRatioObserver()
   #poller: DelayInterval | undefined
-  readonly #preloadAtlasImage: HTMLImageElement | undefined
   #registered: boolean = false
   /** may trigger an initial force update. */
   readonly #resizeObserver = new ResizeObserver(() => this.onResize())
@@ -77,19 +78,20 @@ export class Void {
 
     this.#pixelRatioObserver.onChange = () => this.onResize()
 
-    this.#preloadAtlasImage = opts.preloadAtlas ?? undefined
-    if (!!this.#preloadAtlasImage !== !!opts.config.preload)
-      throw Error('atlas misconfigured')
+    if (!opts.atlas) throw Error('no atlas image')
+    this.#atlasImage = opts.atlas
 
-    this.preload = opts.config.preload
-      ? parseAtlas(opts.config.preload)
-      : {anim: {}, celXYWH: [], tags: []}
+    this.atlas = {
+      default: opts.config.atlas
+        ? parseAtlas(opts.config.atlas)
+        : {anim: {}, celXYWH: [], tags: []}
+    }
 
-    this.renderer = new Renderer(this.preload ?? {}, this.canvas, this.looper)
+    this.renderer = new Renderer(this.atlas.default, this.canvas, this.looper)
 
     this.pool = {
       default: SpritePool({
-        atlas: this.preload,
+        atlas: this.atlas.default,
         looper: this.looper,
         minPages: opts.sprites?.minPages ?? 3,
         pageBlocks: opts.sprites?.pageBlocks ?? 1000
@@ -137,10 +139,10 @@ export class Void {
 
   loadLevel(
     json: Readonly<LevelSchema>,
-    hook: ComponentHook,
-    atlas: Readonly<Atlas>
+    atlas: keyof AtlasMap,
+    hook: ComponentHook
   ): LevelZoo {
-    const lvl = parseLevel(json, this.pool, hook, atlas)
+    const lvl = parseLevel(json, this.pool, hook, this.atlas[atlas])
     if (lvl.background != null) this.backgroundRGBA = lvl.background
     if (lvl.minScale != null) this.cam.minScale = lvl.minScale
     if (lvl.minWH != null) this.cam.minWH = lvl.minWH
@@ -195,8 +197,8 @@ export class Void {
     if (op === 'add') this.looper.requestFrame()
     this.#poller?.register(op)
 
-    if (this.#preloadAtlasImage) await loadImage(this.#preloadAtlasImage)
-    this.renderer.load(this.#preloadAtlasImage)
+    await loadImage(this.#atlasImage)
+    this.renderer.load(this.#atlasImage)
     this.#registered = op === 'add'
   }
 

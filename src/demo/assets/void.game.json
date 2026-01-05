@@ -1,5 +1,5 @@
 {
-  "preload": {
+  "atlas": {
     "anim": {
       "background--OrangeCheckerboard": {"cels": 1, "h": 2, "id": 0, "w": 2},
       "background--GreyCheckerboard": {"cels": 1, "h": 2, "id": 1, "w": 2},

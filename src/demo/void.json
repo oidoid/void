@@ -8,8 +8,8 @@
     "game": "assets/void.game.json",
     "tagSchema": "level/tags.json"
   },
-  "preloadAtlas": {
-    "dir": "assets/preload-atlas/",
-    "image": "../../dist/public/preload-atlas.webp"
+  "atlas": {
+    "dir": "assets/atlas/",
+    "image": "../../dist/public/atlas.webp"
   }
 }

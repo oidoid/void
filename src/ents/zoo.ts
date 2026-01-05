@@ -23,6 +23,7 @@ export class Zoo {
     }
   }
 
+  // to-do: validate all ents on a system add.
   addSystem(systems: {readonly [component in keyof Ent]?: Sys}): void {
     Object.assign(this.#systems, systems)
   }

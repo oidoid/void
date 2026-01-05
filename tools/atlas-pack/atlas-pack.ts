@@ -8,9 +8,8 @@ import {parseAtlasJSON} from './atlas-json-parser.ts'
 // to-do: separate executable?
 export async function packAtlas(
   config: Readonly<AtlasConfig>
-): Promise<V.AtlasJSON | undefined> {
+): Promise<V.AtlasJSON> {
   const filenames = await globAll(path.join(config.dir, '**.aseprite'))
-  if (!filenames.length) return
 
   const webp = config.image.endsWith('.webp')
   const sheet = webp ? config.image.replace('.webp', '.png') : config.image

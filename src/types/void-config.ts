@@ -12,7 +12,8 @@ export type AtlasJSON = {
 }
 
 export type VoidConfig = {
+  /** the default atlas available on initial frame. */
+  atlas: AtlasJSON
   input: InputMode
   mode: RenderMode
-  preload?: AtlasJSON
 }

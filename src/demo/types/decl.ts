@@ -36,6 +36,6 @@ declare module '../../index.ts' {
 
   interface ReturnTag {
     // biome-ignore lint/style/useShorthandFunctionType:;
-    (): keyof typeof gameJSON.preload.anim
+    (): keyof typeof gameJSON.atlas.anim
   }
 }

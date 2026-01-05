@@ -19,6 +19,11 @@ export type Atlas = {
   tags: Tag[]
 }
 
+export interface AtlasMap {
+  /** the default atlas is available from the initial frame. */
+  default: Atlas
+}
+
 export type Anim = {
   /**
    * number of cels in a full animation cycle including cels extended for

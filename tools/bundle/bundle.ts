@@ -34,17 +34,15 @@ export async function bundle(
     target: 'es2024' // https://esbuild.github.io/content-types/#tsconfig-json
   }
 
-  let atlas
-  if (config.preloadAtlas) atlas = await packAtlas(config.preloadAtlas)
+  const atlas = await packAtlas(config.atlas)
   await writeGameConfig(atlas, config)
 
   await writeTagSchema(atlas, config)
 
   if (config.watch) {
-    if (config.preloadAtlas)
-      fs.watch(config.preloadAtlas.dir, {recursive: true}, (ev, type) =>
-        onWatchAssets(config, ev, type)
-      )
+    fs.watch(config.atlas.dir, {recursive: true}, (ev, type) =>
+      onWatchAssets(config, ev, type)
+    )
     fs.watch(config.filename, async (ev, type) => {
       console.log(`config ${type} ${ev}.`)
       config = await readConfig(config.argv.argv)
@@ -69,27 +67,26 @@ const onWatchAssets = V.debounce(
     file: string | null
   ): Promise<void> => {
     console.log(`asset ${file} ${ev}.`)
-    const preload = await packAtlas(config.preloadAtlas!)
-    await writeGameConfig(preload, config)
+    const atlas = await packAtlas(config.atlas)
+    await writeGameConfig(atlas, config)
   },
   500 as V.Millis
 )
 
 const onWatchConfig = V.debounce(
   async (config: Readonly<Config>): Promise<void> => {
-    let atlas
-    if (config.preloadAtlas) atlas = await packAtlas(config.preloadAtlas)
+    const atlas = await packAtlas(config.atlas)
     await writeGameConfig(atlas, config)
   },
   500 as V.Millis
 )
 
 async function writeGameConfig(
-  preload: Readonly<V.AtlasJSON> | undefined,
+  atlas: Readonly<V.AtlasJSON>,
   config: Readonly<Config>
 ): Promise<void> {
   const gameConfig: V.VoidConfig = {
-    preload,
+    atlas,
     input: config.input,
     mode: config.mode
   }

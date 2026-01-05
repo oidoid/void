@@ -23,7 +23,7 @@
       }
     }
   },
-  "required": ["out"],
+  "required": ["atlas", "out"],
   "unevaluatedProperties": false,
   "properties": {
     "$schema": {
@@ -69,6 +69,7 @@
         }
       }
     },
+    "atlas": {"$ref": "#/$defs/Atlas", "unevaluatedProperties": false},
     "input": {
       "description": "button mapping. defaults to init all default buttons, custom to leave all unmapped.",
       "enum": ["Default", "Unmapped"],
@@ -77,7 +78,6 @@
     "mode": {
       "description": "use fractional or integral rendering.",
       "enum": ["Int", "Float"]
-    },
-    "preloadAtlas": {"$ref": "#/$defs/Atlas", "unevaluatedProperties": false}
+    }
   }
 }

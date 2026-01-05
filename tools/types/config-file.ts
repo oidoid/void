@@ -10,7 +10,7 @@ export type VoidConfigFile = {
   entry: string
   meta: string | undefined
   out: {dir: string; game: string; name: string | undefined; tagSchema: string}
-  preloadAtlas: AtlasConfig | undefined
+  atlas: AtlasConfig
   input: V.InputMode
   mode: V.RenderMode
 
@@ -25,7 +25,7 @@ export type VoidConfigFileSchema = {
   entry?: string
   meta?: string
   out: {dir?: string; game: string; name?: string; tagSchema: string}
-  preloadAtlas?: AtlasConfig
+  atlas: AtlasConfig
   input?: V.InputMode
   mode?: V.RenderMode
 }
@@ -66,9 +66,9 @@ export function parse(filename: string, str: string): VoidConfigFile {
       name: json.out.name,
       tagSchema: path.resolve(dirname, json.out.tagSchema)
     },
-    preloadAtlas: json.preloadAtlas && {
-      dir: path.resolve(dirname, json.preloadAtlas.dir),
-      image: path.resolve(dirname, json.preloadAtlas.image)
+    atlas: {
+      dir: path.resolve(dirname, json.atlas.dir),
+      image: path.resolve(dirname, json.atlas.image)
     },
     input: json.input ?? 'Default',
     mode: json.mode ?? 'Int',

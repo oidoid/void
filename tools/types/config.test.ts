@@ -15,7 +15,7 @@ describe('Config()', () => {
       name: undefined,
       tagSchema: '/project/tagSchema'
     },
-    preloadAtlas: undefined,
+    atlas: {dir: '/project/dir', image: '/project/image'},
     input: 'Default',
     mode: 'Int',
     dirname: '/project',

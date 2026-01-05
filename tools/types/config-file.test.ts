@@ -5,7 +5,13 @@ import {parse, type VoidConfigFileSchema} from './config-file.ts'
 
 test('defaults', () => {
   const config: VoidConfigFileSchema = {
-    out: {dir: undefined, game: 'game', name: undefined, tagSchema: 'tagSchema'}
+    out: {
+      dir: undefined,
+      game: 'game',
+      name: undefined,
+      tagSchema: 'tagSchema'
+    },
+    atlas: {dir: 'dir', image: 'image'}
   }
   assert(parse('dirname/filename', JSON.stringify(config)), {
     $schema: 'https://oidoid.github.io/void/config-file.v0.json',
@@ -17,7 +23,10 @@ test('defaults', () => {
       name: undefined,
       tagSchema: path.resolve('dirname', 'tagSchema')
     },
-    preloadAtlas: undefined,
+    atlas: {
+      dir: path.resolve('dirname', 'dir'),
+      image: path.resolve('dirname', 'image')
+    },
     input: 'Default',
     mode: 'Int',
 
@@ -32,7 +41,7 @@ test('overrides', () => {
     entry: 'entry',
     meta: 'meta',
     out: {dir: 'outDir', game: 'game', name: 'name', tagSchema: 'tagSchema'},
-    preloadAtlas: {dir: 'dir/', image: 'image.webp'},
+    atlas: {dir: 'dir/', image: 'image.webp'},
     input: 'Custom',
     mode: 'Float'
   }
@@ -46,7 +55,7 @@ test('overrides', () => {
       name: 'name',
       tagSchema: path.resolve('dirname', 'tagSchema')
     },
-    preloadAtlas: {
+    atlas: {
       dir: path.resolve('dirname', 'dir/'),
       image: path.resolve('dirname', 'image.webp')
     },

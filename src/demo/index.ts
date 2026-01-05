@@ -8,9 +8,9 @@ console.debug(
 )
 
 const v = new V.Void({
+  atlas: document.querySelector<HTMLImageElement>('#atlas'),
   config: config as V.VoidConfig,
   description,
-  preloadAtlas: document.querySelector<HTMLImageElement>('#preload-atlas'),
   loader: {loader: {level: undefined}},
   loaderSys: new LoaderSys()
 })

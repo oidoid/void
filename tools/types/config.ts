@@ -15,7 +15,7 @@ export type Config = {
   entry: string
   meta: string | undefined
   out: {dir: string; game: string; filename: string; tagSchema: string}
-  preloadAtlas: AtlasConfig | undefined
+  atlas: AtlasConfig
   input: V.InputMode
   mode: V.RenderMode
 
@@ -90,7 +90,7 @@ export function Config(
       filename: `${fileStem}${fileSuffix}`,
       tagSchema: configFile.out.tagSchema
     },
-    preloadAtlas: configFile.preloadAtlas,
+    atlas: configFile.atlas,
     input: configFile.input,
     mode: configFile.mode,
     dirname: configFile.dirname,
