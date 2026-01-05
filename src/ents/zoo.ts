@@ -1,18 +1,10 @@
 import {debug} from '../utils/debug.ts'
 import type {Void} from '../void.ts'
-import {ButtonSys} from './button.ts'
-import {type CursorEnt, CursorSys} from './cursor.ts'
-import {DebutInputSys} from './debug-input.ts'
+import type {CursorEnt} from './cursor.ts'
 import type {Ent} from './ent.ts'
 import {type EQL, parseQuerySet, type QueryEnt} from './ent-query.ts'
-import {FPSSys} from './fps.ts'
-import {HUDSys} from './hud.ts'
 import type {LoaderEnt} from './loader.ts'
-import {NinePatchSys} from './nine-patch.ts'
-import {OverrideSys} from './override.ts'
-import {SpriteSys} from './sprite.ts'
 import type {Sys} from './sys.ts'
-import {TextWHSys, TextXYSys} from './text.ts'
 
 /** ents are updated in insertion order. */
 export class Zoo {
@@ -29,21 +21,6 @@ export class Zoo {
       if (ent.cursor) this.#cursor = ent as CursorEnt
       else if (ent.loader) this.#loader = ent as LoaderEnt
     }
-  }
-
-  addDefaultSystems(): void {
-    this.addSystem({
-      button: new ButtonSys(),
-      cursor: new CursorSys(),
-      debugInput: new DebutInputSys(),
-      fps: new FPSSys(),
-      hud: new HUDSys(),
-      ninePatch: new NinePatchSys(),
-      override: new OverrideSys(),
-      sprite: new SpriteSys(),
-      textWH: new TextWHSys(),
-      textXY: new TextXYSys()
-    })
   }
 
   addSystem(systems: {readonly [component in keyof Ent]?: Sys}): void {

@@ -8,6 +8,9 @@ import {PixelRatioObserver} from './graphics/pixel-ratio-observer.ts'
 import {Renderer} from './graphics/renderer.ts'
 import type {Sprite} from './graphics/sprite.ts'
 import {Input} from './input/input.ts'
+import type {LevelZoo} from './level/level.ts'
+import {type ComponentHook, parseLevel} from './level/level-parser.ts'
+import type {LevelSchema} from './level/level-schema.ts'
 import {Looper} from './looper.ts'
 import type {PoolOpts} from './mem/pool.ts'
 import type {PoolMap} from './mem/pool-map.ts'
@@ -130,6 +133,19 @@ export class Void {
 
   set invalid(invalid: true) {
     this.#invalid = invalid
+  }
+
+  loadLevel(
+    json: Readonly<LevelSchema>,
+    hook: ComponentHook,
+    atlas: Readonly<Atlas>
+  ): LevelZoo {
+    const lvl = parseLevel(json, this.pool, hook, atlas)
+    if (lvl.background != null) this.backgroundRGBA = lvl.background
+    if (lvl.minScale != null) this.cam.minScale = lvl.minScale
+    if (lvl.minWH != null) this.cam.minWH = lvl.minWH
+    if (lvl.zoomOut != null) this.cam.zoomOut = lvl.zoomOut
+    return lvl.zoo
   }
 
   onEvent(): void {
