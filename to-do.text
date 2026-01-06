@@ -46,6 +46,7 @@ parser
   validate json schemas themselves and usages.
   wrap AJV into linter.
 features
+  provide a utility for scaling icons.
   consider adding a utility to sync palettes.
     find src/assets -name \*.aseprite -not -name palette.aseprite|
     xargs --no-run-if-empty --delimiter=\\n --replace \

@@ -35,8 +35,7 @@ export async function bundle(
   }
 
   const atlas = await packAtlas(config.atlas)
-  await writeGameConfig(atlas, config)
-
+  await writeVoidConfig(atlas, config)
   await writeTagSchema(atlas, config)
 
   if (config.watch) {
@@ -68,7 +67,8 @@ const onWatchAssets = V.debounce(
   ): Promise<void> => {
     console.log(`asset ${file} ${ev}.`)
     const atlas = await packAtlas(config.atlas)
-    await writeGameConfig(atlas, config)
+    await writeVoidConfig(atlas, config)
+    await writeTagSchema(atlas, config)
   },
   500 as V.Millis
 )
@@ -76,12 +76,13 @@ const onWatchAssets = V.debounce(
 const onWatchConfig = V.debounce(
   async (config: Readonly<Config>): Promise<void> => {
     const atlas = await packAtlas(config.atlas)
-    await writeGameConfig(atlas, config)
+    await writeVoidConfig(atlas, config)
+    await writeTagSchema(atlas, config)
   },
   500 as V.Millis
 )
 
-async function writeGameConfig(
+async function writeVoidConfig(
   atlas: Readonly<V.AtlasJSON>,
   config: Readonly<Config>
 ): Promise<void> {

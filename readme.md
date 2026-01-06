@@ -62,7 +62,7 @@ sprite is a kind of common denominator for position and area. if the ent should 
 
 ### ECS Order
 
-ents are updated in insertion order. the cam and then cursor _ents_ should appear first.
+lists then ents are typically updated in insertion order. the cam and then cursor _ents_ should appear first.
 
 components are parsed and updated in key order. the recommended order is:
 
