@@ -7,10 +7,8 @@ export class CamSys implements V.Sys {
     if (v.input.isAnyOnStart('U', 'D', 'L', 'R')) v.cam.diagonalize(v.input.dir)
 
     const len = V.truncDrawableEpsilon(25 * v.tick.s)
-    if (v.input.isOn('U')) v.cam.y -= len
-    if (v.input.isOn('D')) v.cam.y += len
-    if (v.input.isOn('L')) v.cam.x -= len
-    if (v.input.isOn('R')) v.cam.x += len
+    v.cam.x += v.input.dir.x * len
+    v.cam.y += v.input.dir.y * len
 
     if (v.input.wheel?.delta.xy.y)
       v.cam.zoomOut -= v.input.wheel.delta.client.y * 0.01
