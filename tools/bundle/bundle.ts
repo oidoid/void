@@ -31,7 +31,7 @@ export async function bundle(
     plugins: [HTMLPlugin(config)],
     tsconfig: config.tsconfigFilename,
     sourcemap: 'linked',
-    target: 'es2024' // https://esbuild.github.io/content-types/#tsconfig-json
+    target: 'es2023' // https://esbuild.github.io/content-types/#tsconfig-json
   }
 
   const atlas = await packAtlas(config.atlas)

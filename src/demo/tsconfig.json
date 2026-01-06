@@ -3,11 +3,11 @@
   "extends": "@oidoid/config/tsconfig",
   "compilerOptions": {
     "lib": [
-      "ES2024",
-      "ESNext.disposable",
       "DOM",
       "DOM.AsyncIterable",
-      "DOM.Iterable"
+      "DOM.Iterable",
+      "ES2023",
+      "ESNext.disposable"
     ],
 
     "customConditions": ["browser"],
