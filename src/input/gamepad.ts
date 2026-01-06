@@ -32,15 +32,17 @@ export class Gamepad {
   }
 
   update(): void {
+    this.bits = 0
     if (!isSecureContext) return
     for (const pad of navigator.getGamepads()) {
-      for (const [index, axis] of pad?.axes.entries() ?? []) {
+      if (!pad) continue
+      for (const [index, axis] of pad.axes.entries() ?? []) {
         const lessMore = this.bitByAxis[index]
         if (!lessMore) continue
         const bit = axis < 0 ? lessMore[0] : axis === 0 ? 0 : lessMore[1]
         this.bits |= Math.abs(axis) >= 0.5 ? bit : 0
       }
-      for (const [index, btn] of pad?.buttons.entries() ?? []) {
+      for (const [index, btn] of pad.buttons.entries() ?? []) {
         const bit = this.bitByButton[index]
         if (bit == null) continue
         this.bits |= btn.pressed ? bit : 0
