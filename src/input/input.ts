@@ -245,7 +245,9 @@ export class Input {
   }
 
   isOnStart(...btns: Readonly<Chord>): boolean {
-    return this.started && this.isOn(...btns)
+    const bits = this.#mapBits(btns)
+    const wasOn = (this.#prevBits & bits) === bits
+    return !wasOn && this.started && this.isOn(...btns)
   }
 
   get key(): {invalid: boolean} {

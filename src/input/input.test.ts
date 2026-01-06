@@ -574,7 +574,7 @@ test('handled', () => {
   assert(input.isComboStart(['U']), false)
 })
 
-test('isAny', () => {
+test('isAnyOn() / isAnyOnStart()', () => {
   using secureContext = new SecureContextMock()
   secureContext.secure = false
   using dpr = new DevicePixelRatioMock()
@@ -600,7 +600,7 @@ test('isAny', () => {
   assert(input.isAnyOnStart('D', 'R'), false)
 })
 
-test('isStart', () => {
+test('started', () => {
   using secureContext = new SecureContextMock()
   secureContext.secure = false
   using dpr = new DevicePixelRatioMock()
@@ -625,6 +625,35 @@ test('isStart', () => {
   input.update(16 as Millis)
 
   assert(input.started, false)
+})
+
+test('isOnStart() requires the tested button to change state', () => {
+  using secureContext = new SecureContextMock()
+  secureContext.secure = false
+  using dpr = new DevicePixelRatioMock()
+  dpr.ratio = 1
+  const target = TestElement()
+  using input = DefaultInput(DefaultCam(), target).register('add')
+
+  target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
+  input.update(16 as Millis)
+  assert(input.isOnStart('U'), true)
+
+  target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowRight'}))
+  input.update(16 as Millis)
+  assert(input.isOnStart('U'), false)
+
+  target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowRight'}))
+  input.update(16 as Millis)
+  assert(input.isOnStart('U'), false)
+
+  target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowUp'}))
+  input.update(16 as Millis)
+  assert(input.isOnStart('U'), false)
+
+  target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
+  input.update(16 as Millis)
+  assert(input.isOnStart('U'), true)
 })
 
 test('pointer movements update position', async ctx => {
