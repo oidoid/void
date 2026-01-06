@@ -24,6 +24,10 @@
     ".": {
       "dev": "./src/index.ts",
       "default": "./dist/src/index.js"
+    },
+    "./test": {
+      "dev": "./src/test/index.ts",
+      "default": "./dist/src/test/index.js"
     }
   },
   "files": [

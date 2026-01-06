@@ -1,4 +1,4 @@
-type PointerTestEventInit = {
+export type PointerTestEventInit = {
   buttons: number
   offsetX: number
   offsetY: number
