@@ -35,7 +35,7 @@ export function zooUpdate(
     for (const k in ent) systems[k as keyof Ent]?.update?.(ent as never, v)
     if (ent.invalid && debug?.invalid)
       console.debug('[invalid] ent update invalid', ent)
-    if (ent.invalid) v.invalid = true
+    v.invalid ||= !!ent.invalid
     ent.invalid = false
   }
 }

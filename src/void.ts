@@ -124,7 +124,8 @@ export class Void {
     return this.cam.invalid || this.renderer.invalid || this.#invalid
   }
 
-  set invalid(invalid: true) {
+  /** does not impact cam or renderer invalid state. */
+  set invalid(invalid: boolean) {
     this.#invalid = invalid
   }
 
