@@ -10,14 +10,11 @@ demo
     tweet notes. either it fits in 140 or it doesn't. you have to be thoughtful. you can publish to a readonly queue though. maybe that just happens automatically to the last entry when a new entry is made. you lose editing. you can reorder though.
     make a friendly note taking app that is Mario Paint fun.
 bugs
-  gamepad is totally broken?
-  combo is no longer clearing. seems like a probable regression with click to A.
   reinvestigate fullscreen movement delta scaling. I can't get this to work.
   I'm getting Node.js type suggestions in src and demo. types is empty. only happens when jsdom is installed. `npx tsc -p src/ --listFiles` lists no @types files. everything is pure TS lib or project files. doesn't matter when I blank typeRoots and remove types: 'node' from other projects.
 perf
   make sprites default visible.
   it doesn't make sense to insert static sprites as ents. just make an array sprite ent to hold a whole group.
-  review gamepad connection event support so that `requestFrame()` doesn't need to run every frame.
   experiment with caching `Sprite` hitbox and hurtbox.
     add cached hit/hurtbox tests to sprite.
   provide quadtree.
@@ -28,7 +25,7 @@ perf
     https://github.com/UstymUkhman/vite-plugin-glsl/blob/main/src/loadShader.js
   mem pool should move hidden sprites to end and not send. could also just have sprite interface or list of sprites I don't send to GPU.
 input
-  gamepad on disconnect doesn't clear active input?
+  test other controllers.
   restore left hand keys for AnyButton.
   how can I make two button combos friendlier? this is impossible to time at the same time and it's unclear how to resolve within a window. all buttons pressed sounds good. even if I remove gap requirement, you end up pressing A, A+B, B instead of A+B. generate multiple interpretations each press and union result. for "A, A+B", you can't slide from A to B without a release and releasing buttons after "A, A+B, A+B+C" doesn't cause "A, A+B, A+B+C, B+C, C". my ideal is: new sequence after an off release, otherwise aggregate for like 60ms. see test "combos require gaps between presses".
     A-off-A+B-off-A-off-A -> A-A+B-A-A

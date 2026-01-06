@@ -264,8 +264,10 @@ export class Input {
     this.mapKeyboardCode('Back', 'Escape')
 
     // https://w3c.github.io/gamepad/#remapping
-    this.mapGamepadAxis('U', 'D', 1, 3)
-    this.mapGamepadAxis('L', 'R', 0, 2)
+    // 7 and 6 are for
+    // `8Bitdo SF30 Pro   8BitDo SN30 Pro+ (Vendor: 2dc8 Product: 6002)`.
+    this.mapGamepadAxis('U', 'D', 1, 3, 7)
+    this.mapGamepadAxis('L', 'R', 0, 2, 6)
     this.mapGamepadButton('U', 12)
     this.mapGamepadButton('D', 13)
     this.mapGamepadButton('L', 14)
@@ -287,12 +289,11 @@ export class Input {
     more: AnyButton,
     ...axes: readonly number[]
   ): void {
-    for (const axis of axes) {
+    for (const axis of axes)
       this.#gamepad.bitByAxis[axis] = [
         this.#mapButton(less),
         this.#mapButton(more)
       ]
-    }
   }
 
   mapGamepadButton(btn: AnyButton, ...indices: readonly number[]): void {
