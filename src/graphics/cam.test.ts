@@ -1,11 +1,12 @@
 import {test} from 'node:test'
 import {assert} from '../test/assert.ts'
-import {DPIMock} from '../test/dpi-mock.ts'
+import {DevicePixelRatioMock} from '../test/device-pixel-ratio-mock.ts'
 import {Cam, type Canvas} from './cam.ts'
 import {Layer} from './layer.ts'
 
 test('update() in int mode sizes canvas with devicePixelRatio and minWH', () => {
-  using _dpi = new DPIMock(5)
+  using dpr = new DevicePixelRatioMock()
+  dpr.ratio = 5
 
   const cam = new Cam()
   cam.minWH = {w: 400, h: 128}
@@ -23,7 +24,8 @@ test('update() in int mode sizes canvas with devicePixelRatio and minWH', () => 
 })
 
 test('clientToXY() and clientToXYLocal()', () => {
-  using _dpi = new DPIMock(5)
+  using dpr = new DevicePixelRatioMock()
+  dpr.ratio = 5
 
   const cam = new Cam()
   cam.minWH = {w: 400, h: 128}
@@ -48,7 +50,8 @@ test('clientToXY() and clientToXYLocal()', () => {
 })
 
 test('toString()', () => {
-  using _dpi = new DPIMock(1)
+  using dpr = new DevicePixelRatioMock()
+  dpr.ratio = 1
   const cam = new Cam()
   const canvas = TestCanvas(3, 4)
   cam.x = 1
@@ -131,13 +134,15 @@ test('devicePixelRatio change invalidates on update', () => {
   cam.update(canvas)
   cam.postupdate()
 
-  using _dpi = new DPIMock(2)
+  using dpr = new DevicePixelRatioMock()
+  dpr.ratio = 2
   cam.update(canvas)
   assert(cam.invalid, true)
 })
 
 test('center() places cam to center the given xy', () => {
-  using _dpi = new DPIMock(1)
+  using dpr = new DevicePixelRatioMock()
+  dpr.ratio = 1
   const cam = new Cam()
   cam.minWH = {w: 100, h: 50}
   const canvas = TestCanvas(200, 100)
@@ -162,7 +167,8 @@ test('follow() NW pivot (world layer)', () => {
 })
 
 test('follow() SE pivot (world layer)', () => {
-  using _dpi = new DPIMock(1)
+  using dpr = new DevicePixelRatioMock()
+  dpr.ratio = 1
   const cam = new Cam()
   cam.minWH = {w: 100, h: 50}
   const canvas = TestCanvas(200, 100)
@@ -176,7 +182,8 @@ test('follow() SE pivot (world layer)', () => {
 })
 
 test('follow() Origin pivot with modulo snapping', () => {
-  using _dpi = new DPIMock(1)
+  using dpr = new DevicePixelRatioMock()
+  dpr.ratio = 1
   const cam = new Cam()
   cam.minWH = {w: 100, h: 50}
   const canvas = TestCanvas(200, 100)
@@ -192,7 +199,8 @@ test('follow() Origin pivot with modulo snapping', () => {
 })
 
 test('follow() fill XY with margins', () => {
-  using _dpi = new DPIMock(1)
+  using dpr = new DevicePixelRatioMock()
+  dpr.ratio = 1
   const cam = new Cam()
   cam.minWH = {w: 100, h: 50}
   const canvas = TestCanvas(200, 100)
@@ -209,7 +217,8 @@ test('follow() fill XY with margins', () => {
 })
 
 test('follow() UI layer ignores cam offset', () => {
-  using _dpi = new DPIMock(1)
+  using dpr = new DevicePixelRatioMock()
+  dpr.ratio = 1
   const cam = new Cam()
   cam.minWH = {w: 100, h: 50}
   const canvas = TestCanvas(200, 100)
@@ -223,7 +232,8 @@ test('follow() UI layer ignores cam offset', () => {
 })
 
 test('isVisible() cases', () => {
-  using _dpi = new DPIMock(1)
+  using dpr = new DevicePixelRatioMock()
+  dpr.ratio = 1
   const cam = new Cam()
   cam.minWH = {w: 100, h: 50}
   const canvas = TestCanvas(200, 100)
@@ -246,7 +256,8 @@ test('isVisible() cases', () => {
 })
 
 test('portrait()', () => {
-  using _dpi = new DPIMock(1)
+  using dpr = new DevicePixelRatioMock()
+  dpr.ratio = 1
   const cam = new Cam()
   const canvas = TestCanvas(100, 200)
   cam.update(canvas)
@@ -258,7 +269,8 @@ test('portrait()', () => {
 })
 
 test('zoom out int mode affects scale and dims', () => {
-  using _dpi = new DPIMock(2)
+  using dpr = new DevicePixelRatioMock()
+  dpr.ratio = 2
 
   const cam = new Cam()
   cam.minWH = {w: 100, h: 50}
@@ -272,7 +284,8 @@ test('zoom out int mode affects scale and dims', () => {
 })
 
 test('negative zoom in int mode is clamped to 0', () => {
-  using _dpi = new DPIMock(2)
+  using dpr = new DevicePixelRatioMock()
+  dpr.ratio = 2
 
   const cam = new Cam()
   cam.minWH = {w: 100, h: 50}
@@ -284,7 +297,8 @@ test('negative zoom in int mode is clamped to 0', () => {
 })
 
 test('zoom out in float mode subtracts fractionally', () => {
-  using _dpi = new DPIMock(2)
+  using dpr = new DevicePixelRatioMock()
+  dpr.ratio = 2
 
   const cam = new Cam()
   cam.minWH = {w: 100, h: 50}

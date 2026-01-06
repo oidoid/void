@@ -1,6 +1,6 @@
 import {test} from 'node:test'
 import {assert} from '../test/assert.ts'
-import {DPIMock} from '../test/dpi-mock.ts'
+import {DevicePixelRatioMock} from '../test/device-pixel-ratio-mock.ts'
 import {TestElement} from '../test/test-element.ts'
 import {PointerTestEvent} from '../test/test-event.ts'
 import {Pointer} from './pointer.ts'
@@ -224,7 +224,8 @@ test('drag', ctx => {
 })
 
 test('locked pointer movement with DPR scaling and clamping', () => {
-  using _dpi = new DPIMock(2)
+  using dpr = new DevicePixelRatioMock()
+  dpr.ratio = 2
   const target = TestElement()
   Object.defineProperty(target, 'clientWidth', {value: 100})
   Object.defineProperty(target, 'clientHeight', {value: 50})
