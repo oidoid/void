@@ -33,8 +33,13 @@ export class CursorSys implements Sys {
     )
       onKey(ent, v.input, v.tick.s)
 
-    if (ent.cursor.pick)
-      ent.sprite.tag = v.input.isOn('A') ? ent.cursor.pick : ent.cursor.point
+    if (ent.cursor.pick) {
+      const tag = v.input.isOn('A') ? ent.cursor.pick : ent.cursor.point
+      if (tag !== ent.sprite.tag) {
+        ent.sprite.tag = tag
+        ent.invalid = true
+      }
+    }
   }
 }
 
