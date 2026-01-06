@@ -43,7 +43,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "published": "20260105",
+  "published": "20260106",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/oidoid/void.git"
@@ -61,5 +61,5 @@
     "version": "npm pkg set published=$(date +%Y%m%d) && npm run clean && npm test"
   },
   "type": "module",
-  "version": "0.1.6"
+  "version": "0.1.7"
 }
