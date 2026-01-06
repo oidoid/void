@@ -3,13 +3,13 @@ import {assert} from '../test/assert.ts'
 import {WheelTestEvent} from '../test/test-event.ts'
 import {Wheel} from './wheel.ts'
 
-test('Wheel', ctx => {
+test('Wheel', async ctx => {
   const target = new EventTarget()
   using wheel = new Wheel(target).register('add')
 
-  ctx.test('init', () => assert(wheel.deltaClient, undefined))
+  await ctx.test('init', () => assert(wheel.deltaClient, undefined))
 
-  ctx.test('modifiers', () => {
+  await ctx.test('modifiers', () => {
     target.dispatchEvent(
       WheelTestEvent({deltaX: 1, deltaY: 2, deltaZ: 3, metaKey: true})
     )
@@ -24,19 +24,19 @@ test('Wheel', ctx => {
     assert(wheel.deltaClient, undefined)
   })
 
-  ctx.test('untrusted', () => {
+  await ctx.test('untrusted', () => {
     target.dispatchEvent(
       Object.assign(new Event('wheel'), {deltaX: 4, deltaY: 5, deltaZ: 6})
     )
     assert(wheel.deltaClient, undefined)
   })
 
-  ctx.test('event', () => {
+  await ctx.test('event', () => {
     target.dispatchEvent(WheelTestEvent({deltaX: 1, deltaY: 2, deltaZ: 3}))
     assert(wheel.deltaClient, {x: 1, y: 2, z: 3})
   })
 
-  ctx.test('postupdate', () => {
+  await ctx.test('postupdate', () => {
     wheel.postupdate()
     assert(wheel.deltaClient, undefined)
   })

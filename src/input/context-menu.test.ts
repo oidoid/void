@@ -3,11 +3,11 @@ import {assert} from '../test/assert.ts'
 import {MenuTestEvent} from '../test/test-event.ts'
 import {ContextMenu} from './context-menu.ts'
 
-test('ContextMenu', ctx => {
+test('ContextMenu', async ctx => {
   const target = new EventTarget()
   using menu = new ContextMenu(target).register('add')
 
-  ctx.test('disabled', () => {
+  await ctx.test('disabled', () => {
     let blocked = 0
     target.dispatchEvent(
       MenuTestEvent('contextmenu', {preventDefault: () => blocked++})
@@ -19,7 +19,7 @@ test('ContextMenu', ctx => {
     assert(blocked, 2)
   })
 
-  ctx.test('enabled', () => {
+  await ctx.test('enabled', () => {
     menu.enable = true
     let blocked = 0
     target.dispatchEvent(
@@ -32,7 +32,7 @@ test('ContextMenu', ctx => {
     assert(blocked, 0)
   })
 
-  ctx.test('modified events are skipped', () => {
+  await ctx.test('modified events are skipped', () => {
     menu.enable = true
     let blocked = 0
     target.dispatchEvent(
@@ -58,7 +58,7 @@ test('ContextMenu', ctx => {
     assert(blocked, 0)
   })
 
-  ctx.test('untrusted events are skipped', () => {
+  await ctx.test('untrusted events are skipped', () => {
     menu.enable = true
     let blocked = 0
     target.dispatchEvent(

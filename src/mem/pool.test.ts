@@ -2,20 +2,20 @@ import {test} from 'node:test'
 import {assert} from '../test/assert.ts'
 import {type Block, Pool} from './pool.ts'
 
-test('alloc()', ctx => {
+test('alloc()', async ctx => {
   const pool = new Pool({alloc: () => ({i: 0}), allocBytes: 5, pageBlocks: 2})
 
-  ctx.test('has one page init', () => {
+  await ctx.test('has one page init', () => {
     assert(pool.toDebugString(), '0000000000 0000000000')
   })
 
-  ctx.test('fills one page', () => {
+  await ctx.test('fills one page', () => {
     pool.alloc()
     pool.alloc()
     assert(pool.toDebugString(), '0000000000 0000000000')
   })
 
-  ctx.test('grows to a second page', () => {
+  await ctx.test('grows to a second page', () => {
     pool.alloc()
     assert(pool.toDebugString(), '0000000000 0000000000 0000000000 0000000000')
   })
@@ -35,15 +35,15 @@ test('clear() sets pool to init state', () => {
   assert(alloc, realloc)
 })
 
-test('free()', ctx => {
+test('free()', async ctx => {
   const pool = new Pool({alloc: () => ({i: 0}), allocBytes: 5, pageBlocks: 2})
   const blocks: Block[] = []
 
-  ctx.test('underflows when nothing to free', () => {
+  await ctx.test('underflows when nothing to free', () => {
     assert.throws(() => pool.free({i: 0}), /underflow/)
   })
 
-  ctx.test('shrinks', () => {
+  await ctx.test('shrinks', () => {
     blocks.push(pool.alloc())
     assert(pool.toDebugString(), '0000000000 0000000000')
     blocks.push(pool.alloc())
@@ -55,24 +55,24 @@ test('free()', ctx => {
     assert(pool.toDebugString(), '0000000000 0000000000')
   })
 
-  ctx.test('never shrinks below one page', () => {
+  await ctx.test('never shrinks below one page', () => {
     for (const block of blocks) pool.free(block)
     blocks.length = 0
     assert(pool.toDebugString(), '0000000000 0000000000')
   })
 })
 
-test('size', ctx => {
+test('size', async ctx => {
   const pool = new Pool({alloc: () => ({i: 0}), allocBytes: 5, pageBlocks: 2})
 
-  ctx.test('is zero init', () => assert(pool.size, 0))
+  await ctx.test('is zero init', () => assert(pool.size, 0))
 
-  ctx.test('is one after an alloc', () => {
+  await ctx.test('is one after an alloc', () => {
     pool.alloc()
     assert(pool.size, 1)
   })
 
-  ctx.test('is two after an alloc', () => {
+  await ctx.test('is two after an alloc', () => {
     pool.alloc()
     assert(pool.size, 2)
   })

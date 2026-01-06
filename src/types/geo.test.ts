@@ -35,7 +35,7 @@ test('borderAssign()', () => {
   assert(l, r1)
 })
 
-test('boxHits()', ctx => {
+test('boxHits()', async ctx => {
   type TestCase = readonly [
     diagram: string,
     l: [x: number, y: number, w: number, h: number],
@@ -648,29 +648,33 @@ test('boxHits()', ctx => {
   for (const [diagram, l, r, hits] of cases) {
     const lBox = {x: l[0], y: l[1], w: l[2], h: l[3]}
     const rBox = {x: r[0], y: r[1], w: r[2], h: r[3]}
-    ctx.test(`hits(l, r): ${diagram}`, () => assert(boxHits(lBox, rBox), hits))
-    ctx.test(`hits(r, l): ${diagram}`, () => assert(boxHits(rBox, lBox), hits))
+    await ctx.test(`hits(l, r): ${diagram}`, () =>
+      assert(boxHits(lBox, rBox), hits)
+    )
+    await ctx.test(`hits(r, l): ${diagram}`, () =>
+      assert(boxHits(rBox, lBox), hits)
+    )
   }
 
-  ctx.test("empty box doesn't hit nonempty box", () =>
+  await ctx.test("empty box doesn't hit nonempty box", () =>
     assert(
       boxHits({x: 0.5, y: 0.5, w: 0, h: 0}, {x: 0, y: 0, w: 1, h: 1}),
       false
     )
   )
 
-  ctx.test("nonempty box doesn't hit empty box", () =>
+  await ctx.test("nonempty box doesn't hit empty box", () =>
     assert(
       boxHits({x: 0, y: 0, w: 1, h: 1}, {x: 0.5, y: 0.5, w: 0, h: 0}),
       false
     )
   )
 
-  ctx.test('box hits point', () =>
+  await ctx.test('box hits point', () =>
     assert(boxHits({x: 0, y: 0, w: 1, h: 1}, {x: 0.5, y: 0.5}), true)
   )
 
-  ctx.test("flipped box doesn't hit nonempty box", () =>
+  await ctx.test("flipped box doesn't hit nonempty box", () =>
     assert(
       boxHits({x: 0.5, y: 0.5, w: -1, h: -1}, {x: 0, y: 0, w: 1, h: 1}),
       false

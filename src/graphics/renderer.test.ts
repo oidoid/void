@@ -3,25 +3,25 @@ import {assert} from '../test/assert.ts'
 import {TestEvent} from '../test/test-event.ts'
 import {type Context, Renderer} from './renderer.ts'
 
-test('renderer', ctx => {
+test('renderer', async ctx => {
   const canvas = new EventTarget() as HTMLCanvasElement
   using renderer = TestRenderer(canvas)
 
-  ctx.test('no context before loading', () =>
+  await ctx.test('no context before loading', () =>
     assert(renderer.hasContext, false)
   )
 
-  ctx.test('context after loading', () => {
+  await ctx.test('context after loading', () => {
     renderer.load({} as HTMLImageElement)
     assert(renderer.hasContext, true)
   })
 
-  ctx.test('context lost', () => {
+  await ctx.test('context lost', () => {
     canvas.dispatchEvent(TestEvent('webglcontextlost'))
     assert(renderer.hasContext, false)
   })
 
-  ctx.test('context restored', () => {
+  await ctx.test('context restored', () => {
     canvas.dispatchEvent(TestEvent('webglcontextrestored'))
     assert(renderer.hasContext, true)
   })

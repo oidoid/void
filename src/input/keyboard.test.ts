@@ -9,61 +9,61 @@ test('constructor() inits', () => {
   assert(kbd.bits, 0)
 })
 
-test('bits map to button state: A↓, B↓, A↑', ctx => {
+test('bits map to button state: A↓, B↓, A↑', async ctx => {
   const target = new EventTarget()
   using kbd = new Keyboard(target).register('add')
   kbd.bitByCode.KeyA = 1
   kbd.bitByCode.KeyB = 2
 
-  ctx.test('A↓', () => {
+  await ctx.test('A↓', () => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'KeyA'}))
     assert(kbd.bits, 1)
   })
 
-  ctx.test('B↓', () => {
+  await ctx.test('B↓', () => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'KeyB'}))
     assert(kbd.bits, 3)
   })
 
-  ctx.test('A↑', () => {
+  await ctx.test('A↑', () => {
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'KeyA'}))
     assert(kbd.bits, 2)
   })
 })
 
-test('two buttons mapped to the same bit are unioned', ctx => {
+test('two buttons mapped to the same bit are unioned', async ctx => {
   const target = new EventTarget()
   using kbd = new Keyboard(target).register('add')
   kbd.bitByCode.KeyA = 1
   kbd.bitByCode.KeyB = 1
 
-  ctx.test('A↓', () => {
+  await ctx.test('A↓', () => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'KeyA'}))
     assert(kbd.bits, 1)
   })
 
-  ctx.test('B↓', () => {
+  await ctx.test('B↓', () => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'KeyB'}))
     assert(kbd.bits, 1)
   })
 
-  ctx.test('A↑', () => {
+  await ctx.test('A↑', () => {
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'KeyA'}))
     assert(kbd.bits, 1)
   })
 
-  ctx.test('B↑', () => {
+  await ctx.test('B↑', () => {
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'KeyB'}))
     assert(kbd.bits, 0)
   })
 })
 
-test('modifiers and untrusted', ctx => {
+test('modifiers and untrusted', async ctx => {
   const target = new EventTarget()
   using kbd = new Keyboard(target).register('add')
   kbd.bitByCode.KeyA = 1
 
-  ctx.test('modifiers', () => {
+  await ctx.test('modifiers', () => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'KeyA', ctrlKey: true}))
     assert(kbd.bits, 0)
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'KeyA', altKey: true}))
@@ -72,7 +72,7 @@ test('modifiers and untrusted', ctx => {
     assert(kbd.bits, 0)
   })
 
-  ctx.test('untrusted', () => {
+  await ctx.test('untrusted', () => {
     target.dispatchEvent(Object.assign(new Event('keydown'), {code: 'KeyA'}))
     assert(kbd.bits, 0)
   })

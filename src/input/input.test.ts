@@ -2,6 +2,7 @@ import {afterEach, beforeEach, test} from 'node:test'
 import {Cam} from '../graphics/cam.ts'
 import {assert} from '../test/assert.ts'
 import {DevicePixelRatioMock} from '../test/device-pixel-ratio-mock.ts'
+import {SecureContextMock} from '../test/secure-context-mock.ts'
 import {TestElement} from '../test/test-element.ts'
 import {
   KeyTestEvent,
@@ -12,24 +13,24 @@ import type {Millis} from '../types/time.ts'
 import {type AnyButton, type Combo, Input} from './input.ts'
 
 beforeEach(() => {
-  globalThis.isSecureContext = false
   globalThis.addEventListener = () => {}
   globalThis.removeEventListener = () => {}
 })
 
 afterEach(() => {
-  delete (globalThis as Partial<typeof globalThis>).isSecureContext
   delete (globalThis as Partial<typeof globalThis>).addEventListener
   delete (globalThis as Partial<typeof globalThis>).removeEventListener
 })
 
-test('init', ctx => {
+test('init', async ctx => {
+  using secureContext = new SecureContextMock()
+  secureContext.secure = false
   using dpr = new DevicePixelRatioMock()
   dpr.ratio = 1
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
-  ctx.test('no update', () => {
+  await ctx.test('no update', () => {
     assert(input.on, [])
     assert(input.handled, false)
     assert(input.invalid, false)
@@ -42,7 +43,7 @@ test('init', ctx => {
     assert(input.wheel, undefined)
   })
 
-  ctx.test('no change after update', () => {
+  await ctx.test('no change after update', () => {
     input.update(16 as Millis)
 
     assert(input.on, [])
@@ -59,6 +60,8 @@ test('init', ctx => {
 })
 
 test('held off', () => {
+  using secureContext = new SecureContextMock()
+  secureContext.secure = false
   using dpr = new DevicePixelRatioMock()
   dpr.ratio = 1
   const target = TestElement()
@@ -75,13 +78,15 @@ test('held off', () => {
   assertCombo(input, [['U']], 'Unequal')
 })
 
-test('pressed buttons', ctx => {
+test('pressed buttons', async ctx => {
+  using secureContext = new SecureContextMock()
+  secureContext.secure = false
   using dpr = new DevicePixelRatioMock()
   dpr.ratio = 1
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
-  ctx.test('pressed are active and triggered', () => {
+  await ctx.test('pressed are active and triggered', () => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
     input.update(16 as Millis)
 
@@ -95,14 +100,14 @@ test('pressed buttons', ctx => {
     assert(input.combo, [['U']])
   })
 
-  ctx.test('unpressed are inactive and not triggered', () => {
+  await ctx.test('unpressed are inactive and not triggered', () => {
     assertButton(input, 'D', 'Off')
     assertCombo(input, [['D']], 'Unequal')
     assertCombo(input, [['D', 'U']], 'Unequal')
     assertCombo(input, [['D'], ['U']], 'Unequal')
   })
 
-  ctx.test('pressed are triggered for one frame only', () => {
+  await ctx.test('pressed are triggered for one frame only', () => {
     input.update(16 as Millis)
 
     assert(input.on, ['U'])
@@ -115,7 +120,7 @@ test('pressed buttons', ctx => {
     assert(input.combo, [['U']])
   })
 
-  ctx.test('released are off and triggered', () => {
+  await ctx.test('released are off and triggered', () => {
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowUp'}))
     input.update(16 as Millis)
 
@@ -129,7 +134,7 @@ test('pressed buttons', ctx => {
     assert(input.combo, [['U']])
   })
 
-  ctx.test('pressed are held on', () => {
+  await ctx.test('pressed are held on', () => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
     input.update(input.minHeldMillis)
 
@@ -144,7 +149,7 @@ test('pressed buttons', ctx => {
     assert(input.combo, [['U'], ['U']])
   })
 
-  ctx.test(
+  await ctx.test(
     'expired allow current combo to stay on but discontinue next',
     () => {
       input.update((input.comboMaxIntervalMillis + 1) as Millis)
@@ -161,7 +166,7 @@ test('pressed buttons', ctx => {
     }
   )
 
-  ctx.test('expired start new combo', () => {
+  await ctx.test('expired start new combo', () => {
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowUp'}))
     input.update(16 as Millis)
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
@@ -179,13 +184,15 @@ test('pressed buttons', ctx => {
   })
 })
 
-test('combos require gaps between presses', ctx => {
+test('combos require gaps between presses', async ctx => {
+  using secureContext = new SecureContextMock()
+  secureContext.secure = false
   using dpr = new DevicePixelRatioMock()
   dpr.ratio = 1
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
-  ctx.test('Up', () => {
+  await ctx.test('Up', () => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
     input.update(16 as Millis)
 
@@ -201,7 +208,7 @@ test('combos require gaps between presses', ctx => {
     assertCombo(input, [['U'], ['D'], ['U']], 'Unequal')
   })
 
-  ctx.test('Up, Down', () => {
+  await ctx.test('Up, Down', () => {
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowUp'}))
     input.update(16 as Millis)
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowDown'}))
@@ -219,7 +226,7 @@ test('combos require gaps between presses', ctx => {
     assertCombo(input, [['U'], ['D'], ['U']], 'Unequal')
   })
 
-  ctx.test('Up, Down, Up', () => {
+  await ctx.test('Up, Down, Up', () => {
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowDown'}))
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
     input.update(16 as Millis)
@@ -238,6 +245,8 @@ test('combos require gaps between presses', ctx => {
 })
 
 test('around-the-world combo', () => {
+  using secureContext = new SecureContextMock()
+  secureContext.secure = false
   using dpr = new DevicePixelRatioMock()
   dpr.ratio = 1
   const target = TestElement()
@@ -278,13 +287,15 @@ test('around-the-world combo', () => {
   )
 })
 
-test('Up, Up, Down, Down, Left', ctx => {
+test('Up, Up, Down, Down, Left', async ctx => {
+  using secureContext = new SecureContextMock()
+  secureContext.secure = false
   using dpr = new DevicePixelRatioMock()
   dpr.ratio = 1
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
-  ctx.test('Up', () => {
+  await ctx.test('Up', () => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
     input.update(16 as Millis)
 
@@ -303,7 +314,7 @@ test('Up, Up, Down, Down, Left', ctx => {
     assertCombo(input, [['U'], ['U'], ['D'], ['D'], ['L']], 'Unequal')
   })
 
-  ctx.test('Up, Up', () => {
+  await ctx.test('Up, Up', () => {
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowUp'}))
     input.update(16 as Millis)
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
@@ -324,7 +335,7 @@ test('Up, Up, Down, Down, Left', ctx => {
     assertCombo(input, [['U'], ['U'], ['D'], ['D'], ['L']], 'Unequal')
   })
 
-  ctx.test('Up, Up, Down', () => {
+  await ctx.test('Up, Up, Down', () => {
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowUp'}))
     input.update(16 as Millis)
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowDown'}))
@@ -345,7 +356,7 @@ test('Up, Up, Down, Down, Left', ctx => {
     assertCombo(input, [['U'], ['U'], ['D'], ['D'], ['L']], 'Unequal')
   })
 
-  ctx.test('Up, Up, Down, Down', () => {
+  await ctx.test('Up, Up, Down, Down', () => {
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowDown'}))
     input.update(16 as Millis)
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowDown'}))
@@ -366,7 +377,7 @@ test('Up, Up, Down, Down, Left', ctx => {
     assertCombo(input, [['U'], ['U'], ['D'], ['D'], ['L']], 'Unequal')
   })
 
-  ctx.test('Up, Up, Down, Down, Left', () => {
+  await ctx.test('Up, Up, Down, Down, Left', () => {
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowDown'}))
     input.update(16 as Millis)
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowLeft'}))
@@ -388,13 +399,15 @@ test('Up, Up, Down, Down, Left', ctx => {
   })
 })
 
-test('held combos stay active past expiry', ctx => {
+test('held combos stay active past expiry', async ctx => {
+  using secureContext = new SecureContextMock()
+  secureContext.secure = false
   using dpr = new DevicePixelRatioMock()
   dpr.ratio = 1
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
-  ctx.test('Up, Up', () => {
+  await ctx.test('Up, Up', () => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
     input.update(16 as Millis)
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowUp'}))
@@ -412,7 +425,7 @@ test('held combos stay active past expiry', ctx => {
     assertCombo(input, [['U'], ['U']], 'Equal', 'Start')
   })
 
-  ctx.test('held', () => {
+  await ctx.test('held', () => {
     input.update((input.comboMaxIntervalMillis + 1) as Millis)
 
     assert(input.on, ['U'])
@@ -426,13 +439,15 @@ test('held combos stay active past expiry', ctx => {
   })
 })
 
-test('combo sequences can have multiple buttons', ctx => {
+test('combo sequences can have multiple buttons', async ctx => {
+  using secureContext = new SecureContextMock()
+  secureContext.secure = false
   using dpr = new DevicePixelRatioMock()
   dpr.ratio = 1
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
-  ctx.test('Up Left', () => {
+  await ctx.test('Up Left', () => {
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowUp'}))
     target.dispatchEvent(KeyTestEvent('keydown', {code: 'ArrowLeft'}))
     input.update(16 as Millis)
@@ -459,7 +474,7 @@ test('combo sequences can have multiple buttons', ctx => {
     )
   })
 
-  ctx.test('Up Left, Down Right', () => {
+  await ctx.test('Up Left, Down Right', () => {
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowUp'}))
     target.dispatchEvent(KeyTestEvent('keyup', {code: 'ArrowLeft'}))
     input.update(16 as Millis)
@@ -492,6 +507,8 @@ test('combo sequences can have multiple buttons', ctx => {
 })
 
 test('handled', () => {
+  using secureContext = new SecureContextMock()
+  secureContext.secure = false
   using dpr = new DevicePixelRatioMock()
   dpr.ratio = 1
   const target = TestElement()
@@ -558,6 +575,8 @@ test('handled', () => {
 })
 
 test('isAny', () => {
+  using secureContext = new SecureContextMock()
+  secureContext.secure = false
   using dpr = new DevicePixelRatioMock()
   dpr.ratio = 1
   const target = TestElement()
@@ -582,6 +601,8 @@ test('isAny', () => {
 })
 
 test('isStart', () => {
+  using secureContext = new SecureContextMock()
+  secureContext.secure = false
   using dpr = new DevicePixelRatioMock()
   dpr.ratio = 1
   const target = TestElement()
@@ -606,13 +627,15 @@ test('isStart', () => {
   assert(input.started, false)
 })
 
-test('pointer movements update position', ctx => {
+test('pointer movements update position', async ctx => {
+  using secureContext = new SecureContextMock()
+  secureContext.secure = false
   using dpr = new DevicePixelRatioMock()
   dpr.ratio = 1
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
-  ctx.test('move', () => {
+  await ctx.test('move', () => {
     target.dispatchEvent(
       PointerTestEvent('pointermove', {
         offsetX: 1,
@@ -626,7 +649,7 @@ test('pointer movements update position', ctx => {
     assert(input.point?.invalid, true)
   })
 
-  ctx.test('and position is not lost on update', () => {
+  await ctx.test('and position is not lost on update', () => {
     input.update(16 as Millis)
 
     assert(input.point?.client, {x: 1, y: 2})
@@ -636,6 +659,8 @@ test('pointer movements update position', ctx => {
 })
 
 test('pointer clicks are buttons', () => {
+  using secureContext = new SecureContextMock()
+  secureContext.secure = false
   using dpr = new DevicePixelRatioMock()
   dpr.ratio = 1
   const target = TestElement()
@@ -652,6 +677,8 @@ test('pointer clicks are buttons', () => {
 })
 
 test('pointer secondary clicks are buttons', () => {
+  using secureContext = new SecureContextMock()
+  secureContext.secure = false
   using dpr = new DevicePixelRatioMock()
   dpr.ratio = 1
   const target = TestElement()
@@ -667,13 +694,15 @@ test('pointer secondary clicks are buttons', () => {
   assert(input.point?.invalid, true)
 })
 
-test('a pointer click can become a drag', ctx => {
+test('a pointer click can become a drag', async ctx => {
+  using secureContext = new SecureContextMock()
+  secureContext.secure = false
   using dpr = new DevicePixelRatioMock()
   dpr.ratio = 1
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
-  ctx.test('init', () => {
+  await ctx.test('init', () => {
     assert(input.point?.drag.on, undefined)
     assert(input.point?.drag.start, undefined)
     assert(input.point?.drag.end, undefined)
@@ -681,7 +710,7 @@ test('a pointer click can become a drag', ctx => {
     assert(input.point?.invalid, undefined)
   })
 
-  ctx.test('click', () => {
+  await ctx.test('click', () => {
     target.dispatchEvent(
       PointerTestEvent('pointerdown', {buttons: 1, offsetX: 1, offsetY: 2})
     )
@@ -696,7 +725,7 @@ test('a pointer click can become a drag', ctx => {
     assert(input.point?.invalid, true)
   })
 
-  ctx.test('drag', () => {
+  await ctx.test('drag', () => {
     target.dispatchEvent(
       PointerTestEvent('pointermove', {buttons: 1, offsetX: 6, offsetY: 2})
     )
@@ -711,7 +740,7 @@ test('a pointer click can become a drag', ctx => {
     assert(input.point?.invalid, true)
   })
 
-  ctx.test('pause', () => {
+  await ctx.test('pause', () => {
     input.update(16 as Millis)
 
     assertButton(input, 'A', 'On')
@@ -723,7 +752,7 @@ test('a pointer click can become a drag', ctx => {
     assert(input.point?.invalid, false)
   })
 
-  ctx.test('move', () => {
+  await ctx.test('move', () => {
     target.dispatchEvent(
       PointerTestEvent('pointermove', {buttons: 1, offsetX: 16, offsetY: 12})
     )
@@ -738,7 +767,7 @@ test('a pointer click can become a drag', ctx => {
     assert(input.point?.invalid, true)
   })
 
-  ctx.test('release', () => {
+  await ctx.test('release', () => {
     target.dispatchEvent(PointerTestEvent('pointerup', {}))
     input.update(16 as Millis)
 
@@ -751,7 +780,7 @@ test('a pointer click can become a drag', ctx => {
     assert(input.point?.invalid, true)
   })
 
-  ctx.test('pause again', () => {
+  await ctx.test('pause again', () => {
     input.update(16 as Millis)
 
     assertButton(input, 'A', 'Off')
@@ -764,13 +793,15 @@ test('a pointer click can become a drag', ctx => {
   })
 })
 
-test('a pointer click can become a drag or a pinch', ctx => {
+test('a pointer click can become a drag or a pinch', async ctx => {
+  using secureContext = new SecureContextMock()
+  secureContext.secure = false
   using dpr = new DevicePixelRatioMock()
   dpr.ratio = 1
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
-  ctx.test('init', () => {
+  await ctx.test('init', () => {
     assert(input.point?.drag.on, undefined)
     assert(input.point?.drag.start, undefined)
     assert(input.point?.drag.end, undefined)
@@ -780,7 +811,7 @@ test('a pointer click can become a drag or a pinch', ctx => {
     assert(input.point?.invalid, undefined)
   })
 
-  ctx.test('click', () => {
+  await ctx.test('click', () => {
     target.dispatchEvent(
       PointerTestEvent('pointerdown', {buttons: 1, offsetX: 1, offsetY: 2})
     )
@@ -797,7 +828,7 @@ test('a pointer click can become a drag or a pinch', ctx => {
     assert(input.point?.invalid, true)
   })
 
-  ctx.test('drag', () => {
+  await ctx.test('drag', () => {
     target.dispatchEvent(
       PointerTestEvent('pointermove', {buttons: 1, offsetX: 6, offsetY: 2})
     )
@@ -814,7 +845,7 @@ test('a pointer click can become a drag or a pinch', ctx => {
     assert(input.point?.invalid, true)
   })
 
-  ctx.test('pinch', () => {
+  await ctx.test('pinch', () => {
     target.dispatchEvent(
       PointerTestEvent('pointerdown', {
         buttons: 1,
@@ -836,7 +867,7 @@ test('a pointer click can become a drag or a pinch', ctx => {
     assert(input.point?.invalid, true)
   })
 
-  ctx.test('expand', () => {
+  await ctx.test('expand', () => {
     target.dispatchEvent(
       PointerTestEvent('pointermove', {
         buttons: 1,
@@ -859,17 +890,19 @@ test('a pointer click can become a drag or a pinch', ctx => {
   })
 })
 
-test('center', ctx => {
+test('center', async ctx => {
+  using secureContext = new SecureContextMock()
+  secureContext.secure = false
   using dpr = new DevicePixelRatioMock()
   dpr.ratio = 1
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
-  ctx.test('init', () =>
+  await ctx.test('init', () =>
     assert.partialDeepStrictEqual(input.point?.center, undefined)
   )
 
-  ctx.test('click', () => {
+  await ctx.test('click', () => {
     target.dispatchEvent(
       PointerTestEvent('pointerdown', {buttons: 1, offsetX: 1, offsetY: 2})
     )
@@ -879,7 +912,7 @@ test('center', ctx => {
     assert(input.point?.invalid, true)
   })
 
-  ctx.test('drag', () => {
+  await ctx.test('drag', () => {
     target.dispatchEvent(
       PointerTestEvent('pointermove', {buttons: 1, offsetX: 10, offsetY: 10})
     )
@@ -889,7 +922,7 @@ test('center', ctx => {
     assert(input.point?.invalid, true)
   })
 
-  ctx.test('secondary click', () => {
+  await ctx.test('secondary click', () => {
     target.dispatchEvent(
       PointerTestEvent('pointerdown', {
         buttons: 1,
@@ -904,7 +937,7 @@ test('center', ctx => {
     assert(input.point?.invalid, true)
   })
 
-  ctx.test('primary unclick', () => {
+  await ctx.test('primary unclick', () => {
     target.dispatchEvent(
       PointerTestEvent('pointerup', {offsetX: 30, offsetY: 30})
     )
@@ -915,19 +948,21 @@ test('center', ctx => {
   })
 })
 
-test('pinch', ctx => {
+test('pinch', async ctx => {
+  using secureContext = new SecureContextMock()
+  secureContext.secure = false
   using dpr = new DevicePixelRatioMock()
   dpr.ratio = 1
   const target = TestElement()
   using input = DefaultInput(DefaultCam(), target).register('add')
 
-  ctx.test('init', () => {
+  await ctx.test('init', () => {
     assert.partialDeepStrictEqual(input.point?.center, undefined)
     assert(input.point?.pinch, undefined)
     assert(input.point?.invalid, undefined)
   })
 
-  ctx.test('click', () => {
+  await ctx.test('click', () => {
     target.dispatchEvent(
       PointerTestEvent('pointerdown', {buttons: 1, offsetX: 10, offsetY: 10})
     )
@@ -938,7 +973,7 @@ test('pinch', ctx => {
     assert(input.point?.invalid, true)
   })
 
-  ctx.test('secondary click', () => {
+  await ctx.test('secondary click', () => {
     target.dispatchEvent(
       PointerTestEvent('pointerdown', {
         buttons: 1,
@@ -954,7 +989,7 @@ test('pinch', ctx => {
     assert(input.point?.invalid, true)
   })
 
-  ctx.test('expand', () => {
+  await ctx.test('expand', () => {
     target.dispatchEvent(
       PointerTestEvent('pointermove', {
         buttons: 1,
@@ -970,7 +1005,7 @@ test('pinch', ctx => {
     assert(input.point?.invalid, true)
   })
 
-  ctx.test('release', () => {
+  await ctx.test('release', () => {
     target.dispatchEvent(PointerTestEvent('pointerup', {pointerId: 2}))
     input.update(16 as Millis)
 
@@ -981,6 +1016,8 @@ test('pinch', ctx => {
 })
 
 test('wheel', () => {
+  using secureContext = new SecureContextMock()
+  secureContext.secure = false
   using dpr = new DevicePixelRatioMock()
   dpr.ratio = 1
   const target = TestElement()

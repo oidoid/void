@@ -5,11 +5,11 @@ import {TestElement} from '../test/test-element.ts'
 import {PointerTestEvent} from '../test/test-event.ts'
 import {Pointer} from './pointer.ts'
 
-test('buttons', ctx => {
+test('buttons', async ctx => {
   const target = TestElement()
   using pointer = DefaultPointer(target)
 
-  ctx.test('init', () => {
+  await ctx.test('init', () => {
     assert(pointer.primary, undefined)
     assert(pointer.secondary, {})
     assert(pointer.centerClient, undefined)
@@ -17,7 +17,7 @@ test('buttons', ctx => {
     assert(pointer.invalid, false)
   })
 
-  ctx.test('primary down', () => {
+  await ctx.test('primary down', () => {
     target.dispatchEvent(
       PointerTestEvent('pointerdown', {buttons: 1, offsetX: 10, offsetY: 40})
     )
@@ -30,7 +30,7 @@ test('buttons', ctx => {
     assert(pointer.invalid, true)
   })
 
-  ctx.test('secondary down', () => {
+  await ctx.test('secondary down', () => {
     target.dispatchEvent(
       PointerTestEvent('pointerdown', {
         buttons: 2,
@@ -51,7 +51,7 @@ test('buttons', ctx => {
     assert(pointer.invalid, true)
   })
 
-  ctx.test('primary up', () => {
+  await ctx.test('primary up', () => {
     target.dispatchEvent(
       PointerTestEvent('pointerup', {offsetX: 11, offsetY: 41})
     )
@@ -68,13 +68,13 @@ test('buttons', ctx => {
   })
 })
 
-test('centerClient()', ctx => {
+test('centerClient()', async ctx => {
   const target = TestElement()
   using pointer = DefaultPointer(target)
 
-  ctx.test('init', () => assert(pointer.centerClient, undefined))
+  await ctx.test('init', () => assert(pointer.centerClient, undefined))
 
-  ctx.test('primary', () => {
+  await ctx.test('primary', () => {
     target.dispatchEvent(
       PointerTestEvent('pointerdown', {buttons: 1, offsetX: 10, offsetY: 10})
     )
@@ -82,7 +82,7 @@ test('centerClient()', ctx => {
     assert(pointer.centerClient, {x: 10, y: 10})
   })
 
-  ctx.test('primary and secondary', () => {
+  await ctx.test('primary and secondary', () => {
     target.dispatchEvent(
       PointerTestEvent('pointerdown', {
         buttons: 1,
@@ -96,13 +96,13 @@ test('centerClient()', ctx => {
   })
 })
 
-test('pinchClient()', ctx => {
+test('pinchClient()', async ctx => {
   const target = TestElement()
   using pointer = DefaultPointer(target)
 
-  ctx.test('init', () => assert(pointer.pinchClient, undefined))
+  await ctx.test('init', () => assert(pointer.pinchClient, undefined))
 
-  ctx.test('primary down', () => {
+  await ctx.test('primary down', () => {
     target.dispatchEvent(
       PointerTestEvent('pointerdown', {buttons: 1, offsetX: 10, offsetY: 10})
     )
@@ -110,7 +110,7 @@ test('pinchClient()', ctx => {
     assert(pointer.pinchClient, undefined)
   })
 
-  ctx.test('primary move', () => {
+  await ctx.test('primary move', () => {
     target.dispatchEvent(
       PointerTestEvent('pointermove', {buttons: 1, offsetX: 20, offsetY: 20})
     )
@@ -118,7 +118,7 @@ test('pinchClient()', ctx => {
     assert(pointer.pinchClient, undefined)
   })
 
-  ctx.test('secondary down', () => {
+  await ctx.test('secondary down', () => {
     target.dispatchEvent(
       PointerTestEvent('pointerdown', {
         buttons: 1,
@@ -131,7 +131,7 @@ test('pinchClient()', ctx => {
     assert(pointer.pinchClient, {x: 0, y: 0})
   })
 
-  ctx.test('secondary move', () => {
+  await ctx.test('secondary move', () => {
     target.dispatchEvent(
       PointerTestEvent('pointerdown', {
         buttons: 1,
@@ -144,7 +144,7 @@ test('pinchClient()', ctx => {
     assert(pointer.pinchClient, {x: 10, y: 0})
   })
 
-  ctx.test('primary move again', () => {
+  await ctx.test('primary move again', () => {
     target.dispatchEvent(
       PointerTestEvent('pointermove', {buttons: 1, offsetX: 30, offsetY: 20})
     )
@@ -153,11 +153,11 @@ test('pinchClient()', ctx => {
   })
 })
 
-test('drag', ctx => {
+test('drag', async ctx => {
   const target = TestElement()
   using pointer = DefaultPointer(target)
 
-  ctx.test('click', () => {
+  await ctx.test('click', () => {
     target.dispatchEvent(
       PointerTestEvent('pointerdown', {buttons: 1, offsetX: 10, offsetY: 10})
     )
@@ -170,7 +170,7 @@ test('drag', ctx => {
     assert(pointer.invalid, true)
   })
 
-  ctx.test('move a little', () => {
+  await ctx.test('move a little', () => {
     target.dispatchEvent(
       PointerTestEvent('pointermove', {buttons: 1, offsetX: 12, offsetY: 12})
     )
@@ -183,7 +183,7 @@ test('drag', ctx => {
     assert(pointer.invalid, true)
   })
 
-  ctx.test('drag start', () => {
+  await ctx.test('drag start', () => {
     target.dispatchEvent(
       PointerTestEvent('pointermove', {buttons: 1, offsetX: 15, offsetY: 15})
     )
@@ -196,7 +196,7 @@ test('drag', ctx => {
     assert(pointer.invalid, true)
   })
 
-  ctx.test('drag move', () => {
+  await ctx.test('drag move', () => {
     target.dispatchEvent(
       PointerTestEvent('pointermove', {buttons: 1, offsetX: 17, offsetY: 17})
     )
@@ -209,7 +209,7 @@ test('drag', ctx => {
     assert(pointer.invalid, true)
   })
 
-  ctx.test('drag end', () => {
+  await ctx.test('drag end', () => {
     target.dispatchEvent(
       PointerTestEvent('pointerup', {offsetX: 20, offsetY: 20})
     )

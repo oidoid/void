@@ -24,20 +24,20 @@ afterEach(() => {
   delete (globalThis as Partial<typeof globalThis>).requestAnimationFrame
 })
 
-test('Looper', ctx => {
+test('Looper', async ctx => {
   using framer = new Looper()
   let frame = 0
   framer.onFrame = () => ++frame
 
-  ctx.test('init', () => assert(frame, 0))
+  await ctx.test('init', () => assert(frame, 0))
 
-  ctx.test('register', () => {
+  await ctx.test('register', () => {
     framer.register('add')
     assert(frame, 0)
     assert(framer.age, 0)
   })
 
-  ctx.test('onFrame', () => {
+  await ctx.test('onFrame', () => {
     performance.now = () => 0
     framer.requestFrame()
     performance.now = () => 10 as Millis
@@ -56,14 +56,14 @@ test('Looper', ctx => {
     assert(framer.age, 30 as Millis)
   })
 
-  ctx.test('hidden', () => {
+  await ctx.test('hidden', () => {
     framer.requestFrame()
     doc.hidden = true
     doc.dispatchEvent(TestEvent('visibilitychange'))
     assert(onFrame, undefined)
   })
 
-  ctx.test('shown', () => {
+  await ctx.test('shown', () => {
     doc.hidden = false
     doc.dispatchEvent(TestEvent('visibilitychange'))
     performance.now = () => 40 as Millis
