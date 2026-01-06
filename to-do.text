@@ -25,6 +25,7 @@ perf
     https://github.com/UstymUkhman/vite-plugin-glsl/blob/main/src/loadShader.js
   mem pool should move hidden sprites to end and not send. could also just have sprite interface or list of sprites I don't send to GPU.
 input
+  limit polling to once a second if gamepad hasn't been updated in 60s.
   test other controllers.
   restore left hand keys for AnyButton.
   how can I make two button combos friendlier? this is impossible to time at the same time and it's unclear how to resolve within a window. all buttons pressed sounds good. even if I remove gap requirement, you end up pressing A, A+B, B instead of A+B. generate multiple interpretations each press and union result. for "A, A+B", you can't slide from A to B without a release and releasing buttons after "A, A+B, A+B+C" doesn't cause "A, A+B, A+B+C, B+C, C". my ideal is: new sequence after an off release, otherwise aggregate for like 60ms. see test "combos require gaps between presses".
@@ -61,4 +62,5 @@ debug
   on free, test if item belongs to pool.
 research
   decide on exactOptionalPropertyTypes in void and Super Patience.
-
+debt
+  use dispose pattern to isolate test mock dependencies and global access.
