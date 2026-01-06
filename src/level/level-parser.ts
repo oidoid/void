@@ -158,7 +158,7 @@ export function parseEntComponent(
 export function parseFPS(_json: Readonly<FPSSchema>): FPS {
   return {
     prevFrames: 0,
-    next: {created: performance.now(), frames: 0}
+    next: {created: performance.now(), startClears: 0}
   }
 }
 

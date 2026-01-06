@@ -62,7 +62,7 @@ export type DebugInput = object
 
 export type FPS = {
   prevFrames: number
-  next: {created: Millis; frames: number}
+  next: {created: Millis; startClears: number}
 }
 
 export type HUD = {
