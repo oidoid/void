@@ -46,6 +46,18 @@ export function boxHits(
   )
 }
 
+/** overlap of boxes or a flipped box. */
+export function boxIntersect(l: Readonly<Box>, r: Readonly<Box>): Box {
+  const x = Math.max(l.x, r.x)
+  const y = Math.max(l.y, r.y)
+  return {
+    x,
+    y,
+    w: Math.min(l.x + l.w, r.x + r.w) - x,
+    h: Math.min(l.y + l.h, r.y + r.h) - y
+  }
+}
+
 export function whAssign(l: WH, r: Readonly<WH>): void {
   l.w = r.w
   l.h = r.h

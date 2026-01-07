@@ -6,7 +6,13 @@ import {
   type Tag
 } from '../graphics/atlas.ts'
 import type {Block} from '../mem/pool.ts'
-import {type Box, boxHits, type WH, type XY} from '../types/geo.ts'
+import {
+  type Box,
+  boxHits,
+  boxIntersect,
+  type WH,
+  type XY
+} from '../types/geo.ts'
 import type {Millis} from '../types/time.ts'
 import {mod} from '../utils/math.ts'
 import {isUILayer, Layer} from './layer.ts'
@@ -331,6 +337,13 @@ export class Sprite extends Drawable {
     this.#hurtbox = undefined
   }
 
+  hit(box: Readonly<Box>): Box {
+    return boxIntersect(
+      this.hitbox ?? this,
+      box instanceof Sprite ? (box.hurtbox ?? box) : box
+    )
+  }
+
   /** floored hitbox. */
   get hitbox(): Readonly<Box> | undefined {
     if (this.#hitbox) return this.#hitbox
@@ -360,7 +373,7 @@ export class Sprite extends Drawable {
   /** like `hits()` but can supports different world and UI layers. */
   hitsZ(sprite: Readonly<Sprite>, cam: Readonly<XY>): boolean {
     if (this.ui === sprite.ui) return this.hits(sprite)
-    const hurtbox = {...(sprite.hurtbox ?? sprite.clipbox)}
+    const hurtbox = sprite.hurtbox ? {...sprite.hurtbox} : sprite.clipbox
     hurtbox.x += (sprite.ui ? 1 : -1) * Math.floor(cam.x)
     hurtbox.y += (sprite.ui ? 1 : -1) * Math.floor(cam.y)
     return boxHits(this.hitbox ?? this, hurtbox)
@@ -405,6 +418,16 @@ export class Sprite extends Drawable {
   get looperCel(): number {
     const cel = this.#looper.age / celMillis
     return cel % (this.anim.cels * 2)
+  }
+
+  get midHit(): XY {
+    const box = this.hitbox ?? this
+    return {x: box.x + box.w / 2, y: box.y + box.h / 2}
+  }
+
+  get midHurt(): XY {
+    const box = this.hurtbox ?? this
+    return {x: box.x + box.w / 2, y: box.y + box.h / 2}
   }
 
   /** sets cel to animation start. */

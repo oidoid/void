@@ -4,6 +4,7 @@ import {
   borderAssign,
   borderEq,
   boxHits,
+  boxIntersect,
   whEq,
   xyAdd,
   xyAddTo,
@@ -678,6 +679,56 @@ test('boxHits()', async ctx => {
     assert(
       boxHits({x: 0.5, y: 0.5, w: -1, h: -1}, {x: 0, y: 0, w: 1, h: 1}),
       false
+    )
+  )
+})
+
+test('boxIntersect()', async ctx => {
+  await ctx.test('overlapping boxes', () =>
+    assert(
+      boxIntersect({x: 0, y: 0, w: 10, h: 10}, {x: 5, y: 5, w: 10, h: 10}),
+      {x: 5, y: 5, w: 5, h: 5}
+    )
+  )
+
+  await ctx.test('identical boxes', () =>
+    assert(
+      boxIntersect({x: 0, y: 0, w: 10, h: 10}, {x: 0, y: 0, w: 10, h: 10}),
+      {x: 0, y: 0, w: 10, h: 10}
+    )
+  )
+
+  await ctx.test('one box inside another', () =>
+    assert(boxIntersect({x: 0, y: 0, w: 20, h: 20}, {x: 5, y: 5, w: 5, h: 5}), {
+      x: 5,
+      y: 5,
+      w: 5,
+      h: 5
+    })
+  )
+
+  await ctx.test('disjoint boxes returns flipped box', () => {
+    assert(boxIntersect({x: 0, y: 0, w: 5, h: 5}, {x: 10, y: 10, w: 5, h: 5}), {
+      x: 10,
+      y: 10,
+      w: -5,
+      h: -5
+    })
+  })
+
+  await ctx.test('touching boxes (no overlap)', () => {
+    assert(boxIntersect({x: 0, y: 0, w: 5, h: 5}, {x: 5, y: 0, w: 5, h: 5}), {
+      x: 5,
+      y: 0,
+      w: 0,
+      h: 5
+    })
+  })
+
+  await ctx.test('partial vertical overlap', () =>
+    assert(
+      boxIntersect({x: 0, y: 0, w: 10, h: 20}, {x: 5, y: 10, w: 10, h: 20}),
+      {x: 5, y: 10, w: 5, h: 10}
     )
   )
 })

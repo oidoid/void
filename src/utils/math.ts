@@ -18,3 +18,7 @@ export function lerp(start: number, end: number, ratio: number): number {
 export function mod(dividend: number, divisor: number): number {
   return ((dividend % divisor) + divisor) % divisor
 }
+
+export function snap(v: number, mod: number): number {
+  return Math.round(v / mod) * mod
+}

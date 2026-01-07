@@ -610,6 +610,38 @@ test('looped', () => {
   assert(sprite.looped, true)
 })
 
+test('midHit', () => {
+  const sprite = TestSprite()
+  sprite.tag = 'stem--AnimA'
+  // hitbox is {x: 1, y: 2, w: 3, h: 4}.
+  assert(sprite.midHit, {x: 2.5, y: 4})
+
+  sprite.x = 10
+  sprite.y = 20
+  // hitbox is {x: 11, y: 22, w: 3, h: 4}.
+  assert(sprite.midHit, {x: 12.5, y: 24})
+
+  sprite.flipX = true
+  // hitbox is {x: 16, y: 22, w: 3, h: 4}.
+  assert(sprite.midHit, {x: 17.5, y: 24})
+})
+
+test('midHurt', () => {
+  const sprite = TestSprite()
+  sprite.tag = 'stem--AnimA'
+  // hurtbox is {x: 1, y: 2, w: 3, h: 4}.
+  assert(sprite.midHurt, {x: 2.5, y: 4})
+
+  sprite.x = 10
+  sprite.y = 20
+  // hurtbox is {x: 11, y: 22, w: 3, h: 4}.
+  assert(sprite.midHurt, {x: 12.5, y: 24})
+
+  sprite.flipY = true
+  // hurtbox is {x: 11, y: 34, w: 3, h: 4}.
+  assert(sprite.midHurt, {x: 12.5, y: 36})
+})
+
 test('reset()', () => {
   const looper = {age: 0 as Millis}
   const sprite = new Sprite(TestPool(), 0, atlas, looper)
