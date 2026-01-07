@@ -514,6 +514,6 @@ export function diagonalize(xy: XY, dir: number): void {
 }
 
 /** truncate to nearest drawable quantum. */
-export function truncDrawableEpsilon(x: number): number {
-  return Math.trunc(x / drawableEpsilon) * drawableEpsilon
+export function floorDrawEpsilon(x: number): number {
+  return Math.floor(x / drawableEpsilon) * drawableEpsilon
 }

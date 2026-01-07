@@ -9,8 +9,8 @@ import {
   type DrawablePool,
   diagonalize,
   drawableBytes,
-  Sprite,
-  truncDrawableEpsilon
+  floorDrawEpsilon,
+  Sprite
 } from './sprite.ts'
 
 const animA: Readonly<Anim> = {
@@ -748,13 +748,13 @@ test('toString()', () => {
   assert(sprite.toString(), 'Sprite{stem--AnimB (1 2 3) 4×5}')
 })
 
-test('truncDrawableEpsilon()', () => {
+test('floorDrawEpsilon()', () => {
   for (const [x, out] of [
     [-10.125, -10.125],
-    [-10.1, -10.09375],
+    [-10.1, -10.109375],
     [-10, -10],
     [-1.125, -1.125],
-    [-1.1, -1.09375],
+    [-1.1, -1.109375],
     [-1, -1],
     [0, 0],
     [0.125, 0.125],
@@ -766,7 +766,7 @@ test('truncDrawableEpsilon()', () => {
     [10.1, 10.09375],
     [10.125, 10.125]
   ] as const)
-    assert(truncDrawableEpsilon(x), out, `${x}`)
+    assert(floorDrawEpsilon(x), out, `${x}`)
 })
 
 function TestSprite(): Sprite {

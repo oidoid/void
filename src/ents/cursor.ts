@@ -1,5 +1,5 @@
 import {Layer} from '../graphics/layer.ts'
-import {truncDrawableEpsilon} from '../graphics/sprite.ts'
+import {floorDrawEpsilon} from '../graphics/sprite.ts'
 import type {Input, Point} from '../input/input.ts'
 import type {Secs} from '../types/time.ts'
 import type {Void} from '../void.ts'
@@ -45,7 +45,7 @@ export class CursorSys implements Sys {
 
 /** @internal */
 export function onKey(ent: CursorEnt, input: Input, tick: Secs): void {
-  const len = truncDrawableEpsilon(ent.cursor.keyboard * tick)
+  const len = floorDrawEpsilon(ent.cursor.keyboard * tick)
 
   if (input.isAnyOnStart('U', 'D', 'L', 'R') && input.dir.x && input.dir.y)
     ent.sprite.diagonalize(input.dir)
