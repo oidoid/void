@@ -20,12 +20,16 @@ export const debug: Readonly<Debug> | undefined = Debug(
   globalThis.location?.href
 )
 
+export function findDebugParam(url: string): string | undefined {
+  return [...new URL(url).searchParams].find(
+    ([k]) => k.toLowerCase() === 'debug'
+  )?.[1]
+}
+
 /** @internal */
 export function Debug(url: string | undefined): Debug | undefined {
   if (!url) return
-  const csv = [...new URL(url).searchParams].find(
-    ([k]) => k.toLowerCase() === 'debug'
-  )?.[1]
+  const csv = findDebugParam(url)
   if (csv == null) return
   const map = Object.fromEntries(
     csv
