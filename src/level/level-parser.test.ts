@@ -481,7 +481,7 @@ test('parseXY()', () => {
 
 function TestPools(): PoolMap {
   return {
-    default: SpritePool({atlas: atlas, looper: {age: 0}, pageBlocks: 4}),
-    secondary: SpritePool({atlas: atlas, looper: {age: 0}, pageBlocks: 4})
+    default: SpritePool({atlas, looper: {age: 0}, pageBlocks: 4}),
+    secondary: SpritePool({atlas, looper: {age: 0}, pageBlocks: 4})
   }
 }

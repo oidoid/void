@@ -11,9 +11,7 @@ demo
     make a friendly note taking app that is Mario Paint fun.
 bugs
   reinvestigate fullscreen movement delta scaling. I can't get this to work.
-  I'm getting Node.js type suggestions in src and demo. types is empty. only happens when jsdom is installed. `npx tsc -p src/ --listFiles` lists no @types files. everything is pure TS lib or project files. doesn't matter when I blank typeRoots and remove types: 'node' from other projects.
 perf
-  make sprites default visible.
   it doesn't make sense to insert static sprites as ents. just make an array sprite ent to hold a whole group.
   experiment with caching `Sprite` hitbox and hurtbox.
     add cached hit/hurtbox tests to sprite.
@@ -52,15 +50,17 @@ features
   support a query param for Void.random seeding.
 entish
   querying ents from another ent is very clumsy. cant' really do it at parse time unless you know all those ents have been inserted so you have to wait until first update or put it in `Loader` or `Void`. maybe there needs to be an init() callback that is invoked by level loader `zoo.initEnts()`.
-  rename System to Updater?
+  rename `Sys` to `Updater`? rename `Sys.update()` to run? updaters can also free and maybe init.
   some systems need to retain their order as running first or last. inserting systems is not expensive so sorted insert should be fine. I had some weighting logic in `git show f812f85`.
   Void.invalid vs Ent.invalid vs Render.invalid vs Void.requestFrame() is confusing overlap.
 sprite
   not really clear how to manipulate the clipbox / hurtbox for resized sprites, can't even consider scale.
   sprites own too many responsiblities with position and collisioning and drawing. the common denominator is for GPU perf but is there a better way to make powerful independent basics I can shoot myself in the foot with? everything kind of bakes into it. it's more like a base game object.
+  make sprites default visible (rename bit to hidden).
 debug
   on free, test if item belongs to pool.
 research
   decide on exactOptionalPropertyTypes in void and Super Patience.
 debt
   use dispose pattern to isolate test mock dependencies and global access.
+  I'm getting Node.js type suggestions in src and demo. types is empty. only happens when jsdom is installed. `npx tsc -p src/ --listFiles` lists no @types files. everything is pure TS lib or project files. doesn't matter when I blank typeRoots and remove types: 'node' from other projects.

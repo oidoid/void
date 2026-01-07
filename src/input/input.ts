@@ -255,13 +255,13 @@ export class Input {
   }
 
   mapDefault(): void {
-    this.mapKeyboardCode('U', 'ArrowUp')
-    this.mapKeyboardCode('D', 'ArrowDown')
-    this.mapKeyboardCode('L', 'ArrowLeft')
-    this.mapKeyboardCode('R', 'ArrowRight')
-    this.mapKeyboardCode('C', 'KeyC')
-    this.mapKeyboardCode('A', 'KeyX', 'Space')
-    this.mapKeyboardCode('B', 'KeyZ')
+    this.mapKeyboardCode('U', 'ArrowUp', 'KeyW')
+    this.mapKeyboardCode('D', 'ArrowDown', 'KeyS')
+    this.mapKeyboardCode('L', 'ArrowLeft', 'KeyA')
+    this.mapKeyboardCode('R', 'ArrowRight', 'KeyD')
+    this.mapKeyboardCode('A', 'KeyX', 'Space', 'Comma')
+    this.mapKeyboardCode('B', 'KeyZ', 'Period')
+    this.mapKeyboardCode('C', 'KeyC', 'Slash')
     this.mapKeyboardCode('Menu', 'Enter')
     this.mapKeyboardCode('Back', 'Escape')
 
@@ -274,9 +274,9 @@ export class Input {
     this.mapGamepadButton('D', 13)
     this.mapGamepadButton('L', 14)
     this.mapGamepadButton('R', 15)
-    this.mapGamepadButton('C', 2)
-    this.mapGamepadButton('B', 0) // to-do: not good from PS perspective.
-    this.mapGamepadButton('A', 1) // to-do: not good from PS perspective.
+    this.mapGamepadButton('A', 0)
+    this.mapGamepadButton('B', 2)
+    this.mapGamepadButton('C', 1)
     this.mapGamepadButton('Menu', 9)
     this.mapGamepadButton('Back', 8)
 
