@@ -11,11 +11,13 @@ export class ButtonSys implements Sys {
   }
 
   update(ent: ButtonEnt, v: Void): void {
+    const {button} = ent
+    button.started = false
+
     // to-do: !v.zoo.cursor?.invalid? I should never read another ent's invalid state.
     if (!ent.invalid && !v.input.invalid) return
     ent.invalid = true // to-do: every cursor movement!?
 
-    const {button} = ent
     const toggle = button.type === 'Toggle'
 
     // to-do: these only need to be set if ent is invalid.
