@@ -1,4 +1,5 @@
 import type {Millis} from './types/time.ts'
+import {debug} from './utils/debug.ts'
 
 /**
  * frame manager. passes frame requests when not hidden. callers should request
@@ -49,7 +50,12 @@ export class Looper {
 
   #onVisibility = (ev: Event): void => {
     if (!ev.isTrusted) return
-    if (document.hidden) this.#cancel()
-    else this.requestFrame()
+    if (document.hidden) {
+      this.#cancel()
+      if (debug?.looper) console.debug('[looper] paused')
+    } else {
+      this.requestFrame()
+      if (debug?.looper) console.debug('[looper] resumed')
+    }
   }
 }

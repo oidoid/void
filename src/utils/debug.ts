@@ -11,6 +11,7 @@ export interface Debug {
   input?: string
   /** debug render invalidations. */
   invalid?: string
+  looper?: string
   mem?: string
   render?: 'always' | string
 }
@@ -39,6 +40,7 @@ export function Debug(url: string | undefined): Debug | undefined {
   const voidKeyset: Required<Omit<Debug, 'invalid'>> = {
     cam: '',
     input: '',
+    looper: '',
     mem: '',
     render: ''
   }
