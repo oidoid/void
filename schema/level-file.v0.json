@@ -274,6 +274,10 @@
         {"$ref": "#/$defs/XY"}
       ],
       "properties": {
+        "angle": {
+          "type": "number",
+          "description": "sprite rotation in degrees."
+        },
         "scale": {
           "oneOf": [
             {"type": "integer", "minimum": 1},

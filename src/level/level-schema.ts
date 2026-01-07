@@ -61,6 +61,7 @@ export type NinePatchSchema = {
 export type OverrideSchema = {invalid?: boolean}
 export type PoolSchema = 'Default' | string
 export type SpriteSchema = {
+  angle?: number
   flip?: XYFlag
   pool?: PoolSchema
   stretch?: boolean

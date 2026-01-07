@@ -299,6 +299,7 @@ export function parseSprite(
     sprite.flipX = json.flip === 'X' || json.flip === 'XY'
     sprite.flipY = json.flip === 'Y' || json.flip === 'XY'
   }
+  if (json.angle != null) sprite.angle = json.angle
   if (json.stretch != null) sprite.stretch = json.stretch
   if (json.w != null) sprite.w = json.w
   if (json.h != null) sprite.h = json.h

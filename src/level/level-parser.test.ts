@@ -377,6 +377,7 @@ describe('parseSprite()', () => {
 
   test('object', () => {
     const json: Required<SpriteSchema> & Box & {scale: number} = {
+      angle: 90,
       flip: 'XY',
       pool: 'Default',
       stretch: true,
@@ -396,6 +397,7 @@ describe('parseSprite()', () => {
     assert(sprite.flipX, true)
     assert(sprite.flipY, true)
     assert(sprite.stretch, true)
+    assert(sprite.angle, 90)
     assert(sprite.x, 5)
     assert(sprite.y, 6)
     assert(sprite.w, 7 * 2)
