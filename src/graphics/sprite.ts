@@ -45,9 +45,9 @@ export const drawableMaxWH: Readonly<WH> = {w: 4095, h: 4095}
  * a iiic cccc animation ID [0, 2047], animation cel [0, 31].
  * b iiii iiii
  * c rrrr rrrv reserved, visible.
- * d rrrr rrrr
- * e rrrr rrrr
- * f rrrr rrrr
+ * d aaaa aaaa angle [0°, 360°) low 8 bits (0.087890625° granularity).
+ * e rrrr aaaa angle high 4 bits.
+ * f rrrr rrrr reserved.
  *
  * animations default to looping without CPU interaction.
  * @internal
@@ -68,6 +68,21 @@ export abstract class Drawable implements Block, Box {
           (draw.zend ? draw.y + draw.h : draw.y)
         : this.z - draw.z
     return compare > 0
+  }
+
+  get angle(): number {
+    const r4_a12 = this.#pool.view.getUint16(this.i + 13, true)
+    return ((r4_a12 & 0xfff) * 360) / 4096
+  }
+
+  /**
+   * [0°, 360°). angle in degrees (0.087890625° granularity). rotation is
+   * counterclockwise where y-axis is flipped.
+   */
+  set angle(angle: number) {
+    const r4_a12 = this.#pool.view.getUint16(this.i + 13, true)
+    const bits = Math.round((angle * 4096) / 360) & 0xfff
+    this.#pool.view.setUint16(this.i + 13, (r4_a12 & ~0xfff) | bits, true)
   }
 
   get cel(): number {
@@ -166,6 +181,7 @@ export abstract class Drawable implements Block, Box {
    * for reinitialization on pool allocation.
    */
   init(): void {
+    this.angle = 0
     this.cel = 0
     this.flipX = false
     this.flipY = false

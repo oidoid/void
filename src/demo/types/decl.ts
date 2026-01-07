@@ -1,10 +1,11 @@
 import type * as V from '../../index.ts'
 // biome-ignore lint/correctness/useJsonImportAttributes:;
 import type gameJSON from '../assets/void.game.json'
-import type {Clock, RenderToggle, Tally} from '../ents/ent.ts'
+import type {Clock, RenderToggle, Rotate, Tally} from '../ents/ent.ts'
 import type {
   ClockSchema,
   RenderToggleSchema,
+  RotateSchema,
   TallySchema
 } from '../level/level-schema.ts'
 
@@ -17,12 +18,14 @@ declare module '../../index.ts' {
   interface Ent {
     clock?: Clock
     renderToggle?: RenderToggle
+    rotate?: Rotate
     tally?: Tally
   }
 
   interface EntSchema {
     clock?: ClockSchema
     renderToggle?: RenderToggleSchema
+    rotate?: RotateSchema
     tally?: TallySchema
   }
 

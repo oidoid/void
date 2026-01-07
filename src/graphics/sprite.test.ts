@@ -74,6 +74,34 @@ test('above() zend', () => {
   assert(r.above(l), true)
 })
 
+test('angle', () => {
+  const pool = TestPool()
+  const draw = TestDrawable(pool, 0)
+
+  assert(draw.angle, 0)
+  assert(toHex(pool), '00000000000000000000000000000000')
+
+  draw.angle = 90
+  assert(draw.angle, 90)
+  assert(toHex(pool), '00000000000000000000000000000400')
+
+  draw.angle = 180
+  assert(draw.angle, 180)
+  assert(toHex(pool), '00000000000000000000000000000800')
+
+  draw.angle = 270
+  assert(draw.angle, 270)
+  assert(toHex(pool), '00000000000000000000000000000c00')
+
+  draw.angle = 359.912109375 // max representable (4095).
+  assert(draw.angle, 359.912109375)
+  assert(toHex(pool), '00000000000000000000000000ff0f00')
+
+  draw.angle = 360
+  assert(draw.angle, 0) // wraps.
+  assert(toHex(pool), '00000000000000000000000000000000')
+})
+
 test('cel', () => {
   const pool = TestPool()
   const draw = TestDrawable(pool, 0)

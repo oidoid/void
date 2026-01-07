@@ -13,12 +13,27 @@
               "$ref": "#/$defs/RenderToggle",
               "unevaluatedProperties": false
             },
+            "rotate": {
+              "$ref": "#/$defs/Rotate",
+              "unevaluatedProperties": false
+            },
             "tally": {"$ref": "#/$defs/Tally", "unevaluatedProperties": false}
           }
         }
       ]
     },
     "RenderToggle": {"type": "object", "description": "render toggle config."},
+    "Rotate": {
+      "type": "object",
+      "description": "rotate config.",
+      "required": ["speed"],
+      "properties": {
+        "speed": {
+          "type": "number",
+          "description": "rotation speed in degrees per second."
+        }
+      }
+    },
     "Tally": {"type": "object", "description": "tally config."}
   }
 }

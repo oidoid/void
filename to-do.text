@@ -37,8 +37,6 @@ input
   Input.point.click and Input.isOn('A') overlap is confusing, Input mouse / button overlap is confusing.
 output
   add disk saving to storage. https://github.com/GoogleChromeLabs/browser-fs-access.
-rendering
-  add sprite rotation. switch between AABB collisions?
 parser
   use `$dynamicRef` once understood by IDEs. see https://github.com/microsoft/vscode/issues/155379.
   validate json schemas themselves and usages.

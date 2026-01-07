@@ -4,6 +4,7 @@ import {CamSys} from '../ents/cam.ts'
 import {ClockSys} from '../ents/clock.ts'
 import {DrawSys} from '../ents/draw.ts'
 import {RenderToggleSys} from '../ents/render-toggle.ts'
+import {RotateSys} from '../ents/rotate.ts'
 import {TallySys} from '../ents/tally.ts'
 import {parseComponent} from './level-parser.ts'
 
@@ -18,6 +19,7 @@ export class Loader implements V.Loader {
     hud: new V.HUDSys(),
     ninePatch: new V.NinePatchSys(),
     override: new V.OverrideSys(),
+    rotate: new RotateSys(),
     sprite: new V.SpriteSys(),
     textWH: new V.TextWHSys(),
     textXY: new V.TextXYSys(),

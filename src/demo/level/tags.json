@@ -143,6 +143,8 @@
     "mem-prop-5x6--7d",
     "mem-prop-5x6--7e",
     "mem-prop-5x6--7f",
-    "oidoid--Default"
+    "oidoid--Default",
+    "poly--Triangle",
+    "poly--Square"
   ]
 }
