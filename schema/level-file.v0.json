@@ -359,40 +359,18 @@
     },
     "WH": {
       "type": "object",
-      "description": "area.",
+      "description": "area. sprite dimensions have an integral range of [0, 4095].",
       "properties": {
-        "w": {
-          "type": "integer",
-          "description": "width.",
-          "minimum": 0,
-          "maximum": 4095
-        },
-        "h": {
-          "type": "integer",
-          "description": "height.",
-          "minimum": 0,
-          "maximum": 4095
-        }
+        "w": {"type": "number", "description": "width."},
+        "h": {"type": "number", "description": "height."}
       }
     },
     "XY": {
       "type": "object",
-      "description": "horizontal and vertical dimensions.",
+      "description": "horizontal and vertical dimensions. sprite coordinates have a range of [-131072, 131071.984375] with a granularity of .015625.",
       "properties": {
-        "x": {
-          "type": "number",
-          "description": "horizontal dimension.",
-          "minimum": -131072,
-          "maximum": 131071.984375,
-          "multipleOf": 0.015625
-        },
-        "y": {
-          "type": "number",
-          "description": "vertical dimension.",
-          "minimum": -131072,
-          "maximum": 131071.984375,
-          "multipleOf": 0.015625
-        }
+        "x": {"type": "number", "description": "horizontal dimension."},
+        "y": {"type": "number", "description": "vertical dimension."}
       }
     },
     "XYFlag": {
