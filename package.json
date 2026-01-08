@@ -65,5 +65,5 @@
     "version": "npm pkg set published=$(date +%Y%m%d) && npm run clean && npm test"
   },
   "type": "module",
-  "version": "0.1.9"
+  "version": "0.1.10"
 }
