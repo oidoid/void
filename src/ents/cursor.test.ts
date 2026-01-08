@@ -22,13 +22,13 @@ describe('onPoint()', () => {
   test('visible for Mouse', () => {
     const ent = TestCursorEnt()
     onPoint(ent, {local: {x: 0, y: 0}, type: 'Mouse', click: undefined})
-    assert(ent.sprite.visible, true)
+    assert(ent.sprite.hidden, false)
   })
 
   test('hidden for Touch', () => {
     const ent = TestCursorEnt()
     onPoint(ent, {local: {x: 0, y: 0}, type: 'Touch', click: undefined})
-    assert(ent.sprite.visible, false)
+    assert(ent.sprite.hidden, true)
   })
 })
 
@@ -67,9 +67,9 @@ describe('onKey()', () => {
 
   test('sets visible', () => {
     const ent = TestCursorEnt({keyboard: 100})
-    ent.sprite.visible = false
+    ent.sprite.hidden = true
     onKey(ent, TestInput({dir: {x: 1, y: 0}}), 0.1 as Secs)
-    assert(ent.sprite.visible, true)
+    assert(ent.sprite.hidden, false)
     assert(ent.invalid, true)
   })
 })

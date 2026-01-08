@@ -5,8 +5,8 @@ import type {Border, CompassDir, WH, XY} from '../types/geo.ts'
 
 export type BorderSchema = number | Partial<XY> | Partial<Border>
 export type ButtonSchema = {
-  pressed: SpriteSchema | Tag
-  selected: SpriteSchema | Tag
+  pressed: SpritePropsSchema | Tag
+  selected: SpritePropsSchema | Tag
   type?: ButtonType
   z?: LayerSchema
 }
@@ -28,11 +28,7 @@ export interface EntSchema {
   name?: string
   ninePatch?: NinePatchSchema
   override?: OverrideSchema
-  sprite?:
-    | (SpriteSchema &
-        Partial<WH> &
-        Partial<XY> & {scale?: number | Partial<XY>})
-    | Tag
+  sprite?: SpriteSchema | Tag
   text?: string
   textWH?: TextWHSchema
   textXY?: TextXYSchema
@@ -56,20 +52,24 @@ export type LevelSchema = {
 export type NinePatchSchema = {
   border?: BorderSchema
   pad?: BorderSchema
-  patch: {[dir in Lowercase<CompassDir>]?: SpriteSchema | Tag}
+  patch: {[dir in Lowercase<CompassDir>]?: SpritePropsSchema | Tag}
 }
 export type OverrideSchema = {invalid?: boolean}
 export type PoolSchema = 'Default' | string
-export type SpriteSchema = {
-  angle?: number
+export type SpritePropsSchema = {
   flip?: XYFlag
+  hidden?: boolean
   pool?: PoolSchema
   stretch?: boolean
   tag?: Tag
-  visible?: boolean
   z?: LayerSchema
   zend?: boolean
 }
+export type SpriteSchema = SpritePropsSchema & {
+  angle?: number
+  scale?: number | Partial<XY>
+} & Partial<WH> &
+  Partial<XY>
 export type TextWHSchema = {
   maxW?: number
   pad?: BorderSchema

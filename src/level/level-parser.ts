@@ -82,7 +82,7 @@ export function parseButton(
 ): Button {
   const pressed = parseSprite(json.pressed, pools, atlas)
   if (json.z) pressed.z = Layer[json.z]
-  pressed.visible = false // button state is based on visibility.
+  pressed.hidden = true // button state is based on visibility.
   const selected = parseSprite(json.selected, pools, atlas)
   if (json.z) selected.z = Layer[json.z]
   return {pressed, selected, started: false, type: json.type ?? 'Button'}
@@ -90,7 +90,7 @@ export function parseButton(
 
 export function parseCursor(ent: Ent, json: Readonly<CursorSchema>): Cursor {
   if (!ent.sprite) throw Error('cursor missing sprite')
-  ent.sprite.visible = false
+  ent.sprite.hidden = true
   return {
     bounds: {x: 0, y: 0, w: 0, h: 0},
     keyboard: json.keyboard ?? 0,
@@ -294,7 +294,8 @@ export function parseSprite(
     if (!(json.tag in atlas.anim)) throw Error(`no tag "${json.tag}"`)
     sprite.tag = json.tag
   }
-  sprite.visible = json.visible ?? json.tag != null
+  if (json.hidden != null) sprite.hidden = json.hidden
+  else sprite.hidden = !json.tag
   if (json.flip) {
     sprite.flipX = json.flip === 'X' || json.flip === 'XY'
     sprite.flipY = json.flip === 'Y' || json.flip === 'XY'

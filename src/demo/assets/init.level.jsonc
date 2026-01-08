@@ -9,7 +9,7 @@
 
       {
         "id": "Cursor",
-        "sprite": {"tag": "cursor--Pointer"},
+        "sprite": "cursor--Pointer",
         "cursor": {}
       },
 

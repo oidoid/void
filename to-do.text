@@ -54,9 +54,8 @@ entish
   some systems need to retain their order as running first or last. inserting systems is not expensive so sorted insert should be fine. I had some weighting logic in `git show f812f85`.
   Void.invalid vs Ent.invalid vs Render.invalid vs Void.requestFrame() is confusing overlap.
 sprite
-  not really clear how to manipulate the clipbox / hurtbox for resized sprites, can't even consider scale.
+  allow hitbox / hurtbox to be mutated programmatically if caching.
   sprites own too many responsiblities with position and collisioning and drawing. the common denominator is for GPU perf but is there a better way to make powerful independent basics I can shoot myself in the foot with? everything kind of bakes into it. it's more like a base game object.
-  make sprites default visible (rename bit to hidden).
 debug
   on free, test if item belongs to pool.
 research

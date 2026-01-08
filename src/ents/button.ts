@@ -45,9 +45,9 @@ export class ButtonSys implements Sys {
           : v.input.isOn('A') ||
             (!!v.loader.cursor?.cursor.keyboard && v.input.isOn('A'))
     button.started = buttonOn(ent) !== on
-    button.pressed.visible = on
+    button.pressed.hidden = !on
 
-    button.selected.visible = hitsCursor
+    button.selected.hidden = !hitsCursor
 
     v.input.handled ||= hitsCursor
   }
@@ -61,12 +61,12 @@ export function buttonFree(ent: ButtonEnt): void {
 }
 
 export function buttonSetOn(ent: ButtonEnt, on: boolean): void {
-  ent.button.pressed.visible = on
+  ent.button.pressed.hidden = !on
   ent.invalid = true
 }
 
 export function buttonOn(ent: Readonly<ButtonEnt>): boolean {
-  return ent.button.pressed.visible
+  return !ent.button.pressed.hidden
 }
 
 // to-do: offStart() for pointer up listen? would need a boundary check too.
@@ -75,5 +75,5 @@ export function buttonOnStart(ent: Readonly<ButtonEnt>): boolean {
 }
 
 export function buttonSelected(ent: Readonly<ButtonEnt>): boolean {
-  return ent.button.selected.visible
+  return !ent.button.selected.hidden
 }

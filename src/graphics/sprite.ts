@@ -44,7 +44,7 @@ export const drawableMaxWH: Readonly<WH> = {w: 4095, h: 4095}
  * 9 hhhh hhhh
  * a iiic cccc animation ID [0, 2047], animation cel [0, 31].
  * b iiii iiii
- * c rrrr rrrv reserved, visible.
+ * c rrrr rrrh reserved, hidden.
  * d aaaa aaaa angle [0°, 360°) low 8 bits (0.087890625° granularity).
  * e rrrr aaaa angle high 4 bits.
  * f rrrr rrrr reserved.
@@ -161,6 +161,19 @@ export abstract class Drawable implements Block, Box {
     )
   }
 
+  get hidden(): boolean {
+    const rrrr_rrrh = this.#pool.view.getUint8(this.i + 12)
+    return (rrrr_rrrh & 0x1) === 0x1
+  }
+
+  set hidden(hidden: boolean) {
+    const rrrr_rrrh = this.#pool.view.getUint8(this.i + 12)
+    this.#pool.view.setUint8(
+      this.i + 12,
+      (rrrr_rrrh & ~0x1) | (hidden ? 0x1 : 0x0)
+    )
+  }
+
   get id(): number {
     const i11_c5 = this.#pool.view.getUint16(this.i + 10, true)
     return (i11_c5 >>> 5) & 0x7ff
@@ -188,7 +201,7 @@ export abstract class Drawable implements Block, Box {
     this.h = 0
     this.id = 0
     this.stretch = false
-    this.visible = true
+    this.hidden = false
     this.w = 0
     this.x = 0
     this.y = 0
@@ -212,19 +225,6 @@ export abstract class Drawable implements Block, Box {
 
   get ui(): boolean {
     return isUILayer(this.z)
-  }
-
-  get visible(): boolean {
-    const rrrr_rrrv = this.#pool.view.getUint8(this.i + 12)
-    return (rrrr_rrrv & 0x1) === 0x1
-  }
-
-  set visible(visible: boolean) {
-    const rrrr_rrrv = this.#pool.view.getUint8(this.i + 12)
-    this.#pool.view.setUint8(
-      this.i + 12,
-      (rrrr_rrrv & ~0x1) | (visible ? 0x1 : 0x0)
-    )
   }
 
   get w(): number {

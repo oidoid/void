@@ -27,7 +27,7 @@ flat out vec2 vAABBWH;
 flat out vec2 vSpriteWH;
 flat out uint vStretch;
 flat out ivec4 vTexXYWH;
-flat out uint vVisible;
+flat out uint vHidden;
 out vec2 vDstWH;
 flat out ivec2 vDstWHFixed;
 
@@ -43,7 +43,7 @@ void main() {
   int cel = int((ii11_c5_h12_w4 >> 16) & 0xfu); // ignore the MSB.
   int w = int(((ii11_c5_h12_w4 & 0xfu) << 8) | (iw8_sxyz_llll_y16 >> 24));
   int h = int((ii11_c5_h12_w4 >> 4) & 0xfffu);
-  bool visible = bool(ia12_r19_v & 0x1u);
+  bool hidden = bool(ia12_r19_v & 0x1u);
   int angle = int((ia12_r19_v >> 8) & 0xfffu);
 
   // https://www.patternsgameprog.com/opengl-2d-facade-25-get-the-z-of-a-pixel
@@ -90,7 +90,7 @@ void main() {
   int frame = (((int(uAge / ${celMillis}) & 0x1f) - cel) + ${animCels}) & 0xf;
   uvec4 texXYWH = texelFetch(uCels, ivec2(0, id + frame), 0);
   vTexXYWH = ivec4(texXYWH);
-  vVisible = uint(visible);
+  vHidden = uint(hidden);
 
   vec2 flipSign = vec2(flipX ? -1. : 1., flipY ? -1. : 1.);
   vDstWH = targetWH * flipSign;

@@ -44,12 +44,12 @@
       "required": ["pressed", "selected"],
       "properties": {
         "pressed": {
-          "$ref": "#/$defs/SpriteProps",
+          "$ref": "#/$defs/SpritePropsOrTag",
           "description": "pressed config.",
           "unevaluatedProperties": false
         },
         "selected": {
-          "$ref": "#/$defs/SpriteProps",
+          "$ref": "#/$defs/SpritePropsOrTag",
           "description": "selected config.",
           "unevaluatedProperties": false
         },
@@ -57,7 +57,7 @@
           "description": "whether to operate as push to engage or push to toggle.",
           "enum": ["Button", "Toggle"]
         },
-        "z": {"$ref": "#/$defs/Layer"}
+        "z": {"$ref": "#/$defs/Layer", "unevaluatedProperties": false}
       }
     },
     "Cam": {
@@ -74,13 +74,20 @@
       "properties": {
         "keyboard": {
           "$ref": "#/$defs/Speed",
-          "description": "if greater than zero, follow keyboard movement in pixels per second."
+          "description": "if greater than zero, follow keyboard movement in pixels per second.",
+          "unevaluatedProperties": false
         },
         "pick": {
           "$ref": "tags.json",
           "description": "tag for click state. defaults to point tag."
         }
       }
+    },
+    "SpritePropsOrTag": {
+      "oneOf": [
+        {"$ref": "tags.json"},
+        {"$ref": "#/$defs/SpriteProps", "unevaluatedProperties": false}
+      ]
     },
     "DebugInput": {"type": "object", "description": "debug input config."},
     "Draw": {"type": "object", "description": "draw config."},
@@ -108,8 +115,13 @@
           "$ref": "#/$defs/Override",
           "unevaluatedProperties": false
         },
-        "sprite": {"$ref": "#/$defs/Sprite", "unevaluatedProperties": false},
-        "text": {"$ref": "#/$defs/Text"},
+        "sprite": {
+          "oneOf": [
+            {"$ref": "tags.json"},
+            {"$ref": "#/$defs/Sprite", "unevaluatedProperties": false}
+          ]
+        },
+        "text": {"$ref": "#/$defs/Text", "unevaluatedProperties": false},
         "textWH": {"$ref": "#/$defs/TextWH", "unevaluatedProperties": false},
         "textXY": {"$ref": "#/$defs/TextXY", "unevaluatedProperties": false}
       }
@@ -132,7 +144,8 @@
       "properties": {
         "fill": {
           "$ref": "#/$defs/XYFlag",
-          "description": "whether to adjust the width or height to fill empty space."
+          "description": "whether to adjust the width or height to fill empty space.",
+          "unevaluatedProperties": false
         },
         "margin": {
           "$ref": "#/$defs/Border",
@@ -148,7 +161,8 @@
         },
         "origin": {
           "$ref": "#/$defs/CompassDir",
-          "description": "position relative to."
+          "description": "position relative to.",
+          "unevaluatedProperties": false
         }
       }
     },
@@ -197,47 +211,47 @@
           "unevaluatedProperties": false,
           "properties": {
             "center": {
-              "$ref": "#/$defs/SpriteProps",
+              "$ref": "#/$defs/SpritePropsOrTag",
               "description": "center patch config.",
               "unevaluatedProperties": false
             },
             "n": {
-              "$ref": "#/$defs/SpriteProps",
+              "$ref": "#/$defs/SpritePropsOrTag",
               "description": "north patch config.",
               "unevaluatedProperties": false
             },
             "s": {
-              "$ref": "#/$defs/SpriteProps",
+              "$ref": "#/$defs/SpritePropsOrTag",
               "description": "south patch config.",
               "unevaluatedProperties": false
             },
             "w": {
-              "$ref": "#/$defs/SpriteProps",
+              "$ref": "#/$defs/SpritePropsOrTag",
               "description": "west patch config.",
               "unevaluatedProperties": false
             },
             "e": {
-              "$ref": "#/$defs/SpriteProps",
+              "$ref": "#/$defs/SpritePropsOrTag",
               "description": "east patch config.",
               "unevaluatedProperties": false
             },
             "nw": {
-              "$ref": "#/$defs/SpriteProps",
+              "$ref": "#/$defs/SpritePropsOrTag",
               "description": "northwest patch config.",
               "unevaluatedProperties": false
             },
             "ne": {
-              "$ref": "#/$defs/SpriteProps",
+              "$ref": "#/$defs/SpritePropsOrTag",
               "description": "northeast patch config.",
               "unevaluatedProperties": false
             },
             "sw": {
-              "$ref": "#/$defs/SpriteProps",
+              "$ref": "#/$defs/SpritePropsOrTag",
               "description": "southwest patch config.",
               "unevaluatedProperties": false
             },
             "se": {
-              "$ref": "#/$defs/SpriteProps",
+              "$ref": "#/$defs/SpritePropsOrTag",
               "description": "southeast patch config.",
               "unevaluatedProperties": false
             }
@@ -293,30 +307,25 @@
     "SpritePool": {"type": "string", "description": "allocator pool."},
     "SpriteProps": {
       "description": "sprite config except box-related.",
-      "oneOf": [
-        {"$ref": "tags.json"},
-        {
-          "type": "object",
-          "properties": {
-            "flip": {"$ref": "#/$defs/XYFlag"},
-            "pool": {"$ref": "#/$defs/SpritePool"},
-            "stretch": {
-              "type": "boolean",
-              "description": "wrap texture (default) or stretch to width and height."
-            },
-            "tag": {"$ref": "tags.json"},
-            "visible": {
-              "type": "boolean",
-              "description": "whether sprite is rendered. defaults to true when tag is specified."
-            },
-            "z": {"$ref": "#/$defs/Layer"},
-            "zend": {
-              "type": "boolean",
-              "description": "z-order by top (default) or bottom of box."
-            }
-          }
+      "type": "object",
+      "properties": {
+        "flip": {"$ref": "#/$defs/XYFlag", "unevaluatedProperties": false},
+        "hidden": {
+          "type": "boolean",
+          "description": "whether sprite is not rendered. defaults to true when tag is unspecified."
+        },
+        "pool": {"$ref": "#/$defs/SpritePool", "unevaluatedProperties": false},
+        "stretch": {
+          "type": "boolean",
+          "description": "wrap texture (default) or stretch to width and height."
+        },
+        "tag": {"$ref": "tags.json"},
+        "z": {"$ref": "#/$defs/Layer", "unevaluatedProperties": false},
+        "zend": {
+          "type": "boolean",
+          "description": "z-order by top (default) or bottom of box."
         }
-      ]
+      }
     },
     "Text": {"type": "string", "description": "string."},
     "TextWH": {
@@ -331,7 +340,8 @@
         },
         "origin": {
           "$ref": "#/$defs/CompassDir",
-          "description": "position relative to."
+          "description": "position relative to.",
+          "unevaluatedProperties": false
         },
         "pad": {
           "$ref": "#/$defs/Border",
@@ -352,7 +362,9 @@
     "TextXY": {
       "type": "object",
       "description": "text XY config.",
-      "properties": {"z": {"$ref": "#/$defs/Layer"}}
+      "properties": {
+        "z": {"$ref": "#/$defs/Layer", "unevaluatedProperties": false}
+      }
     },
     "UIntXY": {
       "$ref": "#/$defs/IntXY",
@@ -392,7 +404,8 @@
     },
     "background": {
       "$ref": "#/$defs/RGBA",
-      "description": "render clear color."
+      "description": "render clear color.",
+      "unevaluatedProperties": false
     },
     "minScale": {
       "type": "number",
@@ -404,8 +417,8 @@
       "description": "min cam dimensions. infinity always uses min scale. defaults to infinity.",
       "unevaluatedProperties": false,
       "properties": {
-        "w": {"$ref": "#/$defs/UnboundedUInt"},
-        "h": {"$ref": "#/$defs/UnboundedUInt"}
+        "w": {"$ref": "#/$defs/UnboundedUInt", "unevaluatedProperties": false},
+        "h": {"$ref": "#/$defs/UnboundedUInt", "unevaluatedProperties": false}
       }
     },
     "zoo": {
@@ -413,8 +426,12 @@
       "description": "zoo config.",
       "required": ["default"],
       "unevaluatedProperties": false,
-      "properties": {"default": {"$ref": "#/$defs/EntList"}},
-      "patternProperties": {".+": {"$ref": "#/$defs/EntList"}}
+      "properties": {
+        "default": {"$ref": "#/$defs/EntList", "unevaluatedProperties": false}
+      },
+      "patternProperties": {
+        ".+": {"$ref": "#/$defs/EntList", "unevaluatedProperties": false}
+      }
     },
     "zoomOut": {
       "type": "number",

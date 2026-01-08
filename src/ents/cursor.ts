@@ -61,7 +61,7 @@ export function onKey(ent: CursorEnt, input: Input, tick: Secs): void {
       Math.max(ent.cursor.bounds.y, ent.sprite.y + input.dir.y * len)
     )
   ent.sprite.z = Layer.Top
-  ent.sprite.visible = true
+  ent.sprite.hidden = false
   ent.invalid = true
 }
 
@@ -73,7 +73,7 @@ export function onPoint(
   ent.sprite.x = point.local.x
   ent.sprite.y = point.local.y
   ent.sprite.z = Layer.Top
-  ent.sprite.visible = point.type === 'Mouse'
+  ent.sprite.hidden = point.type !== 'Mouse'
   ent.invalid = true
 }
 

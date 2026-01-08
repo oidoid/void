@@ -262,7 +262,7 @@ test('init()', () => {
   draw.h = 100
   draw.id = 42
   draw.stretch = true
-  draw.visible = true
+  draw.hidden = true
   draw.w = 200
   draw.x = 10
   draw.y = 20
@@ -277,7 +277,7 @@ test('init()', () => {
   assert(draw.h, 0)
   assert(draw.id, 0)
   assert(draw.stretch, false)
-  assert(draw.visible, true)
+  assert(draw.hidden, false)
   assert(draw.w, 0)
   assert(draw.x, 0)
   assert(draw.y, 0)
@@ -329,19 +329,19 @@ test('stretch', () => {
   assert(toHex(pool), '00000000000000000000000000000000')
 })
 
-test('visible', () => {
+test('hidden', () => {
   const pool = TestPool()
   const draw = TestDrawable(pool, 0)
 
-  assert(draw.visible, false)
+  assert(draw.hidden, false)
   assert(toHex(pool), '00000000000000000000000000000000')
 
-  draw.visible = true
-  assert(draw.visible, true)
+  draw.hidden = true
+  assert(draw.hidden, true)
   assert(toHex(pool), '00000000000000000000000001000000')
 
-  draw.visible = false
-  assert(draw.visible, false)
+  draw.hidden = false
+  assert(draw.hidden, false)
   assert(toHex(pool), '00000000000000000000000000000000')
 })
 

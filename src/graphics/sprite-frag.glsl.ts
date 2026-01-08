@@ -14,14 +14,14 @@ flat in vec2 vAABBWH;
 flat in vec2 vSpriteWH;
 flat in uint vStretch;
 flat in ivec4 vTexXYWH;
-flat in uint vVisible;
+flat in uint vHidden;
 in vec2 vDstWH;
 flat in ivec2 vDstWHFixed;
 
 out vec4 oRGBA;
 
 void main() {
-  if (vVisible == 0u || vDstWHFixed.x == 0 || vDstWHFixed.y == 0)
+  if (vHidden == 1u || vDstWHFixed.x == 0 || vDstWHFixed.y == 0)
     discard;
 
   // map from AABB-local coordinate -> sprite-local coordinate by unrotating
