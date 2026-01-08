@@ -1,6 +1,6 @@
 # void
 
-basic 2D game library.
+basic 2D game library with good typing that loads fast.
 
 ## Installation
 
@@ -54,13 +54,17 @@ to avoid threading template parameters throughout all code, declaration merging 
 
 it's similar to modifying `HTMLElementTagNameMap`.
 
-### Queries
+### Ents
+
+ents are plain, nonnullish, key-value component data. systems are behaviors that are passed ents matching their query. ents aren't usually classes since method would still need to ask for foreign component dependencies.
+
+#### Queries
 
 queries declare system dependencies.
 
 sprite is a kind of common denominator for position and area. if the ent should have no visual representation, leave the sprite as hidden.
 
-### ECS Order
+#### Order
 
 lists then ents are typically updated in insertion order. the cam and then cursor _ents_ should appear first.
 
@@ -82,15 +86,17 @@ components are parsed and updated in key order. the recommended order is:
 
 systems are uniquely associated with a key. zero or one system per key. if multiple keys on an ent are associated with a system, it will be run multiple times per update.
 
+#### Invalid
+
+ents and subsystems self-report as invalid when an update or render is required. ents should avoid reading another ent's `invalid` state since it's cleared once that ent has been updated.
+
 ### Schema
 
 there are two schemas: a game configuration (`void.json`) and level configs (`*.level.jsonc`). the parser assumes a valid schema to minimize code size.
 
 levels are described with the level schema. some schema components may only be applied at parse time.
 
-### Invalid
-
-ents and subsystems self-report as invalid when an update or render is required. ents should avoid reading another ent's `invalid` state since it's cleared once that ent has been updated.
+there's no runtime validation.
 
 ## Copyright and License
 

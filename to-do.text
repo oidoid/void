@@ -12,6 +12,29 @@ demo
 bugs
   reinvestigate fullscreen movement delta scaling. I can't get this to work.
   shift escape is being intercepted.
+  rotations aren't working when just moving the mouse around but do on keyboard input?
+  the ent query here is not validating?
+    ```
+    {
+      "name": "A",
+      "text": "A",
+      "textXY": {},
+      "textWH": {"scale": 10},
+      "rotate": {"speed": 10}
+    },
+    ```
+  text isn't rendering and rotate doesn't support text sprites.
+    ```
+    {
+      "name": "A",
+      "text": "A",
+      "sprite": {"x": 128, "y": 128, "z": "C"},
+      "textXY": {},
+      "textWH": {"scale": 10, "trim": "Descender"},
+      "rotate": {"speed": 10}
+    },
+    ```
+  the demo clock poller can get out of sync with the time. maybe something to do with pausing?
 perf
   it doesn't make sense to insert static sprites as ents. just make an array sprite ent to hold a whole group.
   experiment with caching `Sprite` hitbox and hurtbox.
@@ -24,6 +47,7 @@ perf
     https://github.com/vanruesc/esbuild-plugin-glsl/blob/main/src/minifyShader.ts
     https://github.com/UstymUkhman/vite-plugin-glsl/blob/main/src/loadShader.js
   mem pool should move hidden sprites to end and not send. could also just have sprite interface or list of sprites I don't send to GPU.
+  do some perf tests with different scenarios like static sprite animations vs updating ents.
 input
   limit gamepad polling to once a second if gamepad.bits is off and hasn't been updated in 60s.
   mapping
@@ -41,6 +65,7 @@ parser
   use `$dynamicRef` once understood by IDEs. see https://github.com/microsoft/vscode/issues/155379.
   validate json schemas themselves and usages.
   wrap AJV into linter.
+  it's confusing that some values are init only and others resync live every update. how to clarify what's an init value / fallback init value vs live value. for example of live, look at HUD's interaction with sprite. I don't want to write code that runs every loop and isn't needed by 99% of ents. that 1% can be custom ents.
 features
   provide a utility for scaling icons.
   consider adding a utility to sync palettes.
@@ -56,10 +81,13 @@ entish
 sprite
   allow hitbox / hurtbox to be mutated programmatically if caching.
   sprites own too many responsiblities with position and collisioning and drawing. the common denominator is for GPU perf but is there a better way to make powerful independent basics I can shoot myself in the foot with? everything kind of bakes into it. it's more like a base game object.
+  add palette swapping.
 debug
   on free, test if item belongs to pool.
 research
   decide on exactOptionalPropertyTypes in void and Super Patience.
+  how can I shrink void-template, especially needing to touch schema.json, level-parser.ts, level-schema.ts, ent.ts, new-ent.ts, decl.ts, ... all to add an ent.
 debt
+  rename Void to Game or V?
   use dispose pattern to isolate test mock dependencies and global access.
   I'm getting Node.js type suggestions in src and demo. types is empty. only happens when jsdom is installed. `npx tsc -p src/ --listFiles` lists no @types files. everything is pure TS lib or project files. doesn't matter when I blank typeRoots and remove types: 'node' from other projects.
