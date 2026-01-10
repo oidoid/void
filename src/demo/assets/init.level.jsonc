@@ -118,6 +118,13 @@
       },
 
       {
+        "text": "play",
+        "sprite": {"x": 128, "y": 128, "z": "C"},
+        "textWH": {"scale": 10, "trim": "Leading"},
+        "textXY": {}
+      },
+
+      {
         "name": "Tally",
         "text": "",
         "sprite": {"z": "UIA"},

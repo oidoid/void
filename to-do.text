@@ -12,25 +12,13 @@ demo
 bugs
   reinvestigate fullscreen movement delta scaling. I can't get this to work.
   shift escape is being intercepted.
-  rotations aren't working when just moving the mouse around but do on keyboard input?
   the ent query here is not validating?
     ```
     {
       "name": "A",
       "text": "A",
-      "textXY": {},
       "textWH": {"scale": 10},
-      "rotate": {"speed": 10}
-    },
-    ```
-  text isn't rendering and rotate doesn't support text sprites.
-    ```
-    {
-      "name": "A",
-      "text": "A",
-      "sprite": {"x": 128, "y": 128, "z": "C"},
       "textXY": {},
-      "textWH": {"scale": 10, "trim": "Descender"},
       "rotate": {"speed": 10}
     },
     ```
@@ -66,6 +54,7 @@ parser
   validate json schemas themselves and usages.
   wrap AJV into linter.
   it's confusing that some values are init only and others resync live every update. how to clarify what's an init value / fallback init value vs live value. for example of live, look at HUD's interaction with sprite. I don't want to write code that runs every loop and isn't needed by 99% of ents. that 1% can be custom ents.
+  how can I enforce the user parser typing? maybe just omit the V props. it's ok to return undefined but the switch should handle all props. this would prevent overriding a V parser though.
 features
   provide a utility for scaling icons.
   consider adding a utility to sync palettes.
