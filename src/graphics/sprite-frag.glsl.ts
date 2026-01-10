@@ -34,18 +34,23 @@ void main() {
     float(sign(vDstWHFixed.x)) * vDstWH.x,
     float(sign(vDstWHFixed.y)) * vDstWH.y
   );
+
+  // vDstWHFixed uses sign to encode flips. apply flips in AABB-local space
+  // (before inverse rotation) so the mapping is symmetric and doesn't introduce
+  // a 1px bias.
+  if (vDstWHFixed.x < 0) aabbLocal.x = vAABBWH.x - aabbLocal.x;
+  if (vDstWHFixed.y < 0) aabbLocal.y = vAABBWH.y - aabbLocal.y;
+
   // p is centered AABB coordinate. apply inverse rotation (-angle).
   vec2 p = aabbLocal - aabbCenter;
   vec2 q = vec2(cosA * p.x + sinA * p.y, -sinA * p.x + cosA * p.y);
   vec2 spriteLocal = q + spriteCenter;
 
-  // vDstWHFixed uses sign to encode flips.
-  if (vDstWHFixed.x < 0) spriteLocal.x = (vSpriteWH.x - 1.0) - spriteLocal.x;
-  if (vDstWHFixed.y < 0) spriteLocal.y = (vSpriteWH.y - 1.0) - spriteLocal.y;
-
   // discard pixels falling outside rotated rectangle.
-  if (spriteLocal.x < 0. || spriteLocal.y < 0. ||
-      spriteLocal.x >= vSpriteWH.x || spriteLocal.y >= vSpriteWH.y)
+  if (spriteLocal.x < 0. ||
+      spriteLocal.y < 0. ||
+      spriteLocal.x >= vSpriteWH.x ||
+      spriteLocal.y >= vSpriteWH.y)
     discard;
 
   // sample from spritesheet.
