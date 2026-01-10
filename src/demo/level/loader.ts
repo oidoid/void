@@ -1,33 +1,33 @@
 import * as V from '../../index.ts'
 import levelJSON from '../assets/init.level.jsonc' with {type: 'json'}
-import {CamSys} from '../ents/cam.ts'
-import {ClockSys} from '../ents/clock.ts'
-import {DrawSys} from '../ents/draw.ts'
-import {RenderToggleSys} from '../ents/render-toggle.ts'
-import {RotateSys} from '../ents/rotate.ts'
-import {TallySys} from '../ents/tally.ts'
+import {CamHook} from '../ents/cam.ts'
+import {ClockHook} from '../ents/clock.ts'
+import {DrawHook} from '../ents/draw.ts'
+import {RenderToggleHook} from '../ents/render-toggle.ts'
+import {RotateHook} from '../ents/rotate.ts'
+import {TallyHook} from '../ents/tally.ts'
 import {parseComponent} from './level-parser.ts'
 
 export class Loader implements V.Loader {
   cursor: V.CursorEnt | undefined
   #lvl: 'Init' | undefined
-  readonly #systems: V.SysMap = {
-    button: new V.ButtonSys(),
-    cursor: new V.CursorSys(),
-    debugInput: new V.DebutInputSys(),
-    fps: new V.FPSSys(),
-    hud: new V.HUDSys(),
-    ninePatch: new V.NinePatchSys(),
-    override: new V.OverrideSys(),
-    rotate: new RotateSys(),
-    sprite: new V.SpriteSys(),
-    textWH: new V.TextWHSys(),
-    textXY: new V.TextXYSys(),
-    cam: new CamSys(),
-    clock: new ClockSys(),
-    draw: new DrawSys(),
-    renderToggle: new RenderToggleSys(),
-    tally: new TallySys()
+  readonly #hooks: Readonly<V.HookMap> = {
+    button: new V.ButtonHook(),
+    cursor: new V.CursorHook(),
+    debugInput: new V.DebutInputHook(),
+    fps: new V.FPSHook(),
+    hud: new V.HUDHook(),
+    ninePatch: new V.NinePatchHook(),
+    override: new V.OverrideHook(),
+    rotate: new RotateHook(),
+    sprite: new V.SpriteHook(),
+    textWH: new V.TextWHHook(),
+    textXY: new V.TextXYHook(),
+    cam: new CamHook(),
+    clock: new ClockHook(),
+    draw: new DrawHook(),
+    renderToggle: new RenderToggleHook(),
+    tally: new TallyHook()
   }
   #zoo: V.Zoo = {default: new Set()}
 
@@ -42,8 +42,7 @@ export class Loader implements V.Loader {
         this.#lvl satisfies never
     }
 
-    for (const zoo of Object.values(this.#zoo))
-      V.zooUpdate(zoo, this.#systems, v)
+    for (const zoo of Object.values(this.#zoo)) V.zooUpdate(zoo, this.#hooks, v)
   }
 
   #init(v: V.Void): void {

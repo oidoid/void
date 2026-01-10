@@ -1,10 +1,10 @@
 import type {Void} from '../void.ts'
-import type {Sys, SysEnt} from './sys.ts'
+import type {Hook, HookEnt} from './hook.ts'
 import {textSetText} from './text.ts'
 
-export type FPSEnt = SysEnt<FPSSys>
+export type FPSEnt = HookEnt<FPSHook>
 
-export class FPSSys implements Sys {
+export class FPSHook implements Hook {
   readonly query = 'fps & text'
 
   update(ent: FPSEnt, v: Void): void {

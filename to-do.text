@@ -75,8 +75,6 @@ features
   support a query param for Void.random seeding.
 entish
   querying ents from another ent is very clumsy. cant' really do it at parse time unless you know all those ents have been inserted so you have to wait until first update or put it in `Loader` or `Void`. maybe there needs to be an init() callback that is invoked by level loader `zoo.initEnts()`.
-  rename `Sys` to `Updater`? rename `Sys.update()` to run? updaters can also free and maybe init.
-  some systems need to retain their order as running first or last. inserting systems is not expensive so sorted insert should be fine. I had some weighting logic in `git show f812f85`.
   Void.invalid vs Ent.invalid vs Render.invalid vs Void.requestFrame() is confusing overlap.
 sprite
   allow hitbox / hurtbox to be mutated programmatically if caching.

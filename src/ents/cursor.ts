@@ -3,7 +3,7 @@ import {floorDrawEpsilon} from '../graphics/sprite.ts'
 import type {Input, Point} from '../input/input.ts'
 import type {Secs} from '../types/time.ts'
 import type {Void} from '../void.ts'
-import type {Sys, SysEnt} from './sys.ts'
+import type {Hook, HookEnt} from './hook.ts'
 
 //  to-do: i do pass ent data here. maybe I should do that for mem pool as SpritePool(i).
 
@@ -13,9 +13,9 @@ import type {Sys, SysEnt} from './sys.ts'
  * update this ent first.  always prefer testing against cursor, not input, in
  * other ents. the cursor may be moved by keyboard and has a hitbox.
  */
-export type CursorEnt = SysEnt<CursorSys>
+export type CursorEnt = HookEnt<CursorHook>
 
-export class CursorSys implements Sys {
+export class CursorHook implements Hook {
   readonly query = 'cursor & sprite'
 
   update(ent: CursorEnt, v: Void): void {

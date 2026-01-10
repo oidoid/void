@@ -2,13 +2,13 @@ import {debug} from '../utils/debug.ts'
 import type {Void} from '../void.ts'
 import type {Ent} from './ent.ts'
 import {type EQL, parseQuery, type QueryEnt} from './ent-query.ts'
-import type {Sys} from './sys.ts'
+import type {Hook} from './hook.ts'
 
 export interface Zoo {
   default: Set<Ent>
 }
-export type SysMap = {[component in keyof Ent]?: Sys}
-type QueryMap = {[component in keyof Ent]?: string[][]}
+export type HookMap = {[k in keyof Ent]?: Hook}
+type QueryMap = {[k in keyof Ent]?: string[][]}
 
 export function zooFindByID<T extends Ent>(
   ents: Iterable<Readonly<Ent>, undefined, undefined>,
@@ -28,11 +28,11 @@ export function* zooQuery<const Query>(
 
 export function zooUpdate(
   ents: Iterable<Ent, undefined, undefined>,
-  systems: Readonly<SysMap>,
+  hooks: Readonly<HookMap>,
   v: Void
 ): void {
   for (const ent of ents) {
-    for (const k in ent) systems[k as keyof Ent]?.update?.(ent as never, v)
+    for (const k in ent) hooks[k as keyof Ent]?.update?.(ent as never, v)
     if (ent.invalid && debug?.invalid)
       console.debug('[invalid] ent update invalid', ent)
     v.invalid ||= !!ent.invalid
@@ -42,11 +42,11 @@ export function zooUpdate(
 
 export function zooValidate(
   ents: Iterable<Readonly<Ent>, undefined, undefined>,
-  systems: Readonly<SysMap>
+  hooks: Readonly<HookMap>
 ): void {
   const queries: QueryMap = {}
-  for (const [k, sys] of Object.entries(systems))
-    queries[k as keyof Ent] = parseQuery(sys.query as keyof Ent)
+  for (const [k, hook] of Object.entries(hooks))
+    queries[k as keyof Ent] = parseQuery(hook.query as keyof Ent)
   for (const ent of ents) validateQueries(ent, queries)
 }
 

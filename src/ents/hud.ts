@@ -9,12 +9,12 @@ import {
   xyEq
 } from '../types/geo.ts'
 import type {Void} from '../void.ts'
-import type {Sys, SysEnt} from './sys.ts'
+import type {Hook, HookEnt} from './hook.ts'
 
-export type HUDEnt = SysEnt<HUDSys>
+export type HUDEnt = HookEnt<HUDHook>
 
 /** reads invalid, hud, sprite WH and z; writes invalid, sprite XY, WH. */
-export class HUDSys implements Sys {
+export class HUDHook implements Hook {
   readonly query = 'hud & sprite'
 
   update(ent: HUDEnt, v: Void): void {

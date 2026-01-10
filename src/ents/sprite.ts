@@ -1,9 +1,9 @@
-import type {Sys, SysEnt} from './sys.ts'
+import type {Hook, HookEnt} from './hook.ts'
 
-export type SpriteEnt = SysEnt<SpriteSys>
+export type SpriteEnt = HookEnt<SpriteHook>
 
 /** writes sprite, invalid. */
-export class SpriteSys implements Sys {
+export class SpriteHook implements Hook {
   readonly query = 'sprite'
 
   free(ent: SpriteEnt): void {

@@ -46,21 +46,21 @@ to avoid threading template parameters throughout all code, declaration merging 
 - `DrawSchema`
 - `Ent`
 - `EntSchema`
+- `Hook`
 - `LevelZoo`
 - `Loader`
 - `PoolMap`
 - `ReturnTag`
-- `Sys`
 
 it's similar to modifying `HTMLElementTagNameMap`.
 
 ### Ents
 
-ents are plain, nonnullish, key-value component data. systems are behaviors that are passed ents matching their query. ents aren't usually classes since method would still need to ask for foreign component dependencies.
+ents are plain, nonnullish, key-value data. hooks are callbacks that are passed ents matching their query. queries are props required. ents aren't usually classes since method would still need to ask for foreign component dependencies.
 
 #### Queries
 
-queries declare system dependencies.
+queries declare props required on an ent by a hook.
 
 sprite is a kind of common denominator for position and area. if the ent should have no visual representation, leave the sprite as hidden.
 
@@ -84,7 +84,7 @@ components are parsed and updated in key order. the recommended order is:
 - `invalid`
 - `override`
 
-systems are uniquely associated with a key. zero or one system per key. if multiple keys on an ent are associated with a system, it will be run multiple times per update.
+hooks are uniquely associated with a key. zero or one hook per key. if multiple keys on an ent are associated with a hook, it will be run multiple times per update.
 
 #### Invalid
 

@@ -1,8 +1,8 @@
 import * as V from '../../index.ts'
 
-export type RenderToggleEnt = V.SysEnt<RenderToggleSys>
+export type RenderToggleEnt = V.HookEnt<RenderToggleHook>
 
-export class RenderToggleSys implements V.Sys {
+export class RenderToggleHook implements V.Hook {
   readonly query = 'button & renderToggle & sprite'
 
   update(ent: RenderToggleEnt, v: V.Void): void {

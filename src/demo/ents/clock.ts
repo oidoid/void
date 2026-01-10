@@ -1,9 +1,9 @@
 import * as V from '../../index.ts'
 
-export type ClockEnt = V.SysEnt<ClockSys>
+export type ClockEnt = V.HookEnt<ClockHook>
 
 /** writes to text, invalid. */
-export class ClockSys implements V.Sys {
+export class ClockHook implements V.Hook {
   readonly query = 'clock & text'
 
   update(ent: ClockEnt): void {

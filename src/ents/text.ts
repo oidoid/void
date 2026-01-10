@@ -3,14 +3,14 @@ import {fontCharToTag} from '../text/font.ts'
 import {layoutText} from '../text/text-layout.ts'
 import type {Void} from '../void.ts'
 import type {QueryEnt} from './ent-query.ts'
-import type {Sys, SysEnt} from './sys.ts'
+import type {Hook, HookEnt} from './hook.ts'
 
 export type TextEnt = QueryEnt<'text'>
-export type TextWHEnt = SysEnt<TextWHSys>
-export type TextXYEnt = SysEnt<TextXYSys>
+export type TextWHEnt = HookEnt<TextWHHook>
+export type TextXYEnt = HookEnt<TextXYHook>
 
 /** reads sprite text; writes sprite WH and invalid. */
-export class TextWHSys implements Sys {
+export class TextWHHook implements Hook {
   readonly query = 'sprite & text & textWH'
 
   update(ent: TextWHEnt): void {
@@ -20,7 +20,7 @@ export class TextWHSys implements Sys {
 }
 
 /** reads sprite XYZ, text, text WH; writes invalid. */
-export class TextXYSys implements Sys {
+export class TextXYHook implements Hook {
   readonly query = 'sprite & text & textWH & textXY'
 
   free(ent: TextXYEnt): void {

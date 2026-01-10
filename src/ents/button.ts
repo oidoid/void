@@ -1,9 +1,9 @@
 import type {Void} from '../void.ts'
-import type {Sys, SysEnt} from './sys.ts'
+import type {Hook, HookEnt} from './hook.ts'
 
-export type ButtonEnt = SysEnt<ButtonSys>
+export type ButtonEnt = HookEnt<ButtonHook>
 
-export class ButtonSys implements Sys {
+export class ButtonHook implements Hook {
   readonly query = 'button & sprite'
 
   free(ent: ButtonEnt): void {

@@ -1,6 +1,6 @@
 import type * as V from '../../index.ts'
 
-export class DrawSys implements V.Sys {
+export class DrawHook implements V.Hook {
   readonly query = 'draw'
 
   update(_ent: V.DrawEnt, v: V.Void): void {

@@ -2,10 +2,10 @@ import type * as V from '../../index.ts'
 
 export type Rotate = {speed: number}
 
-export type RotateEnt = V.SysEnt<RotateSys>
+export type RotateEnt = V.HookEnt<RotateHook>
 
 /** writes to sprite.angle. */
-export class RotateSys implements V.Sys {
+export class RotateHook implements V.Hook {
   readonly query = 'rotate & sprite'
 
   update(ent: RotateEnt, v: V.Void): void {

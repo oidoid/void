@@ -21,7 +21,7 @@ export interface Ent {
   /**
    * recompute and render update if true. ok to set from anywhere but zoo or
    * override must clear. ents read invalid to test if an update is necessary.
-   * ents write invalid to flag rendering and recompute by other systems. ents
+   * ents write invalid to flag rendering and recompute by other hooks. ents
    * should not look at each other's invalid state since it's cleared on update.
    */
   invalid?: boolean

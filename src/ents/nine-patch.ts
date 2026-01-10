@@ -1,10 +1,10 @@
 import type {XY} from '../types/geo.ts'
-import type {Sys, SysEnt} from './sys.ts'
+import type {Hook, HookEnt} from './hook.ts'
 
-export type NinePatchEnt = SysEnt<NinePatchSys>
+export type NinePatchEnt = HookEnt<NinePatchHook>
 
 /** reads invalid, sprite XY and WH; writes ninePatch, invalid. */
-export class NinePatchSys implements Sys {
+export class NinePatchHook implements Hook {
   readonly query = 'ninePatch & sprite'
 
   free(ent: NinePatchEnt): void {

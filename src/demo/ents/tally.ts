@@ -1,9 +1,9 @@
 import * as V from '../../index.ts'
 
-export type TallyEnt = V.SysEnt<TallySys>
+export type TallyEnt = V.HookEnt<TallyHook>
 
 /** writes to text, invalid. */
-export class TallySys implements V.Sys {
+export class TallyHook implements V.Hook {
   readonly query = 'tally & text'
 
   update(ent: TallyEnt, v: V.Void): void {

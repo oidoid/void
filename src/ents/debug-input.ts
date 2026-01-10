@@ -1,10 +1,10 @@
 import {debug} from '../utils/debug.ts'
 import type {Void} from '../void.ts'
-import type {Sys, SysEnt} from './sys.ts'
+import type {Hook, HookEnt} from './hook.ts'
 
-export type DebutInputEnt = SysEnt<DebutInputSys>
+export type DebutInputEnt = HookEnt<DebutInputHook>
 
-export class DebutInputSys implements Sys {
+export class DebutInputHook implements Hook {
   readonly query = 'debugInput'
 
   update(_ent: DebutInputEnt, v: Void): void {
