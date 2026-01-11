@@ -10,7 +10,7 @@ declare module './argv.ts' {
   }
 }
 
-test('parses empty.', () => {
+test('parses empty', () => {
   assert(Argv(['/usr/local/bin/node', 'tools/void.ts']), {
     args: [],
     opts: {},
@@ -19,7 +19,7 @@ test('parses empty.', () => {
   })
 })
 
-test('parses nonempty.', () => {
+test('parses nonempty', () => {
   assert(
     Argv([
       '/usr/local/bin/node',

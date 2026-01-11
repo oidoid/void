@@ -38,6 +38,7 @@ npm install --save @oidoid/void
 
 to avoid threading template parameters throughout all code, declaration merging is used for the following:
 
+- `AnimData`
 - `AtlasMap`
 - `CamSchema`
 - `CamUpdater`

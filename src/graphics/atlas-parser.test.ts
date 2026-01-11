@@ -4,7 +4,7 @@ import {assert} from '../test/assert.ts'
 import {parseAtlas, parseXYWH} from './atlas-parser.ts'
 
 describe('parseAtlas()', () => {
-  test('parses empty.', () => {
+  test('parses empty', () => {
     assert(parseAtlas({anim: {}, celXY: []}), {
       anim: {},
       celXYWH: [],
@@ -12,7 +12,7 @@ describe('parseAtlas()', () => {
     })
   })
 
-  test('parses nonempty.', () => {
+  test('parses nonempty', () => {
     assert(
       parseAtlas({
         anim: {

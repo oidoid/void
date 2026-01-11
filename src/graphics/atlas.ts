@@ -24,12 +24,17 @@ export interface AtlasMap {
   default: Atlas
 }
 
+/** arbitrary data. */
+// biome-ignore lint/suspicious/noEmptyInterface:;
+export interface AnimData {}
+
 export type Anim = {
   /**
    * number of cels in a full animation cycle including cels extended for
    * duration and the second half of pingpongs.
    */
   cels: number
+  data?: AnimData
   /** outgoing collision rectangle (red / blue). */
   hitbox?: Box
   /** incoming collision rectangle (green / blue). */

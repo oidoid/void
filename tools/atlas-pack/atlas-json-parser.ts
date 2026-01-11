@@ -32,6 +32,7 @@ export function parseAnim(
   const {hitbox, hurtbox} = parseHitboxes(span, slices)
   return {
     cels: cels.length,
+    data: parseAnimData(span),
     h: cels[0].sourceSize.h,
     hitbox,
     hurtbox,
@@ -97,6 +98,22 @@ export function parseCel(frame: Readonly<ase.Frame>): V.XY {
     x: frame.frame.x + (frame.frame.w - frame.sourceSize.w) / 2,
     y: frame.frame.y + (frame.frame.h - frame.sourceSize.h) / 2
   }
+}
+
+/** @internal */
+export function parseAnimData(
+  span: Readonly<ase.TagSpan>
+): V.AnimData | undefined {
+  const json = span.data?.trim()
+  if (!json) return
+  let data
+  try {
+    data = JSON.parse(json)
+  } catch (err) {
+    throw Error(`atlas tag "${span.name}" data unparseable`, {cause: err})
+  }
+  V.assertRecord(data, `atlas tag "${span.name}" data is not a JSON object`)
+  return data
 }
 
 /** @internal */

@@ -61,6 +61,8 @@ export type Slice = {
 /** a label and animation behavior. references `Frame`s to form an animation. */
 export type TagSpan = {
   color: Color
+  /** arbitrary data assumed to be empty or a stringified JSON object. */
+  data?: string
   name: V.Tag
   /** inclusive starting Frame index. */
   from: number
