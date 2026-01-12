@@ -25,8 +25,6 @@ bugs
   the demo clock poller can get out of sync with the time. maybe something to do with pausing?
 perf
   it doesn't make sense to insert static sprites as ents. just make an array sprite ent to hold a whole group.
-  experiment with caching `Sprite` hitbox and hurtbox.
-    add cached hit/hurtbox tests to sprite.
   add pause on blur option.
   provide quadtree and track what's visible.
     https://lisyarus.github.io/blog/posts/building-a-quadtree.html

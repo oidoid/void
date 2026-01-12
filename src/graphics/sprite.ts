@@ -297,8 +297,6 @@ export abstract class Drawable implements Block, Box {
 
 export class Sprite extends Drawable {
   readonly #atlas: Readonly<Atlas>
-  #hitbox: Box | undefined
-  #hurtbox: Box | undefined
   readonly #looper: {readonly age: Millis}
 
   constructor(
@@ -320,39 +318,6 @@ export class Sprite extends Drawable {
     diagonalize(this, dir.x * dir.y)
   }
 
-  override get flipX(): boolean {
-    return super.flipX
-  }
-
-  override set flipX(flip: boolean) {
-    if (this.flipX === flip) return
-    super.flipX = flip
-    this.#hitbox = undefined
-    this.#hurtbox = undefined
-  }
-
-  override get flipY(): boolean {
-    return super.flipY
-  }
-
-  override set flipY(flip: boolean) {
-    if (this.flipY === flip) return
-    super.flipY = flip
-    this.#hitbox = undefined
-    this.#hurtbox = undefined
-  }
-
-  override get h(): number {
-    return super.h
-  }
-
-  override set h(h: number) {
-    if (this.h === h) return
-    super.h = h
-    this.#hitbox = undefined
-    this.#hurtbox = undefined
-  }
-
   hit(box: Readonly<Box>): Box {
     return boxIntersect(
       this.hitbox ?? this,
@@ -362,10 +327,9 @@ export class Sprite extends Drawable {
 
   /** floored hitbox. */
   get hitbox(): Readonly<Box> | undefined {
-    if (this.#hitbox) return this.#hitbox
     const {hitbox} = this.anim
     if (!hitbox) return
-    return (this.#hitbox ??= {
+    return {
       x: Math.floor(
         this.x + (this.flipX ? this.w - hitbox.w - hitbox.x : hitbox.x)
       ),
@@ -374,7 +338,7 @@ export class Sprite extends Drawable {
       ),
       w: hitbox.w,
       h: hitbox.h
-    })
+    }
   }
 
   /**
@@ -397,10 +361,9 @@ export class Sprite extends Drawable {
 
   /** floored hurtbox. */
   get hurtbox(): Readonly<Box> | undefined {
-    if (this.#hurtbox) return this.#hurtbox
     const {hurtbox} = this.anim
     if (!hurtbox) return
-    return (this.#hurtbox ??= {
+    return {
       x: Math.floor(
         this.x + (this.flipX ? this.w - hurtbox.w - hurtbox.x : hurtbox.x)
       ),
@@ -409,18 +372,7 @@ export class Sprite extends Drawable {
       ),
       w: hurtbox.w,
       h: hurtbox.h
-    })
-  }
-
-  override get id(): number {
-    return super.id
-  }
-
-  override set id(id: number) {
-    if (this.id === id) return
-    super.id = id
-    this.#hitbox = undefined
-    this.#hurtbox = undefined
+    }
   }
 
   /** true if animation has played once. */
@@ -467,39 +419,6 @@ export class Sprite extends Drawable {
   override toString(): string {
     return `Sprite{${this.tag} (${this.x} ${this.y} ${this.z}) ${this.w}×${this.h}}`
   }
-
-  override get w(): number {
-    return super.w
-  }
-
-  override set w(w: number) {
-    if (this.w === w) return
-    super.w = w
-    this.#hitbox = undefined
-    this.#hurtbox = undefined
-  }
-
-  override get x(): number {
-    return super.x
-  }
-
-  override set x(x: number) {
-    if (this.x === x) return
-    super.x = x
-    this.#hitbox = undefined
-    this.#hurtbox = undefined
-  }
-
-  override get y(): number {
-    return super.y
-  }
-
-  override set y(y: number) {
-    if (this.y === y) return
-    super.y = y
-    this.#hitbox = undefined
-    this.#hurtbox = undefined
-  }
 }
 
 /**
@@ -513,7 +432,7 @@ export function diagonalize(xy: XY, dir: number): void {
   xy.y = Math.floor(xy.y) + 0.5 - (dir > 0 ? 0 : drawableEpsilon)
 }
 
-/** truncate to nearest drawable quantum. */
+/** floor to nearest drawable quantum. */
 export function floorDrawEpsilon(x: number): number {
   return Math.floor(x / drawableEpsilon) * drawableEpsilon
 }
