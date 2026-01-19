@@ -3,7 +3,7 @@ import {StructLayout, type StructPropLayout} from './struct-layout.ts'
 import type {StructSchema} from './struct-schema.ts'
 
 /** dense growable array of structs. */
-export type Struct<Schema> = StructBase & Accessors<Schema>
+export type Struct<Schema> = StructImpl & Accessors<Schema>
 
 export type StructOpts = {
   /** init page count. */
@@ -46,17 +46,16 @@ export function Struct<Schema extends StructSchema>(
   schema: Readonly<Schema>,
   opts: Readonly<StructOpts>
 ): Struct<Schema> {
-  const layout = StructLayout(schema)
-  const base = new StructBase(layout, opts)
-  const accessors = Accessors<Schema>(base, layout)
-  return Object.assign(base, accessors)
+  return new StructImpl(StructLayout(schema), opts) as Struct<Schema>
 }
 
-class StructBase {
+class StructImpl {
   /** struct size in bytes. */
   readonly stride: number
   /** structs per page. */
-  readonly pageSize: number
+  readonly pageSize: number;
+  /** private implementation typing. */
+  [prop: `get${string}` | `set${string}`]: Getter<unknown> | Setter<never>
 
   // to-do: some of these members could appear as preamble data within `#u8`.
   readonly #indexBySID: Map<SID, number> = new Map()
@@ -81,6 +80,43 @@ class StructBase {
       new ArrayBuffer((opts.pages ?? 0) * this.pageSize * this.stride)
     )
     this.#view = new DataView(this.#u8.buffer)
+
+    for (const prop of layout.props) {
+      const getName = `get${prop.name}` as const
+      const setName = `set${prop.name}` as const
+
+      switch (prop.type) {
+        case 'Bool':
+          this[getName] = this.#GetBool(prop)
+          this[setName] = this.#SetBool(prop)
+          break
+        case 'Byte':
+          this[getName] = this.#GetByte(prop)
+          this[setName] = this.#SetByte(prop)
+          break
+        case 'Float':
+          this[getName] = this.#GetFloat(prop)
+          this[setName] = this.#SetFloat(prop)
+          break
+        case 'Int':
+          this[getName] = this.#GetInt(prop)
+          this[setName] = this.#SetInt(prop)
+          break
+        case 'Short':
+          this[getName] = this.#GetShort(prop)
+          this[setName] = this.#SetShort(prop)
+          break
+        case 'SID':
+          this[getName] = this.#GetSID(prop)
+          this[setName] = this.#SetSID(prop)
+          break
+        case 'Object':
+        case 'String':
+          this[getName] = this.#GetRef(prop)
+          this[setName] = this.#SetRef(prop)
+          break
+      }
+    }
   }
 
   alloc(): SID {
@@ -88,7 +124,7 @@ class StructBase {
 
     const sid = ++this.#sid as SID
     this.#indexBySID.set(sid, this.size)
-    this._setSID(sid, this.#sidOffset, sid)
+    this.#setSID(sid, this.#sidOffset, sid)
 
     return sid
   }
@@ -129,8 +165,8 @@ class StructBase {
   /** does not clear dangling `RID`s in struct. */
   freeRefs(sid: SID): void {
     for (const offset of this.#refOffsets) {
-      const rid = this._getRID(sid, offset)
-      if (rid) this._freeRef(rid)
+      const rid = this.#getRID(sid, offset)
+      if (rid) this.#freeRef(rid)
     }
   }
 
@@ -181,423 +217,327 @@ class StructBase {
     return this.#view.getUint32(i * this.stride + this.#sidOffset, true) as SID
   }
 
-  _allocRef(): RID {
+  // ─── ref management ───
+
+  #allocRef(): RID {
     return ++this.#rid as RID
   }
 
-  _freeRef(rid: RID): void {
+  #freeRef(rid: RID): void {
     this.#refByRID.delete(rid)
   }
 
-  _setRef(rid: RID, v: Ref): void {
-    this.#refByRID.set(rid, v)
-  }
-
-  _getRef(rid: RID): Ref {
+  #getRef(rid: RID): Ref {
     const v = this.#refByRID.get(rid)
     if (v === undefined) throw Error(`no ref ${rid}`)
     return v
   }
 
-  _getRID(sid: SID, offset: number): MaybeRID {
-    return this._getU32(sid, offset) as MaybeRID
+  #setRef(rid: RID, v: Ref): void {
+    this.#refByRID.set(rid, v)
   }
 
-  _setRID(sid: SID, offset: number, v: MaybeRID): void {
-    this._setU32(sid, offset, v)
-  }
+  // ─── /ref management ───
 
-  _getSID(sid: SID, offset: number): MaybeSID {
-    return this._getU32(sid, offset) as MaybeSID
-  }
+  // ─── #view accesors ───
 
-  _setSID(sid: SID, offset: number, v: MaybeSID): void {
-    this._setU32(sid, offset, v)
-  }
-
-  _getU8(sid: SID, offset: number): number {
-    const i = this.#getIndex(sid) * this.stride + offset
-    return this.#view.getUint8(i)
-  }
-
-  _setU8(sid: SID, offset: number, v: number): void {
-    const i = this.#getIndex(sid) * this.stride + offset
-    this.#view.setUint8(i, v)
-  }
-
-  _getI8(sid: SID, offset: number): number {
-    const i = this.#getIndex(sid) * this.stride + offset
-    return this.#view.getInt8(i)
-  }
-
-  _setI8(sid: SID, offset: number, v: number): void {
-    const i = this.#getIndex(sid) * this.stride + offset
-    this.#view.setInt8(i, v)
-  }
-
-  _getU16(sid: SID, offset: number): number {
-    const i = this.#getIndex(sid) * this.stride + offset
-    return this.#view.getUint16(i, true)
-  }
-
-  _setU16(sid: SID, offset: number, v: number): void {
-    const i = this.#getIndex(sid) * this.stride + offset
-    this.#view.setUint16(i, v, true)
-  }
-
-  _getI16(sid: SID, offset: number): number {
-    const i = this.#getIndex(sid) * this.stride + offset
-    return this.#view.getInt16(i, true)
-  }
-
-  _setI16(sid: SID, offset: number, v: number): void {
-    const i = this.#getIndex(sid) * this.stride + offset
-    this.#view.setInt16(i, v, true)
-  }
-
-  _getU32(sid: SID, offset: number): number {
-    const i = this.#getIndex(sid) * this.stride + offset
-    return this.#view.getUint32(i, true)
-  }
-
-  _setU32(sid: SID, offset: number, v: number): void {
-    const i = this.#getIndex(sid) * this.stride + offset
-    this.#view.setUint32(i, v, true)
-  }
-
-  _getI32(sid: SID, offset: number): number {
-    const i = this.#getIndex(sid) * this.stride + offset
-    return this.#view.getInt32(i, true)
-  }
-
-  _setI32(sid: SID, offset: number, v: number): void {
-    const i = this.#getIndex(sid) * this.stride + offset
-    this.#view.setInt32(i, v, true)
-  }
-
-  _getF16(sid: SID, offset: number): number {
+  #getF16(sid: SID, offset: number): number {
     const i = this.#getIndex(sid) * this.stride + offset
     // @ts-expect-error to-do: add `ESNext.float16` to `lib`.
     return this.#view.getFloat16(i, true)
   }
-
-  _setF16(sid: SID, offset: number, v: number): void {
+  #setF16(sid: SID, offset: number, v: number): void {
     const i = this.#getIndex(sid) * this.stride + offset
     // @ts-expect-error to-do: add `ESNext.float16` to `lib`.
     this.#view.setFloat16(i, v, true)
   }
 
-  _getF32(sid: SID, offset: number): number {
+  #getF32(sid: SID, offset: number): number {
     const i = this.#getIndex(sid) * this.stride + offset
     return this.#view.getFloat32(i, true)
   }
-
-  _setF32(sid: SID, offset: number, v: number): void {
+  #setF32(sid: SID, offset: number, v: number): void {
     const i = this.#getIndex(sid) * this.stride + offset
     this.#view.setFloat32(i, v, true)
   }
 
-  _getF64(sid: SID, offset: number): number {
+  #getF64(sid: SID, offset: number): number {
     const i = this.#getIndex(sid) * this.stride + offset
     return this.#view.getFloat64(i, true)
   }
-
-  _setF64(sid: SID, offset: number, v: number): void {
+  #setF64(sid: SID, offset: number, v: number): void {
     const i = this.#getIndex(sid) * this.stride + offset
     this.#view.setFloat64(i, v, true)
   }
-}
 
-function Accessors<Schema>(
-  base: StructBase,
-  layout: Readonly<StructLayout>
-): Accessors<Schema> {
-  const accessors: {[prop: string]: Getter<unknown> | Setter<never>} = {}
-  for (const prop of layout.props) {
-    switch (prop.type) {
-      case 'Bool':
-        accessors[`get${prop.name}`] = GetBool(base, prop)
-        accessors[`set${prop.name}`] = SetBool(base, prop)
-        break
-      case 'Byte':
-        accessors[`get${prop.name}`] = GetByte(base, prop)
-        accessors[`set${prop.name}`] = SetByte(base, prop)
-        break
-      case 'Float':
-        accessors[`get${prop.name}`] = GetFloat(base, prop)
-        accessors[`set${prop.name}`] = SetFloat(base, prop)
-        break
-      case 'Int':
-        accessors[`get${prop.name}`] = GetInt(base, prop)
-        accessors[`set${prop.name}`] = SetInt(base, prop)
-        break
-      case 'Short':
-        accessors[`get${prop.name}`] = GetShort(base, prop)
-        accessors[`set${prop.name}`] = SetShort(base, prop)
-        break
-      case 'SID':
-        accessors[`get${prop.name}`] = GetSID(base, prop)
-        accessors[`set${prop.name}`] = SetSID(base, prop)
-        break
-      case 'Object':
-      case 'String':
-        accessors[`get${prop.name}`] = GetRef(base, prop)
-        accessors[`set${prop.name}`] = SetRef(base, prop)
-        break
+  #getI16(sid: SID, offset: number): number {
+    const i = this.#getIndex(sid) * this.stride + offset
+    return this.#view.getInt16(i, true)
+  }
+  #setI16(sid: SID, offset: number, v: number): void {
+    const i = this.#getIndex(sid) * this.stride + offset
+    this.#view.setInt16(i, v, true)
+  }
+
+  #getI32(sid: SID, offset: number): number {
+    const i = this.#getIndex(sid) * this.stride + offset
+    return this.#view.getInt32(i, true)
+  }
+  #setI32(sid: SID, offset: number, v: number): void {
+    const i = this.#getIndex(sid) * this.stride + offset
+    this.#view.setInt32(i, v, true)
+  }
+
+  #getI8(sid: SID, offset: number): number {
+    const i = this.#getIndex(sid) * this.stride + offset
+    return this.#view.getInt8(i)
+  }
+  #setI8(sid: SID, offset: number, v: number): void {
+    const i = this.#getIndex(sid) * this.stride + offset
+    this.#view.setInt8(i, v)
+  }
+
+  #getRID(sid: SID, offset: number): MaybeRID {
+    return this.#getU32(sid, offset) as MaybeRID
+  }
+  #setRID(sid: SID, offset: number, v: MaybeRID): void {
+    this.#setU32(sid, offset, v)
+  }
+
+  #getSID(sid: SID, offset: number): MaybeSID {
+    return this.#getU32(sid, offset) as MaybeSID
+  }
+  #setSID(sid: SID, offset: number, v: MaybeSID): void {
+    this.#setU32(sid, offset, v)
+  }
+
+  #getU16(sid: SID, offset: number): number {
+    const i = this.#getIndex(sid) * this.stride + offset
+    return this.#view.getUint16(i, true)
+  }
+  #setU16(sid: SID, offset: number, v: number): void {
+    const i = this.#getIndex(sid) * this.stride + offset
+    this.#view.setUint16(i, v, true)
+  }
+
+  #getU32(sid: SID, offset: number): number {
+    const i = this.#getIndex(sid) * this.stride + offset
+    return this.#view.getUint32(i, true)
+  }
+  #setU32(sid: SID, offset: number, v: number): void {
+    const i = this.#getIndex(sid) * this.stride + offset
+    this.#view.setUint32(i, v, true)
+  }
+
+  #getU8(sid: SID, offset: number): number {
+    const i = this.#getIndex(sid) * this.stride + offset
+    return this.#view.getUint8(i)
+  }
+  #setU8(sid: SID, offset: number, v: number): void {
+    const i = this.#getIndex(sid) * this.stride + offset
+    this.#view.setUint8(i, v)
+  }
+
+  // ─── /#view accesors ───
+
+  // ─── method factories ───
+
+  #GetBool(prop: Readonly<StructPropLayout>): Getter<boolean> {
+    const {offset, bit} = prop
+    return sid => {
+      const word = this.#getU32(sid, offset)
+      return !!((word >>> bit) & 1)
     }
   }
-  return accessors as Accessors<Schema>
-}
-
-function GetBool(
-  base: StructBase,
-  prop: Readonly<StructPropLayout>
-): Getter<boolean> {
-  const {offset, bit} = prop
-  return sid => {
-    const word = base._getU32(sid, offset)
-    return !!((word >>> bit) & 1)
-  }
-}
-
-function SetBool(
-  base: StructBase,
-  prop: Readonly<StructPropLayout>
-): Setter<boolean> {
-  const {offset, bit} = prop
-  return (sid, v) => {
-    const word = base._getU32(sid, offset)
-    const next = v ? word | (1 << bit) : word & ~(1 << bit)
-    base._setU32(sid, offset, next)
-  }
-}
-
-function GetByte(
-  base: StructBase,
-  prop: Readonly<StructPropLayout>
-): Getter<number> {
-  const {offset, signed, scale} = prop
-  if (signed) {
-    if (scale === 1) return sid => base._getI8(sid, offset)
-    return sid => base._getI8(sid, offset) / scale
-  }
-  if (scale === 1) return sid => base._getU8(sid, offset)
-  return sid => base._getU8(sid, offset) / scale
-}
-
-function SetByte(
-  base: StructBase,
-  prop: Readonly<StructPropLayout>
-): Setter<number> {
-  const {offset, signed, scale} = prop
-
-  if (signed) {
-    if (scale === 1) return (sid, v) => base._setI8(sid, offset, v)
-    return (sid, v) => base._setI8(sid, offset, v * scale)
+  #SetBool(prop: Readonly<StructPropLayout>): Setter<boolean> {
+    const {offset, bit} = prop
+    return (sid, v) => {
+      const word = this.#getU32(sid, offset)
+      const next = v ? word | (1 << bit) : word & ~(1 << bit)
+      this.#setU32(sid, offset, next)
+    }
   }
 
-  if (scale === 1) return (sid, v) => base._setU8(sid, offset, v)
-
-  return (sid, v) => base._setU8(sid, offset, v * scale)
-}
-
-function GetFloat(
-  base: StructBase,
-  prop: Readonly<StructPropLayout>
-): Getter<number> {
-  const {offset, w} = prop
-  if (w === 16) return sid => base._getF16(sid, offset)
-  if (w === 32) return sid => base._getF32(sid, offset)
-  return sid => base._getF64(sid, offset)
-}
-
-function SetFloat(
-  base: StructBase,
-  prop: Readonly<StructPropLayout>
-): Setter<number> {
-  const {offset, w} = prop
-  if (w === 16) return (sid, v) => base._setF16(sid, offset, v)
-  if (w === 32) return (sid, v) => base._setF32(sid, offset, v)
-  return (sid, v) => base._setF64(sid, offset, v)
-}
-
-function GetInt(
-  base: StructBase,
-  prop: Readonly<StructPropLayout>
-): Getter<number> {
-  const {offset, bit, w, signed, scale} = prop
-  if (w === 32) {
+  #GetByte(prop: Readonly<StructPropLayout>): Getter<number> {
+    const {offset, signed, scale} = prop
     if (signed) {
-      if (scale === 1) return sid => base._getI32(sid, offset)
-      return sid => base._getI32(sid, offset) / scale
+      if (scale === 1) return sid => this.#getI8(sid, offset)
+      return sid => this.#getI8(sid, offset) / scale
     }
-    if (scale === 1) return sid => base._getU32(sid, offset)
-    return sid => base._getU32(sid, offset) / scale
+    if (scale === 1) return sid => this.#getU8(sid, offset)
+    return sid => this.#getU8(sid, offset) / scale
+  }
+  #SetByte(prop: Readonly<StructPropLayout>): Setter<number> {
+    const {offset, signed, scale} = prop
+
+    if (signed) {
+      if (scale === 1) return (sid, v) => this.#setI8(sid, offset, v)
+      return (sid, v) => this.#setI8(sid, offset, v * scale)
+    }
+
+    if (scale === 1) return (sid, v) => this.#setU8(sid, offset, v)
+
+    return (sid, v) => this.#setU8(sid, offset, v * scale)
   }
 
-  const lshift = 32 - w - bit
-  const rshift = 32 - w
+  #GetFloat(prop: Readonly<StructPropLayout>): Getter<number> {
+    const {offset, w} = prop
+    if (w === 16) return sid => this.#getF16(sid, offset)
+    if (w === 32) return sid => this.#getF32(sid, offset)
+    return sid => this.#getF64(sid, offset)
+  }
+  #SetFloat(prop: Readonly<StructPropLayout>): Setter<number> {
+    const {offset, w} = prop
+    if (w === 16) return (sid, v) => this.#setF16(sid, offset, v)
+    if (w === 32) return (sid, v) => this.#setF32(sid, offset, v)
+    return (sid, v) => this.#setF64(sid, offset, v)
+  }
 
-  if (signed) {
+  #GetInt(prop: Readonly<StructPropLayout>): Getter<number> {
+    const {offset, bit, w, signed, scale} = prop
+    if (w === 32) {
+      if (signed) {
+        if (scale === 1) return sid => this.#getI32(sid, offset)
+        return sid => this.#getI32(sid, offset) / scale
+      }
+      if (scale === 1) return sid => this.#getU32(sid, offset)
+      return sid => this.#getU32(sid, offset) / scale
+    }
+
+    const lshift = 32 - w - bit
+    const rshift = 32 - w
+
+    if (signed) {
+      if (scale === 1)
+        return sid => {
+          const word = this.#getU32(sid, offset)
+          return (word << lshift) >> rshift
+        }
+      return sid => {
+        const word = this.#getU32(sid, offset)
+        return ((word << lshift) >> rshift) / scale
+      }
+    }
+
     if (scale === 1)
       return sid => {
-        const word = base._getU32(sid, offset)
-        return (word << lshift) >> rshift
+        const word = this.#getU32(sid, offset)
+        return (word << lshift) >>> rshift
       }
     return sid => {
-      const word = base._getU32(sid, offset)
-      return ((word << lshift) >> rshift) / scale
+      const word = this.#getU32(sid, offset)
+      return ((word << lshift) >>> rshift) / scale
     }
   }
+  #SetInt(prop: Readonly<StructPropLayout>): Setter<number> {
+    const {offset, bit, w, signed, scale} = prop
 
-  if (scale === 1)
-    return sid => {
-      const word = base._getU32(sid, offset)
-      return (word << lshift) >>> rshift
+    if (w === 32) {
+      if (signed) {
+        if (scale === 1) return (sid, v) => this.#setI32(sid, offset, v)
+        return (sid, v) => this.#setI32(sid, offset, v * scale)
+      }
+
+      if (scale === 1) return (sid, v) => this.#setU32(sid, offset, v)
+      return (sid, v) => this.#setU32(sid, offset, v * scale)
     }
-  return sid => {
-    const word = base._getU32(sid, offset)
-    return ((word << lshift) >>> rshift) / scale
-  }
-}
 
-function SetInt(
-  base: StructBase,
-  prop: Readonly<StructPropLayout>
-): Setter<number> {
-  const {offset, bit, w, signed, scale} = prop
+    const mask = 0xffff_ffff >>> (32 - w)
+    const rshift = 32 - w
 
-  if (w === 32) {
     if (signed) {
-      if (scale === 1) return (sid, v) => base._setI32(sid, offset, v)
-      return (sid, v) => base._setI32(sid, offset, v * scale)
+      if (scale === 1)
+        return (sid, v) => {
+          const word = this.#getU32(sid, offset)
+          const cleared = word & ~((mask << bit) >>> 0)
+          const bits = ((v << rshift) >> rshift) & mask
+          const next = cleared | ((bits << bit) >>> 0)
+          this.#setU32(sid, offset, next >>> 0)
+        }
+
+      return (sid, v) => {
+        const word = this.#getU32(sid, offset)
+        const cleared = word & ~((mask << bit) >>> 0)
+        const scaled = v * scale
+        const bits = ((scaled << rshift) >> rshift) & mask
+        const next = cleared | ((bits << bit) >>> 0)
+        this.#setU32(sid, offset, next >>> 0)
+      }
     }
 
-    if (scale === 1) return (sid, v) => base._setU32(sid, offset, v)
-    return (sid, v) => base._setU32(sid, offset, v * scale)
-  }
-
-  const mask = 0xffff_ffff >>> (32 - w)
-  const rshift = 32 - w
-
-  if (signed) {
     if (scale === 1)
       return (sid, v) => {
-        const word = base._getU32(sid, offset)
+        const word = this.#getU32(sid, offset)
         const cleared = word & ~((mask << bit) >>> 0)
-        const bits = ((v << rshift) >> rshift) & mask
-        const next = cleared | ((bits << bit) >>> 0)
-        base._setU32(sid, offset, next >>> 0)
+        const next = cleared | (((v & mask) << bit) >>> 0)
+        this.#setU32(sid, offset, next >>> 0)
       }
 
     return (sid, v) => {
-      const word = base._getU32(sid, offset)
+      const word = this.#getU32(sid, offset)
       const cleared = word & ~((mask << bit) >>> 0)
       const scaled = v * scale
-      const bits = ((scaled << rshift) >> rshift) & mask
-      const next = cleared | ((bits << bit) >>> 0)
-      base._setU32(sid, offset, next >>> 0)
+      const next = cleared | (((scaled & mask) << bit) >>> 0)
+      this.#setU32(sid, offset, next >>> 0)
     }
   }
 
-  if (scale === 1)
+  #GetRef(prop: Readonly<StructPropLayout>): Getter<Ref | undefined> {
+    const {offset} = prop
+    return sid => {
+      const rid = this.#getRID(sid, offset)
+      if (!rid) return
+      return this.#getRef(rid)
+    }
+  }
+  #SetRef(prop: Readonly<StructPropLayout>): Setter<Ref | undefined> {
+    const {offset} = prop
     return (sid, v) => {
-      const word = base._getU32(sid, offset)
-      const cleared = word & ~((mask << bit) >>> 0)
-      const next = cleared | (((v & mask) << bit) >>> 0)
-      base._setU32(sid, offset, next >>> 0)
+      let rid = this.#getRID(sid, offset)
+
+      if (v === undefined) {
+        if (rid) {
+          this.#freeRef(rid)
+          this.#setRID(sid, offset, 0)
+        }
+        return
+      }
+
+      if (!rid) rid = this.#allocRef()
+      this.#setRef(rid, v)
+      this.#setRID(sid, offset, rid)
+    }
+  }
+
+  #GetShort(prop: Readonly<StructPropLayout>): Getter<number> {
+    const {offset, signed, scale} = prop
+    if (signed) {
+      if (scale === 1) return sid => this.#getI16(sid, offset)
+      return sid => this.#getI16(sid, offset) / scale
+    }
+    if (scale === 1) return sid => this.#getU16(sid, offset)
+    return sid => this.#getU16(sid, offset) / scale
+  }
+  #SetShort(prop: Readonly<StructPropLayout>): Setter<number> {
+    const {offset, signed, scale} = prop
+
+    if (signed) {
+      if (scale === 1) return (sid, v) => this.#setI16(sid, offset, v)
+      return (sid, v) => this.#setI16(sid, offset, v * scale)
     }
 
-  return (sid, v) => {
-    const word = base._getU32(sid, offset)
-    const cleared = word & ~((mask << bit) >>> 0)
-    const scaled = v * scale
-    const next = cleared | (((scaled & mask) << bit) >>> 0)
-    base._setU32(sid, offset, next >>> 0)
-  }
-}
-
-function GetShort(
-  base: StructBase,
-  prop: Readonly<StructPropLayout>
-): Getter<number> {
-  const {offset, signed, scale} = prop
-  if (signed) {
-    if (scale === 1) return sid => base._getI16(sid, offset)
-    return sid => base._getI16(sid, offset) / scale
-  }
-  if (scale === 1) return sid => base._getU16(sid, offset)
-  return sid => base._getU16(sid, offset) / scale
-}
-
-function SetShort(
-  base: StructBase,
-  prop: Readonly<StructPropLayout>
-): Setter<number> {
-  const {offset, signed, scale} = prop
-
-  if (signed) {
-    if (scale === 1) return (sid, v) => base._setI16(sid, offset, v)
-    return (sid, v) => base._setI16(sid, offset, v * scale)
+    if (scale === 1) return (sid, v) => this.#setU16(sid, offset, v)
+    return (sid, v) => this.#setU16(sid, offset, v * scale)
   }
 
-  if (scale === 1) return (sid, v) => base._setU16(sid, offset, v)
-  return (sid, v) => base._setU16(sid, offset, v * scale)
-}
-
-function GetRef(
-  base: StructBase,
-  prop: Readonly<StructPropLayout>
-): Getter<Ref | undefined> {
-  const {offset} = prop
-  return sid => {
-    const rid = base._getRID(sid, offset)
-    if (!rid) return
-    return base._getRef(rid)
+  #GetSID(prop: Readonly<StructPropLayout>): Getter<MaybeSID> {
+    const {offset} = prop
+    return sid => this.#getSID(sid, offset)
   }
-}
-
-function SetRef(
-  base: StructBase,
-  prop: Readonly<StructPropLayout>
-): Setter<Ref | undefined> {
-  const {offset} = prop
-  return (sid, v) => setRef(base, sid, offset, v)
-}
-
-function setRef(
-  base: StructBase,
-  sid: SID,
-  offset: number,
-  v: Ref | undefined
-): void {
-  let rid = base._getRID(sid, offset)
-
-  if (v === undefined) {
-    if (rid) {
-      base._freeRef(rid)
-      base._setRID(sid, offset, 0)
-    }
-    return
+  #SetSID(prop: Readonly<StructPropLayout>): Setter<MaybeSID> {
+    const {offset} = prop
+    return (sid, v) => this.#setSID(sid, offset, v)
   }
 
-  if (!rid) rid = base._allocRef()
-  base._setRef(rid, v)
-  base._setRID(sid, offset, rid)
-}
-
-function GetSID(
-  base: StructBase,
-  prop: Readonly<StructPropLayout>
-): Getter<MaybeSID> {
-  const {offset} = prop
-  return sid => base._getSID(sid, offset)
-}
-
-function SetSID(
-  base: StructBase,
-  prop: Readonly<StructPropLayout>
-): Setter<MaybeSID> {
-  const {offset} = prop
-  return (sid, v) => base._setSID(sid, offset, v)
+  // ─── /method factories ───
 }
