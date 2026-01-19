@@ -22,6 +22,10 @@ type PropLayoutBase = {
   /** prop name. */
   name: string
   /** `Byte` and `Short` are 8b and 16b byte-aligned `Int`s. */
+  /**
+   * `Byte` and `Short` are 8b and 16b byte-aligned `Int`s. 16b `Float`s are
+   * byte-aligned; 32 and 64b are word-aligned.
+   */
   type:
     | 'Bool'
     | 'Byte'
@@ -62,6 +66,25 @@ export function StructPropLayout(
   wordOffset: number,
   bit: number
 ): StructPropLayout {
+  if (spec === 'F16') {
+    const w = 16
+    if (bit % 8) bit += 8 - (bit % 8) // byte-alignment required.
+
+    if (bit && bit + w > 32) {
+      wordOffset += 4
+      bit = 0
+    }
+
+    return {
+      name,
+      type: 'Float',
+      offset: wordOffset + bit / 8,
+      bit,
+      signed: false,
+      scale: 1,
+      w
+    }
+  }
   if (spec === 'F32')
     return {
       name,

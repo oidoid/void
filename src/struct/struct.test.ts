@@ -1,4 +1,4 @@
-import {test} from 'node:test'
+import {describe, test} from 'node:test'
 import {assert} from '../test/assert.ts'
 import {type MaybeSID, type SID, Struct} from './struct.ts'
 import type {StructPropSpec} from './struct-schema.ts'
@@ -151,6 +151,52 @@ test('iterator', () => {
   assert(got.includes(c), true)
 })
 
+describe('F16 packing', () => {
+  test('rounds up to next byte', () => {
+    const struct = Struct(
+      {X: 'Bool', Y: 'Bool', A: 'F16', SID: 'SID'},
+      {pageSize: 2, pages: 1}
+    )
+    const sid = struct.alloc()
+
+    struct.setX(sid, true)
+    struct.setY(sid, true)
+    struct.setA(sid, 1.25)
+    assert(struct.getX(sid), true)
+    assert(struct.getY(sid), true)
+    assert(struct.getA(sid), 1.25)
+    assertMem(struct, '03003d0001000000 0000000000000000')
+  })
+
+  test('uses existing byte offset', () => {
+    const struct = Struct(
+      {X: 'U8', A: 'F16', SID: 'SID'},
+      {pageSize: 2, pages: 1}
+    )
+    const sid = struct.alloc()
+
+    struct.setX(sid, 0xaa)
+    struct.setA(sid, 1.25)
+    assert(struct.getX(sid), 0xaa)
+    assert(struct.getA(sid), 1.25)
+    assertMem(struct, 'aa003d0001000000 0000000000000000')
+  })
+
+  test('does not straddle words', () => {
+    const struct = Struct(
+      {X: 'U24', A: 'F16', SID: 'SID'},
+      {pageSize: 2, pages: 1}
+    )
+    const sid = struct.alloc()
+
+    struct.setX(sid, 0x00c0de)
+    struct.setA(sid, 1.25)
+    assert(struct.getX(sid), 0x00c0de)
+    assert(struct.getA(sid), 1.25)
+    assertMem(struct, 'dec00000003d000001000000 000000000000000000000000')
+  })
+})
+
 test('rollover / truncation', async ctx => {
   type Step = {name: string; get: number; set: number; mem: string}
   type Case = {
@@ -169,6 +215,52 @@ test('rollover / truncation', async ctx => {
         {name: '+1 rollover', get: 0, set: 256, mem: '0000000001000000'},
         {name: '-1 rollover', get: 255, set: -1, mem: 'ff00000001000000'},
         {name: 'fraction trunc', get: 1, set: 1.9, mem: '0100000001000000'}
+      ]
+    },
+    {
+      name: 'F16',
+      schema: {A: 'F16', SID: 'SID'},
+      steps: [
+        {name: 'default 0', get: 0, set: 0, mem: '0000000001000000'},
+        {name: 'fractional', get: 1.25, set: 1.25, mem: '003d000001000000'},
+        {name: 'negative', get: -3.5, set: -3.5, mem: '00c3000001000000'},
+        {name: 'max finite', get: 65504, set: 65504, mem: 'ff7b000001000000'},
+        {
+          name: 'overflow to infinity',
+          get: Number.POSITIVE_INFINITY,
+          set: 70000,
+          mem: '007c000001000000'
+        },
+        {
+          name: '-overflow to -infinity',
+          get: Number.NEGATIVE_INFINITY,
+          set: -70000,
+          mem: '00fc000001000000'
+        },
+        {
+          name: 'min subnormal',
+          get: 2 ** -24,
+          set: 2 ** -24,
+          mem: '0100000001000000'
+        },
+        {
+          name: 'subnormal underflow rounds to 0',
+          get: 0,
+          set: 2 ** -25,
+          mem: '0000000001000000'
+        },
+        {
+          name: 'Infinity',
+          get: Number.POSITIVE_INFINITY,
+          set: Number.POSITIVE_INFINITY,
+          mem: '007c000001000000'
+        },
+        {
+          name: '-Infinity',
+          get: Number.NEGATIVE_INFINITY,
+          set: Number.NEGATIVE_INFINITY,
+          mem: '00fc000001000000'
+        }
       ]
     },
     {
@@ -377,6 +469,18 @@ test('rollover / truncation', async ctx => {
       ]
     },
     {
+      name: 'NaN (F16)',
+      schema: {A: 'F16', SID: 'SID'},
+      steps: [
+        {
+          name: 'NaN roundtrip',
+          get: Number.NaN,
+          set: Number.NaN,
+          mem: '007e000001000000'
+        }
+      ]
+    },
+    {
       name: 'NaN (F32)',
       schema: {A: 'F32', SID: 'SID'},
       steps: [
@@ -464,8 +568,9 @@ test('fields do not interfere (write 1..N through packed schema)', () => {
       G: 'I16',
       H: 'U32',
       I: 'I32',
-      J: 'F32',
-      K: 'F64',
+      J: 'F16',
+      K: 'F32',
+      L: 'F64',
       Name: 'String',
       Obj: 'Object',
       SID: 'SID'
@@ -486,7 +591,8 @@ test('fields do not interfere (write 1..N through packed schema)', () => {
   struct.setH(sid, 8)
   struct.setI(sid, -9)
   struct.setJ(sid, 10.25)
-  struct.setK(sid, -11.5)
+  struct.setK(sid, 11.25)
+  struct.setL(sid, -12.5)
   struct.setName(sid, 'x')
   struct.setObj(sid, obj)
 
@@ -500,7 +606,8 @@ test('fields do not interfere (write 1..N through packed schema)', () => {
   assert(struct.getH(sid), 8)
   assert(struct.getI(sid), -9)
   assert(struct.getJ(sid), 10.25)
-  assert(struct.getK(sid), -11.5)
+  assert(struct.getK(sid), 11.25)
+  assert(struct.getL(sid), -12.5)
   assert(struct.getName(sid), 'x')
   assert(struct.getObj(sid), obj)
 })

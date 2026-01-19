@@ -111,7 +111,7 @@ describe('StructLayout()', () => {
     },
     {
       name: 'allows exact end-of-word packing',
-      input: {A: 'U31', B: 'Bool', SID: 'SID'} as const,
+      input: {A: 'U31', B: 'Bool', SID: 'SID'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -146,8 +146,8 @@ describe('StructLayout()', () => {
       } satisfies StructLayout
     },
     {
-      name: 'u32 occupies a full word',
-      input: {A: 'U32', B: 'U1', SID: 'SID'} as const,
+      name: 'U32 occupies a full word',
+      input: {A: 'U32', B: 'U1', SID: 'SID'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -182,8 +182,8 @@ describe('StructLayout()', () => {
       } satisfies StructLayout
     },
     {
-      name: 'f32 occupies a full word aligned to word boundaries',
-      input: {A: 'U1', B: 'F32', SID: 'SID'} as const,
+      name: 'F32 occupies a full word aligned to word boundaries',
+      input: {A: 'U1', B: 'F32', SID: 'SID'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -218,8 +218,152 @@ describe('StructLayout()', () => {
       } satisfies StructLayout
     },
     {
-      name: 'f64 aligns to word boundary and occupies 8 bytes',
-      input: {A: 'U1', B: 'F64', C: 'U1', SID: 'SID'} as const,
+      name: 'F16 is byte-aligned and can pack with another f16 within the same word',
+      input: {A: 'F16', B: 'F16', SID: 'SID'} satisfies StructSchema,
+      expected: {
+        props: [
+          {
+            name: 'A',
+            type: 'Float',
+            offset: 0,
+            bit: 0,
+            signed: false,
+            scale: 1,
+            w: 16
+          },
+          {
+            name: 'B',
+            type: 'Float',
+            offset: 2,
+            bit: 16,
+            signed: false,
+            scale: 1,
+            w: 16
+          },
+          {
+            name: 'SID',
+            type: 'SID',
+            offset: 4,
+            bit: 0,
+            signed: false,
+            scale: 1,
+            w: 32
+          }
+        ],
+        size: 8
+      } satisfies StructLayout
+    },
+    {
+      name: 'F16 follows byte alignment: after a U8 it starts at the next byte boundary',
+      input: {A: 'U8', B: 'F16', SID: 'SID'} satisfies StructSchema,
+      expected: {
+        props: [
+          {
+            name: 'A',
+            type: 'Byte',
+            offset: 0,
+            bit: 0,
+            signed: false,
+            scale: 1,
+            w: 8
+          },
+          {
+            name: 'B',
+            type: 'Float',
+            offset: 1,
+            bit: 8,
+            signed: false,
+            scale: 1,
+            w: 16
+          },
+          {
+            name: 'SID',
+            type: 'SID',
+            offset: 4,
+            bit: 0,
+            signed: false,
+            scale: 1,
+            w: 32
+          }
+        ],
+        size: 8
+      } satisfies StructLayout
+    },
+    {
+      name: 'F16 rounds up to next byte after a Bool when it fits in the current word',
+      input: {A: 'Bool', B: 'F16', SID: 'SID'} satisfies StructSchema,
+      expected: {
+        props: [
+          {
+            name: 'A',
+            type: 'Bool',
+            offset: 0,
+            bit: 0,
+            signed: false,
+            scale: 1,
+            w: 1
+          },
+          {
+            name: 'B',
+            type: 'Float',
+            offset: 1,
+            bit: 8,
+            signed: false,
+            scale: 1,
+            w: 16
+          },
+          {
+            name: 'SID',
+            type: 'SID',
+            offset: 4,
+            bit: 0,
+            signed: false,
+            scale: 1,
+            w: 32
+          }
+        ],
+        size: 8
+      } satisfies StructLayout
+    },
+    {
+      name: 'F16 does not straddle word boundary',
+      input: {A: 'U24', B: 'F16', SID: 'SID'} satisfies StructSchema,
+      expected: {
+        props: [
+          {
+            name: 'A',
+            type: 'Int',
+            offset: 0,
+            bit: 0,
+            signed: false,
+            w: 24,
+            scale: 1
+          },
+          {
+            name: 'B',
+            type: 'Float',
+            offset: 4,
+            bit: 0,
+            signed: false,
+            scale: 1,
+            w: 16
+          },
+          {
+            name: 'SID',
+            type: 'SID',
+            offset: 8,
+            bit: 0,
+            signed: false,
+            scale: 1,
+            w: 32
+          }
+        ],
+        size: 12
+      } satisfies StructLayout
+    },
+    {
+      name: 'F64 aligns to word boundary and occupies 8 bytes',
+      input: {A: 'U1', B: 'F64', C: 'U1', SID: 'SID'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -264,7 +408,7 @@ describe('StructLayout()', () => {
     },
     {
       name: 'strings and objects are 32b',
-      input: {S: 'String', O: 'Object', SID: 'SID'} as const,
+      input: {S: 'String', O: 'Object', SID: 'SID'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -300,7 +444,7 @@ describe('StructLayout()', () => {
     },
     {
       name: 'Byte and Short layouts on byte boundaries',
-      input: {A: 'U8', B: 'U16', C: 'U8', SID: 'SID'} as const,
+      input: {A: 'U8', B: 'U16', C: 'U8', SID: 'SID'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -345,7 +489,7 @@ describe('StructLayout()', () => {
     },
     {
       name: 'Byte then Int: Int uses the containing word offset (0)',
-      input: {A: 'U8', B: 'U1', SID: 'SID'} as const,
+      input: {A: 'U8', B: 'U1', SID: 'SID'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -381,7 +525,7 @@ describe('StructLayout()', () => {
     },
     {
       name: 'Byte then Short: Short can start at byte offset 1',
-      input: {A: 'U8', B: 'U16', SID: 'SID'} as const,
+      input: {A: 'U8', B: 'U16', SID: 'SID'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -459,7 +603,12 @@ describe('StructLayout()', () => {
     },
     {
       name: 'scaled ints keep scale and pack as normal',
-      input: {A: 'I8/2', B: 'U8/3', C: 'U16/10', SID: 'SID'} as const,
+      input: {
+        A: 'I8/2',
+        B: 'U8/3',
+        C: 'U16/10',
+        SID: 'SID'
+      } satisfies StructSchema,
       expected: {
         props: [
           {
@@ -504,7 +653,7 @@ describe('StructLayout()', () => {
     },
     {
       name: 'mixed packing and size rounding',
-      input: {A: 'U31', B: 'U1', C: 'F32', SID: 'SID'} as const,
+      input: {A: 'U31', B: 'U1', C: 'F32', SID: 'SID'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -533,6 +682,51 @@ describe('StructLayout()', () => {
             signed: false,
             scale: 1,
             w: 32
+          },
+          {
+            name: 'SID',
+            type: 'SID',
+            offset: 8,
+            bit: 0,
+            signed: false,
+            scale: 1,
+            w: 32
+          }
+        ],
+        size: 12
+      } satisfies StructLayout
+    },
+    {
+      name: 'mixed packing and size rounding (F16)',
+      input: {A: 'U31', B: 'U1', C: 'F16', SID: 'SID'} satisfies StructSchema,
+      expected: {
+        props: [
+          {
+            name: 'A',
+            type: 'Int',
+            offset: 0,
+            bit: 0,
+            signed: false,
+            w: 31,
+            scale: 1
+          },
+          {
+            name: 'B',
+            type: 'Int',
+            offset: 0,
+            bit: 31,
+            signed: false,
+            w: 1,
+            scale: 1
+          },
+          {
+            name: 'C',
+            type: 'Float',
+            offset: 4,
+            bit: 0,
+            signed: false,
+            scale: 1,
+            w: 16
           },
           {
             name: 'SID',
@@ -829,6 +1023,42 @@ describe('StructPropLayout()', () => {
     })
   })
 
+  test('F16 rounds up to next byte when not byte-aligned and fits in word', () => {
+    assert(StructPropLayout('x', 'F16', 0, 1), {
+      name: 'x',
+      type: 'Float',
+      offset: 1,
+      bit: 8,
+      signed: false,
+      scale: 1,
+      w: 16
+    })
+  })
+
+  test('F16 can start at any byte offset', () => {
+    assert(StructPropLayout('x', 'F16', 0, 8), {
+      name: 'x',
+      type: 'Float',
+      offset: 1,
+      bit: 8,
+      signed: false,
+      scale: 1,
+      w: 16
+    })
+  })
+
+  test('F16 wraps at word boundary', () => {
+    assert(StructPropLayout('x', 'F16', 0, 24), {
+      name: 'x',
+      type: 'Float',
+      offset: 4,
+      bit: 0,
+      signed: false,
+      scale: 1,
+      w: 16
+    })
+  })
+
   test('string is 32-bit ref', () => {
     assert(StructPropLayout('x', 'String', 0, 0), {
       name: 'x',
@@ -868,7 +1098,7 @@ describe('StructPropLayout()', () => {
       }
     },
     {
-      name: 'f32',
+      name: 'F32',
       input: 'F32',
       expected: {
         name: 'x',
@@ -881,7 +1111,7 @@ describe('StructPropLayout()', () => {
       }
     },
     {
-      name: 'f64',
+      name: 'F64',
       input: 'F64',
       expected: {
         name: 'x',
@@ -894,7 +1124,20 @@ describe('StructPropLayout()', () => {
       }
     },
     {
-      name: 'i1',
+      name: 'F16',
+      input: 'F16',
+      expected: {
+        name: 'x',
+        type: 'Float',
+        offset: 0,
+        bit: 0,
+        signed: false,
+        scale: 1,
+        w: 16
+      }
+    },
+    {
+      name: 'I1',
       input: 'I1',
       expected: {
         name: 'x',

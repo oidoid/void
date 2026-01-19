@@ -275,6 +275,18 @@ class StructBase {
     this.#view.setInt32(i, v, true)
   }
 
+  _getF16(sid: SID, offset: number): number {
+    const i = this.#getIndex(sid) * this.stride + offset
+    // @ts-expect-error to-do: add `ESNext.float16` to `lib`.
+    return this.#view.getFloat16(i, true)
+  }
+
+  _setF16(sid: SID, offset: number, v: number): void {
+    const i = this.#getIndex(sid) * this.stride + offset
+    // @ts-expect-error to-do: add `ESNext.float16` to `lib`.
+    this.#view.setFloat16(i, v, true)
+  }
+
   _getF32(sid: SID, offset: number): number {
     const i = this.#getIndex(sid) * this.stride + offset
     return this.#view.getFloat32(i, true)
@@ -411,6 +423,7 @@ function GetFloat(
   prop: Readonly<StructPropLayout>
 ): Getter<number> {
   const {offset, w} = prop
+  if (w === 16) return sid => base._getF16(sid, offset)
   if (w === 32) return sid => base._getF32(sid, offset)
   return sid => base._getF64(sid, offset)
 }
@@ -420,8 +433,8 @@ function SetFloat(
   prop: Readonly<StructPropLayout>
 ): Setter<number> {
   const {offset, w} = prop
+  if (w === 16) return (sid, v) => base._setF16(sid, offset, v)
   if (w === 32) return (sid, v) => base._setF32(sid, offset, v)
-
   return (sid, v) => base._setF64(sid, offset, v)
 }
 
