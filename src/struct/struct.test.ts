@@ -4,7 +4,7 @@ import {type MaybeSID, type SID, Struct} from './struct.ts'
 import type {StructPropSpec} from './struct-schema.ts'
 
 test('alloc()', async ctx => {
-  const struct = Struct({SID: 'sid'}, {pageSize: 2, pages: 1})
+  const struct = new Struct({SID: 'sid'}, {pageSize: 2, pages: 1})
 
   await ctx.test('has one page init', () => {
     assert(struct.size, 0)
@@ -31,7 +31,7 @@ test('alloc()', async ctx => {
 })
 
 test('free()', async ctx => {
-  const struct = Struct({V: 'u8', SID: 'sid'}, {pageSize: 2, pages: 1})
+  const struct = new Struct({V: 'u8', SID: 'sid'}, {pageSize: 2, pages: 1})
 
   await ctx.test('throws on unknown SID', () => {
     assert.throws(() => struct.free(99 as SID), /no struct/)
@@ -74,7 +74,7 @@ test('free()', async ctx => {
 })
 
 test('clear()', async ctx => {
-  const struct = Struct({V: 'u32', SID: 'sid'}, {pageSize: 2, pages: 1})
+  const struct = new Struct({V: 'u32', SID: 'sid'}, {pageSize: 2, pages: 1})
 
   await ctx.test('zeroes backing memory and resets counters', () => {
     const a = struct.alloc()
@@ -98,7 +98,7 @@ test('clear()', async ctx => {
 })
 
 test('grow()', () => {
-  const struct = Struct({SID: 'sid'}, {pageSize: 2, pages: 1})
+  const struct = new Struct({SID: 'sid'}, {pageSize: 2, pages: 1})
 
   assert(struct.capacity, 2)
   assertMem(struct, '00000000 00000000')
@@ -109,7 +109,7 @@ test('grow()', () => {
 })
 
 test('has()', () => {
-  const struct = Struct({V: 'u8', SID: 'sid'}, {pageSize: 2, pages: 1})
+  const struct = new Struct({V: 'u8', SID: 'sid'}, {pageSize: 2, pages: 1})
 
   assert(struct.has(1 as SID), false)
   assertMem(struct, '0000000000000000 0000000000000000')
@@ -124,7 +124,7 @@ test('has()', () => {
 })
 
 test('iterator', () => {
-  const struct = Struct({V: 'u8', SID: 'sid'}, {pageSize: 2, pages: 1})
+  const struct = new Struct({V: 'u8', SID: 'sid'}, {pageSize: 2, pages: 1})
 
   const a = struct.alloc()
   const b = struct.alloc()
@@ -153,7 +153,7 @@ test('iterator', () => {
 
 describe('F16 packing', () => {
   test('rounds up to next byte', () => {
-    const struct = Struct(
+    const struct = new Struct(
       {X: 'bool', Y: 'bool', A: 'f16', SID: 'sid'},
       {pageSize: 2, pages: 1}
     )
@@ -169,7 +169,7 @@ describe('F16 packing', () => {
   })
 
   test('uses existing byte offset', () => {
-    const struct = Struct(
+    const struct = new Struct(
       {X: 'u8', A: 'f16', SID: 'sid'},
       {pageSize: 2, pages: 1}
     )
@@ -183,7 +183,7 @@ describe('F16 packing', () => {
   })
 
   test('does not straddle words', () => {
-    const struct = Struct(
+    const struct = new Struct(
       {X: 'u24', A: 'f16', SID: 'sid'},
       {pageSize: 2, pages: 1}
     )
@@ -545,7 +545,7 @@ test('rollover / truncation', async ctx => {
 
   for (const {name, schema, steps} of cases) {
     await ctx.test(name, () => {
-      const struct = Struct(schema, {pageSize: 1, pages: 1})
+      const struct = new Struct(schema, {pageSize: 1, pages: 1})
       const sid = struct.alloc()
       for (const {get, set, mem} of steps) {
         struct.setA(sid, set)
@@ -557,7 +557,7 @@ test('rollover / truncation', async ctx => {
 })
 
 test('fields do not interfere (write 1..N through packed schema)', () => {
-  const struct = Struct(
+  const struct = new Struct(
     {
       A: 'u4',
       B: 'u4',
@@ -613,7 +613,7 @@ test('fields do not interfere (write 1..N through packed schema)', () => {
 })
 
 test('SIDs as a singly linked list', async ctx => {
-  const struct = Struct(
+  const struct = new Struct(
     {Next: 'sid', Value: 'u16', SID: 'sid'},
     {
       pageSize: 2,
@@ -676,6 +676,6 @@ test('SIDs as a singly linked list', async ctx => {
   })
 })
 
-function assertMem(struct: Struct<unknown>, expected: string): void {
+function assertMem(struct: Struct<{SID: 'sid'}>, expected: string): void {
   assert(struct.toDebugString(), expected)
 }

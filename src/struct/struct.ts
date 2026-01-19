@@ -3,7 +3,12 @@ import {StructLayout, type StructPropLayout} from './struct-layout.ts'
 import type {StructSchema} from './struct-schema.ts'
 
 /** dense growable array of structs. */
-export type Struct<Schema> = StructImpl & Accessors<Schema>
+export type Struct<Schema extends StructSchema> = StructImpl & Accessors<Schema>
+
+type StructCtor = new <Schema extends StructSchema>(
+  Schema: Readonly<Schema>,
+  opts: Readonly<StructOpts>
+) => Struct<Schema>
 
 export type StructOpts = {
   /** init page count. */
@@ -42,13 +47,6 @@ type PropType<Spec> = Spec extends 'bool'
         ? object | undefined
         : number
 
-export function Struct<Schema extends StructSchema>(
-  schema: Readonly<Schema>,
-  opts: Readonly<StructOpts>
-): Struct<Schema> {
-  return new StructImpl(StructLayout(schema), opts) as Struct<Schema>
-}
-
 class StructImpl {
   /** struct size in bytes. */
   readonly stride: number
@@ -67,7 +65,9 @@ class StructImpl {
   #u8: Uint8Array<ArrayBuffer>
   #view: DataView<ArrayBuffer>
 
-  constructor(layout: Readonly<StructLayout>, opts: Readonly<StructOpts>) {
+  constructor(schema: Readonly<StructSchema>, opts: Readonly<StructOpts>) {
+    const layout = StructLayout(schema)
+
     this.stride = layout.size
     const sidProp = layout.props.find(prop => prop.name === 'SID')
     if (!sidProp) throw Error('no struct SID')
@@ -520,3 +520,5 @@ class StructImpl {
 
   // ─── /method factories ───
 }
+
+export const Struct: StructCtor = StructImpl as StructCtor
