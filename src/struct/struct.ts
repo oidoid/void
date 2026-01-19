@@ -314,56 +314,39 @@ function Accessors<Schema>(
 ): Accessors<Schema> {
   const accessors: {[prop: string]: Getter<unknown> | Setter<never>} = {}
   for (const prop of layout.props) {
-    accessors[`get${prop.name}`] = Getter(base, prop)
-    accessors[`set${prop.name}`] = Setter(base, prop)
+    switch (prop.type) {
+      case 'Bool':
+        accessors[`get${prop.name}`] = GetBool(base, prop)
+        accessors[`set${prop.name}`] = SetBool(base, prop)
+        break
+      case 'Byte':
+        accessors[`get${prop.name}`] = GetByte(base, prop)
+        accessors[`set${prop.name}`] = SetByte(base, prop)
+        break
+      case 'Float':
+        accessors[`get${prop.name}`] = GetFloat(base, prop)
+        accessors[`set${prop.name}`] = SetFloat(base, prop)
+        break
+      case 'Int':
+        accessors[`get${prop.name}`] = GetInt(base, prop)
+        accessors[`set${prop.name}`] = SetInt(base, prop)
+        break
+      case 'Short':
+        accessors[`get${prop.name}`] = GetShort(base, prop)
+        accessors[`set${prop.name}`] = SetShort(base, prop)
+        break
+      case 'SID':
+        accessors[`get${prop.name}`] = GetSID(base, prop)
+        accessors[`set${prop.name}`] = SetSID(base, prop)
+        break
+      case 'Object':
+      case 'String':
+        accessors[`get${prop.name}`] = GetRef(base, prop)
+        accessors[`set${prop.name}`] = SetRef(base, prop)
+        break
+    }
   }
   return accessors as Accessors<Schema>
-}
-
-function Getter(
-  base: StructBase,
-  prop: Readonly<StructPropLayout>
-): Getter<unknown> {
-  switch (prop.type) {
-    case 'Bool':
-      return GetBool(base, prop)
-    case 'Byte':
-      return GetByte(base, prop)
-    case 'Float':
-      return GetFloat(base, prop)
-    case 'Int':
-      return GetInt(base, prop)
-    case 'Short':
-      return GetShort(base, prop)
-    case 'SID':
-      return GetSID(base, prop)
-    case 'Object':
-    case 'String':
-      return GetRef(base, prop)
-  }
-}
-
-function Setter(
-  base: StructBase,
-  prop: Readonly<StructPropLayout>
-): Setter<never> {
-  switch (prop.type) {
-    case 'Bool':
-      return SetBool(base, prop)
-    case 'Byte':
-      return SetByte(base, prop)
-    case 'Float':
-      return SetFloat(base, prop)
-    case 'Int':
-      return SetInt(base, prop)
-    case 'Short':
-      return SetShort(base, prop)
-    case 'SID':
-      return SetSID(base, prop)
-    case 'Object':
-    case 'String':
-      return SetRef(base, prop)
-  }
 }
 
 function GetBool(
