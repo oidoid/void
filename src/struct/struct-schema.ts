@@ -22,7 +22,10 @@
  * a `SID` is required for index to `SID` mapping and debugging as an implicit
  * `SID` member. modifying this member may break.
  */
-export type StructSchema = {[prop: string]: StructPropSpec; SID: 'sid'}
+export type StructSchema = {
+  [prop: Capitalize<string>]: StructPropSpec
+  SID: 'sid'
+}
 
 export type StructPropSpec =
   | 'bool'
