@@ -7,8 +7,10 @@ demo
   add sound synth on button press.
   add `Sprite.looped` animation. hourglass or widget?
   add sticky notes.
+    explore a void-based Linear Text.
     tweet notes. either it fits in 140 or it doesn't. you have to be thoughtful. you can publish to a readonly queue though. maybe that just happens automatically to the last entry when a new entry is made. you lose editing. you can reorder though.
     make a friendly note taking app that is Mario Paint fun.
+  implement fun eggtimer.
 bugs
   reinvestigate fullscreen movement delta scaling. I can't get this to work.
   shift escape is being intercepted.
@@ -26,9 +28,6 @@ bugs
 perf
   it doesn't make sense to insert static sprites as ents. just make an array sprite ent to hold a whole group.
   add pause on blur option.
-  provide quadtree and track what's visible.
-    https://lisyarus.github.io/blog/posts/building-a-quadtree.html
-    qt is exposed for querying ents of a kind in an area or assigning zone components?
   minify GLSL
     https://github.com/vanruesc/esbuild-plugin-glsl/blob/main/src/minifyShader.ts
     https://github.com/UstymUkhman/vite-plugin-glsl/blob/main/src/loadShader.js
@@ -60,13 +59,19 @@ features
     xargs --no-run-if-empty --delimiter=\\n --replace \
       aseprite --batch {} --palette src/assets/atlas/palette.aseprite --save-as {}
   support a query param for Void.random seeding.
-entish
+zoo
+  actually call `free()` and maybe inline `free()` method in zoo if `Ent.sprite` is the only the only resource ever deinitialized.
   querying ents from another ent is very clumsy. cant' really do it at parse time unless you know all those ents have been inserted so you have to wait until first update or put it in `Loader` or `Void`. maybe there needs to be an init() callback that is invoked by level loader `zoo.initEnts()`.
   Void.invalid vs Ent.invalid vs Render.invalid vs Void.requestFrame() is confusing overlap.
 sprite
   allow hitbox / hurtbox to be mutated programmatically if caching.
   sprites own too many responsiblities with position and collisioning and drawing. the common denominator is for GPU perf but is there a better way to make powerful independent basics I can shoot myself in the foot with? everything kind of bakes into it. it's more like a base game object.
-  add palette swapping.
+  add palette swapping. what's the API?
+tiling and level editing.
+  tiles are backed by contiguous tag ID array filling bounds, not `Sprite`, where XY is implied and WH is uniform. IDs can be mapped to `Anim`.
+  add Aseprite tile mode support? not sure if I ever had this or only LDTK. unclear how if I support ent annotations in this mode for full level editing experience.
+  add tile to schema, to generated atlas, to renderer. expose tile ID to Anim map. is this the same schema? if so, tiles must be ID array for size.
+  add tileAt(XY).
 debug
   on free, test if item belongs to pool.
 research

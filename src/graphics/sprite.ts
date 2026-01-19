@@ -100,9 +100,10 @@ export abstract class Drawable implements Block, Box {
 
   /**
    * `this` is a clipbox but sometimes a copy or non-Sprite instance is needed.
+   * also, floored.
    */
   get clipbox(): Box {
-    return {x: this.x, y: this.y, w: this.w, h: this.h}
+    return {x: Math.floor(this.x), y: Math.floor(this.y), w: this.w, h: this.h}
   }
 
   /** test if render area overlaps box or sprite render area. */
@@ -326,7 +327,7 @@ export class Sprite extends Drawable {
   }
 
   /** floored hitbox. */
-  get hitbox(): Readonly<Box> | undefined {
+  get hitbox(): Box | undefined {
     const {hitbox} = this.anim
     if (!hitbox) return
     return {
@@ -353,14 +354,14 @@ export class Sprite extends Drawable {
   /** like `hits()` but can supports different world and UI layers. */
   hitsZ(sprite: Readonly<Sprite>, cam: Readonly<XY>): boolean {
     if (this.ui === sprite.ui) return this.hits(sprite)
-    const hurtbox = sprite.hurtbox ? {...sprite.hurtbox} : sprite.clipbox
+    const hurtbox = sprite.hurtbox ?? sprite.clipbox
     hurtbox.x += (sprite.ui ? 1 : -1) * Math.floor(cam.x)
     hurtbox.y += (sprite.ui ? 1 : -1) * Math.floor(cam.y)
     return boxHits(this.hitbox ?? this, hurtbox)
   }
 
   /** floored hurtbox. */
-  get hurtbox(): Readonly<Box> | undefined {
+  get hurtbox(): Box | undefined {
     const {hurtbox} = this.anim
     if (!hurtbox) return
     return {
@@ -386,6 +387,13 @@ export class Sprite extends Drawable {
   get looperCel(): number {
     const cel = this.#looper.age / celMillis
     return cel % (this.anim.cels * 2)
+  }
+
+  get midClip(): XY {
+    return {
+      x: Math.floor(this.x) + this.w / 2,
+      y: Math.floor(this.y) + this.h / 2
+    }
   }
 
   get midHit(): XY {

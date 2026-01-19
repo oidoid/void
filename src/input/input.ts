@@ -8,6 +8,9 @@ import type {PointType} from './pointer.ts'
 import {Pointer} from './pointer.ts'
 import {Wheel} from './wheel.ts'
 
+// to-do: expose previous bits?
+// to-do: this.prevBits & this.bits instead of this.started?
+
 // biome-ignore format:;
 export type AnyButton =
   | 'U' | 'D' | 'L' | 'R' // dpad.
