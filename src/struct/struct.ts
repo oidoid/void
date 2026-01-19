@@ -148,7 +148,7 @@ class StructImpl {
 
   /** does not free refs. */
   free(sid: SID): void {
-    const i = this.#getIndex(sid)
+    const i = this.#indexOf(sid)
     this.#indexBySID.delete(sid)
 
     const endI = this.size
@@ -202,7 +202,11 @@ class StructImpl {
     return str
   }
 
-  #getIndex(sid: SID): number {
+  #fieldOffset(sid: SID, offset: number): number {
+    return this.#indexOf(sid) * this.stride + offset
+  }
+
+  #indexOf(sid: SID): number {
     const i = this.#indexBySID.get(sid)
     if (i == null) throw Error(`no struct ${sid}`)
     return i
@@ -219,7 +223,7 @@ class StructImpl {
     this.#view = new DataView(u8.buffer)
   }
 
-  // ─── ref management ───
+  // ─── ref mgmt ───
 
   #allocRef(): RID {
     return ++this.#rid as RID
@@ -237,64 +241,52 @@ class StructImpl {
     this.#refByRID.set(rid, v)
   }
 
-  // ─── /ref management ───
+  // ─── /ref mgmt ───
 
-  // ─── #view accesors ───
+  // ─── #view accessors ───
 
   #getF16(sid: SID, offset: number): number {
-    const i = this.#getIndex(sid) * this.stride + offset
     // @ts-expect-error to-do: add `ESNext.float16` to `lib`.
-    return this.#view.getFloat16(i, true)
+    return this.#view.getFloat16(this.#fieldOffset(sid, offset), true)
   }
   #setF16(sid: SID, offset: number, v: number): void {
-    const i = this.#getIndex(sid) * this.stride + offset
     // @ts-expect-error to-do: add `ESNext.float16` to `lib`.
-    this.#view.setFloat16(i, v, true)
+    this.#view.setFloat16(this.#fieldOffset(sid, offset), v, true)
   }
 
   #getF32(sid: SID, offset: number): number {
-    const i = this.#getIndex(sid) * this.stride + offset
-    return this.#view.getFloat32(i, true)
+    return this.#view.getFloat32(this.#fieldOffset(sid, offset), true)
   }
   #setF32(sid: SID, offset: number, v: number): void {
-    const i = this.#getIndex(sid) * this.stride + offset
-    this.#view.setFloat32(i, v, true)
+    this.#view.setFloat32(this.#fieldOffset(sid, offset), v, true)
   }
 
   #getF64(sid: SID, offset: number): number {
-    const i = this.#getIndex(sid) * this.stride + offset
-    return this.#view.getFloat64(i, true)
+    return this.#view.getFloat64(this.#fieldOffset(sid, offset), true)
   }
   #setF64(sid: SID, offset: number, v: number): void {
-    const i = this.#getIndex(sid) * this.stride + offset
-    this.#view.setFloat64(i, v, true)
+    this.#view.setFloat64(this.#fieldOffset(sid, offset), v, true)
   }
 
   #getI16(sid: SID, offset: number): number {
-    const i = this.#getIndex(sid) * this.stride + offset
-    return this.#view.getInt16(i, true)
+    return this.#view.getInt16(this.#fieldOffset(sid, offset), true)
   }
   #setI16(sid: SID, offset: number, v: number): void {
-    const i = this.#getIndex(sid) * this.stride + offset
-    this.#view.setInt16(i, v, true)
+    this.#view.setInt16(this.#fieldOffset(sid, offset), v, true)
   }
 
   #getI32(sid: SID, offset: number): number {
-    const i = this.#getIndex(sid) * this.stride + offset
-    return this.#view.getInt32(i, true)
+    return this.#view.getInt32(this.#fieldOffset(sid, offset), true)
   }
   #setI32(sid: SID, offset: number, v: number): void {
-    const i = this.#getIndex(sid) * this.stride + offset
-    this.#view.setInt32(i, v, true)
+    this.#view.setInt32(this.#fieldOffset(sid, offset), v, true)
   }
 
   #getI8(sid: SID, offset: number): number {
-    const i = this.#getIndex(sid) * this.stride + offset
-    return this.#view.getInt8(i)
+    return this.#view.getInt8(this.#fieldOffset(sid, offset))
   }
   #setI8(sid: SID, offset: number, v: number): void {
-    const i = this.#getIndex(sid) * this.stride + offset
-    this.#view.setInt8(i, v)
+    this.#view.setInt8(this.#fieldOffset(sid, offset), v)
   }
 
   #getRID(sid: SID, offset: number): MaybeRID {
@@ -312,33 +304,27 @@ class StructImpl {
   }
 
   #getU16(sid: SID, offset: number): number {
-    const i = this.#getIndex(sid) * this.stride + offset
-    return this.#view.getUint16(i, true)
+    return this.#view.getUint16(this.#fieldOffset(sid, offset), true)
   }
   #setU16(sid: SID, offset: number, v: number): void {
-    const i = this.#getIndex(sid) * this.stride + offset
-    this.#view.setUint16(i, v, true)
+    this.#view.setUint16(this.#fieldOffset(sid, offset), v, true)
   }
 
   #getU32(sid: SID, offset: number): number {
-    const i = this.#getIndex(sid) * this.stride + offset
-    return this.#view.getUint32(i, true)
+    return this.#view.getUint32(this.#fieldOffset(sid, offset), true)
   }
   #setU32(sid: SID, offset: number, v: number): void {
-    const i = this.#getIndex(sid) * this.stride + offset
-    this.#view.setUint32(i, v, true)
+    this.#view.setUint32(this.#fieldOffset(sid, offset), v, true)
   }
 
   #getU8(sid: SID, offset: number): number {
-    const i = this.#getIndex(sid) * this.stride + offset
-    return this.#view.getUint8(i)
+    return this.#view.getUint8(this.#fieldOffset(sid, offset))
   }
   #setU8(sid: SID, offset: number, v: number): void {
-    const i = this.#getIndex(sid) * this.stride + offset
-    this.#view.setUint8(i, v)
+    this.#view.setUint8(this.#fieldOffset(sid, offset), v)
   }
 
-  // ─── /#view accesors ───
+  // ─── /#view accessors ───
 
   // ─── method factories ───
 
