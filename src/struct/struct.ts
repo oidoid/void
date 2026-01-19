@@ -159,7 +159,13 @@ class StructImpl {
     )
     this.#u8.fill(0, endI * this.stride, endI * this.stride + this.stride)
 
-    if (i !== endI) this.#indexBySID.set(this.#sidByIndex(i), i)
+    if (i !== endI) {
+      const swapSID = this.#view.getUint32(
+        i * this.stride + this.#sidOffset,
+        true
+      ) as SID
+      this.#indexBySID.set(swapSID, i)
+    }
   }
 
   /** does not clear dangling `RID`s in struct. */
@@ -213,16 +219,11 @@ class StructImpl {
     this.#view = new DataView(u8.buffer)
   }
 
-  #sidByIndex(i: number): SID {
-    return this.#view.getUint32(i * this.stride + this.#sidOffset, true) as SID
-  }
-
   // ─── ref management ───
 
   #allocRef(): RID {
     return ++this.#rid as RID
   }
-
   #freeRef(rid: RID): void {
     this.#refByRID.delete(rid)
   }
@@ -232,7 +233,6 @@ class StructImpl {
     if (v === undefined) throw Error(`no ref ${rid}`)
     return v
   }
-
   #setRef(rid: RID, v: Ref): void {
     this.#refByRID.set(rid, v)
   }
