@@ -7,7 +7,7 @@ describe('StructLayout()', () => {
   for (const {name, input, expected} of [
     {
       name: 'empty struct',
-      input: {SID: 'SID'} satisfies StructSchema,
+      input: {SID: 'sid'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -26,10 +26,10 @@ describe('StructLayout()', () => {
     {
       name: 'packs bools densely within a word',
       input: {
-        A: 'Bool',
-        B: 'Bool',
-        C: 'Bool',
-        SID: 'SID'
+        A: 'bool',
+        B: 'bool',
+        C: 'bool',
+        SID: 'sid'
       } satisfies StructSchema,
       expected: {
         props: [
@@ -75,7 +75,7 @@ describe('StructLayout()', () => {
     },
     {
       name: 'does not straddle word boundary',
-      input: {A: 'U31', B: 'U2', SID: 'SID'} satisfies StructSchema,
+      input: {A: 'u31', B: 'u2', SID: 'sid'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -111,7 +111,7 @@ describe('StructLayout()', () => {
     },
     {
       name: 'allows exact end-of-word packing',
-      input: {A: 'U31', B: 'Bool', SID: 'SID'} satisfies StructSchema,
+      input: {A: 'u31', B: 'bool', SID: 'sid'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -146,8 +146,8 @@ describe('StructLayout()', () => {
       } satisfies StructLayout
     },
     {
-      name: 'U32 occupies a full word',
-      input: {A: 'U32', B: 'U1', SID: 'SID'} satisfies StructSchema,
+      name: 'u32 occupies a full word',
+      input: {A: 'u32', B: 'u1', SID: 'sid'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -183,7 +183,7 @@ describe('StructLayout()', () => {
     },
     {
       name: 'F32 occupies a full word aligned to word boundaries',
-      input: {A: 'U1', B: 'F32', SID: 'SID'} satisfies StructSchema,
+      input: {A: 'u1', B: 'f32', SID: 'sid'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -219,7 +219,7 @@ describe('StructLayout()', () => {
     },
     {
       name: 'F16 is byte-aligned and can pack with another f16 within the same word',
-      input: {A: 'F16', B: 'F16', SID: 'SID'} satisfies StructSchema,
+      input: {A: 'f16', B: 'f16', SID: 'sid'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -255,7 +255,7 @@ describe('StructLayout()', () => {
     },
     {
       name: 'F16 follows byte alignment: after a U8 it starts at the next byte boundary',
-      input: {A: 'U8', B: 'F16', SID: 'SID'} satisfies StructSchema,
+      input: {A: 'u8', B: 'f16', SID: 'sid'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -291,7 +291,7 @@ describe('StructLayout()', () => {
     },
     {
       name: 'F16 rounds up to next byte after a Bool when it fits in the current word',
-      input: {A: 'Bool', B: 'F16', SID: 'SID'} satisfies StructSchema,
+      input: {A: 'bool', B: 'f16', SID: 'sid'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -327,7 +327,7 @@ describe('StructLayout()', () => {
     },
     {
       name: 'F16 does not straddle word boundary',
-      input: {A: 'U24', B: 'F16', SID: 'SID'} satisfies StructSchema,
+      input: {A: 'u24', B: 'f16', SID: 'sid'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -363,7 +363,7 @@ describe('StructLayout()', () => {
     },
     {
       name: 'F64 aligns to word boundary and occupies 8 bytes',
-      input: {A: 'U1', B: 'F64', C: 'U1', SID: 'SID'} satisfies StructSchema,
+      input: {A: 'u1', B: 'f64', C: 'u1', SID: 'sid'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -408,7 +408,7 @@ describe('StructLayout()', () => {
     },
     {
       name: 'strings and objects are 32b',
-      input: {S: 'String', O: 'Object', SID: 'SID'} satisfies StructSchema,
+      input: {S: 'str', O: 'obj', SID: 'sid'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -444,7 +444,7 @@ describe('StructLayout()', () => {
     },
     {
       name: 'Byte and Short layouts on byte boundaries',
-      input: {A: 'U8', B: 'U16', C: 'U8', SID: 'SID'} satisfies StructSchema,
+      input: {A: 'u8', B: 'u16', C: 'u8', SID: 'sid'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -489,7 +489,7 @@ describe('StructLayout()', () => {
     },
     {
       name: 'Byte then Int: Int uses the containing word offset (0)',
-      input: {A: 'U8', B: 'U1', SID: 'SID'} satisfies StructSchema,
+      input: {A: 'u8', B: 'u1', SID: 'sid'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -525,7 +525,7 @@ describe('StructLayout()', () => {
     },
     {
       name: 'Byte then Short: Short can start at byte offset 1',
-      input: {A: 'U8', B: 'U16', SID: 'SID'} satisfies StructSchema,
+      input: {A: 'u8', B: 'u16', SID: 'sid'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -562,8 +562,8 @@ describe('StructLayout()', () => {
     {
       name: '32 bools fill the word exactly; the next bool starts next word',
       input: {
-        ...Object.fromEntries([...Array(33)].map((_, i) => [`B${i}`, 'Bool'])),
-        SID: 'SID' as const
+        ...Object.fromEntries([...Array(33)].map((_, i) => [`B${i}`, 'bool'])),
+        SID: 'sid' as const
       },
       expected: {
         props: [
@@ -604,10 +604,10 @@ describe('StructLayout()', () => {
     {
       name: 'scaled ints keep scale and pack as normal',
       input: {
-        A: 'I8/2',
-        B: 'U8/3',
-        C: 'U16/10',
-        SID: 'SID'
+        A: 'i8/2',
+        B: 'u8/3',
+        C: 'u16/10',
+        SID: 'sid'
       } satisfies StructSchema,
       expected: {
         props: [
@@ -653,7 +653,7 @@ describe('StructLayout()', () => {
     },
     {
       name: 'mixed packing and size rounding',
-      input: {A: 'U31', B: 'U1', C: 'F32', SID: 'SID'} satisfies StructSchema,
+      input: {A: 'u31', B: 'u1', C: 'f32', SID: 'sid'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -698,7 +698,7 @@ describe('StructLayout()', () => {
     },
     {
       name: 'mixed packing and size rounding (F16)',
-      input: {A: 'U31', B: 'U1', C: 'F16', SID: 'SID'} satisfies StructSchema,
+      input: {A: 'u31', B: 'u1', C: 'f16', SID: 'sid'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -747,24 +747,23 @@ describe('StructLayout()', () => {
   test('sprite struct', () => {
     assert(
       StructLayout({
-        X: 'I24/64', // [-131072, 131071.984375] (1/64th fixed-point). 1b sign,
-        //              17b int, 6b fraction.
-        Zend: 'Bool',
-        Z: 'U4',
+        X: 'i24/64',
+        Zend: 'bool',
+        Z: 'u4',
         // 3b unused.
-        Y: 'I24/64',
+        Y: 'i24/64',
         // 8b unused.
-        Hidden: 'Bool',
-        Stretch: 'Bool',
-        FlipX: 'Bool',
-        FlipY: 'Bool',
-        W: 'U12',
-        H: 'U12',
+        Hidden: 'bool',
+        Stretch: 'bool',
+        FlipX: 'bool',
+        FlipY: 'bool',
+        W: 'u12',
+        H: 'u12',
         // 4b unused
-        Anim: 'U11',
-        Cel: 'U5',
-        Angle: 'U12',
-        SID: 'SID'
+        Anim: 'u11',
+        Cel: 'u5',
+        Angle: 'u12',
+        SID: 'sid'
         // 4b unused.
       }),
       {
@@ -904,7 +903,7 @@ describe('StructLayout()', () => {
 
 describe('StructPropLayout()', () => {
   test('u8 at bit 0 is Byte', () => {
-    assert(StructPropLayout('x', 'U8', 0, 0), {
+    assert(StructPropLayout('x', 'u8', 0, 0), {
       name: 'x',
       type: 'Byte',
       offset: 0,
@@ -916,7 +915,7 @@ describe('StructPropLayout()', () => {
   })
 
   test('u16 at bit 8 is Short', () => {
-    assert(StructPropLayout('x', 'U16', 0, 8), {
+    assert(StructPropLayout('x', 'u16', 0, 8), {
       name: 'x',
       type: 'Short',
       offset: 1,
@@ -928,7 +927,7 @@ describe('StructPropLayout()', () => {
   })
 
   test('u16 at bit 1 stays Int', () => {
-    assert(StructPropLayout('x', 'U16', 0, 1), {
+    assert(StructPropLayout('x', 'u16', 0, 1), {
       name: 'x',
       type: 'Int',
       offset: 0,
@@ -940,7 +939,7 @@ describe('StructPropLayout()', () => {
   })
 
   test('bool at bit 32 bumps to next word', () => {
-    assert(StructPropLayout('x', 'Bool', 0, 32), {
+    assert(StructPropLayout('x', 'bool', 0, 32), {
       name: 'x',
       type: 'Bool',
       offset: 4,
@@ -952,7 +951,7 @@ describe('StructPropLayout()', () => {
   })
 
   test('u8 at bit 1 stays Int', () => {
-    assert(StructPropLayout('x', 'U8', 0, 1), {
+    assert(StructPropLayout('x', 'u8', 0, 1), {
       name: 'x',
       type: 'Int',
       offset: 0,
@@ -964,7 +963,7 @@ describe('StructPropLayout()', () => {
   })
 
   test('u16 at bit 16 is Short at offset 2', () => {
-    assert(StructPropLayout('x', 'U16', 0, 16), {
+    assert(StructPropLayout('x', 'u16', 0, 16), {
       name: 'x',
       type: 'Short',
       offset: 2,
@@ -976,7 +975,7 @@ describe('StructPropLayout()', () => {
   })
 
   test('u12 wraps at word boundary', () => {
-    assert(StructPropLayout('x', 'U12', 0, 24), {
+    assert(StructPropLayout('x', 'u12', 0, 24), {
       name: 'x',
       type: 'Int',
       offset: 4,
@@ -988,7 +987,7 @@ describe('StructPropLayout()', () => {
   })
 
   test('scale parsing u8', () => {
-    assert(StructPropLayout('x', 'U8/10', 0, 0), {
+    assert(StructPropLayout('x', 'u8/10', 0, 0), {
       name: 'x',
       type: 'Byte',
       offset: 0,
@@ -1000,7 +999,7 @@ describe('StructPropLayout()', () => {
   })
 
   test('scale parsing i16', () => {
-    assert(StructPropLayout('x', 'I16/100', 0, 0), {
+    assert(StructPropLayout('x', 'i16/100', 0, 0), {
       name: 'x',
       type: 'Short',
       offset: 0,
@@ -1012,7 +1011,7 @@ describe('StructPropLayout()', () => {
   })
 
   test('f32 aligns to word', () => {
-    assert(StructPropLayout('x', 'F32', 0, 8), {
+    assert(StructPropLayout('x', 'f32', 0, 8), {
       name: 'x',
       type: 'Float',
       offset: 4,
@@ -1024,7 +1023,7 @@ describe('StructPropLayout()', () => {
   })
 
   test('F16 rounds up to next byte when not byte-aligned and fits in word', () => {
-    assert(StructPropLayout('x', 'F16', 0, 1), {
+    assert(StructPropLayout('x', 'f16', 0, 1), {
       name: 'x',
       type: 'Float',
       offset: 1,
@@ -1036,7 +1035,7 @@ describe('StructPropLayout()', () => {
   })
 
   test('F16 can start at any byte offset', () => {
-    assert(StructPropLayout('x', 'F16', 0, 8), {
+    assert(StructPropLayout('x', 'f16', 0, 8), {
       name: 'x',
       type: 'Float',
       offset: 1,
@@ -1048,7 +1047,7 @@ describe('StructPropLayout()', () => {
   })
 
   test('F16 wraps at word boundary', () => {
-    assert(StructPropLayout('x', 'F16', 0, 24), {
+    assert(StructPropLayout('x', 'f16', 0, 24), {
       name: 'x',
       type: 'Float',
       offset: 4,
@@ -1060,7 +1059,7 @@ describe('StructPropLayout()', () => {
   })
 
   test('string is 32-bit ref', () => {
-    assert(StructPropLayout('x', 'String', 0, 0), {
+    assert(StructPropLayout('x', 'str', 0, 0), {
       name: 'x',
       type: 'String',
       offset: 0,
@@ -1072,7 +1071,7 @@ describe('StructPropLayout()', () => {
   })
 
   test('object is 32-bit ref', () => {
-    assert(StructPropLayout('x', 'Object', 0, 0), {
+    assert(StructPropLayout('x', 'obj', 0, 0), {
       name: 'x',
       type: 'Object',
       offset: 0,
@@ -1086,7 +1085,7 @@ describe('StructPropLayout()', () => {
   for (const {name, input, expected} of [
     {
       name: 'bool',
-      input: 'Bool',
+      input: 'bool',
       expected: {
         name: 'x',
         type: 'Bool',
@@ -1098,8 +1097,8 @@ describe('StructPropLayout()', () => {
       }
     },
     {
-      name: 'F32',
-      input: 'F32',
+      name: 'f32',
+      input: 'f32',
       expected: {
         name: 'x',
         type: 'Float',
@@ -1111,8 +1110,8 @@ describe('StructPropLayout()', () => {
       }
     },
     {
-      name: 'F64',
-      input: 'F64',
+      name: 'f64',
+      input: 'f64',
       expected: {
         name: 'x',
         type: 'Float',
@@ -1124,8 +1123,8 @@ describe('StructPropLayout()', () => {
       }
     },
     {
-      name: 'F16',
-      input: 'F16',
+      name: 'f16',
+      input: 'f16',
       expected: {
         name: 'x',
         type: 'Float',
@@ -1137,8 +1136,8 @@ describe('StructPropLayout()', () => {
       }
     },
     {
-      name: 'I1',
-      input: 'I1',
+      name: 'i1',
+      input: 'i1',
       expected: {
         name: 'x',
         type: 'Int',
@@ -1151,7 +1150,7 @@ describe('StructPropLayout()', () => {
     },
     {
       name: 'i16/10',
-      input: 'I16/10',
+      input: 'i16/10',
       expected: {
         name: 'x',
         type: 'Short',
@@ -1164,7 +1163,7 @@ describe('StructPropLayout()', () => {
     },
     {
       name: 'object',
-      input: 'Object',
+      input: 'obj',
       expected: {
         name: 'x',
         type: 'Object',
@@ -1177,7 +1176,7 @@ describe('StructPropLayout()', () => {
     },
     {
       name: 'string',
-      input: 'String',
+      input: 'str',
       expected: {
         name: 'x',
         type: 'String',
@@ -1190,7 +1189,7 @@ describe('StructPropLayout()', () => {
     },
     {
       name: 'u32',
-      input: 'U32',
+      input: 'u32',
       expected: {
         name: 'x',
         type: 'Int',
@@ -1203,7 +1202,7 @@ describe('StructPropLayout()', () => {
     },
     {
       name: 'u8/3',
-      input: 'U8/3',
+      input: 'u8/3',
       expected: {
         name: 'x',
         type: 'Byte',

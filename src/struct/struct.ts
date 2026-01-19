@@ -32,13 +32,13 @@ type Accessors<Schema> = {
 }
 type Getter<V> = (sid: SID) => V
 type Setter<V> = (sid: SID, v: V) => void
-type PropType<Spec> = Spec extends 'Bool'
+type PropType<Spec> = Spec extends 'bool'
   ? boolean
-  : Spec extends 'SID'
+  : Spec extends 'sid'
     ? MaybeSID
-    : Spec extends 'String'
+    : Spec extends 'str'
       ? string | undefined
-      : Spec extends 'Object'
+      : Spec extends 'obj'
         ? object | undefined
         : number
 

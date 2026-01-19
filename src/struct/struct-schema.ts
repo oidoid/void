@@ -22,20 +22,20 @@
  * a `SID` is required for index to `SID` mapping and debugging as an implicit
  * `SID` member. modifying this member may break.
  */
-export type StructSchema = {[prop: string]: StructPropSpec; SID: 'SID'}
+export type StructSchema = {[prop: string]: StructPropSpec; SID: 'sid'}
 
 export type StructPropSpec =
-  | 'Bool'
-  | 'F16'
-  | 'F32'
-  | 'F64'
-  | `I${AnyStructIntW}`
-  | `I${AnyStructIntW}/${number}`
-  | 'Object'
-  | 'SID'
-  | 'String'
-  | `U${AnyStructIntW}`
-  | `U${AnyStructIntW}/${number}`
+  | 'bool'
+  | 'f16'
+  | 'f32'
+  | 'f64'
+  | `i${AnyStructIntW}`
+  | `i${AnyStructIntW}/${number}`
+  | 'obj'
+  | 'sid'
+  | 'str'
+  | `u${AnyStructIntW}`
+  | `u${AnyStructIntW}/${number}`
 
 // biome-ignore format:;
 export type AnyStructIntW =

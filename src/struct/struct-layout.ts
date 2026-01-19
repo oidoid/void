@@ -66,7 +66,7 @@ export function StructPropLayout(
   wordOffset: number,
   bit: number
 ): StructPropLayout {
-  if (spec === 'F16') {
+  if (spec === 'f16') {
     const w = 16
     if (bit % 8) bit += 8 - (bit % 8) // byte-alignment required.
 
@@ -85,7 +85,7 @@ export function StructPropLayout(
       w
     }
   }
-  if (spec === 'F32')
+  if (spec === 'f32')
     return {
       name,
       type: 'Float',
@@ -95,7 +95,7 @@ export function StructPropLayout(
       scale: 1,
       w: 32
     }
-  if (spec === 'F64')
+  if (spec === 'f64')
     return {
       name,
       type: 'Float',
@@ -105,30 +105,30 @@ export function StructPropLayout(
       scale: 1,
       w: 64
     }
-  if (spec === 'Object')
+  if (spec === 'obj')
     return {
       name,
-      type: spec,
+      type: 'Object',
       offset: bit ? wordOffset + 4 : wordOffset,
       bit: 0,
       signed: false,
       scale: 1,
       w: 32
     }
-  if (spec === 'SID')
+  if (spec === 'sid')
     return {
       name,
-      type: spec,
+      type: 'SID',
       offset: bit ? wordOffset + 4 : wordOffset,
       bit: 0,
       signed: false,
       scale: 1,
       w: 32
     }
-  if (spec === 'String')
+  if (spec === 'str')
     return {
       name,
-      type: spec,
+      type: 'String',
       offset: bit ? wordOffset + 4 : wordOffset,
       bit: 0,
       signed: false,
@@ -136,7 +136,7 @@ export function StructPropLayout(
       w: 32
     }
 
-  if (spec === 'Bool') {
+  if (spec === 'bool') {
     const w = 1
     if (bit && bit + w > 32) {
       wordOffset += 4
@@ -144,7 +144,7 @@ export function StructPropLayout(
     }
     return {
       name,
-      type: spec,
+      type: 'Bool',
       offset: wordOffset,
       bit,
       signed: false,
@@ -153,7 +153,7 @@ export function StructPropLayout(
     }
   }
 
-  const [, sign, wStr, scaleStr] = spec.match(/^([IU])(\d+)(?:\/(\d+))?$/) ?? []
+  const [, sign, wStr, scaleStr] = spec.match(/^([iu])(\d+)(?:\/(\d+))?$/) ?? []
   if (!sign || !wStr) throw Error(`invalid struct prop spec "${spec}"`)
 
   const w = parseInt(wStr, 10) as AnyStructIntW
@@ -167,7 +167,7 @@ export function StructPropLayout(
     bit = 0
   }
 
-  const signed = sign === 'I'
+  const signed = sign === 'i'
 
   if (bit % 8 === 0 && w === 8)
     return {

@@ -4,7 +4,7 @@ import {type MaybeSID, type SID, Struct} from './struct.ts'
 import type {StructPropSpec} from './struct-schema.ts'
 
 test('alloc()', async ctx => {
-  const struct = Struct({SID: 'SID'}, {pageSize: 2, pages: 1})
+  const struct = Struct({SID: 'sid'}, {pageSize: 2, pages: 1})
 
   await ctx.test('has one page init', () => {
     assert(struct.size, 0)
@@ -31,7 +31,7 @@ test('alloc()', async ctx => {
 })
 
 test('free()', async ctx => {
-  const struct = Struct({V: 'U8', SID: 'SID'}, {pageSize: 2, pages: 1})
+  const struct = Struct({V: 'u8', SID: 'sid'}, {pageSize: 2, pages: 1})
 
   await ctx.test('throws on unknown SID', () => {
     assert.throws(() => struct.free(99 as SID), /no struct/)
@@ -74,7 +74,7 @@ test('free()', async ctx => {
 })
 
 test('clear()', async ctx => {
-  const struct = Struct({V: 'U32', SID: 'SID'}, {pageSize: 2, pages: 1})
+  const struct = Struct({V: 'u32', SID: 'sid'}, {pageSize: 2, pages: 1})
 
   await ctx.test('zeroes backing memory and resets counters', () => {
     const a = struct.alloc()
@@ -98,7 +98,7 @@ test('clear()', async ctx => {
 })
 
 test('grow()', () => {
-  const struct = Struct({SID: 'SID'}, {pageSize: 2, pages: 1})
+  const struct = Struct({SID: 'sid'}, {pageSize: 2, pages: 1})
 
   assert(struct.capacity, 2)
   assertMem(struct, '00000000 00000000')
@@ -109,7 +109,7 @@ test('grow()', () => {
 })
 
 test('has()', () => {
-  const struct = Struct({V: 'U8', SID: 'SID'}, {pageSize: 2, pages: 1})
+  const struct = Struct({V: 'u8', SID: 'sid'}, {pageSize: 2, pages: 1})
 
   assert(struct.has(1 as SID), false)
   assertMem(struct, '0000000000000000 0000000000000000')
@@ -124,7 +124,7 @@ test('has()', () => {
 })
 
 test('iterator', () => {
-  const struct = Struct({V: 'U8', SID: 'SID'}, {pageSize: 2, pages: 1})
+  const struct = Struct({V: 'u8', SID: 'sid'}, {pageSize: 2, pages: 1})
 
   const a = struct.alloc()
   const b = struct.alloc()
@@ -154,7 +154,7 @@ test('iterator', () => {
 describe('F16 packing', () => {
   test('rounds up to next byte', () => {
     const struct = Struct(
-      {X: 'Bool', Y: 'Bool', A: 'F16', SID: 'SID'},
+      {X: 'bool', Y: 'bool', A: 'f16', SID: 'sid'},
       {pageSize: 2, pages: 1}
     )
     const sid = struct.alloc()
@@ -170,7 +170,7 @@ describe('F16 packing', () => {
 
   test('uses existing byte offset', () => {
     const struct = Struct(
-      {X: 'U8', A: 'F16', SID: 'SID'},
+      {X: 'u8', A: 'f16', SID: 'sid'},
       {pageSize: 2, pages: 1}
     )
     const sid = struct.alloc()
@@ -184,7 +184,7 @@ describe('F16 packing', () => {
 
   test('does not straddle words', () => {
     const struct = Struct(
-      {X: 'U24', A: 'F16', SID: 'SID'},
+      {X: 'u24', A: 'f16', SID: 'sid'},
       {pageSize: 2, pages: 1}
     )
     const sid = struct.alloc()
@@ -201,14 +201,14 @@ test('rollover / truncation', async ctx => {
   type Step = {name: string; get: number; set: number; mem: string}
   type Case = {
     name: string
-    schema: {A: StructPropSpec; SID: 'SID'}
+    schema: {A: StructPropSpec; SID: 'sid'}
     steps: Step[]
   }
 
   const cases: Case[] = [
     {
-      name: 'U8',
-      schema: {A: 'U8', SID: 'SID'},
+      name: 'u8',
+      schema: {A: 'u8', SID: 'sid'},
       steps: [
         {name: 'min', get: 0, set: 0, mem: '0000000001000000'},
         {name: 'max', get: 255, set: 255, mem: 'ff00000001000000'},
@@ -218,8 +218,8 @@ test('rollover / truncation', async ctx => {
       ]
     },
     {
-      name: 'F16',
-      schema: {A: 'F16', SID: 'SID'},
+      name: 'f16',
+      schema: {A: 'f16', SID: 'sid'},
       steps: [
         {name: 'default 0', get: 0, set: 0, mem: '0000000001000000'},
         {name: 'fractional', get: 1.25, set: 1.25, mem: '003d000001000000'},
@@ -264,8 +264,8 @@ test('rollover / truncation', async ctx => {
       ]
     },
     {
-      name: 'I8',
-      schema: {A: 'I8', SID: 'SID'},
+      name: 'i8',
+      schema: {A: 'i8', SID: 'sid'},
       steps: [
         {name: 'max', get: 127, set: 127, mem: '7f00000001000000'},
         {name: 'min', get: -128, set: -128, mem: '8000000001000000'},
@@ -275,8 +275,8 @@ test('rollover / truncation', async ctx => {
       ]
     },
     {
-      name: 'U16',
-      schema: {A: 'U16', SID: 'SID'},
+      name: 'u16',
+      schema: {A: 'u16', SID: 'sid'},
       steps: [
         {name: 'min', get: 0, set: 0, mem: '0000000001000000'},
         {name: 'max', get: 0xffff, set: 0xffff, mem: 'ffff000001000000'},
@@ -286,8 +286,8 @@ test('rollover / truncation', async ctx => {
       ]
     },
     {
-      name: 'I16',
-      schema: {A: 'I16', SID: 'SID'},
+      name: 'i16',
+      schema: {A: 'i16', SID: 'sid'},
       steps: [
         {name: 'max', get: 32767, set: 32767, mem: 'ff7f000001000000'},
         {name: 'min', get: -32768, set: -32768, mem: '0080000001000000'},
@@ -297,8 +297,8 @@ test('rollover / truncation', async ctx => {
       ]
     },
     {
-      name: 'U32',
-      schema: {A: 'U32', SID: 'SID'},
+      name: 'u32',
+      schema: {A: 'u32', SID: 'sid'},
       steps: [
         {name: 'min', get: 0, set: 0, mem: '0000000001000000'},
         {
@@ -317,8 +317,8 @@ test('rollover / truncation', async ctx => {
       ]
     },
     {
-      name: 'I32',
-      schema: {A: 'I32', SID: 'SID'},
+      name: 'i32',
+      schema: {A: 'i32', SID: 'sid'},
       steps: [
         {
           name: 'max',
@@ -348,8 +348,8 @@ test('rollover / truncation', async ctx => {
       ]
     },
     {
-      name: 'U4',
-      schema: {A: 'U4', SID: 'SID'},
+      name: 'u4',
+      schema: {A: 'u4', SID: 'sid'},
       steps: [
         {name: 'min', get: 0, set: 0, mem: '0000000001000000'},
         {name: 'max', get: 15, set: 15, mem: '0f00000001000000'},
@@ -359,8 +359,8 @@ test('rollover / truncation', async ctx => {
       ]
     },
     {
-      name: 'I4',
-      schema: {A: 'I4', SID: 'SID'},
+      name: 'i4',
+      schema: {A: 'i4', SID: 'sid'},
       steps: [
         {name: 'max', get: 7, set: 7, mem: '0700000001000000'},
         {name: 'min', get: -8, set: -8, mem: '0800000001000000'},
@@ -370,8 +370,8 @@ test('rollover / truncation', async ctx => {
       ]
     },
     {
-      name: 'U12',
-      schema: {A: 'U12', SID: 'SID'},
+      name: 'u12',
+      schema: {A: 'u12', SID: 'sid'},
       steps: [
         {name: 'min', get: 0, set: 0, mem: '0000000001000000'},
         {name: 'max', get: 0xfff, set: 0xfff, mem: 'ff0f000001000000'},
@@ -381,8 +381,8 @@ test('rollover / truncation', async ctx => {
       ]
     },
     {
-      name: 'I12',
-      schema: {A: 'I12', SID: 'SID'},
+      name: 'i12',
+      schema: {A: 'i12', SID: 'sid'},
       steps: [
         {name: 'max', get: 2047, set: 2047, mem: 'ff07000001000000'},
         {name: 'min', get: -2048, set: -2048, mem: '0008000001000000'},
@@ -393,7 +393,7 @@ test('rollover / truncation', async ctx => {
     },
     {
       name: 'scaled sub-word (U12/10)',
-      schema: {A: 'U12/10', SID: 'SID'},
+      schema: {A: 'u12/10', SID: 'sid'},
       steps: [
         {name: 'min', get: 0, set: 0, mem: '0000000001000000'},
         {name: 'max', get: 409.5, set: 409.5, mem: 'ff0f000001000000'},
@@ -403,7 +403,7 @@ test('rollover / truncation', async ctx => {
     },
     {
       name: 'scaled sub-word (I12/100)',
-      schema: {A: 'I12/100', SID: 'SID'},
+      schema: {A: 'i12/100', SID: 'sid'},
       steps: [
         {name: 'max', get: 20.47, set: 20.47, mem: 'ff07000001000000'},
         {name: 'min', get: -20.48, set: -20.48, mem: '0008000001000000'},
@@ -417,8 +417,8 @@ test('rollover / truncation', async ctx => {
       ]
     },
     {
-      name: 'F32',
-      schema: {A: 'F32', SID: 'SID'},
+      name: 'f32',
+      schema: {A: 'f32', SID: 'sid'},
       steps: [
         {name: 'default 0', get: 0, set: 0, mem: '0000000001000000'},
         {name: 'fractional', get: 1.25, set: 1.25, mem: '0000a03f01000000'},
@@ -438,8 +438,8 @@ test('rollover / truncation', async ctx => {
       ]
     },
     {
-      name: 'F64',
-      schema: {A: 'F64', SID: 'SID'},
+      name: 'f64',
+      schema: {A: 'f64', SID: 'sid'},
       steps: [
         {name: 'default 0', get: 0, set: 0, mem: '000000000000000001000000'},
         {
@@ -470,7 +470,7 @@ test('rollover / truncation', async ctx => {
     },
     {
       name: 'NaN (F16)',
-      schema: {A: 'F16', SID: 'SID'},
+      schema: {A: 'f16', SID: 'sid'},
       steps: [
         {
           name: 'NaN roundtrip',
@@ -482,7 +482,7 @@ test('rollover / truncation', async ctx => {
     },
     {
       name: 'NaN (F32)',
-      schema: {A: 'F32', SID: 'SID'},
+      schema: {A: 'f32', SID: 'sid'},
       steps: [
         {
           name: 'NaN roundtrip',
@@ -494,7 +494,7 @@ test('rollover / truncation', async ctx => {
     },
     {
       name: 'NaN (F64)',
-      schema: {A: 'F64', SID: 'SID'},
+      schema: {A: 'f64', SID: 'sid'},
       steps: [
         {
           name: 'NaN roundtrip',
@@ -506,7 +506,7 @@ test('rollover / truncation', async ctx => {
     },
     {
       name: 'scaled fixed-point (U8/10)',
-      schema: {A: 'U8/10', SID: 'SID'},
+      schema: {A: 'u8/10', SID: 'sid'},
       steps: [
         {name: 'min', get: 0, set: 0, mem: '0000000001000000'},
         {name: 'max', get: 25.5, set: 25.5, mem: 'ff00000001000000'},
@@ -515,7 +515,7 @@ test('rollover / truncation', async ctx => {
     },
     {
       name: 'scaled fixed-point (I16/100)',
-      schema: {A: 'I16/100', SID: 'SID'},
+      schema: {A: 'i16/100', SID: 'sid'},
       steps: [
         {name: 'max', get: 327.67, set: 327.67, mem: 'ff7f000001000000'},
         {name: 'min', get: -327.68, set: -327.68, mem: '0080000001000000'},
@@ -524,7 +524,7 @@ test('rollover / truncation', async ctx => {
     },
     {
       name: 'scaled fixed-point (U32/1000)',
-      schema: {A: 'U32/1000', SID: 'SID'},
+      schema: {A: 'u32/1000', SID: 'sid'},
       steps: [
         {name: 'min', get: 0, set: 0, mem: '0000000001000000'},
         {
@@ -559,21 +559,21 @@ test('rollover / truncation', async ctx => {
 test('fields do not interfere (write 1..N through packed schema)', () => {
   const struct = Struct(
     {
-      A: 'U4',
-      B: 'U4',
-      C: 'U8',
-      D: 'U12',
-      E: 'I12',
-      F: 'U16',
-      G: 'I16',
-      H: 'U32',
-      I: 'I32',
-      J: 'F16',
-      K: 'F32',
-      L: 'F64',
-      Name: 'String',
-      Obj: 'Object',
-      SID: 'SID'
+      A: 'u4',
+      B: 'u4',
+      C: 'u8',
+      D: 'u12',
+      E: 'i12',
+      F: 'u16',
+      G: 'i16',
+      H: 'u32',
+      I: 'i32',
+      J: 'f16',
+      K: 'f32',
+      L: 'f64',
+      Name: 'str',
+      Obj: 'obj',
+      SID: 'sid'
     },
     {pageSize: 1, pages: 1}
   )
@@ -614,7 +614,7 @@ test('fields do not interfere (write 1..N through packed schema)', () => {
 
 test('SIDs as a singly linked list', async ctx => {
   const struct = Struct(
-    {Next: 'SID', Value: 'U16', SID: 'SID'},
+    {Next: 'sid', Value: 'u16', SID: 'sid'},
     {
       pageSize: 2,
       pages: 1
