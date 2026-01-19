@@ -19,7 +19,7 @@ declare const rid: unique symbol
 type MaybeRID = RID | 0
 type RID = number & {[rid]: never}
 
-type Ref = string | object
+export type Ref = string | object
 
 type Accessors<Schema> = {
   [Prop in keyof Schema as `get${Prop & string}`]: Getter<
@@ -355,14 +355,11 @@ class StructImpl {
   }
   #SetByte(prop: Readonly<StructPropLayout>): Setter<number> {
     const {offset, signed, scale} = prop
-
     if (signed) {
       if (scale === 1) return (sid, v) => this.#setI8(sid, offset, v)
       return (sid, v) => this.#setI8(sid, offset, v * scale)
     }
-
     if (scale === 1) return (sid, v) => this.#setU8(sid, offset, v)
-
     return (sid, v) => this.#setU8(sid, offset, v * scale)
   }
 
@@ -381,6 +378,7 @@ class StructImpl {
 
   #GetInt(prop: Readonly<StructPropLayout>): Getter<number> {
     const {offset, bit, w, signed, scale} = prop
+
     if (w === 32) {
       if (signed) {
         if (scale === 1) return sid => this.#getI32(sid, offset)
@@ -423,7 +421,6 @@ class StructImpl {
         if (scale === 1) return (sid, v) => this.#setI32(sid, offset, v)
         return (sid, v) => this.#setI32(sid, offset, v * scale)
       }
-
       if (scale === 1) return (sid, v) => this.#setU32(sid, offset, v)
       return (sid, v) => this.#setU32(sid, offset, v * scale)
     }
@@ -440,7 +437,6 @@ class StructImpl {
           const next = cleared | ((bits << bit) >>> 0)
           this.#setU32(sid, offset, next >>> 0)
         }
-
       return (sid, v) => {
         const word = this.#getU32(sid, offset)
         const cleared = word & ~((mask << bit) >>> 0)
@@ -458,7 +454,6 @@ class StructImpl {
         const next = cleared | (((v & mask) << bit) >>> 0)
         this.#setU32(sid, offset, next >>> 0)
       }
-
     return (sid, v) => {
       const word = this.#getU32(sid, offset)
       const cleared = word & ~((mask << bit) >>> 0)
@@ -506,12 +501,10 @@ class StructImpl {
   }
   #SetShort(prop: Readonly<StructPropLayout>): Setter<number> {
     const {offset, signed, scale} = prop
-
     if (signed) {
       if (scale === 1) return (sid, v) => this.#setI16(sid, offset, v)
       return (sid, v) => this.#setI16(sid, offset, v * scale)
     }
-
     if (scale === 1) return (sid, v) => this.#setU16(sid, offset, v)
     return (sid, v) => this.#setU16(sid, offset, v * scale)
   }
