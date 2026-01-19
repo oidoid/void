@@ -1,3 +1,7 @@
+export function ceilMul(x: number, mul: number): number {
+  return Math.ceil(x / mul) * mul
+}
+
 // to-do: port tests.
 export function clamp(val: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, val))

@@ -10,14 +10,14 @@ declare global {
 
 declare const millis: unique symbol
 /** duration in milliseconds. */
-export type Millis = (number & {readonly [millis]: never}) | 0
+export type Millis = (number & {[millis]: never}) | 0
 
 declare const secs: unique symbol
 /** duration in seconds. */
-export type Secs = (number & {readonly [secs]: never}) | 0
+export type Secs = (number & {[secs]: never}) | 0
 
 declare const utcMillis: unique symbol
-export type UTCMillis = number & {readonly [utcMillis]: never}
+export type UTCMillis = number & {[utcMillis]: never}
 
 export function dateToTimestamp(date: Readonly<Date>): string {
   const yyyy = `${date.getFullYear()}`.padStart(4, '0')
