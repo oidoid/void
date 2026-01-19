@@ -3,7 +3,7 @@ import {StructLayout, type StructPropLayout} from './struct-layout.ts'
 import type {StructSchema} from './struct-schema.ts'
 
 /** dense growable array of structs. */
-export type Struct<Schema extends StructSchema> = StructImpl & Accessors<Schema>
+export type Struct<Schema> = StructImpl & Accessors<Schema>
 
 type StructCtor = new <Schema extends StructSchema>(
   Schema: Readonly<Schema>,
@@ -27,9 +27,13 @@ type RID = number & {[rid]: never}
 export type Ref = string | object
 
 type Accessors<Schema> = {
-  [Prop in keyof Schema as `get${Prop & string}`]: Getter<
-    PropType<Schema[Prop]>
-  >
+  [Prop in keyof Schema as Schema[Prop] extends 'bool'
+    ? never
+    : `get${Prop & string}`]: Getter<PropType<Schema[Prop]>>
+} & {
+  [Prop in keyof Schema as Schema[Prop] extends 'bool'
+    ? `is${Prop & string}`
+    : never]: Getter<boolean>
 } & {
   [Prop in keyof Schema as `set${Prop & string}`]: Setter<
     PropType<Schema[Prop]>
@@ -53,7 +57,9 @@ class StructImpl {
   /** structs per page. */
   readonly pageSize: number;
   /** private implementation typing. */
-  [prop: `get${string}` | `set${string}`]: Getter<unknown> | Setter<never>
+  [prop: `get${string}` | `is${string}` | `set${string}`]:
+    | Getter<unknown>
+    | Setter<never>
 
   // to-do: some of these members could appear as preamble data within `#u8`.
   readonly #indexBySID: Map<SID, number> = new Map()
@@ -87,7 +93,7 @@ class StructImpl {
 
       switch (prop.type) {
         case 'Bool':
-          this[getName] = this.#GetBool(prop)
+          this[`is${prop.name}`] = this.#GetBool(prop)
           this[setName] = this.#SetBool(prop)
           break
         case 'Byte':
