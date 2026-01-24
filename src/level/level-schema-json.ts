@@ -3,3 +3,8 @@ declare module '*.level.jsonc' {
   const json: import('./level-schema.ts').LevelSchema
   export default json
 }
+
+declare module '*.level.test.jsonc' {
+  const json: import('./level-schema.ts').LevelSchema
+  export default json
+}

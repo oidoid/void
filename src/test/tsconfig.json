@@ -1,4 +1,4 @@
-// TypeScript config for test code under src/**/*.test.ts and src/test/**/*.
+// TypeScript config for test and perf test code.
 {
   "extends": "@oidoid/config/tsconfig",
   "compilerOptions": {
@@ -19,7 +19,7 @@
     "${configDir}/",
     "${configDir}/**/*.json",
     "../../**/*.test.ts",
-    "../../**/*.test*.json",
+    "../../**/*.test.json",
     "../../**/test/",
     "../../**/test/**/*.json"
   ],

@@ -1,7 +1,7 @@
 import {describe, test} from 'node:test'
 import {assert} from '../../src/test/assert.ts'
 import * as ase from './aseprite.ts'
-import atlas from './atlas.test.aseprite.json' with {type: 'json'}
+import atlas from './atlas.aseprite.test.json' with {type: 'json'}
 import {
   parseAnim,
   parseAnimData,
