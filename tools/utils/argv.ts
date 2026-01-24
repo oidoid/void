@@ -1,7 +1,10 @@
-export type Argv = {
+export type Argv<Opts extends AnyOpts> = {
   /** all the arguments not starting with `--` before `--`. */
   args: string[]
-  /** all options starting with `--` before `--` and their optional value. */
+  /**
+   * all options starting with `--` before `--` and their optional value. eg,
+   * `{'--config'?: string; '--minify'?: string | true}`.
+   */
   opts: Opts
   /** everything after `--`. */
   posargs: string[]
@@ -9,14 +12,14 @@ export type Argv = {
   argv: string[]
 }
 
-/** string-string|bool map. Eg, `'--config'?: string; '--minify'?: string | true` */
-// biome-ignore lint/suspicious/noEmptyInterface: declaration merging.
-export interface Opts {}
+export type AnyOpts = {[k: string]: string | boolean}
 
-export function Argv(argv: readonly string[]): Argv {
+export function Argv<Opts extends AnyOpts>(
+  argv: readonly string[]
+): Argv<Opts> {
   const args = []
   const posargs = []
-  const opts: {[k: string]: string | true} = {}
+  const opts: AnyOpts = {}
   for (let i = 2; i < argv.length; i++) {
     if (argv[i] === '--') {
       posargs.push(...argv.slice(i + 1))
@@ -27,5 +30,5 @@ export function Argv(argv: readonly string[]): Argv {
       opts[k!] = v ?? true
     } else args.push(argv[i]!)
   }
-  return {args, opts, posargs, argv: [...argv]}
+  return {args, opts: opts as Opts, posargs, argv: [...argv]}
 }

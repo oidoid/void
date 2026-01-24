@@ -32,13 +32,30 @@ export type Config = {
 
   bundle: V.Bundle
 
-  argv: Argv
+  argv: Argv<Opts>
+}
+
+export type Opts = {
+  '--config'?: string
+  '--minify'?: true
+  /** inline everything into a single HTML file output. */
+  '--one-file'?: true
+  /**
+   * tsconfig pathname relative config directory. defaults to
+   * `tsconfig.json`.
+   */
+  '--tsconfig'?: string
+  /**
+   * run development server on http://localhost:1234 and reload on code
+   * change.
+   */
+  '--watch'?: true
 }
 
 export type TSConfig = {compilerOptions?: {customConditions?: string[]}}
 
 export async function readConfig(args: readonly string[]): Promise<Config> {
-  const argv = Argv(args)
+  const argv = Argv<Opts>(args)
   const configFile = await parseConfigFile(argv.opts['--config'] ?? 'void.json')
 
   let hash = '0000000'
@@ -60,7 +77,7 @@ export async function readConfig(args: readonly string[]): Promise<Config> {
 
 /** @internal */
 export function Config(
-  argv: Readonly<Argv>,
+  argv: Readonly<Argv<Opts>>,
   configFile: Readonly<VoidConfigFile>,
   hash: string,
   packageJSON: Readonly<PackageJSON>,

@@ -1,7 +1,7 @@
 import {describe, test} from 'node:test'
 import {assert} from '../../src/test/assert.ts'
 import type {Argv} from '../utils/argv.ts'
-import {Config, parseTSConfig, type TSConfig} from './config.ts'
+import {Config, type Opts, parseTSConfig, type TSConfig} from './config.ts'
 import type {VoidConfigFile} from './config-file.ts'
 
 describe('Config()', () => {
@@ -22,7 +22,7 @@ describe('Config()', () => {
     filename: '/project/void.json'
   }
 
-  const argv: Readonly<Argv> = {
+  const argv: Readonly<Argv<Opts>> = {
     args: [],
     opts: {},
     posargs: [],

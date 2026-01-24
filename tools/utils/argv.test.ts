@@ -2,14 +2,6 @@ import {test} from 'node:test'
 import {assert} from '../../src/test/assert.ts'
 import {Argv} from './argv.ts'
 
-declare module './argv.ts' {
-  interface Opts {
-    '--config'?: string
-    '--minify'?: true
-    '--watch'?: true
-  }
-}
-
 test('parses empty', () => {
   assert(Argv(['/usr/local/bin/node', 'tools/void.ts']), {
     args: [],

@@ -7,25 +7,6 @@ import {bundle} from './bundle/bundle.ts'
 import {readConfig} from './types/config.ts'
 import {parseHTML} from './utils/html-parser.ts'
 
-declare module './utils/argv.ts' {
-  interface Opts {
-    '--config'?: string
-    '--minify'?: true
-    /** inline everything into a single HTML file output. */
-    '--one-file'?: true
-    /**
-     * tsconfig pathname relative config directory. defaults to
-     * `tsconfig.json`.
-     */
-    '--tsconfig'?: string
-    /**
-     * run development server on http://localhost:1234 and reload on code
-     * change.
-     */
-    '--watch'?: true
-  }
-}
-
 export async function build(args: readonly string[]): Promise<void> {
   const config = await readConfig(args)
 
