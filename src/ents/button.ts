@@ -32,8 +32,7 @@ export class ButtonHook implements Hook {
     // to-do: do I copy over everything from sprite? I thought I was trying to get away from copy everything update loops.
     // in particular, ent.sprite.z needs to be applied more uniformly across the parser but lots of stuff isn't always checking sprite.
 
-    const hitsCursor =
-      !!v.loader.cursor && v.loader.cursor.sprite.hitsZ(ent.sprite, v.cam)
+    const hitsCursor = !!v.loader.cursor?.sprite.hitsZ(ent.sprite, v.cam)
 
     const on =
       hitsCursor && v.input.isOnStart('A')
@@ -42,8 +41,7 @@ export class ButtonHook implements Hook {
           : true
         : toggle
           ? buttonOn(ent)
-          : v.input.isOn('A') ||
-            (!!v.loader.cursor?.cursor.keyboard && v.input.isOn('A'))
+          : hitsCursor && v.input.isOn('A')
     button.started = buttonOn(ent) !== on
     button.pressed.hidden = !on
 
