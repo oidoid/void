@@ -10,9 +10,16 @@ export class SuperballHook implements V.Hook {
     ent.sprite.y += ent.superball.vy * v.tick.s
 
     const left = v.cam.x
-    const right = v.cam.x + v.cam.w - ent.sprite.w
+    const right = v.cam.x + v.cam.w - ent.sprite.hitbox!.w
     const top = v.cam.y
-    const bottom = v.cam.y + v.cam.h - ent.sprite.h
+    const bottom = v.cam.y + v.cam.h - ent.sprite.hitbox!.h
+
+    if (v.loader.cursor?.sprite.hitsZ(ent.sprite, v.cam)) {
+      ent.superball.vx = -ent.superball.vx
+      ent.superball.vy = -ent.superball.vy
+      ent.sprite.x += ent.superball.vx * 2 * v.tick.s
+      ent.sprite.y += ent.superball.vy * 2 * v.tick.s
+    }
 
     if (ent.sprite.x < left) {
       ent.sprite.x = left
