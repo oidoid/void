@@ -24,17 +24,21 @@ export class SuperballHook implements V.Hook {
     if (ent.sprite.x < left) {
       ent.sprite.x = left
       ent.superball.vx = Math.abs(ent.superball.vx)
+      ent.superball.vy += (v.random.num - 0.5) * 20
     } else if (ent.sprite.x > right) {
       ent.sprite.x = right
       ent.superball.vx = -Math.abs(ent.superball.vx)
+      ent.superball.vy += (v.random.num - 0.5) * 20
     }
 
     if (ent.sprite.y < top) {
       ent.sprite.y = top
       ent.superball.vy = Math.abs(ent.superball.vy)
+      ent.superball.vx += (v.random.num - 0.5) * 20
     } else if (ent.sprite.y > bottom) {
       ent.sprite.y = bottom
       ent.superball.vy = -Math.abs(ent.superball.vy)
+      ent.superball.vx += (v.random.num - 0.5) * 20
     }
 
     ent.sprite.angle += ent.superball.vx * v.tick.s
