@@ -5,6 +5,8 @@ import {ClockHook} from '../ents/clock.ts'
 import {DrawHook} from '../ents/draw.ts'
 import {RenderToggleHook} from '../ents/render-toggle.ts'
 import {RotateHook} from '../ents/rotate.ts'
+import {SuperballHook} from '../ents/superball.ts'
+import {SuperballButtonHook} from '../ents/superball-button.ts'
 import {TallyHook} from '../ents/tally.ts'
 import {parseComponent} from './level-parser.ts'
 
@@ -20,6 +22,8 @@ export class Loader implements V.Loader {
     ninePatch: new V.NinePatchHook(),
     override: new V.OverrideHook(),
     rotate: new RotateHook(),
+    superball: new SuperballHook(),
+    superballButton: new SuperballButtonHook(),
     sprite: new V.SpriteHook(),
     textWH: new V.TextWHHook(),
     textXY: new V.TextXYHook(),
@@ -45,6 +49,10 @@ export class Loader implements V.Loader {
     for (const zoo of Object.values(this.#zoo)) V.zooUpdate(zoo, this.#hooks, v)
   }
 
+  get zoo(): Readonly<V.Zoo> {
+    return this.#zoo
+  }
+
   #init(v: V.Void): void {
     v.pool.overlay = V.SpritePool({
       atlas: v.atlas.default,
@@ -56,7 +64,7 @@ export class Loader implements V.Loader {
     )
 
     this.#zoo = v.loadLevel(levelJSON, 'default', parseComponent)
-    this.cursor = V.zooFindByID(this.#zoo.default, 'Cursor')
+    this.cursor = V.zooFindByID(this.#zoo.default, 'cursor')
     this.#lvl = 'Init'
   }
 }

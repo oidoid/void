@@ -1,6 +1,6 @@
 {
   "$schema": "../level/level-file.v0.json",
-  "minWH": {"w": 320, "h": 240},
+  "minWH": {"w": 640, "h": 480},
   "zoo": {
     "default": [
       {"name": "Debug", "debugInput": {}},
@@ -8,7 +8,7 @@
       {"name": "Cam", "cam": {}},
 
       {
-        "id": "Cursor",
+        "id": "cursor",
         "sprite": "cursor--Pointer",
         "cursor": {}
       },
@@ -35,7 +35,6 @@
         }
       },
       {
-        "id": "RenderToggle",
         "name": "RenderToggle",
         "text": "render",
         "sprite": {"z": "UID"},
@@ -59,6 +58,32 @@
           "z": "UIC"
         },
         "renderToggle": {},
+        "textXY": {"z": "UIE"}
+      },
+      {
+        "name": "Superballs Button",
+        "text": "+",
+        "sprite": {"z": "UID"},
+        "textWH": {"pad": 2, "scale": 2, "trim": "Leading"},
+        "hud": {"origin": "NE", "margin": {"n": 2, "e": 62}},
+        "ninePatch": {
+          "border": 1,
+          "pad": 2,
+          "patch": {
+            "center": "background--Kiwi",
+            "n": "background--Grape",
+            "s": "background--Black",
+            "w": "background--Grape",
+            "e": "background--Black"
+          }
+        },
+        "button": {
+          "pressed": "background--Bubblegum",
+          "selected": "background--OrangeCheckerboard",
+          "type": "Button",
+          "z": "UIC"
+        },
+        "superballButton": {},
         "textXY": {"z": "UIE"}
       },
       {
@@ -130,7 +155,7 @@
         "sprite": {"z": "UIA"},
         "tally": {},
         "textWH": {},
-        "hud": {"origin": "NE", "margin": {"n": 4, "e": 60}},
+        "hud": {"origin": "NE", "margin": {"n": 4, "e": 82}},
         "textXY": {},
         "override": {"invalid": false}
       },

@@ -1,11 +1,20 @@
 import type * as V from '../../index.ts'
 // biome-ignore lint/correctness/useJsonImportAttributes:;
 import type gameJSON from '../assets/void.game.json'
-import type {Clock, RenderToggle, Rotate, Tally} from '../ents/ent.ts'
+import type {
+  Clock,
+  RenderToggle,
+  Rotate,
+  Superball,
+  SuperballButton,
+  Tally
+} from '../ents/ent.ts'
 import type {
   ClockSchema,
   RenderToggleSchema,
   RotateSchema,
+  SuperballButtonSchema,
+  SuperballSchema,
   TallySchema
 } from '../level/level-schema.ts'
 
@@ -20,6 +29,8 @@ declare module '../../index.ts' {
     renderToggle?: RenderToggle
     rotate?: Rotate
     tally?: Tally
+    superball?: Superball
+    superballButton?: SuperballButton
   }
 
   interface EntSchema {
@@ -27,6 +38,8 @@ declare module '../../index.ts' {
     renderToggle?: RenderToggleSchema
     rotate?: RotateSchema
     tally?: TallySchema
+    superball?: SuperballSchema
+    superballButton?: SuperballButtonSchema
   }
 
   interface PoolMap {

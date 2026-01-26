@@ -3,6 +3,8 @@ import * as V from '../../index.ts'
 export const parseComponent: V.ComponentHook = (ent, json, k) => {
   if (json[k] == null) throw Error('no component val')
   switch (k) {
+    case 'superball':
+    case 'superballButton':
     case 'clock':
     case 'rotate':
       return json[k] satisfies V.Ent[typeof k]

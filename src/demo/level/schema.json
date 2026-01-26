@@ -17,7 +17,15 @@
               "$ref": "#/$defs/Rotate",
               "unevaluatedProperties": false
             },
-            "tally": {"$ref": "#/$defs/Tally", "unevaluatedProperties": false}
+            "tally": {"$ref": "#/$defs/Tally", "unevaluatedProperties": false},
+            "superball": {
+              "$ref": "#/$defs/Superball",
+              "unevaluatedProperties": false
+            },
+            "superballButton": {
+              "$ref": "#/$defs/SuperballButton",
+              "unevaluatedProperties": false
+            }
           }
         }
       ]
@@ -34,6 +42,11 @@
         }
       }
     },
-    "Tally": {"type": "object", "description": "tally config."}
+    "Tally": {"type": "object", "description": "tally config."},
+    "Superball": {"type": "object", "description": "superball config."},
+    "SuperballButton": {
+      "type": "object",
+      "description": "superball button config."
+    }
   }
 }
