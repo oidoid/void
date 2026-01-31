@@ -1,0 +1,4 @@
+{
+  "name": "linux",
+  "image": "mcr.microsoft.com/devcontainers/universal:2-linux"
+}
