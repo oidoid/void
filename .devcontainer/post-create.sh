@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/usr/bin/env sh
+set -eu
 
 sudo apt update
 sudo apt install --no-install-recommends --yes xauth xvfb
