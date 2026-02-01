@@ -1,7 +1,4 @@
-// headed run
-// DISPLAY=:99 node tools/test/browse.ts https://superpatience.com
-// headless run (change `headless` to true below)
-// xvfb-run -a node tools/test/browse.ts https://superpatience.com
+// to-do: wrap this `xvfb-run -a node tools/test/browse.ts https://superpatience.com`.
 
 import fs from 'node:fs/promises'
 import path from 'node:path'
@@ -11,7 +8,7 @@ const url = process.argv[2] ?? 'https://example.com'
 const outDir = 'dist/artifacts'
 await fs.mkdir(outDir, {recursive: true})
 
-const browser = await chromium.launch({headless: false})
+const browser = await chromium.launch()
 
 const page = await browser.newPage()
 page.setDefaultNavigationTimeout(45_000)

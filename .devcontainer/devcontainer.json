@@ -3,6 +3,5 @@
   "image": "mcr.microsoft.com/devcontainers/base:2-trixie",
   "features": {"ghcr.io/devcontainers/features/node:1": {"version": "24.4.1"}},
   "customizations": {"vscode": {"extensions": ["biomejs.biome"]}},
-  "forwardPorts": [7900],
   "postCreateCommand": ".devcontainer/post-create.bash"
 }
