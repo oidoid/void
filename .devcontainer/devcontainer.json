@@ -1,7 +1,12 @@
+// start as `xvfb-run npm start`.
 {
   "name": "linux",
   "image": "mcr.microsoft.com/devcontainers/base:2-trixie",
   "features": {"ghcr.io/devcontainers/features/node:1": {"version": "24.4.1"}},
   "customizations": {"vscode": {"extensions": ["biomejs.biome"]}},
+  "mounts": [
+    "source=/usr/bin/aseprite,target=/usr/bin/aseprite,type=bind",
+    "source=/usr/share/aseprite,target=/usr/share/aseprite,type=bind"
+  ],
   "postCreateCommand": ".devcontainer/post-create.sh"
 }
