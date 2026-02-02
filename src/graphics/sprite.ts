@@ -347,6 +347,7 @@ export class Sprite extends Drawable {
    * default to clipbox.
    */
   hits(box: Readonly<XY | Box>): boolean {
+    // to-do: is `if (!boxHits(this, box)) return false` faster?
     const hurtbox = box instanceof Sprite ? (box.hurtbox ?? box) : box
     return boxHits(this.hitbox ?? this, hurtbox)
   }
