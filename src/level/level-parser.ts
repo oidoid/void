@@ -12,7 +12,7 @@ import type {
 import type {Zoo} from '../ents/zoo.ts'
 import type {Atlas, Tag} from '../graphics/atlas.ts'
 import {Layer} from '../graphics/layer.ts'
-import {drawableMaxWH, type Sprite} from '../graphics/sprite.ts'
+import {type Sprite, spriteMaxWH} from '../graphics/sprite.ts'
 import type {PoolMap} from '../mem/pool-map.ts'
 import type {Border, WH, XY} from '../types/geo.ts'
 import {isRecord} from '../utils/obj-util.ts'
@@ -322,7 +322,7 @@ export function parseTextWH<_Tag extends Tag>(
 ): TextWH {
   return {
     layout: {chars: [], cursor: {x: 0, y: 0}, w: 0, h: 0, trimmedH: 0},
-    maxW: json.maxW ?? drawableMaxWH.w,
+    maxW: json.maxW ?? spriteMaxWH.w,
     pad: parseBorder(json.pad),
     scale: json.scale ?? 1,
     trim: json.trim

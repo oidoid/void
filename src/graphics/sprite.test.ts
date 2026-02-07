@@ -1,17 +1,11 @@
 import {describe, test} from 'node:test'
+import {SpritePool} from '../mem/sprite-pool.ts'
 import {assert} from '../test/assert.ts'
 import type {XY} from '../types/geo.ts'
 import type {Millis} from '../types/time.ts'
 import {type Anim, type Atlas, animCels, celMillis} from './atlas.ts'
 import {Layer} from './layer.ts'
-import {
-  Drawable,
-  type DrawablePool,
-  diagonalize,
-  drawableBytes,
-  floorDrawEpsilon,
-  Sprite
-} from './sprite.ts'
+import {diagonalize, floorSpriteEpsilon, Sprite} from './sprite.ts'
 
 const animA: Readonly<Anim> = {
   cels: 10,
@@ -37,8 +31,8 @@ const atlas: Readonly<Atlas> = {
 }
 
 test('above() layer', () => {
-  const l = TestDrawable()
-  const r = TestDrawable()
+  const l = TestSprite()
+  const r = TestSprite()
 
   l.z = 1
   r.z = 2
@@ -57,8 +51,8 @@ test('above() layer', () => {
 })
 
 test('above() zend', () => {
-  const l = TestDrawable()
-  const r = TestDrawable()
+  const l = TestSprite()
+  const r = TestSprite()
 
   l.h = 10
   r.h = 100
@@ -76,64 +70,64 @@ test('above() zend', () => {
 
 test('angle', () => {
   const pool = TestPool()
-  const draw = TestDrawable(pool, 0)
+  const sprite = TestSprite(pool, 0)
 
-  assert(draw.angle, 0)
+  assert(sprite.angle, 0)
   assert(toHex(pool), '00000000000000000000000000000000')
 
-  draw.angle = 90
-  assert(draw.angle, 90)
+  sprite.angle = 90
+  assert(sprite.angle, 90)
   assert(toHex(pool), '00000000000000000000000000000400')
 
-  draw.angle = 180
-  assert(draw.angle, 180)
+  sprite.angle = 180
+  assert(sprite.angle, 180)
   assert(toHex(pool), '00000000000000000000000000000800')
 
-  draw.angle = 270
-  assert(draw.angle, 270)
+  sprite.angle = 270
+  assert(sprite.angle, 270)
   assert(toHex(pool), '00000000000000000000000000000c00')
 
-  draw.angle = 359.912109375 // max representable (4095).
-  assert(draw.angle, 359.912109375)
+  sprite.angle = 359.912109375 // max representable (4095).
+  assert(sprite.angle, 359.912109375)
   assert(toHex(pool), '00000000000000000000000000ff0f00')
 
-  draw.angle = 360
-  assert(draw.angle, 0) // wraps.
+  sprite.angle = 360
+  assert(sprite.angle, 0) // wraps.
   assert(toHex(pool), '00000000000000000000000000000000')
 })
 
 test('cel', () => {
   const pool = TestPool()
-  const draw = TestDrawable(pool, 0)
+  const sprite = TestSprite(pool, 0)
 
-  assert(draw.cel, 0)
+  assert(sprite.cel, 0)
   assert(toHex(pool), '00000000000000000000000000000000')
 
-  draw.cel = 1
-  assert(draw.cel, 1)
+  sprite.cel = 1
+  assert(sprite.cel, 1)
   assert(toHex(pool), '00000000000000000000010000000000')
 
-  draw.cel = animCels
-  assert(draw.cel, animCels)
+  sprite.cel = animCels
+  assert(sprite.cel, animCels)
   assert(toHex(pool), '00000000000000000000100000000000')
 
-  draw.cel = animCels * 2 - 1
-  assert(draw.cel, animCels * 2 - 1)
+  sprite.cel = animCels * 2 - 1
+  assert(sprite.cel, animCels * 2 - 1)
   assert(toHex(pool), '000000000000000000001f0000000000')
 
-  draw.cel = animCels * 2
-  assert(draw.cel, 0)
+  sprite.cel = animCels * 2
+  assert(sprite.cel, 0)
   assert(toHex(pool), '00000000000000000000000000000000')
 })
 
 test('clips()', () => {
-  const draw = TestDrawable()
-  assert(draw.clips({x: 1, y: 1}), false)
+  const sprite = TestSprite()
+  assert(sprite.clips({x: 1, y: 1}), false)
 
-  draw.w = draw.h = 10
-  assert(draw.clips({x: 1, y: 1}), true)
+  sprite.w = sprite.h = 10
+  assert(sprite.clips({x: 1, y: 1}), true)
 
-  assert(draw.clips({x: 11, y: 11}), false)
+  assert(sprite.clips({x: 11, y: 11}), false)
 })
 
 describe('clipsZ()', () => {
@@ -189,330 +183,330 @@ describe('clipsZ()', () => {
 
 test('flipX', () => {
   const pool = TestPool()
-  const draw = TestDrawable(pool, 0)
+  const sprite = TestSprite(pool, 0)
 
-  assert(draw.flipX, false)
+  assert(sprite.flipX, false)
   assert(toHex(pool), '00000000000000000000000000000000')
 
-  draw.flipX = true
-  assert(draw.flipX, true)
+  sprite.flipX = true
+  assert(sprite.flipX, true)
   assert(toHex(pool), '00000000000040000000000000000000')
 
-  draw.flipX = false
-  assert(draw.flipX, false)
+  sprite.flipX = false
+  assert(sprite.flipX, false)
   assert(toHex(pool), '00000000000000000000000000000000')
 })
 
 test('flipY', () => {
   const pool = TestPool()
-  const draw = TestDrawable(pool, 0)
+  const sprite = TestSprite(pool, 0)
 
-  assert(draw.flipY, false)
+  assert(sprite.flipY, false)
   assert(toHex(pool), '00000000000000000000000000000000')
 
-  draw.flipY = true
-  assert(draw.flipY, true)
+  sprite.flipY = true
+  assert(sprite.flipY, true)
   assert(toHex(pool), '00000000000020000000000000000000')
 
-  draw.flipY = false
-  assert(draw.flipY, false)
+  sprite.flipY = false
+  assert(sprite.flipY, false)
   assert(toHex(pool), '00000000000000000000000000000000')
 })
 
 test('height', () => {
   const pool = TestPool()
-  const draw = TestDrawable(pool, 0)
+  const sprite = TestSprite(pool, 0)
 
-  assert(draw.h, 0)
+  assert(sprite.h, 0)
   assert(toHex(pool), '00000000000000000000000000000000')
 
-  draw.h = 1
-  assert(draw.h, 1)
+  sprite.h = 1
+  assert(sprite.h, 1)
   assert(toHex(pool), '00000000000000001000000000000000')
 
-  draw.h = 1024
-  assert(draw.h, 1024)
+  sprite.h = 1024
+  assert(sprite.h, 1024)
   assert(toHex(pool), '00000000000000000040000000000000')
 
-  draw.h = 4095
-  assert(draw.h, 4095)
+  sprite.h = 4095
+  assert(sprite.h, 4095)
   assert(toHex(pool), '0000000000000000f0ff000000000000')
 
-  draw.h = 4096
-  assert(draw.h, 0)
+  sprite.h = 4096
+  assert(sprite.h, 0)
   assert(toHex(pool), '00000000000000000000000000000000')
 })
 
 test('index', () => {
-  const draw = TestDrawable()
+  const sprite = TestSprite()
 
-  assert(draw.i, 0)
+  assert(sprite.i, 0)
 
-  draw.i = 1
-  assert(draw.i, 1)
+  sprite.i = 1
+  assert(sprite.i, 1)
 })
 
 test('init()', () => {
   const pool = TestPool()
-  const draw = TestDrawable(pool, 0)
+  const sprite = TestSprite(pool, 0)
 
-  draw.cel = 5
-  draw.flipX = true
-  draw.flipY = true
-  draw.h = 100
-  draw.id = 42
-  draw.stretch = true
-  draw.hidden = true
-  draw.w = 200
-  draw.x = 10
-  draw.y = 20
-  draw.z = 10
-  draw.zend = true
+  sprite.cel = 5
+  sprite.flipX = true
+  sprite.flipY = true
+  sprite.h = 100
+  sprite.id = 42
+  sprite.stretch = true
+  sprite.hidden = true
+  sprite.w = 200
+  sprite.x = 10
+  sprite.y = 20
+  sprite.z = 10
+  sprite.zend = true
 
-  draw.init()
+  sprite.init()
 
-  assert(draw.cel, 0)
-  assert(draw.flipX, false)
-  assert(draw.flipY, false)
-  assert(draw.h, 0)
-  assert(draw.id, 0)
-  assert(draw.stretch, false)
-  assert(draw.hidden, false)
-  assert(draw.w, 0)
-  assert(draw.x, 0)
-  assert(draw.y, 0)
-  assert(draw.z, Layer.Bottom)
-  assert(draw.zend, false)
+  assert(sprite.cel, 0)
+  assert(sprite.flipX, false)
+  assert(sprite.flipY, false)
+  assert(sprite.h, 0)
+  assert(sprite.id, 0)
+  assert(sprite.stretch, false)
+  assert(sprite.hidden, false)
+  assert(sprite.w, 0)
+  assert(sprite.x, 0)
+  assert(sprite.y, 0)
+  assert(sprite.z, Layer.Bottom)
+  assert(sprite.zend, false)
 })
 
 test('id', () => {
   const pool = TestPool()
-  const draw = TestDrawable(pool, 0)
+  const sprite = TestSprite(pool, 0)
 
-  assert(draw.id, 0)
+  assert(sprite.id, 0)
   assert(toHex(pool), '00000000000000000000000000000000')
 
-  draw.id = 1
-  assert(draw.id, 1)
+  sprite.id = 1
+  assert(sprite.id, 1)
   assert(toHex(pool), '00000000000000000000200000000000')
 
-  draw.id = 1023
-  assert(draw.id, 1023)
+  sprite.id = 1023
+  assert(sprite.id, 1023)
   assert(toHex(pool), '00000000000000000000e07f00000000')
 
-  draw.id = 1024
-  assert(draw.id, 1024)
+  sprite.id = 1024
+  assert(sprite.id, 1024)
   assert(toHex(pool), '00000000000000000000008000000000')
 
-  draw.id = 2047
-  assert(draw.id, 2047)
+  sprite.id = 2047
+  assert(sprite.id, 2047)
   assert(toHex(pool), '00000000000000000000e0ff00000000')
 
-  draw.id = 2048
-  assert(draw.id, 0)
+  sprite.id = 2048
+  assert(sprite.id, 0)
   assert(toHex(pool), '00000000000000000000000000000000')
 })
 
 test('stretch', () => {
   const pool = TestPool()
-  const draw = TestDrawable(pool, 0)
+  const sprite = TestSprite(pool, 0)
 
-  assert(draw.stretch, false)
+  assert(sprite.stretch, false)
   assert(toHex(pool), '00000000000000000000000000000000')
 
-  draw.stretch = true
-  assert(draw.stretch, true)
+  sprite.stretch = true
+  assert(sprite.stretch, true)
   assert(toHex(pool), '00000000000080000000000000000000')
 
-  draw.stretch = false
-  assert(draw.stretch, false)
+  sprite.stretch = false
+  assert(sprite.stretch, false)
   assert(toHex(pool), '00000000000000000000000000000000')
 })
 
 test('hidden', () => {
   const pool = TestPool()
-  const draw = TestDrawable(pool, 0)
+  const sprite = TestSprite(pool, 0)
 
-  assert(draw.hidden, false)
+  assert(sprite.hidden, false)
   assert(toHex(pool), '00000000000000000000000000000000')
 
-  draw.hidden = true
-  assert(draw.hidden, true)
+  sprite.hidden = true
+  assert(sprite.hidden, true)
   assert(toHex(pool), '00000000000000000000000001000000')
 
-  draw.hidden = false
-  assert(draw.hidden, false)
+  sprite.hidden = false
+  assert(sprite.hidden, false)
   assert(toHex(pool), '00000000000000000000000000000000')
 })
 
 test('width', () => {
   const pool = TestPool()
-  const draw = TestDrawable(pool, 0)
+  const sprite = TestSprite(pool, 0)
 
-  assert(draw.w, 0)
+  assert(sprite.w, 0)
   assert(toHex(pool), '00000000000000000000000000000000')
 
-  draw.w = 1
-  assert(draw.w, 1)
+  sprite.w = 1
+  assert(sprite.w, 1)
   assert(toHex(pool), '00000000000000010000000000000000')
 
-  draw.w = 4095
-  assert(draw.w, 4095)
+  sprite.w = 4095
+  assert(sprite.w, 4095)
   assert(toHex(pool), '00000000000000ff0f00000000000000')
 
-  draw.w = 4096
-  assert(draw.w, 0)
+  sprite.w = 4096
+  assert(sprite.w, 0)
   assert(toHex(pool), '00000000000000000000000000000000')
 })
 
 test('x', () => {
   const pool = TestPool()
-  const draw = TestDrawable(pool, 0)
+  const sprite = TestSprite(pool, 0)
 
-  draw.x = -131073
-  assert(draw.x, 131071)
+  sprite.x = -131073
+  assert(sprite.x, 131071)
   assert(toHex(pool), 'c0ff7f00000000000000000000000000')
 
-  draw.x = -131072.015625
-  assert(draw.x, 131071.984375)
+  sprite.x = -131072.015625
+  assert(sprite.x, 131071.984375)
   assert(toHex(pool), 'ffff7f00000000000000000000000000')
 
-  draw.x = -131072
-  assert(draw.x, -131072)
+  sprite.x = -131072
+  assert(sprite.x, -131072)
   assert(toHex(pool), '00008000000000000000000000000000')
 
-  draw.x = -0.999
-  assert(draw.x, -0.984375)
+  sprite.x = -0.999
+  assert(sprite.x, -0.984375)
   assert(toHex(pool), 'c1ffff00000000000000000000000000')
 
-  draw.x = -0.984375
-  assert(draw.x, -0.984375)
+  sprite.x = -0.984375
+  assert(sprite.x, -0.984375)
   assert(toHex(pool), 'c1ffff00000000000000000000000000')
 
-  draw.x = -0.015625
-  assert(draw.x, -0.015625)
+  sprite.x = -0.015625
+  assert(sprite.x, -0.015625)
   assert(toHex(pool), 'ffffff00000000000000000000000000')
 
-  draw.x = 0
-  assert(draw.x, 0)
+  sprite.x = 0
+  assert(sprite.x, 0)
   assert(toHex(pool), '00000000000000000000000000000000')
 
-  draw.x = 0.015625
-  assert(draw.x, 0.015625)
+  sprite.x = 0.015625
+  assert(sprite.x, 0.015625)
   assert(toHex(pool), '01000000000000000000000000000000')
 
-  draw.x = 0.984375
-  assert(draw.x, 0.984375)
+  sprite.x = 0.984375
+  assert(sprite.x, 0.984375)
   assert(toHex(pool), '3f000000000000000000000000000000')
 
-  draw.x = 0.999
-  assert(draw.x, 0.984375)
+  sprite.x = 0.999
+  assert(sprite.x, 0.984375)
   assert(toHex(pool), '3f000000000000000000000000000000')
 
-  draw.x = 1
-  assert(draw.x, 1)
+  sprite.x = 1
+  assert(sprite.x, 1)
   assert(toHex(pool), '40000000000000000000000000000000')
 
-  draw.x = 131071.984375
-  assert(draw.x, 131071.984375)
+  sprite.x = 131071.984375
+  assert(sprite.x, 131071.984375)
   assert(toHex(pool), 'ffff7f00000000000000000000000000')
 
-  draw.x = 131072
-  assert(draw.x, -131072)
+  sprite.x = 131072
+  assert(sprite.x, -131072)
   assert(toHex(pool), '00008000000000000000000000000000')
 })
 
 test('y', () => {
   const pool = TestPool()
-  const draw = TestDrawable(pool, 0)
+  const sprite = TestSprite(pool, 0)
 
-  draw.y = -131073
-  assert(draw.y, 131071)
+  sprite.y = -131073
+  assert(sprite.y, 131071)
   assert(toHex(pool), '000000c0ff7f00000000000000000000')
 
-  draw.y = -131072.015625
-  assert(draw.y, 131071.984375)
+  sprite.y = -131072.015625
+  assert(sprite.y, 131071.984375)
   assert(toHex(pool), '000000ffff7f00000000000000000000')
 
-  draw.y = -131072
-  assert(draw.y, -131072)
+  sprite.y = -131072
+  assert(sprite.y, -131072)
   assert(toHex(pool), '00000000008000000000000000000000')
 
-  draw.y = -0.999
-  assert(draw.y, -0.984375)
+  sprite.y = -0.999
+  assert(sprite.y, -0.984375)
   assert(toHex(pool), '000000c1ffff00000000000000000000')
 
-  draw.y = -0.984375
-  assert(draw.y, -0.984375)
+  sprite.y = -0.984375
+  assert(sprite.y, -0.984375)
   assert(toHex(pool), '000000c1ffff00000000000000000000')
 
-  draw.y = -0.015625
-  assert(draw.y, -0.015625)
+  sprite.y = -0.015625
+  assert(sprite.y, -0.015625)
   assert(toHex(pool), '000000ffffff00000000000000000000')
 
-  draw.y = 0
-  assert(draw.y, 0)
+  sprite.y = 0
+  assert(sprite.y, 0)
   assert(toHex(pool), '00000000000000000000000000000000')
 
-  draw.y = 0.015625
-  assert(draw.y, 0.015625)
+  sprite.y = 0.015625
+  assert(sprite.y, 0.015625)
   assert(toHex(pool), '00000001000000000000000000000000')
 
-  draw.y = 0.984375
-  assert(draw.y, 0.984375)
+  sprite.y = 0.984375
+  assert(sprite.y, 0.984375)
   assert(toHex(pool), '0000003f000000000000000000000000')
 
-  draw.y = 0.999
-  assert(draw.y, 0.984375)
+  sprite.y = 0.999
+  assert(sprite.y, 0.984375)
   assert(toHex(pool), '0000003f000000000000000000000000')
 
-  draw.y = 1
-  assert(draw.y, 1)
+  sprite.y = 1
+  assert(sprite.y, 1)
   assert(toHex(pool), '00000040000000000000000000000000')
 
-  draw.y = 131071.984375
-  assert(draw.y, 131071.984375)
+  sprite.y = 131071.984375
+  assert(sprite.y, 131071.984375)
   assert(toHex(pool), '000000ffff7f00000000000000000000')
 
-  draw.y = 131072
-  assert(draw.y, -131072)
+  sprite.y = 131072
+  assert(sprite.y, -131072)
   assert(toHex(pool), '00000000008000000000000000000000')
 })
 
 test('z', () => {
   const pool = TestPool()
-  const draw = TestDrawable(pool, 0)
+  const sprite = TestSprite(pool, 0)
 
-  draw.z = 0
-  assert(draw.z, 0)
+  sprite.z = 0
+  assert(sprite.z, 0)
   assert(toHex(pool), '00000000000000000000000000000000')
 
-  draw.z = 1
-  assert(draw.z, 1)
+  sprite.z = 1
+  assert(sprite.z, 1)
   assert(toHex(pool), '00000000000001000000000000000000')
 
-  draw.z = Layer.Top
-  assert(draw.z, Layer.Top)
+  sprite.z = Layer.Top
+  assert(sprite.z, Layer.Top)
   assert(toHex(pool), '0000000000000f000000000000000000')
 
-  draw.z = (Layer.Top + 1) as Layer
-  assert(draw.z, 0)
+  sprite.z = (Layer.Top + 1) as Layer
+  assert(sprite.z, 0)
   assert(toHex(pool), '00000000000000000000000000000000')
 })
 
 test('zend', () => {
   const pool = TestPool()
-  const draw = TestDrawable(pool, 0)
+  const sprite = TestSprite(pool, 0)
 
-  assert(draw.zend, false)
+  assert(sprite.zend, false)
   assert(toHex(pool), '00000000000000000000000000000000')
 
-  draw.zend = true
-  assert(draw.zend, true)
+  sprite.zend = true
+  assert(sprite.zend, true)
   assert(toHex(pool), '00000000000010000000000000000000')
 
-  draw.zend = false
-  assert(draw.zend, false)
+  sprite.zend = false
+  assert(sprite.zend, false)
   assert(toHex(pool), '00000000000000000000000000000000')
 })
 
@@ -748,7 +742,7 @@ test('toString()', () => {
   assert(sprite.toString(), 'Sprite{stem--AnimB (1 2 3) 4×5}')
 })
 
-test('floorDrawEpsilon()', () => {
+test('floorSpriteEpsilon()', () => {
   for (const [x, out] of [
     [-10.125, -10.125],
     [-10.1, -10.109375],
@@ -766,25 +760,18 @@ test('floorDrawEpsilon()', () => {
     [10.1, 10.09375],
     [10.125, 10.125]
   ] as const)
-    assert(floorDrawEpsilon(x), out, `${x}`)
+    assert(floorSpriteEpsilon(x), out, `${x}`)
 })
 
-function TestSprite(): Sprite {
-  return new Sprite(TestPool(), 0, atlas, {age: 0})
-}
-
-function TestDrawable(
-  pool: Readonly<DrawablePool> = TestPool(),
+function TestSprite(
+  pool: Readonly<SpritePool> = TestPool(),
   i: number = 0
-): Drawable {
-  return new (class extends Drawable {})(pool, i)
+): Sprite {
+  return new Sprite(pool, i, atlas, {age: 0})
 }
 
-function TestPool(): DrawablePool {
-  return {
-    free() {},
-    view: new DataView(new ArrayBuffer(drawableBytes), 0, drawableBytes)
-  }
+function TestPool(): SpritePool {
+  return SpritePool({atlas, looper: {age: 0}, pageBlocks: 1})
 }
 
 function toHex(pool: {readonly view: DataView<ArrayBuffer>}): string {

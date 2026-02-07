@@ -5,7 +5,7 @@ import {debug} from '../utils/debug.ts'
 import type {Atlas} from './atlas.ts'
 import type {Cam} from './cam.ts'
 import {type GL2, Shader} from './gl.ts'
-import {drawableBytes, type Sprite} from './sprite.ts'
+import {type Sprite, spriteBytes} from './sprite.ts'
 import {spriteFragGLSL} from './sprite-frag.glsl.ts'
 import {spriteVertGLSL} from './sprite-vert.glsl.ts'
 
@@ -65,7 +65,7 @@ export class Renderer {
       pool.view,
       gl.DYNAMIC_DRAW,
       0,
-      pool.size * drawableBytes
+      pool.size * spriteBytes
     )
     gl.bindBuffer(gl.ARRAY_BUFFER, null)
 
@@ -189,16 +189,16 @@ export class Renderer {
 
     gl.bindBuffer(gl.ARRAY_BUFFER, shader.buffer)
     gl.enableVertexAttribArray(1)
-    gl.vertexAttribIPointer(1, 1, gl.UNSIGNED_INT, drawableBytes, 0)
+    gl.vertexAttribIPointer(1, 1, gl.UNSIGNED_INT, spriteBytes, 0)
     gl.vertexAttribDivisor(1, 1)
     gl.enableVertexAttribArray(2)
-    gl.vertexAttribIPointer(2, 1, gl.UNSIGNED_INT, drawableBytes, 4)
+    gl.vertexAttribIPointer(2, 1, gl.UNSIGNED_INT, spriteBytes, 4)
     gl.vertexAttribDivisor(2, 1)
     gl.enableVertexAttribArray(3)
-    gl.vertexAttribIPointer(3, 1, gl.UNSIGNED_INT, drawableBytes, 8)
+    gl.vertexAttribIPointer(3, 1, gl.UNSIGNED_INT, spriteBytes, 8)
     gl.vertexAttribDivisor(3, 1)
     gl.enableVertexAttribArray(4)
-    gl.vertexAttribIPointer(4, 1, gl.UNSIGNED_INT, drawableBytes, 12)
+    gl.vertexAttribIPointer(4, 1, gl.UNSIGNED_INT, spriteBytes, 12)
     gl.vertexAttribDivisor(4, 1)
     gl.bindBuffer(gl.ARRAY_BUFFER, null)
 

@@ -6,6 +6,7 @@ import {
   type Tag
 } from '../graphics/atlas.ts'
 import type {Block} from '../mem/pool.ts'
+import type {SpritePool} from '../mem/sprite-pool.ts'
 import {
   type Box,
   boxHits,
@@ -17,20 +18,14 @@ import type {Millis} from '../types/time.ts'
 import {mod} from '../utils/math.ts'
 import {isUILayer, Layer} from './layer.ts'
 
-export type DrawablePool = {
-  free(block: Block): void
-  view: DataView<ArrayBuffer>
-}
-
 /** must be a multiple of 4 (`UNSIGNED_INT`). */
-export const drawableBytes: number = 16
-/** granularity (0.015625) of drawable coords. */
-export const drawableEpsilon: number = 1 / 64
-export const drawableMaxWH: Readonly<WH> = {w: 4095, h: 4095}
+export const spriteBytes: number = 16
+/** granularity (0.015625) of sprite coords. */
+export const spriteEpsilon: number = 1 / 64
+export const spriteMaxWH: Readonly<WH> = {w: 4095, h: 4095}
 
 /**
- * everything not requiring an atlas. the box is the drawn region. assume little
- * endian.
+ * the box is the drawn region. assume little endian.
  *
  * 0 xxxx xxxx x [-131072, 131071.984375] (1/64th fixed-point). 1b sign, 17b
  * 1 xxxx xxxx int, 6b fraction.
@@ -50,23 +45,31 @@ export const drawableMaxWH: Readonly<WH> = {w: 4095, h: 4095}
  * f rrrr rrrr reserved.
  *
  * animations default to looping without CPU interaction.
- * @internal
  */
-export abstract class Drawable implements Block, Box {
+export class Sprite implements Block, Box {
   i: number
-  readonly #pool: Readonly<DrawablePool>
+  readonly #atlas: Readonly<Atlas>
+  readonly #looper: {readonly age: Millis}
+  readonly #pool: Readonly<SpritePool>
 
-  constructor(pool: Readonly<DrawablePool>, i: number) {
+  constructor(
+    pool: Readonly<SpritePool>,
+    i: number,
+    atlas: Readonly<Atlas>,
+    looper: {readonly age: Millis}
+  ) {
     this.#pool = pool
     this.i = i
+    this.#atlas = atlas
+    this.#looper = looper
   }
 
-  above(draw: Readonly<Drawable>): boolean {
+  above(sprite: Readonly<Sprite>): boolean {
     const compare =
-      this.z === draw.z
+      this.z === sprite.z
         ? (this.zend ? this.y + this.h : this.y) -
-          (draw.zend ? draw.y + draw.h : draw.y)
-        : this.z - draw.z
+          (sprite.zend ? sprite.y + sprite.h : sprite.y)
+        : this.z - sprite.z
     return compare > 0
   }
 
@@ -85,14 +88,16 @@ export abstract class Drawable implements Block, Box {
     this.#pool.view.setUint16(this.i + 13, (r4_a12 & ~0xfff) | bits, true)
   }
 
+  get anim(): Anim {
+    return this.#atlas.anim[this.tag]!
+  }
+
   get cel(): number {
     const iiic_cccc = this.#pool.view.getUint8(this.i + 10)
     return iiic_cccc & 0x1f
   }
 
-  /**
-   * [0, 31]. rendered cel offset. call reset() to play animation from start.
-   */
+  /** [0, 31]. rendered cel offset. call reset() to play animation from start. */
   set cel(cel: number) {
     const iiic_cccc = this.#pool.view.getUint8(this.i + 10)
     this.#pool.view.setUint8(this.i + 10, (iiic_cccc & ~0x1f) | (cel & 0x1f))
@@ -111,16 +116,20 @@ export abstract class Drawable implements Block, Box {
     return boxHits(this, box)
   }
 
-  /** like `clips()` but can supports different world and UI layers. */
-  clipsZ(draw: Readonly<Drawable>, cam: Readonly<XY>): boolean {
-    if (this.ui === draw.ui) return this.clips(draw)
+  /** like `clips()` but supports different world and UI layers. */
+  clipsZ(sprite: Readonly<Sprite>, cam: Readonly<XY>): boolean {
+    if (this.ui === sprite.ui) return this.clips(sprite)
     const clipbox = {
-      x: draw.x + (draw.ui ? 1 : -1) * Math.floor(cam.x),
-      y: draw.y + (draw.ui ? 1 : -1) * Math.floor(cam.y),
-      w: draw.w,
-      h: draw.h
+      x: sprite.x + (sprite.ui ? 1 : -1) * Math.floor(cam.x),
+      y: sprite.y + (sprite.ui ? 1 : -1) * Math.floor(cam.y),
+      w: sprite.w,
+      h: sprite.h
     }
     return boxHits(this, clipbox)
+  }
+
+  diagonalize(dir: Readonly<XY>): void {
+    diagonalize(this, dir.x * dir.y)
   }
 
   get flipX(): boolean {
@@ -175,6 +184,64 @@ export abstract class Drawable implements Block, Box {
     )
   }
 
+  hit(box: Readonly<Box>): Box {
+    return boxIntersect(
+      this.hitbox ?? this,
+      box instanceof Sprite ? (box.hurtbox ?? box) : box
+    )
+  }
+
+  /** floored hitbox. */
+  get hitbox(): Box | undefined {
+    const {hitbox} = this.anim
+    if (!hitbox) return
+    return {
+      x: Math.floor(
+        this.x + (this.flipX ? this.w - hitbox.w - hitbox.x : hitbox.x)
+      ),
+      y: Math.floor(
+        this.y + (this.flipY ? this.h - hitbox.h - hitbox.y : hitbox.y)
+      ),
+      w: hitbox.w,
+      h: hitbox.h
+    }
+  }
+
+  /**
+   * use `clips()` to test only clipbox of this and box. hitbox and hurtbox
+   * default to clipbox.
+   */
+  hits(box: Readonly<XY | Box>): boolean {
+    // to-do: is `if (!boxHits(this, box)) return false` faster?
+    const hurtbox = box instanceof Sprite ? (box.hurtbox ?? box) : box
+    return boxHits(this.hitbox ?? this, hurtbox)
+  }
+
+  /** like `hits()` but supports different world and UI layers. */
+  hitsZ(sprite: Readonly<Sprite>, cam: Readonly<XY>): boolean {
+    if (this.ui === sprite.ui) return this.hits(sprite)
+    const hurtbox = sprite.hurtbox ?? sprite.clipbox
+    hurtbox.x += (sprite.ui ? 1 : -1) * Math.floor(cam.x)
+    hurtbox.y += (sprite.ui ? 1 : -1) * Math.floor(cam.y)
+    return boxHits(this.hitbox ?? this, hurtbox)
+  }
+
+  /** floored hurtbox. */
+  get hurtbox(): Box | undefined {
+    const {hurtbox} = this.anim
+    if (!hurtbox) return
+    return {
+      x: Math.floor(
+        this.x + (this.flipX ? this.w - hurtbox.w - hurtbox.x : hurtbox.x)
+      ),
+      y: Math.floor(
+        this.y + (this.flipY ? this.h - hurtbox.h - hurtbox.y : hurtbox.y)
+      ),
+      w: hurtbox.w,
+      h: hurtbox.h
+    }
+  }
+
   get id(): number {
     const i11_c5 = this.#pool.view.getUint16(this.i + 10, true)
     return (i11_c5 >>> 5) & 0x7ff
@@ -210,6 +277,41 @@ export abstract class Drawable implements Block, Box {
     this.zend = false
   }
 
+  /** true if animation has played once. */
+  get looped(): boolean {
+    // this comparison resets after the second loop since cel can only count to
+    // 2 * anim.cels.
+    return mod(this.looperCel - this.cel, animCels * 2) >= this.anim.cels
+  }
+
+  /** current fractional cel in [0, 2 * anim.cels). */
+  get looperCel(): number {
+    const cel = this.#looper.age / celMillis
+    return cel % (this.anim.cels * 2)
+  }
+
+  get midClip(): XY {
+    return {
+      x: Math.floor(this.x) + this.w / 2,
+      y: Math.floor(this.y) + this.h / 2
+    }
+  }
+
+  get midHit(): XY {
+    const box = this.hitbox ?? this
+    return {x: box.x + box.w / 2, y: box.y + box.h / 2}
+  }
+
+  get midHurt(): XY {
+    const box = this.hurtbox ?? this
+    return {x: box.x + box.w / 2, y: box.y + box.h / 2}
+  }
+
+  /** sets cel to animation start. */
+  reset(): void {
+    this.cel = this.looperCel // setter truncates.
+  }
+
   get stretch(): boolean {
     const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
     return !!(sxyz_llll & 0x80)
@@ -222,6 +324,23 @@ export abstract class Drawable implements Block, Box {
       this.i + 6,
       (sxyz_llll & ~0x80) | (-stretch & 0x80)
     )
+  }
+
+  get tag(): Tag {
+    return this.#atlas.tags[this.id]!
+  }
+
+  /** sets animation, resets cel, dimensions, hitbox, and hurtbox. */
+  set tag(tag: Tag) {
+    const anim = this.#atlas.anim[tag]!
+    this.w = anim.w
+    this.h = anim.h
+    this.id = anim.id
+    this.reset()
+  }
+
+  toString(): string {
+    return `Sprite{${this.tag} (${this.x} ${this.y} ${this.z}) ${this.w}×${this.h}}`
   }
 
   get ui(): boolean {
@@ -296,140 +415,6 @@ export abstract class Drawable implements Block, Box {
   }
 }
 
-export class Sprite extends Drawable {
-  readonly #atlas: Readonly<Atlas>
-  readonly #looper: {readonly age: Millis}
-
-  constructor(
-    pool: Readonly<DrawablePool>,
-    i: number,
-    atlas: Readonly<Atlas>,
-    looper: {readonly age: Millis}
-  ) {
-    super(pool, i)
-    this.#atlas = atlas
-    this.#looper = looper
-  }
-
-  get anim(): Anim {
-    return this.#atlas.anim[this.tag]!
-  }
-
-  diagonalize(dir: Readonly<XY>): void {
-    diagonalize(this, dir.x * dir.y)
-  }
-
-  hit(box: Readonly<Box>): Box {
-    return boxIntersect(
-      this.hitbox ?? this,
-      box instanceof Sprite ? (box.hurtbox ?? box) : box
-    )
-  }
-
-  /** floored hitbox. */
-  get hitbox(): Box | undefined {
-    const {hitbox} = this.anim
-    if (!hitbox) return
-    return {
-      x: Math.floor(
-        this.x + (this.flipX ? this.w - hitbox.w - hitbox.x : hitbox.x)
-      ),
-      y: Math.floor(
-        this.y + (this.flipY ? this.h - hitbox.h - hitbox.y : hitbox.y)
-      ),
-      w: hitbox.w,
-      h: hitbox.h
-    }
-  }
-
-  /**
-   * use `clips()` to test only clipbox of this and box. hitbox and hurtbox
-   * default to clipbox.
-   */
-  hits(box: Readonly<XY | Box>): boolean {
-    // to-do: is `if (!boxHits(this, box)) return false` faster?
-    const hurtbox = box instanceof Sprite ? (box.hurtbox ?? box) : box
-    return boxHits(this.hitbox ?? this, hurtbox)
-  }
-
-  /** like `hits()` but can supports different world and UI layers. */
-  hitsZ(sprite: Readonly<Sprite>, cam: Readonly<XY>): boolean {
-    if (this.ui === sprite.ui) return this.hits(sprite)
-    const hurtbox = sprite.hurtbox ?? sprite.clipbox
-    hurtbox.x += (sprite.ui ? 1 : -1) * Math.floor(cam.x)
-    hurtbox.y += (sprite.ui ? 1 : -1) * Math.floor(cam.y)
-    return boxHits(this.hitbox ?? this, hurtbox)
-  }
-
-  /** floored hurtbox. */
-  get hurtbox(): Box | undefined {
-    const {hurtbox} = this.anim
-    if (!hurtbox) return
-    return {
-      x: Math.floor(
-        this.x + (this.flipX ? this.w - hurtbox.w - hurtbox.x : hurtbox.x)
-      ),
-      y: Math.floor(
-        this.y + (this.flipY ? this.h - hurtbox.h - hurtbox.y : hurtbox.y)
-      ),
-      w: hurtbox.w,
-      h: hurtbox.h
-    }
-  }
-
-  /** true if animation has played once. */
-  get looped(): boolean {
-    // this comparison resets after the second loop since cel can only count to
-    // 2 * anim.cels.
-    return mod(this.looperCel - this.cel, animCels * 2) >= this.anim.cels
-  }
-
-  /** current fractional cel in [0, 2 * anim.cels). */
-  get looperCel(): number {
-    const cel = this.#looper.age / celMillis
-    return cel % (this.anim.cels * 2)
-  }
-
-  get midClip(): XY {
-    return {
-      x: Math.floor(this.x) + this.w / 2,
-      y: Math.floor(this.y) + this.h / 2
-    }
-  }
-
-  get midHit(): XY {
-    const box = this.hitbox ?? this
-    return {x: box.x + box.w / 2, y: box.y + box.h / 2}
-  }
-
-  get midHurt(): XY {
-    const box = this.hurtbox ?? this
-    return {x: box.x + box.w / 2, y: box.y + box.h / 2}
-  }
-
-  /** sets cel to animation start. */
-  reset(): void {
-    this.cel = this.looperCel // setter truncates.
-  }
-
-  get tag(): Tag {
-    return this.#atlas.tags[this.id]!
-  }
-
-  /** sets animation, resets cel, dimensions, hitbox, and hurtbox. */
-  set tag(tag: Tag) {
-    const anim = this.#atlas.anim[tag]!
-    this.w = anim.w
-    this.h = anim.h
-    this.id = anim.id
-    this.reset()
-  }
-
-  override toString(): string {
-    return `Sprite{${this.tag} (${this.x} ${this.y} ${this.z}) ${this.w}×${this.h}}`
-  }
-}
-
 /**
  * center component fractions for synchronized 45 degree diagonal movement.
  * @arg dir positive if x and y are both increasing or decreasing, negative if
@@ -438,10 +423,10 @@ export class Sprite extends Drawable {
 export function diagonalize(xy: XY, dir: number): void {
   if (!dir) return
   xy.x = Math.floor(xy.x) + 0.5
-  xy.y = Math.floor(xy.y) + 0.5 - (dir > 0 ? 0 : drawableEpsilon)
+  xy.y = Math.floor(xy.y) + 0.5 - (dir > 0 ? 0 : spriteEpsilon)
 }
 
-/** floor to nearest drawable quantum. */
-export function floorDrawEpsilon(x: number): number {
-  return Math.floor(x / drawableEpsilon) * drawableEpsilon
+/** floor to nearest sprite quantum. */
+export function floorSpriteEpsilon(x: number): number {
+  return Math.floor(x / spriteEpsilon) * spriteEpsilon
 }

@@ -6,7 +6,7 @@ export class CamHook implements V.Hook {
   update(_ent: V.CamEnt, v: V.Void): void {
     if (v.input.isAnyOnStart('U', 'D', 'L', 'R')) v.cam.diagonalize(v.input.dir)
 
-    const len = V.floorDrawEpsilon(25 * v.tick.s)
+    const len = V.floorSpriteEpsilon(25 * v.tick.s)
     v.cam.x += v.input.dir.x * len
     v.cam.y += v.input.dir.y * len
 
