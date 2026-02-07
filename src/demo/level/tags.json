@@ -146,6 +146,8 @@
     "oidoid--Default",
     "poly--Triangle",
     "poly--Square",
-    "superball--Default"
+    "superball--Default",
+    "tile--GreyDots",
+    "tile--BlueDots"
   ]
 }

@@ -1,6 +1,6 @@
 # void
 
-void is a simple 2D game engine with good typing that loads fast. it's designed to avoid rendering and updating for low energy applications.
+void is a simple 2D game engine. it has good typing, loads fast, few dependencies, and supports optional rendering for low energy applications.
 
 ## Installation
 
