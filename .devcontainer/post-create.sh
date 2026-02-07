@@ -22,3 +22,6 @@ sudo apt install \
 sudo apt install --no-install-recommends --yes xauth xvfb
 
 npm install
+
+npm install --global playwright @playwright/test
+npx playwright install --with-deps
