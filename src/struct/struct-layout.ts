@@ -26,15 +26,7 @@ type PropLayoutBase = {
    * `Byte` and `Short` are 8b and 16b byte-aligned `Int`s. 16b `Float`s are
    * byte-aligned; 32 and 64b are word-aligned.
    */
-  type:
-    | 'Bool'
-    | 'Byte'
-    | 'Float'
-    | 'Int'
-    | 'Object'
-    | 'Short'
-    | 'SID'
-    | 'String'
+  type: 'Bool' | 'Byte' | 'Float' | 'Int' | 'Short'
   /** bit width. */
   w: AnyStructIntW | 64
   signed: boolean
@@ -104,36 +96,6 @@ export function StructPropLayout(
       signed: false,
       scale: 1,
       w: 64
-    }
-  if (spec === 'obj')
-    return {
-      name,
-      type: 'Object',
-      offset: bit ? wordOffset + 4 : wordOffset,
-      bit: 0,
-      signed: false,
-      scale: 1,
-      w: 32
-    }
-  if (spec === 'sid')
-    return {
-      name,
-      type: 'SID',
-      offset: bit ? wordOffset + 4 : wordOffset,
-      bit: 0,
-      signed: false,
-      scale: 1,
-      w: 32
-    }
-  if (spec === 'str')
-    return {
-      name,
-      type: 'String',
-      offset: bit ? wordOffset + 4 : wordOffset,
-      bit: 0,
-      signed: false,
-      scale: 1,
-      w: 32
     }
 
   if (spec === 'bool') {

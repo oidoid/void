@@ -2,29 +2,23 @@ import {debug} from '../utils/debug.ts'
 import {StructLayout, type StructPropLayout} from './struct-layout.ts'
 import type {StructSchema} from './struct-schema.ts'
 
-/** dense growable array of structs. */
-export type Struct<Schema> = StructImpl & Accessors<Schema>
+export type Struct<Cursor extends StructCursor, Schema> = Cursor &
+  Accessors<Schema>
 
-type StructCtor = new <Schema extends StructSchema>(
-  Schema: Readonly<Schema>,
-  opts: Readonly<StructOpts>
-) => Struct<Schema>
-
-export type StructOpts = {
+export type StructArrayOpts<
+  Cursor extends StructCursor,
+  Schema extends StructSchema
+> = {
+  alloc(struct: StructArray<Cursor, Schema>): Cursor
   /** init page count. */
   pages?: number
   pageSize: number
 }
 
-declare const sid: unique symbol
-export type MaybeSID = SID | 0
-export type SID = number & {[sid]: never}
-
-declare const rid: unique symbol
-type MaybeRID = RID | 0
-type RID = number & {[rid]: never}
-
-export type Ref = string | object
+export type StructCursor = {
+  /** variable byte index. */
+  cursor: number
+}
 
 type Accessors<Schema> = {
   [Prop in keyof Schema as Schema[Prop] extends 'bool'
@@ -39,100 +33,92 @@ type Accessors<Schema> = {
     PropType<Schema[Prop]>
   >
 }
-type Getter<V> = (sid: SID) => V
-type Setter<V> = (sid: SID, v: V) => void
-type PropType<Spec> = Spec extends 'bool'
-  ? boolean
-  : Spec extends 'sid'
-    ? MaybeSID
-    : Spec extends 'str'
-      ? string | undefined
-      : Spec extends 'obj'
-        ? object | undefined
-        : number
+type Getter<V> = () => V
+type Setter<V> = (v: V) => void
+type PropType<Spec> = Spec extends 'bool' ? boolean : number
 
-class StructImpl {
+/** dense growable array of structs. */
+export class StructArray<
+  Cursor extends StructCursor,
+  Schema extends StructSchema
+> {
   /** struct size in bytes. */
   readonly stride: number
   /** structs per page. */
-  readonly pageSize: number;
-  /** private implementation typing. */
-  [prop: `get${string}` | `is${string}` | `set${string}`]:
-    | Getter<unknown>
-    | Setter<never>
+  readonly pageSize: number
 
-  // to-do: some of these members could appear as preamble data within `#u8`.
-  readonly #indexBySID: Map<SID, number> = new Map()
-  readonly #refByRID: Map<RID, Ref> = new Map()
-  #refOffsets: number[]
-  #rid: MaybeRID = 0
-  #sidOffset: number
-  #sid: MaybeSID = 0
+  readonly #accessorProto: Accessors<Schema>
+  readonly #alloc: (struct: StructArray<Cursor, Schema>) => Cursor
+  #blocks: Struct<Cursor, Schema>[]
+  #size: number = 0
   #u8: Uint8Array<ArrayBuffer>
   #view: DataView<ArrayBuffer>
 
-  constructor(schema: Readonly<StructSchema>, opts: Readonly<StructOpts>) {
-    const layout = StructLayout(schema)
+  constructor(
+    schema: Readonly<Schema>,
+    opts: Readonly<StructArrayOpts<Cursor, Schema>>
+  ) {
+    const layout = StructLayout(schema as StructSchema)
 
     this.stride = layout.size
-    const sidProp = layout.props.find(prop => prop.name === 'SID')
-    if (!sidProp) throw Error('no struct SID')
-    this.#refOffsets = layout.props
-      .filter(prop => prop.type === 'Object' || prop.type === 'String')
-      .map(prop => prop.offset)
-    this.#sidOffset = sidProp.offset
+    this.#alloc = opts.alloc
     this.pageSize = opts.pageSize
     this.#u8 = new Uint8Array(
       new ArrayBuffer((opts.pages ?? 0) * this.pageSize * this.stride)
     )
     this.#view = new DataView(this.#u8.buffer)
 
+    const accessorProto = {} as Record<string, unknown>
     for (const prop of layout.props) {
       const getName = `get${prop.name}` as const
       const setName = `set${prop.name}` as const
 
       switch (prop.type) {
         case 'Bool':
-          this[`is${prop.name}`] = this.#GetBool(prop)
-          this[setName] = this.#SetBool(prop)
+          accessorProto[`is${prop.name}`] = this.#GetBool(prop)
+          accessorProto[setName] = this.#SetBool(prop)
           break
         case 'Byte':
-          this[getName] = this.#GetByte(prop)
-          this[setName] = this.#SetByte(prop)
+          accessorProto[getName] = this.#GetByte(prop)
+          accessorProto[setName] = this.#SetByte(prop)
           break
         case 'Float':
-          this[getName] = this.#GetFloat(prop)
-          this[setName] = this.#SetFloat(prop)
+          accessorProto[getName] = this.#GetFloat(prop)
+          accessorProto[setName] = this.#SetFloat(prop)
           break
         case 'Int':
-          this[getName] = this.#GetInt(prop)
-          this[setName] = this.#SetInt(prop)
+          accessorProto[getName] = this.#GetInt(prop)
+          accessorProto[setName] = this.#SetInt(prop)
           break
         case 'Short':
-          this[getName] = this.#GetShort(prop)
-          this[setName] = this.#SetShort(prop)
-          break
-        case 'SID':
-          this[getName] = this.#GetSID(prop)
-          this[setName] = this.#SetSID(prop)
-          break
-        case 'Object':
-        case 'String':
-          this[getName] = this.#GetRef(prop)
-          this[setName] = this.#SetRef(prop)
+          accessorProto[getName] = this.#GetShort(prop)
+          accessorProto[setName] = this.#SetShort(prop)
           break
       }
     }
+    this.#accessorProto = accessorProto as Accessors<Schema>
+
+    this.#blocks = Array(this.capacity)
+    for (let i = 0; i < this.capacity; i++) {
+      const block = this.#alloc(this) as Struct<Cursor, Schema>
+      Object.setPrototypeOf(block, this.#accessorProto)
+      this.#blocks[i] = block
+    }
   }
 
-  alloc(): SID {
-    if (this.size === this.capacity) this.#grow(1, 'Alloc')
+  alloc(): Struct<Cursor, Schema> {
+    if (this.#size === this.capacity) this.#grow(1, 'Alloc')
+    const block = this.#blocks[this.#size]!
+    block.cursor = this.#size * this.stride
+    this.#size++
+    return block
+  }
 
-    const sid = ++this.#sid as SID
-    this.#indexBySID.set(sid, this.size)
-    this.#setSID(sid, this.#sidOffset, sid)
-
-    return sid
+  /** wrap a cursor into a block with accessors. */
+  block(cursor: number): Struct<Cursor, Schema> {
+    const block = {cursor} as Struct<Cursor, Schema>
+    Object.setPrototypeOf(block, this.#accessorProto)
+    return block
   }
 
   get buffer(): Uint8Array<ArrayBuffer> {
@@ -145,58 +131,39 @@ class StructImpl {
   }
 
   clear(): void {
-    this.#sid = 0
-    this.#indexBySID.clear()
-    this.#rid = 0
-    this.#refByRID.clear()
-    this.#u8.fill(0)
+    this.#u8.fill(0, 0, this.#size * this.stride)
+    this.#size = 0
   }
 
-  /** does not free refs. */
-  free(sid: SID): void {
-    const i = this.#indexOf(sid)
-    this.#indexBySID.delete(sid)
-
+  free(block: Readonly<Cursor>): void {
+    if (!this.#size) throw Error('struct underflow')
+    this.#size--
     const endI = this.size
     this.#u8.copyWithin(
-      i * this.stride,
+      block.cursor,
       endI * this.stride,
       endI * this.stride + this.stride
     )
     this.#u8.fill(0, endI * this.stride, endI * this.stride + this.stride)
-
-    if (i !== endI) {
-      const swapSID = this.#view.getUint32(
-        i * this.stride + this.#sidOffset,
-        true
-      ) as SID
-      this.#indexBySID.set(swapSID, i)
-    }
-  }
-
-  /** does not clear dangling `RID`s in struct. */
-  freeRefs(sid: SID): void {
-    for (const offset of this.#refOffsets) {
-      const rid = this.#getRID(sid, offset)
-      if (rid) this.#freeRef(rid)
-    }
+    const i = block.cursor / this.stride
+    this.#blocks[this.#size]!.cursor = block.cursor
+    ;[this.#blocks[i], this.#blocks[this.#size]] = [
+      this.#blocks[this.#size]!,
+      this.#blocks[i]!
+    ]
   }
 
   grow(pages: number): void {
     this.#grow(pages, 'Grow')
   }
 
-  has(sid: SID): boolean {
-    return this.#indexBySID.has(sid)
-  }
-
   get size(): number {
-    return this.#indexBySID.size
+    return this.#size
   }
 
   /** order is not well defined. */
-  *[Symbol.iterator](): IterableIterator<SID> {
-    for (const sid of this.#indexBySID.keys()) yield sid
+  *[Symbol.iterator](): IterableIterator<Struct<Cursor, Schema>> {
+    for (let i = 0; i < this.#size; i++) yield this.#blocks[i]!
   }
 
   toDebugString(delim: string = ' '): string {
@@ -208,18 +175,9 @@ class StructImpl {
     return str
   }
 
-  #fieldOffset(sid: SID, offset: number): number {
-    return this.#indexOf(sid) * this.stride + offset
-  }
-
-  #indexOf(sid: SID): number {
-    const i = this.#indexBySID.get(sid)
-    if (i == null) throw Error(`no struct ${sid}`)
-    return i
-  }
-
   #grow(pages: number, caller: 'Alloc' | 'Grow'): void {
-    const capacity = this.capacity + pages * this.pageSize
+    const prevCapacity = this.capacity
+    const capacity = prevCapacity + pages * this.pageSize
     if (caller === 'Alloc' && debug?.mem)
       console.debug(`[mem] growing structs to ${capacity}`)
 
@@ -227,171 +185,130 @@ class StructImpl {
     u8.set(this.#u8)
     this.#u8 = u8
     this.#view = new DataView(u8.buffer)
-  }
 
-  // ─── ref mgmt ───
-
-  #allocRef(): RID {
-    return ++this.#rid as RID
+    for (let i = prevCapacity; i < capacity; i++) {
+      const block = this.#alloc(this) as Struct<Cursor, Schema>
+      Object.setPrototypeOf(block, this.#accessorProto)
+      this.#blocks.push(block)
+    }
   }
-  #freeRef(rid: RID): void {
-    this.#refByRID.delete(rid)
-  }
-
-  #getRef(rid: RID): Ref {
-    const v = this.#refByRID.get(rid)
-    if (v === undefined) throw Error(`no ref ${rid}`)
-    return v
-  }
-  #setRef(rid: RID, v: Ref): void {
-    this.#refByRID.set(rid, v)
-  }
-
-  // ─── /ref mgmt ───
-
-  // ─── #view accessors ───
-
-  #getF16(sid: SID, offset: number): number {
-    // @ts-expect-error to-do: add `ESNext.float16` to `lib`.
-    return this.#view.getFloat16(this.#fieldOffset(sid, offset), true)
-  }
-  #setF16(sid: SID, offset: number, v: number): void {
-    // @ts-expect-error to-do: add `ESNext.float16` to `lib`.
-    this.#view.setFloat16(this.#fieldOffset(sid, offset), v, true)
-  }
-
-  #getF32(sid: SID, offset: number): number {
-    return this.#view.getFloat32(this.#fieldOffset(sid, offset), true)
-  }
-  #setF32(sid: SID, offset: number, v: number): void {
-    this.#view.setFloat32(this.#fieldOffset(sid, offset), v, true)
-  }
-
-  #getF64(sid: SID, offset: number): number {
-    return this.#view.getFloat64(this.#fieldOffset(sid, offset), true)
-  }
-  #setF64(sid: SID, offset: number, v: number): void {
-    this.#view.setFloat64(this.#fieldOffset(sid, offset), v, true)
-  }
-
-  #getI16(sid: SID, offset: number): number {
-    return this.#view.getInt16(this.#fieldOffset(sid, offset), true)
-  }
-  #setI16(sid: SID, offset: number, v: number): void {
-    this.#view.setInt16(this.#fieldOffset(sid, offset), v, true)
-  }
-
-  #getI32(sid: SID, offset: number): number {
-    return this.#view.getInt32(this.#fieldOffset(sid, offset), true)
-  }
-  #setI32(sid: SID, offset: number, v: number): void {
-    this.#view.setInt32(this.#fieldOffset(sid, offset), v, true)
-  }
-
-  #getI8(sid: SID, offset: number): number {
-    return this.#view.getInt8(this.#fieldOffset(sid, offset))
-  }
-  #setI8(sid: SID, offset: number, v: number): void {
-    this.#view.setInt8(this.#fieldOffset(sid, offset), v)
-  }
-
-  #getRID(sid: SID, offset: number): MaybeRID {
-    return this.#getU32(sid, offset) as MaybeRID
-  }
-  #setRID(sid: SID, offset: number, v: MaybeRID): void {
-    this.#setU32(sid, offset, v)
-  }
-
-  #getSID(sid: SID, offset: number): MaybeSID {
-    return this.#getU32(sid, offset) as MaybeSID
-  }
-  #setSID(sid: SID, offset: number, v: MaybeSID): void {
-    this.#setU32(sid, offset, v)
-  }
-
-  #getU16(sid: SID, offset: number): number {
-    return this.#view.getUint16(this.#fieldOffset(sid, offset), true)
-  }
-  #setU16(sid: SID, offset: number, v: number): void {
-    this.#view.setUint16(this.#fieldOffset(sid, offset), v, true)
-  }
-
-  #getU32(sid: SID, offset: number): number {
-    return this.#view.getUint32(this.#fieldOffset(sid, offset), true)
-  }
-  #setU32(sid: SID, offset: number, v: number): void {
-    this.#view.setUint32(this.#fieldOffset(sid, offset), v, true)
-  }
-
-  #getU8(sid: SID, offset: number): number {
-    return this.#view.getUint8(this.#fieldOffset(sid, offset))
-  }
-  #setU8(sid: SID, offset: number, v: number): void {
-    this.#view.setUint8(this.#fieldOffset(sid, offset), v)
-  }
-
-  // ─── /#view accessors ───
 
   // ─── method factories ───
 
   #GetBool(prop: Readonly<StructPropLayout>): Getter<boolean> {
     const {offset, bit} = prop
-    return sid => {
-      const word = this.#getU32(sid, offset)
+    const struct = this
+    return function (this: Cursor) {
+      const word = struct.#view.getUint32(this.cursor + offset, true)
       return !!((word >>> bit) & 1)
     }
   }
   #SetBool(prop: Readonly<StructPropLayout>): Setter<boolean> {
     const {offset, bit} = prop
-    return (sid, v) => {
-      const word = this.#getU32(sid, offset)
+    const struct = this
+    return function (this: Cursor, v: boolean) {
+      const byteOffset = this.cursor + offset
+      const word = struct.#view.getUint32(byteOffset, true)
       const next = v ? word | (1 << bit) : word & ~(1 << bit)
-      this.#setU32(sid, offset, next)
+      struct.#view.setUint32(byteOffset, next, true)
     }
   }
 
   #GetByte(prop: Readonly<StructPropLayout>): Getter<number> {
     const {offset, signed, scale} = prop
+    const struct = this
     if (signed) {
-      if (scale === 1) return sid => this.#getI8(sid, offset)
-      return sid => this.#getI8(sid, offset) / scale
+      if (scale === 1)
+        return function (this: Cursor) {
+          return struct.#view.getInt8(this.cursor + offset)
+        }
+      return function (this: Cursor) {
+        return struct.#view.getInt8(this.cursor + offset) / scale
+      }
     }
-    if (scale === 1) return sid => this.#getU8(sid, offset)
-    return sid => this.#getU8(sid, offset) / scale
+    if (scale === 1)
+      return function (this: Cursor) {
+        return struct.#view.getUint8(this.cursor + offset)
+      }
+    return function (this: Cursor) {
+      return struct.#view.getUint8(this.cursor + offset) / scale
+    }
   }
   #SetByte(prop: Readonly<StructPropLayout>): Setter<number> {
     const {offset, signed, scale} = prop
+    const struct = this
     if (signed) {
-      if (scale === 1) return (sid, v) => this.#setI8(sid, offset, v)
-      return (sid, v) => this.#setI8(sid, offset, v * scale)
+      if (scale === 1)
+        return function (this: Cursor, v: number) {
+          struct.#view.setInt8(this.cursor + offset, v)
+        }
+      return function (this: Cursor, v: number) {
+        struct.#view.setInt8(this.cursor + offset, v * scale)
+      }
     }
-    if (scale === 1) return (sid, v) => this.#setU8(sid, offset, v)
-    return (sid, v) => this.#setU8(sid, offset, v * scale)
+    if (scale === 1)
+      return function (this: Cursor, v: number) {
+        struct.#view.setUint8(this.cursor + offset, v)
+      }
+    return function (this: Cursor, v: number) {
+      struct.#view.setUint8(this.cursor + offset, v * scale)
+    }
   }
 
   #GetFloat(prop: Readonly<StructPropLayout>): Getter<number> {
     const {offset, w} = prop
-    if (w === 16) return sid => this.#getF16(sid, offset)
-    if (w === 32) return sid => this.#getF32(sid, offset)
-    return sid => this.#getF64(sid, offset)
+    const struct = this
+    if (w === 16)
+      return function (this: Cursor) {
+        // @ts-expect-error to-do: add `ESNext.float16` to `lib`.
+        return struct.#view.getFloat16(this.cursor + offset, true)
+      }
+    if (w === 32)
+      return function (this: Cursor) {
+        return struct.#view.getFloat32(this.cursor + offset, true)
+      }
+    return function (this: Cursor) {
+      return struct.#view.getFloat64(this.cursor + offset, true)
+    }
   }
   #SetFloat(prop: Readonly<StructPropLayout>): Setter<number> {
     const {offset, w} = prop
-    if (w === 16) return (sid, v) => this.#setF16(sid, offset, v)
-    if (w === 32) return (sid, v) => this.#setF32(sid, offset, v)
-    return (sid, v) => this.#setF64(sid, offset, v)
+    const struct = this
+    if (w === 16)
+      return function (this: Cursor, v: number) {
+        // @ts-expect-error to-do: add `ESNext.float16` to `lib`.
+        struct.#view.setFloat16(this.cursor + offset, v, true)
+      }
+    if (w === 32)
+      return function (this: Cursor, v: number) {
+        struct.#view.setFloat32(this.cursor + offset, v, true)
+      }
+    return function (this: Cursor, v: number) {
+      struct.#view.setFloat64(this.cursor + offset, v, true)
+    }
   }
 
   #GetInt(prop: Readonly<StructPropLayout>): Getter<number> {
     const {offset, bit, w, signed, scale} = prop
+    const struct = this
 
     if (w === 32) {
       if (signed) {
-        if (scale === 1) return sid => this.#getI32(sid, offset)
-        return sid => this.#getI32(sid, offset) / scale
+        if (scale === 1)
+          return function (this: Cursor) {
+            return struct.#view.getInt32(this.cursor + offset, true)
+          }
+        return function (this: Cursor) {
+          return struct.#view.getInt32(this.cursor + offset, true) / scale
+        }
       }
-      if (scale === 1) return sid => this.#getU32(sid, offset)
-      return sid => this.#getU32(sid, offset) / scale
+      if (scale === 1)
+        return function (this: Cursor) {
+          return struct.#view.getUint32(this.cursor + offset, true)
+        }
+      return function (this: Cursor) {
+        return struct.#view.getUint32(this.cursor + offset, true) / scale
+      }
     }
 
     const lshift = 32 - w - bit
@@ -399,36 +316,47 @@ class StructImpl {
 
     if (signed) {
       if (scale === 1)
-        return sid => {
-          const word = this.#getU32(sid, offset)
+        return function (this: Cursor) {
+          const word = struct.#view.getUint32(this.cursor + offset, true)
           return (word << lshift) >> rshift
         }
-      return sid => {
-        const word = this.#getU32(sid, offset)
+      return function (this: Cursor) {
+        const word = struct.#view.getUint32(this.cursor + offset, true)
         return ((word << lshift) >> rshift) / scale
       }
     }
 
     if (scale === 1)
-      return sid => {
-        const word = this.#getU32(sid, offset)
+      return function (this: Cursor) {
+        const word = struct.#view.getUint32(this.cursor + offset, true)
         return (word << lshift) >>> rshift
       }
-    return sid => {
-      const word = this.#getU32(sid, offset)
+    return function (this: Cursor) {
+      const word = struct.#view.getUint32(this.cursor + offset, true)
       return ((word << lshift) >>> rshift) / scale
     }
   }
   #SetInt(prop: Readonly<StructPropLayout>): Setter<number> {
     const {offset, bit, w, signed, scale} = prop
+    const struct = this
 
     if (w === 32) {
       if (signed) {
-        if (scale === 1) return (sid, v) => this.#setI32(sid, offset, v)
-        return (sid, v) => this.#setI32(sid, offset, v * scale)
+        if (scale === 1)
+          return function (this: Cursor, v: number) {
+            struct.#view.setInt32(this.cursor + offset, v, true)
+          }
+        return function (this: Cursor, v: number) {
+          struct.#view.setInt32(this.cursor + offset, v * scale, true)
+        }
       }
-      if (scale === 1) return (sid, v) => this.#setU32(sid, offset, v)
-      return (sid, v) => this.#setU32(sid, offset, v * scale)
+      if (scale === 1)
+        return function (this: Cursor, v: number) {
+          struct.#view.setUint32(this.cursor + offset, v, true)
+        }
+      return function (this: Cursor, v: number) {
+        struct.#view.setUint32(this.cursor + offset, v * scale, true)
+      }
     }
 
     const mask = 0xffff_ffff >>> (32 - w)
@@ -436,95 +364,83 @@ class StructImpl {
 
     if (signed) {
       if (scale === 1)
-        return (sid, v) => {
-          const word = this.#getU32(sid, offset)
+        return function (this: Cursor, v: number) {
+          const byteOffset = this.cursor + offset
+          const word = struct.#view.getUint32(byteOffset, true)
           const cleared = word & ~((mask << bit) >>> 0)
           const bits = ((v << rshift) >> rshift) & mask
           const next = cleared | ((bits << bit) >>> 0)
-          this.#setU32(sid, offset, next >>> 0)
+          struct.#view.setUint32(byteOffset, next >>> 0, true)
         }
-      return (sid, v) => {
-        const word = this.#getU32(sid, offset)
+      return function (this: Cursor, v: number) {
+        const byteOffset = this.cursor + offset
+        const word = struct.#view.getUint32(byteOffset, true)
         const cleared = word & ~((mask << bit) >>> 0)
         const scaled = v * scale
         const bits = ((scaled << rshift) >> rshift) & mask
         const next = cleared | ((bits << bit) >>> 0)
-        this.#setU32(sid, offset, next >>> 0)
+        struct.#view.setUint32(byteOffset, next >>> 0, true)
       }
     }
 
     if (scale === 1)
-      return (sid, v) => {
-        const word = this.#getU32(sid, offset)
+      return function (this: Cursor, v: number) {
+        const byteOffset = this.cursor + offset
+        const word = struct.#view.getUint32(byteOffset, true)
         const cleared = word & ~((mask << bit) >>> 0)
         const next = cleared | (((v & mask) << bit) >>> 0)
-        this.#setU32(sid, offset, next >>> 0)
+        struct.#view.setUint32(byteOffset, next >>> 0, true)
       }
-    return (sid, v) => {
-      const word = this.#getU32(sid, offset)
+    return function (this: Cursor, v: number) {
+      const byteOffset = this.cursor + offset
+      const word = struct.#view.getUint32(byteOffset, true)
       const cleared = word & ~((mask << bit) >>> 0)
       const scaled = v * scale
       const next = cleared | (((scaled & mask) << bit) >>> 0)
-      this.#setU32(sid, offset, next >>> 0)
-    }
-  }
-
-  #GetRef(prop: Readonly<StructPropLayout>): Getter<Ref | undefined> {
-    const {offset} = prop
-    return sid => {
-      const rid = this.#getRID(sid, offset)
-      if (!rid) return
-      return this.#getRef(rid)
-    }
-  }
-  #SetRef(prop: Readonly<StructPropLayout>): Setter<Ref | undefined> {
-    const {offset} = prop
-    return (sid, v) => {
-      let rid = this.#getRID(sid, offset)
-
-      if (v === undefined) {
-        if (rid) {
-          this.#freeRef(rid)
-          this.#setRID(sid, offset, 0)
-        }
-        return
-      }
-
-      if (!rid) rid = this.#allocRef()
-      this.#setRef(rid, v)
-      this.#setRID(sid, offset, rid)
+      struct.#view.setUint32(byteOffset, next >>> 0, true)
     }
   }
 
   #GetShort(prop: Readonly<StructPropLayout>): Getter<number> {
     const {offset, signed, scale} = prop
+    const struct = this
     if (signed) {
-      if (scale === 1) return sid => this.#getI16(sid, offset)
-      return sid => this.#getI16(sid, offset) / scale
+      if (scale === 1)
+        return function (this: Cursor) {
+          return struct.#view.getInt16(this.cursor + offset, true)
+        }
+      return function (this: Cursor) {
+        return struct.#view.getInt16(this.cursor + offset, true) / scale
+      }
     }
-    if (scale === 1) return sid => this.#getU16(sid, offset)
-    return sid => this.#getU16(sid, offset) / scale
+    if (scale === 1)
+      return function (this: Cursor) {
+        return struct.#view.getUint16(this.cursor + offset, true)
+      }
+    return function (this: Cursor) {
+      return struct.#view.getUint16(this.cursor + offset, true) / scale
+    }
   }
   #SetShort(prop: Readonly<StructPropLayout>): Setter<number> {
     const {offset, signed, scale} = prop
+    const struct = this
     if (signed) {
-      if (scale === 1) return (sid, v) => this.#setI16(sid, offset, v)
-      return (sid, v) => this.#setI16(sid, offset, v * scale)
+      if (scale === 1)
+        return function (this: Cursor, v: number) {
+          struct.#view.setInt16(this.cursor + offset, v, true)
+        }
+      return function (this: Cursor, v: number) {
+        struct.#view.setInt16(this.cursor + offset, v * scale, true)
+      }
     }
-    if (scale === 1) return (sid, v) => this.#setU16(sid, offset, v)
-    return (sid, v) => this.#setU16(sid, offset, v * scale)
-  }
-
-  #GetSID(prop: Readonly<StructPropLayout>): Getter<MaybeSID> {
-    const {offset} = prop
-    return sid => this.#getSID(sid, offset)
-  }
-  #SetSID(prop: Readonly<StructPropLayout>): Setter<MaybeSID> {
-    const {offset} = prop
-    return (sid, v) => this.#setSID(sid, offset, v)
+    if (scale === 1)
+      return function (this: Cursor, v: number) {
+        struct.#view.setUint16(this.cursor + offset, v, true)
+      }
+    return function (this: Cursor, v: number) {
+      struct.#view.setUint16(this.cursor + offset, v * scale, true)
+    }
   }
 
   // ─── /method factories ───
 }
-
-export const Struct: StructCtor = StructImpl as StructCtor

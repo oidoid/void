@@ -7,20 +7,10 @@ describe('StructLayout()', () => {
   for (const {name, input, expected} of [
     {
       name: 'empty struct',
-      input: {SID: 'sid'} satisfies StructSchema,
+      input: {} satisfies StructSchema,
       expected: {
-        props: [
-          {
-            name: 'SID',
-            type: 'SID',
-            offset: 0,
-            bit: 0,
-            signed: false,
-            scale: 1,
-            w: 32
-          }
-        ],
-        size: 4
+        props: [],
+        size: 0
       } satisfies StructLayout
     },
     {
@@ -28,8 +18,7 @@ describe('StructLayout()', () => {
       input: {
         A: 'bool',
         B: 'bool',
-        C: 'bool',
-        SID: 'sid'
+        C: 'bool'
       } satisfies StructSchema,
       expected: {
         props: [
@@ -59,23 +48,14 @@ describe('StructLayout()', () => {
             signed: false,
             scale: 1,
             w: 1
-          },
-          {
-            name: 'SID',
-            type: 'SID',
-            offset: 4,
-            bit: 0,
-            signed: false,
-            scale: 1,
-            w: 32
           }
         ],
-        size: 8
+        size: 4
       } satisfies StructLayout
     },
     {
       name: 'does not straddle word boundary',
-      input: {A: 'u31', B: 'u2', SID: 'sid'} satisfies StructSchema,
+      input: {A: 'u31', B: 'u2'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -95,23 +75,14 @@ describe('StructLayout()', () => {
             signed: false,
             w: 2,
             scale: 1
-          },
-          {
-            name: 'SID',
-            type: 'SID',
-            offset: 8,
-            bit: 0,
-            signed: false,
-            scale: 1,
-            w: 32
           }
         ],
-        size: 12
+        size: 8
       } satisfies StructLayout
     },
     {
       name: 'allows exact end-of-word packing',
-      input: {A: 'u31', B: 'bool', SID: 'sid'} satisfies StructSchema,
+      input: {A: 'u31', B: 'bool'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -131,23 +102,14 @@ describe('StructLayout()', () => {
             signed: false,
             scale: 1,
             w: 1
-          },
-          {
-            name: 'SID',
-            type: 'SID',
-            offset: 4,
-            bit: 0,
-            signed: false,
-            scale: 1,
-            w: 32
           }
         ],
-        size: 8
+        size: 4
       } satisfies StructLayout
     },
     {
       name: 'u32 occupies a full word',
-      input: {A: 'u32', B: 'u1', SID: 'sid'} satisfies StructSchema,
+      input: {A: 'u32', B: 'u1'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -167,23 +129,14 @@ describe('StructLayout()', () => {
             signed: false,
             w: 1,
             scale: 1
-          },
-          {
-            name: 'SID',
-            type: 'SID',
-            offset: 8,
-            bit: 0,
-            signed: false,
-            scale: 1,
-            w: 32
           }
         ],
-        size: 12
+        size: 8
       } satisfies StructLayout
     },
     {
       name: 'F32 occupies a full word aligned to word boundaries',
-      input: {A: 'u1', B: 'f32', SID: 'sid'} satisfies StructSchema,
+      input: {A: 'u1', B: 'f32'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -203,23 +156,14 @@ describe('StructLayout()', () => {
             signed: false,
             scale: 1,
             w: 32
-          },
-          {
-            name: 'SID',
-            type: 'SID',
-            offset: 8,
-            bit: 0,
-            signed: false,
-            scale: 1,
-            w: 32
           }
         ],
-        size: 12
+        size: 8
       } satisfies StructLayout
     },
     {
       name: 'F16 is byte-aligned and can pack with another f16 within the same word',
-      input: {A: 'f16', B: 'f16', SID: 'sid'} satisfies StructSchema,
+      input: {A: 'f16', B: 'f16'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -239,23 +183,14 @@ describe('StructLayout()', () => {
             signed: false,
             scale: 1,
             w: 16
-          },
-          {
-            name: 'SID',
-            type: 'SID',
-            offset: 4,
-            bit: 0,
-            signed: false,
-            scale: 1,
-            w: 32
           }
         ],
-        size: 8
+        size: 4
       } satisfies StructLayout
     },
     {
       name: 'F16 follows byte alignment: after a U8 it starts at the next byte boundary',
-      input: {A: 'u8', B: 'f16', SID: 'sid'} satisfies StructSchema,
+      input: {A: 'u8', B: 'f16'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -275,23 +210,14 @@ describe('StructLayout()', () => {
             signed: false,
             scale: 1,
             w: 16
-          },
-          {
-            name: 'SID',
-            type: 'SID',
-            offset: 4,
-            bit: 0,
-            signed: false,
-            scale: 1,
-            w: 32
           }
         ],
-        size: 8
+        size: 4
       } satisfies StructLayout
     },
     {
       name: 'F16 rounds up to next byte after a Bool when it fits in the current word',
-      input: {A: 'bool', B: 'f16', SID: 'sid'} satisfies StructSchema,
+      input: {A: 'bool', B: 'f16'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -311,23 +237,14 @@ describe('StructLayout()', () => {
             signed: false,
             scale: 1,
             w: 16
-          },
-          {
-            name: 'SID',
-            type: 'SID',
-            offset: 4,
-            bit: 0,
-            signed: false,
-            scale: 1,
-            w: 32
           }
         ],
-        size: 8
+        size: 4
       } satisfies StructLayout
     },
     {
       name: 'F16 does not straddle word boundary',
-      input: {A: 'u24', B: 'f16', SID: 'sid'} satisfies StructSchema,
+      input: {A: 'u24', B: 'f16'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -347,23 +264,14 @@ describe('StructLayout()', () => {
             signed: false,
             scale: 1,
             w: 16
-          },
-          {
-            name: 'SID',
-            type: 'SID',
-            offset: 8,
-            bit: 0,
-            signed: false,
-            scale: 1,
-            w: 32
           }
         ],
-        size: 12
+        size: 8
       } satisfies StructLayout
     },
     {
       name: 'F64 aligns to word boundary and occupies 8 bytes',
-      input: {A: 'u1', B: 'f64', C: 'u1', SID: 'sid'} satisfies StructSchema,
+      input: {A: 'u1', B: 'f64', C: 'u1'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -392,59 +300,14 @@ describe('StructLayout()', () => {
             signed: false,
             w: 1,
             scale: 1
-          },
-          {
-            name: 'SID',
-            type: 'SID',
-            offset: 16,
-            bit: 0,
-            signed: false,
-            scale: 1,
-            w: 32
           }
         ],
-        size: 20
-      } satisfies StructLayout
-    },
-    {
-      name: 'strings and objects are 32b',
-      input: {S: 'str', O: 'obj', SID: 'sid'} satisfies StructSchema,
-      expected: {
-        props: [
-          {
-            name: 'S',
-            type: 'String',
-            offset: 0,
-            bit: 0,
-            signed: false,
-            scale: 1,
-            w: 32
-          },
-          {
-            name: 'O',
-            type: 'Object',
-            offset: 4,
-            bit: 0,
-            signed: false,
-            scale: 1,
-            w: 32
-          },
-          {
-            name: 'SID',
-            type: 'SID',
-            offset: 8,
-            bit: 0,
-            signed: false,
-            scale: 1,
-            w: 32
-          }
-        ],
-        size: 12
+        size: 16
       } satisfies StructLayout
     },
     {
       name: 'Byte and Short layouts on byte boundaries',
-      input: {A: 'u8', B: 'u16', C: 'u8', SID: 'sid'} satisfies StructSchema,
+      input: {A: 'u8', B: 'u16', C: 'u8'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -473,23 +336,14 @@ describe('StructLayout()', () => {
             signed: false,
             scale: 1,
             w: 8
-          },
-          {
-            name: 'SID',
-            type: 'SID',
-            offset: 4,
-            bit: 0,
-            signed: false,
-            scale: 1,
-            w: 32
           }
         ],
-        size: 8
+        size: 4
       } satisfies StructLayout
     },
     {
       name: 'Byte then Int: Int uses the containing word offset (0)',
-      input: {A: 'u8', B: 'u1', SID: 'sid'} satisfies StructSchema,
+      input: {A: 'u8', B: 'u1'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -509,23 +363,14 @@ describe('StructLayout()', () => {
             signed: false,
             scale: 1,
             w: 1
-          },
-          {
-            name: 'SID',
-            type: 'SID',
-            offset: 4,
-            bit: 0,
-            signed: false,
-            scale: 1,
-            w: 32
           }
         ],
-        size: 8
+        size: 4
       } satisfies StructLayout
     },
     {
       name: 'Byte then Short: Short can start at byte offset 1',
-      input: {A: 'u8', B: 'u16', SID: 'sid'} satisfies StructSchema,
+      input: {A: 'u8', B: 'u16'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -545,26 +390,16 @@ describe('StructLayout()', () => {
             signed: false,
             scale: 1,
             w: 16
-          },
-          {
-            name: 'SID',
-            type: 'SID',
-            offset: 4,
-            bit: 0,
-            signed: false,
-            scale: 1,
-            w: 32
           }
         ],
-        size: 8
+        size: 4
       } satisfies StructLayout
     },
     {
       name: '32 bools fill the word exactly; the next bool starts next word',
-      input: {
-        ...Object.fromEntries([...Array(33)].map((_, i) => [`B${i}`, 'bool'])),
-        SID: 'sid' as const
-      },
+      input: Object.fromEntries(
+        [...Array(33)].map((_, i) => [`B${i}`, 'bool'])
+      ) as StructSchema,
       expected: {
         props: [
           ...[...Array(32)].map(
@@ -587,18 +422,9 @@ describe('StructLayout()', () => {
             signed: false,
             scale: 1,
             w: 1
-          },
-          {
-            name: 'SID',
-            type: 'SID',
-            offset: 8,
-            bit: 0,
-            signed: false,
-            scale: 1,
-            w: 32
           }
         ],
-        size: 12
+        size: 8
       } satisfies StructLayout
     },
     {
@@ -606,8 +432,7 @@ describe('StructLayout()', () => {
       input: {
         A: 'i8/2',
         B: 'u8/3',
-        C: 'u16/10',
-        SID: 'sid'
+        C: 'u16/10'
       } satisfies StructSchema,
       expected: {
         props: [
@@ -637,23 +462,14 @@ describe('StructLayout()', () => {
             signed: false,
             scale: 10,
             w: 16
-          },
-          {
-            name: 'SID',
-            type: 'SID',
-            offset: 4,
-            bit: 0,
-            signed: false,
-            scale: 1,
-            w: 32
           }
         ],
-        size: 8
+        size: 4
       } satisfies StructLayout
     },
     {
       name: 'mixed packing and size rounding',
-      input: {A: 'u31', B: 'u1', C: 'f32', SID: 'sid'} satisfies StructSchema,
+      input: {A: 'u31', B: 'u1', C: 'f32'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -682,23 +498,14 @@ describe('StructLayout()', () => {
             signed: false,
             scale: 1,
             w: 32
-          },
-          {
-            name: 'SID',
-            type: 'SID',
-            offset: 8,
-            bit: 0,
-            signed: false,
-            scale: 1,
-            w: 32
           }
         ],
-        size: 12
+        size: 8
       } satisfies StructLayout
     },
     {
       name: 'mixed packing and size rounding (F16)',
-      input: {A: 'u31', B: 'u1', C: 'f16', SID: 'sid'} satisfies StructSchema,
+      input: {A: 'u31', B: 'u1', C: 'f16'} satisfies StructSchema,
       expected: {
         props: [
           {
@@ -727,18 +534,9 @@ describe('StructLayout()', () => {
             signed: false,
             scale: 1,
             w: 16
-          },
-          {
-            name: 'SID',
-            type: 'SID',
-            offset: 8,
-            bit: 0,
-            signed: false,
-            scale: 1,
-            w: 32
           }
         ],
-        size: 12
+        size: 8
       } satisfies StructLayout
     }
   ] as const)
@@ -762,8 +560,7 @@ describe('StructLayout()', () => {
         // 4b unused
         Anim: 'u11',
         Cel: 'u5',
-        Angle: 'u12',
-        SID: 'sid'
+        Angle: 'u12'
         // 4b unused.
       }),
       {
@@ -884,18 +681,9 @@ describe('StructLayout()', () => {
             signed: false,
             w: 12,
             scale: 1
-          },
-          {
-            name: 'SID',
-            type: 'SID',
-            offset: 16,
-            bit: 0,
-            signed: false,
-            scale: 1,
-            w: 32
           }
         ],
-        size: 20
+        size: 16
       }
     )
   })
@@ -1058,30 +846,6 @@ describe('StructPropLayout()', () => {
     })
   })
 
-  test('string is 32-bit ref', () => {
-    assert(StructPropLayout('x', 'str', 0, 0), {
-      name: 'x',
-      type: 'String',
-      offset: 0,
-      bit: 0,
-      signed: false,
-      scale: 1,
-      w: 32
-    })
-  })
-
-  test('object is 32-bit ref', () => {
-    assert(StructPropLayout('x', 'obj', 0, 0), {
-      name: 'x',
-      type: 'Object',
-      offset: 0,
-      bit: 0,
-      signed: false,
-      scale: 1,
-      w: 32
-    })
-  })
-
   for (const {name, input, expected} of [
     {
       name: 'bool',
@@ -1159,32 +923,6 @@ describe('StructPropLayout()', () => {
         signed: true,
         scale: 10,
         w: 16
-      }
-    },
-    {
-      name: 'object',
-      input: 'obj',
-      expected: {
-        name: 'x',
-        type: 'Object',
-        offset: 0,
-        bit: 0,
-        signed: false,
-        scale: 1,
-        w: 32
-      }
-    },
-    {
-      name: 'string',
-      input: 'str',
-      expected: {
-        name: 'x',
-        type: 'String',
-        offset: 0,
-        bit: 0,
-        signed: false,
-        scale: 1,
-        w: 32
       }
     },
     {
