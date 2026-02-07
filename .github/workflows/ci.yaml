@@ -31,6 +31,8 @@ jobs:
         run: npx tsc --build
       - name: Unit Test
         run: npm run test:unit
+      - name: Perf Test
+        run: npm run test:perf
       - name: Upload schema/
         uses: actions/upload-pages-artifact@v4.0.0
         with:
