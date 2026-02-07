@@ -1,6 +1,6 @@
 # void
 
-basic 2D game library with good typing that loads fast.
+void is a simple 2D game engine with good typing that loads fast. it's designed to avoid rendering and updating for low energy applications.
 
 ## Installation
 
@@ -57,13 +57,21 @@ it's similar to modifying `HTMLElementTagNameMap`.
 
 ### Ents
 
-ents are plain, nonnullish, key-value data. hooks are callbacks that are passed ents matching their query. queries are props required. ents aren't usually classes since method would still need to ask for foreign component dependencies.
+ents are plain, nonnullish, key-value data that describe game entities.
+
+`Ent` is a superset of all possible key-values. use declaration merging to type. all other ents are subsets. eg, `CursorEnt` is `{cursor: Cursor, sprite: Sprite}`.
+
+`SpriteEnt` is kind of a base game object that is drawable, describes bounds, and provides collision detection. if the ent should have no visual representation, leave the sprite as hidden.
+
+the special `Ent.invalid` field flags whether the screen should be redrawn (which is high energy). redrawing is necessary for animations but often not for static apps.
+
+#### Hooks
+
+hooks are classes that process ents and usually pair to a specific ent. they're passed ents matching their query. eg, `CursorHook` requires at least the `CursorEnt` subset.
 
 #### Queries
 
 queries declare props required on an ent by a hook.
-
-sprite is a kind of common denominator for position and area. if the ent should have no visual representation, leave the sprite as hidden.
 
 #### Order
 
