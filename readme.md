@@ -6,7 +6,8 @@ void is a simple 2D engine for games and toy applications featuring:
 - fast loading.
 - few dependencies.
 - selective redraw for low energy idle.
-- compilation to self-contained single-file HTML distributables that run without a server or load in one request.
+- compilation to a single standalone HTML file.
+- text, nine-patch, and button primitives for basic UI.
 - DOM compatibility.
 
 ## Installation
