@@ -1,6 +1,13 @@
 # void
 
-void is a simple 2D game engine. it has good typing, loads fast, few dependencies, and supports optional rendering for low energy applications.
+void is a simple 2D engine for games and toy applications featuring:
+- good typing.
+- easy scripting in little code.
+- fast loading.
+- few dependencies.
+- selective redraw for low energy idle.
+- compilation to self-contained single-file HTML distributables that run without a server or load in one request.
+- DOM compatibility.
 
 ## Installation
 
@@ -57,13 +64,15 @@ it's similar to modifying `HTMLElementTagNameMap`.
 
 ### Ents
 
+populating the world usually requires defining a new ent (data type), a hook (behavior on data), a schema (level data format), and a parser (schema to ent transform). hooks are executed on ent lists ("zoos") in level loaders.
+
 ents are plain, nonnullish, key-value data that describe game entities.
 
 `Ent` is a superset of all possible key-values. use declaration merging to type. all other ents are subsets. eg, `CursorEnt` is `{cursor: Cursor, sprite: Sprite}`.
 
 `SpriteEnt` is kind of a base game object that is drawable, describes bounds, and provides collision detection. if the ent should have no visual representation, leave the sprite as hidden.
 
-the special `Ent.invalid` field flags whether the screen should be redrawn (which is high energy). redrawing is necessary for animations but often not for static apps.
+the special `Ent.invalid` field flags whether the screen should be redrawn (which is high energy) and possibly when the hook should update. redrawing is necessary for animations but often not for static apps.
 
 #### Hooks
 
