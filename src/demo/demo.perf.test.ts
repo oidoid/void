@@ -35,7 +35,7 @@ const loops: number = Number(argv?.opts['--loops'] || 1_000)
 const cellSize: number = Number(argv?.opts['--cell-size'] || 96)
 const worldSize: number = Number(argv?.opts['--world-size'] || 32_768)
 const entSize: number = Number(argv?.opts['--ent-size'] || 96)
-const entCount: number = Number(argv?.opts['--ent-count'] || 10_000)
+const entCount: number = Number(argv?.opts['--ent-count'] || 20_000)
 
 const testTag: Tag = 'superball--Default'
 
