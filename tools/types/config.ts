@@ -60,11 +60,11 @@ export async function readConfig(args: readonly string[]): Promise<Config> {
 
   let hash = '0000000'
   try {
-    hash = (await exec('git', 'rev-parse', '--short', 'HEAD')).trim()
+    hash = (await exec`git rev-parse --short HEAD`).trim()
   } catch {}
 
   const packageJSON: PackageJSON = JSON.parse(
-    (await exec('npm', 'pkg', 'get', 'version', 'published')) || '{}'
+    (await exec`npm pkg get version published`) || '{}'
   )
   const tsconfigFilename = path.resolve(
     configFile.dirname,

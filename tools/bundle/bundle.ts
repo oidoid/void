@@ -93,7 +93,7 @@ async function writeVoidConfig(
   }
   await fs.promises.writeFile(config.out.game, JSON.stringify(gameConfig))
   try {
-    await exec('biome', 'check', '--fix', config.out.game)
+    await exec`biome check --fix ${config.out.game}`
   } catch {}
 }
 
@@ -108,6 +108,6 @@ async function writeTagSchema(
   }
   await fs.promises.writeFile(config.out.tagSchema, JSON.stringify(schema))
   try {
-    await exec('biome', 'check', '--fix', config.out.tagSchema)
+    await exec`biome check --fix ${config.out.tagSchema}`
   } catch {}
 }

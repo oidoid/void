@@ -13,33 +13,33 @@ export async function packAtlas(
 
   const webp = config.image.endsWith('.webp')
   const sheet = webp ? config.image.replace('.webp', '.png') : config.image
-  const json = await exec(
-    'aseprite',
-    '--batch',
-    '--color-mode=indexed',
-    '--filename-format={title}--{tag}--{frame}',
-    '--list-slices',
-    '--list-tags',
-    '--merge-duplicates',
-    `--sheet=${sheet}`,
-    '--sheet-pack',
-    '--tagname-format={title}--{tag}',
-    ...filenames
-  )
+  const json = await exec`
+    aseprite
+    --batch
+    --color-mode=indexed
+    --filename-format={title}--{tag}--{frame}
+    --list-slices
+    --list-tags
+    --merge-duplicates
+    --sheet=${sheet}
+    --sheet-pack
+    --tagname-format={title}--{tag}
+    ${filenames.join(' ')}
+  `
 
   if (webp)
-    await exec(
-      'cwebp',
-      '-exact',
-      '-lossless',
-      '-mt',
-      '-quiet',
-      '-z',
-      '9',
-      sheet,
-      '-o',
-      config.image
-    )
+    await exec`
+      cwebp
+      -exact
+      -lossless
+      -mt
+      -quiet
+      -z
+      9
+      ${sheet}
+      -o
+      ${config.image}
+    `
 
   return parseAtlasJSON(JSON.parse(json))
 }
