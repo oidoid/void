@@ -16,9 +16,9 @@ sudo apt install \
   libxcb1 \
   libxcursor1 \
   libxext6 \
-  libxrandr2 \
+  libxrandr2
 
-# `xvfb-run`.
+# `xvfb-run`. start as `xvfb-run npm start`.
 sudo apt install --no-install-recommends --yes xauth xvfb
 
 npm install
