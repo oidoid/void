@@ -15,7 +15,8 @@ describe('Config()', () => {
       name: undefined,
       tagSchema: '/project/tagSchema'
     },
-    atlas: {dir: '/project/dir', image: '/project/image'},
+    atlas: {dir: '/project/atlas/dir', image: '/project/atlas'},
+    tileset: {dir: '/project/tileset/dir', image: '/project/tileset'},
     input: 'Default',
     mode: 'Int',
     dirname: '/project',

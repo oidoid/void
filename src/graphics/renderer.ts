@@ -8,9 +8,17 @@ import {type GL2, Shader} from './gl.ts'
 import {type Sprite, spriteBytes} from './sprite.ts'
 import {spriteFragGLSL} from './sprite-frag.glsl.ts'
 import {spriteVertGLSL} from './sprite-vert.glsl.ts'
+import {tileFragGLSL} from './tile-frag.glsl.ts'
+import {tileVertGLSL} from './tile-vert.glsl.ts'
+import type {LevelTiles, Tileset} from './tileset.ts'
 
 /** @internal */
-export type Context = {gl: GL2; spriteShader: Shader; viewport: WH}
+export type Context = {
+  gl: GL2
+  spriteShader: Shader
+  tileShader: Shader
+  viewport: WH
+}
 
 const uv: Readonly<Int8Array> = new Int8Array([1, 1, 0, 1, 1, 0, 0, 0])
 
@@ -27,7 +35,10 @@ export class Renderer {
   #depth: boolean = true
   #ctx: Context | undefined
   #invalid: boolean = false
+  #levelTiles: Readonly<LevelTiles> | undefined
   readonly #looper: {readonly age: Millis}
+  #tilesetImage: Readonly<HTMLImageElement> | undefined
+  #tileset: Readonly<Tileset> | undefined
 
   constructor(
     atlas: Readonly<Atlas>,
@@ -55,9 +66,16 @@ export class Renderer {
     this.clears++
   }
 
-  draw(pool: Readonly<Pool<Sprite>>): void {
+  drawSprites(pool: Readonly<Pool<Sprite>>): void {
     if (!this.#atlasImage || !this.#ctx) return
     const {gl, spriteShader} = this.#ctx
+
+    gl.useProgram(spriteShader.program)
+
+    for (const [i, tex] of spriteShader.textures.entries()) {
+      gl.activeTexture(gl.TEXTURE0 + i)
+      gl.bindTexture(gl.TEXTURE_2D, tex)
+    }
 
     gl.bindBuffer(gl.ARRAY_BUFFER, spriteShader.buffer)
     gl.bufferData(
@@ -87,6 +105,58 @@ export class Renderer {
     this.#invalid = false
   }
 
+  drawTiles(cam: Readonly<Cam>): void {
+    if (!this.#tilesetImage || !this.#levelTiles || !this.#ctx) return
+    const {gl, tileShader} = this.#ctx
+
+    gl.useProgram(tileShader.program)
+
+    gl.uniform4i(
+      tileShader.uniform.uCam!,
+      Math.floor(cam.x),
+      Math.floor(cam.y),
+      cam.w,
+      cam.h
+    )
+    gl.uniform2i(
+      tileShader.uniform.uTileWH!,
+      this.#tileset?.tileWH.w ?? 0,
+      this.#tileset?.tileWH.h ?? 0
+    )
+    gl.uniform2i(
+      tileShader.uniform.uLevelWH!,
+      this.#levelTiles.w,
+      this.#levelTiles.h
+    )
+    gl.uniform2i(
+      tileShader.uniform.uLevelXY!,
+      this.#levelTiles.x,
+      this.#levelTiles.y
+    )
+    gl.uniform2i(
+      tileShader.uniform.uTilesetWH!,
+      this.#tilesetImage.naturalWidth,
+      this.#tilesetImage.naturalHeight
+    )
+
+    for (const [i, tex] of tileShader.textures.entries()) {
+      gl.activeTexture(gl.TEXTURE0 + i)
+      gl.bindTexture(gl.TEXTURE_2D, tex)
+    }
+
+    gl.bindVertexArray(tileShader.vao)
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, uv.length / 2)
+    gl.bindVertexArray(null)
+
+    if (debug?.render) {
+      const err = gl.getError()
+      if (err !== gl.NO_ERROR)
+        console.error(`[render] GL error x${err.toString(16)}`)
+    }
+
+    this.#invalid = false
+  }
+
   get hasContext(): boolean {
     return this.#ctx != null
   }
@@ -98,9 +168,17 @@ export class Renderer {
     return this.#invalid || this.always
   }
 
-  load(atlas: Readonly<HTMLImageElement> | undefined): void {
+  loadAtlas(atlas: Readonly<HTMLImageElement> | undefined): void {
     this.#atlasImage = atlas
     this.#ctx = this._Context()
+  }
+
+  loadTileset(tileset: Readonly<HTMLImageElement> | undefined): void {
+    this.#tilesetImage = tileset
+    if (this.#ctx) this.#uploadTiles(this.#ctx.gl, this.#ctx.tileShader)
+    if (!this.#invalid && debug?.invalid)
+      console.debug('[invalid] renderer invalid')
+    this.#invalid = true
   }
 
   predraw(cam: Readonly<Cam>): void {
@@ -146,6 +224,18 @@ export class Renderer {
     else this.#ctx.gl.disable(this.#ctx.gl.DEPTH_TEST)
   }
 
+  setTiles(
+    tileset: Readonly<Tileset>,
+    tiles: Readonly<LevelTiles> | undefined
+  ): void {
+    this.#tileset = tileset
+    this.#levelTiles = tiles
+    if (this.#ctx) this.#uploadTiles(this.#ctx.gl, this.#ctx.tileShader)
+    if (!this.#invalid && debug?.invalid)
+      console.debug('[invalid] renderer invalid')
+    this.#invalid = true
+  }
+
   [Symbol.dispose](): void {
     this.register('remove')
   }
@@ -155,7 +245,12 @@ export class Renderer {
     const gl = this.#ctx?.gl ?? GL2(this.#canvas, this.always)
     if (!gl) return
 
-    const shader = Shader(gl, spriteVertGLSL, spriteFragGLSL, [
+    const spriteShader = Shader(gl, spriteVertGLSL, spriteFragGLSL, [
+      gl.createTexture(),
+      gl.createTexture()
+    ])
+
+    const tileShader = Shader(gl, tileVertGLSL, tileFragGLSL, [
       gl.createTexture(),
       gl.createTexture()
     ])
@@ -179,7 +274,7 @@ export class Renderer {
     // disable image colorspace conversions. the default is browser dependent.
     gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, false)
 
-    gl.bindVertexArray(shader.vao)
+    gl.bindVertexArray(spriteShader.vao)
 
     gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer())
     gl.bufferData(gl.ARRAY_BUFFER, uv, gl.STATIC_DRAW)
@@ -187,7 +282,7 @@ export class Renderer {
     gl.vertexAttribIPointer(0, 2, gl.BYTE, 0, 0)
     gl.bindBuffer(gl.ARRAY_BUFFER, null)
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, shader.buffer)
+    gl.bindBuffer(gl.ARRAY_BUFFER, spriteShader.buffer)
     gl.enableVertexAttribArray(1)
     gl.vertexAttribIPointer(1, 1, gl.UNSIGNED_INT, spriteBytes, 0)
     gl.vertexAttribDivisor(1, 1)
@@ -202,7 +297,7 @@ export class Renderer {
     gl.vertexAttribDivisor(4, 1)
     gl.bindBuffer(gl.ARRAY_BUFFER, null)
 
-    gl.bindTexture(gl.TEXTURE_2D, shader.textures[0]!)
+    gl.bindTexture(gl.TEXTURE_2D, spriteShader.textures[0]!)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
     if (this.#atlasImage)
@@ -216,7 +311,7 @@ export class Renderer {
       )
     gl.bindTexture(gl.TEXTURE_2D, null)
 
-    gl.bindTexture(gl.TEXTURE_2D, shader.textures[1]!)
+    gl.bindTexture(gl.TEXTURE_2D, spriteShader.textures[1]!)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
     gl.texImage2D(
@@ -234,21 +329,95 @@ export class Renderer {
 
     gl.bindVertexArray(null)
 
-    gl.uniform1i(shader.uniform.uTex!, 0)
-    gl.uniform1i(shader.uniform.uCels!, 1)
+    gl.useProgram(spriteShader.program)
+    gl.uniform1i(spriteShader.uniform.uTex!, 0)
+    gl.uniform1i(spriteShader.uniform.uCels!, 1)
     if (this.#atlasImage)
       gl.uniform2ui(
-        shader.uniform.uTexWH!,
+        spriteShader.uniform.uTexWH!,
         this.#atlasImage.naturalWidth,
         this.#atlasImage.naturalHeight
       )
+
+    gl.bindVertexArray(tileShader.vao)
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer())
+    gl.bufferData(gl.ARRAY_BUFFER, uv, gl.STATIC_DRAW)
+    gl.enableVertexAttribArray(0)
+    gl.vertexAttribIPointer(0, 2, gl.BYTE, 0, 0)
+    gl.bindBuffer(gl.ARRAY_BUFFER, null)
+    gl.bindVertexArray(null)
+
+    this.#uploadTiles(gl, tileShader)
 
     if (!this.#invalid && debug?.invalid)
       console.debug('[invalid] renderer invalid')
     this.#invalid = true
     // keep outside of #context so it can be restored.
     this.loseContext = gl.getExtension('WEBGL_lose_context') ?? undefined
-    return (this.#ctx = {gl, spriteShader: shader, viewport: {w: 0, h: 0}})
+    return (this.#ctx = {
+      gl,
+      spriteShader,
+      tileShader,
+      viewport: {w: 0, h: 0}
+    })
+  }
+
+  #uploadTiles(gl: GL2, shader: Shader): void {
+    gl.useProgram(shader.program)
+
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1)
+
+    const tileW = this.#tileset?.tileWH.w || 1
+    const tileH = this.#tileset?.tileWH.h || 1
+
+    gl.bindTexture(gl.TEXTURE_2D, shader.textures[0]!)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.R16UI,
+      (this.#levelTiles?.w ?? 0) / tileW,
+      (this.#levelTiles?.h ?? 0) / tileH,
+      0,
+      gl.RED_INTEGER,
+      gl.UNSIGNED_SHORT,
+      new Uint16Array(this.#levelTiles?.tiles ?? [])
+    )
+    gl.bindTexture(gl.TEXTURE_2D, null)
+
+    gl.bindTexture(gl.TEXTURE_2D, shader.textures[1]!)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+    if (this.#tilesetImage)
+      gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.RGBA,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        this.#tilesetImage
+      )
+    else
+      gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.RGBA,
+        1,
+        1,
+        0,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        new Uint8Array([0, 0, 0, 0])
+      )
+    gl.bindTexture(gl.TEXTURE_2D, null)
+
+    gl.uniform1i(shader.uniform.uTileset!, 0)
+    gl.uniform1i(shader.uniform.uTileTex!, 1)
   }
 
   #onContextLost = (ev: Event): void => {

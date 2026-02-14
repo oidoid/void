@@ -1,6 +1,4 @@
 import type * as V from '../../index.ts'
-// biome-ignore lint/correctness/useJsonImportAttributes:;
-import type gameJSON from '../assets/void.game.json'
 import type {
   Clock,
   RenderToggle,
@@ -17,6 +15,8 @@ import type {
   SuperballSchema,
   TallySchema
 } from '../level/level-schema.ts'
+// biome-ignore lint/correctness/useJsonImportAttributes:;
+import type tags from '../level/tags.json'
 
 declare module '../../index.ts' {
   interface Debug {
@@ -48,6 +48,11 @@ declare module '../../index.ts' {
 
   interface ReturnTag {
     // biome-ignore lint/style/useShorthandFunctionType:;
-    (): keyof typeof gameJSON.atlas.anim
+    (): keyof typeof tags.tags
+  }
+
+  interface ReturnTile {
+    // biome-ignore lint/style/useShorthandFunctionType:;
+    (): keyof typeof tags.tiles
   }
 }

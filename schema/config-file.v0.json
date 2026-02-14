@@ -7,7 +7,7 @@
   "$defs": {
     "Atlas": {
       "type": "object",
-      "description": "sprite sheet config.",
+      "description": "spritesheet config.",
       "required": ["dir", "image"],
       "properties": {
         "dir": {
@@ -17,8 +17,25 @@
         },
         "image": {
           "type": "string",
-          "description": "sprite sheet image output.",
+          "description": "spritesheet image output.",
           "examples": ["dist/public/atlas.webp", "atlas.png"]
+        }
+      }
+    },
+    "Tileset": {
+      "type": "object",
+      "description": "tileset config.",
+      "required": ["dir", "image"],
+      "properties": {
+        "dir": {
+          "type": "string",
+          "description": "Aseprite tileset root directory. all `**.aseprite` files are input.",
+          "examples": ["src/assets/tileset/", "./"]
+        },
+        "image": {
+          "type": "string",
+          "description": "tileset image output.",
+          "examples": ["dist/public/tileset.webp", "tileset.png"]
         }
       }
     }
@@ -70,6 +87,7 @@
       }
     },
     "atlas": {"$ref": "#/$defs/Atlas", "unevaluatedProperties": false},
+    "tileset": {"$ref": "#/$defs/Tileset", "unevaluatedProperties": false},
     "input": {
       "description": "button mapping. defaults to init all default buttons, custom to leave all unmapped.",
       "enum": ["Default", "Unmapped"],

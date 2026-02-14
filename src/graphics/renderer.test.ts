@@ -12,7 +12,7 @@ test('renderer', async ctx => {
   )
 
   await ctx.test('context after loading', () => {
-    renderer.load({} as HTMLImageElement)
+    renderer.loadAtlas({} as HTMLImageElement)
     assert(renderer.hasContext, true)
   })
 

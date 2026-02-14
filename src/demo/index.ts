@@ -9,6 +9,7 @@ console.debug(
 
 const v = new V.Void({
   atlas: document.querySelector<HTMLImageElement>('#atlas'),
+  tileset: document.querySelector<HTMLImageElement>('#tileset'),
   config: config as V.VoidConfig,
   description,
   loader: new Loader()

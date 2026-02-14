@@ -1,14 +1,28 @@
 import path from 'node:path'
 import type * as V from '../../src/index.ts'
-import type {AtlasConfig} from '../types/config-file.ts'
+import type {SheetConfig} from '../types/config-file.ts'
 import {exec} from '../utils/exec.ts'
 import {globAll} from '../utils/file-util.ts'
 import {parseAtlasJSON} from './atlas-json-parser.ts'
+import {parseTileset} from './tileset-parser.ts'
+
+export async function packAtlas(
+  config: Readonly<SheetConfig>
+): Promise<V.AtlasJSON> {
+  const json = await packSheet(config)
+  return parseAtlasJSON(JSON.parse(json))
+}
+
+export async function packTileset(
+  config: Readonly<SheetConfig>
+): Promise<V.Tileset> {
+  const json = await packSheet(config)
+  // to-do: Aseprite tileset support.
+  return parseTileset(JSON.parse(json))
+}
 
 // to-do: separate executable?
-export async function packAtlas(
-  config: Readonly<AtlasConfig>
-): Promise<V.AtlasJSON> {
+async function packSheet(config: Readonly<SheetConfig>): Promise<string> {
   const filenames = await globAll(path.join(config.dir, '**.aseprite'))
 
   const webp = config.image.endsWith('.webp')
@@ -41,5 +55,5 @@ export async function packAtlas(
       ${config.image}
     `
 
-  return parseAtlasJSON(JSON.parse(json))
+  return json
 }

@@ -60,6 +60,7 @@ to avoid threading template parameters throughout all code, declaration merging 
 - `Loader`
 - `PoolMap`
 - `ReturnTag`
+- `ReturnTile`
 
 it's similar to modifying `HTMLElementTagNameMap`.
 

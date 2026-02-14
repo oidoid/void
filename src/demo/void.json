@@ -11,5 +11,9 @@
   "atlas": {
     "dir": "assets/atlas/",
     "image": "../../dist/public/atlas.webp"
+  },
+  "tileset": {
+    "dir": "assets/tileset/",
+    "image": "../../dist/public/tileset.webp"
   }
 }

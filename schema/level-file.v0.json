@@ -78,14 +78,14 @@
           "unevaluatedProperties": false
         },
         "pick": {
-          "$ref": "tags.json",
+          "$ref": "tags.json#/$defs/Tag",
           "description": "tag for click state. defaults to point tag."
         }
       }
     },
     "SpritePropsOrTag": {
       "oneOf": [
-        {"$ref": "tags.json"},
+        {"$ref": "tags.json#/$defs/Tag"},
         {"$ref": "#/$defs/SpriteProps", "unevaluatedProperties": false}
       ]
     },
@@ -117,7 +117,7 @@
         },
         "sprite": {
           "oneOf": [
-            {"$ref": "tags.json"},
+            {"$ref": "tags.json#/$defs/Tag"},
             {"$ref": "#/$defs/Sprite", "unevaluatedProperties": false}
           ]
         },
@@ -319,7 +319,7 @@
           "type": "boolean",
           "description": "wrap texture (default) or stretch to width and height."
         },
-        "tag": {"$ref": "tags.json"},
+        "tag": {"$ref": "tags.json#/$defs/Tag"},
         "z": {"$ref": "#/$defs/Layer", "unevaluatedProperties": false},
         "zend": {
           "type": "boolean",

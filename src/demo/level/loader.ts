@@ -65,6 +65,28 @@ export class Loader implements V.Loader {
 
     this.#zoo = v.loadLevel(levelJSON, 'default', parseComponent)
     this.cursor = V.zooFindByID(this.#zoo.default, 'cursor')
+    const tileset = Tileset()
+    v.renderer.setTiles(tileset, LevelTiles(tileset.tileWH))
     this.#lvl = 'Init'
   }
+}
+
+function Tileset(): V.Tileset {
+  const tileWH: V.WH = {w: 16, h: 16}
+  return {tileWH, tiles: ['void--Nil', 'tile--GreyDots', 'tile--BlueDots']}
+}
+
+function LevelTiles(tileWH: V.WH): V.LevelTiles {
+  const wh = {w: 16 * tileWH.w, h: 16 * tileWH.h}
+  const tw = wh.w / tileWH.w
+  const th = wh.h / tileWH.h
+  const tiles = []
+  for (let y = 0; y < th; y++)
+    for (let x = 0; x < tw; x++) {
+      const i = y * tw + x
+      const border = !x || !y || x === tw - 1 || y === th - 1
+      tiles[i] = border ? 1 : (x + y) % 2 === 0 ? 2 : 0
+    }
+
+  return {x: -tileWH.w * 1.5, y: -tileWH.h * 1.5, w: wh.w, h: wh.h, tiles}
 }

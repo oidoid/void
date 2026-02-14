@@ -3,14 +3,15 @@ import path from 'node:path'
 import schema from '../../schema/config-file.v0.json' with {type: 'json'}
 import type * as V from '../../src/index.ts'
 
-export type AtlasConfig = {dir: string; image: string}
+export type SheetConfig = {dir: string; image: string}
 
 export type VoidConfigFile = {
   $schema: string
   entry: string
   meta: string | undefined
   out: {dir: string; game: string; name: string | undefined; tagSchema: string}
-  atlas: AtlasConfig
+  atlas: SheetConfig
+  tileset: SheetConfig | undefined
   input: V.InputMode
   mode: V.RenderMode
 
@@ -25,7 +26,8 @@ export type VoidConfigFileSchema = {
   entry?: string
   meta?: string
   out: {dir?: string; game: string; name?: string; tagSchema: string}
-  atlas: AtlasConfig
+  atlas: SheetConfig
+  tileset?: SheetConfig
   input?: V.InputMode
   mode?: V.RenderMode
 }
@@ -70,6 +72,12 @@ export function parse(filename: string, str: string): VoidConfigFile {
       dir: path.resolve(dirname, json.atlas.dir),
       image: path.resolve(dirname, json.atlas.image)
     },
+    tileset: json.tileset
+      ? {
+          dir: path.resolve(dirname, json.tileset.dir),
+          image: path.resolve(dirname, json.tileset.image)
+        }
+      : undefined,
     input: json.input ?? 'Default',
     mode: json.mode ?? 'Int',
 

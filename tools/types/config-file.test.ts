@@ -27,6 +27,7 @@ test('defaults', () => {
       dir: path.resolve('dirname', 'dir'),
       image: path.resolve('dirname', 'image')
     },
+    tileset: undefined,
     input: 'Default',
     mode: 'Int',
 
@@ -41,7 +42,8 @@ test('overrides', () => {
     entry: 'entry',
     meta: 'meta',
     out: {dir: 'outDir', game: 'game', name: 'name', tagSchema: 'tagSchema'},
-    atlas: {dir: 'dir/', image: 'image.webp'},
+    atlas: {dir: 'dir/', image: 'atlas.webp'},
+    tileset: {dir: 'dir/', image: 'tileset.webp'},
     input: 'Custom',
     mode: 'Float'
   }
@@ -57,7 +59,11 @@ test('overrides', () => {
     },
     atlas: {
       dir: path.resolve('dirname', 'dir/'),
-      image: path.resolve('dirname', 'image.webp')
+      image: path.resolve('dirname', 'atlas.webp')
+    },
+    tileset: {
+      dir: path.resolve('dirname', 'dir/'),
+      image: path.resolve('dirname', 'tileset.webp')
     },
     input: 'Custom',
     mode: 'Float',

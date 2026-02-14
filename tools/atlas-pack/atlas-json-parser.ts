@@ -9,7 +9,7 @@ export function parseAtlasJSON(json: Readonly<ase.Aseprite>): V.AtlasJSON {
   for (const span of json.meta.frameTags) {
     const tag = parseTag(span.name)
     if (anim[tag]) throw Error(`atlas tag "${tag}" duplicate`)
-    const id = Object.keys(anim).length
+    const id = Object.keys(anim).length // to-do: ID 0 means discard.
     anim[tag] = parseAnim(id, span, json.frames, json.meta.slices)
     for (const cel of parseAnimFrames(span, json.frames).map(parseCel))
       cels.push(cel.x, cel.y)

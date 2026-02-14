@@ -1,7 +1,4 @@
 export const spriteFragGLSL: string = `#version 300 es
-#pragma debug(${debug?.render ? 'on' : 'off'})
-#pragma optimize(${debug?.render ? 'off' : 'on'})
-
 precision highp int;
 precision highp float;
 precision highp usampler2D;
@@ -64,5 +61,3 @@ void main() {
   if(oRGBA.a < .001) discard;
 }
 `
-
-import {debug} from '../utils/debug.ts'

@@ -4,8 +4,8 @@ import type * as V from '../../src/index.ts'
 import {Argv} from '../utils/argv.ts'
 import {exec} from '../utils/exec.ts'
 import {
-  type AtlasConfig,
   parseConfigFile,
+  type SheetConfig,
   type VoidConfigFile
 } from './config-file.ts'
 import type {PackageJSON} from './package-json.ts'
@@ -15,7 +15,8 @@ export type Config = {
   entry: string
   meta: string | undefined
   out: {dir: string; game: string; filename: string; tagSchema: string}
-  atlas: AtlasConfig
+  atlas: SheetConfig
+  tileset: SheetConfig | undefined
   input: V.InputMode
   mode: V.RenderMode
 
@@ -108,6 +109,7 @@ export function Config(
       tagSchema: configFile.out.tagSchema
     },
     atlas: configFile.atlas,
+    tileset: configFile.tileset,
     input: configFile.input,
     mode: configFile.mode,
     dirname: configFile.dirname,

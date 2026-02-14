@@ -7,9 +7,11 @@ export class DrawHook implements V.Hook {
     if (!v.invalid) return
     v.renderer.clear(v.backgroundRGBA)
     v.renderer.predraw(v.cam)
-    v.renderer.setDepth(true)
-    v.renderer.draw(v.pool.default)
     v.renderer.setDepth(false)
-    v.renderer.draw(v.pool.overlay)
+    v.renderer.drawTiles(v.cam)
+    v.renderer.setDepth(true)
+    v.renderer.drawSprites(v.pool.default)
+    v.renderer.setDepth(false)
+    v.renderer.drawSprites(v.pool.overlay)
   }
 }

@@ -32,6 +32,7 @@ export type VoidOpts = {
   loader: Loader
   random?: Random
   sprites?: Partial<Omit<PoolOpts<Sprite>, 'alloc' | 'allocBytes'>>
+  tileset?: HTMLImageElement | null
 }
 
 export class Void {
@@ -47,6 +48,7 @@ export class Void {
   /** delta since frame request. */
   readonly tick: {ms: Millis; s: Secs} = {ms: 0, s: 0}
   readonly #atlasImage: HTMLImageElement
+  readonly #tilesetImage: HTMLImageElement | undefined
   #backgroundRGBA: number
   #invalid: boolean = false
   readonly #pixelRatioObserver: PixelRatioObserver = new PixelRatioObserver()
@@ -77,6 +79,7 @@ export class Void {
 
     if (!opts.atlas) throw Error('no atlas image')
     this.#atlasImage = opts.atlas
+    this.#tilesetImage = opts.tileset ?? undefined
 
     this.atlas = {
       default: opts.config.atlas
@@ -190,7 +193,11 @@ export class Void {
     this.#poller?.register(op)
 
     await loadImage(this.#atlasImage)
-    this.renderer.load(this.#atlasImage)
+    this.renderer.loadAtlas(this.#atlasImage)
+    if (this.#tilesetImage) {
+      await loadImage(this.#tilesetImage)
+      this.renderer.loadTileset(this.#tilesetImage)
+    }
     this.#registered = op === 'add'
   }
 

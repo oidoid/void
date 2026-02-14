@@ -1,7 +1,4 @@
 export const spriteVertGLSL: string = `#version 300 es
-#pragma debug(${debug?.render ? 'on' : 'off'})
-#pragma optimize(${debug?.render ? 'off' : 'on'})
-
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#essl300_minimum_requirements_webgl_2
 precision highp int;
 precision highp float;
@@ -99,6 +96,5 @@ void main() {
 }
 `
 
-import {debug} from '../utils/debug.ts'
 import {animCels, celMillis} from './atlas.ts'
 import {Layer} from './layer.ts'

@@ -1,5 +1,6 @@
 import type {Anim} from '../graphics/atlas.ts'
 import type {RenderMode} from '../graphics/render-mode.ts'
+import type {Tileset} from '../graphics/tileset.ts'
 import type {InputMode} from '../input/input.ts'
 
 export type AtlasJSON = {
@@ -16,4 +17,5 @@ export type VoidConfig = {
   atlas: AtlasJSON
   input: InputMode
   mode: RenderMode
+  tileset?: Tileset
 }
