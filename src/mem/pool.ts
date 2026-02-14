@@ -69,9 +69,10 @@ export class Pool<out T extends Block> {
     const start = this.#size * this.#opts.allocBytes
     this.#u8.copyWithin(block.i, start, start + this.#opts.allocBytes)
     this.#blocks[this.#size]!.i = block.i
-    ;[this.#blocks[block.i], this.#blocks[this.#size]] = [
+    const i = block.i / this.#opts.allocBytes
+    ;[this.#blocks[i], this.#blocks[this.#size]] = [
       this.#blocks[this.#size]!,
-      this.#blocks[block.i]!
+      this.#blocks[i]!
     ]
 
     const free = Math.floor(
