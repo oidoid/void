@@ -5,6 +5,7 @@ import {Cam} from './graphics/cam.ts'
 import {PixelRatioObserver} from './graphics/pixel-ratio-observer.ts'
 import {Renderer} from './graphics/renderer.ts'
 import type {Sprite} from './graphics/sprite.ts'
+import type {Tileset} from './graphics/tileset.ts'
 import {Input} from './input/input.ts'
 import {type ComponentHook, parseLevel} from './level/level-parser.ts'
 import type {LevelSchema} from './level/level-schema.ts'
@@ -45,6 +46,7 @@ export class Void {
   readonly pool: PoolMap
   readonly random: Random
   readonly renderer: Renderer
+  readonly tileset: Tileset | undefined
   /** delta since frame request. */
   readonly tick: {ms: Millis; s: Secs} = {ms: 0, s: 0}
   readonly #atlasImage: HTMLImageElement
@@ -88,6 +90,8 @@ export class Void {
     }
 
     this.renderer = new Renderer(this.atlas.default, this.canvas, this.looper)
+
+    this.tileset = opts.config.tileset
 
     this.pool = {
       default: SpritePool({
@@ -142,6 +146,13 @@ export class Void {
     if (lvl.minScale != null) this.cam.minScale = lvl.minScale
     if (lvl.minWH != null) this.cam.minWH = lvl.minWH
     if (lvl.zoomOut != null) this.cam.zoomOut = lvl.zoomOut
+    if (lvl.tiles != null && this.tileset)
+      if (lvl.tiles != null && this.tileset) {
+        const w = Math.ceil(lvl.tiles.w / this.tileset.tileWH.w)
+        const h = Math.ceil(lvl.tiles.h / this.tileset.tileWH.h)
+        if (lvl.tiles.tiles.length !== w * h) throw Error(`tiles not ${w}×${h}`)
+        this.renderer.setTiles(this.tileset, lvl.tiles)
+      }
     return lvl.zoo
   }
 

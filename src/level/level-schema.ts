@@ -44,8 +44,13 @@ export type LayerSchema = keyof typeof Layer
 export type LevelSchema = {
   $schema?: string
   background?: string
+  h: number
   minScale?: number
   minWH?: UnboundedWHSchema
+  tiles?: number[]
+  w: number
+  x?: number
+  y?: number
   zoo: {default: EntSchema[]; [list: string]: EntSchema[]}
   zoomOut?: number
 }

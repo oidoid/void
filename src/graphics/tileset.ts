@@ -15,7 +15,10 @@ export type LevelTiles = {
   w: number
   /** level height in pixels. usually a multiple of `Tileset.tileWH.h`. */
   h: number
-  // tile IDs by XY. length must be `ceil(w / Tileset.tileWH.w) * ceil(h / Tileset.tileWH.h)`.
+  /**
+   * tile IDs in row-major order. length must be
+   * `ceil(w / Tileset.tileWH.w) * ceil(h / Tileset.tileWH.h)`.
+   */
   tiles: number[]
 }
 

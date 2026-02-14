@@ -297,6 +297,8 @@ test('parseLevel() aggregates ents and defaults', () => {
           {id: 'b', text: 'hello'}
         ]
       },
+      w: 0,
+      h: 0,
       minWH: {w: 3}
     },
     pools,
@@ -305,23 +307,43 @@ test('parseLevel() aggregates ents and defaults', () => {
   )
   assert(lvl.zoo.default.size, 2)
   assert(lvl.minWH, {w: 3, h: 0})
+  assert(lvl.tiles, undefined)
   const ents = [...lvl.zoo.default]
   assert(ents[0]?.sprite?.tag, 'stem--A')
   assert(ents[1]?.text, 'hello')
 
   const emptyLvl = parseLevel(
-    {zoo: {default: []}},
+    {zoo: {default: []}, w: 0, h: 0},
     pools,
     () => undefined,
     atlas
   )
   assert(emptyLvl, {
     background: undefined,
+    tiles: undefined,
     minScale: undefined,
     minWH: undefined,
     zoo: {default: new Set<Ent>()},
     zoomOut: undefined
   })
+})
+
+test('parseLevel() with level tiles', () => {
+  const pools = TestPools()
+  const lvl = parseLevel(
+    {
+      zoo: {default: []},
+      x: 5,
+      y: 10,
+      w: 32,
+      h: 32,
+      tiles: [0, 1, 2, 3]
+    },
+    pools,
+    () => undefined,
+    atlas
+  )
+  assert(lvl.tiles, {x: 5, y: 10, w: 32, h: 32, tiles: [0, 1, 2, 3]})
 })
 
 test('parseNinePatch()', () => {

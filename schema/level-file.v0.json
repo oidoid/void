@@ -377,8 +377,8 @@
       "type": "object",
       "description": "area. sprite dimensions have an integral range of [0, 4095].",
       "properties": {
-        "w": {"type": "number", "description": "width."},
-        "h": {"type": "number", "description": "height."}
+        "w": {"type": "integer", "description": "width.", "minimum": 0},
+        "h": {"type": "integer", "description": "height.", "minimum": 0}
       }
     },
     "XY": {
@@ -395,7 +395,7 @@
     }
   },
   "unevaluatedProperties": false,
-  "required": ["zoo"],
+  "required": ["h", "w", "zoo"],
   "properties": {
     "$schema": {
       "type": "string",
@@ -407,6 +407,11 @@
       "description": "render clear color.",
       "unevaluatedProperties": false
     },
+    "h": {
+      "type": "integer",
+      "description": "level height in pixels.",
+      "minimum": 0
+    },
     "minScale": {
       "type": "number",
       "description": "min cam scale.",
@@ -414,12 +419,30 @@
     },
     "minWH": {
       "$ref": "#/$defs/WH",
-      "description": "min cam dimensions. infinity always uses min scale. defaults to infinity.",
+      "description": "min cam dimensions. infinity always uses min scale. defaults to infinity. //to-do:minCamWH",
       "unevaluatedProperties": false,
       "properties": {
         "w": {"$ref": "#/$defs/UnboundedUInt", "unevaluatedProperties": false},
         "h": {"$ref": "#/$defs/UnboundedUInt", "unevaluatedProperties": false}
       }
+    },
+    "tiles": {
+      "type": "array",
+      "description": "tile IDs in row-major order.",
+      "items": {"type": "integer", "minimum": 0, "maximum": 65535}
+    },
+    "w": {
+      "type": "integer",
+      "description": "level width in pixels.",
+      "minimum": 0
+    },
+    "x": {
+      "type": "integer",
+      "description": "level x origin."
+    },
+    "y": {
+      "type": "integer",
+      "description": "level y origin."
     },
     "zoo": {
       "type": "object",

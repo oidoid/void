@@ -53,6 +53,15 @@ export function parseLevel(
     zoo[list] = new Set(ents.map(ent => parseEnt(ent, pools, hook, atlas)))
   return {
     background: json.background ? parseInt(json.background, 16) : undefined,
+    tiles: json.tiles
+      ? {
+          x: json.x ?? 0,
+          y: json.y ?? 0,
+          w: json.w,
+          h: json.h,
+          tiles: json.tiles
+        }
+      : undefined,
     minScale: json.minScale,
     minWH: json.minWH ? parseWH(json.minWH) : undefined,
     zoo,
