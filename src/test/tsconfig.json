@@ -2,13 +2,7 @@
 {
   "extends": "@oidoid/config/tsconfig",
   "compilerOptions": {
-    "lib": [
-      "DOM",
-      "DOM.AsyncIterable",
-      "DOM.Iterable",
-      "ES2023",
-      "ESNext.disposable"
-    ],
+    "lib": ["DOM", "ES2023", "ESNext.disposable"],
 
     "types": ["node"],
 
