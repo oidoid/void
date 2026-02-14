@@ -156,8 +156,8 @@ export class Cam {
   }
 
   set minScale(scale: number) {
-    if (this.#scale === scale) return
-    this.#scale = scale
+    if (this.#minScale === scale) return
+    this.#minScale = scale
     this.#invalidateWH()
   }
 
