@@ -1,4 +1,4 @@
-import type {WH} from '../types/geo.ts'
+import type {WH, XY} from '../types/geo.ts'
 
 export type Tileset = {
   /** tile by ID. 0 is always `void--Nil`. */
@@ -30,4 +30,25 @@ export interface ReturnTile {
   (): `${string}--${string}`
 }
 
-// to-do: tile util.
+export function tileAt(
+  tileset: Readonly<Tileset>,
+  lvl: Readonly<LevelTiles>,
+  xy: Readonly<XY>
+): Tile | undefined {
+  const id = tileIDAt(lvl, xy, tileset.tileWH)
+  if (id == null) return
+  return tileset.tiles[id]
+}
+
+export function tileIDAt(
+  lvl: Readonly<LevelTiles>,
+  xy: Readonly<XY>,
+  tileWH: Readonly<WH>
+): number | undefined {
+  const col = Math.floor((xy.x - lvl.x) / tileWH.w)
+  const row = Math.floor((xy.y - lvl.y) / tileWH.h)
+  const cols = Math.ceil(lvl.w / tileWH.w)
+  const rows = Math.ceil(lvl.h / tileWH.h)
+  if (col < 0 || col >= cols || row < 0 || row >= rows) return
+  return lvl.tiles[row * cols + col]
+}
