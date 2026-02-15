@@ -124,6 +124,11 @@ export class Void {
     this.#backgroundRGBA = rgba
   }
 
+  clearPoller(): void {
+    this.#poller?.register('remove')
+    this.#poller = undefined
+  }
+
   configCam(config: Readonly<CamConfig>): void {
     if (config.minScale != null) this.cam.minScale = config.minScale
     if (config.minWH) this.cam.minWH = config.minWH
@@ -189,15 +194,6 @@ export class Void {
     this.requestFrame('Force') // force cam reeval.
   }
 
-  // to-do: clear.
-  setPoller(period: Millis, delay?: () => Millis): void {
-    if (this.#poller) this.#poller.register('remove')
-    this.#poller = new DelayInterval(delay ?? (() => 0), period, () =>
-      this.onPoll()
-    )
-    if (this.#registered) this.#poller.register('add')
-  }
-
   async register(op: 'add' | 'remove'): Promise<void> {
     this.input.register(op)
     this.renderer.register(op)
@@ -221,6 +217,14 @@ export class Void {
   requestFrame(force?: 'Force'): void {
     if (force || this.renderer.always || this.input.anyOn || this.input.gamepad)
       this.looper.requestFrame()
+  }
+
+  setPoller(period: Millis, delay?: () => Millis): void {
+    this.#poller?.register('remove')
+    this.#poller = new DelayInterval(delay ?? (() => 0), period, () =>
+      this.onPoll()
+    )
+    if (this.#registered) this.#poller.register('add')
   }
 
   async [Symbol.asyncDispose](): Promise<void> {
