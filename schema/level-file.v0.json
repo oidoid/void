@@ -60,10 +60,39 @@
         "z": {"$ref": "#/$defs/Layer", "unevaluatedProperties": false}
       }
     },
-    "Cam": {
+    "CamConfig": {
       "type": "object",
-      "description": "cam config."
+      "description": "cam config.",
+      "allOf": [{"$ref": "#/$defs/XY"}],
+      "properties": {
+        "minScale": {
+          "type": "number",
+          "description": "min cam scale.",
+          "minimum": 1
+        },
+        "minWH": {
+          "$ref": "#/$defs/WH",
+          "description": "min cam dimensions. infinity always uses min scale. defaults to infinity.",
+          "unevaluatedProperties": false,
+          "properties": {
+            "w": {
+              "$ref": "#/$defs/UnboundedUInt",
+              "unevaluatedProperties": false
+            },
+            "h": {
+              "$ref": "#/$defs/UnboundedUInt",
+              "unevaluatedProperties": false
+            }
+          }
+        },
+        "zoomOut": {
+          "type": "number",
+          "description": "cam zoom offset.",
+          "minimum": 0
+        }
+      }
     },
+    "CamData": {"type": "object", "description": "cam data config."},
     "CompassDir": {
       "description": "cardinal and ordinal directions and center.",
       "enum": ["Center", "N", "S", "W", "E", "NW", "NE", "SW", "SE"]
@@ -96,7 +125,7 @@
       "description": "ent config.",
       "properties": {
         "button": {"$ref": "#/$defs/Button", "unevaluatedProperties": false},
-        "cam": {"$ref": "#/$defs/Cam", "unevaluatedProperties": false},
+        "cam": {"$ref": "#/$defs/CamData", "unevaluatedProperties": false},
         "cursor": {"$ref": "#/$defs/Cursor", "unevaluatedProperties": false},
         "debugInput": {
           "$ref": "#/$defs/DebugInput",
@@ -407,24 +436,15 @@
       "description": "render clear color.",
       "unevaluatedProperties": false
     },
+    "cam": {
+      "$ref": "#/$defs/CamConfig",
+      "description": "cam config.",
+      "unevaluatedProperties": false
+    },
     "h": {
       "type": "integer",
       "description": "level height in pixels.",
       "minimum": 0
-    },
-    "minScale": {
-      "type": "number",
-      "description": "min cam scale.",
-      "minimum": 1
-    },
-    "minWH": {
-      "$ref": "#/$defs/WH",
-      "description": "min cam dimensions. infinity always uses min scale. defaults to infinity. //to-do:minCamWH",
-      "unevaluatedProperties": false,
-      "properties": {
-        "w": {"$ref": "#/$defs/UnboundedUInt", "unevaluatedProperties": false},
-        "h": {"$ref": "#/$defs/UnboundedUInt", "unevaluatedProperties": false}
-      }
     },
     "tiles": {
       "type": "array",
@@ -455,11 +475,6 @@
       "patternProperties": {
         ".+": {"$ref": "#/$defs/EntList", "unevaluatedProperties": false}
       }
-    },
-    "zoomOut": {
-      "type": "number",
-      "description": "cam zoom offset.",
-      "minimum": 0
     }
   }
 }

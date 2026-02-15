@@ -7,6 +7,7 @@ import {Renderer} from './graphics/renderer.ts'
 import type {Sprite} from './graphics/sprite.ts'
 import type {Tileset} from './graphics/tileset.ts'
 import {Input} from './input/input.ts'
+import type {CamConfig} from './level/level.ts'
 import {type ComponentHook, parseLevel} from './level/level-parser.ts'
 import type {LevelSchema} from './level/level-schema.ts'
 import type {Loader} from './level/loader.ts'
@@ -123,6 +124,14 @@ export class Void {
     this.#backgroundRGBA = rgba
   }
 
+  configCam(config: Readonly<CamConfig>): void {
+    if (config.minScale != null) this.cam.minScale = config.minScale
+    if (config.minWH) this.cam.minWH = config.minWH
+    if (config.x != null) this.cam.x = config.x
+    if (config.y != null) this.cam.y = config.y
+    if (config.zoomOut != null) this.cam.zoomOut = config.zoomOut
+  }
+
   /**
    * invalid state only impacts drawing in the current frame not requesting a
    * new frame.
@@ -143,16 +152,13 @@ export class Void {
   ): Zoo {
     const lvl = parseLevel(json, this.pool, hook, this.atlas[atlas])
     if (lvl.background != null) this.backgroundRGBA = lvl.background
-    if (lvl.minScale != null) this.cam.minScale = lvl.minScale
-    if (lvl.minWH != null) this.cam.minWH = lvl.minWH
-    if (lvl.zoomOut != null) this.cam.zoomOut = lvl.zoomOut
-    if (lvl.tiles != null && this.tileset)
-      if (lvl.tiles != null && this.tileset) {
-        const w = Math.ceil(lvl.tiles.w / this.tileset.tileWH.w)
-        const h = Math.ceil(lvl.tiles.h / this.tileset.tileWH.h)
-        if (lvl.tiles.tiles.length !== w * h) throw Error(`tiles not ${w}×${h}`)
-        this.renderer.setTiles(this.tileset, lvl.tiles)
-      }
+    if (lvl.cam) this.configCam(lvl.cam)
+    if (lvl.tiles != null && this.tileset) {
+      const w = Math.ceil(lvl.tiles.w / this.tileset.tileWH.w)
+      const h = Math.ceil(lvl.tiles.h / this.tileset.tileWH.h)
+      if (lvl.tiles.tiles.length !== w * h) throw Error(`tiles not ${w}×${h}`)
+      this.renderer.setTiles(this.tileset, lvl.tiles)
+    }
     return lvl.zoo
   }
 

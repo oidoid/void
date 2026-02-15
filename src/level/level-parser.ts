@@ -1,5 +1,6 @@
 import type {
   Button,
+  CamData,
   Cursor,
   Ent,
   FPS,
@@ -11,16 +12,18 @@ import type {
 } from '../ents/ent.ts'
 import type {Zoo} from '../ents/zoo.ts'
 import type {Atlas, Tag} from '../graphics/atlas.ts'
+
 import {Layer} from '../graphics/layer.ts'
 import {type Sprite, spriteMaxWH} from '../graphics/sprite.ts'
 import type {PoolMap} from '../mem/pool-map.ts'
 import type {Border, WH, XY} from '../types/geo.ts'
 import {isRecord} from '../utils/obj-util.ts'
 import {uncapitalize} from '../utils/str-util.ts'
-import type {Level} from './level.ts'
+import type {CamConfig, Level} from './level.ts'
 import type {
   BorderSchema,
   ButtonSchema,
+  CamConfigSchema,
   CursorSchema,
   EntSchema,
   FPSSchema,
@@ -53,20 +56,26 @@ export function parseLevel(
     zoo[list] = new Set(ents.map(ent => parseEnt(ent, pools, hook, atlas)))
   return {
     background: json.background ? parseInt(json.background, 16) : undefined,
+    cam: json.cam ? parseCamConfig(json.cam) : undefined,
     tiles: json.tiles
-      ? {
-          x: json.x ?? 0,
-          y: json.y ?? 0,
-          w: json.w,
-          h: json.h,
-          tiles: json.tiles
-        }
+      ? {...parseXY(json), ...parseWH(json), tiles: json.tiles}
       : undefined,
+    zoo
+  }
+}
+
+export function parseCamConfig(json: Readonly<CamConfigSchema>): CamConfig {
+  return {
     minScale: json.minScale,
     minWH: json.minWH ? parseWH(json.minWH) : undefined,
-    zoo,
+    x: json.x,
+    y: json.y,
     zoomOut: json.zoomOut
   }
+}
+
+export function parseCamData(): CamData {
+  return {}
 }
 
 export function parseBorder(json: Readonly<BorderSchema> | undefined): Border {
@@ -143,6 +152,7 @@ export function parseEntComponent(
     case 'hud':
       return parseHUD(json[k]) satisfies Ent[typeof k]
     case 'cam':
+      return parseCamData() satisfies Ent[typeof k]
     case 'draw':
     case 'debugInput':
     case 'id':

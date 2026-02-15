@@ -48,8 +48,10 @@ to avoid threading template parameters throughout all code, declaration merging 
 
 - `AnimData`
 - `AtlasMap`
-- `CamSchema`
-- `CamUpdater`
+- `CamConfig`
+- `CamConfigSchema`
+- `CamData`
+- `CamDataSchema`
 - `Debug`
 - `Draw`
 - `DrawSchema`

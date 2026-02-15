@@ -5,13 +5,39 @@ import type {TextLayout} from '../text/text-layout.ts'
 import type {Border, Box, CompassDir, XY} from '../types/geo.ts'
 import type {Millis} from '../types/time.ts'
 
+export type Button = {
+  started: boolean
+  // to-do: naming?
+  pressed: Sprite
+  selected: Sprite
+  type: ButtonType
+}
+
+export type ButtonType = 'Button' | 'Toggle'
+
+// biome-ignore lint/suspicious/noEmptyInterface:;
+export interface CamData {}
+
+export type Cursor = {
+  /** screen area cursor may move within. */
+  bounds: Box
+  keyboard: number
+  pick?: Tag
+  point: Tag
+}
+
+// biome-ignore lint/suspicious/noEmptyInterface:;
+export interface Draw {}
+
+export type DebugInput = object
+
 /**
  * it doesn't really make sense for ents to be classes because their shared
  * independent component bags still need to be passed in.
  */
 export interface Ent {
   button?: Button
-  cam?: CamUpdater
+  cam?: CamData
   cursor?: Cursor
   draw?: Draw
   debugInput?: DebugInput
@@ -33,32 +59,6 @@ export interface Ent {
   textWH?: TextWH
   textXY?: TextXY
 }
-
-export type Button = {
-  started: boolean
-  // to-do: naming?
-  pressed: Sprite
-  selected: Sprite
-  type: ButtonType
-}
-
-export type ButtonType = 'Button' | 'Toggle'
-
-// biome-ignore lint/suspicious/noEmptyInterface:;
-export interface CamUpdater {}
-
-export type Cursor = {
-  /** screen area cursor may move within. */
-  bounds: Box
-  keyboard: number
-  pick?: Tag
-  point: Tag
-}
-
-// biome-ignore lint/suspicious/noEmptyInterface:;
-export interface Draw {}
-
-export type DebugInput = object
 
 export type FPS = {
   prevFrames: number

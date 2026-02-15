@@ -10,15 +10,22 @@ export type ButtonSchema = {
   type?: ButtonType
   z?: LayerSchema
 }
+export interface CamConfigSchema {
+  minScale?: number
+  minWH?: UnboundedWHSchema
+  x?: number
+  y?: number
+  zoomOut?: number
+}
 // biome-ignore lint/suspicious/noEmptyInterface:;
-export interface CamSchema {}
+export interface CamDataSchema {}
 export type CursorSchema = {keyboard?: number; pick?: Tag}
 export type DebugInputSchema = object
 // biome-ignore lint/suspicious/noEmptyInterface:;
 export interface DrawSchema {}
 export interface EntSchema {
   button?: ButtonSchema
-  cam?: CamSchema
+  cam?: CamDataSchema
   cursor?: CursorSchema
   debugInput?: DebugInputSchema
   draw?: DrawSchema
@@ -44,15 +51,13 @@ export type LayerSchema = keyof typeof Layer
 export type LevelSchema = {
   $schema?: string
   background?: string
+  cam?: CamConfigSchema
   h: number
-  minScale?: number
-  minWH?: UnboundedWHSchema
   tiles?: number[]
   w: number
   x?: number
   y?: number
   zoo: {default: EntSchema[]; [list: string]: EntSchema[]}
-  zoomOut?: number
 }
 export type NinePatchSchema = {
   border?: BorderSchema
