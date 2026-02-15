@@ -48,15 +48,18 @@ export type HUDSchema = {
   origin: CompassDir
 }
 export type LayerSchema = keyof typeof Layer
-export type LevelSchema = {
-  $schema?: string
-  background?: string
-  cam?: CamConfigSchema
+export type LevelConfigSchema = {
   h: number
   tiles?: number[]
   w: number
   x?: number
   y?: number
+}
+export type LevelSchema = {
+  $schema?: string
+  background?: string
+  cam?: CamConfigSchema
+  level?: LevelConfigSchema
   zoo: {default: EntSchema[]; [list: string]: EntSchema[]}
 }
 export type NinePatchSchema = {

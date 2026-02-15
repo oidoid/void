@@ -57,25 +57,15 @@ export function parseLevel(
   return {
     background: json.background ? parseInt(json.background, 16) : undefined,
     cam: json.cam ? parseCamConfig(json.cam) : undefined,
-    tiles: json.tiles
-      ? {...parseXY(json), ...parseWH(json), tiles: json.tiles}
+    tiles: json.level
+      ? {
+          ...parseXY(json.level),
+          ...parseWH(json.level),
+          tiles: json.level.tiles ?? []
+        }
       : undefined,
     zoo
   }
-}
-
-export function parseCamConfig(json: Readonly<CamConfigSchema>): CamConfig {
-  return {
-    minScale: json.minScale,
-    minWH: json.minWH ? parseWH(json.minWH) : undefined,
-    x: json.x,
-    y: json.y,
-    zoomOut: json.zoomOut
-  }
-}
-
-export function parseCamData(): CamData {
-  return {}
 }
 
 export function parseBorder(json: Readonly<BorderSchema> | undefined): Border {
@@ -104,6 +94,20 @@ export function parseButton(
   const selected = parseSprite(json.selected, pools, atlas)
   if (json.z) selected.z = Layer[json.z]
   return {pressed, selected, started: false, type: json.type ?? 'Button'}
+}
+
+export function parseCamData(): CamData {
+  return {}
+}
+
+export function parseCamConfig(json: Readonly<CamConfigSchema>): CamConfig {
+  return {
+    minScale: json.minScale,
+    minWH: json.minWH ? parseWH(json.minWH) : undefined,
+    x: json.x,
+    y: json.y,
+    zoomOut: json.zoomOut
+  }
 }
 
 export function parseCursor(ent: Ent, json: Readonly<CursorSchema>): Cursor {

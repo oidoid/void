@@ -220,6 +220,36 @@
         "Top"
       ]
     },
+    "LevelConfig": {
+      "type": "object",
+      "description": "level config.",
+      "required": ["h", "w"],
+      "properties": {
+        "h": {
+          "type": "integer",
+          "description": "level height in pixels.",
+          "minimum": 0
+        },
+        "tiles": {
+          "type": "array",
+          "description": "tile IDs in row-major order.",
+          "items": {"type": "integer", "minimum": 0, "maximum": 65535}
+        },
+        "w": {
+          "type": "integer",
+          "description": "level width in pixels.",
+          "minimum": 0
+        },
+        "x": {
+          "type": "integer",
+          "description": "level x origin."
+        },
+        "y": {
+          "type": "integer",
+          "description": "level y origin."
+        }
+      }
+    },
     "NinePatch": {
       "type": "object",
       "description": "nine patch config.",
@@ -424,7 +454,7 @@
     }
   },
   "unevaluatedProperties": false,
-  "required": ["h", "w", "zoo"],
+  "required": ["zoo"],
   "properties": {
     "$schema": {
       "type": "string",
@@ -441,29 +471,7 @@
       "description": "cam config.",
       "unevaluatedProperties": false
     },
-    "h": {
-      "type": "integer",
-      "description": "level height in pixels.",
-      "minimum": 0
-    },
-    "tiles": {
-      "type": "array",
-      "description": "tile IDs in row-major order.",
-      "items": {"type": "integer", "minimum": 0, "maximum": 65535}
-    },
-    "w": {
-      "type": "integer",
-      "description": "level width in pixels.",
-      "minimum": 0
-    },
-    "x": {
-      "type": "integer",
-      "description": "level x origin."
-    },
-    "y": {
-      "type": "integer",
-      "description": "level y origin."
-    },
+    "level": {"$ref": "#/$defs/LevelConfig", "unevaluatedProperties": false},
     "zoo": {
       "type": "object",
       "description": "zoo config.",

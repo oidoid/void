@@ -298,9 +298,7 @@ test('parseLevel() aggregates ents and defaults', () => {
           {id: 'b', text: 'hello'},
           {cam: {}}
         ]
-      },
-      w: 0,
-      h: 0
+      }
     },
     pools,
     () => undefined,
@@ -320,7 +318,7 @@ test('parseLevel() aggregates ents and defaults', () => {
   assert(lvl.tiles, undefined)
 
   const emptyLvl = parseLevel(
-    {zoo: {default: []}, w: 0, h: 0},
+    {zoo: {default: []}},
     pools,
     () => undefined,
     atlas
@@ -338,11 +336,7 @@ test('parseLevel() with level tiles', () => {
   const lvl = parseLevel(
     {
       zoo: {default: []},
-      x: 5,
-      y: 10,
-      w: 32,
-      h: 32,
-      tiles: [0, 1, 2, 3]
+      level: {x: 5, y: 10, w: 32, h: 32, tiles: [0, 1, 2, 3]}
     },
     pools,
     () => undefined,
