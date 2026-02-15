@@ -37,23 +37,25 @@ test('Looper', async ctx => {
     assert(framer.age, 0)
   })
 
-  await ctx.test('onFrame', () => {
-    performance.now = () => 0
+  await ctx.test('onFrame()', () => {
+    performance.now = () => 8 as Millis
     framer.requestFrame()
-    performance.now = () => 10 as Millis
+    performance.now = () => 24 as Millis // millis = 24 - 8 = 16
     onFrame!()
     assert(frame, 1)
-    assert(framer.age, 10 as Millis)
+    assert(framer.age, 16 as Millis)
+    performance.now = () => 40 as Millis
     framer.requestFrame()
-    performance.now = () => 20 as Millis
+    performance.now = () => 56 as Millis // millis = 56 - 40 = 16
     onFrame!()
     assert(frame, 2)
-    assert(framer.age, 20 as Millis)
+    assert(framer.age, 32 as Millis)
+    performance.now = () => 72 as Millis
     framer.requestFrame()
-    performance.now = () => 30 as Millis
+    performance.now = () => 88 as Millis // millis = 88 - 72 = 16
     onFrame!()
     assert(frame, 3)
-    assert(framer.age, 30 as Millis)
+    assert(framer.age, 48 as Millis)
   })
 
   await ctx.test('hidden', () => {
@@ -65,10 +67,11 @@ test('Looper', async ctx => {
 
   await ctx.test('shown', () => {
     doc.hidden = false
+    performance.now = () => 100 as Millis
     doc.dispatchEvent(TestEvent('visibilitychange'))
-    performance.now = () => 40 as Millis
+    performance.now = () => 116 as Millis // millis = 116 - 100 = 16
     onFrame!()
     assert(frame, 4)
-    assert(framer.age, 40 as Millis)
+    assert(framer.age, 64 as Millis) // 48 + 16
   })
 })

@@ -41,9 +41,8 @@ export class Looper {
   }
 
   #onFrame = (): void => {
-    const now = performance.now()
-    const millis = (now - this.#start) as Millis
-    this.age = now
+    const millis = (performance.now() - this.#start) as Millis
+    this.age = (this.age + millis) as Millis
     this.#req = 0
     this.onFrame?.(millis)
   }
