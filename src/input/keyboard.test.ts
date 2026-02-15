@@ -77,3 +77,40 @@ test('modifiers and untrusted', async ctx => {
     assert(kbd.bits, 0)
   })
 })
+
+test('preventDefault', async ctx => {
+  const target = new EventTarget()
+  using kbd = new Keyboard(target).register('add')
+  kbd.bitByCode.KeyA = 1
+  kbd.bitByCode.Escape = 2
+
+  await ctx.test('mapped code prevents default', () => {
+    let prevented = false
+    target.dispatchEvent(
+      Object.assign(KeyTestEvent('keydown', {code: 'KeyA'}), {
+        preventDefault: () => (prevented = true)
+      })
+    )
+    assert(prevented, true)
+  })
+
+  await ctx.test('Escape prevents default', () => {
+    let prevented = false
+    target.dispatchEvent(
+      Object.assign(KeyTestEvent('keydown', {code: 'Escape'}), {
+        preventDefault: () => (prevented = true)
+      })
+    )
+    assert(prevented, true)
+  })
+
+  await ctx.test('shift+Escape does not prevent default', () => {
+    let prevented = false
+    target.dispatchEvent(
+      Object.assign(KeyTestEvent('keydown', {code: 'Escape', shiftKey: true}), {
+        preventDefault: () => (prevented = true)
+      })
+    )
+    assert(prevented, false)
+  })
+})

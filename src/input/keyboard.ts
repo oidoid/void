@@ -42,7 +42,8 @@ export class Keyboard {
     if (ev.type === 'keydown' && (ev.metaKey || ev.altKey || ev.ctrlKey)) return
     this.invalid = true
     this.#on[ev.code] = ev.type === 'keydown'
-    ev.preventDefault()
+    // special case Task Manager.
+    if (!(ev.shiftKey && ev.code === 'Escape')) ev.preventDefault()
     this.onEvent()
   }
 }
