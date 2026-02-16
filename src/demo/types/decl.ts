@@ -1,4 +1,4 @@
-import type * as V from '../../index.ts'
+import type * as V from '../../engine/index.ts'
 import type {
   Clock,
   RenderToggle,
@@ -18,7 +18,7 @@ import type {
 // biome-ignore lint/correctness/useJsonImportAttributes:;
 import type tags from '../level/tags.json'
 
-declare module '../../index.ts' {
+declare module '../../engine/index.ts' {
   interface Debug {
     /** update the clock at least once a second instead of once a minute. */
     seconds?: string

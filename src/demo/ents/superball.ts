@@ -1,4 +1,4 @@
-import type * as V from '../../index.ts'
+import type * as V from '../../engine/index.ts'
 
 export type SuperballEnt = V.HookEnt<SuperballHook>
 

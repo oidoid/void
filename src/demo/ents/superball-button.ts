@@ -1,5 +1,5 @@
-import * as V from '../../index.ts'
-import {parseSprite} from '../../level/level-parser.ts'
+import * as V from '../../engine/index.ts'
+import {parseSprite} from '../../engine/level/level-parser.ts'
 
 export type SuperballButtonEnt = V.HookEnt<SuperballButtonHook>
 

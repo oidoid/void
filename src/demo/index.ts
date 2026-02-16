@@ -1,4 +1,4 @@
-import * as V from '../index.ts'
+import * as V from '../engine/index.ts'
 import {description} from './assets/manifest.json' // non-standard import to treeshake.
 import config from './assets/void.game.json' with {type: 'json'}
 import {Loader} from './level/loader.ts'

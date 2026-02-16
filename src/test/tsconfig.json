@@ -12,15 +12,15 @@
   "include": [
     "${configDir}/",
     "${configDir}/**/*.json",
-    "../../**/*.test.ts",
-    "../../**/*.test.json",
-    "../../**/test/",
-    "../../**/test/**/*.json"
+    "../**/*.test.ts",
+    "../**/*.test.json",
+    "../**/test/",
+    "../**/test/**/*.json"
   ],
-  "exclude": ["../../node_modules/", "../../dist/"],
+  "exclude": ["${configDir}/node_modules/", "${configDir}/dist/"],
   "references": [
-    {"path": "../"},
+    {"path": "../cli/"},
     {"path": "../demo/"},
-    {"path": "../../tools/"}
+    {"path": "../engine/"}
   ]
 }

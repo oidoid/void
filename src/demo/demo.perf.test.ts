@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-import {Argv} from '../../tools/utils/argv.ts'
-import type {Atlas, Tag} from '../graphics/atlas.ts'
-import type {Sprite} from '../graphics/sprite.ts'
-import {Grid} from '../grid/grid.ts'
-import {SpritePool} from '../mem/sprite-pool.ts'
-import {Random} from '../random/random.ts'
-import type {XY} from '../types/geo.ts'
-import type {Millis} from '../types/time.ts'
+import {Argv} from '../cli/utils/argv.ts'
+import type {Atlas, Tag} from '../engine/graphics/atlas.ts'
+import type {Sprite} from '../engine/graphics/sprite.ts'
+import {Grid} from '../engine/grid/grid.ts'
+import {SpritePool} from '../engine/mem/sprite-pool.ts'
+import {Random} from '../engine/random/random.ts'
+import type {XY} from '../engine/types/geo.ts'
+import type {Millis} from '../engine/types/time.ts'
 
 // to-do: compile for browser usage.
 

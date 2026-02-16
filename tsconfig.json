@@ -3,9 +3,9 @@
   "compilerOptions": {"composite": true},
   "files": [],
   "references": [
-    {"path": "./src/"},
+    {"path": "./src/cli/"},
     {"path": "./src/demo/"},
-    {"path": "./src/test/"},
-    {"path": "./tools/"}
+    {"path": "./src/engine/"},
+    {"path": "./src/test/"}
   ]
 }

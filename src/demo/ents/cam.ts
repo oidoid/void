@@ -1,4 +1,4 @@
-import * as V from '../../index.ts'
+import * as V from '../../engine/index.ts'
 
 export class CamHook implements V.Hook {
   readonly query = 'cam'

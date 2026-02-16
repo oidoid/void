@@ -1,4 +1,4 @@
-import * as V from '../../index.ts'
+import * as V from '../../engine/index.ts'
 
 export type ClockEnt = V.HookEnt<ClockHook>
 

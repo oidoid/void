@@ -1,4 +1,4 @@
-import * as V from '../../index.ts'
+import * as V from '../../engine/index.ts'
 
 export const parseComponent: V.ComponentHook = (ent, json, k) => {
   if (json[k] == null) throw Error('no component val')

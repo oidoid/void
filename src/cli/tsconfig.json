@@ -1,0 +1,23 @@
+// TypeScript config for all CLI sources.
+{
+  "extends": "@oidoid/config/tsconfig",
+  "compilerOptions": {
+    "types": ["node"],
+
+    "outDir": "../../dist/",
+    "rootDir": "../../"
+  },
+  "include": [
+    "${configDir}/",
+    "${configDir}/**/*.json",
+    "../../schema/",
+    "../../schema/**/*.json"
+  ],
+  "exclude": [
+    "${configDir}/**/*.test.*",
+    "${configDir}/**/test/",
+    "../../schema/**/*.test.*",
+    "../../schema/**/test/"
+  ],
+  "references": [{"path": "../engine/"}]
+}

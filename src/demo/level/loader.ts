@@ -1,4 +1,4 @@
-import * as V from '../../index.ts'
+import * as V from '../../engine/index.ts'
 import levelJSON from '../assets/init.level.jsonc' with {type: 'json'}
 import {CamHook} from '../ents/cam.ts'
 import {ClockHook} from '../ents/clock.ts'

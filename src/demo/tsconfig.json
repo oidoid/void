@@ -9,5 +9,5 @@
     "outDir": "../../dist/",
     "rootDir": "../../"
   },
-  "references": [{"path": "../"}]
+  "references": [{"path": "../engine/"}]
 }

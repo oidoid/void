@@ -1,7 +1,7 @@
 {
   "author": "Stephen Niedzielski <stephen@oidoid.com> (https://oidoid.com)",
   "bin": {
-    "void": "dist/tools/void.js"
+    "void": "dist/src/cli/index.js"
   },
   "bugs": "https://github.com/oidoid/void/issues",
   "dependencies": {
@@ -22,8 +22,8 @@
   },
   "exports": {
     ".": {
-      "dev": "./src/index.ts",
-      "default": "./dist/src/index.js"
+      "dev": "./src/engine/index.ts",
+      "default": "./dist/src/engine/index.js"
     },
     "./test": {
       "dev": "./src/test/index.ts",
@@ -53,16 +53,16 @@
     "url": "git+https://github.com/oidoid/void.git"
   },
   "scripts": {
-    "build": "tsc --build && chmod +x dist/tools/void.js && npm run build:favicon && npm run build:demo -- --minify --one-file",
+    "build": "tsc --build && chmod +x dist/src/cli/index.js && npm run build:favicon && npm run build:demo -- --minify --one-file",
     "build:favicon": "for s in 1 2 3 4 12; do f=dist/public/favicon/favicon$(($s * 16)); aseprite src/demo/assets/favicon.aseprite --batch --color-mode=indexed --scale=$s --save-as=$f.png && cwebp -exact -lossless -mt -quiet -z 9 $f.png -o $f.webp; done",
-    "build:demo": "tools/void.ts --config=src/demo/void.json",
+    "build:demo": "src/cli/index.ts --config=src/demo/void.json",
     "clean": "rm -rf dist/",
     "preversion": "[ -z \"$(git status -z)\" ]",
     "prepublishOnly": "! git symbolic-ref --quiet HEAD || git push --follow-tags origin \"$(git branch --show-current)\"",
     "start": "tsc --build --preserveWatchOutput --watch& npm run build:favicon && npm run build:demo -- --watch& wait",
     "test": "lint && npm run test:unit && npm run build && npm run test:perf",
-    "test:perf": "sh -c 'for f in ${@:-$(find src/ schema/ tools/ -name \\*.perf.test.ts -printf %p\\ )}; do $f; done' --",
-    "test:unit": "sh -c 'node --experimental-test-coverage --test ${@:-$(find src/ schema/ tools/ -name \\*.test.ts ! -name \\*.perf.test.ts -printf %p\\ )}' --",
+    "test:perf": "sh -c 'for f in ${@:-$(find src/ schema/ -name \\*.perf.test.ts -printf %p\\ )}; do $f; done' --",
+    "test:unit": "sh -c 'node --experimental-test-coverage --test ${@:-$(find src/ schema/ -name \\*.test.ts ! -name \\*.perf.test.ts -printf %p\\ )}' --",
     "version": "npm pkg set published=$(date +%Y%m%d) && npm run clean && npm test"
   },
   "type": "module",

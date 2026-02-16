@@ -1,0 +1,12 @@
+// TypeScript config for all functional code.
+{
+  "extends": "@oidoid/config/tsconfig",
+  "compilerOptions": {
+    "lib": ["DOM", "ES2023", "ESNext.disposable"],
+
+    "customConditions": ["browser"],
+
+    "outDir": "../../dist/",
+    "rootDir": "../../"
+  }
+}
