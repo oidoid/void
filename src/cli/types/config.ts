@@ -29,6 +29,7 @@ export type Config = {
   conditions: string[]
   minify: boolean
   oneFile: boolean
+  port: number
   watch: boolean
 
   bundle: V.Bundle
@@ -47,10 +48,10 @@ export type Opts = {
    */
   '--tsconfig'?: string
   /**
-   * run development server on http://localhost:1234 and reload on code
-   * change.
+   * run development server on http://localhost:<port> and reload on code
+   * change. port defaults 1234.
    */
-  '--watch'?: true
+  '--watch'?: string | true
 }
 
 export type TSConfig = {compilerOptions?: {customConditions?: string[]}}
@@ -118,7 +119,8 @@ export function Config(
     conditions: tsconfig.compilerOptions?.customConditions ?? [],
     minify: argv.opts['--minify'] ?? false,
     oneFile: argv.opts['--one-file'] ?? false,
-    watch: argv.opts['--watch'] ?? false,
+    port: parseInt(`${argv.opts['--watch']}`, 10) || 1234,
+    watch: argv.opts['--watch'] != null,
     bundle: {
       hash,
       published: packageJSON.published,

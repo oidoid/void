@@ -55,7 +55,7 @@ export async function bundle(
     const ctx = await esbuild.context(opts)
     await Promise.all([
       ctx.watch(),
-      ctx.serve({port: 1234, servedir: config.out.dir})
+      ctx.serve({port: config.port, servedir: config.out.dir})
     ])
   } else {
     const build = await esbuild.build(opts)

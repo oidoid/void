@@ -6,6 +6,7 @@
     {"path": "./src/cli/"},
     {"path": "./src/demo/"},
     {"path": "./src/engine/"},
-    {"path": "./src/test/"}
+    {"path": "./src/test/"},
+    {"path": "./src/tv/"}
   ]
 }

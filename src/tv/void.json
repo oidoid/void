@@ -3,17 +3,17 @@
   "entry": "assets/index.html",
   "meta": "../../dist/meta.json",
   "out": {
-    "dir": "../../dist/public/demo/",
-    "name": "void",
+    "dir": "../../dist/public/tv/",
+    "name": "tv",
     "game": "assets/void.game.json",
     "tagSchema": "level/tags.json"
   },
   "atlas": {
     "dir": "assets/atlas/",
-    "image": "../../dist/public/demo/atlas.webp"
+    "image": "../../dist/public/tv/atlas.webp"
   },
   "tileset": {
     "dir": "assets/tileset/",
-    "image": "../../dist/public/demo/tileset.webp"
+    "image": "../../dist/public/tv/tileset.webp"
   }
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// void.ts --config=<void.json> [--minify] [--one-file] [--watch]
+// void.ts --config=<void.json> [--minify] [--one-file] [--watch[=port]]
 // compiles images into an atlas and bundles an HTML entrypoint.
 
 import path from 'node:path'

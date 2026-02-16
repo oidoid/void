@@ -53,13 +53,15 @@
     "url": "git+https://github.com/oidoid/void.git"
   },
   "scripts": {
-    "build": "tsc --build && chmod +x dist/src/cli/index.js && npm run build:favicon && npm run build:demo -- --minify --one-file",
-    "build:favicon": "for s in 1 2 3 4 12; do f=dist/public/favicon/favicon$(($s * 16)); aseprite src/demo/assets/favicon.aseprite --batch --color-mode=indexed --scale=$s --save-as=$f.png && cwebp -exact -lossless -mt -quiet -z 9 $f.png -o $f.webp; done",
+    "build": "tsc --build && chmod +x dist/src/cli/index.js && npm run build:demo:favicon && npm run build:demo -- --minify --one-file && npm run build:tv:favicon && npm run build:tv -- --minify --one-file",
+    "build:demo:favicon": "for s in 1 2 3 4 12; do f=dist/public/demo/favicon/favicon$(($s * 16)); aseprite src/demo/assets/favicon.aseprite --batch --color-mode=indexed --scale=$s --save-as=$f.png && cwebp -exact -lossless -mt -quiet -z 9 $f.png -o $f.webp; done",
     "build:demo": "src/cli/index.ts --config=src/demo/void.json",
+    "build:tv:favicon": "for s in 1 2 3 4 12; do f=dist/public/tv/favicon/favicon$(($s * 16)); aseprite src/tv/assets/favicon.aseprite --batch --color-mode=indexed --scale=$s --save-as=$f.png && cwebp -exact -lossless -mt -quiet -z 9 $f.png -o $f.webp; done",
+    "build:tv": "src/cli/index.ts --config=src/tv/void.json",
     "clean": "rm -rf dist/",
     "preversion": "[ -z \"$(git status -z)\" ]",
     "prepublishOnly": "! git symbolic-ref --quiet HEAD || git push --follow-tags origin \"$(git branch --show-current)\"",
-    "start": "tsc --build --preserveWatchOutput --watch& npm run build:favicon && npm run build:demo -- --watch& wait",
+    "start": "tsc --build --preserveWatchOutput --watch& npm run build:demo:favicon && npm run build:demo -- --watch& npm run build:tv:favicon && npm run build:tv -- --watch=5678& wait",
     "test": "lint && npm run test:unit && npm run build && npm run test:perf",
     "test:perf": "sh -c 'for f in ${@:-$(find src/ schema/ -name \\*.perf.test.ts -printf %p\\ )}; do $f; done' --",
     "test:unit": "sh -c 'node --experimental-test-coverage --test ${@:-$(find src/ schema/ -name \\*.test.ts ! -name \\*.perf.test.ts -printf %p\\ )}' --",

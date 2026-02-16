@@ -70,7 +70,8 @@ export function HTMLPlugin(config: Readonly<Config>): esbuild.Plugin {
               icon.src = `data:${icon.type};base64,${file.toString('base64')}`
             else icon.src = path.relative(config.out.dir, iconFilename)
           }
-          if (config.watch) manifest.start_url = 'http://localhost:1234'
+          if (config.watch)
+            manifest.start_url = `http://localhost:${config.port}`
 
           if (config.oneFile)
             manifestEl.href = `data:application/json,${encodeURIComponent(

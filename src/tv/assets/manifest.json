@@ -1,40 +1,40 @@
 {
   "author": "oidoid",
   "background_color": "#e6e6e6",
-  "description": "void 2D game library demo.",
+  "description": "void level editor.",
   "display": "standalone",
   "homepage_url": "https://oidoid.com/",
   "icons": [
     {
-      "src": "../../../dist/public/demo/favicon/favicon16.webp",
+      "src": "../../../dist/public/tv/favicon/favicon16.webp",
       "sizes": "16x16",
       "type": "image/webp"
     },
     {
-      "src": "../../../dist/public/demo/favicon/favicon32.webp",
+      "src": "../../../dist/public/tv/favicon/favicon32.webp",
       "sizes": "32x32",
       "type": "image/webp"
     },
     {
-      "src": "../../../dist/public/demo/favicon/favicon48.webp",
+      "src": "../../../dist/public/tv/favicon/favicon48.webp",
       "sizes": "48x48",
       "type": "image/webp"
     },
     {
-      "src": "../../../dist/public/demo/favicon/favicon64.webp",
+      "src": "../../../dist/public/tv/favicon/favicon64.webp",
       "sizes": "64x64",
       "type": "image/webp"
     },
     {
-      "src": "../../../dist/public/demo/favicon/favicon192.webp",
+      "src": "../../../dist/public/tv/favicon/favicon192.webp",
       "sizes": "192x192",
       "type": "image/webp"
     }
   ],
   "manifest_version": 3,
-  "name": "void",
+  "name": "tv",
   "orientation": "any",
-  "short_name": "void",
+  "short_name": "tv",
   "start_url": "https://oidoid.com/",
   "theme_color": "#e6e6e6",
   "version": "0.0.0"

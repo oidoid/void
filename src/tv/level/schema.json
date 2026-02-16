@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "Ent": {
+      "allOf": [
+        {"$ref": "level-file.v0.json#/$defs/Ent"},
+        {
+          "type": "object",
+          "properties": {
+            "tilePicker": {
+              "$ref": "#/$defs/TilePicker",
+              "unevaluatedProperties": false
+            }
+          }
+        }
+      ]
+    },
+    "TilePicker": {
+      "type": "object",
+      "description": "tile picker config.",
+      "properties": {
+        "tile": {
+          "type": "integer",
+          "description": "initial tile index.",
+          "default": 0
+        }
+      }
+    }
+  }
+}

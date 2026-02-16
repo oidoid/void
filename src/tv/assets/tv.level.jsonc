@@ -1,0 +1,81 @@
+{
+  "$schema": "../level/level-file.v0.json",
+  "cam": {"minWH": {"w": 640, "h": 480}},
+  "level": {
+    "x": -24,
+    "y": -24,
+    "w": 256,
+    "h": 256,
+    "tiles": [
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 0, 2, 0, 2, 0, 2, 0,
+      2, 0, 2, 0, 2, 0, 1, 1, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 1, 1, 2,
+      0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 1, 1, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2,
+      0, 2, 0, 2, 1, 1, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 1, 1, 0, 2, 0,
+      2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 1, 1, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0,
+      2, 0, 1, 1, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 1, 1, 2, 0, 2, 0, 2,
+      0, 2, 0, 2, 0, 2, 0, 2, 0, 1, 1, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2,
+      1, 1, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 1, 1, 0, 2, 0, 2, 0, 2, 0,
+      2, 0, 2, 0, 2, 0, 2, 1, 1, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 1, 1,
+      0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1
+    ]
+  },
+  "zoo": {
+    "default": [
+      {"name": "Cam", "cam": {}},
+
+      {
+        "id": "cursor",
+        "sprite": "cursor--Pointer",
+        "cursor": {}
+      },
+
+      {
+        "name": "TilePicker",
+        "text": "tile",
+        "sprite": {"z": "UID"},
+        "textWH": {"pad": 2, "scale": 2, "trim": "Leading"},
+        "hud": {"origin": "NE", "margin": {"n": 2, "e": 2}},
+        "ninePatch": {
+          "border": 1,
+          "pad": 2,
+          "patch": {
+            "center": "background--Grape",
+            "n": "background--Bubblegum",
+            "s": "background--Kiwi",
+            "w": "background--Strawberry",
+            "e": "background--Blueberry"
+          }
+        },
+        "button": {
+          "pressed": "background--Bubblegum",
+          "selected": "background--OrangeCheckerboard",
+          "type": "Button",
+          "z": "UIC"
+        },
+        "tilePicker": {},
+        "textXY": {"z": "UIE"}
+      },
+      {
+        "name": "Border",
+        "sprite": {"z": "UIG"},
+        "hud": {"origin": "NW", "fill": "XY"},
+        "ninePatch": {
+          "patch": {
+            "n": "background--Black",
+            "s": "background--Black",
+            "w": "background--Black",
+            "e": "background--Black",
+            "nw": "background--Black",
+            "ne": "background--Black",
+            "sw": "background--Black",
+            "se": "background--Black"
+          },
+          "border": 1
+        }
+      },
+
+      {"name": "Draw", "draw": {}}
+    ]
+  }
+}

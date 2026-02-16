@@ -41,6 +41,7 @@ describe('Config()', () => {
     )
     assert(config.out.filename, 'index.html')
     assert(config.watch, true)
+    assert(config.port, 1234)
   })
 
   test('build mode uses versioned suffix', () => {
