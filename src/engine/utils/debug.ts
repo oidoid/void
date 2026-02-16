@@ -41,12 +41,13 @@ export function Debug(url: string | undefined): Debug | undefined {
   const target: {[k: string]: string} = {}
   for (const k in map) target[k.toLowerCase()] = map[k] || 'true'
 
-  const voidKeyset: Required<Omit<Debug, 'invalid'>> = {
-    cam: '',
-    input: '',
-    looper: '',
-    mem: '',
-    render: ''
+  const enabledFallback: {[k in keyof Debug]: boolean} = {
+    cam: true,
+    input: true,
+    invalid: false,
+    looper: true,
+    mem: true,
+    render: true
   }
 
   return new Proxy<{[k: string]: string}>(target, {
@@ -54,7 +55,8 @@ export function Debug(url: string | undefined): Debug | undefined {
       if (typeof k !== 'string') return target[k as unknown as string]
       k = k.toLowerCase()
       if (target[k]) return target[k]
-      if (!csv || 'all' in map || (k in voidKeyset && 'void' in map))
+      if (enabledFallback[k as keyof Debug] === false) return
+      if (!csv || 'all' in map || ('void' in map && k in enabledFallback))
         return 'true'
     }
   })
