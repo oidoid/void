@@ -1,17 +1,15 @@
 import type {Millis} from './types/time.ts'
 import {debug} from './utils/debug.ts'
 
-/**
- * frame manager. passes frame requests when not hidden. callers should request
- * frames when an update occurs or a check for an update occurs. eg, gamepads
- * must be polled.
- *
- * when registered, restoring visibility triggers an automatic request.
- */
+export type LoopReason = 'Poll' | 'Render'
+
 export class Looper {
   /** duration of frames observed. */
   age: Millis = 0
-  onFrame: ((millis: Millis) => void) | undefined
+  onFrame:
+    | ((millis: Millis, reason: LoopReason) => 'Skip' | undefined)
+    | undefined
+  #reason: LoopReason = 'Render'
   #req: number = 0
   #registered: boolean = false
   #start: Millis = 0
@@ -25,7 +23,8 @@ export class Looper {
     return this
   }
 
-  requestFrame(): void {
+  requestFrame(reason: LoopReason): void {
+    this.#reason = this.#reason === 'Render' ? this.#reason : reason
     if (this.#req || document.hidden || !this.#registered) return
     this.#start = performance.now()
     this.#req = requestAnimationFrame(this.#onFrame)
@@ -41,10 +40,14 @@ export class Looper {
   }
 
   #onFrame = (): void => {
-    const millis = (performance.now() - this.#start) as Millis
-    this.age = (this.age + millis) as Millis
+    const now = performance.now()
+    const millis = (now - this.#start) as Millis
     this.#req = 0
-    this.onFrame?.(millis)
+    this.age += millis
+    const reason = this.#reason
+    this.#reason = 'Poll'
+    if (this.onFrame && this.onFrame(millis, reason) === 'Skip')
+      this.age -= millis
   }
 
   #onVisibility = (ev: Event): void => {
@@ -53,7 +56,7 @@ export class Looper {
       this.#cancel()
       if (debug?.looper) console.debug('[looper] paused')
     } else {
-      this.requestFrame()
+      this.requestFrame('Poll')
       if (debug?.looper) console.debug('[looper] resumed')
     }
   }

@@ -14,7 +14,7 @@ const v = new V.Void({
   description,
   loader: new Loader()
 })
-v.setPoller(((V.debug?.seconds ? 1 : 60) * 1000) as V.Millis, () =>
+v.setInterval(((V.debug?.seconds ? 1 : 60) * 1000) as V.Millis, () =>
   V.millisUntilNext(new Date(), V.debug?.seconds ? 'Sec' : 'Min')
 )
 await v.register('add')

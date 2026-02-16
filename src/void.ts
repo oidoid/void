@@ -11,7 +11,7 @@ import type {CamConfig} from './level/level.ts'
 import {type ComponentHook, parseLevel} from './level/level-parser.ts'
 import type {LevelSchema} from './level/level-schema.ts'
 import type {Loader} from './level/loader.ts'
-import {Looper} from './looper.ts'
+import {Looper, type LoopReason} from './looper.ts'
 import type {PoolOpts} from './mem/pool.ts'
 import type {PoolMap} from './mem/pool-map.ts'
 import {SpritePool} from './mem/sprite-pool.ts'
@@ -55,7 +55,7 @@ export class Void {
   #backgroundRGBA: number
   #invalid: boolean = false
   readonly #pixelRatioObserver: PixelRatioObserver = new PixelRatioObserver()
-  #poller: DelayInterval | undefined
+  #interval: DelayInterval | undefined
   #registered: boolean = false
   /** may trigger an initial force update. */
   readonly #resizeObserver = new ResizeObserver(() => this.onResize())
@@ -103,7 +103,7 @@ export class Void {
       })
     }
 
-    this.looper.onFrame = millis => this.onFrame(millis)
+    this.looper.onFrame = (millis, reason) => this.onFrame(millis, reason)
 
     this.loader = opts.loader
 
@@ -124,9 +124,9 @@ export class Void {
     this.#backgroundRGBA = rgba
   }
 
-  clearPoller(): void {
-    this.#poller?.register('remove')
-    this.#poller = undefined
+  clearInterval(): void {
+    this.#interval?.register('remove')
+    this.#interval = undefined
   }
 
   configCam(config: Readonly<CamConfig>): void {
@@ -172,13 +172,16 @@ export class Void {
   }
 
   /** update input, update canvas, update cam, update world, then render. */
-  onFrame(millis: Millis): void {
+  onFrame(millis: Millis, reason: LoopReason): 'Skip' | undefined {
     this.tick.ms = millis
     this.tick.s = (millis / 1000) as Secs
     if (document.hidden) return
     this.input.update(millis)
 
-    this.requestFrame() // request frame before in case update cancels.
+    // request frame before in case update cancels. next reason is 'Render' when
+    // input.
+    const nextReason = this.requestFrame()
+    if (reason === 'Poll' && nextReason !== 'Render') return 'Skip'
 
     this.#invalid = false
     this.loader.update(this)
@@ -186,7 +189,7 @@ export class Void {
     this.cam.postupdate()
   }
 
-  onPoll(): void {
+  onInterval(): void {
     this.requestFrame('Force')
   }
 
@@ -202,8 +205,8 @@ export class Void {
     else this.#resizeObserver.unobserve(this.canvas.parentElement!)
     this.#pixelRatioObserver.register(op)
 
-    if (op === 'add') this.looper.requestFrame()
-    this.#poller?.register(op)
+    if (op === 'add') this.requestFrame('Force')
+    this.#interval?.register(op)
 
     await loadImage(this.#atlasImage)
     this.renderer.loadAtlas(this.#atlasImage)
@@ -214,17 +217,22 @@ export class Void {
     this.#registered = op === 'add'
   }
 
-  requestFrame(force?: 'Force'): void {
-    if (force || this.renderer.always || this.input.anyOn || this.input.gamepad)
-      this.looper.requestFrame()
+  requestFrame(force?: 'Force'): LoopReason | undefined {
+    let reason: LoopReason | undefined
+    if (force || this.input.invalid || this.input.anyOn || this.renderer.always)
+      reason = 'Render'
+    else if (this.input.gamepad) reason = 'Poll'
+
+    if (reason) this.looper.requestFrame(reason)
+    return reason
   }
 
-  setPoller(period: Millis, delay?: () => Millis): void {
-    this.#poller?.register('remove')
-    this.#poller = new DelayInterval(delay ?? (() => 0), period, () =>
-      this.onPoll()
+  setInterval(period: Millis, delay?: () => Millis): void {
+    this.#interval?.register('remove')
+    this.#interval = new DelayInterval(delay ?? (() => 0), period, () =>
+      this.onInterval()
     )
-    if (this.#registered) this.#poller.register('add')
+    if (this.#registered) this.#interval.register('add')
   }
 
   async [Symbol.asyncDispose](): Promise<void> {
