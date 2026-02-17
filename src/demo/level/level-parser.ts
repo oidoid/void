@@ -6,6 +6,7 @@ export const parseComponent: V.ComponentHook = (ent, json, k) => {
     case 'superball':
     case 'superballButton':
     case 'clock':
+    case 'fullscreen':
     case 'rotate':
       return json[k] satisfies V.Ent[typeof k]
     case 'renderToggle':

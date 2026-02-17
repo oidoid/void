@@ -9,6 +9,10 @@
           "type": "object",
           "properties": {
             "clock": {"$ref": "#/$defs/Clock", "unevaluatedProperties": false},
+            "fullscreen": {
+              "$ref": "#/$defs/Fullscreen",
+              "unevaluatedProperties": false
+            },
             "renderToggle": {
               "$ref": "#/$defs/RenderToggle",
               "unevaluatedProperties": false
@@ -34,6 +38,7 @@
         }
       ]
     },
+    "Fullscreen": {"type": "object", "description": "fullscreen config."},
     "RenderToggle": {"type": "object", "description": "render toggle config."},
     "Screenshot": {"type": "object", "description": "screenshot config."},
     "Rotate": {

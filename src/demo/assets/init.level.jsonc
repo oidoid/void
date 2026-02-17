@@ -132,11 +132,37 @@
         "textXY": {"z": "UIE"}
       },
       {
+        "name": "Fullscreen",
+        "text": "full",
+        "sprite": {"z": "UID"},
+        "textWH": {"pad": 2, "scale": 2, "trim": "Leading"},
+        "hud": {"origin": "NE", "margin": {"n": 2, "e": 108}},
+        "ninePatch": {
+          "border": 1,
+          "pad": 2,
+          "patch": {
+            "center": "background--Grape",
+            "n": "background--Black",
+            "s": "background--Black",
+            "w": "background--Black",
+            "e": "background--Black"
+          }
+        },
+        "button": {
+          "pressed": "background--Bubblegum",
+          "selected": "background--OrangeCheckerboard",
+          "type": "Toggle",
+          "z": "UIC"
+        },
+        "fullscreen": {},
+        "textXY": {"z": "UIE"}
+      },
+      {
         "name": "Screenshot",
         "text": "pic",
         "sprite": {"z": "UID"},
         "textWH": {"pad": 2, "scale": 2, "trim": "Leading"},
-        "hud": {"origin": "NE", "margin": {"n": 2, "e": 108}},
+        "hud": {"origin": "NE", "margin": {"n": 2, "e": 142}},
         "ninePatch": {
           "border": 1,
           "pad": 2,
@@ -226,7 +252,7 @@
         "sprite": {"z": "UIA"},
         "tally": {},
         "textWH": {},
-        "hud": {"origin": "NE", "margin": {"n": 6, "e": 138}},
+        "hud": {"origin": "NE", "margin": {"n": 6, "e": 172}},
         "textXY": {},
         "override": {"invalid": false}
       },

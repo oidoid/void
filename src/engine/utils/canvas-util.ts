@@ -65,16 +65,20 @@ export function screenshot(
   canvas: HTMLCanvasElement
 ): Promise<Disposable & {uri: string}> {
   return new Promise((fulfil, reject) => {
-    canvas.toBlob(blob => {
-      if (blob) {
-        const img = {
-          [Symbol.dispose]() {
-            URL.revokeObjectURL(this.uri)
-          },
-          uri: URL.createObjectURL(blob)
-        }
-        fulfil(img)
-      } else reject(Error('no blob'))
-    }, 'image/webp', 1)
+    canvas.toBlob(
+      blob => {
+        if (blob) {
+          const img = {
+            [Symbol.dispose]() {
+              URL.revokeObjectURL(this.uri)
+            },
+            uri: URL.createObjectURL(blob)
+          }
+          fulfil(img)
+        } else reject(Error('no blob'))
+      },
+      'image/webp',
+      1
+    )
   })
 }
