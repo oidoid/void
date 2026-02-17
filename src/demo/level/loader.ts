@@ -3,10 +3,10 @@ import levelJSON from '../assets/init.level.jsonc' with {type: 'json'}
 import {CamHook} from '../ents/cam.ts'
 import {ClockHook} from '../ents/clock.ts'
 import {DrawHook} from '../ents/draw.ts'
-import {FullscreenHook} from '../ents/fullscreen.ts'
+import {FullscreenToggleHook} from '../ents/fullscreen-toggle.ts'
 import {RenderToggleHook} from '../ents/render-toggle.ts'
 import {RotateHook} from '../ents/rotate.ts'
-import {ScreenshotHook} from '../ents/screenshot.ts'
+import {ScreenshotButtonHook} from '../ents/screenshot-button.ts'
 import {SuperballHook} from '../ents/superball.ts'
 import {SuperballButtonHook} from '../ents/superball-button.ts'
 import {TallyHook} from '../ents/tally.ts'
@@ -31,12 +31,12 @@ export class Loader implements V.Loader {
     textXY: new V.TextXYHook(),
     cam: new CamHook(),
     clock: new ClockHook(),
-    debugLoseContext: new V.DebugLoseContextHook(),
-    draw: new DrawHook(),
-    fullscreen: new FullscreenHook(),
+    debugLoseContextButton: new V.DebugLoseContextButtonHook(),
+    fullscreenToggle: new FullscreenToggleHook(),
     renderToggle: new RenderToggleHook(),
-    screenshot: new ScreenshotHook(),
-    tally: new TallyHook()
+    screenshotButton: new ScreenshotButtonHook(),
+    tally: new TallyHook(),
+    draw: new DrawHook()
   }
   #zoo: V.Zoo = {default: new Set()}
 

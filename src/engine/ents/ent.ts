@@ -18,7 +18,7 @@ export type ButtonType = 'Button' | 'Toggle'
 // biome-ignore lint/suspicious/noEmptyInterface:;
 export interface CamData {}
 
-export type DebugLoseContext = {end: number}
+export type DebugLoseContextButton = {end: number}
 
 export type Cursor = {
   /** screen area cursor may move within. */
@@ -42,7 +42,7 @@ export interface Ent {
   cam?: CamData
   cursor?: Cursor
   debugInput?: DebugInput
-  debugLoseContext?: DebugLoseContext
+  debugLoseContextButton?: DebugLoseContextButton
   draw?: Draw
   fps?: FPS
   hud?: HUD

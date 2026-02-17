@@ -163,7 +163,7 @@ export function parseEntComponent(
     case 'name':
     case 'text':
       return json[k] satisfies Ent[typeof k]
-    case 'debugLoseContext':
+    case 'debugLoseContextButton':
       return {end: 0} satisfies Ent[typeof k]
     case 'ninePatch':
       return parseNinePatch(ent, json[k], pools, atlas) satisfies Ent[typeof k]

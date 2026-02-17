@@ -1,19 +1,20 @@
 import type * as V from '../../engine/index.ts'
 import type {
   Clock,
-  Fullscreen,
+  FullscreenToggle,
   RenderToggle,
   Rotate,
-  Screenshot,
+  ScreenshotButton,
   Superball,
   SuperballButton,
   Tally
 } from '../ents/ent.ts'
 import type {
   ClockSchema,
-  FullscreenSchema,
+  FullscreenToggleSchema,
   RenderToggleSchema,
   RotateSchema,
+  ScreenshotButtonSchema,
   SuperballButtonSchema,
   SuperballSchema,
   TallySchema
@@ -29,10 +30,10 @@ declare module '../../engine/index.ts' {
 
   interface Ent {
     clock?: Clock
-    fullscreen?: Fullscreen
+    fullscreenToggle?: FullscreenToggle
     renderToggle?: RenderToggle
     rotate?: Rotate
-    screenshot?: Screenshot
+    screenshotButton?: ScreenshotButton
     tally?: Tally
     superball?: Superball
     superballButton?: SuperballButton
@@ -40,9 +41,10 @@ declare module '../../engine/index.ts' {
 
   interface EntSchema {
     clock?: ClockSchema
-    fullscreen?: FullscreenSchema
+    fullscreenToggle?: FullscreenToggleSchema
     renderToggle?: RenderToggleSchema
     rotate?: RotateSchema
+    screenshotButton?: ScreenshotButtonSchema
     tally?: TallySchema
     superball?: SuperballSchema
     superballButton?: SuperballButtonSchema

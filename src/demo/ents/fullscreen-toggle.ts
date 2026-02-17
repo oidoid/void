@@ -1,14 +1,13 @@
 import * as V from '../../engine/index.ts'
 
-export type FullscreenEnt = V.HookEnt<FullscreenHook>
+export type FullscreenToggleEnt = V.HookEnt<FullscreenToggleHook>
 
-export class FullscreenHook implements V.Hook {
-  readonly query = 'button & fullscreen & sprite'
+export class FullscreenToggleHook implements V.Hook {
+  readonly query = 'button & fullscreenToggle & sprite'
 
-  update(ent: FullscreenEnt, v: V.Void): void {
+  update(ent: FullscreenToggleEnt, v: V.Void): void {
     const isFullscreen = document.fullscreenElement === v.canvas
 
-    // sync toggle with actual state when user exits via Escape / browser UI.
     if (!ent.button.started && V.buttonOn(ent) !== isFullscreen) {
       V.buttonSetOn(ent, isFullscreen)
       return

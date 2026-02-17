@@ -102,7 +102,7 @@
           "type": "Button",
           "z": "UIC"
         },
-        "debugLoseContext": {},
+        "debugLoseContextButton": {},
         "textXY": {"z": "UIE"}
       },
       {
@@ -154,7 +154,7 @@
           "type": "Toggle",
           "z": "UIC"
         },
-        "fullscreen": {},
+        "fullscreenToggle": {},
         "textXY": {"z": "UIE"}
       },
       {
@@ -180,7 +180,7 @@
           "type": "Button",
           "z": "UIC"
         },
-        "screenshot": {},
+        "screenshotButton": {},
         "textXY": {"z": "UIE"}
       },
       {

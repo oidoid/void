@@ -9,16 +9,16 @@
           "type": "object",
           "properties": {
             "clock": {"$ref": "#/$defs/Clock", "unevaluatedProperties": false},
-            "fullscreen": {
-              "$ref": "#/$defs/Fullscreen",
+            "fullscreenToggle": {
+              "$ref": "#/$defs/FullscreenToggle",
               "unevaluatedProperties": false
             },
             "renderToggle": {
               "$ref": "#/$defs/RenderToggle",
               "unevaluatedProperties": false
             },
-            "screenshot": {
-              "$ref": "#/$defs/Screenshot",
+            "screenshotButton": {
+              "$ref": "#/$defs/ScreenshotButton",
               "unevaluatedProperties": false
             },
             "rotate": {
@@ -38,9 +38,15 @@
         }
       ]
     },
-    "Fullscreen": {"type": "object", "description": "fullscreen config."},
+    "FullscreenToggle": {
+      "type": "object",
+      "description": "fullscreen toggle config."
+    },
     "RenderToggle": {"type": "object", "description": "render toggle config."},
-    "Screenshot": {"type": "object", "description": "screenshot config."},
+    "ScreenshotButton": {
+      "type": "object",
+      "description": "screenshot button config."
+    },
     "Rotate": {
       "type": "object",
       "description": "rotate config.",

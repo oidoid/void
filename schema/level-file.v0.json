@@ -119,9 +119,9 @@
       ]
     },
     "DebugInput": {"type": "object", "description": "debug input config."},
-    "DebugLoseContext": {
+    "DebugLoseContextButton": {
       "type": "object",
-      "description": "debug lose context config."
+      "description": "debug lose context button config."
     },
     "Draw": {"type": "object", "description": "draw config."},
     "Ent": {
@@ -135,8 +135,8 @@
           "$ref": "#/$defs/DebugInput",
           "unevaluatedProperties": false
         },
-        "debugLoseContext": {
-          "$ref": "#/$defs/DebugLoseContext",
+        "debugLoseContextButton": {
+          "$ref": "#/$defs/DebugLoseContextButton",
           "unevaluatedProperties": false
         },
         "draw": {"$ref": "#/$defs/Draw", "unevaluatedProperties": false},
