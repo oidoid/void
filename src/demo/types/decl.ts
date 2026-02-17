@@ -1,7 +1,6 @@
 import type * as V from '../../engine/index.ts'
 import type {
   Clock,
-  FullscreenToggle,
   RenderToggle,
   Rotate,
   ScreenshotButton,
@@ -11,7 +10,6 @@ import type {
 } from '../ents/ent.ts'
 import type {
   ClockSchema,
-  FullscreenToggleSchema,
   RenderToggleSchema,
   RotateSchema,
   ScreenshotButtonSchema,
@@ -30,7 +28,6 @@ declare module '../../engine/index.ts' {
 
   interface Ent {
     clock?: Clock
-    fullscreenToggle?: FullscreenToggle
     renderToggle?: RenderToggle
     rotate?: Rotate
     screenshotButton?: ScreenshotButton
@@ -41,7 +38,6 @@ declare module '../../engine/index.ts' {
 
   interface EntSchema {
     clock?: ClockSchema
-    fullscreenToggle?: FullscreenToggleSchema
     renderToggle?: RenderToggleSchema
     rotate?: RotateSchema
     screenshotButton?: ScreenshotButtonSchema

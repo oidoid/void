@@ -24,6 +24,7 @@ export type DebugInputSchema = object
 export type DebugLoseContextButtonSchema = object
 // biome-ignore lint/suspicious/noEmptyInterface:;
 export interface DrawSchema {}
+export type FullscreenToggleSchema = object
 export interface EntSchema {
   button?: ButtonSchema
   cam?: CamDataSchema
@@ -32,6 +33,7 @@ export interface EntSchema {
   debugLoseContextButton?: DebugLoseContextButtonSchema
   draw?: DrawSchema
   fps?: FPSSchema
+  fullscreenToggle?: FullscreenToggleSchema
   hud?: HUDSchema
   id?: string
   name?: string

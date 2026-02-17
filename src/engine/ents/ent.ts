@@ -20,6 +20,8 @@ export interface CamData {}
 
 export type DebugLoseContextButton = {end: number}
 
+export type FullscreenToggle = object
+
 export type Cursor = {
   /** screen area cursor may move within. */
   bounds: Box
@@ -45,6 +47,7 @@ export interface Ent {
   debugLoseContextButton?: DebugLoseContextButton
   draw?: Draw
   fps?: FPS
+  fullscreenToggle?: FullscreenToggle
   hud?: HUD
   id?: string
   /**

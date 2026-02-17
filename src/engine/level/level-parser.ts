@@ -165,6 +165,8 @@ export function parseEntComponent(
       return json[k] satisfies Ent[typeof k]
     case 'debugLoseContextButton':
       return {end: 0} satisfies Ent[typeof k]
+    case 'fullscreenToggle':
+      return json[k] satisfies Ent[typeof k]
     case 'ninePatch':
       return parseNinePatch(ent, json[k], pools, atlas) satisfies Ent[typeof k]
     case 'override':

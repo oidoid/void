@@ -3,7 +3,6 @@ import levelJSON from '../assets/init.level.jsonc' with {type: 'json'}
 import {CamHook} from '../ents/cam.ts'
 import {ClockHook} from '../ents/clock.ts'
 import {DrawHook} from '../ents/draw.ts'
-import {FullscreenToggleHook} from '../ents/fullscreen-toggle.ts'
 import {RenderToggleHook} from '../ents/render-toggle.ts'
 import {RotateHook} from '../ents/rotate.ts'
 import {ScreenshotButtonHook} from '../ents/screenshot-button.ts'
@@ -32,7 +31,7 @@ export class Loader implements V.Loader {
     cam: new CamHook(),
     clock: new ClockHook(),
     debugLoseContextButton: new V.DebugLoseContextButtonHook(),
-    fullscreenToggle: new FullscreenToggleHook(),
+    fullscreenToggle: new V.FullscreenToggleHook(),
     renderToggle: new RenderToggleHook(),
     screenshotButton: new ScreenshotButtonHook(),
     tally: new TallyHook(),
