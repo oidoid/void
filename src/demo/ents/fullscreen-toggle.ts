@@ -6,7 +6,9 @@ export class FullscreenToggleHook implements V.Hook {
   readonly query = 'button & fullscreenToggle & sprite'
 
   update(ent: FullscreenToggleEnt, v: V.Void): void {
-    const isFullscreen = document.fullscreenElement === v.canvas
+    const isFullscreen =
+      document.fullscreenElement === v.canvas ||
+      (innerWidth === screen.width && innerHeight === screen.height)
 
     if (!ent.button.started && V.buttonOn(ent) !== isFullscreen) {
       V.buttonSetOn(ent, isFullscreen)
