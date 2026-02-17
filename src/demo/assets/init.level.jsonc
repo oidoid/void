@@ -22,7 +22,7 @@
   },
   "zoo": {
     "default": [
-      {"name": "Debug", "debugInput": {}},
+      {"name": "DebugInput", "debugInput": {}},
 
       {"name": "Cam", "cam": {}},
 
@@ -80,11 +80,37 @@
         "textXY": {"z": "UIE"}
       },
       {
+        "name": "DebugLoseContext",
+        "text": "GL!",
+        "sprite": {"z": "UID"},
+        "textWH": {"pad": 2, "scale": 2, "trim": "Leading"},
+        "hud": {"origin": "NE", "margin": {"n": 2, "e": 60}},
+        "ninePatch": {
+          "border": 1,
+          "pad": 2,
+          "patch": {
+            "center": "background--Strawberry",
+            "n": "background--Black",
+            "s": "background--Black",
+            "w": "background--Black",
+            "e": "background--Black"
+          }
+        },
+        "button": {
+          "pressed": "background--Bubblegum",
+          "selected": "background--OrangeCheckerboard",
+          "type": "Button",
+          "z": "UIC"
+        },
+        "debugLoseContext": {},
+        "textXY": {"z": "UIE"}
+      },
+      {
         "name": "Superballs Button",
         "text": "+",
         "sprite": {"z": "UID"},
         "textWH": {"pad": 2, "scale": 2, "trim": "Leading"},
-        "hud": {"origin": "NE", "margin": {"n": 2, "e": 62}},
+        "hud": {"origin": "NE", "margin": {"n": 2, "e": 90}},
         "ninePatch": {
           "border": 1,
           "pad": 2,
@@ -103,6 +129,32 @@
           "z": "UIC"
         },
         "superballButton": {},
+        "textXY": {"z": "UIE"}
+      },
+      {
+        "name": "Screenshot",
+        "text": "pic",
+        "sprite": {"z": "UID"},
+        "textWH": {"pad": 2, "scale": 2, "trim": "Leading"},
+        "hud": {"origin": "NE", "margin": {"n": 2, "e": 108}},
+        "ninePatch": {
+          "border": 1,
+          "pad": 2,
+          "patch": {
+            "center": "background--Blueberry",
+            "n": "background--Black",
+            "s": "background--Black",
+            "w": "background--Black",
+            "e": "background--Black"
+          }
+        },
+        "button": {
+          "pressed": "background--Bubblegum",
+          "selected": "background--OrangeCheckerboard",
+          "type": "Button",
+          "z": "UIC"
+        },
+        "screenshot": {},
         "textXY": {"z": "UIE"}
       },
       {
@@ -174,7 +226,7 @@
         "sprite": {"z": "UIA"},
         "tally": {},
         "textWH": {},
-        "hud": {"origin": "NE", "margin": {"n": 4, "e": 82}},
+        "hud": {"origin": "NE", "margin": {"n": 6, "e": 138}},
         "textXY": {},
         "override": {"invalid": false}
       },

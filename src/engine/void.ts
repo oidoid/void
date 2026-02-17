@@ -91,6 +91,7 @@ export class Void {
     }
 
     this.renderer = new Renderer(this.atlas.default, this.canvas, this.looper)
+    this.renderer.onContextRestored = () => this.onEvent()
 
     this.tileset = opts.config.tileset
 

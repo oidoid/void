@@ -28,6 +28,7 @@ export class Renderer {
   /** number of clears performed. often used to count render passes. */
   clears: number = 0
   loseContext: WEBGL_lose_context | undefined
+  onContextRestored: (() => void) | undefined
   readonly #atlas: Readonly<Atlas>
   #atlasImage: Readonly<HTMLImageElement> | undefined
   readonly #canvas: HTMLCanvasElement
@@ -249,6 +250,10 @@ export class Renderer {
     const gl = this.#ctx?.gl ?? GL2(this.#canvas, this.always)
     if (!gl) return
 
+    // force gl.clearColor() on next clear() since the new context defaults to
+    // transparent black.
+    this.#clearRGBA = 0
+
     const spriteShader = Shader(gl, spriteVertGLSL, spriteFragGLSL, [
       gl.createTexture(),
       gl.createTexture()
@@ -433,6 +438,7 @@ export class Renderer {
   #onContextRestored = (): void => {
     console.debug('[render] GL context restored')
     this.#ctx = this._Context()
+    this.onContextRestored?.()
   }
 }
 

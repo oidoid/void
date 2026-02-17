@@ -5,6 +5,7 @@ import {ClockHook} from '../ents/clock.ts'
 import {DrawHook} from '../ents/draw.ts'
 import {RenderToggleHook} from '../ents/render-toggle.ts'
 import {RotateHook} from '../ents/rotate.ts'
+import {ScreenshotHook} from '../ents/screenshot.ts'
 import {SuperballHook} from '../ents/superball.ts'
 import {SuperballButtonHook} from '../ents/superball-button.ts'
 import {TallyHook} from '../ents/tally.ts'
@@ -29,8 +30,10 @@ export class Loader implements V.Loader {
     textXY: new V.TextXYHook(),
     cam: new CamHook(),
     clock: new ClockHook(),
+    debugLoseContext: new V.DebugLoseContextHook(),
     draw: new DrawHook(),
     renderToggle: new RenderToggleHook(),
+    screenshot: new ScreenshotHook(),
     tally: new TallyHook()
   }
   #zoo: V.Zoo = {default: new Set()}

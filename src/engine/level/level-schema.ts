@@ -21,6 +21,7 @@ export interface CamConfigSchema {
 export interface CamDataSchema {}
 export type CursorSchema = {keyboard?: number; pick?: Tag}
 export type DebugInputSchema = object
+export type DebugLoseContextSchema = object
 // biome-ignore lint/suspicious/noEmptyInterface:;
 export interface DrawSchema {}
 export interface EntSchema {
@@ -28,6 +29,7 @@ export interface EntSchema {
   cam?: CamDataSchema
   cursor?: CursorSchema
   debugInput?: DebugInputSchema
+  debugLoseContext?: DebugLoseContextSchema
   draw?: DrawSchema
   fps?: FPSSchema
   hud?: HUDSchema

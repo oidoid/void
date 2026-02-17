@@ -75,6 +75,6 @@ export function screenshot(
         }
         fulfil(img)
       } else reject(Error('no blob'))
-    }, 'image/webp')
+    }, 'image/webp', 1)
   })
 }

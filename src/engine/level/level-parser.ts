@@ -157,12 +157,14 @@ export function parseEntComponent(
       return parseHUD(json[k]) satisfies Ent[typeof k]
     case 'cam':
       return parseCamData() satisfies Ent[typeof k]
-    case 'draw':
     case 'debugInput':
+    case 'draw':
     case 'id':
     case 'name':
     case 'text':
       return json[k] satisfies Ent[typeof k]
+    case 'debugLoseContext':
+      return {end: 0} satisfies Ent[typeof k]
     case 'ninePatch':
       return parseNinePatch(ent, json[k], pools, atlas) satisfies Ent[typeof k]
     case 'override':

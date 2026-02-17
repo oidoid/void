@@ -13,6 +13,10 @@
               "$ref": "#/$defs/RenderToggle",
               "unevaluatedProperties": false
             },
+            "screenshot": {
+              "$ref": "#/$defs/Screenshot",
+              "unevaluatedProperties": false
+            },
             "rotate": {
               "$ref": "#/$defs/Rotate",
               "unevaluatedProperties": false
@@ -31,6 +35,7 @@
       ]
     },
     "RenderToggle": {"type": "object", "description": "render toggle config."},
+    "Screenshot": {"type": "object", "description": "screenshot config."},
     "Rotate": {
       "type": "object",
       "description": "rotate config.",

@@ -119,6 +119,10 @@
       ]
     },
     "DebugInput": {"type": "object", "description": "debug input config."},
+    "DebugLoseContext": {
+      "type": "object",
+      "description": "debug lose context config."
+    },
     "Draw": {"type": "object", "description": "draw config."},
     "Ent": {
       "type": "object",
@@ -129,6 +133,10 @@
         "cursor": {"$ref": "#/$defs/Cursor", "unevaluatedProperties": false},
         "debugInput": {
           "$ref": "#/$defs/DebugInput",
+          "unevaluatedProperties": false
+        },
+        "debugLoseContext": {
+          "$ref": "#/$defs/DebugLoseContext",
           "unevaluatedProperties": false
         },
         "draw": {"$ref": "#/$defs/Draw", "unevaluatedProperties": false},

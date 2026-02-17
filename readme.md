@@ -80,7 +80,7 @@ the special `Ent.invalid` field flags whether the screen should be redrawn (whic
 
 #### Hooks
 
-hooks are classes that process ents and usually pair to a specific ent. they're passed ents matching their query. eg, `CursorHook` requires at least the `CursorEnt` subset.
+hooks are classes that process ents and usually pair to a specific ent. they're passed ents matching their query. eg, `CursorHook` requires at least the `CursorEnt` subset. prefer ent state to hook state.
 
 #### Queries
 
