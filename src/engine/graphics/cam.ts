@@ -38,6 +38,7 @@ export class Cam {
   #devicePixelRatio: number = 0
   #h: number = 1
   #invalid: boolean = true
+  #bounds: Box | undefined = undefined
   #minScale: number = 1
   readonly #minWH: WH = {w: Infinity, h: Infinity}
   #mode: RenderMode = 'Int'
@@ -150,6 +151,17 @@ export class Cam {
     return this.#invalid
   }
 
+  /** level bounds to clamp cam position within, or undefined for unbounded. */
+  get bounds(): Readonly<Box> | undefined {
+    return this.#bounds
+  }
+
+  set bounds(bounds: Readonly<Box> | undefined) {
+    this.#bounds = bounds ? {...bounds} : undefined
+    this.x = this.#x
+    this.y = this.#y
+  }
+
   /** positive int or fraction depending on mode. */
   get minScale(): number {
     return this.#minScale
@@ -251,6 +263,11 @@ export class Cam {
   }
 
   set x(x: number) {
+    if (this.#bounds)
+      x = Math.max(
+        this.#bounds.x,
+        Math.min(x, this.#bounds.x + this.#bounds.w - this.#w)
+      )
     this.#invalid ||= this.x !== x
     this.#x = x
   }
@@ -261,6 +278,11 @@ export class Cam {
   }
 
   set y(y: number) {
+    if (this.#bounds)
+      y = Math.max(
+        this.#bounds.y,
+        Math.min(y, this.#bounds.y + this.#bounds.h - this.#h)
+      )
     this.#invalid ||= this.y !== y
     this.#y = y
   }
@@ -295,5 +317,7 @@ export class Cam {
 
     this.#w = Math.ceil(phy.w / this.#scale)
     this.#h = Math.ceil(phy.h / this.#scale)
+    this.x = this.#x
+    this.y = this.#y
   }
 }

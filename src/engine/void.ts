@@ -5,7 +5,7 @@ import {Cam} from './graphics/cam.ts'
 import {PixelRatioObserver} from './graphics/pixel-ratio-observer.ts'
 import {Renderer} from './graphics/renderer.ts'
 import type {Sprite} from './graphics/sprite.ts'
-import type {Tileset} from './graphics/tileset.ts'
+import type {LevelTiles, Tileset} from './graphics/tileset.ts'
 import {Input} from './input/input.ts'
 import type {CamConfig} from './level/level.ts'
 import {type EntPropParser, parseLevel} from './level/level-parser.ts'
@@ -42,6 +42,7 @@ export class Void {
   readonly cam: Cam = new Cam()
   readonly canvas: HTMLCanvasElement
   readonly input: Input
+  level: LevelTiles | undefined
   readonly loader: Loader
   readonly looper: Looper = new Looper()
   readonly pool: PoolMap
@@ -161,6 +162,8 @@ export class Void {
     const lvl = parseLevel(json, this.pool, parseProp, this.atlas[atlas])
     if (lvl.background != null) this.backgroundRGBA = lvl.background
     if (lvl.cam) this.configCam(lvl.cam)
+    this.level = lvl.tiles
+    this.cam.bounds = lvl.tiles
     if (lvl.tiles != null && this.tileset) {
       const w = Math.ceil(lvl.tiles.w / this.tileset.tileWH.w)
       const h = Math.ceil(lvl.tiles.h / this.tileset.tileWH.h)

@@ -9,10 +9,11 @@ export class SuperballHook implements V.Hook {
     ent.sprite.x += ent.superball.vx * v.tick.s
     ent.sprite.y += ent.superball.vy * v.tick.s
 
-    const left = v.cam.x
-    const right = v.cam.x + v.cam.w - ent.sprite.hitbox!.w
-    const top = v.cam.y
-    const bottom = v.cam.y + v.cam.h - ent.sprite.hitbox!.h
+    const bounds = v.level ?? v.cam
+    const left = bounds.x
+    const right = bounds.x + bounds.w - ent.sprite.hitbox!.w
+    const top = bounds.y
+    const bottom = bounds.y + bounds.h - ent.sprite.hitbox!.h
 
     if (v.loader.cursor?.sprite.hitsZ(ent.sprite, v.cam)) {
       ent.superball.vx = -ent.superball.vx

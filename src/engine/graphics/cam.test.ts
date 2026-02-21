@@ -312,6 +312,56 @@ test('zoom out in float mode subtracts fractionally', () => {
   assert(cam.h, 72)
 })
 
+test('bounds: clamps x and y', () => {
+  using dpr = new DevicePixelRatioMock()
+  dpr.ratio = 1
+  const cam = new Cam()
+  cam.minWH = {w: 100, h: 50}
+  const canvas = TestCanvas(200, 100) // cam is 100×50
+  cam.update(canvas)
+
+  cam.bounds = {x: 0, y: 0, w: 200, h: 100}
+  cam.x = 150 // max = 200 - 100 = 100
+  assert(cam.x, 100)
+  cam.y = 80 // max = 100 - 50 = 50
+  assert(cam.y, 50)
+})
+
+test('bounds: re-clamps x on resize', () => {
+  using dpr = new DevicePixelRatioMock()
+  dpr.ratio = 1
+  const cam = new Cam()
+  cam.minWH = {w: 100, h: 50}
+  const canvas = TestCanvas(200, 100) // cam is 100×50
+  cam.update(canvas)
+
+  cam.bounds = {x: 0, y: 0, w: 200, h: 100}
+  cam.x = 80 // within max 100
+  assert(cam.x, 80)
+
+  // widen canvas so cam becomes 200 wide; max x = 200 - 200 = 0
+  canvas.parentElement.clientWidth = 400
+  cam.update(canvas)
+  assert(cam.x, 0)
+})
+
+test('bounds: clearing bounds removes clamping', () => {
+  using dpr = new DevicePixelRatioMock()
+  dpr.ratio = 1
+  const cam = new Cam()
+  cam.minWH = {w: 100, h: 50}
+  const canvas = TestCanvas(200, 100)
+  cam.update(canvas)
+
+  cam.bounds = {x: 0, y: 0, w: 200, h: 100}
+  cam.x = 500
+  assert(cam.x, 100) // clamped
+
+  cam.bounds = undefined
+  cam.x = 500
+  assert(cam.x, 500) // unclamped
+})
+
 function TestCanvas(
   clientWidth: number,
   clientHeight: number
