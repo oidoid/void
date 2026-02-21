@@ -25,8 +25,8 @@ npm install --save @oidoid/void
 
 ### Local Development
 
-1. clone void as a sibling directory of the game.
-2. `npm link ../void` from the game.
+1. clone void as a sibling directory of the app.
+2. `npm link ../void` from the app.
 3. add `customConditions` to the root `tsconfig` for esbuild and a void reference for tsc. Eg:
 
 ```jsonc
@@ -70,7 +70,7 @@ it's similar to modifying `HTMLElementTagNameMap`.
 
 populating the world usually requires defining a new ent (data type), a hook (behavior on data), a schema (level data format), and a parser (schema to ent transform). hooks are executed on ent lists ("zoos") in level loaders.
 
-ents are plain, nonnullish, key-value data that describe game entities.
+ents are plain, nonnullish, key-value data that describe app entities.
 
 `Ent` is a superset of all possible key-values. use declaration merging to type. all other ents are subsets. eg, `CursorEnt` is `{cursor: Cursor, sprite: Sprite}`.
 
@@ -84,15 +84,15 @@ hooks are classes that process ents and usually pair to a specific ent. they're 
 
 #### Queries
 
-queries declare props required on an ent by a hook.
+queries declare props required on an ent by a hook. syntax: `[!]<key>[ & | <query>]`, no grouping. eg `'button & fullscreenToggle & sprite'`.
 
 #### Order
 
-lists then ents are typically updated in insertion order. the cam and then cursor _ents_ should appear first.
-
-props are parsed and updated in key order. the recommended order is:
+lists then ents then props are typically updated in insertion order. strongly avoid varying order. the debug input, cam, and cursor _ents_ should appear first. draw should appear last. the recommended prop order is:
 
 - `debugInput`
+- `debugLoseContextButton`
+- `cam`
 - `id`
 - `name`
 - `text`
@@ -103,8 +103,11 @@ props are parsed and updated in key order. the recommended order is:
 - `ninePatch`
 - `button`
 - `textXY`
+- `fps`
+- `fullscreenToggle`
 - `invalid`
 - `override`
+- `draw`
 
 hooks are uniquely associated with a key. zero or one hook per key. if multiple keys on an ent are associated with a hook, it will be run multiple times per update.
 
@@ -114,11 +117,20 @@ ents and subsystems self-report as invalid when an update or render is required.
 
 ### Schema
 
-there are two schemas: a game configuration (`void.json`) and level configs (`*.level.jsonc`). the parser assumes a valid schema to minimize code size.
+there are two schemas: a app configuration (`void.json`) and level configs (`*.level.jsonc`). the parser assumes a valid schema to minimize code size.
 
 levels are described with the level schema. some schema props may only be applied at parse time.
 
 there's no runtime validation.
+
+### Project Layout
+
+- `schema/`: JSON Schemas for all apps.
+- `src/engine/`: game engine and runtime APIs.
+- `src/cli/`: `void` command line interface for building void apps.
+- `src/demo/`: engine demonstration.
+- `src/tv/`: level editor.
+- `src/test/`: shared test utils.
 
 ## tv
 
