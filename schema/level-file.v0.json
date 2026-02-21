@@ -141,6 +141,10 @@
         },
         "draw": {"$ref": "#/$defs/Draw", "unevaluatedProperties": false},
         "fps": {"$ref": "#/$defs/FPS", "unevaluatedProperties": false},
+        "fullscreenToggle": {
+          "$ref": "#/$defs/FullscreenToggle",
+          "unevaluatedProperties": false
+        },
         "hud": {"$ref": "#/$defs/HUD", "unevaluatedProperties": false},
         "id": {"type": "string", "description": "unique lookup identifier."},
         "name": {"type": "string", "description": "debug identifier."},
@@ -174,6 +178,10 @@
       "$comment": "`uniqueItemProperties` is ajv-keywords only."
     },
     "FPS": {"type": "object", "description": "FPS config."},
+    "FullscreenToggle": {
+      "type": "object",
+      "description": "fullscreen toggle config."
+    },
     "HUD": {
       "type": "object",
       "description": "HUD config.",

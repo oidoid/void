@@ -9,10 +9,6 @@
           "type": "object",
           "properties": {
             "clock": {"$ref": "#/$defs/Clock", "unevaluatedProperties": false},
-            "fullscreenToggle": {
-              "$ref": "#/$defs/FullscreenToggle",
-              "unevaluatedProperties": false
-            },
             "renderToggle": {
               "$ref": "#/$defs/RenderToggle",
               "unevaluatedProperties": false
@@ -37,10 +33,6 @@
           }
         }
       ]
-    },
-    "FullscreenToggle": {
-      "type": "object",
-      "description": "fullscreen toggle config."
     },
     "RenderToggle": {"type": "object", "description": "render toggle config."},
     "ScreenshotButton": {

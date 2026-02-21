@@ -20,11 +20,10 @@ export interface CamData {}
 
 export type DebugLoseContextButton = {end: number}
 
-export type FullscreenToggle = object
-
 export type Cursor = {
   /** screen area cursor may move within. */
   bounds: Box
+  /** if greater than zero, follow keyboard movement in pixels per second. */
   keyboard: number
   pick?: Tag
   point: Tag
@@ -70,6 +69,8 @@ export type FPS = {
   prevFrames: number
   next: {created: Millis; startClears: number}
 }
+
+export type FullscreenToggle = object
 
 export type HUD = {
   fill?: XYFlag

@@ -91,6 +91,8 @@ export class Void {
     }
 
     this.renderer = new Renderer(this.atlas.default, this.canvas, this.looper)
+    // this doesn't really work. we only get `onContextRestored()` when pending
+    // RAF.
     this.renderer.onContextRestored = () => this.onEvent()
 
     this.tileset = opts.config.tileset

@@ -1,7 +1,5 @@
 import type * as V from '../../engine/index.ts'
 
-export type Rotate = {speed: number}
-
 export type RotateEnt = V.HookEnt<RotateHook>
 
 /** writes to sprite.angle. */

@@ -1,4 +1,4 @@
-import {requestFullscreen} from '../utils/canvas-util.ts'
+import {isFullscreen, requestFullscreen} from '../utils/fullscreen-util.ts'
 import type {Void} from '../void.ts'
 import {buttonOn, buttonSetOn} from './button.ts'
 import type {Hook, HookEnt} from './hook.ts'
@@ -9,18 +9,16 @@ export class FullscreenToggleHook implements Hook {
   readonly query = 'button & fullscreenToggle & sprite'
 
   update(ent: FullscreenToggleEnt, v: Void): void {
-    const isFullscreen =
-      document.fullscreenElement === v.canvas ||
-      (innerWidth === screen.width && innerHeight === screen.height)
+    const fullscreen = isFullscreen()
 
-    if (!ent.button.started && buttonOn(ent) !== isFullscreen) {
-      buttonSetOn(ent, isFullscreen)
+    if (!ent.button.started && buttonOn(ent) !== fullscreen) {
+      buttonSetOn(ent, fullscreen)
       return
     }
 
     if (!ent.button.started) return
 
-    if (buttonOn(ent)) void requestFullscreen(v.canvas)
+    if (buttonOn(ent)) void requestFullscreen(v)
     else if (document.fullscreenElement) void document.exitFullscreen()
   }
 }
