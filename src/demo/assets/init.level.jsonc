@@ -2868,6 +2868,17 @@
         "override": {"invalid": false}
       },
 
+      {
+        "name": "EntCounter",
+        "text": "",
+        "sprite": {"z": "UIA"},
+        "entCounter": {},
+        "textWH": {},
+        "hud": {"origin": "SE", "margin": {"s": 12, "e": 4}},
+        "textXY": {},
+        "override": {"invalid": false}
+      },
+
       {"name": "Draw", "draw": {}}
     ]
   }

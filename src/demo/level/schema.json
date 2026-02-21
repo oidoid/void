@@ -21,6 +21,10 @@
               "$ref": "#/$defs/Rotate",
               "unevaluatedProperties": false
             },
+            "entCounter": {
+              "$ref": "#/$defs/EntCounter",
+              "unevaluatedProperties": false
+            },
             "tally": {"$ref": "#/$defs/Tally", "unevaluatedProperties": false},
             "superball": {
               "$ref": "#/$defs/Superball",
@@ -50,6 +54,7 @@
         }
       }
     },
+    "EntCounter": {"type": "object", "description": "ent counter config."},
     "Tally": {"type": "object", "description": "tally config."},
     "Superball": {"type": "object", "description": "superball config."},
     "SuperballButton": {
