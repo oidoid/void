@@ -1,6 +1,6 @@
 {
   "$schema": "../level/level-file.v0.json",
-  "cam": {"minWH": {"w": 640, "h": 480}},
+  "cam": {"minWH": {"w": 320, "h": 240}},
   "level": {
     "x": -24,
     "y": -24,
@@ -57,8 +57,8 @@
         "name": "RenderToggle",
         "text": "render",
         "sprite": {"z": "UID"},
-        "textWH": {"pad": 2, "scale": 2, "trim": "Leading"},
-        "hud": {"origin": "NE", "margin": {"n": 2, "e": 2}},
+        "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
+        "hud": {"origin": "NE", "margin": {"n": 4, "e": 4}},
         "ninePatch": {
           "border": 1,
           "pad": 2,
@@ -83,8 +83,8 @@
         "name": "DebugLoseContext",
         "text": "GL!",
         "sprite": {"z": "UID"},
-        "textWH": {"pad": 2, "scale": 2, "trim": "Leading"},
-        "hud": {"origin": "NE", "margin": {"n": 2, "e": 60}},
+        "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
+        "hud": {"origin": "NE", "margin": {"n": 4, "e": 45}},
         "ninePatch": {
           "border": 1,
           "pad": 2,
@@ -109,8 +109,8 @@
         "name": "Superballs Button",
         "text": "+",
         "sprite": {"z": "UID"},
-        "textWH": {"pad": 2, "scale": 2, "trim": "Leading"},
-        "hud": {"origin": "NE", "margin": {"n": 2, "e": 90}},
+        "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
+        "hud": {"origin": "NE", "margin": {"n": 4, "e": 72}},
         "ninePatch": {
           "border": 1,
           "pad": 2,
@@ -135,8 +135,8 @@
         "name": "Fullscreen",
         "text": "full",
         "sprite": {"z": "UID"},
-        "textWH": {"pad": 2, "scale": 2, "trim": "Leading"},
-        "hud": {"origin": "NE", "margin": {"n": 2, "e": 108}},
+        "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
+        "hud": {"origin": "NE", "margin": {"n": 4, "e": 93}},
         "ninePatch": {
           "border": 1,
           "pad": 2,
@@ -161,8 +161,8 @@
         "name": "Screenshot",
         "text": "pic",
         "sprite": {"z": "UID"},
-        "textWH": {"pad": 2, "scale": 2, "trim": "Leading"},
-        "hud": {"origin": "NE", "margin": {"n": 2, "e": 142}},
+        "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
+        "hud": {"origin": "NE", "margin": {"n": 4, "e": 122}},
         "ninePatch": {
           "border": 1,
           "pad": 2,
@@ -252,7 +252,7 @@
         "sprite": {"z": "UIA"},
         "tally": {},
         "textWH": {},
-        "hud": {"origin": "NE", "margin": {"n": 6, "e": 172}},
+        "hud": {"origin": "NE", "margin": {"n": 6, "e": 151}},
         "textXY": {},
         "override": {"invalid": false}
       },
