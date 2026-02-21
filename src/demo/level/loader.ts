@@ -9,7 +9,7 @@ import {ScreenshotButtonHook} from '../ents/screenshot-button.ts'
 import {SuperballHook} from '../ents/superball.ts'
 import {SuperballButtonHook} from '../ents/superball-button.ts'
 import {TallyHook} from '../ents/tally.ts'
-import {parseComponent} from './level-parser.ts'
+import {parseEntProp} from './level-parser.ts'
 
 export class Loader implements V.Loader {
   cursor: V.CursorEnt | undefined
@@ -67,7 +67,7 @@ export class Loader implements V.Loader {
       V.millisUntilNext(new Date(), V.debug?.seconds ? 'Sec' : 'Min')
     )
 
-    this.#zoo = v.loadLevel(levelJSON, 'default', parseComponent)
+    this.#zoo = v.loadLevel(levelJSON, 'default', parseEntProp)
     this.cursor = V.zooFindByID(this.#zoo.default, 'cursor')
     this.#lvl = 'Init'
   }

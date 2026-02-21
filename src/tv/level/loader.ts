@@ -3,7 +3,7 @@ import levelJSON from '../assets/tv.level.jsonc' with {type: 'json'}
 import {CamHook} from '../ents/cam.ts'
 import {DrawHook} from '../ents/draw.ts'
 import {TilePickerHook} from '../ents/tile-picker.ts'
-import {parseComponent} from './level-parser.ts'
+import {parseEntProp} from './level-parser.ts'
 
 export class Loader implements V.Loader {
   cursor: V.CursorEnt | undefined
@@ -42,7 +42,7 @@ export class Loader implements V.Loader {
   }
 
   #init(v: V.Void): void {
-    this.#zoo = v.loadLevel(levelJSON, 'default', parseComponent)
+    this.#zoo = v.loadLevel(levelJSON, 'default', parseEntProp)
     this.cursor = V.zooFindByID(this.#zoo.default, 'cursor')
     this.#lvl = 'Init'
   }

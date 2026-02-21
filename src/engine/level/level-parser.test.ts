@@ -9,12 +9,12 @@ import type {PoolMap} from '../mem/pool-map.ts'
 import {SpritePool} from '../mem/sprite-pool.ts'
 import type {Box} from '../types/geo.ts'
 import {
-  type ComponentHook,
+  type EntPropParser,
   parseBorder,
   parseButton,
   parseCursor,
   parseEnt,
-  parseEntComponent,
+  parseEntProp,
   parseHUD,
   parseLevel,
   parseNinePatch,
@@ -76,7 +76,7 @@ test('parseButton()', () => {
   assert(b.selected.tag, 'stem--B')
 })
 
-test('parseEnt() with parseComponent override hook', () => {
+test('parseEnt() with parseEntProp() override', () => {
   const pools = TestPools()
   const json: EntSchema = {
     name: 'X',
@@ -84,13 +84,13 @@ test('parseEnt() with parseComponent override hook', () => {
     widget: {gears: 5}
   }
 
-  // no hook.
+  // no parser.
   let ent = parseEnt(json, pools, () => undefined, atlas)
   assert(ent.name, 'X')
   assert(ent.sprite?.tag, 'stem--A')
   assert((ent as {widget: number}).widget, undefined)
 
-  // hook.
+  // parser.
   ent = parseEnt(
     json,
     pools,
@@ -107,7 +107,7 @@ test('parseEnt() with parseComponent override hook', () => {
 
 test('parseEnt() preserves key insertion order', () => {
   const pools = TestPools()
-  const hook: ComponentHook = (_ent, json, k) => {
+  const parseProp: EntPropParser = (_ent, json, k) => {
     if (json[k] == null) return
     if (k === 'widget') return json[k].gears satisfies Ent[typeof k]
   }
@@ -124,7 +124,7 @@ test('parseEnt() preserves key insertion order', () => {
     widget: {gears: 3},
     textWH: {maxW: 100, scale: 2}
   }
-  assert(Object.keys(parseEnt(a, pools, hook, atlas)), [
+  assert(Object.keys(parseEnt(a, pools, parseProp, atlas)), [
     ...Object.keys(a),
     'invalid'
   ])
@@ -138,20 +138,20 @@ test('parseEnt() preserves key insertion order', () => {
     textWH: {},
     button: {pressed: 'stem--A', selected: 'stem--B'}
   }
-  assert(Object.keys(parseEnt(b, pools, hook, atlas)), [
+  assert(Object.keys(parseEnt(b, pools, parseProp, atlas)), [
     ...Object.keys(b),
     'invalid'
   ])
 
   const c: EntSchema = {name: 'name', id: '2'}
-  assert(Object.keys(parseEnt(c, pools, hook, atlas)), [
+  assert(Object.keys(parseEnt(c, pools, parseProp, atlas)), [
     'name',
     'id',
     'invalid'
   ])
 })
 
-test('parseEntComponent()', () => {
+test('parseEntProp()', () => {
   const pools = TestPools()
   const json: EntSchema = {
     id: '1',
@@ -165,15 +165,15 @@ test('parseEntComponent()', () => {
     button: {pressed: 'stem--A', selected: 'stem--B', type: 'Toggle'}
   }
 
-  assert(parseEntComponent({}, json, 'id', pools, atlas), '1')
-  assert(parseEntComponent({}, json, 'name', pools, atlas), 'Name')
-  assert(parseEntComponent({}, json, 'text', pools, atlas), 'text')
+  assert(parseEntProp({}, json, 'id', pools, atlas), '1')
+  assert(parseEntProp({}, json, 'name', pools, atlas), 'Name')
+  assert(parseEntProp({}, json, 'text', pools, atlas), 'text')
   assert(
-    (parseEntComponent({}, json, 'sprite', pools, atlas) as Sprite).tag,
+    (parseEntProp({}, json, 'sprite', pools, atlas) as Sprite).tag,
     'stem--A'
   )
   assert(
-    parseEntComponent(
+    parseEntProp(
       {sprite: parseSprite('stem--A', pools, atlas)},
       json,
       'ninePatch',
@@ -196,14 +196,14 @@ test('parseEntComponent()', () => {
       }
     }
   )
-  assert(parseEntComponent({}, json, 'hud', pools, atlas), {
+  assert(parseEntProp({}, json, 'hud', pools, atlas), {
     fill: undefined,
     margin: {n: 2, s: 2, w: 2, e: 2},
     modulo: {x: 0, y: 0},
     origin: 'N'
   })
   assert(
-    parseEntComponent(
+    parseEntProp(
       {sprite: parseSprite('stem--B', pools, atlas)},
       json,
       'cursor',
@@ -217,7 +217,7 @@ test('parseEntComponent()', () => {
       point: 'stem--B'
     }
   )
-  assert(parseEntComponent({}, json, 'textWH', pools, atlas), {
+  assert(parseEntProp({}, json, 'textWH', pools, atlas), {
     layout: {chars: [], cursor: {x: 0, y: 0}, w: 0, h: 0, trimmedH: 0},
     maxW: 100,
     pad: {n: 0, s: 0, w: 0, e: 0},
@@ -225,12 +225,12 @@ test('parseEntComponent()', () => {
     trim: undefined
   })
   assert(
-    (parseEntComponent({}, json, 'button', pools, atlas) as Button).type,
+    (parseEntProp({}, json, 'button', pools, atlas) as Button).type,
     'Toggle'
   )
 
   assert(
-    parseEntComponent({}, {}, 'missing' as keyof EntSchema, pools, atlas),
+    parseEntProp({}, {}, 'missing' as keyof EntSchema, pools, atlas),
     undefined
   )
 })

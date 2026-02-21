@@ -8,7 +8,7 @@ import type {Sprite} from './graphics/sprite.ts'
 import type {Tileset} from './graphics/tileset.ts'
 import {Input} from './input/input.ts'
 import type {CamConfig} from './level/level.ts'
-import {type ComponentHook, parseLevel} from './level/level-parser.ts'
+import {type EntPropParser, parseLevel} from './level/level-parser.ts'
 import type {LevelSchema} from './level/level-schema.ts'
 import type {Loader} from './level/loader.ts'
 import {Looper, type LoopReason} from './looper.ts'
@@ -154,9 +154,9 @@ export class Void {
   loadLevel(
     json: Readonly<LevelSchema>,
     atlas: keyof AtlasMap,
-    hook: ComponentHook
+    parseProp: EntPropParser
   ): Zoo {
-    const lvl = parseLevel(json, this.pool, hook, this.atlas[atlas])
+    const lvl = parseLevel(json, this.pool, parseProp, this.atlas[atlas])
     if (lvl.background != null) this.backgroundRGBA = lvl.background
     if (lvl.cam) this.configCam(lvl.cam)
     if (lvl.tiles != null && this.tileset) {

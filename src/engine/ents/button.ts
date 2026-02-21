@@ -55,7 +55,7 @@ export function buttonFree(ent: ButtonEnt): void {
   ent.button.pressed.free()
   ent.button.selected.free()
   ent.invalid = true
-  // to-do: how to update zoo synchronously to remove the component and not run update()?
+  // to-do: how to update zoo synchronously to remove the prop and not run update()?
 }
 
 export function buttonSetOn(ent: ButtonEnt, on: boolean): void {

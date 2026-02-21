@@ -1,7 +1,7 @@
 import * as V from '../../engine/index.ts'
 
-export const parseComponent: V.ComponentHook = (ent, json, k) => {
-  if (json[k] == null) throw Error('no component val')
+export const parseEntProp: V.EntPropParser = (ent, json, k) => {
+  if (json[k] == null) throw Error('no prop val')
   switch (k) {
     case 'superball':
     case 'superballButton':

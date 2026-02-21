@@ -37,7 +37,7 @@ import type {
   UnboundedWHSchema
 } from './level-schema.ts'
 
-export type ComponentHook = (
+export type EntPropParser = (
   ent: Ent,
   json: Readonly<EntSchema>,
   k: keyof EntSchema,
@@ -48,12 +48,12 @@ export type ComponentHook = (
 export function parseLevel(
   json: Readonly<LevelSchema>,
   pools: Readonly<PoolMap>,
-  hook: ComponentHook,
+  parseProp: EntPropParser,
   atlas: Readonly<Atlas>
 ): Level {
   const zoo: Zoo & {[list: string]: Set<Ent>} = {default: new Set()}
   for (const [list, ents] of Object.entries(json.zoo))
-    zoo[list] = new Set(ents.map(ent => parseEnt(ent, pools, hook, atlas)))
+    zoo[list] = new Set(ents.map(ent => parseEnt(ent, pools, parseProp, atlas)))
   return {
     background: json.background ? parseInt(json.background, 16) : undefined,
     cam: json.cam ? parseCamConfig(json.cam) : undefined,
@@ -124,21 +124,21 @@ export function parseCursor(ent: Ent, json: Readonly<CursorSchema>): Cursor {
 export function parseEnt(
   json: Readonly<EntSchema>,
   pools: Readonly<PoolMap>,
-  hook: ComponentHook,
+  parseProp: EntPropParser,
   atlas: Readonly<Atlas>
 ): Ent {
   const ent: {[k: string]: Ent[keyof Ent]} = {}
   for (const _k in json) {
     const k = _k as keyof EntSchema
     ent[k] =
-      hook(ent, json, k, pools, atlas) ??
-      parseEntComponent(ent, json, k, pools, atlas)
+      parseProp(ent, json, k, pools, atlas) ??
+      parseEntProp(ent, json, k, pools, atlas)
   }
   ent.invalid = true
   return ent
 }
 
-export function parseEntComponent(
+export function parseEntProp(
   ent: Ent,
   json: Readonly<EntSchema>,
   k: keyof EntSchema,
@@ -159,14 +159,13 @@ export function parseEntComponent(
       return parseCamData() satisfies Ent[typeof k]
     case 'debugInput':
     case 'draw':
+    case 'fullscreenToggle':
     case 'id':
     case 'name':
     case 'text':
       return json[k] satisfies Ent[typeof k]
     case 'debugLoseContextButton':
       return {end: 0} satisfies Ent[typeof k]
-    case 'fullscreenToggle':
-      return json[k] satisfies Ent[typeof k]
     case 'ninePatch':
       return parseNinePatch(ent, json[k], pools, atlas) satisfies Ent[typeof k]
     case 'override':

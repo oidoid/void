@@ -37,7 +37,7 @@ export type DebugInput = object
 
 /**
  * it doesn't really make sense for ents to be classes because their shared
- * independent component bags still need to be passed in.
+ * independent prop bags still need to be passed in.
  */
 export interface Ent {
   button?: Button

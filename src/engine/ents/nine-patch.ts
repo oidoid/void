@@ -31,7 +31,7 @@ export function ninePatchFree(ent: NinePatchEnt): void {
   ent.ninePatch.patch.sw?.free()
   ent.ninePatch.patch.center?.free()
   ent.invalid = true
-  // to-do: how to update zoo synchronously to remove the component and not run update()?
+  // to-do: how to update zoo synchronously to remove the prop and not run update()?
 }
 
 function getStart(ent: Readonly<NinePatchEnt>): XY {

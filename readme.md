@@ -90,7 +90,7 @@ queries declare props required on an ent by a hook.
 
 lists then ents are typically updated in insertion order. the cam and then cursor _ents_ should appear first.
 
-components are parsed and updated in key order. the recommended order is:
+props are parsed and updated in key order. the recommended order is:
 
 - `debugInput`
 - `id`
@@ -116,7 +116,7 @@ ents and subsystems self-report as invalid when an update or render is required.
 
 there are two schemas: a game configuration (`void.json`) and level configs (`*.level.jsonc`). the parser assumes a valid schema to minimize code size.
 
-levels are described with the level schema. some schema components may only be applied at parse time.
+levels are described with the level schema. some schema props may only be applied at parse time.
 
 there's no runtime validation.
 
