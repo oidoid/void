@@ -182,3 +182,4 @@ lists then ents then props are typically updated in insertion order. strongly av
 - `override`
 - `draw`
 
+eg, if a new prop `randomText` changes the `text` field, it should appear before `textWH` which sizes to the text. 
