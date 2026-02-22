@@ -93,6 +93,7 @@
       }
     },
     "CamData": {"type": "object", "description": "cam data config."},
+    "CamStats": {"type": "object", "description": "cam stats config."},
     "CompassDir": {
       "description": "cardinal and ordinal directions and center.",
       "enum": ["Center", "N", "S", "W", "E", "NW", "NE", "SW", "SE"]
@@ -130,6 +131,10 @@
       "properties": {
         "button": {"$ref": "#/$defs/Button", "unevaluatedProperties": false},
         "cam": {"$ref": "#/$defs/CamData", "unevaluatedProperties": false},
+        "camStats": {
+          "$ref": "#/$defs/CamStats",
+          "unevaluatedProperties": false
+        },
         "cursor": {"$ref": "#/$defs/Cursor", "unevaluatedProperties": false},
         "debugInput": {
           "$ref": "#/$defs/DebugInput",

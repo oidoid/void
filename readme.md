@@ -70,7 +70,7 @@ it's similar to modifying `HTMLElementTagNameMap`.
 
 populating the world usually requires defining a new ent (data type), a hook (behavior on data), a schema (level data format), and a parser (schema to ent transform). hooks are executed on ent lists ("zoos") in level loaders.
 
-ents are plain, nonnullish, key-value data that describe app entities.
+ents are plain, nonnullish, key-value (props) data that describe app entities.
 
 `Ent` is a superset of all possible key-values. use declaration merging to type. all other ents are subsets. eg, `CursorEnt` is `{cursor: Cursor, sprite: Sprite}`.
 
@@ -80,7 +80,7 @@ the special `Ent.invalid` field flags whether the screen should be redrawn (whic
 
 #### Hooks
 
-hooks are classes that process ents and usually pair to a specific ent. they're passed ents matching their query. eg, `CursorHook` requires at least the `CursorEnt` subset. prefer ent state to hook state.
+hooks are classes that process ents and usually pair to a specific ent. they're passed ents matching their query. eg, `CursorHook` requires at least the `CursorEnt` subset. prefer ent state to hook state. dataless behaviors use a empty `object` marker prop.
 
 #### Queries
 

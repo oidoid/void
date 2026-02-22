@@ -20,6 +20,7 @@ export class Loader implements V.Loader {
     cursor: new V.CursorHook(),
     debugInput: new V.DebutInputHook(),
     fps: new V.FPSHook(),
+    camStats: new V.CamStatsHook(),
     hud: new V.HUDHook(),
     ninePatch: new V.NinePatchHook(),
     override: new V.OverrideHook(),

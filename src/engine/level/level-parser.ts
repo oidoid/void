@@ -157,6 +157,7 @@ export function parseEntProp(
       return parseHUD(json[k]) satisfies Ent[typeof k]
     case 'cam':
       return parseCamData() satisfies Ent[typeof k]
+    case 'camStats':
     case 'debugInput':
     case 'draw':
     case 'fullscreenToggle':

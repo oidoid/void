@@ -2648,8 +2648,19 @@
         "fps": {},
         "text": "",
         "sprite": {"z": "UIA"},
-        "textWH": {"trim": "Descender"},
-        "hud": {"origin": "SE", "margin": 4},
+        "textWH": {"trim": "Leading"},
+        "hud": {"origin": "SE", "margin": {"s": 3, "e": 4}},
+        "textXY": {},
+        "override": {"invalid": false}
+      },
+
+      {
+        "name": "CamStats",
+        "camStats": {},
+        "text": "",
+        "sprite": {"z": "UIA"},
+        "textWH": {"trim": "Leading"},
+        "hud": {"origin": "SE", "margin": {"s": 3, "e": 19}},
         "textXY": {},
         "override": {"invalid": false}
       },
@@ -2799,8 +2810,8 @@
         "text": "",
         "sprite": {"z": "UIF"},
         "clock": {},
-        "textWH": {"scale": 2, "trim": "Descender"},
-        "hud": {"margin": {"y": 4}, "origin": "S"},
+        "textWH": {"scale": 2, "trim": "Leading"},
+        "hud": {"margin": {"y": 2}, "origin": "S"},
         "textXY": {}
       },
       {

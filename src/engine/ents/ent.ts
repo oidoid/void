@@ -18,6 +18,8 @@ export type ButtonType = 'Button' | 'Toggle'
 // biome-ignore lint/suspicious/noEmptyInterface:;
 export interface CamData {}
 
+export type CamStats = object
+
 export type DebugLoseContextButton = {end: number}
 
 export type Cursor = {
@@ -41,6 +43,7 @@ export type DebugInput = object
 export interface Ent {
   button?: Button
   cam?: CamData
+  camStats?: CamStats
   cursor?: Cursor
   debugInput?: DebugInput
   debugLoseContextButton?: DebugLoseContextButton

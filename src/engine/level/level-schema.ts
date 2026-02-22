@@ -19,6 +19,7 @@ export interface CamConfigSchema {
 }
 // biome-ignore lint/suspicious/noEmptyInterface:;
 export interface CamDataSchema {}
+export type CamStatsSchema = object
 export type CursorSchema = {keyboard?: number; pick?: Tag}
 export type DebugInputSchema = object
 export type DebugLoseContextButtonSchema = object
@@ -28,6 +29,7 @@ export type FullscreenToggleSchema = object
 export interface EntSchema {
   button?: ButtonSchema
   cam?: CamDataSchema
+  camStats?: CamStatsSchema
   cursor?: CursorSchema
   debugInput?: DebugInputSchema
   debugLoseContextButton?: DebugLoseContextButtonSchema
