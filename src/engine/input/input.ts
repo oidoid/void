@@ -15,6 +15,7 @@ import {Wheel} from './wheel.ts'
 export type AnyButton =
   | 'U' | 'D' | 'L' | 'R' // dpad.
   | 'A' | 'B' | 'C'       // primary, secondary, tertiary.
+  | 'Shift' // modifier.
   | 'Menu' | 'Back'
 
 export type Chord = [AnyButton, ...AnyButton[]]
@@ -265,6 +266,7 @@ export class Input {
     this.mapKeyboardCode('A', 'KeyX', 'Space', 'Comma')
     this.mapKeyboardCode('B', 'KeyZ', 'Period')
     this.mapKeyboardCode('C', 'KeyC', 'Slash')
+    this.mapKeyboardCode('Shift', 'ShiftLeft', 'ShiftRight')
     this.mapKeyboardCode('Menu', 'Enter')
     this.mapKeyboardCode('Back', 'Escape')
 
@@ -280,6 +282,7 @@ export class Input {
     this.mapGamepadButton('A', 0)
     this.mapGamepadButton('B', 2)
     this.mapGamepadButton('C', 1)
+    this.mapGamepadButton('Shift', 4, 5) // L1/R1 shoulder buttons.
     this.mapGamepadButton('Menu', 9)
     this.mapGamepadButton('Back', 8)
 
