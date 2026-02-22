@@ -109,6 +109,16 @@ export class RotateHook implements V.Hook {
 }
 ```
 
+avoid exposing behavior outside of `<prop>.ts`. if necessary, consider the API pattern of `TextEnt` in `engine/ents/text.ts`:
+
+```ts
+export function textSetText(ent: TextEnt, str: string): void {
+  if (str === ent.text) return // avoid mutation!
+  ent.text = str
+  ent.invalid = true // mutations always set invalid!
+}
+```
+
 `update()` should mark modified ents with `ent.invalid = true` to require a redraw. avoid redraws.
 
 **6. add the parser.** add a new `parse<Prop>()` function to `<app>/level/level-parser.ts` / `engine/level/level-parser.ts`:
