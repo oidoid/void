@@ -43,6 +43,7 @@ export interface EntSchema {
   text?: string
   textWH?: TextWHSchema
   textXY?: TextXYSchema
+  zooStats?: ZooStatsSchema
 }
 export type FPSSchema = object
 export type HUDSchema = {
@@ -98,3 +99,4 @@ export type UnboundedWHSchema = {
   w?: number | 'Infinity'
   h?: number | 'Infinity'
 }
+export type ZooStatsSchema = object

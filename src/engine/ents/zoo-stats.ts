@@ -1,0 +1,26 @@
+import type {Void} from '../void.ts'
+import type {Hook, HookEnt} from './hook.ts'
+import {textSetText} from './text.ts'
+
+export type ZooStatsEnt = HookEnt<ZooStatsHook>
+
+/** writes to text, invalid. */
+export class ZooStatsHook implements Hook {
+  readonly query = 'zooStats & text'
+
+  update(ent: ZooStatsEnt, v: Void): void {
+    const ents = Object.values(v.loader.zoo).reduce(
+      (sum, set) => sum + set.size,
+      0
+    )
+    const sprites = Object.values(v.pool).reduce(
+      (sum, arr) => sum + arr.size,
+      0
+    )
+    const txt = [
+      `${`${ents}`.padStart(8, ' ')} ents`,
+      `${`${sprites}`.padStart(8, ' ')} sprites`
+    ].join('\n')
+    textSetText(ent, txt)
+  }
+}

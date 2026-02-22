@@ -63,6 +63,7 @@ export interface Ent {
   text?: string
   textWH?: TextWH
   textXY?: TextXY
+  zooStats?: ZooStats
 }
 
 export type FPS = {
@@ -100,3 +101,5 @@ export type Trim = 'Leading' | 'Descender'
 export type TextXY = {chars: Sprite[]; z: Layer}
 
 export type XYFlag = 'XY' | 'X' | 'Y'
+
+export type ZooStats = object

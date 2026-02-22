@@ -3,7 +3,6 @@ import * as V from '../../engine/index.ts'
 export const parseEntProp: V.EntPropParser = (ent, json, k) => {
   if (json[k] == null) throw Error('no prop val')
   switch (k) {
-    case 'entCounter':
     case 'superball':
     case 'superballButton':
     case 'clock':

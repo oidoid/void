@@ -160,6 +160,7 @@ export function parseEntProp(
     case 'debugInput':
     case 'draw':
     case 'fullscreenToggle':
+    case 'zooStats':
     case 'id':
     case 'name':
     case 'text':

@@ -3,13 +3,13 @@ import levelJSON from '../assets/init.level.jsonc' with {type: 'json'}
 import {CamHook} from '../ents/cam.ts'
 import {ClockHook} from '../ents/clock.ts'
 import {DrawHook} from '../ents/draw.ts'
-import {EntCounterHook} from '../ents/ent-counter.ts'
 import {RenderToggleHook} from '../ents/render-toggle.ts'
 import {RotateHook} from '../ents/rotate.ts'
 import {ScreenshotButtonHook} from '../ents/screenshot-button.ts'
 import {SuperballHook} from '../ents/superball.ts'
 import {SuperballButtonHook} from '../ents/superball-button.ts'
 import {TallyHook} from '../ents/tally.ts'
+
 import {parseEntProp} from './level-parser.ts'
 
 export class Loader implements V.Loader {
@@ -31,7 +31,7 @@ export class Loader implements V.Loader {
     textXY: new V.TextXYHook(),
     cam: new CamHook(),
     clock: new ClockHook(),
-    entCounter: new EntCounterHook(),
+    zooStats: new V.ZooStatsHook(),
     debugLoseContextButton: new V.DebugLoseContextButtonHook(),
     fullscreenToggle: new V.FullscreenToggleHook(),
     renderToggle: new RenderToggleHook(),

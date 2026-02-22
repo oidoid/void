@@ -164,7 +164,11 @@
         },
         "text": {"$ref": "#/$defs/Text", "unevaluatedProperties": false},
         "textWH": {"$ref": "#/$defs/TextWH", "unevaluatedProperties": false},
-        "textXY": {"$ref": "#/$defs/TextXY", "unevaluatedProperties": false}
+        "textXY": {"$ref": "#/$defs/TextXY", "unevaluatedProperties": false},
+        "zooStats": {
+          "$ref": "#/$defs/ZooStats",
+          "unevaluatedProperties": false
+        }
       }
     },
     "EntList": {
@@ -258,11 +262,11 @@
         },
         "x": {
           "type": "integer",
-          "description": "level x origin."
+          "description": "level x origin. sprite coordinates have a range of [-131072, 131071.984375] with a granularity of 1/64 (.015625)."
         },
         "y": {
           "type": "integer",
-          "description": "level y origin."
+          "description": "level y origin. sprite coordinates have a range of [-131072, 131071.984375] with a granularity of 1/64 (.015625)."
         }
       }
     },
@@ -458,7 +462,7 @@
     },
     "XY": {
       "type": "object",
-      "description": "horizontal and vertical dimensions. sprite coordinates have a range of [-131072, 131071.984375] with a granularity of .015625.",
+      "description": "horizontal and vertical dimensions. sprite coordinates have a range of [-131072, 131071.984375] with a granularity of 1/64 (.015625).",
       "properties": {
         "x": {"type": "number", "description": "horizontal dimension."},
         "y": {"type": "number", "description": "vertical dimension."}
@@ -467,7 +471,8 @@
     "XYFlag": {
       "description": "horizontal and vertical state.",
       "enum": ["XY", "X", "Y"]
-    }
+    },
+    "ZooStats": {"type": "object", "description": "zoo stats config."}
   },
   "unevaluatedProperties": false,
   "required": ["zoo"],
