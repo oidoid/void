@@ -146,6 +146,11 @@
         "mem-prop-5x6--7d",
         "mem-prop-5x6--7e",
         "mem-prop-5x6--7f",
+        "mouse--Base",
+        "mouse--Primary",
+        "mouse--Secondary",
+        "mouse--Tertiary",
+        "mouse--Locked",
         "oidoid--Default",
         "poly--Triangle",
         "poly--Square",
@@ -299,10 +304,15 @@
     "mem-prop-5x6--7d": 138,
     "mem-prop-5x6--7e": 139,
     "mem-prop-5x6--7f": 140,
-    "oidoid--Default": 141,
-    "poly--Triangle": 142,
-    "poly--Square": 143,
-    "superball--Default": 144
+    "mouse--Base": 141,
+    "mouse--Primary": 142,
+    "mouse--Secondary": 143,
+    "mouse--Tertiary": 144,
+    "mouse--Locked": 145,
+    "oidoid--Default": 146,
+    "poly--Triangle": 147,
+    "poly--Square": 148,
+    "superball--Default": 149
   },
   "tiles": {"void--Nil": 0, "tile--GreyDots": 1, "tile--BlueDots": 2}
 }

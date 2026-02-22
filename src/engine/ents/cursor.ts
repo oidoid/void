@@ -43,6 +43,10 @@ export class CursorHook implements Hook {
   }
 }
 
+export function cursorIsVisible(ent: CursorEnt): boolean {
+  return !ent.sprite.hidden
+}
+
 /** @internal */
 export function onKey(ent: CursorEnt, input: Input, tick: Secs): void {
   const len = floorSpriteEpsilon(ent.cursor.keyboard * tick)

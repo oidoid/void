@@ -3,6 +3,7 @@ import levelJSON from '../assets/init.level.jsonc' with {type: 'json'}
 import {CamHook} from '../ents/cam.ts'
 import {ClockHook} from '../ents/clock.ts'
 import {DrawHook} from '../ents/draw.ts'
+import {MouseHook} from '../ents/mouse.ts'
 import {RenderToggleHook} from '../ents/render-toggle.ts'
 import {RotateHook} from '../ents/rotate.ts'
 import {ScreenshotButtonHook} from '../ents/screenshot-button.ts'
@@ -24,6 +25,7 @@ export class Loader implements V.Loader {
     hud: new V.HUDHook(),
     ninePatch: new V.NinePatchHook(),
     override: new V.OverrideHook(),
+    mouse: new MouseHook(),
     rotate: new RotateHook(),
     superball: new SuperballHook(),
     superballButton: new SuperballButtonHook(),

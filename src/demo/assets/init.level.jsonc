@@ -2644,6 +2644,13 @@
       },
 
       {
+        "name": "Mouse",
+        "sprite": {"tag": "mouse--Base", "z": "UIA"},
+        "hud": {"origin": "SE", "margin": {"s": 28, "e": 4}},
+        "mouse": {}
+      },
+
+      {
         "name": "FPS",
         "fps": {},
         "text": "",

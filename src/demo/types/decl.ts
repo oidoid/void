@@ -1,6 +1,7 @@
 import type * as V from '../../engine/index.ts'
 import type {
   Clock,
+  Mouse,
   RenderToggle,
   Rotate,
   ScreenshotButton,
@@ -10,6 +11,7 @@ import type {
 } from '../ents/ent.ts'
 import type {
   ClockSchema,
+  MouseSchema,
   RenderToggleSchema,
   RotateSchema,
   ScreenshotButtonSchema,
@@ -28,6 +30,7 @@ declare module '../../engine/index.ts' {
 
   interface Ent {
     clock?: Clock
+    mouse?: Mouse
     renderToggle?: RenderToggle
     rotate?: Rotate
     screenshotButton?: ScreenshotButton
@@ -38,6 +41,7 @@ declare module '../../engine/index.ts' {
 
   interface EntSchema {
     clock?: ClockSchema
+    mouse?: MouseSchema
     renderToggle?: RenderToggleSchema
     rotate?: RotateSchema
     screenshotButton?: ScreenshotButtonSchema
