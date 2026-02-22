@@ -16,6 +16,11 @@ export class SuperballHook implements V.Hook {
     const bottom = bounds.y + bounds.h - ent.sprite.hitbox!.h
 
     if (v.loader.cursor?.sprite.hitsZ(ent.sprite, v.cam)) {
+      if (v.input.isOn('A')) {
+        ent.sprite.free()
+        v.loader.zoo.default.delete(ent)
+        return
+      }
       ent.superball.vx = -ent.superball.vx
       ent.superball.vy = -ent.superball.vy
       ent.sprite.x += ent.superball.vx * 2 * v.tick.s
