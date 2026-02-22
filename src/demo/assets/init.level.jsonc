@@ -2644,10 +2644,10 @@
       },
 
       {
-        "name": "Mouse",
-        "sprite": {"tag": "mouse--Base", "z": "UIA"},
+        "name": "MouseStatus",
+        "sprite": {"tag": "mouse-status--Base", "z": "UIA"},
         "hud": {"origin": "SE", "margin": {"s": 28, "e": 4}},
-        "mouse": {}
+        "mouseStatus": {}
       },
 
       {
@@ -2662,8 +2662,8 @@
       },
 
       {
-        "name": "CamStats",
-        "camStats": {},
+        "name": "CamStatus",
+        "camStatus": {},
         "text": "",
         "sprite": {"z": "UIA"},
         "textWH": {"trim": "Leading"},
@@ -2887,10 +2887,10 @@
       },
 
       {
-        "name": "ZooStats",
+        "name": "ZooStatus",
         "text": "",
         "sprite": {"z": "UIA"},
-        "zooStats": {},
+        "zooStatus": {},
         "textWH": {},
         "hud": {"origin": "SE", "margin": {"s": 12, "e": 4}},
         "textXY": {},

@@ -19,7 +19,7 @@ export interface CamConfigSchema {
 }
 // biome-ignore lint/suspicious/noEmptyInterface:;
 export interface CamDataSchema {}
-export type CamStatsSchema = object
+export type CamStatusSchema = object
 export type CursorSchema = {keyboard?: number; pick?: Tag}
 export type DebugInputSchema = object
 export type DebugLoseContextButtonSchema = object
@@ -29,7 +29,7 @@ export type FullscreenToggleSchema = {noLock?: boolean}
 export interface EntSchema {
   button?: ButtonSchema
   cam?: CamDataSchema
-  camStats?: CamStatsSchema
+  camStatus?: CamStatusSchema
   cursor?: CursorSchema
   debugInput?: DebugInputSchema
   debugLoseContextButton?: DebugLoseContextButtonSchema
@@ -45,7 +45,7 @@ export interface EntSchema {
   text?: string
   textWH?: TextWHSchema
   textXY?: TextXYSchema
-  zooStats?: ZooStatsSchema
+  zooStatus?: ZooStatusSchema
 }
 export type FPSSchema = object
 export type HUDSchema = {
@@ -101,4 +101,4 @@ export type UnboundedWHSchema = {
   w?: number | 'Infinity'
   h?: number | 'Infinity'
 }
-export type ZooStatsSchema = object
+export type ZooStatusSchema = object

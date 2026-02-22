@@ -161,13 +161,13 @@ export function parseEntProp(
       return parseCamData() satisfies Ent[typeof k]
     case 'fullscreenToggle':
       return parseFullscreenToggle(json[k]) satisfies Ent[typeof k]
-    case 'camStats':
+    case 'camStatus':
     case 'debugInput':
     case 'draw':
-    case 'zooStats':
     case 'id':
     case 'name':
     case 'text':
+    case 'zooStatus':
       return json[k] satisfies Ent[typeof k]
     case 'debugLoseContextButton':
       return {end: 0} satisfies Ent[typeof k]

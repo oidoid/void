@@ -2,13 +2,13 @@ import type {Void} from '../void.ts'
 import type {Hook, HookEnt} from './hook.ts'
 import {textSetText} from './text.ts'
 
-export type ZooStatsEnt = HookEnt<ZooStatsHook>
+export type ZooStatusEnt = HookEnt<ZooStatusHook>
 
 /** writes to text, invalid. */
-export class ZooStatsHook implements Hook {
-  readonly query = 'zooStats & text'
+export class ZooStatusHook implements Hook {
+  readonly query = 'zooStatus & text'
 
-  update(ent: ZooStatsEnt, v: Void): void {
+  update(ent: ZooStatusEnt, v: Void): void {
     const ents = Object.values(v.loader.zoo).reduce(
       (sum, set) => sum + set.size,
       0

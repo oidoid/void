@@ -1,7 +1,7 @@
 import type * as V from '../../engine/index.ts'
 
 export type Clock = object
-export type Mouse = {
+export type MouseStatus = {
   primary: V.Sprite
   secondary: V.Sprite
   tertiary: V.Sprite

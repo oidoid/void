@@ -93,7 +93,7 @@
       }
     },
     "CamData": {"type": "object", "description": "cam data config."},
-    "CamStats": {"type": "object", "description": "cam stats config."},
+    "CamStatus": {"type": "object", "description": "cam status config."},
     "CompassDir": {
       "description": "cardinal and ordinal directions and center.",
       "enum": ["Center", "N", "S", "W", "E", "NW", "NE", "SW", "SE"]
@@ -131,8 +131,8 @@
       "properties": {
         "button": {"$ref": "#/$defs/Button", "unevaluatedProperties": false},
         "cam": {"$ref": "#/$defs/CamData", "unevaluatedProperties": false},
-        "camStats": {
-          "$ref": "#/$defs/CamStats",
+        "camStatus": {
+          "$ref": "#/$defs/CamStatus",
           "unevaluatedProperties": false
         },
         "cursor": {"$ref": "#/$defs/Cursor", "unevaluatedProperties": false},
@@ -170,8 +170,8 @@
         "text": {"$ref": "#/$defs/Text", "unevaluatedProperties": false},
         "textWH": {"$ref": "#/$defs/TextWH", "unevaluatedProperties": false},
         "textXY": {"$ref": "#/$defs/TextXY", "unevaluatedProperties": false},
-        "zooStats": {
-          "$ref": "#/$defs/ZooStats",
+        "zooStatus": {
+          "$ref": "#/$defs/ZooStatus",
           "unevaluatedProperties": false
         }
       }
@@ -483,7 +483,7 @@
       "description": "horizontal and vertical state.",
       "enum": ["XY", "X", "Y"]
     },
-    "ZooStats": {"type": "object", "description": "zoo stats config."}
+    "ZooStatus": {"type": "object", "description": "zoo status config."}
   },
   "unevaluatedProperties": false,
   "required": ["zoo"],

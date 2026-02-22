@@ -9,7 +9,10 @@
           "type": "object",
           "properties": {
             "clock": {"$ref": "#/$defs/Clock", "unevaluatedProperties": false},
-            "mouse": {"$ref": "#/$defs/Mouse", "unevaluatedProperties": false},
+            "mouseStatus": {
+              "$ref": "#/$defs/MouseStatus",
+              "unevaluatedProperties": false
+            },
             "renderToggle": {
               "$ref": "#/$defs/RenderToggle",
               "unevaluatedProperties": false
@@ -35,7 +38,7 @@
         }
       ]
     },
-    "Mouse": {"type": "object", "description": "mouse config."},
+    "MouseStatus": {"type": "object", "description": "mouse config."},
     "RenderToggle": {"type": "object", "description": "render toggle config."},
     "ScreenshotButton": {
       "type": "object",

@@ -3,7 +3,7 @@ import levelJSON from '../assets/init.level.jsonc' with {type: 'json'}
 import {CamHook} from '../ents/cam.ts'
 import {ClockHook} from '../ents/clock.ts'
 import {DrawHook} from '../ents/draw.ts'
-import {MouseHook} from '../ents/mouse.ts'
+import {MouseStatusHook} from '../ents/mouse-status.ts'
 import {RenderToggleHook} from '../ents/render-toggle.ts'
 import {RotateHook} from '../ents/rotate.ts'
 import {ScreenshotButtonHook} from '../ents/screenshot-button.ts'
@@ -18,29 +18,29 @@ export class Loader implements V.Loader {
   #lvl: 'Init' | undefined
   readonly #hooks: Readonly<V.HookMap> = {
     button: new V.ButtonHook(),
+    cam: new CamHook(),
+    camStatus: new V.CamStatusHook(),
+    clock: new ClockHook(),
     cursor: new V.CursorHook(),
     debugInput: new V.DebutInputHook(),
+    debugLoseContextButton: new V.DebugLoseContextButtonHook(),
+    draw: new DrawHook(),
     fps: new V.FPSHook(),
-    camStats: new V.CamStatsHook(),
+    fullscreenToggle: new V.FullscreenToggleHook(),
     hud: new V.HUDHook(),
+    mouseStatus: new MouseStatusHook(),
     ninePatch: new V.NinePatchHook(),
     override: new V.OverrideHook(),
-    mouse: new MouseHook(),
+    renderToggle: new RenderToggleHook(),
     rotate: new RotateHook(),
+    screenshotButton: new ScreenshotButtonHook(),
+    sprite: new V.SpriteHook(),
     superball: new SuperballHook(),
     superballButton: new SuperballButtonHook(),
-    sprite: new V.SpriteHook(),
+    tally: new TallyHook(),
     textWH: new V.TextWHHook(),
     textXY: new V.TextXYHook(),
-    cam: new CamHook(),
-    clock: new ClockHook(),
-    zooStats: new V.ZooStatsHook(),
-    debugLoseContextButton: new V.DebugLoseContextButtonHook(),
-    fullscreenToggle: new V.FullscreenToggleHook(),
-    renderToggle: new RenderToggleHook(),
-    screenshotButton: new ScreenshotButtonHook(),
-    tally: new TallyHook(),
-    draw: new DrawHook()
+    zooStatus: new V.ZooStatusHook()
   }
   #zoo: V.Zoo = {default: new Set()}
 

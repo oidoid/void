@@ -3,12 +3,12 @@ import type {Void} from '../void.ts'
 import type {Hook, HookEnt} from './hook.ts'
 import {textSetText} from './text.ts'
 
-export type CamStatsEnt = HookEnt<CamStatsHook>
+export type CamStatusEnt = HookEnt<CamStatusHook>
 
-export class CamStatsHook implements Hook {
-  readonly query = 'camStats & text'
+export class CamStatusHook implements Hook {
+  readonly query = 'camStatus & text'
 
-  update(ent: CamStatsEnt, v: Void): void {
+  update(ent: CamStatusEnt, v: Void): void {
     const {x, y, w, h, scale} = v.cam
     const scaleFmt = scale.toFixed(3).replace(/\.?0+$/, '')
     const f = isFullscreen() ? 'f' : ''

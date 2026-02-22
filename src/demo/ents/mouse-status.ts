@@ -1,12 +1,12 @@
 import * as V from '../../engine/index.ts'
 
 /** writes to sprite hidden; and overlay sprites XY, hidden. */
-export type MouseEnt = V.HookEnt<MouseHook>
+export type MouseStatusEnt = V.HookEnt<MouseStatusHook>
 
-export class MouseHook implements V.Hook {
-  readonly query = 'hud & mouse & sprite'
+export class MouseStatusHook implements V.Hook {
+  readonly query = 'hud & mouseStatus & sprite'
 
-  update(ent: MouseEnt, v: V.Void): void {
+  update(ent: MouseStatusEnt, v: V.Void): void {
     if (
       !ent.invalid &&
       !v.cam.invalid &&
@@ -21,19 +21,19 @@ export class MouseHook implements V.Hook {
     ent.sprite.hidden = !active
 
     if (active) {
-      updateOverlay(ent.sprite, ent.mouse.primary, v.input.isOn('A'))
-      updateOverlay(ent.sprite, ent.mouse.secondary, v.input.isOn('B'))
-      updateOverlay(ent.sprite, ent.mouse.tertiary, v.input.isOn('C'))
+      updateOverlay(ent.sprite, ent.mouseStatus.primary, v.input.isOn('A'))
+      updateOverlay(ent.sprite, ent.mouseStatus.secondary, v.input.isOn('B'))
+      updateOverlay(ent.sprite, ent.mouseStatus.tertiary, v.input.isOn('C'))
       updateOverlay(
         ent.sprite,
-        ent.mouse.locked,
+        ent.mouseStatus.locked,
         v.input.pointer.locked // to-do: confusing to have pointer and point separately.
       )
     } else {
-      ent.mouse.primary.hidden = true
-      ent.mouse.secondary.hidden = true
-      ent.mouse.tertiary.hidden = true
-      ent.mouse.locked.hidden = true
+      ent.mouseStatus.primary.hidden = true
+      ent.mouseStatus.secondary.hidden = true
+      ent.mouseStatus.tertiary.hidden = true
+      ent.mouseStatus.locked.hidden = true
     }
 
     ent.invalid = true
