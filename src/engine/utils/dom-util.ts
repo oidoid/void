@@ -31,3 +31,10 @@ export function initMetaViewport(description: string | undefined): void {
     document.head.appendChild(desc)
   }
 }
+
+export async function requestPointerLock(el: Element): Promise<void> {
+  if (!document.pointerLockElement)
+    try {
+      await el.requestPointerLock()
+    } catch {}
+}

@@ -339,7 +339,11 @@ export class Input {
     return this.#pointerState
   }
 
-  get pointer(): {dragMinClient: number} {
+  get pointer(): {
+    dragMinClient: number
+    locked: boolean
+    lock(): Promise<void>
+  } {
     return this.#pointer
   }
 

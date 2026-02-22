@@ -74,7 +74,7 @@ export type FPS = {
   next: {created: Millis; startClears: number}
 }
 
-export type FullscreenToggle = object
+export type FullscreenToggle = {noLock: boolean}
 
 export type HUD = {
   fill?: XYFlag

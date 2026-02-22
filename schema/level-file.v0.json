@@ -189,7 +189,13 @@
     "FPS": {"type": "object", "description": "FPS config."},
     "FullscreenToggle": {
       "type": "object",
-      "description": "fullscreen toggle config."
+      "description": "fullscreen toggle config.",
+      "properties": {
+        "noLock": {
+          "type": "boolean",
+          "description": "if true, skip pointer lock when entering fullscreen."
+        }
+      }
     },
     "HUD": {
       "type": "object",

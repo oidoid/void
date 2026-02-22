@@ -1,6 +1,8 @@
 import type {Void} from '../void.ts'
+import {requestPointerLock} from './dom-util.ts'
 
 export function isFullscreen(): boolean {
+  if (!globalThis.document) return false
   return (
     !!document.fullscreenElement ||
     (innerWidth === screen.width && innerHeight === screen.height) ||
@@ -8,7 +10,17 @@ export function isFullscreen(): boolean {
   )
 }
 
-export async function requestFullscreen(v: Void): Promise<boolean> {
+export async function exitFullscreen(): Promise<void> {
+  if (document.fullscreenElement)
+    try {
+      await document.exitFullscreen()
+    } catch {}
+}
+
+export async function requestFullscreen(
+  v: Void,
+  noLock?: 'NoLock'
+): Promise<boolean> {
   if (!document.fullscreenEnabled) return false
 
   if (document.fullscreenElement !== v.canvas)
@@ -18,17 +30,7 @@ export async function requestFullscreen(v: Void): Promise<boolean> {
       return false
     }
 
-  if (!document.pointerLockElement) {
-    try {
-      // to-do: how does pointer know about this being unadjusted?
-      await v.canvas.requestPointerLock({unadjustedMovement: true})
-    } catch (err) {
-      if (err instanceof Error && err.name === 'NotSupportedError')
-        try {
-          await v.canvas.requestPointerLock()
-        } catch {}
-    }
-  }
+  if (!noLock) await requestPointerLock(v.canvas)
 
   v.onEvent()
   return true

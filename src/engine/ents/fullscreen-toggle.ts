@@ -1,4 +1,8 @@
-import {isFullscreen, requestFullscreen} from '../utils/fullscreen-util.ts'
+import {
+  exitFullscreen,
+  isFullscreen,
+  requestFullscreen
+} from '../utils/fullscreen-util.ts'
 import type {Void} from '../void.ts'
 import {buttonOn, buttonSetOn} from './button.ts'
 import type {Hook, HookEnt} from './hook.ts'
@@ -18,7 +22,17 @@ export class FullscreenToggleHook implements Hook {
 
     if (!ent.button.started) return
 
-    if (buttonOn(ent)) void requestFullscreen(v)
-    else if (document.fullscreenElement) void document.exitFullscreen()
+    if (buttonOn(ent))
+      void requestFullscreen(
+        v,
+        ent.fullscreenToggle.noLock ? 'NoLock' : undefined
+      )
+    else if (
+      fullscreen &&
+      !ent.fullscreenToggle.noLock &&
+      !v.input.pointer.locked
+    )
+      void v.input.pointer.lock()
+    else void exitFullscreen()
   }
 }

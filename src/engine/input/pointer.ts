@@ -7,6 +7,8 @@ import {
   xyMin,
   xySub
 } from '../types/geo.ts'
+import {requestPointerLock} from '../utils/dom-util.ts'
+import {isFullscreen} from '../utils/fullscreen-util.ts'
 
 export type PointType =
   (typeof pointTypeByPointerType)[keyof typeof pointTypeByPointerType]
@@ -78,6 +80,10 @@ export class Pointer {
     return xyAdd(bounds, {x: bounds.w / 2, y: bounds.h / 2})
   }
 
+  async lock(): Promise<void> {
+    await requestPointerLock(this.#target)
+  }
+
   get locked(): boolean {
     return this.#target.ownerDocument.pointerLockElement === this.#target
   }
@@ -144,15 +150,9 @@ export class Pointer {
 
     let xyClient
     if (locked) {
-      // `devicePixelRatio` seems to be incorrect. when zoom is 500%, DPR is 10.
-      // in full screen, this would give the actual zoom allowing `movementX`
-      // to match the `offsetX` delta:
-      //   const scale = document.documentElement.clientWidth / screen.availWidth
-      //   console.log(
-      //     `screenDelta=${ev.screenX - prevScreen.x} movementX=${ev.movementX} movementXScaled=${ev.movementX * scale} offsetDelta=${ev.offsetX - prevOffset.x} clientDelta=${ev.clientX - prevClient.x}`
-      //   )
-      // probably wouldn't work across devices though.
-      const scale = 1 / devicePixelRatio
+      const scale = isFullscreen()
+        ? document.documentElement.clientWidth / screen.availWidth
+        : 1 / devicePixelRatio
 
       // to-do: this should allow offscreen.
       xyClient = {

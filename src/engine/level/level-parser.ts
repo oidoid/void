@@ -4,6 +4,7 @@ import type {
   Cursor,
   Ent,
   FPS,
+  FullscreenToggle,
   HUD,
   NinePatch,
   Override,
@@ -27,6 +28,7 @@ import type {
   CursorSchema,
   EntSchema,
   FPSSchema,
+  FullscreenToggleSchema,
   HUDSchema,
   LevelSchema,
   NinePatchSchema,
@@ -157,10 +159,11 @@ export function parseEntProp(
       return parseHUD(json[k]) satisfies Ent[typeof k]
     case 'cam':
       return parseCamData() satisfies Ent[typeof k]
+    case 'fullscreenToggle':
+      return parseFullscreenToggle(json[k]) satisfies Ent[typeof k]
     case 'camStats':
     case 'debugInput':
     case 'draw':
-    case 'fullscreenToggle':
     case 'zooStats':
     case 'id':
     case 'name':
@@ -181,6 +184,12 @@ export function parseEntProp(
     default:
       k satisfies never
   }
+}
+
+export function parseFullscreenToggle(
+  json: Readonly<FullscreenToggleSchema>
+): FullscreenToggle {
+  return {noLock: json.noLock ?? false}
 }
 
 export function parseFPS(_json: Readonly<FPSSchema>): FPS {
