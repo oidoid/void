@@ -27,12 +27,6 @@ export class FullscreenToggleHook implements Hook {
         v,
         ent.fullscreenToggle.noLock ? 'NoLock' : undefined
       )
-    else if (
-      fullscreen &&
-      !ent.fullscreenToggle.noLock &&
-      !v.input.pointer.locked
-    )
-      void v.input.pointer.lock()
     else void exitFullscreen(v)
   }
 }
