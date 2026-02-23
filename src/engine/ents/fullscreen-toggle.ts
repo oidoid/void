@@ -33,6 +33,6 @@ export class FullscreenToggleHook implements Hook {
       !v.input.pointer.locked
     )
       void v.input.pointer.lock()
-    else void exitFullscreen()
+    else void exitFullscreen(v)
   }
 }

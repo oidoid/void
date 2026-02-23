@@ -10,11 +10,18 @@ export function isFullscreen(): boolean {
   )
 }
 
-export async function exitFullscreen(): Promise<void> {
+export async function exitFullscreen(v: Void): Promise<boolean> {
   if (document.fullscreenElement)
     try {
       await document.exitFullscreen()
-    } catch {}
+    } catch {
+      return false
+    }
+
+  // hack: no pointer up or cancel.
+  v.input.reset()
+
+  return true
 }
 
 export async function requestFullscreen(
@@ -29,6 +36,9 @@ export async function requestFullscreen(
     } catch {
       return false
     }
+
+  // hack: no pointer up or cancel.
+  v.input.reset()
 
   if (!noLock) await requestPointerLock(v.canvas)
 
