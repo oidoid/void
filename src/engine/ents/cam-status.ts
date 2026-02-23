@@ -9,12 +9,14 @@ export class CamStatusHook implements Hook {
   readonly query = 'camStatus & text'
 
   update(ent: CamStatusEnt, v: Void): void {
-    const {x, y, w, h, scale} = v.cam
-    const scaleFmt = scale.toFixed(3).replace(/\.?0+$/, '')
+    if (!v.cam.invalid) return
+    const scaleFmt = v.cam.scale.toFixed(3).replace(/\.?0+$/, '')
+    const xFmt = v.cam.x.toFixed(3).replace(/\.?0+$/, '')
+    const yFmt = v.cam.y.toFixed(3).replace(/\.?0+$/, '')
     const f = isFullscreen() ? 'f' : ''
     textSetText(
       ent,
-      `(${Math.round(x)}, ${Math.round(y)}) ${w}x${h}${f}@${scaleFmt}x`
+      `(${xFmt}, ${yFmt}) ${v.cam.w}x${v.cam.h}${f}@${scaleFmt}x`
     )
   }
 }
