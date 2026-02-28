@@ -27,6 +27,8 @@ export class Renderer {
   always: boolean = debug?.render === 'always'
   /** number of clears performed. often used to count render passes. */
   clears: number = 0
+  drawStart: Millis = 0
+  drawEnd: Millis = 0
   loseContext: WEBGL_lose_context | undefined
   onContextRestored: (() => void) | undefined
   readonly #atlas: Readonly<Atlas>
@@ -182,7 +184,12 @@ export class Renderer {
     this.#invalid = true
   }
 
+  postdraw(): void {
+    this.drawEnd = performance.now()
+  }
+
   predraw(cam: Readonly<Cam>): void {
+    this.drawStart = performance.now()
     if (!this.#ctx) return
     const {gl, spriteShader, viewport} = this.#ctx
 

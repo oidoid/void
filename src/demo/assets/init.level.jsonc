@@ -2644,6 +2644,12 @@
       },
 
       {
+        "name": "StatusPanel",
+        "sprite": {"tag": "background--Strawberry", "z": "G", "h": 24},
+        "hud": {"origin": "SW", "fill": "X"}
+      },
+
+      {
         "name": "MouseStatus",
         "sprite": {"tag": "mouse-status--Base", "z": "UIA"},
         "hud": {"origin": "SE", "margin": {"s": 28, "e": 4}},
@@ -2667,7 +2673,7 @@
         "text": "",
         "sprite": {"z": "UIA"},
         "textWH": {"trim": "Leading"},
-        "hud": {"origin": "SE", "margin": {"s": 3, "e": 19}},
+        "hud": {"origin": "SW", "margin": {"s": 4, "w": 24}},
         "textXY": {},
         "override": {"invalid": false}
       },

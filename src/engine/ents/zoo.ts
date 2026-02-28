@@ -1,3 +1,4 @@
+import type {Millis} from '../types/time.ts'
 import {debug} from '../utils/debug.ts'
 import type {Void} from '../void.ts'
 import type {Ent} from './ent.ts'
@@ -31,6 +32,7 @@ export function zooUpdate(
   hooks: Readonly<HookMap>,
   v: Void
 ): void {
+  const start = performance.now()
   for (const ent of ents) {
     for (const k in ent) hooks[k as keyof Ent]?.update?.(ent as never, v)
     if (ent.invalid && debug?.invalid)
@@ -38,6 +40,7 @@ export function zooUpdate(
     v.invalid ||= !!ent.invalid
     ent.invalid = false
   }
+  v.metrics.update = (performance.now() - start) as Millis
 }
 
 export function zooValidate(

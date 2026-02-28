@@ -6,13 +6,16 @@ export type LoopReason = 'Poll' | 'Render'
 export class Looper {
   /** duration of frames observed. */
   age: Millis = 0
+  /** when frame arrived in . */
+  frameStart: Millis = 0
   onFrame:
     | ((millis: Millis, reason: LoopReason) => 'Skip' | undefined)
     | undefined
   #reason: LoopReason = 'Render'
   #req: number = 0
   #registered: boolean = false
-  #start: Millis = 0
+  /** when the frame was requested. */
+  #requested: Millis = 0
 
   register(op: 'add' | 'remove'): this {
     const fn = `${op}EventListener` as const
@@ -26,7 +29,7 @@ export class Looper {
   requestFrame(reason: LoopReason): void {
     this.#reason = this.#reason === 'Render' ? this.#reason : reason
     if (this.#req || document.hidden || !this.#registered) return
-    this.#start = performance.now()
+    this.#requested = performance.now()
     this.#req = requestAnimationFrame(this.#onFrame)
   }
 
@@ -40,8 +43,8 @@ export class Looper {
   }
 
   #onFrame = (): void => {
-    const now = performance.now()
-    const millis = (now - this.#start) as Millis
+    this.frameStart = performance.now()
+    const millis = (this.frameStart - this.#requested) as Millis
     this.#req = 0
     this.age += millis
     const reason = this.#reason
