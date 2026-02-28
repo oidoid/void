@@ -1,6 +1,7 @@
 import type * as V from '../../engine/index.ts'
 
 export type Clock = object
+export type CollideToggle = object
 export type MouseStatus = {
   primary: V.Sprite
   secondary: V.Sprite

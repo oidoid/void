@@ -1,6 +1,7 @@
 import * as V from '../../engine/index.ts'
 import levelJSON from '../assets/init.level.jsonc' with {type: 'json'}
 import {ClockHook} from '../ents/clock.ts'
+import {CollideToggleHook} from '../ents/collide-toggle.ts'
 import {MouseStatusHook} from '../ents/mouse-status.ts'
 import {RenderToggleHook} from '../ents/render-toggle.ts'
 import {RotateHook} from '../ents/rotate.ts'
@@ -12,12 +13,14 @@ import {TallyHook} from '../ents/tally.ts'
 import {parseEntProp} from './level-parser.ts'
 
 export class Loader implements V.Loader {
+  collide: boolean = false
   cursor: V.CursorEnt | undefined
   #lvl: 'Init' | undefined
   readonly #hooks: Readonly<V.HookMap> = {
     button: new V.ButtonHook(),
     camStatus: new V.CamStatusHook(),
     clock: new ClockHook(),
+    collideToggle: new CollideToggleHook(),
     cursor: new V.CursorHook(),
     debugInput: new V.DebutInputHook(),
     debugLoseContextButton: new V.DebugLoseContextButtonHook(),

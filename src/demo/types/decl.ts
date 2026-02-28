@@ -1,6 +1,7 @@
 import type * as V from '../../engine/index.ts'
 import type {
   Clock,
+  CollideToggle,
   MouseStatus,
   RenderToggle,
   Rotate,
@@ -11,6 +12,7 @@ import type {
 } from '../ents/ent.ts'
 import type {
   ClockSchema,
+  CollideToggleSchema,
   MouseStatusSchema,
   RenderToggleSchema,
   RotateSchema,
@@ -30,6 +32,7 @@ declare module '../../engine/index.ts' {
 
   interface Ent {
     clock?: Clock
+    collideToggle?: CollideToggle
     mouseStatus?: MouseStatus
     renderToggle?: RenderToggle
     rotate?: Rotate
@@ -41,6 +44,7 @@ declare module '../../engine/index.ts' {
 
   interface EntSchema {
     clock?: ClockSchema
+    collideToggle?: CollideToggleSchema
     mouseStatus?: MouseStatusSchema
     renderToggle?: RenderToggleSchema
     rotate?: RotateSchema
@@ -48,6 +52,10 @@ declare module '../../engine/index.ts' {
     tally?: TallySchema
     superball?: SuperballSchema
     superballButton?: SuperballButtonSchema
+  }
+
+  interface Loader {
+    collide: boolean
   }
 
   interface PoolMap {

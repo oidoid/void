@@ -6,6 +6,7 @@ export const parseEntProp: V.EntPropParser = (ent, json, k, pools) => {
   switch (k) {
     case 'mouseStatus':
       return parseMouseStatus(pools) satisfies V.Ent[typeof k]
+    case 'collideToggle':
     case 'superball':
     case 'superballButton':
     case 'clock':

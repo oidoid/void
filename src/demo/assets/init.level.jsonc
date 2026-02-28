@@ -2791,6 +2791,32 @@
         "textXY": {"z": "UIE"}
       },
       {
+        "name": "Collide",
+        "text": "collide",
+        "sprite": {"z": "UID"},
+        "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
+        "hud": {"origin": "NE", "margin": {"n": 4, "e": 149}},
+        "ninePatch": {
+          "border": 1,
+          "pad": 2,
+          "patch": {
+            "center": "background--Kiwi",
+            "n": "background--Black",
+            "s": "background--Black",
+            "w": "background--Black",
+            "e": "background--Black"
+          }
+        },
+        "button": {
+          "pressed": "background--Bubblegum",
+          "selected": "background--OrangeCheckerboard",
+          "type": "Toggle",
+          "z": "UIC"
+        },
+        "collideToggle": {},
+        "textXY": {"z": "UIE"}
+      },
+      {
         "name": "Screenshot",
         "text": "pic",
         "sprite": {"z": "UID"},
