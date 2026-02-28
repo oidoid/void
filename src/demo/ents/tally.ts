@@ -9,8 +9,8 @@ export class TallyHook implements V.Hook {
   update(ent: TallyEnt, v: V.Void): void {
     ent.tally.updates++
     const text = [
-      `${`${ent.tally.updates}`.padStart(8, ' ')} updates`,
-      `${`${v.renderer.clears + 1}`.padStart(8, ' ')} renders`
+      `${`${ent.tally.updates}`.padStart(8, ' ')}U`,
+      `${`${v.renderer.clears + 1}`.padStart(8, ' ')}D`
     ].join('\n')
     V.textSetText(ent, text)
   }

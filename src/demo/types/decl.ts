@@ -63,4 +63,8 @@ declare module '../../engine/index.ts' {
     // biome-ignore lint/style/useShorthandFunctionType:;
     (): keyof typeof tags.tiles
   }
+
+  interface Zoo {
+    coords: Set<Ent>
+  }
 }

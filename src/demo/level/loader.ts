@@ -42,12 +42,13 @@ export class Loader implements V.Loader {
     textXY: new V.TextXYHook(),
     zooStatus: new V.ZooStatusHook()
   }
-  #zoo: V.Zoo = {default: new Set()}
+  #zoo: V.Zoo = {coords: new Set(), default: new Set()}
 
   update(v: V.Void): void {
     switch (this.#lvl) {
       case undefined:
         this.#init(v)
+        V.zooUpdate(this.#zoo.coords, this.#hooks, v)
         break
       case 'Init':
         break
@@ -55,7 +56,7 @@ export class Loader implements V.Loader {
         this.#lvl satisfies never
     }
 
-    for (const zoo of Object.values(this.#zoo)) V.zooUpdate(zoo, this.#hooks, v)
+    V.zooUpdate(this.#zoo.default, this.#hooks, v)
   }
 
   get zoo(): Readonly<V.Zoo> {

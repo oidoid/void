@@ -2886,8 +2886,8 @@
         "text": "",
         "sprite": {"z": "UIA"},
         "tally": {},
-        "textWH": {},
-        "hud": {"origin": "NE", "margin": {"n": 6, "e": 151}},
+        "textWH": {"trim": "Leading"},
+        "hud": {"origin": "SE", "margin": {"s": 3, "e": 90}},
         "textXY": {},
         "override": {"invalid": false}
       },
@@ -2903,6 +2903,9 @@
         "override": {"invalid": false}
       },
 
+      {"name": "Draw", "draw": {}}
+    ],
+    "coords": [
       {
         "text": "(-24, -24)",
         "sprite": {"x": -24, "y": -24, "z": "A"},
@@ -4658,9 +4661,7 @@
         "sprite": {"x": 4096, "y": 4096, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
-      },
-
-      {"name": "Draw", "draw": {}}
+      }
     ]
   }
 }

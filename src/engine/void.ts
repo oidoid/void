@@ -38,12 +38,10 @@ export type VoidOpts = {
 }
 
 export type Metrics = {
-  update: Millis
   prev: {
     draw: Millis
     /** duration from frame delivery to yield. */
     frame: Millis
-    update: Millis
   }
 }
 
@@ -55,17 +53,13 @@ export class Void {
   level: LevelTiles | undefined
   readonly loader: Loader
   readonly looper: Looper = new Looper()
+  readonly metrics: Metrics = {prev: {draw: 0, frame: 0}}
   readonly pool: PoolMap
   readonly random: Random
   readonly renderer: Renderer
   readonly tileset: Tileset | undefined
   /** delta since frame request. */
   readonly tick: {ms: Millis; s: Secs} = {ms: 0, s: 0}
-  /** accumulated durations of ent update and draw passes. current frame is being built; prev is the last completed frame. */
-  readonly metrics: Metrics = {
-    update: 0,
-    prev: {draw: 0, frame: 0, update: 0}
-  }
   readonly #atlasImage: HTMLImageElement
   readonly #tilesetImage: HTMLImageElement | undefined
   #backgroundRGBA: number
@@ -207,8 +201,6 @@ export class Void {
     this.#invalid = false
     this.metrics.prev.draw = (this.renderer.drawEnd -
       this.renderer.drawStart) as Millis
-    this.metrics.prev.update = this.metrics.update
-    this.metrics.update = 0
     this.loader.update(this)
 
     this.cam.postupdate()
