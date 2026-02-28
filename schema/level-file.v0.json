@@ -92,7 +92,6 @@
         }
       }
     },
-    "CamData": {"type": "object", "description": "cam data config."},
     "CamStatus": {"type": "object", "description": "cam status config."},
     "CompassDir": {
       "description": "cardinal and ordinal directions and center.",
@@ -124,13 +123,11 @@
       "type": "object",
       "description": "debug lose context button config."
     },
-    "Draw": {"type": "object", "description": "draw config."},
     "Ent": {
       "type": "object",
       "description": "ent config.",
       "properties": {
         "button": {"$ref": "#/$defs/Button", "unevaluatedProperties": false},
-        "cam": {"$ref": "#/$defs/CamData", "unevaluatedProperties": false},
         "camStatus": {
           "$ref": "#/$defs/CamStatus",
           "unevaluatedProperties": false
@@ -144,7 +141,6 @@
           "$ref": "#/$defs/DebugLoseContextButton",
           "unevaluatedProperties": false
         },
-        "draw": {"$ref": "#/$defs/Draw", "unevaluatedProperties": false},
         "fps": {"$ref": "#/$defs/FPS", "unevaluatedProperties": false},
         "fullscreenToggle": {
           "$ref": "#/$defs/FullscreenToggle",

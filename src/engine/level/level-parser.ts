@@ -1,6 +1,5 @@
 import type {
   Button,
-  CamData,
   Cursor,
   Ent,
   FPS,
@@ -98,10 +97,6 @@ export function parseButton(
   return {pressed, selected, started: false, type: json.type ?? 'Button'}
 }
 
-export function parseCamData(): CamData {
-  return {}
-}
-
 export function parseCamConfig(json: Readonly<CamConfigSchema>): CamConfig {
   return {
     minScale: json.minScale,
@@ -157,13 +152,10 @@ export function parseEntProp(
       return parseFPS(json[k]) satisfies Ent[typeof k]
     case 'hud':
       return parseHUD(json[k]) satisfies Ent[typeof k]
-    case 'cam':
-      return parseCamData() satisfies Ent[typeof k]
     case 'fullscreenToggle':
       return parseFullscreenToggle(json[k]) satisfies Ent[typeof k]
     case 'camStatus':
     case 'debugInput':
-    case 'draw':
     case 'id':
     case 'name':
     case 'text':

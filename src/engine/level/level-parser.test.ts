@@ -296,7 +296,7 @@ test('parseLevel() aggregates ents and defaults', () => {
         default: [
           {id: 'a', sprite: 'stem--A'},
           {id: 'b', text: 'hello'},
-          {cam: {}}
+          {fps: {}}
         ]
       }
     },

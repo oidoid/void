@@ -1,7 +1,5 @@
 import * as V from '../../engine/index.ts'
 import levelJSON from '../assets/tv.level.jsonc' with {type: 'json'}
-import {CamHook} from '../ents/cam.ts'
-import {DrawHook} from '../ents/draw.ts'
 import {TilePickerHook} from '../ents/tile-picker.ts'
 import {parseEntProp} from './level-parser.ts'
 
@@ -17,8 +15,6 @@ export class Loader implements V.Loader {
     sprite: new V.SpriteHook(),
     textWH: new V.TextWHHook(),
     textXY: new V.TextXYHook(),
-    cam: new CamHook(),
-    draw: new DrawHook(),
     tilePicker: new TilePickerHook()
   }
   #zoo: V.Zoo = {default: new Set()}
@@ -34,7 +30,30 @@ export class Loader implements V.Loader {
         this.#lvl satisfies never
     }
 
+    this.#updateCam(v)
+
     for (const zoo of Object.values(this.#zoo)) V.zooUpdate(zoo, this.#hooks, v)
+
+    if (v.invalid) this.#draw(v)
+  }
+
+  #updateCam(v: V.Void): void {
+    if (v.input.isAnyOnStart('U', 'D', 'L', 'R')) v.cam.diagonalize(v.input.dir)
+    const len = V.floorSpriteEpsilon(25 * v.tick.s)
+    v.cam.x += v.input.dir.x * len
+    v.cam.y += v.input.dir.y * len
+    if (v.input.wheel?.delta.xy.y)
+      v.cam.zoomOut -= v.input.wheel.delta.client.y * 0.01
+    v.cam.update(v.canvas)
+  }
+
+  #draw(v: V.Void): void {
+    v.renderer.clear(v.backgroundRGBA)
+    v.renderer.predraw(v.cam)
+    v.renderer.setDepth(false)
+    v.renderer.drawTiles(v.cam)
+    v.renderer.setDepth(true)
+    v.renderer.drawSprites(v.pool.default)
   }
 
   get zoo(): Readonly<V.Zoo> {

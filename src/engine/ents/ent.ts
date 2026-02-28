@@ -15,9 +15,6 @@ export type Button = {
 
 export type ButtonType = 'Button' | 'Toggle'
 
-// biome-ignore lint/suspicious/noEmptyInterface:;
-export interface CamData {}
-
 export type CamStatus = object
 
 export type DebugLoseContextButton = {end: number}
@@ -31,9 +28,6 @@ export type Cursor = {
   point: Tag
 }
 
-// biome-ignore lint/suspicious/noEmptyInterface:;
-export interface Draw {}
-
 export type DebugInput = object
 
 /**
@@ -42,12 +36,10 @@ export type DebugInput = object
  */
 export interface Ent {
   button?: Button
-  cam?: CamData
   camStatus?: CamStatus
   cursor?: Cursor
   debugInput?: DebugInput
   debugLoseContextButton?: DebugLoseContextButton
-  draw?: Draw
   fps?: FPS
   fullscreenToggle?: FullscreenToggle
   hud?: HUD

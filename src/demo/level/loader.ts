@@ -1,8 +1,6 @@
 import * as V from '../../engine/index.ts'
 import levelJSON from '../assets/init.level.jsonc' with {type: 'json'}
-import {CamHook} from '../ents/cam.ts'
 import {ClockHook} from '../ents/clock.ts'
-import {DrawHook} from '../ents/draw.ts'
 import {MouseStatusHook} from '../ents/mouse-status.ts'
 import {RenderToggleHook} from '../ents/render-toggle.ts'
 import {RotateHook} from '../ents/rotate.ts'
@@ -18,13 +16,11 @@ export class Loader implements V.Loader {
   #lvl: 'Init' | undefined
   readonly #hooks: Readonly<V.HookMap> = {
     button: new V.ButtonHook(),
-    cam: new CamHook(),
     camStatus: new V.CamStatusHook(),
     clock: new ClockHook(),
     cursor: new V.CursorHook(),
     debugInput: new V.DebutInputHook(),
     debugLoseContextButton: new V.DebugLoseContextButtonHook(),
-    draw: new DrawHook(),
     fps: new V.FPSHook(),
     fullscreenToggle: new V.FullscreenToggleHook(),
     hud: new V.HUDHook(),
@@ -56,11 +52,39 @@ export class Loader implements V.Loader {
         this.#lvl satisfies never
     }
 
+    this.#updateCam(v)
+
     V.zooUpdate(this.#zoo.default, this.#hooks, v)
+
+    if (v.invalid) this.#draw(v)
   }
 
   get zoo(): Readonly<V.Zoo> {
     return this.#zoo
+  }
+
+  #draw(v: V.Void): void {
+    v.renderer.predraw(v.cam)
+    v.renderer.clear(v.backgroundRGBA)
+    v.renderer.setDepth(false)
+    v.renderer.drawTiles(v.cam)
+    v.renderer.setDepth(true)
+    v.renderer.drawSprites(v.pool.default)
+    v.renderer.setDepth(false)
+    v.renderer.drawSprites(v.pool.overlay)
+    v.renderer.postdraw()
+  }
+
+  #updateCam(v: V.Void): void {
+    if (v.input.isAnyOnStart('U', 'D', 'L', 'R')) v.cam.diagonalize(v.input.dir)
+    const len = V.floorSpriteEpsilon(
+      (v.input.isOnStart('Shift') ? 10000 : 25) * v.tick.s
+    )
+    v.cam.x += v.input.dir.x * len
+    v.cam.y += v.input.dir.y * len
+    if (v.input.wheel?.delta.xy.y)
+      v.cam.zoomOut -= v.input.wheel.delta.client.y * 0.01
+    v.cam.update(v.canvas)
   }
 
   #init(v: V.Void): void {

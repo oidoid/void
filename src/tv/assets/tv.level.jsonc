@@ -22,8 +22,6 @@
   },
   "zoo": {
     "default": [
-      {"name": "Cam", "cam": {}},
-
       {
         "id": "cursor",
         "sprite": "cursor--Pointer",
@@ -73,9 +71,7 @@
           },
           "border": 1
         }
-      },
-
-      {"name": "Draw", "draw": {}}
+      }
     ]
   }
 }

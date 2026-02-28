@@ -2635,8 +2635,6 @@
     "default": [
       {"name": "DebugInput", "debugInput": {}},
 
-      {"name": "Cam", "cam": {}},
-
       {
         "id": "cursor",
         "sprite": "cursor--Pointer",
@@ -2901,9 +2899,7 @@
         "hud": {"origin": "SE", "margin": {"s": 12, "e": 4}},
         "textXY": {},
         "override": {"invalid": false}
-      },
-
-      {"name": "Draw", "draw": {}}
+      }
     ],
     "coords": [
       {
