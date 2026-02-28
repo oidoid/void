@@ -1,4 +1,5 @@
 import type {XY} from '../types/geo.ts'
+import type {Void} from '../void.ts'
 import type {Hook, HookEnt} from './hook.ts'
 
 export type NinePatchEnt = HookEnt<NinePatchHook>
@@ -11,8 +12,8 @@ export class NinePatchHook implements Hook {
     ninePatchFree(ent)
   }
 
-  update(ent: NinePatchEnt): void {
-    if (!ent.invalid) return
+  update(ent: NinePatchEnt, v: Void): void {
+    if (ent.invalid < v.tick.start) return
     const start = getStart(ent)
     setXYStart(ent, start)
     setWH(ent)
@@ -30,7 +31,7 @@ export function ninePatchFree(ent: NinePatchEnt): void {
   ent.ninePatch.patch.s?.free()
   ent.ninePatch.patch.sw?.free()
   ent.ninePatch.patch.center?.free()
-  ent.invalid = true
+  ent.invalid = Infinity
   // to-do: how to update zoo synchronously to remove the prop and not run update()?
 }
 

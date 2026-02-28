@@ -91,7 +91,7 @@ test('poll reason', async ctx => {
   framer.register('add')
 
   await ctx.test('requestFrame(Render) passes Render reason', () => {
-    performance.now = () => 0 as Millis
+    performance.now = () => 0
     framer.requestFrame('Render')
     performance.now = () => 16 as Millis
     onFrame!()

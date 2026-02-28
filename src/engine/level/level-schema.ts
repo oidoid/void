@@ -3,7 +3,12 @@ import type {Tag} from '../graphics/atlas.ts'
 import type {Layer} from '../graphics/layer.ts'
 import type {Border, CompassDir, WH, XY} from '../types/geo.ts'
 
-export type BorderSchema = number | Partial<XY> | Partial<Border>
+export type AnchorSchema = {
+  dir: CompassDir
+  id: string
+  margin?: XYOrNumberSchema
+}
+export type BorderSchema = XYOrNumberSchema | Partial<Border>
 export type ButtonSchema = {
   pressed: SpritePropsSchema | Tag
   selected: SpritePropsSchema | Tag
@@ -23,6 +28,7 @@ export type DebugInputSchema = object
 export type DebugLoseContextButtonSchema = object
 export type FullscreenToggleSchema = {noLock?: boolean}
 export interface EntSchema {
+  anchor?: AnchorSchema
   button?: ButtonSchema
   camStatus?: CamStatusSchema
   cursor?: CursorSchema
@@ -46,7 +52,7 @@ export type HUDSchema = {
   anchor: CompassDir
   fill?: XYFlag
   margin?: BorderSchema
-  modulo?: number | Partial<XY>
+  modulo?: XYOrNumberSchema
 }
 export type LayerSchema = keyof typeof Layer
 export type LevelConfigSchema = {
@@ -81,7 +87,7 @@ export type SpritePropsSchema = {
 }
 export type SpriteSchema = SpritePropsSchema & {
   angle?: number
-  scale?: number | Partial<XY>
+  scale?: XYOrNumberSchema
 } & Partial<WH> &
   Partial<XY>
 export type TextWHSchema = {
@@ -95,4 +101,5 @@ export type UnboundedWHSchema = {
   w?: number | 'Infinity'
   h?: number | 'Infinity'
 }
+export type XYOrNumberSchema = number | Partial<XY>
 export type ZooStatusSchema = object

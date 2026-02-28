@@ -22,8 +22,8 @@ import {
   parseSprite,
   parseTextWH,
   parseTextXY,
-  parseWH,
-  parseXY
+  parseWHOrNumber,
+  parseXYOrNumber
 } from './level-parser.ts'
 import type {EntSchema, SpriteSchema} from './level-schema.ts'
 
@@ -125,8 +125,8 @@ test('parseEnt() preserves key insertion order', () => {
     textWH: {maxW: 100, scale: 2}
   }
   assert(Object.keys(parseEnt(a, pools, parseProp, atlas)), [
-    ...Object.keys(a),
-    'invalid'
+    'invalid',
+    ...Object.keys(a)
   ])
 
   const b: EntSchema = {
@@ -139,15 +139,15 @@ test('parseEnt() preserves key insertion order', () => {
     button: {pressed: 'stem--A', selected: 'stem--B'}
   }
   assert(Object.keys(parseEnt(b, pools, parseProp, atlas)), [
-    ...Object.keys(b),
-    'invalid'
+    'invalid',
+    ...Object.keys(b)
   ])
 
   const c: EntSchema = {name: 'name', id: '2'}
   assert(Object.keys(parseEnt(c, pools, parseProp, atlas)), [
+    'invalid',
     'name',
-    'id',
-    'invalid'
+    'id'
   ])
 })
 
@@ -165,16 +165,17 @@ test('parseEntProp()', () => {
     button: {pressed: 'stem--A', selected: 'stem--B', type: 'Toggle'}
   }
 
-  assert(parseEntProp({}, json, 'id', pools, atlas), '1')
-  assert(parseEntProp({}, json, 'name', pools, atlas), 'Name')
-  assert(parseEntProp({}, json, 'text', pools, atlas), 'text')
+  assert(parseEntProp({invalid: Infinity}, json, 'id', pools, atlas), '1')
+  assert(parseEntProp({invalid: Infinity}, json, 'name', pools, atlas), 'Name')
+  assert(parseEntProp({invalid: Infinity}, json, 'text', pools, atlas), 'text')
   assert(
-    (parseEntProp({}, json, 'sprite', pools, atlas) as Sprite).tag,
+    (parseEntProp({invalid: Infinity}, json, 'sprite', pools, atlas) as Sprite)
+      .tag,
     'stem--A'
   )
   assert(
     parseEntProp(
-      {sprite: parseSprite('stem--A', pools, atlas)},
+      {invalid: Infinity, sprite: parseSprite('stem--A', pools, atlas)},
       json,
       'ninePatch',
       pools,
@@ -196,7 +197,7 @@ test('parseEntProp()', () => {
       }
     }
   )
-  assert(parseEntProp({}, json, 'hud', pools, atlas), {
+  assert(parseEntProp({invalid: Infinity}, json, 'hud', pools, atlas), {
     anchor: 'N',
     fill: undefined,
     margin: {n: 2, s: 2, w: 2, e: 2},
@@ -204,7 +205,7 @@ test('parseEntProp()', () => {
   })
   assert(
     parseEntProp(
-      {sprite: parseSprite('stem--B', pools, atlas)},
+      {invalid: Infinity, sprite: parseSprite('stem--B', pools, atlas)},
       json,
       'cursor',
       pools,
@@ -217,7 +218,7 @@ test('parseEntProp()', () => {
       point: 'stem--B'
     }
   )
-  assert(parseEntProp({}, json, 'textWH', pools, atlas), {
+  assert(parseEntProp({invalid: Infinity}, json, 'textWH', pools, atlas), {
     layout: {chars: [], cursor: {x: 0, y: 0}, w: 0, h: 0, trimmedH: 0},
     maxW: 100,
     pad: {n: 0, s: 0, w: 0, e: 0},
@@ -225,27 +226,40 @@ test('parseEntProp()', () => {
     trim: undefined
   })
   assert(
-    (parseEntProp({}, json, 'button', pools, atlas) as Button).type,
+    (parseEntProp({invalid: Infinity}, json, 'button', pools, atlas) as Button)
+      .type,
     'Toggle'
   )
 
   assert(
-    parseEntProp({}, {}, 'missing' as keyof EntSchema, pools, atlas),
+    parseEntProp(
+      {invalid: Infinity},
+      {},
+      'missing' as keyof EntSchema,
+      pools,
+      atlas
+    ),
     undefined
   )
 })
 
 test('parseCursor()', () => {
   const pools = TestPools()
-  assert(parseCursor({sprite: parseSprite('stem--A', pools, atlas)}, {}), {
-    bounds: {x: 0, y: 0, w: 0, h: 0},
-    keyboard: 0,
-    pick: undefined,
-    point: 'stem--A'
-  })
   assert(
     parseCursor(
-      {sprite: parseSprite('stem--A', pools, atlas)},
+      {invalid: Infinity, sprite: parseSprite('stem--A', pools, atlas)},
+      {}
+    ),
+    {
+      bounds: {x: 0, y: 0, w: 0, h: 0},
+      keyboard: 0,
+      pick: undefined,
+      point: 'stem--A'
+    }
+  )
+  assert(
+    parseCursor(
+      {invalid: Infinity, sprite: parseSprite('stem--A', pools, atlas)},
       {keyboard: 2, pick: 'stem--B'}
     ),
     {
@@ -350,7 +364,7 @@ test('parseNinePatch()', () => {
 
   // number border and margin.
   const nineA = parseNinePatch(
-    {sprite: parseSprite('stem--A', pools, atlas)},
+    {invalid: Infinity, sprite: parseSprite('stem--A', pools, atlas)},
     {
       border: 2,
       pad: 3,
@@ -373,7 +387,7 @@ test('parseNinePatch()', () => {
 
   // object border and pad.
   const nineB = parseNinePatch(
-    {sprite: parseSprite('stem--A', pools, atlas)},
+    {invalid: Infinity, sprite: parseSprite('stem--A', pools, atlas)},
     {
       border: {n: 1, s: 2, w: 3, e: 4},
       pad: {w: 7},
@@ -477,29 +491,35 @@ test('parseTextXY()', () => {
   const pools = TestPools()
 
   // defaults when no ent.sprite.
-  assert(parseTextXY({}, {}), {chars: [], z: Layer.Bottom})
+  assert(parseTextXY({invalid: Infinity}, {}), {chars: [], z: Layer.Bottom})
 
   // uses ent.sprite.z when available.
   const sprite = parseSprite('stem--A', pools, atlas)
   sprite.z = Layer.UIA
-  assert(parseTextXY({sprite}, {}), {chars: [], z: Layer.UIA})
+  assert(parseTextXY({invalid: Infinity, sprite}, {}), {
+    chars: [],
+    z: Layer.UIA
+  })
 
   // json.z overrides ent.sprite.z.
-  assert(parseTextXY({sprite}, {z: 'UIB'}), {chars: [], z: Layer.UIB})
+  assert(parseTextXY({invalid: Infinity, sprite}, {z: 'UIB'}), {
+    chars: [],
+    z: Layer.UIB
+  })
 })
 
-test('parseWH()', () => {
-  assert(parseWH(5), {w: 5, h: 5})
-  assert(parseWH({w: 1}), {w: 1, h: 0})
-  assert(parseWH({h: 2}), {w: 0, h: 2})
-  assert(parseWH({w: 3, h: 4}), {w: 3, h: 4})
+test('parseWHOrNumber()', () => {
+  assert(parseWHOrNumber(5), {w: 5, h: 5})
+  assert(parseWHOrNumber({w: 1}), {w: 1, h: 0})
+  assert(parseWHOrNumber({h: 2}), {w: 0, h: 2})
+  assert(parseWHOrNumber({w: 3, h: 4}), {w: 3, h: 4})
 })
 
-test('parseXY()', () => {
-  assert(parseXY(5), {x: 5, y: 5})
-  assert(parseXY({x: 1}), {x: 1, y: 0})
-  assert(parseXY({y: 2}), {x: 0, y: 2})
-  assert(parseXY({x: 3, y: 4}), {x: 3, y: 4})
+test('parseXYOrNumber()', () => {
+  assert(parseXYOrNumber(5), {x: 5, y: 5})
+  assert(parseXYOrNumber({x: 1}), {x: 1, y: 0})
+  assert(parseXYOrNumber({y: 2}), {x: 0, y: 2})
+  assert(parseXYOrNumber({x: 3, y: 4}), {x: 3, y: 4})
 })
 
 function TestPools(): PoolMap {

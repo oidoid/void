@@ -8,6 +8,6 @@ export class RotateHook implements V.Hook {
 
   update(ent: RotateEnt, v: V.Void): void {
     ent.sprite.angle += ent.rotate.speed * v.tick.s
-    ent.invalid = true
+    ent.invalid = v.tick.start
   }
 }

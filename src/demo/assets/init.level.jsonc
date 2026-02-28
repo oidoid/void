@@ -2648,21 +2648,22 @@
       },
 
       {
-        "name": "MouseStatus",
-        "sprite": {"tag": "mouse-status--Base", "z": "UIA"},
-        "hud": {"anchor": "SE", "margin": {"s": 28, "e": 4}},
-        "mouseStatus": {}
-      },
-
-      {
+        "id": "fps",
         "name": "FPS",
         "fps": {},
         "text": "",
         "sprite": {"z": "UIA"},
         "textWH": {"trim": "Leading"},
         "hud": {"anchor": "SE", "margin": {"s": 3, "e": 4}},
-        "textXY": {},
-        "override": {"invalid": false}
+        "textXY": {}
+      },
+
+      {
+        "id": "logo",
+        "name": "Logo",
+        "sprite": {"tag": "oidoid--Default", "z": "UIF"},
+        "hud": {"anchor": "SW", "margin": 4},
+        "rotate": {"speed": -45}
       },
 
       {
@@ -2671,9 +2672,8 @@
         "text": "",
         "sprite": {"z": "UIA"},
         "textWH": {"trim": "Leading"},
-        "hud": {"anchor": "SW", "margin": {"s": 4, "w": 24}},
-        "textXY": {},
-        "override": {"invalid": false}
+        "anchor": {"id": "logo", "dir": "SE", "margin": {"x": 4}},
+        "textXY": {}
       },
 
       {
@@ -2687,6 +2687,7 @@
         }
       },
       {
+        "id": "render-toggle",
         "name": "RenderToggle",
         "text": "render",
         "sprite": {"z": "UID"},
@@ -2713,11 +2714,12 @@
         "textXY": {"z": "UIE"}
       },
       {
+        "id": "debug-lose-context",
         "name": "DebugLoseContext",
         "text": "GL!",
         "sprite": {"z": "UID"},
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
-        "hud": {"anchor": "NE", "margin": {"n": 4, "e": 45}},
+        "anchor": {"id": "render-toggle", "dir": "W", "margin": 2},
         "ninePatch": {
           "border": 1,
           "pad": 2,
@@ -2739,11 +2741,12 @@
         "textXY": {"z": "UIE"}
       },
       {
+        "id": "superball-button",
         "name": "Superballs Button",
         "text": "+",
         "sprite": {"z": "UID"},
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
-        "hud": {"anchor": "NE", "margin": {"n": 4, "e": 72}},
+        "anchor": {"id": "debug-lose-context", "dir": "W", "margin": 2},
         "ninePatch": {
           "border": 1,
           "pad": 2,
@@ -2765,11 +2768,12 @@
         "textXY": {"z": "UIE"}
       },
       {
+        "id": "fullscreen",
         "name": "Fullscreen",
         "text": "full",
         "sprite": {"z": "UID"},
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
-        "hud": {"anchor": "NE", "margin": {"n": 4, "e": 93}},
+        "anchor": {"id": "superball-button", "dir": "W", "margin": 2},
         "ninePatch": {
           "border": 1,
           "pad": 2,
@@ -2791,37 +2795,12 @@
         "textXY": {"z": "UIE"}
       },
       {
-        "name": "Collide",
-        "text": "collide",
-        "sprite": {"z": "UID"},
-        "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
-        "hud": {"anchor": "NE", "margin": {"n": 4, "e": 149}},
-        "ninePatch": {
-          "border": 1,
-          "pad": 2,
-          "patch": {
-            "center": "background--Kiwi",
-            "n": "background--Black",
-            "s": "background--Black",
-            "w": "background--Black",
-            "e": "background--Black"
-          }
-        },
-        "button": {
-          "pressed": "background--Bubblegum",
-          "selected": "background--OrangeCheckerboard",
-          "type": "Toggle",
-          "z": "UIC"
-        },
-        "collideToggle": {},
-        "textXY": {"z": "UIE"}
-      },
-      {
+        "id": "screenshot",
         "name": "Screenshot",
         "text": "pic",
         "sprite": {"z": "UID"},
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
-        "hud": {"anchor": "NE", "margin": {"n": 4, "e": 122}},
+        "anchor": {"id": "fullscreen", "dir": "W", "margin": 2},
         "ninePatch": {
           "border": 1,
           "pad": 2,
@@ -2843,6 +2822,33 @@
         "textXY": {"z": "UIE"}
       },
       {
+        "id": "collide",
+        "name": "Collide",
+        "text": "collide",
+        "sprite": {"z": "UID"},
+        "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
+        "anchor": {"id": "screenshot", "dir": "W", "margin": 2},
+        "ninePatch": {
+          "border": 1,
+          "pad": 2,
+          "patch": {
+            "center": "background--Kiwi",
+            "n": "background--Black",
+            "s": "background--Black",
+            "w": "background--Black",
+            "e": "background--Black"
+          }
+        },
+        "button": {
+          "pressed": "background--Bubblegum",
+          "selected": "background--OrangeCheckerboard",
+          "type": "Toggle",
+          "z": "UIC"
+        },
+        "collideToggle": {},
+        "textXY": {"z": "UIE"}
+      },
+      {
         "name": "Clock",
         "text": "",
         "sprite": {"z": "UIF"},
@@ -2850,12 +2856,6 @@
         "textWH": {"scale": 2, "trim": "Leading"},
         "hud": {"anchor": "S", "margin": {"y": 2}},
         "textXY": {}
-      },
-      {
-        "name": "Logo",
-        "sprite": {"tag": "oidoid--Default", "z": "UIF"},
-        "hud": {"anchor": "SW", "margin": 4},
-        "rotate": {"speed": -45}
       },
       {
         "name": "Border",
@@ -2906,25 +2906,33 @@
       },
 
       {
+        "id": "tally",
         "name": "Tally",
         "text": "",
         "sprite": {"z": "UIA"},
         "tally": {},
         "textWH": {"trim": "Leading"},
-        "hud": {"anchor": "SE", "margin": {"s": 3, "e": 90}},
+        "anchor": {"id": "fps", "dir": "SW", "margin": {"x": 4}},
         "textXY": {},
         "override": {"invalid": false}
       },
 
       {
+        "id": "zoo-status",
         "name": "ZooStatus",
         "text": "",
         "sprite": {"z": "UIA"},
         "zooStatus": {},
-        "textWH": {},
-        "hud": {"anchor": "SE", "margin": {"s": 12, "e": 4}},
-        "textXY": {},
-        "override": {"invalid": false}
+        "textWH": {"trim": "Leading"},
+        "anchor": {"id": "fps", "dir": "NE", "margin": 4},
+        "textXY": {}
+      },
+
+      {
+        "name": "MouseStatus",
+        "sprite": {"tag": "mouse-status--Base", "z": "UIA"},
+        "anchor": {"id": "zoo-status", "dir": "NE", "margin": 4},
+        "mouseStatus": {}
       }
     ],
     "coords": [

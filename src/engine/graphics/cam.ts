@@ -100,7 +100,7 @@ export class Cam {
       case 'N':
       case 'S':
       case 'Center':
-        x += Math.trunc(this.w / 2) - Math.trunc(wh.w / 2)
+        x += Math.floor(this.w / 2) - Math.floor(wh.w / 2)
         break
     }
     x -= x % ((opts?.modulo?.x ?? x) || 1)
@@ -120,7 +120,7 @@ export class Cam {
       case 'E':
       case 'W':
       case 'Center':
-        y += Math.trunc(this.h / 2) - Math.trunc(wh.h / 2)
+        y += Math.floor(this.h / 2) - Math.floor(wh.h / 2)
         break
     }
     y -= y % ((opts?.modulo?.y ?? y) || 1)
@@ -311,9 +311,9 @@ export class Cam {
     const scale = Math.max(
       this.#minScale,
       Math.min(phy.w / this.#minWH.w, phy.h / this.#minWH.h) -
-        (this.#mode === 'Int' ? Math.trunc(this.#zoomOut) : this.#zoomOut)
+        (this.#mode === 'Int' ? Math.floor(this.#zoomOut) : this.#zoomOut)
     )
-    this.#scale = this.#mode === 'Int' ? Math.trunc(scale) : scale
+    this.#scale = this.#mode === 'Int' ? Math.floor(scale) : scale
 
     this.#w = Math.ceil(phy.w / this.#scale)
     this.#h = Math.ceil(phy.h / this.#scale)

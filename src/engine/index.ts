@@ -5,6 +5,7 @@ import './level/level-schema-json.ts'
 
 export {type Font, memProp5x6} from 'mem-font'
 export * from './audio.ts'
+export * from './ents/anchor.ts'
 export * from './ents/button.ts'
 export * from './ents/cam-status.ts'
 export * from './ents/cursor.ts'

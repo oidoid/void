@@ -45,6 +45,8 @@ export type Metrics = {
   }
 }
 
+export type Tick = {ms: Millis; s: Secs; start: Millis}
+
 export class Void {
   readonly atlas: AtlasMap
   readonly cam: Cam = new Cam()
@@ -59,7 +61,7 @@ export class Void {
   readonly renderer: Renderer
   readonly tileset: Tileset | undefined
   /** delta since frame request. */
-  readonly tick: {ms: Millis; s: Secs} = {ms: 0, s: 0}
+  readonly tick: Tick = {ms: 0, s: 0, start: 0}
   readonly #atlasImage: HTMLImageElement
   readonly #tilesetImage: HTMLImageElement | undefined
   #backgroundRGBA: number
@@ -190,6 +192,7 @@ export class Void {
   onFrame(millis: Millis, reason: LoopReason): 'Skip' | undefined {
     this.tick.ms = millis
     this.tick.s = (millis / 1000) as Secs
+    this.tick.start = this.looper.start
     if (document.hidden) return
     this.input.update(millis)
 
@@ -204,8 +207,7 @@ export class Void {
     this.loader.update(this)
 
     this.cam.postupdate()
-    this.metrics.prev.frame = (performance.now() -
-      this.looper.frameStart) as Millis
+    this.metrics.prev.frame = (performance.now() - this.looper.start) as Millis
   }
 
   onInterval(): void {

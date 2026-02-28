@@ -39,6 +39,6 @@ export class SuperballHook implements V.Hook {
 
     ent.sprite.angle += ent.superball.vx * v.tick.s
 
-    ent.invalid = true
+    ent.invalid = v.tick.start
   }
 }

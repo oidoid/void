@@ -72,7 +72,7 @@ ents are plain, nonnullish, key-value (props) data that describe app entities.
 
 `SpriteEnt` is kind of a base game object that is drawable, describes bounds, and provides collision detection. if the ent should have no visual representation, leave the sprite as hidden.
 
-the special `Ent.invalid` field flags whether the screen should be redrawn (which is high energy) and possibly when the hook should update. redrawing is necessary for animations but often not for static apps.
+the special `Ent.invalid` field is a frame timestamp that may flag whether a hook should update and controls whether the screen should be redrawn (which is high energy). redrawing is necessary for animations but often not for static apps.
 
 #### Hooks
 
@@ -96,6 +96,7 @@ lists then ents then props are typically updated in insertion order. strongly av
 - `textWH`
 - `cursor`
 - `hud`
+- `anchor`
 - `ninePatch`
 - `button`
 - `textXY`
@@ -105,13 +106,15 @@ lists then ents then props are typically updated in insertion order. strongly av
 - `override`
 - `draw`
 
-eg, if a new prop `randomText` changes the `text` field, it should appear before `textWH` which sizes to the text. 
+eg, if a new prop `randomText` changes the `text` field, it should appear before `textWH` which sizes to the text.
+
+`anchor` positions an ent relative to another ent by ID. because ents are updated in insertion order, the target ent must appear **before** the anchored ent in the zoo list, otherwise the anchored ent reads a stale position for that frame.
 
 hooks are uniquely associated with a key. zero or one hook per key. if multiple keys on an ent are associated with a hook, it will be run multiple times per update.
 
 #### Invalid
 
-ents and subsystems self-report as invalid when an update or render is required. ents should avoid reading another ent's `invalid` state since it's cleared once that ent has been updated.
+`Ent.invalid` is a frame timestamp. ents should prefer to write `v.tick.start` after mutating to flag rendering and recompute by downstream hooks. use `Infinity` when creating an ent. use `Infinity` to force recompute every frame and `0` to suppress. ents may read another ent's `invalid` to test if it was updated in the current frame (`const updated = ref.invalid >= v.tick.start`). this enables dependent ents like `anchor` to only update when their target moved that frame.
 
 ### Schema
 

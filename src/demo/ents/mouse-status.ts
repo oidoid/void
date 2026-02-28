@@ -8,7 +8,7 @@ export class MouseStatusHook implements V.Hook {
 
   update(ent: MouseStatusEnt, v: V.Void): void {
     if (
-      !ent.invalid &&
+      ent.invalid < v.tick.start &&
       !v.cam.invalid &&
       !v.input.invalid &&
       !v.input.point?.invalid
@@ -36,7 +36,7 @@ export class MouseStatusHook implements V.Hook {
       ent.mouseStatus.locked.hidden = true
     }
 
-    ent.invalid = true
+    ent.invalid = v.tick.start
   }
 }
 

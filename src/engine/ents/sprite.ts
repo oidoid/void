@@ -1,3 +1,4 @@
+import type {Void} from '../void.ts'
 import type {Hook, HookEnt} from './hook.ts'
 
 export type SpriteEnt = HookEnt<SpriteHook>
@@ -6,9 +7,9 @@ export type SpriteEnt = HookEnt<SpriteHook>
 export class SpriteHook implements Hook {
   readonly query = 'sprite'
 
-  free(ent: SpriteEnt): void {
+  free(ent: SpriteEnt, v: Void): void {
     ent.sprite.free()
     // ent.sprite = undefined to-do: who does this <-- zoo?
-    ent.invalid = true
+    ent.invalid = v.tick.start
   }
 }

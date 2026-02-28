@@ -19,6 +19,7 @@ export class SuperballButtonHook implements V.Hook {
       )
       sprite.angle = angle * 180 * Math.PI
       const superball: V.Ent = {
+        invalid: Infinity,
         name: `Superball ${i}`,
         sprite,
         superball: {vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed}

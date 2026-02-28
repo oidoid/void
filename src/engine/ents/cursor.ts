@@ -1,8 +1,8 @@
 import {Layer} from '../graphics/layer.ts'
 import {floorSpriteEpsilon} from '../graphics/sprite.ts'
 import type {Input, Point} from '../input/input.ts'
-import type {Secs} from '../types/time.ts'
-import type {Void} from '../void.ts'
+
+import type {Tick, Void} from '../void.ts'
 import type {Hook, HookEnt} from './hook.ts'
 
 //  to-do: i do pass ent data here. maybe I should do that for mem pool as SpritePool(i).
@@ -19,7 +19,7 @@ export class CursorHook implements Hook {
   readonly query = 'cursor & sprite'
 
   update(ent: CursorEnt, v: Void): void {
-    if (v.input.point?.invalid) onPoint(ent, v.input.point)
+    if (v.input.point?.invalid) onPoint(ent, v.input.point, v.tick)
 
     // assume the sprite dimensions don't vary between point and pick. always
     // update in case cam invalidates while keyboard is temporarily off.
@@ -31,13 +31,13 @@ export class CursorHook implements Hook {
         v.input.dir.y ||
         (!v.input.point && v.input.isAnyStarted('A')))
     )
-      onKey(ent, v.input, v.tick.s)
+      onKey(ent, v.input, v.tick)
 
     if (ent.cursor.pick) {
       const tag = v.input.isOn('A') ? ent.cursor.pick : ent.cursor.point
       if (tag !== ent.sprite.tag) {
         ent.sprite.tag = tag
-        ent.invalid = true
+        ent.invalid = v.tick.start
       }
     }
   }
@@ -48,8 +48,8 @@ export function cursorIsVisible(ent: CursorEnt): boolean {
 }
 
 /** @internal */
-export function onKey(ent: CursorEnt, input: Input, tick: Secs): void {
-  const len = floorSpriteEpsilon(ent.cursor.keyboard * tick)
+export function onKey(ent: CursorEnt, input: Input, tick: Tick): void {
+  const len = floorSpriteEpsilon(ent.cursor.keyboard * tick.s)
 
   if (input.isAnyOnStart('U', 'D', 'L', 'R') && input.dir.x && input.dir.y)
     ent.sprite.diagonalize(input.dir)
@@ -66,19 +66,20 @@ export function onKey(ent: CursorEnt, input: Input, tick: Secs): void {
     )
   ent.sprite.z = Layer.Top
   ent.sprite.hidden = false
-  ent.invalid = true
+  ent.invalid = tick.start
 }
 
 /** @internal */
 export function onPoint(
   ent: CursorEnt,
-  point: Readonly<Pick<Point, 'local' | 'click' | 'type'>>
+  point: Readonly<Pick<Point, 'local' | 'click' | 'type'>>,
+  tick: Tick
 ): void {
   ent.sprite.x = point.local.x
   ent.sprite.y = point.local.y
   ent.sprite.z = Layer.Top
   ent.sprite.hidden = point.type !== 'Mouse'
-  ent.invalid = true
+  ent.invalid = tick.start
 }
 
 function updateBounds(ent: CursorEnt, v: Void): void {

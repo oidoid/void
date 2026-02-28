@@ -104,7 +104,7 @@ export class RotateHook implements V.Hook {
 
   update(ent: RotateEnt, v: V.Void): void {
     ent.sprite.angle += ent.rotate.speed * v.tick.s
-    ent.invalid = true
+    ent.invalid = v.tick.start
   }
 }
 ```
@@ -115,11 +115,12 @@ avoid exposing behavior outside of `<prop>.ts`. if necessary, consider the API p
 export function textSetText(ent: TextEnt, str: string): void {
   if (str === ent.text) return // avoid mutation!
   ent.text = str
-  ent.invalid = true // mutations always set invalid!
+  // always set invalid! mutations without v use Infinity.
+  ent.invalid = Infinity
 }
 ```
 
-`update()` should mark modified ents with `ent.invalid = true` to require a redraw. avoid redraws.
+`update()` should mark modified ents with `ent.invalid = v.tick.start` to require a redraw. use `Infinity` when `v` is unavailable (eg, standalone mutation helpers) and when creating an ent. avoid redraws.
 
 **6. add the parser.** add a new `parse<Prop>()` function to `<app>/level/level-parser.ts` / `engine/level/level-parser.ts`:
 

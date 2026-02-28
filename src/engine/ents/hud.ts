@@ -18,7 +18,7 @@ export class HUDHook implements Hook {
   readonly query = 'hud & sprite'
 
   update(ent: HUDEnt, v: Void): void {
-    if (!ent.invalid && !v.cam.invalid) return
+    if (ent.invalid < v.tick.start && !v.cam.invalid) return
     const follow = v.cam.follow(
       ent.sprite,
       ent.sprite.z,
@@ -26,7 +26,7 @@ export class HUDHook implements Hook {
       ent.hud
     )
     boxAssign(ent.sprite, follow)
-    ent.invalid = true // to-do: unclear if having wrappers for uniformly like
+    ent.invalid = v.tick.start // to-do: unclear if having wrappers for uniformly like
     //  textSetText() is worth it.
   }
 }
@@ -37,23 +37,23 @@ export function hudSetFill(
 ): void {
   if (ent.hud.fill === fill) return
   ent.hud.fill = fill
-  ent.invalid = true
+  ent.invalid = Infinity
 }
 
 export function hudSetMargin(ent: HUDEnt, margin: Readonly<Border>): void {
   if (borderEq(ent.hud.margin, margin)) return
   borderAssign(ent.hud.margin, margin)
-  ent.invalid = true
+  ent.invalid = Infinity
 }
 
 export function hudSetModulo(ent: HUDEnt, modulo: Readonly<XY>): void {
   if (xyEq(ent.hud.modulo, modulo)) return
   xyAssign(ent.hud.modulo, modulo)
-  ent.invalid = true
+  ent.invalid = Infinity
 }
 
 export function hudSetAnchor(ent: HUDEnt, anchor: CompassDir): void {
   if (ent.hud.anchor === anchor) return
   ent.hud.anchor = anchor
-  ent.invalid = true
+  ent.invalid = Infinity
 }

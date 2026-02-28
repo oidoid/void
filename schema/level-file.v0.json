@@ -5,6 +5,20 @@
   "type": "object",
   "description": "a JSON representation of a void level file.",
   "$defs": {
+    "Anchor": {
+      "type": "object",
+      "description": "anchor config.",
+      "required": ["dir", "id"],
+      "properties": {
+        "dir": {
+          "$ref": "#/$defs/CompassDir",
+          "description": "side of the anchor to position relative to.",
+          "unevaluatedProperties": false
+        },
+        "id": {"$ref": "#/$defs/ID", "description": "target ent ID."},
+        "margin": {"$ref": "#/$defs/XYOrNumber", "unevaluatedProperties": false}
+      }
+    },
     "Border": {
       "description": "border area config.",
       "oneOf": [
@@ -127,6 +141,7 @@
       "type": "object",
       "description": "ent config.",
       "properties": {
+        "anchor": {"$ref": "#/$defs/Anchor", "unevaluatedProperties": false},
         "button": {"$ref": "#/$defs/Button", "unevaluatedProperties": false},
         "camStatus": {
           "$ref": "#/$defs/CamStatus",
@@ -147,7 +162,7 @@
           "unevaluatedProperties": false
         },
         "hud": {"$ref": "#/$defs/HUD", "unevaluatedProperties": false},
-        "id": {"type": "string", "description": "unique lookup identifier."},
+        "id": {"$ref": "#/$defs/ID", "unevaluatedProperties": false},
         "name": {"type": "string", "description": "debug identifier."},
         "ninePatch": {
           "$ref": "#/$defs/NinePatch",
@@ -198,6 +213,11 @@
       "description": "HUD config.",
       "required": ["anchor"],
       "properties": {
+        "anchor": {
+          "$ref": "#/$defs/CompassDir",
+          "description": "position relative to.",
+          "unevaluatedProperties": false
+        },
         "fill": {
           "$ref": "#/$defs/XYFlag",
           "description": "whether to adjust the width or height to fill empty space.",
@@ -214,13 +234,13 @@
             {"type": "integer", "minimum": 0},
             {"$ref": "#/$defs/UIntXY", "unevaluatedProperties": false}
           ]
-        },
-        "anchor": {
-          "$ref": "#/$defs/CompassDir",
-          "description": "position relative to.",
-          "unevaluatedProperties": false
         }
       }
+    },
+    "ID": {
+      "type": "string",
+      "description": "unique lookup identifier.",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
     },
     "IntXY": {
       "$ref": "#/$defs/XY",
@@ -418,16 +438,16 @@
       "type": "object",
       "description": "text WH config.",
       "properties": {
+        "anchor": {
+          "$ref": "#/$defs/CompassDir",
+          "description": "position relative to.",
+          "unevaluatedProperties": false
+        },
         "maxW": {
           "type": "integer",
           "description": "maximum width.",
           "minimum": 0,
           "maximum": 4095
-        },
-        "anchor": {
-          "$ref": "#/$defs/CompassDir",
-          "description": "position relative to.",
-          "unevaluatedProperties": false
         },
         "pad": {
           "$ref": "#/$defs/Border",
@@ -474,6 +494,13 @@
         "x": {"type": "number", "description": "horizontal dimension."},
         "y": {"type": "number", "description": "vertical dimension."}
       }
+    },
+    "XYOrNumber": {
+      "description": "horizontal and vertical dimensions. sprite coordinates have a range of [-131072, 131071.984375] with a granularity of 1/64 (.015625).",
+      "oneOf": [
+        {"type": "number"},
+        {"$ref": "#/$defs/XY", "unevaluatedProperties": false}
+      ]
     },
     "XYFlag": {
       "description": "horizontal and vertical state.",

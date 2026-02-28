@@ -5,6 +5,13 @@ import type {TextLayout} from '../text/text-layout.ts'
 import type {Border, Box, CompassDir, XY} from '../types/geo.ts'
 import type {Millis} from '../types/time.ts'
 
+export type Anchor = {
+  dir: CompassDir
+  id: string
+  margin: XY
+  ref: Ent | undefined
+}
+
 export type Button = {
   started: boolean
   // to-do: naming?
@@ -35,6 +42,7 @@ export type DebugInput = object
  * independent prop bags still need to be passed in.
  */
 export interface Ent {
+  anchor?: Anchor
   button?: Button
   camStatus?: CamStatus
   cursor?: Cursor
@@ -45,12 +53,14 @@ export interface Ent {
   hud?: HUD
   id?: string
   /**
-   * recompute and render update if true. ok to set from anywhere but zoo or
-   * override must clear. ents read invalid to test if an update is necessary.
-   * ents write invalid to flag rendering and recompute by other hooks. ents
-   * should not look at each other's invalid state since it's cleared on update.
+   * frame timestamp (`v.tick.start`) when this ent was last updated
+   * (preferred), or `Infinity` to force update every frame, or `0` to suppress
+   * updates. ents write `v.tick.start` after mutating to flag rendering and
+   * recompute by other hooks. ents may read another ent's `invalid` to
+   * determine whether it was updated in the current frame
+   * (`const updated = ref.invalid >= v.tick.start`).
    */
-  invalid?: boolean
+  invalid: Millis | typeof Infinity
   name?: string
   ninePatch?: NinePatch
   override?: Override

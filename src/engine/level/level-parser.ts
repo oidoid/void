@@ -1,4 +1,5 @@
 import type {
+  Anchor,
   Button,
   Cursor,
   Ent,
@@ -21,6 +22,7 @@ import {isRecord} from '../utils/obj-util.ts'
 import {uncapitalize} from '../utils/str-util.ts'
 import type {CamConfig, Level} from './level.ts'
 import type {
+  AnchorSchema,
   BorderSchema,
   ButtonSchema,
   CamConfigSchema,
@@ -35,7 +37,8 @@ import type {
   SpriteSchema,
   TextWHSchema,
   TextXYSchema,
-  UnboundedWHSchema
+  UnboundedWHSchema,
+  XYOrNumberSchema
 } from './level-schema.ts'
 
 export type EntPropParser = (
@@ -60,8 +63,8 @@ export function parseLevel(
     cam: json.cam ? parseCamConfig(json.cam) : undefined,
     tiles: json.level
       ? {
-          ...parseXY(json.level),
-          ...parseWH(json.level),
+          ...parseXYOrNumber(json.level),
+          ...parseWHOrNumber(json.level),
           tiles: json.level.tiles ?? []
         }
       : undefined,
@@ -84,6 +87,15 @@ export function parseBorder(json: Readonly<BorderSchema> | undefined): Border {
   }
 }
 
+export function parseAnchor(json: Readonly<AnchorSchema>): Anchor {
+  return {
+    dir: json.dir,
+    id: json.id,
+    margin: parseXYOrNumber(json.margin ?? 0),
+    ref: undefined
+  }
+}
+
 export function parseButton(
   json: Readonly<ButtonSchema>,
   pools: Readonly<PoolMap>,
@@ -100,7 +112,7 @@ export function parseButton(
 export function parseCamConfig(json: Readonly<CamConfigSchema>): CamConfig {
   return {
     minScale: json.minScale,
-    minWH: json.minWH ? parseWH(json.minWH) : undefined,
+    minWH: json.minWH ? parseWHOrNumber(json.minWH) : undefined,
     x: json.x,
     y: json.y,
     zoomOut: json.zoomOut
@@ -124,15 +136,14 @@ export function parseEnt(
   parseProp: EntPropParser,
   atlas: Readonly<Atlas>
 ): Ent {
-  const ent: {[k: string]: Ent[keyof Ent]} = {}
+  const ent: {[k: string]: Ent[keyof Ent]} = {invalid: Infinity}
   for (const _k in json) {
     const k = _k as keyof EntSchema
     ent[k] =
-      parseProp(ent, json, k, pools, atlas) ??
-      parseEntProp(ent, json, k, pools, atlas)
+      parseProp(ent as unknown as Ent, json, k, pools, atlas) ??
+      parseEntProp(ent as unknown as Ent, json, k, pools, atlas)
   }
-  ent.invalid = true
-  return ent
+  return ent as unknown as Ent
 }
 
 export function parseEntProp(
@@ -144,6 +155,8 @@ export function parseEntProp(
 ): Ent[typeof k] {
   if (json[k] == null) return
   switch (k) {
+    case 'anchor':
+      return parseAnchor(json[k]) satisfies Ent[typeof k]
     case 'button':
       return parseButton(json[k], pools, atlas) satisfies Ent[typeof k]
     case 'cursor':
@@ -195,7 +208,7 @@ export function parseHUD(json: Readonly<HUDSchema>): HUD {
   return {
     fill: json.fill,
     margin: parseBorder(json.margin ?? 0),
-    modulo: parseXY(json.modulo ?? 0),
+    modulo: parseXYOrNumber(json.modulo ?? 0),
     anchor: json.anchor
   }
 }
@@ -365,12 +378,14 @@ export function parseTextXY(ent: Ent, json: Readonly<TextXYSchema>): TextXY {
   }
 }
 
-export function parseWH(json: Readonly<UnboundedWHSchema> | number): WH {
+export function parseWHOrNumber(
+  json: Readonly<UnboundedWHSchema> | number
+): WH {
   if (typeof json === 'number') return {w: json, h: json}
-  return {w: Number(json?.w ?? 0), h: Number(json?.h ?? 0)}
+  return {w: Number(json.w ?? 0), h: Number(json.h ?? 0)}
 }
 
-export function parseXY(json: Readonly<Partial<XY>> | number): XY {
+export function parseXYOrNumber(json: Readonly<XYOrNumberSchema>): XY {
   if (typeof json === 'number') return {x: json, y: json}
   return {x: json.x ?? 0, y: json.y ?? 0}
 }

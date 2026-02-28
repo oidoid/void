@@ -5,29 +5,42 @@ import {Layer} from '../graphics/layer.ts'
 import type {Input} from '../input/input.ts'
 import {SpritePool} from '../mem/sprite-pool.ts'
 import type {XY} from '../types/geo.ts'
-import type {Secs} from '../types/time.ts'
+import type {Millis, Secs} from '../types/time.ts'
+import type {Tick} from '../void.ts'
 import type {CursorEnt} from './cursor.ts'
 import {onKey, onPoint} from './cursor.ts'
 
 describe('onPoint()', () => {
   test('sets sprite position from pointer local', () => {
     const ent = TestCursorEnt()
-    onPoint(ent, {local: {x: 100, y: 200}, type: 'Mouse', click: undefined})
+    onPoint(
+      ent,
+      {local: {x: 100, y: 200}, type: 'Mouse', click: undefined},
+      TestTick(0, 1 as Millis)
+    )
     assert(ent.sprite.x, 100)
     assert(ent.sprite.y, 200)
     assert(ent.sprite.z, Layer.Top)
-    assert(ent.invalid, true)
+    assert(ent.invalid, 1)
   })
 
   test('visible for Mouse', () => {
     const ent = TestCursorEnt()
-    onPoint(ent, {local: {x: 0, y: 0}, type: 'Mouse', click: undefined})
+    onPoint(
+      ent,
+      {local: {x: 0, y: 0}, type: 'Mouse', click: undefined},
+      TestTick(0, 1 as Millis)
+    )
     assert(ent.sprite.hidden, false)
   })
 
   test('hidden for Touch', () => {
     const ent = TestCursorEnt()
-    onPoint(ent, {local: {x: 0, y: 0}, type: 'Touch', click: undefined})
+    onPoint(
+      ent,
+      {local: {x: 0, y: 0}, type: 'Touch', click: undefined},
+      TestTick(0, 1 as Millis)
+    )
     assert(ent.sprite.hidden, true)
   })
 })
@@ -37,7 +50,11 @@ describe('onKey()', () => {
     const ent = TestCursorEnt({keyboard: 100})
     ent.cursor.bounds = {x: 10, y: 0, w: 100, h: 100}
     ent.sprite.x = 15
-    onKey(ent, TestInput({dir: {x: -1, y: 0}}), 1 as Secs)
+    onKey(
+      ent,
+      TestInput({dir: {x: -1, y: 0}}),
+      TestTick(1 as Secs, 1 as Millis)
+    )
     assert(ent.sprite.x, 10)
   })
 
@@ -45,7 +62,7 @@ describe('onKey()', () => {
     const ent = TestCursorEnt({keyboard: 100})
     ent.cursor.bounds = {x: 0, y: 0, w: 50, h: 100}
     ent.sprite.x = 45
-    onKey(ent, TestInput({dir: {x: 1, y: 0}}), 1 as Secs)
+    onKey(ent, TestInput({dir: {x: 1, y: 0}}), TestTick(1 as Secs, 1 as Millis))
     assert(ent.sprite.x, 50)
   })
 
@@ -53,7 +70,11 @@ describe('onKey()', () => {
     const ent = TestCursorEnt({keyboard: 100})
     ent.cursor.bounds = {x: 0, y: 10, w: 100, h: 100}
     ent.sprite.y = 15
-    onKey(ent, TestInput({dir: {x: 0, y: -1}}), 1 as Secs)
+    onKey(
+      ent,
+      TestInput({dir: {x: 0, y: -1}}),
+      TestTick(1 as Secs, 1 as Millis)
+    )
     assert(ent.sprite.y, 10)
   })
 
@@ -61,16 +82,20 @@ describe('onKey()', () => {
     const ent = TestCursorEnt({keyboard: 100})
     ent.cursor.bounds = {x: 0, y: 0, w: 100, h: 50}
     ent.sprite.y = 45
-    onKey(ent, TestInput({dir: {x: 0, y: 1}}), 1 as Secs)
+    onKey(ent, TestInput({dir: {x: 0, y: 1}}), TestTick(1 as Secs, 1 as Millis))
     assert(ent.sprite.y, 50)
   })
 
   test('sets visible', () => {
     const ent = TestCursorEnt({keyboard: 100})
     ent.sprite.hidden = true
-    onKey(ent, TestInput({dir: {x: 1, y: 0}}), 0.1 as Secs)
+    onKey(
+      ent,
+      TestInput({dir: {x: 1, y: 0}}),
+      TestTick(0.1 as Secs, 1 as Millis)
+    )
     assert(ent.sprite.hidden, false)
-    assert(ent.invalid, true)
+    assert(ent.invalid, 1)
   })
 })
 
@@ -92,7 +117,7 @@ function TestCursorEnt(opts?: {keyboard?: number}): CursorEnt {
       point: 'stem--point'
     },
     sprite,
-    invalid: false
+    invalid: 0
   }
 }
 
@@ -107,4 +132,8 @@ function TestInput(opts: {
     isOn: opts.isOn ?? (() => false),
     isAnyOnStart: opts.isAnyOnStart ?? (() => false)
   } as unknown as Input
+}
+
+function TestTick(s: Secs, start: Millis): Tick {
+  return {ms: 0, s, start}
 }

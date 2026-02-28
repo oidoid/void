@@ -14,9 +14,12 @@ export class ButtonHook implements Hook {
     const {button} = ent
     button.started = false
 
-    // to-do: !v.zoo.cursor?.invalid? I should never read another ent's invalid state.
-    if (!ent.invalid && !v.input.invalid) return
-    ent.invalid = true // to-do: every cursor movement!?
+    if (
+      ent.invalid < v.tick.start &&
+      (!v.loader.cursor || v.loader.cursor?.invalid < v.tick.start)
+    )
+      return
+    ent.invalid = v.tick.start // to-do: every cursor movement!?
 
     const toggle = button.type === 'Toggle'
 
@@ -55,13 +58,14 @@ export class ButtonHook implements Hook {
 export function buttonFree(ent: ButtonEnt): void {
   ent.button.pressed.free()
   ent.button.selected.free()
-  ent.invalid = true
+  ent.invalid = Infinity
   // to-do: how to update zoo synchronously to remove the prop and not run update()?
 }
 
 export function buttonSetOn(ent: ButtonEnt, on: boolean): void {
+  if (ent.button.pressed.hidden === on) return
   ent.button.pressed.hidden = !on
-  ent.invalid = true
+  ent.invalid = Infinity
 }
 
 export function buttonOn(ent: Readonly<ButtonEnt>): boolean {

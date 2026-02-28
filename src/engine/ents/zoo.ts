@@ -33,10 +33,9 @@ export function zooUpdate(
 ): void {
   for (const ent of ents) {
     for (const k in ent) hooks[k as keyof Ent]?.update?.(ent as never, v)
-    if (ent.invalid && debug?.invalid)
+    if (ent.invalid >= v.tick.start && debug?.invalid)
       console.debug('[invalid] ent update invalid', ent)
-    v.invalid ||= !!ent.invalid
-    ent.invalid = false
+    v.invalid ||= ent.invalid >= v.tick.start
   }
 }
 

@@ -7,6 +7,7 @@ export class Loader implements V.Loader {
   cursor: V.CursorEnt | undefined
   #lvl: 'Init' | undefined
   readonly #hooks: Readonly<V.HookMap> = {
+    anchor: new V.AnchorHook(),
     button: new V.ButtonHook(),
     cursor: new V.CursorHook(),
     hud: new V.HUDHook(),

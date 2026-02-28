@@ -13,8 +13,8 @@ export type TextXYEnt = HookEnt<TextXYHook>
 export class TextWHHook implements Hook {
   readonly query = 'sprite & text & textWH'
 
-  update(ent: TextWHEnt): void {
-    if (!ent.invalid) return
+  update(ent: TextWHEnt, v: Void): void {
+    if (ent.invalid < v.tick.start) return
     textSetWH(ent)
   }
 }
@@ -23,14 +23,14 @@ export class TextWHHook implements Hook {
 export class TextXYHook implements Hook {
   readonly query = 'sprite & text & textWH & textXY'
 
-  free(ent: TextXYEnt): void {
+  free(ent: TextXYEnt, v: Void): void {
     for (const sprite of ent.textXY.chars) sprite.free()
     ent.textXY.chars.length = 0
-    ent.invalid = true
+    ent.invalid = v.tick.start
   }
 
   update(ent: TextXYEnt, v: Void): void {
-    if (!ent.invalid) return
+    if (ent.invalid < v.tick.start) return
     textSetXY(ent, v)
   }
 }
@@ -67,7 +67,7 @@ export function textSetWH(ent: TextWHEnt): void {
   }
   ent.sprite.w = w
   ent.sprite.h = h
-  ent.invalid = true
+  ent.invalid = Infinity
 }
 
 // to-do: don't relayout if textXY.xy === sprite.xy
@@ -96,14 +96,14 @@ export function textSetXY(ent: TextXYEnt, v: Void): void {
     len++
   }
   while (ent.textXY.chars.length > len) ent.textXY.chars.pop()!.free()
-  ent.invalid = true
+  ent.invalid = v.tick.start
 }
 
 // to-do: why doesn't sprite use a helper like this?
 export function textSetText(ent: TextEnt, str: string): void {
   if (str === ent.text) return
   ent.text = str
-  ent.invalid = true
+  ent.invalid = Infinity
 }
 
 // to-do: can't decide on global names like SetMaxW or Sys. single char??

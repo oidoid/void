@@ -30,7 +30,10 @@ describe('parseQuerySet()', () => {
 })
 
 describe('QueryEnt', () => {
-  const testSingular: QueryEnt<'boxes'> = {boxes: [{x: 1, y: 2, w: 3, h: 4}]}
+  const testSingular: QueryEnt<'boxes'> = {
+    boxes: [{x: 1, y: 2, w: 3, h: 4}],
+    invalid: 0
+  }
   testSingular.boxes.length
   try {
     // @ts-expect-error
@@ -55,7 +58,8 @@ describe('QueryEnt', () => {
   } catch {}
 
   const testConjunctionInvertMissing: QueryEnt<'boxes & !xy'> = {
-    boxes: [{x: 1, y: 2, w: 3, h: 4}]
+    boxes: [{x: 1, y: 2, w: 3, h: 4}],
+    invalid: 0
   }
   testConjunctionInvertMissing.boxes.length
   try {
@@ -65,6 +69,7 @@ describe('QueryEnt', () => {
 
   const testConjunction: QueryEnt<'boxes & xy'> = {
     boxes: [{x: 1, y: 2, w: 3, h: 4}],
+    invalid: 0,
     xy: {x: 1, y: 2}
   }
   testConjunction.boxes.length
@@ -72,6 +77,7 @@ describe('QueryEnt', () => {
 
   const testUnion: QueryEnt<'boxes | xy'> = {
     boxes: [{x: 1, y: 2, w: 3, h: 4}],
+    invalid: 0,
     xy: {x: 1, y: 2}
   }
   testUnion.boxes?.length

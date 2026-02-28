@@ -5,7 +5,7 @@ import type {Sprite} from '../graphics/sprite.ts'
 import {SpritePool} from '../mem/sprite-pool.ts'
 import {Grid} from './grid.ts'
 
-type TestEnt = {sprite: Sprite}
+type TestEnt = {invalid: 0; sprite: Sprite}
 
 const anim: Readonly<Anim> = {
   cels: 1,
@@ -248,5 +248,5 @@ function TestEnt(pool: SpritePool, x: number, y: number): TestEnt {
   sprite.tag = 'test--Ent'
   sprite.x = x
   sprite.y = y
-  return {sprite}
+  return {invalid: 0, sprite}
 }

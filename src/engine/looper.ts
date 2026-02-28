@@ -6,11 +6,11 @@ export type LoopReason = 'Poll' | 'Render'
 export class Looper {
   /** duration of frames observed. */
   age: Millis = 0
-  /** when frame arrived in . */
-  frameStart: Millis = 0
   onFrame:
     | ((millis: Millis, reason: LoopReason) => 'Skip' | undefined)
     | undefined
+  /** when frame arrived. */
+  start: Millis = 0
   #reason: LoopReason = 'Render'
   #req: number = 0
   #registered: boolean = false
@@ -43,8 +43,8 @@ export class Looper {
   }
 
   #onFrame = (): void => {
-    this.frameStart = performance.now()
-    const millis = (this.frameStart - this.#requested) as Millis
+    this.start = performance.now()
+    const millis = (this.start - this.#requested) as Millis
     this.#req = 0
     this.age += millis
     const reason = this.#reason
