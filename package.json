@@ -62,9 +62,8 @@
     "preversion": "[ -z \"$(git status -z)\" ]",
     "prepublishOnly": "! git symbolic-ref --quiet HEAD || git push --follow-tags origin \"$(git branch --show-current)\"",
     "start": "tsc --build --preserveWatchOutput --watch& npm run build:demo:favicon && npm run build:demo -- --watch& npm run build:tv:favicon && npm run build:tv -- --watch=5678& wait",
-    "test": "lint && npm run test:unit && npm run build && npm run test:perf",
-    "test:perf": "sh -c 'for f in ${@:-$(find src/ schema/ -name \\*.perf.test.ts -printf %p\\ )}; do $f; done' --",
-    "test:unit": "sh -c 'node --experimental-test-coverage --test ${@:-$(find src/ schema/ -name \\*.test.ts ! -name \\*.perf.test.ts -printf %p\\ )}' --",
+    "test": "lint && npm run test:unit && npm run build",
+    "test:unit": "sh -c 'node --experimental-test-coverage --test ${@:-$(find src/ schema/ -name \\*.test.ts -printf %p\\ )}' --",
     "version": "npm pkg set published=$(date +%Y%m%d) && npm run clean && npm test"
   },
   "type": "module",
