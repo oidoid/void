@@ -78,7 +78,7 @@ export class Cam {
   follow(
     wh: Readonly<WH>,
     z: Layer,
-    origin: CompassDir,
+    anchor: CompassDir,
     opts?: {
       readonly fill?: 'X' | 'Y' | 'XY'
       readonly margin?: Partial<Readonly<Border>>
@@ -86,7 +86,7 @@ export class Cam {
     }
   ): Box {
     let x = isUILayer(z) ? 0 : Math.floor(this.x)
-    switch (origin) {
+    switch (anchor) {
       case 'SW':
       case 'W':
       case 'NW':
@@ -106,7 +106,7 @@ export class Cam {
     x -= x % ((opts?.modulo?.x ?? x) || 1)
 
     let y = isUILayer(z) ? 0 : Math.floor(this.y)
-    switch (origin) {
+    switch (anchor) {
       case 'N':
       case 'NE':
       case 'NW':

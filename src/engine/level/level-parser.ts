@@ -196,7 +196,7 @@ export function parseHUD(json: Readonly<HUDSchema>): HUD {
     fill: json.fill,
     margin: parseBorder(json.margin ?? 0),
     modulo: parseXY(json.modulo ?? 0),
-    origin: json.origin
+    anchor: json.anchor
   }
 }
 

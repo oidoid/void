@@ -69,10 +69,10 @@ export type FPS = {
 export type FullscreenToggle = {noLock: boolean}
 
 export type HUD = {
+  anchor: CompassDir
   fill?: XYFlag
   margin: Border
   modulo: XY
-  origin: CompassDir
 }
 
 export type NinePatch = {

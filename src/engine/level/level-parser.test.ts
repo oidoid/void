@@ -119,7 +119,7 @@ test('parseEnt() preserves key insertion order', () => {
     button: {pressed: 'stem--A', selected: 'stem--B'},
     sprite: 'stem--A',
     ninePatch: {border: 1, patch: {}},
-    hud: {origin: 'N'},
+    hud: {anchor: 'N'},
     cursor: {keyboard: 1, pick: 'stem--B'},
     widget: {gears: 3},
     textWH: {maxW: 100, scale: 2}
@@ -159,7 +159,7 @@ test('parseEntProp()', () => {
     text: 'text',
     sprite: 'stem--A',
     ninePatch: {border: 1, patch: {}},
-    hud: {margin: 2, origin: 'N'},
+    hud: {anchor: 'N', margin: 2},
     cursor: {keyboard: 1, pick: 'stem--B'},
     textWH: {maxW: 100, scale: 2},
     button: {pressed: 'stem--A', selected: 'stem--B', type: 'Toggle'}
@@ -197,10 +197,10 @@ test('parseEntProp()', () => {
     }
   )
   assert(parseEntProp({}, json, 'hud', pools, atlas), {
+    anchor: 'N',
     fill: undefined,
     margin: {n: 2, s: 2, w: 2, e: 2},
-    modulo: {x: 0, y: 0},
-    origin: 'N'
+    modulo: {x: 0, y: 0}
   })
   assert(
     parseEntProp(
@@ -258,32 +258,32 @@ test('parseCursor()', () => {
 })
 
 test('parseHUD()', () => {
-  assert(parseHUD({origin: 'Center'}), {
+  assert(parseHUD({anchor: 'Center'}), {
+    anchor: 'Center',
     fill: undefined,
     margin: {n: 0, s: 0, w: 0, e: 0},
-    modulo: {x: 0, y: 0},
-    origin: 'Center'
+    modulo: {x: 0, y: 0}
   })
 
-  assert(parseHUD({fill: 'XY', margin: 3, modulo: 5, origin: 'NE'}), {
+  assert(parseHUD({anchor: 'NE', fill: 'XY', margin: 3, modulo: 5}), {
+    anchor: 'NE',
     fill: 'XY',
     margin: {n: 3, s: 3, w: 3, e: 3},
-    modulo: {x: 5, y: 5},
-    origin: 'NE'
+    modulo: {x: 5, y: 5}
   })
 
-  assert(parseHUD({margin: {w: 1}, modulo: {y: 2}, origin: 'S'}), {
+  assert(parseHUD({anchor: 'S', margin: {w: 1}, modulo: {y: 2}}), {
+    anchor: 'S',
     fill: undefined,
     margin: {n: 0, s: 0, w: 1, e: 0},
-    modulo: {x: 0, y: 2},
-    origin: 'S'
+    modulo: {x: 0, y: 2}
   })
 
-  assert(parseHUD({margin: {y: 1}, modulo: {}, origin: 'S'}), {
+  assert(parseHUD({anchor: 'S', margin: {y: 1}, modulo: {}}), {
+    anchor: 'S',
     fill: undefined,
     margin: {n: 1, s: 1, w: 0, e: 0},
-    modulo: {x: 0, y: 0},
-    origin: 'S'
+    modulo: {x: 0, y: 0}
   })
 })
 

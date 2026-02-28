@@ -196,7 +196,7 @@
     "HUD": {
       "type": "object",
       "description": "HUD config.",
-      "required": ["origin"],
+      "required": ["anchor"],
       "properties": {
         "fill": {
           "$ref": "#/$defs/XYFlag",
@@ -215,7 +215,7 @@
             {"$ref": "#/$defs/UIntXY", "unevaluatedProperties": false}
           ]
         },
-        "origin": {
+        "anchor": {
           "$ref": "#/$defs/CompassDir",
           "description": "position relative to.",
           "unevaluatedProperties": false
@@ -424,7 +424,7 @@
           "minimum": 0,
           "maximum": 4095
         },
-        "origin": {
+        "anchor": {
           "$ref": "#/$defs/CompassDir",
           "description": "position relative to.",
           "unevaluatedProperties": false

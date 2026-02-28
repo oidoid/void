@@ -181,7 +181,7 @@ test('follow() SE pivot (world layer)', () => {
   assert(box, {x: 100, y: 60, w: 10, h: 10})
 })
 
-test('follow() Origin pivot with modulo snapping', () => {
+test('follow() anchor pivot with modulo snapping', () => {
   using dpr = new DevicePixelRatioMock()
   dpr.ratio = 1
   const cam = new Cam()

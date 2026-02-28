@@ -22,7 +22,7 @@ export class HUDHook implements Hook {
     const follow = v.cam.follow(
       ent.sprite,
       ent.sprite.z,
-      ent.hud.origin,
+      ent.hud.anchor,
       ent.hud
     )
     boxAssign(ent.sprite, follow)
@@ -52,8 +52,8 @@ export function hudSetModulo(ent: HUDEnt, modulo: Readonly<XY>): void {
   ent.invalid = true
 }
 
-export function hudSetOrigin(ent: HUDEnt, origin: CompassDir): void {
-  if (ent.hud.origin === origin) return
-  ent.hud.origin = origin
+export function hudSetAnchor(ent: HUDEnt, anchor: CompassDir): void {
+  if (ent.hud.anchor === anchor) return
+  ent.hud.anchor = anchor
   ent.invalid = true
 }

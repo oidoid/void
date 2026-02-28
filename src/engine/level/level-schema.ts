@@ -43,10 +43,10 @@ export interface EntSchema {
 }
 export type FPSSchema = object
 export type HUDSchema = {
+  anchor: CompassDir
   fill?: XYFlag
   margin?: BorderSchema
   modulo?: number | Partial<XY>
-  origin: CompassDir
 }
 export type LayerSchema = keyof typeof Layer
 export type LevelConfigSchema = {

@@ -2644,13 +2644,13 @@
       {
         "name": "StatusPanel",
         "sprite": {"tag": "background--Strawberry", "z": "G", "h": 24},
-        "hud": {"origin": "SW", "fill": "X"}
+        "hud": {"anchor": "SW", "fill": "X"}
       },
 
       {
         "name": "MouseStatus",
         "sprite": {"tag": "mouse-status--Base", "z": "UIA"},
-        "hud": {"origin": "SE", "margin": {"s": 28, "e": 4}},
+        "hud": {"anchor": "SE", "margin": {"s": 28, "e": 4}},
         "mouseStatus": {}
       },
 
@@ -2660,7 +2660,7 @@
         "text": "",
         "sprite": {"z": "UIA"},
         "textWH": {"trim": "Leading"},
-        "hud": {"origin": "SE", "margin": {"s": 3, "e": 4}},
+        "hud": {"anchor": "SE", "margin": {"s": 3, "e": 4}},
         "textXY": {},
         "override": {"invalid": false}
       },
@@ -2671,7 +2671,7 @@
         "text": "",
         "sprite": {"z": "UIA"},
         "textWH": {"trim": "Leading"},
-        "hud": {"origin": "SW", "margin": {"s": 4, "w": 24}},
+        "hud": {"anchor": "SW", "margin": {"s": 4, "w": 24}},
         "textXY": {},
         "override": {"invalid": false}
       },
@@ -2691,7 +2691,7 @@
         "text": "render",
         "sprite": {"z": "UID"},
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
-        "hud": {"origin": "NE", "margin": {"n": 4, "e": 4}},
+        "hud": {"anchor": "NE", "margin": {"n": 4, "e": 4}},
         "ninePatch": {
           "border": 1,
           "pad": 2,
@@ -2717,7 +2717,7 @@
         "text": "GL!",
         "sprite": {"z": "UID"},
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
-        "hud": {"origin": "NE", "margin": {"n": 4, "e": 45}},
+        "hud": {"anchor": "NE", "margin": {"n": 4, "e": 45}},
         "ninePatch": {
           "border": 1,
           "pad": 2,
@@ -2743,7 +2743,7 @@
         "text": "+",
         "sprite": {"z": "UID"},
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
-        "hud": {"origin": "NE", "margin": {"n": 4, "e": 72}},
+        "hud": {"anchor": "NE", "margin": {"n": 4, "e": 72}},
         "ninePatch": {
           "border": 1,
           "pad": 2,
@@ -2769,7 +2769,7 @@
         "text": "full",
         "sprite": {"z": "UID"},
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
-        "hud": {"origin": "NE", "margin": {"n": 4, "e": 93}},
+        "hud": {"anchor": "NE", "margin": {"n": 4, "e": 93}},
         "ninePatch": {
           "border": 1,
           "pad": 2,
@@ -2795,7 +2795,7 @@
         "text": "collide",
         "sprite": {"z": "UID"},
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
-        "hud": {"origin": "NE", "margin": {"n": 4, "e": 149}},
+        "hud": {"anchor": "NE", "margin": {"n": 4, "e": 149}},
         "ninePatch": {
           "border": 1,
           "pad": 2,
@@ -2821,7 +2821,7 @@
         "text": "pic",
         "sprite": {"z": "UID"},
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
-        "hud": {"origin": "NE", "margin": {"n": 4, "e": 122}},
+        "hud": {"anchor": "NE", "margin": {"n": 4, "e": 122}},
         "ninePatch": {
           "border": 1,
           "pad": 2,
@@ -2848,19 +2848,19 @@
         "sprite": {"z": "UIF"},
         "clock": {},
         "textWH": {"scale": 2, "trim": "Leading"},
-        "hud": {"margin": {"y": 2}, "origin": "S"},
+        "hud": {"anchor": "S", "margin": {"y": 2}},
         "textXY": {}
       },
       {
         "name": "Logo",
         "sprite": {"tag": "oidoid--Default", "z": "UIF"},
-        "hud": {"origin": "SW", "margin": 4},
+        "hud": {"anchor": "SW", "margin": 4},
         "rotate": {"speed": -45}
       },
       {
         "name": "Border",
         "sprite": {"z": "UIG"},
-        "hud": {"origin": "NW", "fill": "XY"},
+        "hud": {"anchor": "NW", "fill": "XY"},
         "ninePatch": {
           "patch": {
             "n": "background--Black",
@@ -2911,7 +2911,7 @@
         "sprite": {"z": "UIA"},
         "tally": {},
         "textWH": {"trim": "Leading"},
-        "hud": {"origin": "SE", "margin": {"s": 3, "e": 90}},
+        "hud": {"anchor": "SE", "margin": {"s": 3, "e": 90}},
         "textXY": {},
         "override": {"invalid": false}
       },
@@ -2922,7 +2922,7 @@
         "sprite": {"z": "UIA"},
         "zooStatus": {},
         "textWH": {},
-        "hud": {"origin": "SE", "margin": {"s": 12, "e": 4}},
+        "hud": {"anchor": "SE", "margin": {"s": 12, "e": 4}},
         "textXY": {},
         "override": {"invalid": false}
       }
