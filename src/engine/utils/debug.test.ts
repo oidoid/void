@@ -29,7 +29,7 @@ test('multiple vals and params', () => {
     unknown1: 'true',
     render: 'baz'
   } as Debug)
-  assert((debug as unknown as {Unknown1: string}).Unknown1, 'true')
+  assert((debug as unknown as {unknown1: string}).unknown1, 'true')
   assert((debug as unknown as {unknown2: undefined}).unknown2, undefined)
 })
 
@@ -39,7 +39,6 @@ test('no vals', () => {
   assert(debug?.cam, 'true')
   assert(debug?.input, 'true')
   assert(debug?.render, 'true')
-  assert((debug as {unknown: string}).unknown, 'true')
 })
 
 test('all', () => {
@@ -47,9 +46,9 @@ test('all', () => {
   const debug = Debug(url)
   assert(debug?.cam, 'true')
   assert(debug?.input, 'true')
+  assert(debug?.invalid, 'true')
   assert(debug?.mem, 'true')
   assert(debug?.render, 'true')
-  assert((debug as {unknown: string}).unknown, 'true')
   assert((debug as {abc: string}).abc, 'def')
 })
 
@@ -58,9 +57,10 @@ test('void', () => {
   const debug = Debug(url)
   assert(debug?.cam, 'true')
   assert(debug?.input, 'true')
+  assert(debug?.invalid, undefined)
   assert(debug?.mem, 'true')
   assert(debug?.render, 'always')
-  assert((debug as {nativeScale: string}).nativeScale, 'true')
+  assert((debug as {nativescale: string}).nativescale, 'true')
   assert((debug as {unknown?: string}).unknown, undefined)
 })
 
