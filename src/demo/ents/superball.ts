@@ -6,26 +6,16 @@ export class SuperballHook implements V.Hook {
   readonly query = 'superball & sprite'
 
   update(ent: SuperballEnt, v: V.Void): void {
+    if (!v.level || !ent.sprite.hitbox) return
+
     ent.sprite.x += ent.superball.vx * v.tick.s
     ent.sprite.y += ent.superball.vy * v.tick.s
 
-    const bounds = v.level ?? v.cam
+    const bounds = v.level
     const left = bounds.x
-    const right = bounds.x + bounds.w - ent.sprite.hitbox!.w
+    const right = bounds.x + bounds.w - ent.sprite.hitbox.w
     const top = bounds.y
-    const bottom = bounds.y + bounds.h - ent.sprite.hitbox!.h
-
-    if (v.loader.cursor?.sprite.hitsZ(ent.sprite, v.cam)) {
-      if (v.input.isOn('A')) {
-        ent.sprite.free()
-        v.loader.zoo.default.delete(ent)
-        return
-      }
-      ent.superball.vx = -ent.superball.vx
-      ent.superball.vy = -ent.superball.vy
-      ent.sprite.x += ent.superball.vx * 2 * v.tick.s
-      ent.sprite.y += ent.superball.vy * 2 * v.tick.s
-    }
+    const bottom = bounds.y + bounds.h - ent.sprite.hitbox.h
 
     if (ent.sprite.x < left) {
       ent.sprite.x = left
