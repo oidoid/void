@@ -109,6 +109,8 @@ lists then ents then props are typically updated in insertion order. strongly av
 - `override`
 - `draw`
 
+eg, if a new prop `randomText` changes the `text` field, it should appear before `textWH` which sizes to the text. 
+
 hooks are uniquely associated with a key. zero or one hook per key. if multiple keys on an ent are associated with a hook, it will be run multiple times per update.
 
 #### Invalid

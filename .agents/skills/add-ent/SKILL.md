@@ -171,25 +171,4 @@ limit hooks to those used as they cost bundle size.
 }
 ```
 
-lists then ents then props are typically updated in insertion order. strongly avoid varying order. the debug input, cam, and cursor _ents_ should appear first. draw should appear last. the recommended prop order is:
-
-- `debugInput`
-- `debugLoseContextButton`
-- `cam`
-- `id`
-- `name`
-- `text`
-- `sprite`
-- `textWH`
-- `cursor`
-- `hud`
-- `ninePatch`
-- `button`
-- `textXY`
-- `fps`
-- `fullscreenToggle`
-- `invalid`
-- `override`
-- `draw`
-
-eg, if a new prop `randomText` changes the `text` field, it should appear before `textWH` which sizes to the text. 
+lists then ents then props are typically updated in insertion order. strongly avoid varying order. the debug input, cam, and cursor _ents_ should appear first. draw should appear last. the recommended prop order is defined in [readme.md](../../../readme.md#order).
