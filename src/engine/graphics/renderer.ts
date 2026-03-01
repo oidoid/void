@@ -99,7 +99,7 @@ export class Renderer {
     )
     gl.bindVertexArray(null)
 
-    if (debug?.render) {
+    if (debug?.render === 'error') {
       const err = gl.getError()
       if (err !== gl.NO_ERROR)
         console.error(`[render] GL error x${err.toString(16)}`)
@@ -151,7 +151,7 @@ export class Renderer {
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, uv.length / 2)
     gl.bindVertexArray(null)
 
-    if (debug?.render) {
+    if (debug?.render === 'error') {
       const err = gl.getError()
       if (err !== gl.NO_ERROR)
         console.error(`[render] GL error x${err.toString(16)}`)
