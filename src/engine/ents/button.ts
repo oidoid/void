@@ -63,7 +63,7 @@ export function buttonFree(ent: ButtonEnt): void {
 }
 
 export function buttonSetOn(ent: ButtonEnt, on: boolean): void {
-  if (ent.button.pressed.hidden === on) return
+  if (ent.button.pressed.hidden === !on) return
   ent.button.pressed.hidden = !on
   ent.invalid = Infinity
 }
