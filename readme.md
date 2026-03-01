@@ -54,11 +54,11 @@ to avoid threading template parameters throughout all code, declaration merging 
 - `Ent`
 - `EntSchema`
 - `Hook`
-- `LevelZoo`
 - `Loader`
 - `PoolMap`
 - `ReturnTag`
 - `ReturnTile`
+- `Zoo`
 
 it's similar to modifying `HTMLElementTagNameMap`.
 
