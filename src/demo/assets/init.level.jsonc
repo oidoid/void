@@ -2716,7 +2716,7 @@
       {
         "id": "debug-lose-context",
         "name": "DebugLoseContext",
-        "text": "GL!",
+        "text": "!GL",
         "sprite": {"z": "UID"},
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
         "anchor": {"id": "render-toggle", "dir": "W", "margin": 2},
@@ -2854,7 +2854,7 @@
         "sprite": {"z": "UIF"},
         "clock": {},
         "textWH": {"scale": 2, "trim": "Leading"},
-        "hud": {"anchor": "S", "margin": {"y": 2}},
+        "hud": {"anchor": "S", "margin": {"y": 5}},
         "textXY": {}
       },
       {
@@ -2923,8 +2923,8 @@
         "text": "",
         "sprite": {"z": "UIA"},
         "zooStatus": {},
-        "textWH": {"trim": "Leading"},
-        "anchor": {"id": "fps", "dir": "NE", "margin": 4},
+        "textWH": {},
+        "anchor": {"id": "fps", "dir": "NE", "margin": {"x": 4}},
         "textXY": {}
       },
 
