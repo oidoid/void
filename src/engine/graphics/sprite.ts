@@ -48,12 +48,16 @@ export const spriteMaxWH: Readonly<WH> = {w: 4095, h: 4095}
  */
 export class Sprite implements Block, Box {
   /** don't set this externally. public for perf. */
-  anim!: Anim
+  anim: Anim
   i: number
   readonly #atlas: Readonly<Atlas>
+  /** cached hitbox. `w: NaN` means dirty. */
+  readonly #hitbox: Box = {x: 0, y: 0, w: NaN, h: 0}
+  /** cached hurtbox. `w: NaN` means dirty. */
+  readonly #hurtbox: Box = {x: 0, y: 0, w: NaN, h: 0}
   readonly #looper: {readonly age: Millis}
   readonly #pool: Readonly<SpritePool>
-  #tag!: Tag
+  #tag: Tag
 
   constructor(
     pool: Readonly<SpritePool>,
@@ -61,6 +65,8 @@ export class Sprite implements Block, Box {
     atlas: Readonly<Atlas>,
     looper: {readonly age: Millis}
   ) {
+    this.#tag = atlas.tags[0]!
+    this.anim = atlas.anim[this.#tag]!
     this.#pool = pool
     this.i = i
     this.#atlas = atlas
@@ -102,20 +108,12 @@ export class Sprite implements Block, Box {
     this.#pool.view.setUint8(this.i + 10, (iiic_cccc & ~0x1f) | (cel & 0x1f))
   }
 
-  /**
-   * `this` is a clipbox but sometimes a copy or non-Sprite instance is needed.
-   * also, floored.
-   */
-  get clipbox(): Box {
-    return {x: Math.floor(this.x), y: Math.floor(this.y), w: this.w, h: this.h}
-  }
-
   /** test if render area overlaps box or sprite render area. */
   clips(box: Readonly<XY & Partial<WH>>): boolean {
     return boxHits(this, box)
   }
 
-  /** like `clips()` but supports different world and UI layers. */
+  /** like `clips()` but supports different world and UI layers. expensive. */
   clipsZ(sprite: Readonly<Sprite>, cam: Readonly<XY>): boolean {
     if (this.ui === sprite.ui) return this.clips(sprite)
     const clipbox = {
@@ -137,8 +135,11 @@ export class Sprite implements Block, Box {
   }
 
   set flipX(flip: boolean) {
+    // if (this.flipX === flip) return
     const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
     this.#pool.view.setUint8(this.i + 6, (sxyz_llll & ~0x40) | (-flip & 0x40))
+    this.#hitbox.w = NaN
+    this.#hurtbox.w = NaN
   }
 
   get flipY(): boolean {
@@ -147,8 +148,11 @@ export class Sprite implements Block, Box {
   }
 
   set flipY(flip: boolean) {
+    // if (this.flipY === flip) return
     const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
     this.#pool.view.setUint8(this.i + 6, (sxyz_llll & ~0x20) | (-flip & 0x20))
+    this.#hitbox.w = NaN
+    this.#hurtbox.w = NaN
   }
 
   free(): void {
@@ -190,20 +194,18 @@ export class Sprite implements Block, Box {
     )
   }
 
-  /** floored hitbox. */
-  get hitbox(): Box | undefined {
-    const {hitbox} = this.anim
-    if (!hitbox) return
-    return {
-      x: Math.floor(
+  get hitbox(): Readonly<Box> | undefined {
+    if (Number.isNaN(this.#hitbox.w)) {
+      const {hitbox} = this.anim
+      if (!hitbox) return undefined
+      this.#hitbox.x =
         this.x + (this.flipX ? this.w - hitbox.w - hitbox.x : hitbox.x)
-      ),
-      y: Math.floor(
+      this.#hitbox.y =
         this.y + (this.flipY ? this.h - hitbox.h - hitbox.y : hitbox.y)
-      ),
-      w: hitbox.w,
-      h: hitbox.h
+      this.#hitbox.w = hitbox.w
+      this.#hitbox.h = hitbox.h
     }
+    return this.#hitbox
   }
 
   /**
@@ -216,29 +218,31 @@ export class Sprite implements Block, Box {
     return boxHits(this.hitbox ?? this, hurtbox)
   }
 
-  /** like `hits()` but supports different world and UI layers. */
+  /** like `hits()` but supports different world and UI layers. expensive. */
   hitsZ(sprite: Readonly<Sprite>, cam: Readonly<XY>): boolean {
     if (this.ui === sprite.ui) return this.hits(sprite)
-    const hurtbox = sprite.hurtbox ?? sprite.clipbox
-    hurtbox.x += (sprite.ui ? 1 : -1) * Math.floor(cam.x)
-    hurtbox.y += (sprite.ui ? 1 : -1) * Math.floor(cam.y)
+    const box = sprite.hurtbox ?? sprite
+    const hurtbox = {
+      x: box.x + (sprite.ui ? 1 : -1) * cam.x,
+      y: box.y + (sprite.ui ? 1 : -1) * cam.y,
+      w: box.w,
+      h: box.h
+    }
     return boxHits(this.hitbox ?? this, hurtbox)
   }
 
-  /** floored hurtbox. */
-  get hurtbox(): Box | undefined {
-    const {hurtbox} = this.anim
-    if (!hurtbox) return
-    return {
-      x: Math.floor(
+  get hurtbox(): Readonly<Box> | undefined {
+    if (Number.isNaN(this.#hurtbox.w)) {
+      const {hurtbox} = this.anim
+      if (!hurtbox) return undefined
+      this.#hurtbox.x =
         this.x + (this.flipX ? this.w - hurtbox.w - hurtbox.x : hurtbox.x)
-      ),
-      y: Math.floor(
+      this.#hurtbox.y =
         this.y + (this.flipY ? this.h - hurtbox.h - hurtbox.y : hurtbox.y)
-      ),
-      w: hurtbox.w,
-      h: hurtbox.h
+      this.#hurtbox.w = hurtbox.w
+      this.#hurtbox.h = hurtbox.h
     }
+    return this.#hurtbox
   }
 
   get id(): number {
@@ -248,17 +252,24 @@ export class Sprite implements Block, Box {
 
   /** [0, 2047]. */
   set id(id: number) {
+    // if (this.id === id) return
+    this.#id = id
+  }
+
+  set #id(id: number) {
     const i11_c5 = this.#pool.view.getUint16(this.i + 10, true)
     this.#pool.view.setUint16(
       this.i + 10,
       (i11_c5 & ~(0x7ff << 5)) | ((id & 0x7ff) << 5),
       true
     )
-    this.#tag = this.#atlas.tags[this.id]!
+    this.#tag = this.#atlas.tags[id]!
     this.anim = this.#atlas.anim[this.#tag]!
     this.w = this.anim.w
     this.h = this.anim.h
     this.reset()
+    this.#hitbox.w = NaN
+    this.#hurtbox.w = NaN
   }
 
   /**
@@ -266,17 +277,21 @@ export class Sprite implements Block, Box {
    * for reinitialization on pool allocation.
    */
   init(): void {
+    this.#tag = this.#atlas.tags[0]!
+    this.#hitbox.w = NaN
+    this.#hurtbox.w = NaN
     this.angle = 0
     this.cel = 0
     this.flipX = false
     this.flipY = false
-    this.id = 0
+    this.#id = 0 // to-do: reserve ID 0.
     this.stretch = false
     this.hidden = false
     this.x = 0
     this.y = 0
     this.z = Layer.Bottom
     this.zend = false
+    this.reset()
   }
 
   /** true if animation has played once. */
@@ -293,10 +308,7 @@ export class Sprite implements Block, Box {
   }
 
   get midClip(): XY {
-    return {
-      x: Math.floor(this.x) + this.w / 2,
-      y: Math.floor(this.y) + this.h / 2
-    }
+    return {x: this.x + this.w / 2, y: this.y + this.h / 2}
   }
 
   get midHit(): XY {
@@ -309,6 +321,7 @@ export class Sprite implements Block, Box {
     return {x: box.x + box.w / 2, y: box.y + box.h / 2}
   }
 
+  // to-do: rename rewind.
   /** sets cel to animation start. */
   reset(): void {
     this.cel = this.looperCel // setter truncates.
@@ -332,10 +345,9 @@ export class Sprite implements Block, Box {
     return this.#tag
   }
 
-  /** sets animation, resets cel, dimensions, hitbox, and hurtbox. */
+  /** sets animation, resets cel, dimensions, hitbox, and hurtbox if differs. */
   set tag(tag: Tag) {
-    const anim = this.#atlas.anim[tag]!
-    this.id = anim.id
+    this.id = this.#atlas.anim[tag]!.id
   }
 
   toString(): string {
@@ -368,12 +380,12 @@ export class Sprite implements Block, Box {
 
   /** [-131072, 131071.984375] with 1/64th (0.015625) granularity. */
   set x(x: number) {
+    x = (x * 64) & 0xff_ffff
+    // if (this.x === x) return
     const y8_x24 = this.#pool.view.getUint32(this.i + 0, true)
-    this.#pool.view.setUint32(
-      this.i + 0,
-      (y8_x24 & ~0xff_ffff) | ((x * 64) & 0xff_ffff),
-      true
-    )
+    this.#pool.view.setUint32(this.i + 0, (y8_x24 & ~0xff_ffff) | x, true)
+    this.#hitbox.w = NaN
+    this.#hurtbox.w = NaN
   }
 
   get y(): number {
@@ -383,12 +395,16 @@ export class Sprite implements Block, Box {
 
   /** [-131072, 131071.984375] with 1/64th (0.015625) granularity. */
   set y(y: number) {
+    y = (y * 64) & 0xff_ffff
+    // if (this.y === y) return
     const sxyz_llll_y24 = this.#pool.view.getUint32(this.i + 3, true)
     this.#pool.view.setUint32(
       this.i + 3,
-      (sxyz_llll_y24 & ~0xff_ffff) | ((y * 64) & 0xff_ffff),
+      (sxyz_llll_y24 & ~0xff_ffff) | y,
       true
     )
+    this.#hitbox.w = NaN
+    this.#hurtbox.w = NaN
   }
 
   get z(): Layer {

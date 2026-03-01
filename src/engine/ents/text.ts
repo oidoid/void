@@ -91,8 +91,8 @@ export function textSetXY(ent: TextXYEnt, v: Void): void {
     sprite.z = ent.textXY.z
     sprite.tag = fontCharToTag(memProp5x6, ent.text[i]!)
     sprite.stretch = true
-    sprite.w *= ent.textWH.scale
-    sprite.h *= ent.textWH.scale
+    sprite.w = sprite.anim.w * ent.textWH.scale
+    sprite.h = sprite.anim.h * ent.textWH.scale
     len++
   }
   while (ent.textXY.chars.length > len) ent.textXY.chars.pop()!.free()

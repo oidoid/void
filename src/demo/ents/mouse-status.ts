@@ -21,6 +21,7 @@ export class MouseStatusHook implements V.Hook {
     ent.sprite.hidden = !active
 
     if (active) {
+      // to-do: don't care about input.handled.
       updateOverlay(ent.sprite, ent.mouseStatus.primary, v.input.isOn('A'))
       updateOverlay(ent.sprite, ent.mouseStatus.secondary, v.input.isOn('B'))
       updateOverlay(ent.sprite, ent.mouseStatus.tertiary, v.input.isOn('C'))
