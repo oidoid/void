@@ -47,10 +47,13 @@ export const spriteMaxWH: Readonly<WH> = {w: 4095, h: 4095}
  * animations default to looping without CPU interaction.
  */
 export class Sprite implements Block, Box {
+  /** don't set this externally. public for perf. */
+  anim!: Anim
   i: number
   readonly #atlas: Readonly<Atlas>
   readonly #looper: {readonly age: Millis}
   readonly #pool: Readonly<SpritePool>
+  #tag!: Tag
 
   constructor(
     pool: Readonly<SpritePool>,
@@ -86,10 +89,6 @@ export class Sprite implements Block, Box {
     const r4_a12 = this.#pool.view.getUint16(this.i + 13, true)
     const bits = Math.round((angle * 4096) / 360) & 0xfff
     this.#pool.view.setUint16(this.i + 13, (r4_a12 & ~0xfff) | bits, true)
-  }
-
-  get anim(): Anim {
-    return this.#atlas.anim[this.tag]!
   }
 
   get cel(): number {
@@ -255,6 +254,11 @@ export class Sprite implements Block, Box {
       (i11_c5 & ~(0x7ff << 5)) | ((id & 0x7ff) << 5),
       true
     )
+    this.#tag = this.#atlas.tags[this.id]!
+    this.anim = this.#atlas.anim[this.#tag]!
+    this.w = this.anim.w
+    this.h = this.anim.h
+    this.reset()
   }
 
   /**
@@ -266,11 +270,9 @@ export class Sprite implements Block, Box {
     this.cel = 0
     this.flipX = false
     this.flipY = false
-    this.h = 0
     this.id = 0
     this.stretch = false
     this.hidden = false
-    this.w = 0
     this.x = 0
     this.y = 0
     this.z = Layer.Bottom
@@ -327,20 +329,17 @@ export class Sprite implements Block, Box {
   }
 
   get tag(): Tag {
-    return this.#atlas.tags[this.id]!
+    return this.#tag
   }
 
   /** sets animation, resets cel, dimensions, hitbox, and hurtbox. */
   set tag(tag: Tag) {
     const anim = this.#atlas.anim[tag]!
-    this.w = anim.w
-    this.h = anim.h
     this.id = anim.id
-    this.reset()
   }
 
   toString(): string {
-    return `Sprite{${this.tag} (${this.x} ${this.y} ${this.z}) ${this.w}×${this.h}}`
+    return `Sprite{${this.#tag} (${this.x} ${this.y} ${this.z}) ${this.w}×${this.h}}`
   }
 
   get ui(): boolean {
