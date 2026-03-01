@@ -49,6 +49,7 @@ export class Loader implements V.Loader {
   }
 
   #draw(v: V.Void): void {
+    v.renderer.predraw(v.cam)
     v.renderer.clear(v.backgroundRGBA)
     v.renderer.predraw(v.cam)
     v.renderer.setDepth(false)
