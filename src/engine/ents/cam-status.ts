@@ -10,7 +10,7 @@ export class CamStatusHook implements Hook {
 
   update(ent: CamStatusEnt, v: Void): void {
     if (!v.cam.invalid) return
-    const scaleFmt = v.cam.scale.toFixed(3).replace(/\.?0+$/, '')
+    const scaleFmt = v.cam.scale.toFixed(1).replace(/\.?0+$/, '')
     const xFmt = v.cam.x.toFixed(1)
     const yFmt = v.cam.y.toFixed(1)
     const f = isFullscreen() ? 'f' : ''
