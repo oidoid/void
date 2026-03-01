@@ -34,17 +34,18 @@ export function Shader(
 
 function GLUniformMap(gl: GL2, pgm: GLProgram | null): GLUniformMap {
   const len = pgm ? gl.getProgramParameter(pgm, gl.ACTIVE_UNIFORMS) : 0
-  const map = debug?.render
-    ? new Proxy<GLUniformMap>(
-        {},
-        {
-          get(target, k: string): GLUniformLocation {
-            if (target[k] == null) throw Error(`no shader uniform "${k}"`)
-            return target[k]
+  const map =
+    debug?.render === 'error'
+      ? new Proxy<GLUniformMap>(
+          {},
+          {
+            get(target, k: string): GLUniformLocation {
+              if (target[k] == null) throw Error(`no shader uniform "${k}"`)
+              return target[k]
+            }
           }
-        }
-      )
-    : {}
+        )
+      : {}
   for (let i = 0; i < len; ++i) {
     const uniform = gl.getActiveUniform(pgm!, i)
     if (!uniform) throw Error(`no shader uniform at index ${i}`)

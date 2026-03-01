@@ -179,7 +179,7 @@ export class Renderer {
   loadTileset(tileset: Readonly<HTMLImageElement> | undefined): void {
     this.#tilesetImage = tileset
     if (this.#ctx) this.#uploadTiles(this.#ctx.gl, this.#ctx.tileShader)
-    if (!this.#invalid && debug?.invalid)
+    if (debug?.invalid && !this.#invalid)
       console.debug('[invalid] renderer invalid')
     this.#invalid = true
   }
@@ -243,7 +243,7 @@ export class Renderer {
     this.#tileset = tileset
     this.#levelTiles = tiles
     if (this.#ctx) this.#uploadTiles(this.#ctx.gl, this.#ctx.tileShader)
-    if (!this.#invalid && debug?.invalid)
+    if (debug?.invalid && !this.#invalid)
       console.debug('[invalid] renderer invalid')
     this.#invalid = true
   }
@@ -365,7 +365,7 @@ export class Renderer {
 
     this.#uploadTiles(gl, tileShader)
 
-    if (!this.#invalid && debug?.invalid)
+    if (debug?.invalid && !this.#invalid)
       console.debug('[invalid] renderer invalid')
     this.#invalid = true
     // keep outside of #context so it can be restored.

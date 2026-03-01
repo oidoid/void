@@ -1,4 +1,3 @@
-import {debug} from '../utils/debug.ts'
 import type {Void} from '../void.ts'
 import type {Ent} from './ent.ts'
 import {type EQL, parseQuery, type QueryEnt} from './ent-query.ts'
@@ -33,8 +32,8 @@ export function zooUpdate(
 ): void {
   for (const ent of ents) {
     for (const k in ent) hooks[k as keyof Ent]?.update?.(ent as never, v)
-    if (ent.invalid >= v.tick.start && debug?.invalid)
-      console.debug('[invalid] ent update invalid', ent)
+    // if (debug?.invalid && ent.invalid >= v.tick.start)
+    //   console.debug('[invalid] ent update invalid', ent)
     v.invalid ||= ent.invalid >= v.tick.start
   }
 }
