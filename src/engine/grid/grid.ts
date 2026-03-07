@@ -1,93 +1,78 @@
-import type {SpriteEnt} from '../ents/sprite.ts'
-import type {Box, XY} from '../types/geo.ts'
+import type {Collide} from '../ents/collide.ts'
+import type {WH, XY} from '../types/geo.ts'
+import type {Void} from '../void.ts'
 
-export class Grid<Ent extends SpriteEnt> implements Box {
-  readonly x: number
-  readonly y: number
-  readonly w: number
-  readonly h: number
+export type GridEnt = {sprite: XY}
 
+export type GridOpts = {
+  /** width and height of each cell. must be >= maximum sprite size. */
+  cellSize: number
+  wh: WH
+  xy: XY
+}
+
+export class Grid<Ent extends GridEnt> {
   readonly #cellSize: number
-  readonly #cells: Set<number>[]
+  readonly #cells: Ent[][][] = []
   readonly #cols: number
-  #ents: readonly Readonly<Ent>[] = []
-  readonly #entSize: number
-  readonly #offset: Readonly<XY>
+  readonly #halfCellSize: number
   readonly #rows: number
+  readonly #xy: Readonly<XY>
 
-  constructor(bounds: Readonly<Box>, cellSize: number, entSize: number) {
-    this.x = bounds.x
-    this.y = bounds.y
-    this.w = bounds.w
-    this.h = bounds.h
-    this.#cellSize = cellSize
-    this.#entSize = entSize
-    this.#offset = {x: entSize / 2 - bounds.x, y: entSize / 2 - bounds.y}
-    this.#cols = Math.ceil(this.w / cellSize)
-    this.#rows = Math.ceil(this.h / cellSize)
-    this.#cells = new Array(this.#cols * this.#rows)
-    for (let i = 0; i < this.#cells.length; i++) this.#cells[i] = new Set()
+  constructor(opts: Readonly<GridOpts>) {
+    this.#cellSize = opts.cellSize
+    this.#halfCellSize = opts.cellSize / 2
+    this.#xy = {...opts.xy}
+    this.#cols = Math.ceil(opts.wh.w / opts.cellSize)
+    this.#rows = Math.ceil(opts.wh.h / opts.cellSize)
   }
 
-  init(ents: readonly Readonly<Ent>[]): void {
-    this.#ents = ents
-    for (let i = 0; i < ents.length; i++)
-      this.#cells[this.#cellIndex(ents[i]!.sprite)]!.add(i)
+  insert(ent: Ent): void {
+    const col = Math.floor(
+      (ent.sprite.x - this.#xy.x + this.#halfCellSize) / this.#cellSize
+    )
+    const row = Math.floor(
+      (ent.sprite.y - this.#xy.y + this.#halfCellSize) / this.#cellSize
+    )
+    if (row < 0 || row >= this.#rows || col < 0 || col >= this.#cols) return
+    this.#cells[row] ??= []
+    this.#cells[row]![col] ??= []
+    this.#cells[row]![col]!.push(ent)
   }
 
-  clear(): void {
-    // to-do: just dispose grid? this takes forever.
-    for (const cell of this.#cells) cell.clear()
-    this.#ents = []
-  }
+  forEachCollision(collide: Collide<Ent>, v: Void): void {
+    for (let row = 0; row < this.#rows; row++)
+      for (let col = 0; col < this.#cols; col++) {
+        const cell = this.#cells[row]?.[col]
+        if (!cell?.length) continue
 
-  *hit(): IterableIterator<[Ent, Ent]> {
-    const radius = Math.ceil(this.#entSize / this.#cellSize)
+        // intra-cell pairs.
+        for (let a = 0; a < cell.length; a++)
+          for (let b = a + 1; b < cell.length; b++)
+            collide(cell[a]!, cell[b]!, v)
 
-    for (let i = 0; i < this.#ents.length; i++) {
-      const ent = this.#ents[i]!
-      const col = Math.max(
-        0,
-        Math.min(
-          this.#cols - 1,
-          ((ent.sprite.x + this.#offset.x) / this.#cellSize) | 0
-        )
-      )
-      const row = Math.max(
-        0,
-        Math.min(
-          this.#rows - 1,
-          ((ent.sprite.y + this.#offset.y) / this.#cellSize) | 0
-        )
-      )
+        // forward neighbor cells.
+        const right = this.#cells[row]?.[col + 1]
+        if (right?.length) collideNeighborCells(cell, right, collide, v)
 
-      const rMin = Math.max(0, row - radius)
-      const rMax = Math.min(this.#rows - 1, row + radius)
-      const cMin = Math.max(0, col - radius)
-      const cMax = Math.min(this.#cols - 1, col + radius)
+        const downLeft = this.#cells[row + 1]?.[col - 1]
+        if (downLeft?.length) collideNeighborCells(cell, downLeft, collide, v)
 
-      for (let r = rMin; r <= rMax; r++) {
-        const rowOffset = r * this.#cols
-        for (let c = cMin; c <= cMax; c++) {
-          for (const j of this.#cells[rowOffset + c]!) {
-            if (j <= i) continue
-            const other = this.#ents[j]!
-            if (ent.sprite.hits(other.sprite)) yield [ent, other]
-          }
-        }
+        const down = this.#cells[row + 1]?.[col]
+        if (down?.length) collideNeighborCells(cell, down, collide, v)
+
+        const downRight = this.#cells[row + 1]?.[col + 1]
+        if (downRight?.length) collideNeighborCells(cell, downRight, collide, v)
       }
-    }
   }
+}
 
-  #cellIndex(xy: Readonly<XY>): number {
-    const col = Math.max(
-      0,
-      Math.min(this.#cols - 1, ((xy.x + this.#offset.x) / this.#cellSize) | 0)
-    )
-    const row = Math.max(
-      0,
-      Math.min(this.#rows - 1, ((xy.y + this.#offset.y) / this.#cellSize) | 0)
-    )
-    return row * this.#cols + col
-  }
+function collideNeighborCells<Ent>(
+  cell: readonly Ent[],
+  neighbor: readonly Ent[],
+  collide: Collide<Ent>,
+  v: Void
+): void {
+  for (let a = 0; a < cell.length; a++)
+    for (let b = 0; b < neighbor.length; b++) collide(cell[a]!, neighbor[b]!, v)
 }

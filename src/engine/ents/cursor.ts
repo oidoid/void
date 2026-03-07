@@ -1,8 +1,9 @@
 import {Layer} from '../graphics/layer.ts'
 import {floorSpriteEpsilon} from '../graphics/sprite.ts'
+import type {Tick} from '../index.ts'
 import type {Input, Point} from '../input/input.ts'
 
-import type {Tick, Void} from '../void.ts'
+import type {Void} from '../void.ts'
 import type {Hook, HookEnt} from './hook.ts'
 
 //  to-do: i do pass ent data here. maybe I should do that for mem pool as SpritePool(i).

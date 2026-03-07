@@ -16,6 +16,8 @@ import type {PoolOpts} from './mem/pool.ts'
 import type {PoolMap} from './mem/pool-map.ts'
 import {SpritePool} from './mem/sprite-pool.ts'
 import {Random} from './random/random.ts'
+import type {Metrics} from './types/metrics.ts'
+import type {Tick} from './types/tick.ts'
 import type {Millis, Secs} from './types/time.ts'
 import type {VoidConfig} from './types/void-config.ts'
 import {initCanvas} from './utils/canvas-util.ts'
@@ -37,16 +39,6 @@ export type VoidOpts = {
   tileset?: HTMLImageElement | null
 }
 
-export type Metrics = {
-  prev: {
-    draw: Millis
-    /** duration from frame delivery to yield. */
-    frame: Millis
-  }
-}
-
-export type Tick = {ms: Millis; s: Secs; start: Millis}
-
 export class Void {
   readonly atlas: AtlasMap
   readonly cam: Cam = new Cam()
@@ -55,7 +47,10 @@ export class Void {
   level: LevelTiles | undefined
   readonly loader: Loader
   readonly looper: Looper = new Looper()
-  readonly metrics: Metrics = {prev: {draw: 0, frame: 0}}
+  readonly metrics: Metrics = {
+    cur: {collide: 0, update: 0},
+    prev: {collide: 0, draw: 0, frame: 0, update: 0}
+  }
   readonly pool: PoolMap
   readonly random: Random
   readonly renderer: Renderer
@@ -202,9 +197,13 @@ export class Void {
     if (reason === 'Poll' && nextReason !== 'Render') return 'Skip'
 
     this.#invalid = false
+    this.metrics.cur.collide = 0
+    this.metrics.cur.update = 0
     this.metrics.prev.draw = (this.renderer.drawEnd -
       this.renderer.drawStart) as Millis
     this.loader.update(this)
+    this.metrics.prev.collide = this.metrics.cur.collide
+    this.metrics.prev.update = this.metrics.cur.update
 
     this.cam.postupdate()
     this.metrics.prev.frame = (performance.now() - this.looper.start) as Millis

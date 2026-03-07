@@ -10,6 +10,7 @@ import type {
   SuperballButton,
   Tally
 } from '../ents/ent.ts'
+import type {SuperballEnt} from '../ents/superball.ts'
 import type {
   ClockSchema,
   CollideToggleSchema,
@@ -74,5 +75,6 @@ declare module '../../engine/index.ts' {
 
   interface Zoo {
     coords: Set<Ent>
+    superballs: Set<SuperballEnt>
   }
 }

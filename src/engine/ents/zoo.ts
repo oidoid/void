@@ -1,6 +1,6 @@
 import type {Void} from '../void.ts'
 import type {Ent} from './ent.ts'
-import {type EQL, parseQuery, type QueryEnt} from './ent-query.ts'
+import {parseQuery} from './ent-query.ts'
 import type {Hook} from './hook.ts'
 
 export interface Zoo {
@@ -16,26 +16,20 @@ export function zooFindByID<T extends Ent>(
   for (const ent of ents) if (ent.id === id) return ent as T
 }
 
-export function* zooQuery<const Query>(
-  ents: Iterable<Ent, undefined, undefined>,
-  query: EQL<Ent, Query>
-): IterableIterator<QueryEnt<Query>> {
-  const querySet = parseQuery(query)
-  for (const ent of ents)
-    if (queryEnt(ent, querySet)) yield ent as QueryEnt<Query>
-}
-
 export function zooUpdate(
   ents: Iterable<Ent, undefined, undefined>,
   hooks: Readonly<HookMap>,
   v: Void
 ): void {
+  const start = performance.now()
   for (const ent of ents) {
+    // to-do: move to Ent.hooks? not many props don't have a hook.
     for (const k in ent) hooks[k as keyof Ent]?.update?.(ent as never, v)
     // if (debug?.invalid && ent.invalid >= v.tick.start)
     //   console.debug('[invalid] ent update invalid', ent)
     v.invalid ||= ent.invalid >= v.tick.start
   }
+  v.metrics.cur.update += performance.now() - start
 }
 
 export function zooValidate(

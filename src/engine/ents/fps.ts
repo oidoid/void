@@ -15,7 +15,9 @@ export class FPSHook implements Hook {
     }
     const fps = `${ent.fps.prevFrames}`.padStart(3, ' ')
     const frame = v.metrics.prev.frame.toFixed(1).padStart(4, ' ')
+    const update = v.metrics.prev.update.toFixed(1).padStart(4, ' ')
+    const collide = v.metrics.prev.collide.toFixed(1).padStart(4, ' ')
     const draw = v.metrics.prev.draw.toFixed(1).padStart(4, ' ')
-    textSetText(ent, `${fps}FPS ${frame}F ${draw}D`)
+    textSetText(ent, `${fps}FPS ${frame}F ${update}U ${collide}C ${draw}D`)
   }
 }
