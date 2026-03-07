@@ -48,7 +48,7 @@ export type Anim = {
 }
 
 /** `--tagname-format={filestem}--{animation}`. */
-export type Tag = ReturnType<ReturnTag>
+export type Tag = 'void--Nil' | ReturnType<ReturnTag>
 
 export interface ReturnTag {
   // biome-ignore lint/style/useShorthandFunctionType:;

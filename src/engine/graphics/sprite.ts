@@ -51,10 +51,6 @@ export class Sprite implements Block, Box {
   anim: Anim
   i: number
   readonly #atlas: Readonly<Atlas>
-  /** cached hitbox. `w: NaN` means dirty. */
-  readonly #hitbox: Box = {x: 0, y: 0, w: NaN, h: 0}
-  /** cached hurtbox. `w: NaN` means dirty. */
-  readonly #hurtbox: Box = {x: 0, y: 0, w: NaN, h: 0}
   readonly #looper: {readonly age: Millis}
   readonly #pool: Readonly<SpritePool>
   #tag: Tag
@@ -135,11 +131,8 @@ export class Sprite implements Block, Box {
   }
 
   set flipX(flip: boolean) {
-    // if (this.flipX === flip) return
     const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
     this.#pool.view.setUint8(this.i + 6, (sxyz_llll & ~0x40) | (-flip & 0x40))
-    this.#hitbox.w = NaN
-    this.#hurtbox.w = NaN
   }
 
   get flipY(): boolean {
@@ -148,11 +141,8 @@ export class Sprite implements Block, Box {
   }
 
   set flipY(flip: boolean) {
-    // if (this.flipY === flip) return
     const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
     this.#pool.view.setUint8(this.i + 6, (sxyz_llll & ~0x20) | (-flip & 0x20))
-    this.#hitbox.w = NaN
-    this.#hurtbox.w = NaN
   }
 
   free(): void {
@@ -195,17 +185,14 @@ export class Sprite implements Block, Box {
   }
 
   get hitbox(): Readonly<Box> | undefined {
-    if (Number.isNaN(this.#hitbox.w)) {
-      const {hitbox} = this.anim
-      if (!hitbox) return undefined
-      this.#hitbox.x =
-        this.x + (this.flipX ? this.w - hitbox.w - hitbox.x : hitbox.x)
-      this.#hitbox.y =
-        this.y + (this.flipY ? this.h - hitbox.h - hitbox.y : hitbox.y)
-      this.#hitbox.w = hitbox.w
-      this.#hitbox.h = hitbox.h
+    const {hitbox} = this.anim
+    if (!hitbox) return undefined
+    return {
+      x: this.x + (this.flipX ? this.w - hitbox.w - hitbox.x : hitbox.x),
+      y: this.y + (this.flipY ? this.h - hitbox.h - hitbox.y : hitbox.y),
+      w: hitbox.w,
+      h: hitbox.h
     }
-    return this.#hitbox
   }
 
   /**
@@ -213,7 +200,6 @@ export class Sprite implements Block, Box {
    * default to clipbox.
    */
   hits(box: Readonly<XY | Box>): boolean {
-    // to-do: is `if (!boxHits(this, box)) return false` faster?
     const hurtbox = box instanceof Sprite ? (box.hurtbox ?? box) : box
     return boxHits(this.hitbox ?? this, hurtbox)
   }
@@ -232,17 +218,14 @@ export class Sprite implements Block, Box {
   }
 
   get hurtbox(): Readonly<Box> | undefined {
-    if (Number.isNaN(this.#hurtbox.w)) {
-      const {hurtbox} = this.anim
-      if (!hurtbox) return undefined
-      this.#hurtbox.x =
-        this.x + (this.flipX ? this.w - hurtbox.w - hurtbox.x : hurtbox.x)
-      this.#hurtbox.y =
-        this.y + (this.flipY ? this.h - hurtbox.h - hurtbox.y : hurtbox.y)
-      this.#hurtbox.w = hurtbox.w
-      this.#hurtbox.h = hurtbox.h
+    const {hurtbox} = this.anim
+    if (!hurtbox) return undefined
+    return {
+      x: this.x + (this.flipX ? this.w - hurtbox.w - hurtbox.x : hurtbox.x),
+      y: this.y + (this.flipY ? this.h - hurtbox.h - hurtbox.y : hurtbox.y),
+      w: hurtbox.w,
+      h: hurtbox.h
     }
-    return this.#hurtbox
   }
 
   get id(): number {
@@ -252,11 +235,6 @@ export class Sprite implements Block, Box {
 
   /** [0, 2047]. */
   set id(id: number) {
-    // if (this.id === id) return
-    this.#id = id
-  }
-
-  set #id(id: number) {
     const i11_c5 = this.#pool.view.getUint16(this.i + 10, true)
     this.#pool.view.setUint16(
       this.i + 10,
@@ -267,9 +245,7 @@ export class Sprite implements Block, Box {
     this.anim = this.#atlas.anim[this.#tag]!
     this.w = this.anim.w
     this.h = this.anim.h
-    this.reset()
-    this.#hitbox.w = NaN
-    this.#hurtbox.w = NaN
+    this.rewind()
   }
 
   /**
@@ -277,21 +253,18 @@ export class Sprite implements Block, Box {
    * for reinitialization on pool allocation.
    */
   init(): void {
-    this.#tag = this.#atlas.tags[0]!
-    this.#hitbox.w = NaN
-    this.#hurtbox.w = NaN
+    this.id = 0
     this.angle = 0
     this.cel = 0
     this.flipX = false
     this.flipY = false
-    this.#id = 0 // to-do: reserve ID 0.
     this.stretch = false
     this.hidden = false
     this.x = 0
     this.y = 0
     this.z = Layer.Bottom
     this.zend = false
-    this.reset()
+    this.rewind()
   }
 
   /** true if animation has played once. */
@@ -321,9 +294,8 @@ export class Sprite implements Block, Box {
     return {x: box.x + box.w / 2, y: box.y + box.h / 2}
   }
 
-  // to-do: rename rewind.
   /** sets cel to animation start. */
-  reset(): void {
+  rewind(): void {
     this.cel = this.looperCel // setter truncates.
   }
 
@@ -345,7 +317,7 @@ export class Sprite implements Block, Box {
     return this.#tag
   }
 
-  /** sets animation, resets cel, dimensions, hitbox, and hurtbox if differs. */
+  /** sets animation, rewinds cel, dimensions, hitbox, and hurtbox. */
   set tag(tag: Tag) {
     this.id = this.#atlas.anim[tag]!.id
   }
@@ -384,8 +356,6 @@ export class Sprite implements Block, Box {
     // if (this.x === x) return
     const y8_x24 = this.#pool.view.getUint32(this.i + 0, true)
     this.#pool.view.setUint32(this.i + 0, (y8_x24 & ~0xff_ffff) | x, true)
-    this.#hitbox.w = NaN
-    this.#hurtbox.w = NaN
   }
 
   get y(): number {
@@ -403,8 +373,6 @@ export class Sprite implements Block, Box {
       (sxyz_llll_y24 & ~0xff_ffff) | y,
       true
     )
-    this.#hitbox.w = NaN
-    this.#hurtbox.w = NaN
   }
 
   get z(): Layer {

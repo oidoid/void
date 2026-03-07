@@ -7,9 +7,10 @@ import {type Anim, type Atlas, animCels, celMillis} from './atlas.ts'
 import {Layer} from './layer.ts'
 import {diagonalize, floorSpriteEpsilon, Sprite} from './sprite.ts'
 
+const animNil: Readonly<Anim> = {cels: 1, id: 0, w: 0, h: 0}
 const animA: Readonly<Anim> = {
   cels: 10,
-  id: 0, // to-do: this ID is invalid fix actual issue.
+  id: 1,
   w: 10,
   h: 20,
   hitbox: {x: 1, y: 2, w: 3, h: 4},
@@ -17,7 +18,7 @@ const animA: Readonly<Anim> = {
 }
 const animB: Readonly<Anim> = {
   cels: animCels,
-  id: 1,
+  id: 2,
   w: 30,
   h: 40,
   hitbox: {x: 1, y: 2, w: 3, h: 4},
@@ -25,9 +26,9 @@ const animB: Readonly<Anim> = {
 }
 
 const atlas: Readonly<Atlas> = {
-  anim: {'stem--AnimA': animA, 'stem--AnimB': animB},
+  anim: {'void--Nil': animNil, 'stem--AnimA': animA, 'stem--AnimB': animB},
   celXYWH: [1, 2, 3, 4, 5, 6, 7, 8],
-  tags: ['stem--AnimA', 'stem--AnimB']
+  tags: ['void--Nil', 'stem--AnimA', 'stem--AnimB']
 }
 
 test('above() layer', () => {
@@ -268,11 +269,11 @@ test('init()', () => {
   assert(sprite.cel, 0)
   assert(sprite.flipX, false)
   assert(sprite.flipY, false)
-  assert(sprite.h, 20)
+  assert(sprite.h, 0)
   assert(sprite.id, 0)
   assert(sprite.stretch, false)
   assert(sprite.hidden, false)
-  assert(sprite.w, 10)
+  assert(sprite.w, 0)
   assert(sprite.x, 0)
   assert(sprite.y, 0)
   assert(sprite.z, Layer.Bottom)
@@ -288,7 +289,11 @@ test('id', () => {
 
   sprite.id = 1
   assert(sprite.id, 1)
-  assert(toHex(pool), '000000000000001e8002200000000000')
+  assert(toHex(pool), '000000000000000a4001200000000000')
+
+  sprite.id = 0
+  assert(sprite.id, 0)
+  assert(toHex(pool), '00000000000000000000000000000000')
 
   // to-do: valid ID tests here.
   // sprite.id = 1023
@@ -665,14 +670,14 @@ test('midHurt', () => {
   assert(sprite.midHurt, {x: 12.5, y: 36})
 })
 
-test('reset()', () => {
+test('rewind()', () => {
   const looper = {age: 0 as Millis}
   const sprite = new Sprite(TestPool(), 0, atlas, looper)
   sprite.tag = 'stem--AnimA'
 
   for (let i = 0; i < animCels * 5; i++) {
     looper.age = (celMillis * i) as Millis
-    sprite.reset()
+    sprite.rewind()
     assert(sprite.cel, i % (2 * sprite.anim.cels), `${i}`)
   }
 })
@@ -685,7 +690,7 @@ test('tag', () => {
   assert(sprite.tag, 'stem--AnimA')
   assert(sprite.w, 10)
   assert(sprite.h, 20)
-  assert(sprite.id, 0)
+  assert(sprite.id, 1)
   assert(sprite.cel, 0)
 
   looper.age = (celMillis * 1) as Millis
@@ -693,7 +698,7 @@ test('tag', () => {
   assert(sprite.tag, 'stem--AnimB')
   assert(sprite.w, 30)
   assert(sprite.h, 40)
-  assert(sprite.id, 1)
+  assert(sprite.id, 2)
   assert(sprite.cel, 1)
 })
 

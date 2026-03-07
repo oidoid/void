@@ -16,16 +16,16 @@ describe('parseAtlasJSON()', () => {
     // to-do: *.aseprite.json isn't working but *.aseprite.json2 does.
     assert(parseAtlasJSON(atlas as ase.Aseprite), {
       anim: {
-        'background--OrangeCheckerboard': {
+        'void--Nil': {
           cels: 1,
           data: undefined,
-          h: 2,
           id: 0,
-          w: 2,
+          w: 0,
+          h: 0,
           hitbox: undefined,
           hurtbox: undefined
         },
-        'background--GreyCheckerboard': {
+        'background--OrangeCheckerboard': {
           cels: 1,
           data: undefined,
           h: 2,
@@ -34,7 +34,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'background--Kiwi': {
+        'background--GreyCheckerboard': {
           cels: 1,
           data: undefined,
           h: 2,
@@ -43,7 +43,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'background--Strawberry': {
+        'background--Kiwi': {
           cels: 1,
           data: undefined,
           h: 2,
@@ -52,7 +52,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'background--Grape': {
+        'background--Strawberry': {
           cels: 1,
           data: undefined,
           h: 2,
@@ -61,7 +61,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'background--Blueberry': {
+        'background--Grape': {
           cels: 1,
           data: undefined,
           h: 2,
@@ -70,7 +70,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'background--Bubblegum': {
+        'background--Blueberry': {
           cels: 1,
           data: undefined,
           h: 2,
@@ -79,7 +79,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'background--Transparent': {
+        'background--Bubblegum': {
           cels: 1,
           data: undefined,
           h: 2,
@@ -88,11 +88,20 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'background--Black': {
+        'background--Transparent': {
           cels: 1,
           data: undefined,
           h: 2,
           id: 8,
+          w: 2,
+          hitbox: undefined,
+          hurtbox: undefined
+        },
+        'background--Black': {
+          cels: 1,
+          data: undefined,
+          h: 2,
+          id: 9,
           w: 2,
           hitbox: undefined,
           hurtbox: undefined
@@ -103,7 +112,7 @@ describe('parseAtlasJSON()', () => {
           h: 13,
           hitbox: {x: 2, y: 0, w: 4, h: 4},
           hurtbox: undefined,
-          id: 9,
+          id: 10,
           w: 8
         },
         'backpacker--WalkDown': {
@@ -112,7 +121,7 @@ describe('parseAtlasJSON()', () => {
           h: 13,
           hitbox: {x: 2, y: 0, w: 4, h: 4},
           hurtbox: undefined,
-          id: 10,
+          id: 11,
           w: 8
         },
         'backpacker--WalkUp': {
@@ -121,7 +130,7 @@ describe('parseAtlasJSON()', () => {
           h: 13,
           hitbox: {x: 2, y: 0, w: 4, h: 4},
           hurtbox: undefined,
-          id: 11,
+          id: 12,
           w: 8
         },
         'cursor--Pointer': {
@@ -130,19 +139,10 @@ describe('parseAtlasJSON()', () => {
           h: 14,
           hitbox: {x: 0, y: 0, w: 2, h: 2},
           hurtbox: {x: 0, y: 0, w: 2, h: 2},
-          id: 12,
+          id: 13,
           w: 8
         },
         'mem-prop-5x6--00': {
-          cels: 1,
-          data: undefined,
-          h: 6,
-          id: 13,
-          w: 5,
-          hitbox: undefined,
-          hurtbox: undefined
-        },
-        'mem-prop-5x6--01': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -151,7 +151,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--02': {
+        'mem-prop-5x6--01': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -160,7 +160,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--03': {
+        'mem-prop-5x6--02': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -169,7 +169,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--04': {
+        'mem-prop-5x6--03': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -178,7 +178,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--05': {
+        'mem-prop-5x6--04': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -187,7 +187,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--06': {
+        'mem-prop-5x6--05': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -196,7 +196,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--07': {
+        'mem-prop-5x6--06': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -205,7 +205,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--08': {
+        'mem-prop-5x6--07': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -214,7 +214,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--09': {
+        'mem-prop-5x6--08': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -223,7 +223,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--0a': {
+        'mem-prop-5x6--09': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -232,7 +232,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--0b': {
+        'mem-prop-5x6--0a': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -241,7 +241,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--0c': {
+        'mem-prop-5x6--0b': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -250,7 +250,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--0d': {
+        'mem-prop-5x6--0c': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -259,7 +259,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--0e': {
+        'mem-prop-5x6--0d': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -268,7 +268,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--0f': {
+        'mem-prop-5x6--0e': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -277,7 +277,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--10': {
+        'mem-prop-5x6--0f': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -286,7 +286,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--11': {
+        'mem-prop-5x6--10': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -295,7 +295,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--12': {
+        'mem-prop-5x6--11': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -304,7 +304,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--13': {
+        'mem-prop-5x6--12': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -313,7 +313,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--14': {
+        'mem-prop-5x6--13': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -322,7 +322,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--15': {
+        'mem-prop-5x6--14': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -331,7 +331,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--16': {
+        'mem-prop-5x6--15': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -340,7 +340,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--17': {
+        'mem-prop-5x6--16': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -349,7 +349,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--18': {
+        'mem-prop-5x6--17': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -358,7 +358,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--19': {
+        'mem-prop-5x6--18': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -367,7 +367,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--1a': {
+        'mem-prop-5x6--19': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -376,7 +376,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--1b': {
+        'mem-prop-5x6--1a': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -385,7 +385,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--1c': {
+        'mem-prop-5x6--1b': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -394,7 +394,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--1d': {
+        'mem-prop-5x6--1c': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -403,7 +403,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--1e': {
+        'mem-prop-5x6--1d': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -412,7 +412,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--1f': {
+        'mem-prop-5x6--1e': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -421,7 +421,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--20': {
+        'mem-prop-5x6--1f': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -430,7 +430,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--21': {
+        'mem-prop-5x6--20': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -439,7 +439,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--22': {
+        'mem-prop-5x6--21': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -448,7 +448,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--23': {
+        'mem-prop-5x6--22': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -457,7 +457,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--24': {
+        'mem-prop-5x6--23': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -466,7 +466,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--25': {
+        'mem-prop-5x6--24': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -475,7 +475,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--26': {
+        'mem-prop-5x6--25': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -484,7 +484,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--27': {
+        'mem-prop-5x6--26': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -493,7 +493,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--28': {
+        'mem-prop-5x6--27': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -502,7 +502,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--29': {
+        'mem-prop-5x6--28': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -511,7 +511,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--2a': {
+        'mem-prop-5x6--29': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -520,7 +520,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--2b': {
+        'mem-prop-5x6--2a': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -529,7 +529,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--2c': {
+        'mem-prop-5x6--2b': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -538,7 +538,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--2d': {
+        'mem-prop-5x6--2c': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -547,7 +547,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--2e': {
+        'mem-prop-5x6--2d': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -556,7 +556,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--2f': {
+        'mem-prop-5x6--2e': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -565,7 +565,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--30': {
+        'mem-prop-5x6--2f': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -574,7 +574,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--31': {
+        'mem-prop-5x6--30': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -583,7 +583,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--32': {
+        'mem-prop-5x6--31': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -592,7 +592,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--33': {
+        'mem-prop-5x6--32': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -601,7 +601,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--34': {
+        'mem-prop-5x6--33': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -610,7 +610,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--35': {
+        'mem-prop-5x6--34': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -619,7 +619,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--36': {
+        'mem-prop-5x6--35': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -628,7 +628,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--37': {
+        'mem-prop-5x6--36': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -637,7 +637,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--38': {
+        'mem-prop-5x6--37': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -646,7 +646,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--39': {
+        'mem-prop-5x6--38': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -655,7 +655,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--3a': {
+        'mem-prop-5x6--39': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -664,7 +664,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--3b': {
+        'mem-prop-5x6--3a': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -673,7 +673,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--3c': {
+        'mem-prop-5x6--3b': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -682,7 +682,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--3d': {
+        'mem-prop-5x6--3c': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -691,7 +691,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--3e': {
+        'mem-prop-5x6--3d': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -700,7 +700,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--3f': {
+        'mem-prop-5x6--3e': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -709,7 +709,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--40': {
+        'mem-prop-5x6--3f': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -718,7 +718,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--41': {
+        'mem-prop-5x6--40': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -727,7 +727,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--42': {
+        'mem-prop-5x6--41': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -736,7 +736,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--43': {
+        'mem-prop-5x6--42': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -745,7 +745,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--44': {
+        'mem-prop-5x6--43': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -754,7 +754,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--45': {
+        'mem-prop-5x6--44': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -763,7 +763,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--46': {
+        'mem-prop-5x6--45': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -772,7 +772,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--47': {
+        'mem-prop-5x6--46': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -781,7 +781,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--48': {
+        'mem-prop-5x6--47': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -790,7 +790,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--49': {
+        'mem-prop-5x6--48': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -799,7 +799,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--4a': {
+        'mem-prop-5x6--49': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -808,7 +808,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--4b': {
+        'mem-prop-5x6--4a': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -817,7 +817,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--4c': {
+        'mem-prop-5x6--4b': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -826,7 +826,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--4d': {
+        'mem-prop-5x6--4c': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -835,7 +835,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--4e': {
+        'mem-prop-5x6--4d': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -844,7 +844,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--4f': {
+        'mem-prop-5x6--4e': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -853,7 +853,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--50': {
+        'mem-prop-5x6--4f': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -862,7 +862,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--51': {
+        'mem-prop-5x6--50': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -871,7 +871,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--52': {
+        'mem-prop-5x6--51': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -880,7 +880,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--53': {
+        'mem-prop-5x6--52': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -889,7 +889,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--54': {
+        'mem-prop-5x6--53': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -898,7 +898,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--55': {
+        'mem-prop-5x6--54': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -907,7 +907,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--56': {
+        'mem-prop-5x6--55': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -916,7 +916,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--57': {
+        'mem-prop-5x6--56': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -925,7 +925,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--58': {
+        'mem-prop-5x6--57': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -934,7 +934,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--59': {
+        'mem-prop-5x6--58': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -943,7 +943,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--5a': {
+        'mem-prop-5x6--59': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -952,7 +952,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--5b': {
+        'mem-prop-5x6--5a': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -961,7 +961,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--5c': {
+        'mem-prop-5x6--5b': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -970,7 +970,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--5d': {
+        'mem-prop-5x6--5c': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -979,7 +979,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--5e': {
+        'mem-prop-5x6--5d': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -988,7 +988,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--5f': {
+        'mem-prop-5x6--5e': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -997,7 +997,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--60': {
+        'mem-prop-5x6--5f': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1006,7 +1006,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--61': {
+        'mem-prop-5x6--60': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1015,7 +1015,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--62': {
+        'mem-prop-5x6--61': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1024,7 +1024,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--63': {
+        'mem-prop-5x6--62': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1033,7 +1033,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--64': {
+        'mem-prop-5x6--63': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1042,7 +1042,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--65': {
+        'mem-prop-5x6--64': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1051,7 +1051,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--66': {
+        'mem-prop-5x6--65': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1060,7 +1060,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--67': {
+        'mem-prop-5x6--66': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1069,7 +1069,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--68': {
+        'mem-prop-5x6--67': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1078,7 +1078,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--69': {
+        'mem-prop-5x6--68': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1087,7 +1087,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--6a': {
+        'mem-prop-5x6--69': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1096,7 +1096,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--6b': {
+        'mem-prop-5x6--6a': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1105,7 +1105,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--6c': {
+        'mem-prop-5x6--6b': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1114,7 +1114,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--6d': {
+        'mem-prop-5x6--6c': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1123,7 +1123,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--6e': {
+        'mem-prop-5x6--6d': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1132,7 +1132,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--6f': {
+        'mem-prop-5x6--6e': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1141,7 +1141,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--70': {
+        'mem-prop-5x6--6f': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1150,7 +1150,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--71': {
+        'mem-prop-5x6--70': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1159,7 +1159,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--72': {
+        'mem-prop-5x6--71': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1168,7 +1168,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--73': {
+        'mem-prop-5x6--72': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1177,7 +1177,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--74': {
+        'mem-prop-5x6--73': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1186,7 +1186,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--75': {
+        'mem-prop-5x6--74': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1195,7 +1195,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--76': {
+        'mem-prop-5x6--75': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1204,7 +1204,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--77': {
+        'mem-prop-5x6--76': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1213,7 +1213,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--78': {
+        'mem-prop-5x6--77': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1222,7 +1222,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--79': {
+        'mem-prop-5x6--78': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1231,7 +1231,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--7a': {
+        'mem-prop-5x6--79': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1240,7 +1240,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--7b': {
+        'mem-prop-5x6--7a': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1249,7 +1249,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--7c': {
+        'mem-prop-5x6--7b': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1258,7 +1258,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--7d': {
+        'mem-prop-5x6--7c': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1267,7 +1267,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--7e': {
+        'mem-prop-5x6--7d': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1276,7 +1276,7 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
-        'mem-prop-5x6--7f': {
+        'mem-prop-5x6--7e': {
           cels: 1,
           data: undefined,
           h: 6,
@@ -1285,38 +1285,47 @@ describe('parseAtlasJSON()', () => {
           hitbox: undefined,
           hurtbox: undefined
         },
+        'mem-prop-5x6--7f': {
+          cels: 1,
+          data: undefined,
+          h: 6,
+          id: 141,
+          w: 5,
+          hitbox: undefined,
+          hurtbox: undefined
+        },
         'oidoid--Default': {
           cels: 1,
           data: undefined,
           h: 16,
-          id: 141,
+          id: 142,
           w: 16,
           hitbox: undefined,
           hurtbox: undefined
         }
       },
       celXY: [
-        22, 37, 21, 27, 21, 29, 21, 31, 20, 33, 22, 33, 20, 35, 22, 35, 20, 37,
-        24, 26, 24, 26, 8, 16, 8, 16, 0, 16, 0, 16, 16, 14, 16, 14, 72, 13, 72,
-        13, 32, 26, 32, 26, 0, 16, 0, 16, 64, 13, 64, 13, 56, 13, 56, 13, 48,
-        13, 48, 13, 40, 13, 40, 13, 32, 13, 32, 13, 56, 13, 56, 13, 24, 13, 24,
-        13, 72, 0, 72, 0, 64, 0, 64, 0, 24, 0, 24, 0, 56, 0, 56, 0, 48, 0, 48,
-        0, 48, 0, 48, 0, 24, 0, 24, 0, 40, 0, 40, 0, 32, 0, 32, 0, 32, 0, 32, 0,
-        16, 0, 45, 56, 45, 56, 45, 56, 45, 56, 45, 56, 45, 56, 45, 56, 45, 56,
+        0, 0, 22, 37, 21, 27, 21, 29, 21, 31, 20, 33, 22, 33, 20, 35, 22, 35,
+        20, 37, 24, 26, 24, 26, 8, 16, 8, 16, 0, 16, 0, 16, 16, 14, 16, 14, 72,
+        13, 72, 13, 32, 26, 32, 26, 0, 16, 0, 16, 64, 13, 64, 13, 56, 13, 56,
+        13, 48, 13, 48, 13, 40, 13, 40, 13, 32, 13, 32, 13, 56, 13, 56, 13, 24,
+        13, 24, 13, 72, 0, 72, 0, 64, 0, 64, 0, 24, 0, 24, 0, 56, 0, 56, 0, 48,
+        0, 48, 0, 48, 0, 48, 0, 24, 0, 24, 0, 40, 0, 40, 0, 32, 0, 32, 0, 32, 0,
+        32, 0, 16, 0, 45, 56, 45, 56, 45, 56, 45, 56, 45, 56, 45, 56, 45, 56,
         45, 56, 45, 56, 45, 56, 45, 56, 45, 56, 45, 56, 45, 56, 45, 56, 45, 56,
         45, 56, 45, 56, 45, 56, 45, 56, 45, 56, 45, 56, 45, 56, 45, 56, 45, 56,
-        45, 56, 45, 56, 45, 56, 45, 56, 45, 56, 45, 56, 45, 56, 40, 56, 10, 53,
-        5, 53, 0, 53, 35, 51, 30, 51, 25, 51, 20, 51, 15, 51, 35, 45, 70, 50,
-        65, 50, 60, 50, 55, 50, 50, 50, 45, 50, 40, 50, 10, 47, 5, 47, 0, 47,
-        70, 62, 50, 56, 65, 62, 60, 62, 55, 62, 50, 62, 45, 62, 40, 62, 10, 59,
-        5, 59, 0, 59, 35, 57, 70, 32, 30, 57, 25, 57, 20, 57, 15, 57, 75, 56,
-        70, 56, 65, 56, 60, 56, 75, 50, 55, 56, 10, 35, 75, 32, 15, 33, 0, 35,
-        5, 35, 40, 38, 45, 38, 65, 32, 60, 32, 55, 32, 50, 32, 45, 32, 40, 26,
-        50, 26, 55, 26, 60, 26, 65, 26, 70, 26, 75, 26, 16, 27, 0, 29, 5, 29,
-        10, 29, 40, 32, 45, 26, 10, 41, 30, 45, 25, 45, 20, 45, 15, 45, 75, 44,
-        70, 44, 65, 44, 60, 44, 55, 44, 50, 44, 45, 44, 40, 44, 50, 38, 5, 41,
-        0, 41, 35, 39, 30, 39, 25, 39, 20, 39, 15, 39, 75, 38, 70, 38, 65, 38,
-        60, 38, 55, 38, 45, 56, 0, 0
+        45, 56, 45, 56, 45, 56, 45, 56, 45, 56, 45, 56, 45, 56, 45, 56, 40, 56,
+        10, 53, 5, 53, 0, 53, 35, 51, 30, 51, 25, 51, 20, 51, 15, 51, 35, 45,
+        70, 50, 65, 50, 60, 50, 55, 50, 50, 50, 45, 50, 40, 50, 10, 47, 5, 47,
+        0, 47, 70, 62, 50, 56, 65, 62, 60, 62, 55, 62, 50, 62, 45, 62, 40, 62,
+        10, 59, 5, 59, 0, 59, 35, 57, 70, 32, 30, 57, 25, 57, 20, 57, 15, 57,
+        75, 56, 70, 56, 65, 56, 60, 56, 75, 50, 55, 56, 10, 35, 75, 32, 15, 33,
+        0, 35, 5, 35, 40, 38, 45, 38, 65, 32, 60, 32, 55, 32, 50, 32, 45, 32,
+        40, 26, 50, 26, 55, 26, 60, 26, 65, 26, 70, 26, 75, 26, 16, 27, 0, 29,
+        5, 29, 10, 29, 40, 32, 45, 26, 10, 41, 30, 45, 25, 45, 20, 45, 15, 45,
+        75, 44, 70, 44, 65, 44, 60, 44, 55, 44, 50, 44, 45, 44, 40, 44, 50, 38,
+        5, 41, 0, 41, 35, 39, 30, 39, 25, 39, 20, 39, 15, 39, 75, 38, 70, 38,
+        65, 38, 60, 38, 55, 38, 45, 56, 0, 0
       ]
     })
   })
@@ -1336,7 +1345,20 @@ describe('parseAtlasJSON()', () => {
         },
         frames: {}
       }),
-      {anim: {}, celXY: []}
+      {
+        anim: {
+          'void--Nil': {
+            cels: 1,
+            data: undefined,
+            id: 0,
+            w: 0,
+            h: 0,
+            hitbox: undefined,
+            hurtbox: undefined
+          }
+        },
+        celXY: [0, 0]
+      }
     )
   })
 
@@ -1532,10 +1554,19 @@ describe('parseAtlasJSON()', () => {
       }),
       {
         anim: {
-          'scenery--Cloud': {
+          'void--Nil': {
             cels: 1,
             data: undefined,
             id: 0,
+            w: 0,
+            h: 0,
+            hitbox: undefined,
+            hurtbox: undefined
+          },
+          'scenery--Cloud': {
+            cels: 1,
+            data: undefined,
+            id: 1,
             w: 16,
             h: 16,
             hitbox: {x: 8, y: 12, w: 2, h: 3},
@@ -1544,7 +1575,7 @@ describe('parseAtlasJSON()', () => {
           'palette--red': {
             cels: 1,
             data: undefined,
-            id: 1,
+            id: 2,
             w: 16,
             h: 16,
             hitbox: {x: 7, y: 11, w: 3, h: 4},
@@ -1553,7 +1584,7 @@ describe('parseAtlasJSON()', () => {
           'scenery--Conifer': {
             cels: 1,
             data: undefined,
-            id: 2,
+            id: 3,
             w: 16,
             h: 16,
             hitbox: {x: 7, y: 10, w: 3, h: 5},
@@ -1562,7 +1593,7 @@ describe('parseAtlasJSON()', () => {
           'scenery--ConiferShadow': {
             cels: 1,
             data: undefined,
-            id: 3,
+            id: 4,
             w: 16,
             h: 16,
             hitbox: {x: 7, y: 9, w: 3, h: 6},
@@ -1571,7 +1602,7 @@ describe('parseAtlasJSON()', () => {
           'backpacker--WalkRight': {
             cels: 14,
             data: undefined,
-            id: 4,
+            id: 5,
             w: 8,
             h: 13,
             hitbox: {x: 2, y: 0, w: 4, h: 4},
@@ -1579,9 +1610,9 @@ describe('parseAtlasJSON()', () => {
           }
         },
         celXY: [
-          221, 19, 91, 55, 73, 55, 55, 55, 1408, 28, 1400, 28, 1392, 28, 1384,
-          28, 1376, 28, 1416, 28, 1392, 28, 1368, 28, 1392, 28, 1416, 28, 1376,
-          28, 1384, 28, 1392, 28, 1400, 28
+          0, 0, 221, 19, 91, 55, 73, 55, 55, 55, 1408, 28, 1400, 28, 1392, 28,
+          1384, 28, 1376, 28, 1416, 28, 1392, 28, 1368, 28, 1392, 28, 1416, 28,
+          1376, 28, 1384, 28, 1392, 28, 1400, 28
         ]
       }
     )

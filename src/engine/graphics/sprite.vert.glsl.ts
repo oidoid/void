@@ -87,7 +87,7 @@ void main() {
   int frame = (((int(uAge / ${celMillis}) & 0x1f) - cel) + ${animCels}) & 0xf;
   uvec4 texXYWH = texelFetch(uCels, ivec2(0, id + frame), 0);
   vTexXYWH = ivec4(texXYWH);
-  vHidden = uint(hidden);
+  vHidden = id == 0 ? 1u : uint(hidden); // void--Nil is hidden.
 
   vec2 flipSign = vec2(flipX ? -1. : 1., flipY ? -1. : 1.);
   vDstWH = targetWH * flipSign;

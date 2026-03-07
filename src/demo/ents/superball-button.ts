@@ -10,7 +10,8 @@ export class SuperballButtonHook implements V.Hook {
   update(ent: SuperballButtonEnt, v: V.Void): void {
     if (!V.buttonOn(ent)) return
 
-    for (let i = 0; i < 100; i++) {
+    // to-do: how to deal with `Input.handled` in `ButtonHook` preventing shift?
+    for (let i = 0; i < 100 * (v.input.isOnStart('Shift') ? 100 : 1); i++) {
       const angle = v.random.num * Math.PI * 2
       const speed = 20 + 200 * v.random.num
       const sprite = parseSprite(

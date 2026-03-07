@@ -4,12 +4,22 @@ import * as ase from './aseprite.ts'
 import './aseprite-json.ts'
 
 export function parseAtlasJSON(json: Readonly<ase.Aseprite>): V.AtlasJSON {
-  const anim: {[tag: string]: V.Anim} = {}
-  const cels: number[] = []
+  const anim: {[tag: string]: V.Anim} = {
+    'void--Nil': {
+      cels: 1,
+      data: undefined,
+      hitbox: undefined,
+      hurtbox: undefined,
+      id: 0,
+      w: 0,
+      h: 0
+    }
+  }
+  const cels: number[] = [0, 0] // void--Nil cel.
   for (const span of json.meta.frameTags) {
     const tag = parseTag(span.name)
     if (anim[tag]) throw Error(`atlas tag "${tag}" duplicate`)
-    const id = Object.keys(anim).length // to-do: ID 0 means discard.
+    const id = Object.keys(anim).length
     anim[tag] = parseAnim(id, span, json.frames, json.meta.slices)
     for (const cel of parseAnimFrames(span, json.frames).map(parseCel))
       cels.push(cel.x, cel.y)

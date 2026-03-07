@@ -7,7 +7,7 @@ export function parseTileset(json: Readonly<ase.Aseprite>): V.Tileset {
   const tiles: V.Tile[] = ['void--Nil']
   let tileWH: V.WH | undefined
 
-  for (const [i, span] of json.meta.frameTags.entries()) {
+  for (const span of json.meta.frameTags) {
     if (span.from !== span.to)
       throw Error(`tileset tag "${span.name}" is animated`)
 
@@ -19,7 +19,7 @@ export function parseTileset(json: Readonly<ase.Aseprite>): V.Tileset {
     if (tileWH.w !== frame.sourceSize.w || tileWH.h !== frame.sourceSize.h)
       throw Error(`tileset tile "${span.name}" size mismatch`)
 
-    tiles[i + 1] = parseTile(span.name)
+    tiles.push(parseTile(span.name))
   }
 
   return {tiles, tileWH: tileWH ?? {w: 0, h: 0}}
