@@ -23,8 +23,9 @@ export class Grid<Ent extends GridEnt> {
     this.#cellSize = opts.cellSize
     this.#halfCellSize = opts.cellSize / 2
     this.#xy = {...opts.xy}
-    this.#cols = Math.ceil(opts.wh.w / opts.cellSize)
-    this.#rows = Math.ceil(opts.wh.h / opts.cellSize)
+    // + half size since an ent on the boundary would be offset by half size.
+    this.#cols = Math.ceil((opts.wh.w + this.#halfCellSize) / opts.cellSize)
+    this.#rows = Math.ceil((opts.wh.h + this.#halfCellSize) / opts.cellSize)
   }
 
   insert(ent: Ent): void {
