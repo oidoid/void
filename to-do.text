@@ -2,6 +2,7 @@ tv
   paint with IDs
 dynamic texture loading from a url.
 demo
+  add checkbox UI.
   center scaling on mouse.
   add `Sprite.looped` animation. hourglass or widget?
   add sticky notes.

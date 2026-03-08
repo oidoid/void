@@ -4,9 +4,9 @@ import {TilePickerHook} from '../ents/tile-picker.ts'
 import {parseEntProp} from './level-parser.ts'
 
 export class Loader implements V.Loader {
-  cursor: V.CursorEnt | undefined
+  cursor?: V.CursorEnt
   #lvl: 'Init' | undefined
-  readonly #hooks: Readonly<V.HookMap> = {
+  readonly #hooks = {
     anchor: new V.AnchorHook(),
     button: new V.ButtonHook(),
     cursor: new V.CursorHook(),
@@ -17,7 +17,7 @@ export class Loader implements V.Loader {
     textWH: new V.TextWHHook(),
     textXY: new V.TextXYHook(),
     tilePicker: new TilePickerHook()
-  }
+  } as const satisfies Readonly<V.HookMap>
   #zoo: V.Zoo = {default: new Set()}
 
   update(v: V.Void): void {
@@ -33,14 +33,16 @@ export class Loader implements V.Loader {
 
     this.#updateCam(v)
 
-    for (const zoo of Object.values(this.#zoo)) V.zooUpdate(zoo, this.#hooks, v)
+    V.zooUpdate(this.#zoo.default, this.#hooks, v)
 
     if (v.invalid) this.#draw(v)
   }
 
   #updateCam(v: V.Void): void {
     if (v.input.isAnyOnStart('U', 'D', 'L', 'R')) v.cam.diagonalize(v.input.dir)
-    const len = V.floorSpriteEpsilon(25 * v.tick.s)
+    const len = V.floorSpriteEpsilon(
+      (v.input.isOnStart('Shift') ? 10000 : 25) * v.tick.s
+    )
     v.cam.x += v.input.dir.x * len
     v.cam.y += v.input.dir.y * len
     if (v.input.wheel?.delta.xy.y)
@@ -51,11 +53,8 @@ export class Loader implements V.Loader {
   #draw(v: V.Void): void {
     v.renderer.predraw(v.cam)
     v.renderer.clear(v.backgroundRGBA)
-    v.renderer.predraw(v.cam)
-    v.renderer.setDepth(false)
-    v.renderer.drawTiles(v.cam)
-    v.renderer.setDepth(true)
     v.renderer.drawSprites(v.pool.default)
+    v.renderer.postdraw()
   }
 
   get zoo(): Readonly<V.Zoo> {

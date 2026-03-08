@@ -16,9 +16,4 @@ declare module '../../engine/index.ts' {
     // biome-ignore lint/style/useShorthandFunctionType:;
     (): keyof typeof tags.tags
   }
-
-  interface ReturnTile {
-    // biome-ignore lint/style/useShorthandFunctionType:;
-    (): keyof typeof tags.tiles
-  }
 }

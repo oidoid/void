@@ -11,9 +11,5 @@
   "atlas": {
     "dir": "assets/atlas/",
     "image": "../../dist/public/tv/atlas.webp"
-  },
-  "tileset": {
-    "dir": "assets/tileset/",
-    "image": "../../dist/public/tv/tileset.webp"
   }
 }

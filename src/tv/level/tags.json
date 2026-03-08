@@ -146,10 +146,7 @@
         "mem-prop-5x6--7f"
       ]
     },
-    "Tile": {
-      "description": "tileset tile.",
-      "enum": ["void--Nil", "tile--GreyDots", "tile--BlueDots"]
-    }
+    "Tile": {"description": "tileset tile.", "enum": []}
   },
   "tags": {
     "void--Nil": 0,
@@ -292,5 +289,5 @@
     "mem-prop-5x6--7e": 137,
     "mem-prop-5x6--7f": 138
   },
-  "tiles": {"void--Nil": 0, "tile--GreyDots": 1, "tile--BlueDots": 2}
+  "tiles": {}
 }

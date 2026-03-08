@@ -167,9 +167,5 @@
     ]
   },
   "input": "Default",
-  "mode": "Int",
-  "tileset": {
-    "tiles": ["void--Nil", "tile--GreyDots", "tile--BlueDots"],
-    "tileWH": {"w": 16, "h": 16}
-  }
+  "mode": "Int"
 }
