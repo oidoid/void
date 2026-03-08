@@ -5,7 +5,7 @@ export type Audio = {context: AudioContext; gain: GainNode}
 export function Audio(): Audio {
   const context = new AudioContext()
   const gain = context.createGain()
-  gain.gain.value = 0.8
+  gain.gain.value = 2
   gain.connect(context.destination)
   return {context, gain}
 }
