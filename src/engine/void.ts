@@ -1,3 +1,5 @@
+import type {Audio as AudioType} from './audio.ts'
+import {Audio} from './audio.ts'
 import type {Zoo} from './ents/zoo.ts'
 import type {AtlasMap} from './graphics/atlas.ts'
 import {parseAtlas} from './graphics/atlas-parser.ts'
@@ -40,6 +42,7 @@ export type VoidOpts = {
 }
 
 export class Void {
+  readonly audio: AudioType = Audio()
   readonly atlas: AtlasMap
   readonly cam: Cam = new Cam()
   readonly canvas: HTMLCanvasElement
@@ -114,6 +117,7 @@ export class Void {
     }
 
     this.looper.onFrame = (millis, reason) => this.onFrame(millis, reason)
+    this.looper.onHidden = () => this.onHidden()
 
     this.loader = opts.loader
 
@@ -190,6 +194,12 @@ export class Void {
     this.tick.start = this.looper.start
     if (document.hidden) return
     this.input.update(millis)
+    if (
+      this.input.gestured &&
+      !document.hidden &&
+      this.audio.context.state === 'suspended'
+    )
+      void this.audio.context.resume()
 
     // request frame before in case update cancels. next reason is 'Render' when
     // input.
@@ -209,6 +219,10 @@ export class Void {
     this.metrics.prev.frame = (performance.now() - this.looper.start) as Millis
   }
 
+  onHidden(): void {
+    void this.audio.context.suspend()
+  }
+
   onInterval(): void {
     this.requestFrame('Force')
   }
@@ -224,6 +238,8 @@ export class Void {
     if (op === 'add') this.#resizeObserver.observe(this.canvas.parentElement!)
     else this.#resizeObserver.unobserve(this.canvas.parentElement!)
     this.#pixelRatioObserver.register(op)
+
+    if (op === 'remove') void this.audio.context.suspend()
 
     if (op === 'add') this.requestFrame('Force')
     this.#interval?.register(op)

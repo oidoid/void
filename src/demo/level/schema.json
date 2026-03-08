@@ -29,6 +29,10 @@
               "$ref": "#/$defs/ScreenshotButton",
               "unevaluatedProperties": false
             },
+            "soundToggle": {
+              "$ref": "#/$defs/SoundToggle",
+              "unevaluatedProperties": false
+            },
             "rotate": {
               "$ref": "#/$defs/Rotate",
               "unevaluatedProperties": false
@@ -64,6 +68,7 @@
       }
     },
     "Tally": {"type": "object", "description": "tally config."},
+    "SoundToggle": {"type": "object", "description": "sound toggle config."},
     "Superball": {"type": "object", "description": "superball config."},
     "SuperballButton": {
       "type": "object",

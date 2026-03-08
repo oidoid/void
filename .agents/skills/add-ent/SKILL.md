@@ -94,7 +94,7 @@ for composable data-only ents with no dedicated hook, use `QueryEnt<'key'>` inst
 export type TextEnt = QueryEnt<'text'>
 ```
 
-**5. (optional) create the hook.** add a class that implements `Hook` in `<app>/ents/<prop>.ts` / in `engine/ents/<prop>.ts`. the `query` describes the minimum ent props needed to run; all other `Ent` props are optional. prefer ent instance state to hook state as there is only one hook instance.
+**5. (optional) create the hook.** add a class that implements `Hook` in `<app>/ents/<prop>.ts` / in `engine/ents/<prop>.ts`. the `query` describes the minimum ent props needed to run; all other `Ent` props are optional. if data is per ent, prefer ent instance state. if data is shared across ents, prefer hook instance state.
 
 ```ts
 import type * as V from '@oidoid/void'

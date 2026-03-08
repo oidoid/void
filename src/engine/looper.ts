@@ -9,6 +9,7 @@ export class Looper {
   onFrame:
     | ((millis: Millis, reason: LoopReason) => 'Skip' | undefined)
     | undefined
+  onHidden: (() => void) | undefined
   /** when frame arrived. */
   start: Millis = 0
   #reason: LoopReason = 'Render'
@@ -57,6 +58,7 @@ export class Looper {
     if (!ev.isTrusted) return
     if (document.hidden) {
       this.#cancel()
+      this.onHidden?.()
       if (debug?.looper) console.debug('[looper] paused')
     } else {
       this.requestFrame('Poll')

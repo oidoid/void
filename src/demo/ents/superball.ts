@@ -1,9 +1,10 @@
-import type * as V from '../../engine/index.ts'
+import * as V from '../../engine/index.ts'
 
 export type SuperballEnt = V.HookEnt<SuperballHook>
 
 export class SuperballHook implements V.Hook {
   readonly query = 'superball & sprite'
+  #lastBoing: V.Millis = -Infinity as V.Millis
 
   collide(a: SuperballEnt, b: SuperballEnt, v: V.Void): void {
     const hitboxA = a.sprite.hitbox
@@ -18,6 +19,10 @@ export class SuperballHook implements V.Hook {
         Math.max(hitboxA.y, hitboxB.y)) /
       2
     if (dx <= 0 || dy <= 0) return
+    const speed = Math.hypot(
+      a.superball.vx - b.superball.vx,
+      a.superball.vy - b.superball.vy
+    )
     // move by half overlap of min penetration and swap velocities.
     if (dx < dy) {
       const dirY = Math.sign(b.sprite.x - a.sprite.x) || 1
@@ -33,6 +38,7 @@ export class SuperballHook implements V.Hook {
     a.sprite.angle = v.random.num * 360
     b.sprite.angle = v.random.num * 360
     a.invalid = b.invalid = v.tick.start
+    if (v.loader.sound && v.cam.isVisible(a.sprite)) this.#boing(v, speed)
   }
 
   update(ent: SuperballEnt, v: V.Void): void {
@@ -50,19 +56,37 @@ export class SuperballHook implements V.Hook {
     if (hitbox.x < left) {
       ent.sprite.x = left - (hitbox.x - ent.sprite.x)
       ent.superball.vx = Math.abs(ent.superball.vx)
+      if (v.loader.sound && v.cam.isNearby(ent.sprite))
+        this.#boing(v, Math.abs(ent.superball.vx))
     } else if (hitbox.x > right) {
       ent.sprite.x = right - (hitbox.x - ent.sprite.x)
       ent.superball.vx = -Math.abs(ent.superball.vx)
+      if (v.loader.sound && v.cam.isNearby(ent.sprite))
+        this.#boing(v, Math.abs(ent.superball.vx))
     }
 
     if (hitbox.y < top) {
       ent.sprite.y = top - (hitbox.y - ent.sprite.y)
       ent.superball.vy = Math.abs(ent.superball.vy)
+      if (v.loader.sound && v.cam.isNearby(ent.sprite))
+        this.#boing(v, Math.abs(ent.superball.vy))
     } else if (hitbox.y > bottom) {
       ent.sprite.y = bottom - (hitbox.y - ent.sprite.y)
       ent.superball.vy = -Math.abs(ent.superball.vy)
+      if (v.loader.sound && v.cam.isNearby(ent.sprite))
+        this.#boing(v, Math.abs(ent.superball.vy))
     }
 
     ent.invalid = v.tick.start
+  }
+
+  #boing(v: V.Void, speed: number): void {
+    const duration = 120 as V.Millis
+    const maxBoing = 3
+    const minGap = duration / maxBoing
+    if (v.tick.start - this.#lastBoing < minGap) return
+    this.#lastBoing = v.tick.start
+    const hz = 100 * (0.5 + v.random.num) * Math.min(Math.max(speed / 80, 2), 5)
+    V.beep(v.audio, 'sine', hz, hz * 0.9, duration, 0)
   }
 }

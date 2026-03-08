@@ -6,6 +6,7 @@ import type {
   RenderToggle,
   Rotate,
   ScreenshotButton,
+  SoundToggle,
   Superball,
   SuperballButton,
   Tally
@@ -18,6 +19,7 @@ import type {
   RenderToggleSchema,
   RotateSchema,
   ScreenshotButtonSchema,
+  SoundToggleSchema,
   SuperballButtonSchema,
   SuperballSchema,
   TallySchema
@@ -38,6 +40,7 @@ declare module '../../engine/index.ts' {
     renderToggle?: RenderToggle
     rotate?: Rotate
     screenshotButton?: ScreenshotButton
+    soundToggle?: SoundToggle
     tally?: Tally
     superball?: Superball
     superballButton?: SuperballButton
@@ -50,6 +53,7 @@ declare module '../../engine/index.ts' {
     renderToggle?: RenderToggleSchema
     rotate?: RotateSchema
     screenshotButton?: ScreenshotButtonSchema
+    soundToggle?: SoundToggleSchema
     tally?: TallySchema
     superball?: SuperballSchema
     superballButton?: SuperballButtonSchema
@@ -57,6 +61,7 @@ declare module '../../engine/index.ts' {
 
   interface Loader {
     collide: boolean
+    sound: boolean
   }
 
   interface PoolMap {

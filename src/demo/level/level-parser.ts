@@ -12,6 +12,7 @@ export const parseEntProp: V.EntPropParser = (ent, json, k, pools) => {
     case 'clock':
     case 'rotate':
     case 'screenshotButton':
+    case 'soundToggle':
       return json[k] satisfies V.Ent[typeof k]
     case 'renderToggle':
       if (!ent.button) throw Error('no button in render toggle')

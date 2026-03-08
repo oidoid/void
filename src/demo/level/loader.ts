@@ -6,6 +6,7 @@ import {MouseStatusHook} from '../ents/mouse-status.ts'
 import {RenderToggleHook} from '../ents/render-toggle.ts'
 import {RotateHook} from '../ents/rotate.ts'
 import {ScreenshotButtonHook} from '../ents/screenshot-button.ts'
+import {SoundToggleHook} from '../ents/sound-toggle.ts'
 import {type SuperballEnt, SuperballHook} from '../ents/superball.ts'
 import {SuperballButtonHook} from '../ents/superball-button.ts'
 import {TallyHook} from '../ents/tally.ts'
@@ -13,7 +14,8 @@ import {parseEntProp} from './level-parser.ts'
 
 export class Loader implements V.Loader {
   collide: boolean = false
-  cursor: V.CursorEnt | undefined
+  cursor?: V.CursorEnt
+  sound: boolean = false
   #lvl: 'Init' | undefined
   readonly #hooks = {
     anchor: new V.AnchorHook(),
@@ -33,6 +35,7 @@ export class Loader implements V.Loader {
     renderToggle: new RenderToggleHook(),
     rotate: new RotateHook(),
     screenshotButton: new ScreenshotButtonHook(),
+    soundToggle: new SoundToggleHook(),
     sprite: new V.SpriteHook(),
     superball: new SuperballHook(),
     superballButton: new SuperballButtonHook(),

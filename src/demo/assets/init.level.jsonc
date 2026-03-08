@@ -2849,6 +2849,33 @@
         "textXY": {"z": "UIE"}
       },
       {
+        "id": "sound",
+        "name": "Sound",
+        "text": "sound",
+        "sprite": {"z": "UID"},
+        "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
+        "anchor": {"id": "collide", "dir": "W", "margin": 2},
+        "ninePatch": {
+          "border": 1,
+          "pad": 2,
+          "patch": {
+            "center": "background--Kiwi",
+            "n": "background--Black",
+            "s": "background--Black",
+            "w": "background--Black",
+            "e": "background--Black"
+          }
+        },
+        "button": {
+          "pressed": "background--Bubblegum",
+          "selected": "background--OrangeCheckerboard",
+          "type": "Toggle",
+          "z": "UIC"
+        },
+        "soundToggle": {},
+        "textXY": {"z": "UIE"}
+      },
+      {
         "name": "Clock",
         "text": "",
         "sprite": {"z": "UIF"},
