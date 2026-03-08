@@ -255,6 +255,70 @@ test('isVisible() cases', () => {
   assert(cam.isVisible({x: 5, y: 0, w: 10, h: 30}), true)
 })
 
+test('isNearby()', () => {
+  using dpr = new DevicePixelRatioMock()
+  dpr.ratio = 1
+  const cam = new Cam()
+  cam.minWH = {w: 100, h: 50}
+  const canvas = TestCanvas(200, 100)
+  cam.update(canvas)
+  cam.x = 10
+  cam.y = 20
+
+  // cam is (10,20) 100×50; nearby expands by 50% on each side:
+  // x = 10 - 50 = -40' y = 20 - 25 = -5.
+  assert(cam.nearby, {x: -40, y: -5, w: 200, h: 100})
+
+  // outside cam but inside nearby.
+  assert(cam.isNearby({x: 0, y: 20}), true)
+
+  // outside nearby entirely (left edge is -40, box ends at -41).
+  assert(cam.isNearby({x: -42, y: 20, w: 1, h: 1}), false)
+
+  // inside cam (always inside nearby).
+  assert(cam.isNearby({x: 50, y: 40}), true)
+
+  // touching the far right edge of nearby (x = -40 + 200 = 160; box at 160 is
+  // excluded).
+  assert(cam.isNearby({x: 160, y: 20, w: 1, h: 1}), false)
+})
+
+test('nearby updates when cam moves', () => {
+  using dpr = new DevicePixelRatioMock()
+  dpr.ratio = 1
+  const cam = new Cam()
+  cam.minWH = {w: 100, h: 50}
+  const canvas = TestCanvas(200, 100)
+  cam.update(canvas)
+
+  cam.x = 50
+  cam.y = 40
+  // x: 50 - 50 = 0; y: 40 - 25 = 15.
+  assert(cam.nearby, {x: 0, y: 15, w: 200, h: 100})
+
+  cam.x = 0
+  cam.y = 0
+  assert(cam.nearby, {x: -50, y: -25, w: 200, h: 100})
+})
+
+test('nearby updates when cam resizes', () => {
+  using dpr = new DevicePixelRatioMock()
+  dpr.ratio = 1
+  const cam = new Cam()
+  cam.minWH = {w: 100, h: 50}
+  const canvas = TestCanvas(200, 100)
+  cam.update(canvas)
+  cam.x = 0
+  cam.y = 0
+  // w = 100' h = 50 so nearby: x= -50; y = -25.
+  assert(cam.nearby, {x: -50, y: -25, w: 200, h: 100})
+
+  // change minWH to make cam smaller: scale = 4; w = 50; h = 25.
+  cam.minWH = {w: 50, h: 25}
+  cam.update(canvas)
+  assert(cam.nearby, {x: -25, y: -12.5, w: 100, h: 50})
+})
+
 test('portrait()', () => {
   using dpr = new DevicePixelRatioMock()
   dpr.ratio = 1

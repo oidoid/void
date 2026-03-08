@@ -48,6 +48,18 @@ export class Cam {
   #x: number = 0
   #y: number = 0
   #zoomOut: number = 0
+  readonly #nearby: Box = {x: -0.5, y: -0.5, w: 2, h: 2}
+
+  /** level bounds to clamp cam position within, or undefined for unbounded. */
+  get bounds(): Readonly<Box> | undefined {
+    return this.#bounds
+  }
+
+  set bounds(bounds: Readonly<Box> | undefined) {
+    this.#bounds = bounds ? {...bounds} : undefined
+    this.x = this.#x
+    this.y = this.#y
+  }
 
   center(xy: Readonly<XY>): void {
     this.x = Math.floor(xy.x - this.w / 2)
@@ -142,24 +154,17 @@ export class Cam {
     return this.#h
   }
 
-  isVisible(box: Readonly<XY & Partial<WH>>): boolean {
-    return boxHits(this, box)
-  }
-
   /** true if cam moved or resized since last update. */
   get invalid(): boolean {
     return this.#invalid
   }
 
-  /** level bounds to clamp cam position within, or undefined for unbounded. */
-  get bounds(): Readonly<Box> | undefined {
-    return this.#bounds
+  isNearby(box: Readonly<XY & Partial<WH>>): boolean {
+    return boxHits(this.#nearby, box)
   }
 
-  set bounds(bounds: Readonly<Box> | undefined) {
-    this.#bounds = bounds ? {...bounds} : undefined
-    this.x = this.#x
-    this.y = this.#y
+  isVisible(box: Readonly<XY & Partial<WH>>): boolean {
+    return boxHits(this, box)
   }
 
   /** positive int or fraction depending on mode. */
@@ -196,6 +201,11 @@ export class Cam {
     if (this.#mode === mode) return
     this.#mode = mode
     this.#invalidateWH()
+  }
+
+  /** cam bounds expanded by 50%. */
+  get nearby(): Readonly<Box> {
+    return this.#nearby
   }
 
   get portrait(): boolean {
@@ -270,6 +280,7 @@ export class Cam {
       )
     this.#invalid ||= this.x !== x
     this.#x = x
+    this.#updateNearby()
   }
 
   /** fractional. */
@@ -285,6 +296,7 @@ export class Cam {
       )
     this.#invalid ||= this.y !== y
     this.#y = y
+    this.#updateNearby()
   }
 
   /** nonnegative int or fraction depending on mode. */
@@ -319,5 +331,12 @@ export class Cam {
     this.#h = Math.ceil(phy.h / this.#scale)
     this.x = this.#x
     this.y = this.#y
+  }
+
+  #updateNearby(): void {
+    this.#nearby.x = this.#x - this.#w * 0.5
+    this.#nearby.y = this.#y - this.#h * 0.5
+    this.#nearby.w = this.#w * 2
+    this.#nearby.h = this.#h * 2
   }
 }
