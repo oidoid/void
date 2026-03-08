@@ -29,6 +29,7 @@ export type PointEvent = {
   xyClient: XY
 }
 
+const activeEvents = ['pointerenter', 'pointerleave'] as const
 const pointTypeByPointerType = {
   mouse: 'Mouse',
   pen: 'Pen',
@@ -49,6 +50,8 @@ export class Pointer {
   onEvent: () => void = () => {}
   /** primary may be on or off. */
   primary: Readonly<PointEvent> | undefined
+  /** true while the pointer is within the target element. */
+  active: boolean = false
   /**
    * secondaries are deleted when buttons are off. secondaries are only present
    * when primary is defined.
@@ -101,6 +104,7 @@ export class Pointer {
   register(op: 'add' | 'remove'): this {
     const fn = this.#target[`${op}EventListener`].bind(this.#target)
     for (const ev of pointEvents) fn(ev, this.#onInput as EventListener)
+    for (const ev of activeEvents) fn(ev, this.#onActive)
     return this
   }
 
@@ -109,6 +113,11 @@ export class Pointer {
     this.primary = undefined
     for (const pt in this.secondary) delete this.secondary[pt]
     this.#pinchStartClient = undefined
+    this.active = false
+  }
+
+  [Symbol.dispose](): void {
+    this.register('remove')
   }
 
   update(): void {
@@ -118,10 +127,6 @@ export class Pointer {
       this.#pinchStartClient = this.#newPinchClient
   }
 
-  [Symbol.dispose](): void {
-    this.register('remove')
-  }
-
   #evButtonsToBits(btns: number): number {
     let bits = 0
     for (let btn = 1; btn <= btns; btn <<= 1)
@@ -129,9 +134,24 @@ export class Pointer {
     return bits
   }
 
+  get #newPinchClient(): XY | undefined {
+    if ((this.primary?.bits ? 1 : 0) + Object.values(this.secondary).length < 2)
+      return
+    const bounds = this.boundsClient
+    return bounds ? {x: bounds.w, y: bounds.h} : undefined
+  }
+
+  #onActive = (ev: Event): void => {
+    if (!ev.isTrusted) return
+    this.active = ev.type === 'pointerenter'
+    this.invalid = true
+    this.onEvent()
+  }
+
   #onInput = (ev: PointerEvent): void => {
     if (!ev.isTrusted) return
 
+    this.active = ev.type !== 'pointercancel'
     this.invalid = true
     const bits =
       ev.metaKey || ev.altKey || ev.ctrlKey
@@ -204,12 +224,5 @@ export class Pointer {
     else this.secondary[ev.pointerId] = pt
 
     this.onEvent()
-  }
-
-  get #newPinchClient(): XY | undefined {
-    if ((this.primary?.bits ? 1 : 0) + Object.values(this.secondary).length < 2)
-      return
-    const bounds = this.boundsClient
-    return bounds ? {x: bounds.w, y: bounds.h} : undefined
   }
 }

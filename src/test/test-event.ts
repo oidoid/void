@@ -31,6 +31,17 @@ export function MenuTestEvent(
 export function PointerTestEvent(
   type: 'pointercancel' | 'pointerdown' | 'pointermove' | 'pointerup',
   init: Partial<Readonly<PointerTestEventInit>>
+): Event
+export function PointerTestEvent(type: 'pointerenter' | 'pointerleave'): Event
+export function PointerTestEvent(
+  type:
+    | 'pointercancel'
+    | 'pointerdown'
+    | 'pointermove'
+    | 'pointerup'
+    | 'pointerenter'
+    | 'pointerleave',
+  init?: Partial<Readonly<PointerTestEventInit>>
 ): Event {
   return Object.assign(
     TestEvent(type),
@@ -41,7 +52,7 @@ export function PointerTestEvent(
       movementX: 0,
       movementY: 0,
       pointerId: 1,
-      isPrimary: (init.pointerId ?? 1) === 1,
+      isPrimary: (init?.pointerId ?? 1) === 1,
       pointerType: 'mouse',
       ctrlKey: false
     } satisfies PointerTestEventInit,

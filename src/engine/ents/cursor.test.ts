@@ -16,7 +16,8 @@ describe('onPoint()', () => {
     onPoint(
       ent,
       {local: {x: 100, y: 200}, type: 'Mouse', click: undefined},
-      TestTick(0, 1 as Millis)
+      TestTick(0, 1 as Millis),
+      true
     )
     assert(ent.sprite.x, 100)
     assert(ent.sprite.y, 200)
@@ -24,12 +25,13 @@ describe('onPoint()', () => {
     assert(ent.invalid, 1)
   })
 
-  test('visible for Mouse', () => {
+  test('visible for Mouse when active', () => {
     const ent = TestCursorEnt()
     onPoint(
       ent,
       {local: {x: 0, y: 0}, type: 'Mouse', click: undefined},
-      TestTick(0, 1 as Millis)
+      TestTick(0, 1 as Millis),
+      true
     )
     assert(ent.sprite.hidden, false)
   })
@@ -39,7 +41,19 @@ describe('onPoint()', () => {
     onPoint(
       ent,
       {local: {x: 0, y: 0}, type: 'Touch', click: undefined},
-      TestTick(0, 1 as Millis)
+      TestTick(0, 1 as Millis),
+      true
+    )
+    assert(ent.sprite.hidden, true)
+  })
+
+  test('hidden for Mouse when not active', () => {
+    const ent = TestCursorEnt()
+    onPoint(
+      ent,
+      {local: {x: 0, y: 0}, type: 'Mouse', click: undefined},
+      TestTick(0, 1 as Millis),
+      false
     )
     assert(ent.sprite.hidden, true)
   })

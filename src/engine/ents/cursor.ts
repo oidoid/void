@@ -20,7 +20,8 @@ export class CursorHook implements Hook {
   readonly query = 'cursor & sprite'
 
   update(ent: CursorEnt, v: Void): void {
-    if (v.input.point?.invalid) onPoint(ent, v.input.point, v.tick)
+    if (v.input.point?.invalid)
+      onPoint(ent, v.input.point, v.tick, v.input.pointer.active)
 
     // assume the sprite dimensions don't vary between point and pick. always
     // update in case cam invalidates while keyboard is temporarily off.
@@ -74,12 +75,13 @@ export function onKey(ent: CursorEnt, input: Input, tick: Tick): void {
 export function onPoint(
   ent: CursorEnt,
   point: Readonly<Pick<Point, 'local' | 'click' | 'type'>>,
-  tick: Tick
+  tick: Tick,
+  active: boolean
 ): void {
   ent.sprite.x = point.local.x
   ent.sprite.y = point.local.y
   ent.sprite.z = Layer.Top
-  ent.sprite.hidden = point.type !== 'Mouse'
+  ent.sprite.hidden = !active || point.type !== 'Mouse'
   ent.invalid = tick.start
 }
 

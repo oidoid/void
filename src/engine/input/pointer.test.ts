@@ -278,6 +278,41 @@ test('unmapped button', () => {
   assert(pointer.primary?.bits, 0)
 })
 
+test('active', async ctx => {
+  const target = TestElement()
+  using pointer = DefaultPointer(target)
+
+  await ctx.test('init', () => assert(pointer.active, false))
+
+  await ctx.test('pointerenter', () => {
+    target.dispatchEvent(PointerTestEvent('pointerenter'))
+    assert(pointer.active, true)
+    assert(pointer.invalid, true)
+  })
+
+  await ctx.test('pointerleave', () => {
+    pointer.postupdate()
+    target.dispatchEvent(PointerTestEvent('pointerleave'))
+    assert(pointer.active, false)
+    assert(pointer.invalid, true)
+  })
+
+  await ctx.test('pointercancel clears active', () => {
+    pointer.postupdate()
+    target.dispatchEvent(PointerTestEvent('pointerenter'))
+    pointer.postupdate()
+    target.dispatchEvent(PointerTestEvent('pointercancel', {}))
+    assert(pointer.active, false)
+  })
+
+  await ctx.test('reset clears active', () => {
+    target.dispatchEvent(PointerTestEvent('pointerenter'))
+    assert(pointer.active, true)
+    pointer.reset()
+    assert(pointer.active, false)
+  })
+})
+
 function DefaultPointer(target: Element): Pointer {
   const pointer = new Pointer(target)
   pointer.bitByButton[1] = 1

@@ -340,6 +340,8 @@ export class Input {
   }
 
   get pointer(): {
+    /** true while the pointer is within the canvas. */
+    active: boolean
     dragMinClient: number
     locked: boolean
     lock(): Promise<void>
