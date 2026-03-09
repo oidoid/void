@@ -7,6 +7,10 @@
         {
           "type": "object",
           "properties": {
+            "openFile": {
+              "$ref": "#/$defs/OpenFile",
+              "unevaluatedProperties": false
+            },
             "tilePicker": {
               "$ref": "#/$defs/TilePicker",
               "unevaluatedProperties": false
@@ -14,6 +18,10 @@
           }
         }
       ]
+    },
+    "OpenFile": {
+      "type": "object",
+      "description": "open file button config."
     },
     "TilePicker": {
       "type": "object",

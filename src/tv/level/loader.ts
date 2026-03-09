@@ -1,5 +1,6 @@
 import * as V from '../../engine/index.ts'
 import levelJSON from '../assets/tv.level.jsonc' with {type: 'json'}
+import {OpenFileHook} from '../ents/open-file.ts'
 import {TilePickerHook} from '../ents/tile-picker.ts'
 import {parseEntProp} from './level-parser.ts'
 
@@ -12,6 +13,7 @@ export class Loader implements V.Loader {
     cursor: new V.CursorHook(),
     hud: new V.HUDHook(),
     ninePatch: new V.NinePatchHook(),
+    openFile: new OpenFileHook(),
     override: new V.OverrideHook(),
     sprite: new V.SpriteHook(),
     textWH: new V.TextWHHook(),
@@ -53,6 +55,7 @@ export class Loader implements V.Loader {
   #draw(v: V.Void): void {
     v.renderer.predraw(v.cam)
     v.renderer.clear(v.backgroundRGBA)
+    v.renderer.setDepth(true)
     v.renderer.drawSprites(v.pool.default)
     v.renderer.postdraw()
   }

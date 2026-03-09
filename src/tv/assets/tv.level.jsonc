@@ -11,13 +11,14 @@
     "default": [
       {
         "id": "cursor",
-        "sprite": "cursor--Pointer",
+        "sprite": {"tag": "cursor--Pointer"},
         "cursor": {}
       },
 
       {
-        "name": "TilePicker",
-        "text": "tile",
+        "id": "open",
+        "name": "Open File",
+        "text": "open",
         "sprite": {"z": "UID"},
         "textWH": {"pad": 2, "scale": 4, "trim": "Leading"},
         "hud": {"anchor": "SW", "margin": {"s": 2, "w": 2}},
@@ -27,8 +28,35 @@
           "patch": {
             "center": "background--Grape",
             "n": "background--Bubblegum",
-            "s": "background--Kiwi",
-            "w": "background--Strawberry",
+            "s": "background--Blueberry",
+            "w": "background--Bubblegum",
+            "e": "background--Blueberry"
+          }
+        },
+        "button": {
+          "pressed": "background--Bubblegum",
+          "selected": "background--OrangeCheckerboard",
+          "type": "Button",
+          "z": "UIC"
+        },
+        "openFile": {},
+        "textXY": {"z": "UIE"}
+      },
+
+      {
+        "name": "TilePicker",
+        "text": "tile",
+        "sprite": {"z": "UID"},
+        "textWH": {"pad": 2, "scale": 4, "trim": "Leading"},
+        "anchor": {"id": "open", "dir": "E", "margin": 2},
+        "ninePatch": {
+          "border": 2,
+          "pad": 4,
+          "patch": {
+            "center": "background--Grape",
+            "n": "background--Bubblegum",
+            "s": "background--Blueberry",
+            "w": "background--Bubblegum",
             "e": "background--Blueberry"
           }
         },
