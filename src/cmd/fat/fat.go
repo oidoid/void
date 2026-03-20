@@ -83,7 +83,7 @@ func check(reader io.Reader, stdout, stderr io.Writer) bool {
 			out = stderr
 			ok = false
 		}
-		fmt.Fprintf(out, "%s: %d%s%d\n", path, want, deltaSign, delta)
+		fmt.Fprintf(out, "%s: %d %s%d\n", path, want, deltaSign, delta)
 	}
 	return ok
 }
