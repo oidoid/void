@@ -16,7 +16,7 @@ test-fat:; go run ./src/cmd/fat
 test-go:
 	go test ./src/... |
 	grep --color=always --extended --line-buffered '^--- FAIL: [^ ]+|$$' |
-	$(if $(value V),cat,sed --unbuffered '/^ok /d')
+	$(if $(value V),cat,sed --unbuffered '/^ok /d; /\[no test files\]$$/d')
 test-fmt:
 	go mod tidy -diff&
 	out=$$(gofmt -l -s ./src/)
