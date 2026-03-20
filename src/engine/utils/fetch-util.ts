@@ -9,19 +9,9 @@ export async function fetchAudio(url: string): Promise<ArrayBuffer> {
   return await rsp.arrayBuffer()
 }
 
-export function fetchImage(uri: string): Promise<HTMLImageElement> {
+export async function fetchImage(uri: string): Promise<HTMLImageElement> {
   const img = new Image()
-  const promise = loadImage(img)
   img.src = uri
-  return promise
-}
-
-export async function loadImage(
-  img: HTMLImageElement
-): Promise<HTMLImageElement> {
-  const promise = new Promise<HTMLImageElement>((fulfil, reject) => {
-    img.onload = () => fulfil(img)
-    img.onerror = () => reject(Error(`image load error for ${img.src}`))
-  })
-  return img.complete ? img : await promise
+  await img.decode()
+  return img
 }

@@ -27,7 +27,6 @@ import {parseComputedColor, rgbaHex} from './utils/color-util.ts'
 import {debug} from './utils/debug.ts'
 import {DelayInterval} from './utils/delay-interval.ts'
 import {initBody, initMetaViewport} from './utils/dom-util.ts'
-import {loadImage} from './utils/fetch-util.ts'
 
 export type VoidOpts = {
   /** the default atlas. */
@@ -244,12 +243,9 @@ export class Void {
     if (op === 'add') this.requestFrame('Force')
     this.#interval?.register(op)
 
-    await loadImage(this.#atlasImage)
+    await Promise.all([this.#atlasImage.decode(), this.#tilesetImage?.decode()])
     this.renderer.loadAtlas(this.#atlasImage)
-    if (this.#tilesetImage) {
-      await loadImage(this.#tilesetImage)
-      this.renderer.loadTileset(this.#tilesetImage)
-    }
+    if (this.#tilesetImage) this.renderer.loadTileset(this.#tilesetImage)
     this.#registered = op === 'add'
   }
 

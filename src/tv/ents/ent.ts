@@ -1,2 +1,3 @@
-export type OpenFile = object
-export type TilePicker = {tile: number}
+export type LoadConfig = object
+export type LoadLevel = object
+export type LoadTileset = object

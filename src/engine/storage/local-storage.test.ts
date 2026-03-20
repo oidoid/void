@@ -1,17 +1,16 @@
 import {test} from 'node:test'
 import {assert} from '../../test/assert.ts'
-import {loadJSON, saveJSON} from './local-storage.ts'
+import {localStorageGetJSON, localStoragePutJSON} from './local-storage.ts'
 
-test('saveJSON() / loadJSON()', () => {
+test('localStorageGetJSON() / localStoragePutJSON()', () => {
   using _storage = new StorageMock(new MemStorage())
 
   const v = {a: 1, b: true, c: 'c'}
-  saveJSON('v', v)
+  localStoragePutJSON('v', v)
+  assert(localStorageGetJSON('v'), v)
 
-  assert(loadJSON('v'), v)
-
-  saveJSON('v', undefined)
-  assert(loadJSON('v'), undefined)
+  localStoragePutJSON('v', undefined)
+  assert(localStorageGetJSON('v'), undefined)
 })
 
 class StorageMock {

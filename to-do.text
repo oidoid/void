@@ -1,5 +1,6 @@
 tv
-  paint with IDs
+  clean up Aseprite assets and make buttons look nice.
+  paint with IDs.
 dynamic texture loading from a url.
 demo
   add checkbox UI.

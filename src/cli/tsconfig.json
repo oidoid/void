@@ -2,6 +2,7 @@
 {
   "extends": "@oidoid/config/tsconfig",
   "compilerOptions": {
+    "lib": ["DOM", "ES2023"],
     "types": ["node"],
 
     "outDir": "../../dist/",

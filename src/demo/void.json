@@ -1,7 +1,7 @@
 {
   "$schema": "../../schema/config-file.v0.json",
   "entry": "assets/index.html",
-  "meta": "../../dist/meta.json",
+  "meta": "../../dist/demo.meta.json",
   "out": {
     "dir": "../../dist/public/demo/",
     "name": "void",

@@ -7,32 +7,33 @@
         {
           "type": "object",
           "properties": {
-            "openFile": {
-              "$ref": "#/$defs/OpenFile",
+            "loadConfig": {
+              "$ref": "#/$defs/LoadConfig",
               "unevaluatedProperties": false
             },
-            "tilePicker": {
-              "$ref": "#/$defs/TilePicker",
+            "loadLevel": {
+              "$ref": "#/$defs/LoadLevel",
+              "unevaluatedProperties": false
+            },
+            "loadTileset": {
+              "$ref": "#/$defs/LoadTileset",
               "unevaluatedProperties": false
             }
           }
         }
       ]
     },
-    "OpenFile": {
+    "LoadConfig": {
       "type": "object",
-      "description": "open file button config."
+      "description": "load game config button config."
     },
-    "TilePicker": {
+    "LoadLevel": {
       "type": "object",
-      "description": "tile picker config.",
-      "properties": {
-        "tile": {
-          "type": "integer",
-          "description": "initial tile index.",
-          "default": 0
-        }
-      }
+      "description": "load level button config."
+    },
+    "LoadTileset": {
+      "type": "object",
+      "description": "load tileset button config."
     }
   }
 }

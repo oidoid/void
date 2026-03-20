@@ -1,12 +1,6 @@
 {
   "$schema": "../level/level-file.v0.json",
   "cam": {"minWH": {"w": 640, "h": 480}},
-  "level": {
-    "x": -24,
-    "y": -24,
-    "w": 256,
-    "h": 256
-  },
   "zoo": {
     "default": [
       {
@@ -16,15 +10,15 @@
       },
 
       {
-        "id": "open",
-        "name": "Open File",
-        "text": "open",
+        "id": "load-tileset",
+        "name": "Load Tileset",
+        "text": "load tileset",
         "sprite": {"z": "UID"},
-        "textWH": {"pad": 2, "scale": 4, "trim": "Leading"},
+        "textWH": {"pad": 2, "trim": "Leading"},
         "hud": {"anchor": "SW", "margin": {"s": 2, "w": 2}},
         "ninePatch": {
-          "border": 2,
-          "pad": 4,
+          "border": 1,
+          "pad": 2,
           "patch": {
             "center": "background--Grape",
             "n": "background--Bubblegum",
@@ -39,19 +33,20 @@
           "type": "Button",
           "z": "UIC"
         },
-        "openFile": {},
+        "loadTileset": {},
         "textXY": {"z": "UIE"}
       },
 
       {
-        "name": "TilePicker",
-        "text": "tile",
+        "id": "load-level",
+        "name": "Load Level",
+        "text": "load level",
         "sprite": {"z": "UID"},
-        "textWH": {"pad": 2, "scale": 4, "trim": "Leading"},
-        "anchor": {"id": "open", "dir": "E", "margin": 2},
+        "textWH": {"pad": 2, "trim": "Leading"},
+        "anchor": {"id": "load-tileset", "dir": "E", "margin": 2},
         "ninePatch": {
-          "border": 2,
-          "pad": 4,
+          "border": 1,
+          "pad": 2,
           "patch": {
             "center": "background--Grape",
             "n": "background--Bubblegum",
@@ -66,7 +61,35 @@
           "type": "Button",
           "z": "UIC"
         },
-        "tilePicker": {},
+        "loadLevel": {},
+        "textXY": {"z": "UIE"}
+      },
+
+      {
+        "id": "load-config",
+        "name": "Load Config",
+        "text": "load config",
+        "sprite": {"z": "UID"},
+        "textWH": {"pad": 2, "trim": "Leading"},
+        "anchor": {"id": "load-level", "dir": "E", "margin": 2},
+        "ninePatch": {
+          "border": 1,
+          "pad": 2,
+          "patch": {
+            "center": "background--Grape",
+            "n": "background--Bubblegum",
+            "s": "background--Blueberry",
+            "w": "background--Bubblegum",
+            "e": "background--Blueberry"
+          }
+        },
+        "button": {
+          "pressed": "background--Bubblegum",
+          "selected": "background--OrangeCheckerboard",
+          "type": "Button",
+          "z": "UIC"
+        },
+        "loadConfig": {},
         "textXY": {"z": "UIE"}
       },
       {

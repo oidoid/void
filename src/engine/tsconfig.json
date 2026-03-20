@@ -2,7 +2,7 @@
 {
   "extends": "@oidoid/config/tsconfig",
   "compilerOptions": {
-    "lib": ["DOM", "ES2023", "ESNext.disposable"],
+    "lib": ["DOM", "ES2023", "ESNext.Disposable"],
 
     "customConditions": ["browser"],
 
