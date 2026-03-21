@@ -12,3 +12,5 @@ GNUMAKEFLAGS += --jobs --no-builtin-rules --no-builtin-variables $(if $(value V)
 .SHELLFLAGS := -euo pipefail -c
 
 .DELETE_ON_ERROR: # if a recipe fails, delete the target.
+
+export NPM_CONFIG_LOGLEVEL ?= $(if $(value V),,silent)

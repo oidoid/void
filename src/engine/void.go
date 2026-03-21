@@ -1,5 +1,5 @@
 package void
 
 func Hello() {
-	println("hello\n")
+	println("hello from Go engine")
 }

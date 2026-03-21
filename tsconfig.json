@@ -1,0 +1,4 @@
+{
+  "files": [],
+	"references": [{ "path": "./src/demo/web/" }, { "path": "./src/engine/web/" }]
+}

@@ -1,1 +1,4 @@
-dist/demo.wasm 8161
+dist/demo/demo.wasm 8219
+dist/demo/index.css 69
+dist/demo/index.html 654
+dist/demo/index.js 672

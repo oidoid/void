@@ -1,0 +1,7 @@
+{
+	"name": "@oidoid/void",
+	"version": "0.0.0",
+	"author": "Stephen Niedzielski <stephen@oidoid.com> (https://oidoid.com/)",
+	"license": "AGPL-3.0-only",
+	"exports": { ".": "./index.ts" }
+}

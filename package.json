@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "npm run --if-present --workspaces build",
+    "typecheck": "tsc --build",
+    "watch": "npm run --if-present --workspaces watch"
+  },
+  "workspaces": ["src/**" ],
+  "devDependencies": {
+    "typescript": "6.0.1-rc"
+  }
+}
