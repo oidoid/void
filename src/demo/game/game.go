@@ -6,7 +6,9 @@ type Game struct {
 	v V.Void
 }
 
-func (gam *Game) Hello() {
-	gam.v.Hello()
+var _ V.WASMAPI = (*Game)(nil)
+
+func (gam *Game) Update() {
+	gam.v.Update()
 	println("hello from Go demo")
 }

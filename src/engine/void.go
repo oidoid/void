@@ -4,6 +4,8 @@ type Void struct {
 	x float32
 }
 
-func (v *Void) Hello() {
+var _ WASMAPI = (*Void)(nil)
+
+func (v *Void) Update() {
 	println("hello from Go engine %d", v.x)
 }

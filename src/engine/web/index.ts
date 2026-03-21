@@ -1,1 +1,1 @@
-export * from './void.ts'
+export * from './game/void.ts'
