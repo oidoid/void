@@ -1,5 +1,5 @@
 package void
 
-type WASMAPI interface {
+type WasmAPI interface {
 	Update()
 }

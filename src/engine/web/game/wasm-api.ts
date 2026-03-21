@@ -1,4 +1,4 @@
 
-export type WASMAPI = {
+export type WasmAPI = {
   Update(): void;
 };

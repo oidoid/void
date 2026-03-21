@@ -1,4 +1,4 @@
-/** WASI preview1 host for WASM modules. */
+/** WASI preview1 host for Wasm modules. */
 export class WASIHost {
 	[k: string]: WebAssembly.ImportValue;
 	#decoder: TextDecoder = new TextDecoder();
@@ -8,7 +8,7 @@ export class WASIHost {
 	fd_write = (
 		/** file descriptor (1 = stdout, 2 = stderr). */
 		fd: number,
-		/** byte offset of the iovec array in WASM memory. */
+		/** byte offset of the iovec array in Wasm memory. */
 		iovs: number,
 		/** number of iovec entries. */
 		iovsLen: number,

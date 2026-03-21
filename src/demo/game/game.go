@@ -6,7 +6,7 @@ type Game struct {
 	v V.Void
 }
 
-var _ V.WASMAPI = (*Game)(nil)
+var _ V.WasmAPI = (*Game)(nil)
 
 func (gam *Game) Update() {
 	gam.v.Update()
