@@ -1,8 +1,8 @@
 include config.make
 
-.PHONY: default build build-cmd build-demo clean dependencies fat fmt lint test test-fat test-go test-fmt
+.PHONY: default build build-cmd build-demo clean dependencies fat fmt lint test test-fat test-go test-fmt watch watch-wasm
 
-test: dependencies .WAIT build test-fmt lint test-go .WAIT test-fat
+watch: dependencies .WAIT watch-wasm
 build: build-cmd build-demo
 build-cmd:; go build -o dist/ ./src/cmd/...
 build-demo:
@@ -17,6 +17,7 @@ dependencies:
 fat:; go run ./src/cmd/fat dist/demo.wasm
 fmt:; go mod tidy& gofmt -s -w ./src/; wait
 lint:; go vet ./src/...&	go tool staticcheck ./src/...; wait
+test: dependencies .WAIT build test-fmt lint test-go .WAIT test-fat
 test-fat:; go run ./src/cmd/fat
 test-go:
 	go test ./src/... |
@@ -27,3 +28,4 @@ test-fmt:
 	out=$$(gofmt -l -s ./src/)
 	[ -z "$$out" ] || { printf >&2 "unformatted files:\n%s\n" "$$out"; false; }
 	wait
+watch-wasm:; watchexec --quiet --watch src/ --exts go -- make build-demo
