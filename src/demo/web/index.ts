@@ -1,3 +1,5 @@
 import * as V from "@oidoid/void";
-const gam = await V.load("demo.wasm");
-gam.Update()
+const v = new V.Void();
+await v.load("demo.wasm");
+v.register();
+v.update();
