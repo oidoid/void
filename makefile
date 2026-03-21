@@ -14,7 +14,7 @@ build: build-cmd build-demo build-web
 build-cmd:; go build -o dist/ ./src/cmd/...
 build-demo:
 	# no concurrency.
-	tinygo build -o $(out_demo) --scheduler=none --target=wasm ./src/demo/
+	tinygo build -o $(out_demo) --scheduler=none --target=wasm ./src/demo/web/
 	$(if $(value DEBUG),,wasm-opt -o $(out_demo) -Oz --strip-debug --strip-producers $(out_demo))
 build-web: build-demo; npm run build
 

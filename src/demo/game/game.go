@@ -3,16 +3,15 @@ package game
 import V "github.com/oidoid/void/src/engine"
 
 type Game struct {
-	v V.Void
+	engine V.Engine
 }
 
 var _ V.WasmAPI = (*Game)(nil)
 
-func (gam *Game) GetUpdatePointer() uintptr {
-	return gam.v.GetUpdatePointer()
+func (this *Game) GetUpdatePointer() uintptr {
+	return this.engine.GetUpdatePointer()
 }
 
-func (gam *Game) Update() {
-	gam.v.Update()
-	println("hello from Go demo")
+func (this *Game) Update() V.LoopState {
+	return this.engine.Update()
 }

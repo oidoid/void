@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/oidoid/void/src/demo/game"
+	V "github.com/oidoid/void/src/engine"
 )
 
 var gam game.Game = game.Game{}
@@ -14,6 +15,6 @@ func GetUpdatePointer() uintptr {
 }
 
 //export Update
-func Update() {
-	gam.Update()
+func Update() V.LoopState {
+	return gam.Update()
 }
