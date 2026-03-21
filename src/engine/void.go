@@ -1,5 +1,9 @@
 package void
 
-func Hello() {
-	println("hello from Go engine")
+type Void struct {
+	x float32
+}
+
+func (v *Void) Hello() {
+	println("hello from Go engine %d", v.x)
 }
