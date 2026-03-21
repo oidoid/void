@@ -32,7 +32,7 @@ export class WASIHost {
 		return 0;
 	};
 
-	link = (mem: WebAssembly.Memory): void => {
+	link(mem: WebAssembly.Memory): void {
 		this.#mem = mem;
 	}
 

@@ -1,10 +1,10 @@
 import { WASIHost } from "./wasi-host";
-import type { WasmExports } from "./wasm-exports";
+import type { WasmAPI } from "./wasm-api";
 
 
 export class Void {
   #registered: boolean = false
-  #wasm!: WasmExports
+  #wasm!: WasmAPI
 
   // to-do: use Wasm import.
   async load(wasmURL: string): Promise<void> {
@@ -12,7 +12,7 @@ export class Void {
     const result = await WebAssembly.instantiateStreaming(fetch(wasmURL), {
       wasi_snapshot_preview1: wasi,
     });
-    this.#wasm = result.instance.exports as WasmExports;
+    this.#wasm = result.instance.exports as WasmAPI;
     wasi.link(this.#wasm.memory);
   }
 
