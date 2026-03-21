@@ -8,6 +8,10 @@ type Game struct {
 
 var _ V.WasmAPI = (*Game)(nil)
 
+func (gam *Game) GetUpdatePointer() uintptr {
+	return gam.v.GetUpdatePointer()
+}
+
 func (gam *Game) Update() {
 	gam.v.Update()
 	println("hello from Go demo")
