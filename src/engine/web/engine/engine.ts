@@ -1,10 +1,10 @@
 import { WASIHost } from "./wasi-host";
+import { Input } from "./input";
 import { LoopLoop, type WasmAPI } from "./wasm-api";
 
 
 export class Engine {
-  #pointerX: number = 0
-  #pointerY: number = 0
+  #input: Input = new Input()
   #rafId: number = 0
   #registered: boolean = false
   #update!: DataView
@@ -18,17 +18,13 @@ export class Engine {
     });
     this.#wasm = result.instance.exports as WasmAPI;
     wasi.link(this.#wasm.memory);
-    this.#update = new DataView(this.#wasm.memory.buffer, this.#wasm.GetUpdatePointer(), 8);
+    this.#update = new DataView(this.#wasm.memory.buffer, this.#wasm.GetUpdatePointer(), 28);
   }
 
   register(): void {
     if (this.#registered) return
     this.#wasm._start();
-    addEventListener('pointermove', (ev: PointerEvent) => {
-      this.#pointerX = ev.clientX;
-      this.#pointerY = ev.clientY;
-      this.#requestUpdate()
-    });
+    this.#input.register(() => this.#requestUpdate());
     this.#registered = true;
     this.update()
   }
@@ -49,8 +45,7 @@ export class Engine {
 
   #writeUpdate(): void {
     if (this.#update.buffer !== this.#wasm.memory.buffer)
-      this.#update = new DataView(this.#wasm.memory.buffer, this.#wasm.GetUpdatePointer(), 8);
-    this.#update.setFloat32(0, this.#pointerX, true);
-    this.#update.setFloat32(4, this.#pointerY, true);
+      this.#update = new DataView(this.#wasm.memory.buffer, this.#wasm.GetUpdatePointer(), 28);
+    this.#input.write(this.#update);
   }
 }

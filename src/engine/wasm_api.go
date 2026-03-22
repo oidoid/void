@@ -1,7 +1,10 @@
 package void
 
+import "github.com/oidoid/void/src/engine/input"
+
 type Update struct {
-	X, Y float32
+	pointer input.PointerEvent
+	wheel   input.WheelEvent
 }
 
 type LoopState uint8

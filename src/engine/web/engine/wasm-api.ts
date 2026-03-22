@@ -2,7 +2,7 @@
 export type WasmAPI = {
   /** linear memory shared between Go and JS. */
   memory: WebAssembly.Memory;
-  /** initialises the Go runtime and call `main()`. */
+  /** initialises the Go runtime and calls `main()`. */
   _start(): void;
   /** byte offset into `memory` of the update. */
   GetUpdatePointer(): number;

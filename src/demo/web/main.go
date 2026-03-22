@@ -5,7 +5,7 @@ import (
 	V "github.com/oidoid/void/src/engine"
 )
 
-var gam game.Game = game.Game{}
+var gam = game.Game{}
 
 func main() {}
 
