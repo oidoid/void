@@ -2,11 +2,14 @@
   "private": true,
   "scripts": {
     "build": "npm run --if-present --workspaces build",
+    "test:unit": "sh -c 'node --test ${@:-$(find src/ -name \\*.test.ts -printf %p\\ )}' --",
     "typecheck": "tsc --build",
     "watch": "npm run --if-present --workspaces watch"
   },
+	"type": "module",
   "workspaces": ["src/**" ],
   "devDependencies": {
+    "@types/node": "24.4.0",
     "typescript": "6.0.1-rc"
   }
 }

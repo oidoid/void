@@ -1,17 +1,18 @@
 export type PointerTestEventInit = {
   buttons: number
-  offsetX: number
-  offsetY: number
+  ctrlKey: boolean
+  isPrimary: boolean
+  isTrusted: boolean
   movementX: number
   movementY: number
+  offsetX: number
+  offsetY: number
   pointerId: number
-  isPrimary: boolean
   pointerType: 'mouse' | 'pen' | 'touch'
-  ctrlKey: boolean
 }
 
-export function TestEvent(type: string): Event {
-  return Object.defineProperty(new Event(type), 'isTrusted', {value: true})
+export function TestEvent(type: string, isTrusted: boolean = true): Event {
+  return Object.defineProperty(new Event(type), 'isTrusted', { value: isTrusted, writable: true })
 }
 
 export function KeyTestEvent(
@@ -47,14 +48,15 @@ export function PointerTestEvent(
     TestEvent(type),
     {
       buttons: 0,
-      offsetX: 0,
-      offsetY: 0,
+      ctrlKey: false,
+      isPrimary: (init?.pointerId ?? 1) === 1,
+      isTrusted: true,
       movementX: 0,
       movementY: 0,
+      offsetX: 0,
+      offsetY: 0,
       pointerId: 1,
-      isPrimary: (init?.pointerId ?? 1) === 1,
       pointerType: 'mouse',
-      ctrlKey: false
     } satisfies PointerTestEventInit,
     init
   )

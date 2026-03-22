@@ -1,6 +1,6 @@
 include config.make
 
-.PHONY: build build-cmd build-demo build-web clean dependencies fat fmt lint test test-fat test-fmt test-go typecheck-web watch
+.PHONY: build build-cmd build-demo build-web clean dependencies fat fmt lint test test-fat test-fmt test-go test-web typecheck-web watch
 
 out_demo := dist/demo.wasm
 
@@ -29,7 +29,7 @@ fat:; go run ./src/cmd/fat dist/demo/demo.wasm dist/demo/index.css dist/demo/ind
 
 fmt:; go mod tidy& gofmt -s -w ./src/; wait
 
-test: dependencies .WAIT build test-fmt lint test-go typecheck-web .WAIT test-fat
+test: dependencies .WAIT build test-fmt lint test-go test-web typecheck-web .WAIT test-fat
 lint:; go vet ./src/...&	go tool staticcheck ./src/...; wait
 test-fat:; go run ./src/cmd/fat
 test-fmt:
@@ -40,5 +40,8 @@ test-fmt:
 test-go:
 	go test ./src/...|
 	grep --color=always --extended --line-buffered '^--- FAIL: [^ ]+|$$'|
-	sed --unbuffered $(if $(value V),'','/^ok /d; /\[no test files\]$$/d')
+	sed --regexp-extended --unbuffered $(if $(value V),'','/^ok |\[no test files\]$$/d')
+test-web:;
+	FORCE_COLOR=3 npm run test:unit|
+	sed --unbuffered $(if $(value V),'','1,/✖ failing tests:/ {/[✔ℹ▶✖] /d}')
 typecheck-web:; npm run typecheck

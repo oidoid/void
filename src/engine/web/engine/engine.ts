@@ -1,5 +1,5 @@
 import { WASIHost } from "./wasi-host";
-import { Input } from "./input";
+import { Input } from "../input/input";
 import { LoopLoop, type WasmAPI } from "./wasm-api";
 
 
@@ -24,7 +24,8 @@ export class Engine {
   register(): void {
     if (this.#registered) return
     this.#wasm._start();
-    this.#input.register(() => this.#requestUpdate());
+    this.#input.onEvent = () => this.#requestUpdate();
+    this.#input.register('add');
     this.#registered = true;
     this.update()
   }

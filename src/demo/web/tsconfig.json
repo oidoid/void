@@ -1,4 +1,12 @@
 {
-  "extends": "../../../tsconfig.base.json",
-  "references": [{"path": "../../engine/web" }]
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": [      "DOM",
+      "ES2023",
+      "ESNext.Disposable"
+    ],
+  },
+  "references": [    {      "path": "../../engine/web"
+    }
+  ]
 }
