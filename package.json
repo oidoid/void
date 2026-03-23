@@ -9,7 +9,9 @@
 	"type": "module",
   "workspaces": ["src/**" ],
   "devDependencies": {
+    "@oidoid/config": "0.0.10",
     "@types/node": "24.4.0",
+    "@biomejs/biome": "2.3.15",
     "typescript": "6.0.1-rc"
   }
 }

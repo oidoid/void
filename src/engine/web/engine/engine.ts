@@ -18,7 +18,7 @@ export class Engine {
     });
     this.#wasm = result.instance.exports as WasmAPI;
     wasi.link(this.#wasm.memory);
-    this.#update = new DataView(this.#wasm.memory.buffer, this.#wasm.GetUpdatePointer(), 28);
+    this.#update = new DataView(this.#wasm.memory.buffer, this.#wasm.GetUpdatePointer(), 44);
   }
 
   register(): void {
@@ -46,7 +46,7 @@ export class Engine {
 
   #writeUpdate(): void {
     if (this.#update.buffer !== this.#wasm.memory.buffer)
-      this.#update = new DataView(this.#wasm.memory.buffer, this.#wasm.GetUpdatePointer(), 28);
+      this.#update = new DataView(this.#wasm.memory.buffer, this.#wasm.GetUpdatePointer(), 44);
     this.#input.write(this.#update);
   }
 }

@@ -9,20 +9,29 @@ const (
 	PointerDeviceTouch
 )
 
-// to-do: this isn't even an event. it's just current state!
+// devices are ephemeral and may be virtual.
+
 // to-do: we need one of these for each pointing device. maybe support 10 (one pointer per finger).
-type PointerEvent struct {
+// virtual pointing device state.
+type PointerPoll struct {
 	// pointer ID; -1 if nonpointing device (eg, a click event fired on a button
 	// activated via keyboard).
 	ID int32
 	// coords in client pixels from top-left.
 	X, Y float32
-	//lint:ignore U1000 .
-	device  PointerDevice
-	Event   PointerEventType
+	// contact area in client pixels.
+	W, H float32
+	// normalized pressure in [0, 1].
+	Pressure float32
+	// pen tilt from the screen plane in [-90°, 90°].
+	TiltX, TiltY int8
+	// pen rotation around its axis in degrees [0, 359].
+	Twist  uint16
+	Device PointerDevice
+	// true if this is the primary pointer.
 	Primary bool
-	// bitmask of buttons pressed: 1: primary (left); 2: secondary (right)';
-	// 4: auxiliary (middle), 8: back, 16: forward.
+	// bitmask of buttons pressed: 1 primary (left); 2 secondary (right);
+	// 4 auxiliary (middle), 8 back, 16 forward.
 	Buttons uint8
 }
 

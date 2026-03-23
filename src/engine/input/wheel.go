@@ -1,10 +1,10 @@
 package input
 
-type WheelEvent struct {
+type WheelPoll struct {
 	// horizontal scroll delta in client pixels.
-	X float32
+	DeltaX float32
 	// vertical scroll delta in client pixels.
-	Y float32
+	DeltaY float32
 	// depth scroll delta in client pixels.
-	Z float32
+	DeltaZ float32
 }

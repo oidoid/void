@@ -1,12 +1,12 @@
 import type { OnEvent } from "../event"
 
 export class Wheel {
-  /** scroll delta X in pixels; readonly. */
-  x: number = 0
-  /** scroll delta Y in pixels; readonly. */
-  y: number = 0
-  /** scroll delta Z in pixels; readonly. */
-  z: number = 0
+  /** scroll delta X in client pixels; readonly. */
+  deltaX: number = 0
+  /** scroll delta Y in client pixels; readonly. */
+  deltaY: number = 0
+  /** scroll delta Z in client pixels; readonly. */
+  deltaZ: number = 0
   onEvent: OnEvent = () => { }
   readonly #target: EventTarget
 
@@ -15,7 +15,7 @@ export class Wheel {
   }
 
   postupdate(): void {
-    this.x = this.y = this.z = 0
+    this.deltaX = this.deltaY = this.deltaZ = 0
   }
 
   register(op: 'add' | 'remove'): this {
@@ -31,9 +31,9 @@ export class Wheel {
     // note: visual viewport magnification, a pinch on trackpad, dispatches a
     // wheel event. prevent default to disable that zoom mechanism.
     if (!ev.isTrusted || ev.metaKey || ev.altKey || ev.ctrlKey) return
-    this.x = ev.deltaX
-    this.y = ev.deltaY
-    this.z = ev.deltaZ
+    this.deltaX = ev.deltaX
+    this.deltaY = ev.deltaY
+    this.deltaZ = ev.deltaZ
     this.onEvent('input-wheel')
   }
 }

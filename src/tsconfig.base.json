@@ -1,5 +1,4 @@
 {
-  // to-do: review with @oidoid/config, add formatter, unit tests.
   "compilerOptions": {
     "composite": true,
     "emitDeclarationOnly": true,

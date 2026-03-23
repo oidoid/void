@@ -3,8 +3,8 @@ package void
 import "github.com/oidoid/void/src/engine/input"
 
 type Update struct {
-	pointer input.PointerEvent
-	wheel   input.WheelEvent
+	pointer input.PointerPoll
+	wheel   input.WheelPoll
 }
 
 type LoopState uint8
