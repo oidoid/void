@@ -3,7 +3,11 @@ import {assert} from '../../test/assert.ts'
 import {type Block, Pool} from './pool.ts'
 
 test('alloc()', async ctx => {
-  const pool = new Pool({alloc: () => ({i: 0}), allocBytes: 5, pageBlocks: 2})
+  const pool = new Pool({
+    alloc: () => ({i: 0}),
+    allocBytes: 5,
+    pageBlocks: 2
+  })
 
   await ctx.test('has one page init', () => {
     assert(pool.toDebugString(), '0000000000 0000000000')
@@ -22,7 +26,11 @@ test('alloc()', async ctx => {
 })
 
 test('clear() sets pool to init state', () => {
-  const pool = new Pool({alloc: () => ({i: 0}), allocBytes: 5, pageBlocks: 2})
+  const pool = new Pool({
+    alloc: () => ({i: 0}),
+    allocBytes: 5,
+    pageBlocks: 2
+  })
 
   const alloc = []
   for (let i = 0; i < 6; i++) alloc.push(pool.alloc().i)
@@ -36,7 +44,11 @@ test('clear() sets pool to init state', () => {
 })
 
 test('free()', async ctx => {
-  const pool = new Pool({alloc: () => ({i: 0}), allocBytes: 5, pageBlocks: 2})
+  const pool = new Pool({
+    alloc: () => ({i: 0}),
+    allocBytes: 5,
+    pageBlocks: 2
+  })
   const blocks: Block[] = []
 
   await ctx.test('underflows when nothing to free', () => {
@@ -63,7 +75,11 @@ test('free()', async ctx => {
 })
 
 test('size', async ctx => {
-  const pool = new Pool({alloc: () => ({i: 0}), allocBytes: 5, pageBlocks: 2})
+  const pool = new Pool({
+    alloc: () => ({i: 0}),
+    allocBytes: 5,
+    pageBlocks: 2
+  })
 
   await ctx.test('is zero init', () => assert(pool.size, 0))
 

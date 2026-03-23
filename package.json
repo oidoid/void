@@ -6,8 +6,10 @@
     "typecheck": "tsc --build",
     "watch": "npm run --if-present --workspaces watch"
   },
-	"type": "module",
-  "workspaces": ["src/**" ],
+  "type": "module",
+  "workspaces": [
+    "src/**"
+  ],
   "devDependencies": {
     "@oidoid/config": "0.0.10",
     "@types/node": "24.4.0",

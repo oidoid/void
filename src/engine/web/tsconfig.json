@@ -1,8 +1,4 @@
 {
   "extends": "../../tsconfig.base.json",
-  "compilerOptions": {    "lib": [      "DOM",
-      "ES2023",
-      "ESNext.Disposable"
-    ],
-  }
+  "compilerOptions": {"lib": ["DOM", "ES2023", "ESNext.Disposable"]}
 }

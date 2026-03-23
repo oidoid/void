@@ -491,7 +491,10 @@ test('parseTextXY()', () => {
   const pools = TestPools()
 
   // defaults when no ent.sprite.
-  assert(parseTextXY({invalid: Infinity}, {}), {chars: [], z: Layer.Bottom})
+  assert(parseTextXY({invalid: Infinity}, {}), {
+    chars: [],
+    z: Layer.Bottom
+  })
 
   // uses ent.sprite.z when available.
   const sprite = parseSprite('stem--A', pools, atlas)

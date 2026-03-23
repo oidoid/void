@@ -9,7 +9,12 @@ export type VoidConfigFile = {
   $schema: string
   entry: string
   meta: string | undefined
-  out: {dir: string; game: string; name: string | undefined; tagSchema: string}
+  out: {
+    dir: string
+    game: string
+    name: string | undefined
+    tagSchema: string
+  }
   atlas: SheetConfig
   tileset: SheetConfig | undefined
   input: V.InputMode

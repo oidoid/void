@@ -2,24 +2,15 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "lib": [      "DOM",
-      "ES2023",
-      "ESNext.Disposable"
-    ],
-    "types": [      "node"
-    ],
+    "lib": ["DOM", "ES2023", "ESNext.Disposable"],
+    "types": ["node"]
   },
-  "include": [    "**/*.test.ts",
+  "include": [
+    "**/*.test.ts",
     "**/*.test.json",
     "**/test/",
     "**/test/**/*.json"
   ],
-  "exclude": [    "${configDir}/node_modules/",
-    "${configDir}/dist/"
-  ],
-  "references": [    {      "path": "./demo/web/"
-    },
-    {      "path": "./engine/web/"
-    }
-  ]
+  "exclude": ["${configDir}/node_modules/", "${configDir}/dist/"],
+  "references": [{"path": "./demo/web/"}, {"path": "./engine/web/"}]
 }

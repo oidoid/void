@@ -26,7 +26,10 @@ test('Gamepad', async ctx => {
 
   await ctx.test('one pad', () => {
     navigator.gamepads = [
-      {axes: [], buttons: [{pressed: true}]} as unknown as globalThis.Gamepad
+      {
+        axes: [],
+        buttons: [{pressed: true}]
+      } as unknown as globalThis.Gamepad
     ]
     assert(gamepad.connected, true)
     gamepad.update()
@@ -36,14 +39,20 @@ test('Gamepad', async ctx => {
   await ctx.test('update clears previous bits', () => {
     // first update sets a bit.
     navigator.gamepads = [
-      {axes: [], buttons: [{pressed: true}]} as unknown as globalThis.Gamepad
+      {
+        axes: [],
+        buttons: [{pressed: true}]
+      } as unknown as globalThis.Gamepad
     ]
     gamepad.update()
     assert(gamepad.bits, 1)
 
     // second update with no buttons clears the bit.
     navigator.gamepads = [
-      {axes: [], buttons: [{pressed: false}]} as unknown as globalThis.Gamepad
+      {
+        axes: [],
+        buttons: [{pressed: false}]
+      } as unknown as globalThis.Gamepad
     ]
     gamepad.update()
     assert(gamepad.bits, 0)
@@ -105,7 +114,10 @@ test('insecure context ignores pads', () => {
   gamepad.bitByButton[0] = 1
 
   navigator.gamepads = [
-    {axes: [1], buttons: [{pressed: true}]} as unknown as globalThis.Gamepad
+    {
+      axes: [1],
+      buttons: [{pressed: true}]
+    } as unknown as globalThis.Gamepad
   ]
   gamepad.reset()
   gamepad.update()

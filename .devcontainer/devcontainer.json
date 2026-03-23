@@ -1,26 +1,26 @@
 // if this fails to download, remember `sudo systemctl restart docker`.
 {
-	"name": "linux",
-	"image": "mcr.microsoft.com/devcontainers/base:2-trixie",
-	"features": {
-		"ghcr.io/devcontainers/features/go:1": { "version": "1.24.4" },
-		"ghcr.io/devcontainers/features/node:1": { "version": "24.4.1" }
-	},
-	"customizations": {
-		"vscode": {
-			"extensions": [
+  "name": "linux",
+  "image": "mcr.microsoft.com/devcontainers/base:2-trixie",
+  "features": {
+    "ghcr.io/devcontainers/features/go:1": {"version": "1.24.4"},
+    "ghcr.io/devcontainers/features/node:1": {"version": "24.4.1"}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
         // to-do: biome?
-				// "biomejs.biome",
-				"golang.go",
-				"ms-vscode.makefile-tools",
+        // "biomejs.biome",
+        "golang.go",
+        "ms-vscode.makefile-tools"
         // to-do: needed?
-				// "slevesque.shader"
-			]
-		}
-	},
-	"mounts": [
-		"source=/usr/bin/aseprite,target=/usr/bin/aseprite,type=bind",
-		"source=/usr/share/aseprite,target=/usr/share/aseprite,type=bind"
-	],
-	"postCreateCommand": ".devcontainer/post-create.sh"
+        // "slevesque.shader"
+      ]
+    }
+  },
+  "mounts": [
+    "source=/usr/bin/aseprite,target=/usr/bin/aseprite,type=bind",
+    "source=/usr/share/aseprite,target=/usr/share/aseprite,type=bind"
+  ],
+  "postCreateCommand": ".devcontainer/post-create.sh"
 }

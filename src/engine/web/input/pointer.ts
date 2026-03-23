@@ -1,11 +1,11 @@
-import type { AnyEvent, OnEvent } from '../event.js'
+import type {AnyEvent, OnEvent} from '../event.ts'
 
 export type PointerDevice = (typeof PointerDevice)[keyof typeof PointerDevice]
-const PointerDevice = { Unknown: 0, Mouse: 1, Pen: 2, Touch: 3 } as const
+const PointerDevice = {Unknown: 0, Mouse: 1, Pen: 2, Touch: 3} as const
 const pointerDevice: Record<string, PointerDevice> = {
   mouse: PointerDevice.Mouse,
   pen: PointerDevice.Pen,
-  touch: PointerDevice.Touch,
+  touch: PointerDevice.Touch
 }
 
 export class Pointer {
@@ -38,7 +38,7 @@ export class Pointer {
    * 4 auxiliary (middle), 8 back, 16 forward.
    */
   buttons: number = 0
-  onEvent: OnEvent = () => { }
+  onEvent: OnEvent = () => {}
   readonly #target: EventTarget
 
   constructor(target: EventTarget) {
@@ -46,7 +46,12 @@ export class Pointer {
   }
 
   register(op: 'add' | 'remove'): void {
-    for (const ev of ['pointercancel', 'pointerdown', 'pointermove', 'pointerup'])
+    for (const ev of [
+      'pointercancel',
+      'pointerdown',
+      'pointermove',
+      'pointerup'
+    ])
       this.#target[`${op}EventListener`](ev, this.#onPointer as EventListener)
   }
 

@@ -44,7 +44,11 @@ export class Loader implements V.Loader {
     textXY: new V.TextXYHook(),
     zooStatus: new V.ZooStatusHook()
   } as const satisfies Readonly<V.HookMap>
-  #zoo: V.Zoo = {coords: new Set(), default: new Set(), superballs: new Set()}
+  #zoo: V.Zoo = {
+    coords: new Set(),
+    default: new Set(),
+    superballs: new Set()
+  }
 
   update(v: V.Void): void {
     switch (this.#lvl) {

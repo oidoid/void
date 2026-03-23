@@ -241,7 +241,11 @@ test('locked pointer movement with DPR scaling and clamping', () => {
 
   // move by movementX=10, movementY=-6 => scaled delta (+5, -3).
   target.dispatchEvent(
-    PointerTestEvent('pointermove', {buttons: 1, movementX: 10, movementY: -6})
+    PointerTestEvent('pointermove', {
+      buttons: 1,
+      movementX: 10,
+      movementY: -6
+    })
   )
   pointer.update()
   assert(pointer.primary?.xyClient, {x: 15, y: 7})

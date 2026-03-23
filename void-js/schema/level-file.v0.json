@@ -16,7 +16,10 @@
           "unevaluatedProperties": false
         },
         "id": {"$ref": "#/$defs/ID", "description": "target ent ID."},
-        "margin": {"$ref": "#/$defs/XYOrNumber", "unevaluatedProperties": false}
+        "margin": {
+          "$ref": "#/$defs/XYOrNumber",
+          "unevaluatedProperties": false
+        }
       }
     },
     "Border": {
@@ -420,7 +423,10 @@
           "type": "boolean",
           "description": "whether sprite is not rendered. defaults to true when tag is unspecified."
         },
-        "pool": {"$ref": "#/$defs/SpritePool", "unevaluatedProperties": false},
+        "pool": {
+          "$ref": "#/$defs/SpritePool",
+          "unevaluatedProperties": false
+        },
         "stretch": {
           "type": "boolean",
           "description": "wrap texture (default) or stretch to width and height."

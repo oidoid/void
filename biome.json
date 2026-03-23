@@ -1,1 +1,4 @@
-{"extends": ["@oidoid/config/biome"]}
+{
+  "extends": ["@oidoid/config/biome"],
+  "files": {"includes": ["!!dist", "!!void-js"]}
+}

@@ -63,7 +63,9 @@ export class Loader implements V.Loader {
       await this.#restoreFromTmp('level')
       const handle = await pickOrRestore(
         !this.levelTiles ? this.tmp.level : undefined,
-        {types: [{desc: 'Level', accept: {'application/json': ['.jsonc']}}]}
+        {
+          types: [{desc: 'Level', accept: {'application/json': ['.jsonc']}}]
+        }
       )
       await loadLevelData(handle, this)
       this.tmp.level = handle

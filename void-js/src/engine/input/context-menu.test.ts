@@ -62,7 +62,9 @@ test('ContextMenu', async ctx => {
     menu.enable = true
     let blocked = 0
     target.dispatchEvent(
-      Object.assign(new Event('contextmenu'), {preventDefault: () => blocked++})
+      Object.assign(new Event('contextmenu'), {
+        preventDefault: () => blocked++
+      })
     )
     assert(blocked, 0)
   })

@@ -12,7 +12,10 @@
         {
           "type": "object",
           "properties": {
-            "clock": {"$ref": "#/$defs/Clock", "unevaluatedProperties": false},
+            "clock": {
+              "$ref": "#/$defs/Clock",
+              "unevaluatedProperties": false
+            },
             "collideToggle": {
               "$ref": "#/$defs/CollideToggle",
               "unevaluatedProperties": false
@@ -37,7 +40,10 @@
               "$ref": "#/$defs/Rotate",
               "unevaluatedProperties": false
             },
-            "tally": {"$ref": "#/$defs/Tally", "unevaluatedProperties": false},
+            "tally": {
+              "$ref": "#/$defs/Tally",
+              "unevaluatedProperties": false
+            },
             "superball": {
               "$ref": "#/$defs/Superball",
               "unevaluatedProperties": false
@@ -51,7 +57,10 @@
       ]
     },
     "MouseStatus": {"type": "object", "description": "mouse config."},
-    "RenderToggle": {"type": "object", "description": "render toggle config."},
+    "RenderToggle": {
+      "type": "object",
+      "description": "render toggle config."
+    },
     "ScreenshotButton": {
       "type": "object",
       "description": "screenshot button config."

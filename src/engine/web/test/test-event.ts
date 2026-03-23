@@ -12,7 +12,10 @@ export type PointerTestEventInit = {
 }
 
 export function TestEvent(type: string, isTrusted: boolean = true): Event {
-  return Object.defineProperty(new Event(type), 'isTrusted', { value: isTrusted, writable: true })
+  return Object.defineProperty(new Event(type), 'isTrusted', {
+    value: isTrusted,
+    writable: true
+  })
 }
 
 export function KeyTestEvent(
@@ -56,7 +59,7 @@ export function PointerTestEvent(
       offsetX: 0,
       offsetY: 0,
       pointerId: 1,
-      pointerType: 'mouse',
+      pointerType: 'mouse'
     } satisfies PointerTestEventInit,
     init
   )
