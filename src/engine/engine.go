@@ -15,6 +15,9 @@ func (this *Engine) GetUpdatePointer() uintptr {
 }
 
 func (this *Engine) Update() LoopState {
-	println("hello from Go engine", this.update.pointer.X, this.update.pointer.Y, this.update.pointer.Buttons)
+	for _, pointer := range this.update.pointers[:this.update.pointersLen] {
+		println("pointer", pointer.ID, pointer.X, pointer.Y, pointer.Buttons)
+	}
+	println("wheel", this.update.wheel.DeltaX, this.update.wheel.DeltaY, this.update.wheel.DeltaZ)
 	return Pause
 }

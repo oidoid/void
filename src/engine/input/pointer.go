@@ -11,7 +11,6 @@ const (
 
 // devices are ephemeral and may be virtual.
 
-// to-do: we need one of these for each pointing device. maybe support 10 (one pointer per finger).
 // virtual pointing device state.
 type PointerPoll struct {
 	// pointer ID; -1 if nonpointing device (eg, a click event fired on a button
@@ -25,7 +24,7 @@ type PointerPoll struct {
 	Pressure float32
 	// pen tilt from the screen plane in [-90°, 90°].
 	TiltX, TiltY int8
-	// pen rotation around its axis in degrees [0, 359].
+	// pen rotation around its axis in degrees [0°, 359°].
 	Twist  uint16
 	Device PointerDevice
 	// true if this is the primary pointer.

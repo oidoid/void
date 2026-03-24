@@ -1,4 +1,5 @@
 import {Input} from '../input/input.ts'
+import {updateByteLen} from '../input/layout.ts'
 import {WASIHost} from './wasi-host.ts'
 import {LoopLoop, type WasmAPI} from './wasm-api.ts'
 
@@ -20,7 +21,7 @@ export class Engine {
     this.#update = new DataView(
       this.#wasm.memory.buffer,
       this.#wasm.GetUpdatePointer(),
-      44
+      updateByteLen
     )
   }
 
@@ -52,7 +53,7 @@ export class Engine {
       this.#update = new DataView(
         this.#wasm.memory.buffer,
         this.#wasm.GetUpdatePointer(),
-        44
+        updateByteLen
       )
     this.#input.write(this.#update)
   }
