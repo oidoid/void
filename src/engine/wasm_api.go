@@ -2,12 +2,8 @@ package void
 
 import "github.com/oidoid/void/src/engine/input"
 
-const MaxPointers uint8 = 5
-
 type Update struct {
-	pointersLen uint8
-	pointers    [MaxPointers]input.PointerPoll
-	wheel       input.WheelPoll
+	Input input.Input
 }
 
 type LoopState uint8
