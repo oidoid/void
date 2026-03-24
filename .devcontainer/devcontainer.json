@@ -9,8 +9,7 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        // to-do: biome?
-        // "biomejs.biome",
+        "biomejs.biome",
         "golang.go",
         "ms-vscode.makefile-tools"
         // to-do: needed?
