@@ -15,41 +15,40 @@ const (
 )
 
 func main() {
+	var err error
+
 	args := os.Args[1:]
 	if len(args) == 0 {
-		runCheck()
-		return
+		err = runCheck()
+	} else {
+		err = runSave(args)
 	}
 
-	runSave(args)
-}
-
-func runCheck() {
-	file, err := os.Open(baselineFilename)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "open %s: %v\n", baselineFilename, err)
-		os.Exit(1)
-	}
-	defer file.Close()
-	if !check(file, os.Stdout, os.Stderr) {
-		os.Exit(1)
-	}
-}
-
-func runSave(paths []string) {
-	file, err := os.Create(baselineFilename)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "create %s: %v\n", baselineFilename, err)
-		os.Exit(1)
-	}
-	defer file.Close()
-	if err := save(file, paths); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)
 	}
 }
 
-func check(reader io.Reader, stdout, stderr io.Writer) bool {
+func runCheck() error {
+	file, err := os.Open(baselineFilename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	return check(file, os.Stdout, os.Stderr)
+}
+
+func runSave(paths []string) error {
+	file, err := os.Create(baselineFilename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	return save(file, paths)
+}
+
+func check(reader io.Reader, stdout, stderr io.Writer) error {
 	ok := true
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
@@ -61,8 +60,7 @@ func check(reader io.Reader, stdout, stderr io.Writer) bool {
 
 		want, err := strconv.ParseInt(wantStr, 10, 64)
 		if err != nil {
-			fmt.Fprintf(stderr, "%s: bad baseline value %q: %v\n", path, wantStr, err)
-			return false
+			return fmt.Errorf("%s: bad baseline value %q: %w", path, wantStr, err)
 		}
 
 		stat, err := os.Stat(path)
@@ -85,7 +83,10 @@ func check(reader io.Reader, stdout, stderr io.Writer) bool {
 		}
 		fmt.Fprintf(out, "%s: %d %s%d\n", path, want, deltaSign, delta)
 	}
-	return ok
+	if !ok {
+		return fmt.Errorf("max delta exceeded")
+	}
+	return nil
 }
 
 func save(writer io.Writer, paths []string) error {
@@ -94,7 +95,8 @@ func save(writer io.Writer, paths []string) error {
 		if err != nil {
 			return err
 		}
-		if _, err := fmt.Fprintf(writer, "%s %d\n", path, stat.Size()); err != nil {
+		_, err = fmt.Fprintf(writer, "%s %d\n", path, stat.Size())
+		if err != nil {
 			return err
 		}
 	}

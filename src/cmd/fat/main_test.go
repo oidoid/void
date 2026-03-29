@@ -38,8 +38,8 @@ func TestCheck(t *testing.T) {
 	path := writeTextToFile(t, dir, "file.text", strings.Repeat("x", 100))
 
 	var stdout, stderr strings.Builder
-	if ok := check(strings.NewReader(fmt.Sprintf("%s 100\n", path)), &stdout, &stderr); !ok {
-		t.Errorf("want ok, stderr: %s", stderr.String())
+	if err := check(strings.NewReader(fmt.Sprintf("%s 100\n", path)), &stdout, &stderr); err != nil {
+		t.Errorf("want ok, err: %v", err)
 	}
 	if stderr.Len() != 0 {
 		t.Errorf("want empty stderr: %s", stderr.String())
@@ -55,8 +55,8 @@ func TestCheck_ExceedsMaxDelta(t *testing.T) {
 	path := writeTextToFile(t, dir, "file.txt", strings.Repeat("x", 100))
 
 	var stdout, stderr strings.Builder
-	if ok := check(strings.NewReader(fmt.Sprintf("%s 1125\n", path)), &stdout, &stderr); ok {
-		t.Error("want fail: delta exceeds maxDelta")
+	if err := check(strings.NewReader(fmt.Sprintf("%s 1125\n", path)), &stdout, &stderr); err == nil {
+		t.Error("want fail: max delta exceeded")
 	}
 	if stdout.Len() != 0 {
 		t.Errorf("want empty stdout, got: %s", stdout.String())
@@ -69,7 +69,7 @@ func TestCheck_ExceedsMaxDelta(t *testing.T) {
 
 func TestCheck_MissingFile(t *testing.T) {
 	var stdout, stderr strings.Builder
-	if ok := check(strings.NewReader("/nonexistent/file.txt 100\n"), &stdout, &stderr); ok {
+	if err := check(strings.NewReader("/nonexistent/file.txt 100\n"), &stdout, &stderr); err == nil {
 		t.Error("want fail for missing file")
 	}
 	if stderr.Len() == 0 {
@@ -79,11 +79,8 @@ func TestCheck_MissingFile(t *testing.T) {
 
 func TestCheck_BadBaselineValue(t *testing.T) {
 	var stdout, stderr strings.Builder
-	if ok := check(strings.NewReader("somefile.txt notanumber\n"), &stdout, &stderr); ok {
+	if err := check(strings.NewReader("somefile.txt notanumber\n"), &stdout, &stderr); err == nil {
 		t.Error("want fail for bad baseline value")
-	}
-	if stderr.Len() == 0 {
-		t.Error("want stderr output for bad baseline value")
 	}
 }
 
@@ -93,8 +90,8 @@ func TestCheck_SkipsMalformedLines(t *testing.T) {
 
 	baseline := fmt.Sprintf("\n   \nonefield\n%s 10\n", path)
 	var stdout, stderr strings.Builder
-	if ok := check(strings.NewReader(baseline), &stdout, &stderr); !ok {
-		t.Errorf("want ok, stderr: %s", stderr.String())
+	if err := check(strings.NewReader(baseline), &stdout, &stderr); err != nil {
+		t.Errorf("want ok, err: %v", err)
 	}
 }
 

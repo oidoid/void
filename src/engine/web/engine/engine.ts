@@ -4,14 +4,15 @@ import {WASIHost} from './wasi-host.ts'
 import {LoopLoop, type WasmAPI} from './wasm-api.ts'
 
 export class Engine {
-  #input: Input = new Input()
+  #input!: Input
   #rafId: number = 0
   #registered: boolean = false
   #update!: DataView
   #wasm!: WasmAPI
 
   // to-do: use Wasm import.
-  async load(wasmURL: string): Promise<void> {
+  async load(canvas: Element, wasmURL: string): Promise<void> {
+    this.#input = new Input(canvas)
     const wasi = new WASIHost()
     const result = await WebAssembly.instantiateStreaming(fetch(wasmURL), {
       wasi_snapshot_preview1: wasi
@@ -30,6 +31,8 @@ export class Engine {
     this.#wasm._start()
     this.#input.onEvent = () => this.#requestUpdate()
     this.#input.register('add')
+    addEventListener('blur', this.#onReset)
+    addEventListener('visibilitychange', this.#onReset)
     this.#registered = true
     this.update()
   }
@@ -48,6 +51,10 @@ export class Engine {
     this.#rafId ||= requestAnimationFrame(() => this.update())
   }
 
+  #onReset = (): void => {
+    this.#input.reset()
+  }
+
   #writeUpdate(): void {
     if (this.#update.buffer !== this.#wasm.memory.buffer)
       this.#update = new DataView(
@@ -55,6 +62,7 @@ export class Engine {
         this.#wasm.GetUpdatePointer(),
         updateByteLen
       )
-    this.#input.write(this.#update)
+    this.#input.update(this.#update)
+    this.#input.postupdate() // to-do: move to postupdate()?
   }
 }

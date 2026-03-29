@@ -1,6 +1,6 @@
 include config.make
 
-.PHONY: build build-cmd build-demo build-web clean dependencies fat fmt fmt-go fmt-mod fmt-web lint lint-static lint-vet lint-web test test-fat test-fmt test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-web
+.PHONY: build build-cmd build-demo build-web clean dependencies fat fat-check fmt fmt-go fmt-mod fmt-web lint lint-critic lint-static lint-vet lint-web test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-web
 
 out_demo := dist/demo.wasm
 
@@ -25,19 +25,20 @@ dependencies:
 	done
 
 fat:; go run ./src/cmd/fat dist/demo/demo.wasm dist/demo/index.css dist/demo/index.html dist/demo/index.js
+fat-check:; go run ./src/cmd/fat
 
 fmt: fmt-mod fmt-go fmt-web
 fmt-mod:; go mod tidy
 fmt-go:; gofmt -s -w ./src/
 fmt-web:; npx lint --fix
 
-lint: lint-vet lint-static lint-web
-lint-vet:; go vet ./src/...
+lint: lint-critic lint-static lint-vet lint-web
+lint-critic:; go tool go-critic check --enableAll ./src/...
 lint-static:; go tool staticcheck ./src/...
+lint-vet:; go vet ./src/...
 lint-web:; npx lint
 
-test: dependencies .WAIT build test-fmt-go test-fmt-mod lint test-go test-web typecheck-web .WAIT test-fat
-test-fat:; go run ./src/cmd/fat
+test: dependencies .WAIT build test-fmt-go test-fmt-mod lint test-go test-web typecheck-web .WAIT fat-check
 test-fmt-go:
 	out=$$(gofmt -l -s ./src/)
 	[ -z "$$out" ] || { printf >&2 "unformatted files:\n%s\n" "$$out"; false; }

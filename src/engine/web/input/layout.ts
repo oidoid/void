@@ -6,8 +6,18 @@ export const pollSize: number = 32
 export const pollsOffset: number = 4
 /** byte offset of WheelPoll within Update. */
 export const wheelOffset: number = pollsOffset + maxPointers * pollSize
-/** byte offset of the gamepadsLen field within Update. */
-export const gamepadsLenOffset: number = wheelOffset + 12
+/** byte offset of KeyboardPoll within Update (aligned to 8; WheelPoll ends at 176). */
+export const keyboardOffset: number = wheelOffset + 12
+/** byte offset of TextLen field within KeyboardPoll (after Keys uint16 = 2 bytes). */
+export const keyboardTextLenOffset: number = keyboardOffset + 2
+/** byte offset of Text field within KeyboardPoll (after Keys + TextLen = 4 bytes). */
+export const keyboardTextOffset: number = keyboardOffset + 4
+/** byte offset of TextOverflow field within KeyboardPoll (after Text = 4100 bytes). */
+export const keyboardTextOverflowOffset: number = keyboardOffset + 4100
+/** max text bytes. */
+export const maxTextLen: number = 4096
+/** byte offset of the gamepadsLen field within Update (KeyboardPoll = 4102 bytes). */
+export const gamepadsLenOffset: number = keyboardOffset + 4102
 /** byte offset of the gamepad array within Update (gamepadsLen + 3 pad). */
 export const gamepadsOffset: number = gamepadsLenOffset + 4
 /** bytes per GamepadPoll. */

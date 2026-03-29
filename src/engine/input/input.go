@@ -7,6 +7,7 @@ type Input struct {
 	PointersLen uint8
 	Pointers    [MaxPointers]PointerPoll
 	Wheel       WheelPoll
+	Keyboard    KeyboardPoll
 	GamepadsLen uint8
 	Gamepads    [MaxGamepads]GamepadPoll
 }
