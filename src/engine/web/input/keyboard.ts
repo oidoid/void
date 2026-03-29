@@ -48,11 +48,13 @@ export class Keyboard {
     this.#input = document.createElement('input')
     this.#input.autocomplete = 'off'
     this.#input.spellcheck = false
-    this.#input.setAttribute('autocorrect', 'off')
-    this.#input.setAttribute('autocapitalize', 'none')
+    this.#input.autocorrect = false
+    this.#input.autocapitalize = 'none'
     this.#input.style.position = 'absolute'
     this.#input.style.left = '-9999px'
-    this.#input.style.opacity = '0'
+    this.#input.tabIndex = -1
+    // to-do: allow selectively enabling keyboard.
+    this.#input.inputMode = 'none' // no virtual keyboard on mobile.
     if (!canvas.parentNode) throw Error('canvas has no parent')
     canvas.parentNode.appendChild(this.#input)
   }
