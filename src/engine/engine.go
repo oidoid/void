@@ -43,6 +43,9 @@ func (this *Engine) Update() LoopState {
 	if kbd.TextLen > 0 {
 		text := string(kbd.Text[:kbd.TextLen])
 		println("text", text)
+		if kbd.TextOverflow {
+			println("error: text overflow")
+		}
 		loop = Loop
 	}
 	return loop
