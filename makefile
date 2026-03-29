@@ -1,8 +1,9 @@
 include config.make
 
-.PHONY: build build-cmd build-demo build-web clean dependencies fat fat-check fmt fmt-go fmt-mod fmt-web lint lint-critic lint-static lint-vet lint-web test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-web
+.PHONY: build build-cmd build-demo build-web clean dependencies fat fat-analyze fat-check fmt fmt-go fmt-mod fmt-web lint lint-critic lint-static lint-vet lint-web test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-web
 
 out_demo := dist/demo.wasm
+tinygo_flags +=
 
 watch: export DEBUG := 1
 watch: dependencies .WAIT watch-go watch-web
@@ -13,7 +14,7 @@ build: build-cmd build-demo build-web
 build-cmd:; go build -o dist/ ./src/cmd/...
 build-demo:
 	# no concurrency.
-	tinygo build -o $(out_demo) --scheduler=none --target=wasm ./src/demo/web/
+	tinygo build $(tinygo_flags) -o $(out_demo) --scheduler=none --target=wasm ./src/demo/web/
 	$(if $(value DEBUG),,wasm-opt -o $(out_demo) -Oz --strip-debug --strip-producers $(out_demo))
 build-web: build-demo; npm run build
 
@@ -25,6 +26,8 @@ dependencies:
 	done
 
 fat:; go run ./src/cmd/fat dist/demo/demo.wasm dist/demo/index.css dist/demo/index.html dist/demo/index.js
+fat-analyze: tinygo_flags += -size full
+fat-analyze: build
 fat-check:; go run ./src/cmd/fat
 
 fmt: fmt-mod fmt-go fmt-web
