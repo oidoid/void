@@ -41,10 +41,12 @@ const keyByCode: {readonly [k: string]: number} = {
 
 export class Keyboard {
   onEvent: OnEvent = () => {}
+  readonly #canvas: Element
   readonly #keys: Set<string> = new Set()
   readonly #input: HTMLInputElement
 
   constructor(canvas: Element) {
+    this.#canvas = canvas
     this.#input = document.createElement('input')
     this.#input.autocomplete = 'off'
     this.#input.spellcheck = false
@@ -73,6 +75,11 @@ export class Keyboard {
   register(op: 'add' | 'remove'): void {
     for (const ev of ['keydown', 'keyup'])
       this.#input[`${op}EventListener`](ev, this.#onKey as EventListener)
+    this.#canvas[`${op}EventListener`](
+      'dragover',
+      this.#onDragOver as EventListener
+    )
+    this.#canvas[`${op}EventListener`]('drop', this.#onDrop as EventListener)
   }
 
   reset(): void {
@@ -81,6 +88,19 @@ export class Keyboard {
 
   get text(): string {
     return this.#input.value
+  }
+
+  #onDragOver = (ev: DragEvent): void => {
+    ev.preventDefault()
+  }
+
+  #onDrop = (ev: DragEvent): void => {
+    ev.preventDefault()
+    const text = ev.dataTransfer?.getData('text/plain')
+    if (text) {
+      this.#input.value += text
+      this.onEvent('input-drop')
+    }
   }
 
   #onKey = (ev: KeyboardEvent): void => {
