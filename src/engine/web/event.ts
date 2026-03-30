@@ -1,5 +1,6 @@
 export type AnyEvent =
   | 'input-drop'
+  | 'input-gamepad'
   | 'input-keydown'
   | 'input-keyup'
   | 'input-pointercancel'

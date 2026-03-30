@@ -2,7 +2,8 @@ import type {AnyEvent, OnEvent} from '../event.ts'
 
 // keyboard button physical location codes on a virtual standard keyboard
 // irrespective of layout and modifiers hashed to bits. use for game bindings.
-const keyByCode: {readonly [k: string]: number} = {
+// @internal
+export const keyByCode: {readonly [k: string]: number} = {
   ArrowUp: 1 << 0,
   KeyW: 1 << 0,
   Numpad8: 1 << 0,
@@ -39,6 +40,7 @@ const keyByCode: {readonly [k: string]: number} = {
   ShiftRight: 1 << 8
 }
 
+// to-do: support multiple keyboards distinctly.
 export class Keyboard {
   onEvent: OnEvent = () => {}
   readonly #canvas: Element
@@ -47,7 +49,7 @@ export class Keyboard {
 
   constructor(canvas: Element) {
     this.#canvas = canvas
-    this.#input = document.createElement('input')
+    this.#input = canvas.ownerDocument.createElement('input')
     this.#input.autocomplete = 'off'
     this.#input.spellcheck = false
     this.#input.autocorrect = false
@@ -62,9 +64,9 @@ export class Keyboard {
   }
 
   get keys(): number {
-    let bits = 0
-    for (const code of this.#keys) bits |= keyByCode[code] ?? 0
-    return bits
+    let keys = 0
+    for (const code of this.#keys) keys |= keyByCode[code] ?? 0
+    return keys
   }
 
   postupdate(): void {
@@ -72,7 +74,7 @@ export class Keyboard {
     this.#input.focus({focusVisible: false, preventScroll: true})
   }
 
-  register(op: 'add' | 'remove'): void {
+  register(op: 'add' | 'remove'): this {
     for (const ev of ['keydown', 'keyup'])
       this.#input[`${op}EventListener`](ev, this.#onKey as EventListener)
     this.#canvas[`${op}EventListener`](
@@ -80,10 +82,15 @@ export class Keyboard {
       this.#onDragOver as EventListener
     )
     this.#canvas[`${op}EventListener`]('drop', this.#onDrop as EventListener)
+    return this
   }
 
   reset(): void {
     this.#keys.clear()
+  }
+
+  [Symbol.dispose](): void {
+    this.register('remove')
   }
 
   get text(): string {
@@ -104,6 +111,7 @@ export class Keyboard {
   }
 
   #onKey = (ev: KeyboardEvent): void => {
+    if (!ev.isTrusted) return
     if (ev.type === 'keydown') this.#keys.add(ev.code)
     else this.#keys.delete(ev.code)
     this.onEvent(`input-${ev.type}` as AnyEvent)

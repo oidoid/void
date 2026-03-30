@@ -1,3 +1,5 @@
+import type {OnEvent} from '../event.ts'
+
 export type GamepadMapping =
   (typeof GamepadMapping)[keyof typeof GamepadMapping]
 const GamepadMapping = {Unknown: 0, Standard: 1} as const
@@ -15,15 +17,35 @@ export type GamepadPoll = {
   axes: readonly [number, number, number, number]
 }
 
+// to-do: support analog button values, expose connected status and vibration,
+//        and distinct devices. would be nice if vibration could merge with
+//        navigator.vibrate().
 export class Gamepad {
+  onEvent: OnEvent = () => {}
   /** ;readonly. */
   polls: {[i: number]: GamepadPoll} = {}
+  readonly #target: EventTarget
+
+  constructor(target: EventTarget) {
+    this.#target = target
+  }
+
+  register(op: 'add' | 'remove'): this {
+    for (const ev of ['gamepadconnected', 'gamepaddisconnected'])
+      this.#target[`${op}EventListener`](ev, this.#onEvent)
+    return this
+  }
 
   reset(): void {
     this.polls = {}
   }
 
+  [Symbol.dispose](): void {
+    this.register('remove')
+  }
+
   update(): void {
+    if (!isSecureContext) return
     this.polls = {}
     for (const pad of navigator.getGamepads()) {
       if (!pad) continue
@@ -45,5 +67,10 @@ export class Gamepad {
         ]
       }
     }
+  }
+
+  #onEvent = (ev: Event): void => {
+    if (!ev.isTrusted) return // to-do: review other event callbacks for trusted.
+    this.onEvent('input-gamepad')
   }
 }

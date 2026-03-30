@@ -21,7 +21,7 @@ import {Wheel} from './wheel.ts'
 
 export class Input {
   onEvent: OnEvent = () => {}
-  readonly #gamepad: Gamepad = new Gamepad()
+  readonly #gamepad: Gamepad = new Gamepad(globalThis)
   readonly #keyboard: Keyboard
   readonly #encoder: TextEncoder = new TextEncoder()
   readonly #pointer: Pointer = new Pointer(globalThis)
@@ -30,6 +30,7 @@ export class Input {
 
   constructor(canvas: Element) {
     this.#keyboard = new Keyboard(canvas)
+    this.#gamepad.onEvent = ev => this.onEvent(ev)
     this.#keyboard.onEvent = ev => this.onEvent(ev)
     this.#pointer.onEvent = ev => this.onEvent(ev)
     this.#wheel.onEvent = ev => this.onEvent(ev)
@@ -41,12 +42,14 @@ export class Input {
   }
 
   register(op: 'add' | 'remove'): void {
+    this.#gamepad.register(op)
     this.#keyboard.register(op)
     this.#pointer.register(op)
     this.#wheel.register(op)
   }
 
   reset(): void {
+    // to-do: review.
     this.#gamepad.reset()
     this.#keyboard.reset()
     this.#pointer.reset()
