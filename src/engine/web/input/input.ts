@@ -1,4 +1,5 @@
 import type {OnEvent} from '../event.ts'
+import {ContextMenu} from './context-menu.ts'
 import {Gamepad} from './gamepad.ts'
 import {Keyboard} from './keyboard.ts'
 import {
@@ -21,6 +22,7 @@ import {Wheel} from './wheel.ts'
 
 export class Input {
   onEvent: OnEvent = () => {}
+  readonly #ctxMenu: ContextMenu
   readonly #gamepad: Gamepad = new Gamepad(globalThis)
   readonly #keyboard: Keyboard
   readonly #encoder: TextEncoder = new TextEncoder()
@@ -29,6 +31,7 @@ export class Input {
   readonly #wheel: Wheel = new Wheel(globalThis)
 
   constructor(canvas: Element) {
+    this.#ctxMenu = new ContextMenu(canvas)
     this.#keyboard = new Keyboard(canvas)
     this.#gamepad.onEvent = ev => this.onEvent(ev)
     this.#keyboard.onEvent = ev => this.onEvent(ev)
@@ -42,6 +45,7 @@ export class Input {
   }
 
   register(op: 'add' | 'remove'): void {
+    this.#ctxMenu.register(op)
     this.#gamepad.register(op)
     this.#keyboard.register(op)
     this.#pointer.register(op)

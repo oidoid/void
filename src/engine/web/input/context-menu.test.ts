@@ -1,6 +1,6 @@
 import {test} from 'node:test'
-import {assert} from '../../test/assert.ts'
-import {MenuTestEvent} from '../../test/test-event.ts'
+import {assert} from '../test/assert.ts'
+import {MenuTestEvent} from '../test/test-event.ts'
 import {ContextMenu} from './context-menu.ts'
 
 test('ContextMenu', async ctx => {

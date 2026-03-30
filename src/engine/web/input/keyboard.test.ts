@@ -7,6 +7,7 @@ test('constructor() inits', () => {
   const canvas = TestElement()
   using kbd = new Keyboard(canvas).register('add')
   assert(kbd.keys, 0)
+  assert(kbd.text, '')
 })
 
 test('bits map to button state: A↓, B↓, A↑', async ctx => {
@@ -75,12 +76,27 @@ test('stopPropagation()', () => {
   assert(stopped, true)
 })
 
+test('text from drop', () => {
+  const canvas = TestElement()
+  using kbd = new Keyboard(canvas).register('add')
+  assert(kbd.text, '')
+  canvas.dispatchEvent(
+    Object.assign(new Event('drop'), {
+      dataTransfer: {
+        getData: (type: string) => (type === 'text/plain' ? 'hello' : '')
+      }
+    })
+  )
+  assert(kbd.text, 'hello')
+})
+
 function TestElement(): Element {
   const target = new EventTarget()
   return Object.assign(target, {
     style: {},
     focus() {},
-    ownerDocument: {createElement: () => target},
-    parentNode: {appendChild() {}}
+    ownerDocument: {createElement: () => target}, // return self.
+    parentNode: {appendChild() {}},
+    value: ''
   }) as unknown as Element
 }
