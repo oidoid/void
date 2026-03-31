@@ -3,6 +3,8 @@ package void
 import (
 	"unsafe"
 
+	"math/rand/v2"
+
 	"github.com/oidoid/void/src/engine/input"
 )
 
@@ -16,6 +18,8 @@ func (this *Engine) GetUpdatePointer() uintptr {
 	return uintptr(unsafe.Pointer(&this.update))
 }
 
+var rnd = rand.New(rand.NewPCG(rand.Uint64(), rand.Uint64()))
+
 func (this *Engine) Update() LoopState {
 	var loop = Pause
 	for _, pointer := range this.update.Input.Pointers[:this.update.Input.PointersLen] {
@@ -25,7 +29,7 @@ func (this *Engine) Update() LoopState {
 		}
 	}
 	if this.update.Input.Wheel.DeltaX != 0 || this.update.Input.Wheel.DeltaY != 0 || this.update.Input.Wheel.DeltaZ != 0 {
-		println("wheel", this.update.Input.Wheel.DeltaX, this.update.Input.Wheel.DeltaY, this.update.Input.Wheel.DeltaZ)
+		println("wheel", this.update.Input.Wheel.DeltaX, this.update.Input.Wheel.DeltaY, this.update.Input.Wheel.DeltaZ, rnd.Int())
 	}
 	for _, gamepad := range this.update.Input.Gamepads[:this.update.Input.GamepadsLen] {
 		println("gamepad", gamepad.Index, gamepad.Buttons, gamepad.Axes[0], gamepad.Axes[1])

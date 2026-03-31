@@ -23,21 +23,23 @@ export const keyByCode: {readonly [k: string]: number} = {
   // a.
   ShiftLeft: 1 << 4,
   Space: 1 << 4,
+  ShiftRight: 1 << 4,
 
   // b.
   KeyZ: 1 << 5,
   ControlLeft: 1 << 5,
+  Slash: 1 << 5,
 
   // c.
   KeyX: 1 << 6,
   AltLeft: 1 << 6,
+  Period: 1 << 6,
 
-  // start.
+  // menu.
   Enter: 1 << 7,
 
-  // select.
-  Escape: 1 << 8,
-  ShiftRight: 1 << 8
+  // back.
+  Escape: 1 << 8
 }
 
 // to-do: support multiple keyboards distinctly.
@@ -54,6 +56,7 @@ export class Keyboard {
     this.#input.spellcheck = false
     this.#input.autocorrect = false
     this.#input.autocapitalize = 'none'
+    this.#input.name = 'v' // suppress Chromium lint.
     this.#input.style.position = 'absolute'
     this.#input.style.left = '-9999px'
     this.#input.tabIndex = -1

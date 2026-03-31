@@ -116,14 +116,6 @@ export class Input {
   readonly #wheel: Wheel
   #wheelState: Readonly<WheelState> | undefined
 
-  constructor(cam: Readonly<Cam>, target: Element) {
-    this.#cam = cam
-    this.#contextMenu = new ContextMenu(target)
-    this.#gamepad = new Gamepad(globalThis)
-    this.#keyboard = new Keyboard(target.ownerDocument)
-    this.#pointer = new Pointer(target)
-    this.#wheel = new Wheel(target)
-  }
 
   get anyOn(): boolean {
     return this.#bits !== 0
@@ -144,22 +136,11 @@ export class Input {
     return chords
   }
 
-  /**
-   * enable when game is paused or in photo mode to allow right clicks and long
-   * presses to save canvas.
-   */
-  get contextMenu(): {enable: boolean} {
-    return this.#contextMenu
-  }
 
   get dir(): Readonly<XY> {
     return this.#dir
   }
 
-  /** doesn't consider handled. gamepads must be polled. */
-  get gamepad(): Readonly<object | undefined> {
-    return this.#gamepad.connected ? {} : undefined
-  }
 
   /** true if buttons haven't changed for a while. */
   get held(): boolean {
@@ -254,84 +235,14 @@ export class Input {
     return !wasOn && this.started && this.isOn(...btns)
   }
 
-  get key(): {invalid: boolean} {
-    return {invalid: this.#keyboard.invalid}
-  }
 
-  mapDefault(): void {
-    this.mapKeyboardCode('U', 'ArrowUp', 'KeyW')
-    this.mapKeyboardCode('D', 'ArrowDown', 'KeyS')
-    this.mapKeyboardCode('L', 'ArrowLeft', 'KeyA')
-    this.mapKeyboardCode('R', 'ArrowRight', 'KeyD')
-    this.mapKeyboardCode('A', 'KeyX', 'Space', 'Comma')
-    this.mapKeyboardCode('B', 'KeyZ', 'Period')
-    this.mapKeyboardCode('C', 'KeyC', 'Slash')
-    this.mapKeyboardCode('Shift', 'ShiftLeft', 'ShiftRight')
-    this.mapKeyboardCode('Menu', 'Enter')
-    this.mapKeyboardCode('Back', 'Escape')
-
-    // https://w3c.github.io/gamepad/#remapping
-    // 7 and 6 are for
-    // `8Bitdo SF30 Pro   8BitDo SN30 Pro+ (Vendor: 2dc8 Product: 6002)`.
-    this.mapGamepadAxis('U', 'D', 1, 3, 7)
-    this.mapGamepadAxis('L', 'R', 0, 2, 6)
-    this.mapGamepadButton('U', 12)
-    this.mapGamepadButton('D', 13)
-    this.mapGamepadButton('L', 14)
-    this.mapGamepadButton('R', 15)
-    this.mapGamepadButton('A', 0)
-    this.mapGamepadButton('B', 2)
-    this.mapGamepadButton('C', 1)
-    this.mapGamepadButton('Shift', 4, 5) // L1/R1 shoulder buttons.
-    this.mapGamepadButton('Menu', 9)
-    this.mapGamepadButton('Back', 8)
-
-    this.mapPointerClick('A', 1)
-    this.mapPointerClick('B', 2)
-    this.mapPointerClick('C', 4)
-  }
-
-  // to-do: support analog values.
-  mapGamepadAxis(
-    less: AnyButton,
-    more: AnyButton,
-    ...axes: readonly number[]
-  ): void {
-    for (const axis of axes)
-      this.#gamepad.bitByAxis[axis] = [
-        this.#mapButton(less),
-        this.#mapButton(more)
-      ]
-  }
-
-  mapGamepadButton(btn: AnyButton, ...indices: readonly number[]): void {
-    for (const index of indices)
-      this.#gamepad.bitByButton[index] = this.#mapButton(btn)
-  }
-
-  /** @arg codes union of KeyboardEvent.code. */
-  mapKeyboardCode(btn: AnyButton, ...codes: readonly string[]): void {
-    for (const code of codes)
-      this.#keyboard.bitByCode[code] = this.#mapButton(btn)
-  }
-
-  mapPointerClick(btn: AnyButton, ...clicks: readonly number[]): void {
-    for (const click of clicks)
-      this.#pointer.bitByButton[click] = this.#mapButton(btn)
-  }
+  
 
   get on(): AnyButton[] {
     const on: AnyButton[] = []
     for (const btn in this.#bitByButton)
       if (this.isOn(btn as AnyButton)) on.push(btn as AnyButton)
     return on.sort()
-  }
-
-  set onEvent(hook: () => void) {
-    this.#gamepad.onEvent = hook
-    this.#keyboard.onEvent = hook
-    this.#pointer.onEvent = hook
-    this.#wheel.onEvent = hook
   }
 
   /** doesn't consider handled. */
@@ -347,16 +258,6 @@ export class Input {
     lock(): Promise<void>
   } {
     return this.#pointer
-  }
-
-  register(op: 'add' | 'remove'): this {
-    globalThis[`${op}EventListener`]('blur', this.reset) // keyup is lost if window loses focus.
-    this.#contextMenu.register(op)
-    this.#gamepad.register(op)
-    this.#keyboard.register(op)
-    this.#pointer.register(op)
-    this.#wheel.register(op)
-    return this
   }
 
   reset = (): void => {
@@ -494,27 +395,4 @@ export class Input {
     this.#wheel.postupdate()
   }
 
-  [Symbol.dispose](): void {
-    this.register('remove')
-  }
-
-  /** doesn't consider handled. */
-  get wheel(): Readonly<WheelState | undefined> {
-    return this.#wheelState
-  }
-
-  /** get bits for buttons. */
-  #mapBits(btns: Readonly<Chord>): number {
-    let bits = 0
-    for (const btn of btns) bits |= this.#bitByButton[btn] ?? 0
-    return bits
-  }
-
-  /** assign button to bit. */
-  #mapButton(btn: AnyButton): number {
-    const bit = (this.#bitByButton[btn] ??=
-      1 << Object.keys(this.#bitByButton).length)
-    this.#buttonByBit[bit] = btn
-    return bit
-  }
 }

@@ -10,8 +10,8 @@ const (
 	KeyA
 	KeyB
 	KeyC
-	KeyStart
-	KeySelect
+	KeyMenu
+	KeyBack
 )
 
 const MaxTextLen = 4096

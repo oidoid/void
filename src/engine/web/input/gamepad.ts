@@ -52,6 +52,7 @@ export class Gamepad {
       let buttons = 0
       for (let i = 0; i < pad.buttons.length; i++)
         if (pad.buttons[i]!.pressed) buttons |= 1 << i
+      // https://w3c.github.io/gamepad/#remapping
       this.polls[pad.index] = {
         index: pad.index,
         connected: pad.connected,

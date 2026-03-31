@@ -1,4 +1,6 @@
 export class ContextMenu {
+  // enable when game is paused or in photo mode to allow right clicks and long
+  // presses to save canvas.
   enable: boolean = false
   readonly #target: EventTarget
 

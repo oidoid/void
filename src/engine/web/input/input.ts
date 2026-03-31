@@ -23,16 +23,19 @@ import {Wheel} from './wheel.ts'
 export class Input {
   onEvent: OnEvent = () => {}
   readonly #ctxMenu: ContextMenu
-  readonly #gamepad: Gamepad = new Gamepad(globalThis)
+  readonly #gamepad: Gamepad
   readonly #keyboard: Keyboard
   readonly #encoder: TextEncoder = new TextEncoder()
-  readonly #pointer: Pointer = new Pointer(globalThis)
+  readonly #pointer: Pointer
   #u8: Uint8Array = new Uint8Array(0)
-  readonly #wheel: Wheel = new Wheel(globalThis)
+  readonly #wheel: Wheel
 
   constructor(canvas: Element) {
     this.#ctxMenu = new ContextMenu(canvas)
+    this.#gamepad = new Gamepad(canvas)
     this.#keyboard = new Keyboard(canvas)
+    this.#pointer = new Pointer(canvas)
+    this.#wheel = new Wheel(canvas)
     this.#gamepad.onEvent = ev => this.onEvent(ev)
     this.#keyboard.onEvent = ev => this.onEvent(ev)
     this.#pointer.onEvent = ev => this.onEvent(ev)
@@ -57,6 +60,10 @@ export class Input {
     this.#gamepad.reset()
     this.#keyboard.reset()
     this.#pointer.reset()
+  }
+
+  [Symbol.dispose](): void {
+    this.register('remove')
   }
 
   update(view: DataView): void {
