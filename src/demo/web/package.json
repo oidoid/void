@@ -8,6 +8,6 @@
   "type": "module",
   "devDependencies": {
     "@oidoid/void": "*",
-    "esbuild": "0.27.4"
+    "esbuild": "0.27.7"
   }
 }

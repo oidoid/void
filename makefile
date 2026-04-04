@@ -33,13 +33,13 @@ fat-save:; go run ./src/cmd/fat dist/demo/demo.wasm dist/demo/index.css dist/dem
 fmt: fmt-mod fmt-go fmt-web
 fmt-mod:; go mod tidy
 fmt-go:; gofmt -s -w ./src/
-fmt-web:; npx lint --fix
+fmt-web:; npx lint --fix > /dev/null
 
 lint: lint-critic lint-static lint-vet lint-web
 lint-critic:; go tool go-critic check --enableAll ./src/...
 lint-static:; go tool staticcheck ./src/...
 lint-vet:; go vet ./src/...
-lint-web:; npx lint
+lint-web:; npx lint > /dev/null
 
 test: dependencies .WAIT build test-fmt-go test-fmt-mod lint test-go test-web typecheck-web .WAIT fat
 test-fmt-go:
