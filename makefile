@@ -1,6 +1,6 @@
 include config.make
 
-.PHONY: build build-cmd build-demo build-web clean dependencies fat fat-analyze fat-check fmt fmt-go fmt-mod fmt-web lint lint-critic lint-static lint-vet lint-web test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-web
+.PHONY: build build-cmd build-demo build-web clean dependencies fat fat-analyze fat-save fmt fmt-go fmt-mod fmt-web lint lint-critic lint-static lint-vet lint-web test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-web
 
 out_demo := dist/demo.wasm
 tinygo_flags +=
@@ -25,10 +25,10 @@ dependencies:
 		command -v $$exe > /dev/null || { echo "no $$exe" >&2; false; }
 	done
 
-fat:; go run ./src/cmd/fat dist/demo/demo.wasm dist/demo/index.css dist/demo/index.html dist/demo/index.js
+fat:; go run ./src/cmd/fat
 fat-analyze: tinygo_flags += -size full
 fat-analyze: build
-fat-check:; go run ./src/cmd/fat
+fat-save:; go run ./src/cmd/fat dist/demo/demo.wasm dist/demo/index.css dist/demo/index.html dist/demo/index.js
 
 fmt: fmt-mod fmt-go fmt-web
 fmt-mod:; go mod tidy
@@ -41,7 +41,7 @@ lint-static:; go tool staticcheck ./src/...
 lint-vet:; go vet ./src/...
 lint-web:; npx lint
 
-test: dependencies .WAIT build test-fmt-go test-fmt-mod lint test-go test-web typecheck-web .WAIT fat-check
+test: dependencies .WAIT build test-fmt-go test-fmt-mod lint test-go test-web typecheck-web .WAIT fat
 test-fmt-go:
 	out=$$(gofmt -l -s ./src/)
 	[ -z "$$out" ] || { printf >&2 "unformatted files:\n%s\n" "$$out"; false; }
