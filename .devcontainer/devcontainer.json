@@ -11,9 +11,8 @@
       "extensions": [
         "biomejs.biome",
         "golang.go",
-        "ms-vscode.makefile-tools"
-        // to-do: needed?
-        // "slevesque.shader"
+        "ms-vscode.makefile-tools",
+        "slevesque.shader"
       ]
     }
   },
