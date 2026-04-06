@@ -1,17 +1,26 @@
 import {Input} from '../input/input.ts'
 import {updateByteLen} from '../input/layout.ts'
+import {Renderer} from '../renderer/renderer.ts'
+import {initCanvas} from '../utils/canvas-util.ts'
 import {WASIHost} from './wasi-host.ts'
 import {LoopLoop, type WasmAPI} from './wasm-api.ts'
 
 export class Engine {
+  #canvas!: HTMLCanvasElement
   #input!: Input
   #rafId: number = 0
   #registered: boolean = false
+  #renderer!: Renderer
   #update!: DataView
   #wasm!: WasmAPI
 
   // to-do: use Wasm import.
-  async load(canvas: Element, wasmURL: string): Promise<void> {
+  async load(
+    canvas: HTMLCanvasElement | undefined | null,
+    wasmURL: string
+  ): Promise<void> {
+    canvas = initCanvas(canvas, 'Float') // to-do: pass render mode.
+
     this.#input = new Input(canvas)
     const wasi = new WASIHost()
     const result = await WebAssembly.instantiateStreaming(fetch(wasmURL), {
@@ -24,11 +33,20 @@ export class Engine {
       this.#wasm.GetUpdatePointer(),
       updateByteLen
     )
+
+    canvas.width = document.documentElement.clientWidth
+    canvas.height = document.documentElement.clientHeight
+    this.#canvas = canvas
+    this.#renderer = new Renderer(canvas)
+
+    // to-do: move to resize method and call on init and then only as necessary.
+    this.#renderer.resize(canvas.width, canvas.height)
   }
 
   register(): void {
     if (this.#registered) return
     this.#wasm._start()
+    this.#wasm.SetCanvasWH(this.#canvas.width, this.#canvas.height)
     this.#input.onEvent = () => this.#requestUpdate()
     this.#input.register('add')
     addEventListener('blur', this.#onReset)
@@ -41,6 +59,11 @@ export class Engine {
     this.#rafId = 0
     this.#requestUpdate()
     this.#writeUpdate()
+    this.#renderer.draw(
+      this.#wasm.memory.buffer,
+      this.#wasm.GetSpritePointer(),
+      this.#wasm.GetSpriteCount()
+    )
     if (this.#wasm.Update() !== LoopLoop) {
       cancelAnimationFrame(this.#rafId)
       this.#rafId = 0

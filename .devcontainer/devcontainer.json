@@ -3,7 +3,7 @@
   "name": "linux",
   "image": "mcr.microsoft.com/devcontainers/base:2-trixie",
   "features": {
-    "ghcr.io/devcontainers/features/go:1": {"version": "1.24.4"},
+    "ghcr.io/devcontainers/features/go:1": {"version": "1.25.0"},
     "ghcr.io/devcontainers/features/node:1": {"version": "24.4.1"}
   },
   "customizations": {

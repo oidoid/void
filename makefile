@@ -1,9 +1,9 @@
 include config.make
 
-.PHONY: build build-cmd build-demo build-web clean dependencies fat fat-analyze fat-save fmt fmt-go fmt-mod fmt-web lint lint-critic lint-static lint-vet lint-web test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-web
-
 out_demo := dist/demo.wasm
-tinygo_flags +=
+tinygo_flags ?=
+
+.PHONY: build build-cmd build-demo build-web clean dependencies fat fat-analyze fat-save fmt fmt-go fmt-mod fmt-web lint lint-critic lint-static lint-vet lint-web test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-web
 
 watch: export DEBUG := 1
 watch: dependencies .WAIT watch-go watch-web

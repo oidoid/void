@@ -5,6 +5,11 @@ export type WasmAPI = {
   _start(): void
   /** byte offset into `memory` of the update. */
   GetUpdatePointer(): number
+  /** byte offset into `memory` of the first sprite. */
+  GetSpritePointer(): number
+  /** number of sprites to draw this frame. */
+  GetSpriteCount(): number
+  SetCanvasWH(w: number, h: number): void
   Update(): Loop
 }
 

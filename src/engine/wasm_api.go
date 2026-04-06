@@ -14,6 +14,9 @@ const (
 )
 
 type WasmAPI interface {
+	GetSpriteCount() uint32
+	GetSpritePointer() uintptr
 	GetUpdatePointer() uintptr
+	SetCanvasWH(w, h int32)
 	Update() LoopState
 }

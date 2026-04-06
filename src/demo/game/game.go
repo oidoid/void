@@ -6,10 +6,26 @@ type Game struct {
 	engine V.Engine
 }
 
+func New() Game {
+	return Game{engine: V.New()}
+}
+
 var _ V.WasmAPI = (*Game)(nil)
 
 func (this *Game) GetUpdatePointer() uintptr {
 	return this.engine.GetUpdatePointer()
+}
+
+func (this *Game) GetSpritePointer() uintptr {
+	return this.engine.GetSpritePointer()
+}
+
+func (this *Game) GetSpriteCount() uint32 {
+	return this.engine.GetSpriteCount()
+}
+
+func (this *Game) SetCanvasWH(w, h int32) {
+	this.engine.SetCanvasWH(w, h)
 }
 
 func (this *Game) Update() V.LoopState {

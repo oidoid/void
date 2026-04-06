@@ -8,28 +8,54 @@ import (
 	"github.com/oidoid/void/src/engine/input"
 )
 
+var _ WasmAPI = (*Engine)(nil)
+
 type Engine struct {
 	update Update
+	zoo    Zoo
+	rnd    *rand.Rand
 }
 
-var _ WasmAPI = (*Engine)(nil)
+func New() Engine {
+	return Engine{rnd: rand.New(rand.NewPCG(rand.Uint64(), rand.Uint64()))}
+}
+
+func (this *Engine) GetSpriteCount() uint32 {
+	return uint32(this.zoo.count)
+}
+
+func (this *Engine) GetSpritePointer() uintptr {
+	return uintptr(unsafe.Pointer(&this.zoo.sprites[0]))
+}
 
 func (this *Engine) GetUpdatePointer() uintptr {
 	return uintptr(unsafe.Pointer(&this.update))
 }
 
-var rnd = rand.New(rand.NewPCG(rand.Uint64(), rand.Uint64()))
+func (this *Engine) SetCanvasWH(w, h int32) {
+	this.zoo.SetSize(int(w), int(h))
+}
 
 func (this *Engine) Update() LoopState {
-	var loop = Pause
+	this.zoo.Update()
+	loop := Pause
+	if this.zoo.count > 0 {
+		loop = Loop
+	}
 	for _, pointer := range this.update.Input.Pointers[:this.update.Input.PointersLen] {
-		println("pointer", pointer.ID, int(pointer.X), int(pointer.Y), pointer.Buttons)
 		if pointer.Buttons != 0 {
+			for range 1000 {
+				radius := uint8(this.rnd.IntN(3) + 8)
+				this.zoo.DrawCircle(pointer.X, pointer.Y, radius,
+					this.rnd.Float32()*4-2, this.rnd.Float32()*4-2, uint8(this.rnd.IntN(256)), uint8(this.rnd.IntN(256)), uint8(this.rnd.IntN(256)), 255)
+			}
+			println(this.zoo.count)
 			loop = Loop
 		}
 	}
+
 	if this.update.Input.Wheel.DeltaX != 0 || this.update.Input.Wheel.DeltaY != 0 || this.update.Input.Wheel.DeltaZ != 0 {
-		println("wheel", this.update.Input.Wheel.DeltaX, this.update.Input.Wheel.DeltaY, this.update.Input.Wheel.DeltaZ, rnd.Int())
+		println("wheel", this.update.Input.Wheel.DeltaX, this.update.Input.Wheel.DeltaY, this.update.Input.Wheel.DeltaZ)
 	}
 	for _, gamepad := range this.update.Input.Gamepads[:this.update.Input.GamepadsLen] {
 		println("gamepad", gamepad.Index, gamepad.Buttons, gamepad.Axes[0], gamepad.Axes[1])
