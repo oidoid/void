@@ -81,7 +81,10 @@ func check(reader io.Reader, stdout, stderr io.Writer) error {
 			out = stderr
 			ok = false
 		}
-		fmt.Fprintf(out, "%s: %d %s%d\n", path, want, deltaSign, delta)
+		_, err = fmt.Fprintf(out, "%s: %d %s%d\n", path, want, deltaSign, delta)
+		if err != nil {
+			return err
+		}
 	}
 	if !ok {
 		return fmt.Errorf("max delta exceeded")

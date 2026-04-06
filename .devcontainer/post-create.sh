@@ -35,8 +35,7 @@ sudo apt install --no-install-recommends --yes xauth xvfb
 
 sudo apt install --no-install-recommends --yes ripgrep
 
-# to-do: npm.
-# npm install
+npm install
 
-# npm install --global playwright @playwright/test
-# npx playwright install --with-deps
+npm install --global playwright @playwright/test
+npx playwright install --with-deps
