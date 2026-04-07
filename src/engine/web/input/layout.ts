@@ -18,12 +18,16 @@ export const keyboardTextOverflowOffset: number = keyboardOffset + 4100
 export const maxTextLen: number = 4096
 /** byte offset of the gamepadsLen field within Update (KeyboardPoll = 4102 bytes). */
 export const gamepadsLenOffset: number = keyboardOffset + 4102
-/** byte offset of the gamepad array within Update (gamepadsLen + 3 pad). */
-export const gamepadsOffset: number = gamepadsLenOffset + 4
+/** byte offset of the gamepad array within Update (gamepadsLen + 1 pad). */
+export const gamepadsOffset: number = gamepadsLenOffset + 2
 /** bytes per GamepadPoll. */
 export const gamepadPollSize: number = 24
 /** max concurrent gamepads tracked. */
 export const maxGamepads: number = 4
-/** total byte size of the Update struct. */
-export const updateByteLen: number =
+/** byte offset of DeltaMs field within Update. */
+export const deltaMsOffset: number =
   gamepadsOffset + maxGamepads * gamepadPollSize
+/** byte offset of NowMs field within Update. */
+export const nowMsOffset: number = deltaMsOffset + 8
+/** total byte size of the Update struct. */
+export const updateByteLen: number = nowMsOffset + 8

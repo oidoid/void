@@ -1,5 +1,5 @@
 import {Input} from '../input/input.ts'
-import {updateByteLen} from '../input/layout.ts'
+import {deltaMsOffset, nowMsOffset, updateByteLen} from '../input/layout.ts'
 import {Renderer} from '../renderer/renderer.ts'
 import {initCanvas} from '../utils/canvas-util.ts'
 import {WASIHost} from './wasi-host.ts'
@@ -8,6 +8,7 @@ import {LoopLoop, type WasmAPI} from './wasm-api.ts'
 export class Engine {
   #canvas!: HTMLCanvasElement
   #input!: Input
+  #lastTime: number = 0
   #rafId: number = 0
   #registered: boolean = false
   #renderer!: Renderer
@@ -72,6 +73,7 @@ export class Engine {
 
   #requestUpdate(): void {
     this.#rafId ||= requestAnimationFrame(() => this.update())
+    this.#lastTime ||= performance.now()
   }
 
   #onReset = (): void => {
@@ -85,7 +87,12 @@ export class Engine {
         this.#wasm.GetUpdatePointer(),
         updateByteLen
       )
+    const now = performance.now()
+    const delta = this.#lastTime === 0 ? 0 : now - this.#lastTime
+    this.#update.setFloat64(deltaMsOffset, delta, true)
+    this.#update.setFloat64(nowMsOffset, performance.timeOrigin + now, true)
     this.#input.update(this.#update)
     this.#input.postupdate() // to-do: move to postupdate()?
+    this.#lastTime = 0
   }
 }

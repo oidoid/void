@@ -49,7 +49,7 @@ func (this *Engine) Update() LoopState {
 				this.zoo.DrawCircle(pointer.X, pointer.Y, radius,
 					this.rnd.Float32()*4-2, this.rnd.Float32()*4-2, uint8(this.rnd.IntN(256)), uint8(this.rnd.IntN(256)), uint8(this.rnd.IntN(256)), 255)
 			}
-			println(this.zoo.count)
+			println(this.zoo.count, this.update.DeltaMs, this.update.NowMs)
 			loop = Loop
 		}
 	}
