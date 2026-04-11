@@ -43,32 +43,12 @@
   "required": ["atlas", "out"],
   "unevaluatedProperties": false,
   "properties": {
-    "$schema": {
-      "type": "string",
-      "description": "the configuration schema URI.",
-      "default": "https://oidoid.github.io/void/config-file.v0.json"
-    },
-    "entry": {
-      "type": "string",
-      "description": "HTML entrypoint input. the file should include a script tag sourcing the TypeScript / JavaScript entrypoint.",
-      "default": "src/assets/index.html"
-    },
-    "meta": {
-      "type": "string",
-      "description": "esbuild bundle metadata file output.",
-      "default": "dist/meta.json"
-    },
     "out": {
       "type": "object",
       "description": "output config.",
       "required": ["game", "tagSchema"],
       "unevaluatedProperties": false,
       "properties": {
-        "dir": {
-          "type": "string",
-          "description": "HTML and JavaScript output directory.",
-          "default": "dist/public/"
-        },
         "game": {
           "type": "string",
           "description": "game config output.",

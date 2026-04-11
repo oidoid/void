@@ -2,7 +2,7 @@
   "compilerOptions": {
     "composite": true,
     "emitDeclarationOnly": true,
-    "target": "ES2023",
+    "target": "ES2024",
     "module": "ESNext",
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
@@ -13,7 +13,7 @@
     "rootDir": ".",
     "outDir": "../dist/web/",
     "skipLibCheck": true,
-    "lib": ["ES2023", "ESNext.Disposable"]
+    "lib": ["ES2024", "ESNext.Disposable"]
   },
   // exclude colocated tests and test utils.
   "exclude": [

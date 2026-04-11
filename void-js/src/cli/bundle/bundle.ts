@@ -4,36 +4,10 @@ import * as V from '../../engine/index.ts'
 import {packAtlas, packTileset} from '../atlas-pack/pack-sheet.ts'
 import {type Config, readConfig} from '../types/config.ts'
 import {exec} from '../utils/exec.ts'
-import {HTMLPlugin} from './html-plugin.ts'
 
 export async function bundle(
   config: Readonly<Config>,
-  srcFilenames: readonly string[]
 ): Promise<void> {
-  const opts: esbuild.BuildOptions = {
-    banner: config.watch
-      ? {
-          js: "new EventSource('/esbuild').addEventListener('change', () => location.reload());"
-        }
-      : {},
-    bundle: true,
-    conditions: config.conditions,
-    define: {
-      // define on globalThis to avoid ReferenceError in unit tests.
-      'globalThis.bundle': JSON.stringify(config.bundle)
-    },
-    entryPoints: [...srcFilenames],
-    format: 'esm',
-    logLevel: 'info', // print the port and build demarcations.
-    metafile: true,
-    minify: config.minify,
-    outdir: config.out.dir,
-    plugins: [HTMLPlugin(config)],
-    tsconfig: config.tsconfigFilename,
-    sourcemap: 'linked',
-    target: 'es2023' // https://esbuild.github.io/content-types/#tsconfig-json
-  }
-
   const atlas = await packAtlas(config.atlas)
   const tileset = config.tileset ? await packTileset(config.tileset) : undefined
   await writeVoidConfig(atlas, tileset, config)

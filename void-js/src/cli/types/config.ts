@@ -1,4 +1,3 @@
-import {readFile} from 'node:fs/promises'
 import path from 'node:path'
 import type * as V from '../../engine/index.ts'
 import {Argv} from '../utils/argv.ts'
@@ -11,50 +10,15 @@ import {
 import type {PackageJSON} from './package-json.ts'
 
 export type Config = {
-  $schema: string
-  entry: string
-  meta: string | undefined
-  out: {dir: string; game: string; filename: string; tagSchema: string}
+  out: { game: string; tagSchema: string}
   atlas: SheetConfig
   tileset: SheetConfig | undefined
   input: V.InputMode
   mode: V.RenderMode
 
-  /** config directory name. */
-  dirname: string
-  /** config filename. */
-  filename: string
-  tsconfigFilename: string
-
-  conditions: string[]
-  minify: boolean
-  oneFile: boolean
-  port: number
-  watch: boolean
-
   bundle: V.Bundle
-
-  argv: Argv<Opts>
 }
 
-export type Opts = {
-  '--config'?: string
-  '--minify'?: true
-  /** inline everything into a single HTML file output. */
-  '--one-file'?: true
-  /**
-   * tsconfig pathname relative config directory. defaults to
-   * `tsconfig.json`.
-   */
-  '--tsconfig'?: string
-  /**
-   * run development server on http://localhost:<port> and reload on code
-   * change. port defaults 1234.
-   */
-  '--watch'?: string | true
-}
-
-export type TSConfig = {compilerOptions?: {customConditions?: string[]}}
 
 export async function readConfig(args: readonly string[]): Promise<Config> {
   const argv = Argv<Opts>(args)
@@ -68,11 +32,6 @@ export async function readConfig(args: readonly string[]): Promise<Config> {
   const packageJSON: PackageJSON = JSON.parse(
     (await exec`npm pkg get version published`) || '{}'
   )
-  const tsconfigFilename = path.resolve(
-    configFile.dirname,
-    argv.opts['--tsconfig'] ?? 'tsconfig.json'
-  )
-  const tsconfig = await readTSConfig(tsconfigFilename)
 
   return Config(argv, configFile, hash, packageJSON, tsconfigFilename, tsconfig)
 }
@@ -127,31 +86,5 @@ export function Config(
       version: packageJSON.version
     },
     argv
-  }
-}
-
-async function readTSConfig(filename: string): Promise<TSConfig> {
-  let str
-  try {
-    str = await readFile(filename, 'utf8')
-  } catch (err) {
-    throw Error(`tsconfig ${filename} unreadable`, {cause: err})
-  }
-  return parseTSConfig(str, filename)
-}
-
-/** @internal */
-export function parseTSConfig(jsonc: string, filename: string): TSConfig {
-  const stripped = jsonc
-    .replace(
-      /("(?:\\.|[^"\\])*")|\/\/[^\r\n]*/g,
-      (_match, group0?: string) => group0 ?? ''
-    )
-    .replace(/,(\s*[}\]])/g, '$1') // trailing commas.
-
-  try {
-    return JSON.parse(stripped)
-  } catch (err) {
-    throw Error(`tsconfig ${filename} unparseable`, {cause: err})
   }
 }

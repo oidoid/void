@@ -25,7 +25,7 @@ func main() {
 	}
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", err)
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
@@ -65,7 +65,7 @@ func check(reader io.Reader, stdout, stderr io.Writer) error {
 
 		stat, err := os.Stat(path)
 		if err != nil {
-			fmt.Fprintf(stderr, "%v\n", err)
+			fmt.Fprintln(stderr, err)
 			ok = false
 			continue
 		}

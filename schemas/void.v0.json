@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oidoid.github.io/void/schemas/void.v0.json",
+  "title": "void Config Schema",
+  "type": "object",
+  "description": "a JSON representation of a void config file.",
+  "unevaluatedProperties": false,
+  "required": ["out"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "the configuration schema URI.",
+      "default": "https://oidoid.github.io/void/schemas/void.v0.json"
+    },
+    "entry": {
+      "type": "string",
+      "description": "HTML entrypoint input. the file should include a script tag sourcing the TypeScript / JavaScript entrypoint.",
+      "default": "web/assets/index.html"
+    },
+    "out": {
+      "type": "object",
+      "description": "output config.",
+      "unevaluatedProperties": false,
+      "properties": {
+        "dir": {
+          "type": "string",
+          "description": "HTML and JavaScript output directory.",
+          "default": "dist/public/"
+        },
+        "meta": {
+          "type": "string",
+          "description": "esbuild bundle metadata file output.",
+          "default": "meta.json"
+        }
+      }
+    },
+    "tsconfig": {
+      "type": "string",
+      "description": "path to `tsconfig.json`.",
+      "default": "web/tsconfig.json"
+    }
+  }
+}

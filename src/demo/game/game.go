@@ -6,8 +6,8 @@ type Game struct {
 	engine V.Engine
 }
 
-func New() Game {
-	return Game{engine: V.New()}
+func NewGame() Game {
+	return Game{engine: V.NewEngine()}
 }
 
 var _ V.WasmAPI = (*Game)(nil)

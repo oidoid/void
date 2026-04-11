@@ -1,13 +1,7 @@
 {
   "private": true,
-  "scripts": {
-    "esbuild": "mkdir --parents ../../../dist/demo/ && touch ../../../dist/demo.wasm && esbuild --asset-names=[name] --bundle --entry-names=[name] --format=esm --loader:.html=copy --loader:.wasm=copy --outdir=../../../dist/demo/ --sourcemap=linked --tsconfig=tsconfig.json index.ts index.css index.html ../../../dist/demo.wasm",
-    "build": "npm run esbuild -- --log-level=warning --minify",
-    "watch": "npm run esbuild -- \"--footer:js=new EventSource('/esbuild').addEventListener('change',()=>location.reload())\" --serve=1234 --servedir=../../../dist/demo --watch=forever"
-  },
   "type": "module",
   "devDependencies": {
-    "@oidoid/void": "*",
-    "esbuild": "0.27.7"
+    "@oidoid/void": "*"
   }
 }

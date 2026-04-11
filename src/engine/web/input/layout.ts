@@ -2,11 +2,11 @@
 export const maxPointers: number = 5
 /** bytes per PointerPoll. */
 export const pollSize: number = 32
-/** byte offset of the pointer array within Update. */
+/** byte offset of the pointer array within Update (PointersLen uint8 + 3 pad). */
 export const pollsOffset: number = 4
 /** byte offset of WheelPoll within Update. */
 export const wheelOffset: number = pollsOffset + maxPointers * pollSize
-/** byte offset of KeyboardPoll within Update (aligned to 8; WheelPoll ends at 176). */
+/** byte offset of KeyboardPoll within Update (WheelPoll = 12 bytes). */
 export const keyboardOffset: number = wheelOffset + 12
 /** byte offset of TextLen field within KeyboardPoll (after Keys uint16 = 2 bytes). */
 export const keyboardTextLenOffset: number = keyboardOffset + 2

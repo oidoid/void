@@ -16,7 +16,7 @@ type Engine struct {
 	rnd    *rand.Rand
 }
 
-func New() Engine {
+func NewEngine() Engine {
 	return Engine{rnd: rand.New(rand.NewPCG(rand.Uint64(), rand.Uint64()))}
 }
 
