@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/evanw/esbuild/pkg/api"
-	"github.com/oidoid/void/src/cmd/void/cliconfig"
+	"github.com/oidoid/void/src/cmd/pack/cliconfig"
 )
 
 // if one-file, inline as data URI. otherwise, update URL to out dir relative

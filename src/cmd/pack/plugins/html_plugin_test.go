@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/oidoid/void/src/cmd/void/cliconfig"
+	"github.com/oidoid/void/src/cmd/pack/cliconfig"
 	"golang.org/x/net/html"
 )
 

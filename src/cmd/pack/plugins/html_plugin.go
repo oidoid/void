@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"github.com/evanw/esbuild/pkg/api"
-	"github.com/oidoid/void/src/cmd/void/cliconfig"
-	"github.com/oidoid/void/src/cmd/void/htmlparser"
+	"github.com/oidoid/void/src/cmd/pack/cliconfig"
+	"github.com/oidoid/void/src/cmd/pack/htmlparser"
 	"golang.org/x/net/html"
 )
 

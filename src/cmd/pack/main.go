@@ -8,26 +8,26 @@ import (
 	"path/filepath"
 
 	"github.com/evanw/esbuild/pkg/api"
-	"github.com/oidoid/void/src/cmd/void/cliconfig"
-	"github.com/oidoid/void/src/cmd/void/htmlparser"
-	"github.com/oidoid/void/src/cmd/void/plugins"
+	"github.com/oidoid/void/src/cmd/pack/cliconfig"
+	"github.com/oidoid/void/src/cmd/pack/htmlparser"
+	"github.com/oidoid/void/src/cmd/pack/plugins"
 )
 
 func main() {
 	argv := cliconfig.NewArgv()
 
-	cfg, err := cliconfig.NewCLIConfig(argv)
+	config, err := cliconfig.NewCLIConfig(argv)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 
 	logLevel := api.LogLevelWarning
-	if cfg.WatchPort != 0 {
+	if config.WatchPort != 0 {
 		logLevel = api.LogLevelInfo
 	}
 
-	entryPoints, err := parseEntrypoints(cfg.Entry)
+	entryPoints, err := parseEntrypoints(config.Entry)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -35,25 +35,25 @@ func main() {
 
 	opts := api.BuildOptions{
 		Bundle:            true,
-		Conditions:        cfg.Conditions,
+		Conditions:        config.Conditions,
 		EntryNames:        "[name]",
 		EntryPoints:       entryPoints,
 		Format:            api.FormatESModule,
 		Loader:            map[string]api.Loader{".css": api.LoaderCSS},
 		LogLevel:          logLevel,
 		Metafile:          true,
-		MinifyIdentifiers: cfg.Minify,
-		MinifySyntax:      cfg.Minify,
-		MinifyWhitespace:  cfg.Minify,
-		Outdir:            cfg.OutDir,
-		Plugins:           []api.Plugin{plugins.HTMLPlugin(cfg), plugins.WasmPlugin(cfg)},
+		MinifyIdentifiers: config.Minify,
+		MinifySyntax:      config.Minify,
+		MinifyWhitespace:  config.Minify,
+		Outdir:            config.OutDir,
+		Plugins:           []api.Plugin{plugins.HTMLPlugin(config), plugins.WasmPlugin(config)},
 		Sourcemap:         api.SourceMapLinked,
 		Target:            api.ES2024, // // https://esbuild.github.io/content-types/#tsconfig-json
-		Tsconfig:          cfg.TsconfigFilename,
+		Tsconfig:          config.TsconfigFilename,
 		Write:             true, //to-do: false
 	}
 
-	if cfg.WatchPort != 0 {
+	if config.WatchPort != 0 {
 		opts.Banner = map[string]string{
 			"js": "new EventSource('/esbuild').addEventListener('change', () => location.reload())",
 		}
@@ -65,7 +65,7 @@ func main() {
 			ctx.Dispose()
 			os.Exit(1)
 		}
-		if _, err := ctx.Serve(api.ServeOptions{Port: cfg.WatchPort, Servedir: cfg.OutDir}); err != nil {
+		if _, err := ctx.Serve(api.ServeOptions{Port: config.WatchPort, Servedir: config.OutDir}); err != nil {
 			ctx.Dispose()
 			os.Exit(1)
 		}
@@ -75,8 +75,8 @@ func main() {
 		if len(result.Errors) > 0 {
 			os.Exit(1)
 		}
-		if cfg.MetaFilename != "" {
-			if err := os.WriteFile(cfg.MetaFilename, []byte(result.Metafile), 0o644); err != nil {
+		if config.MetaFilename != "" {
+			if err := os.WriteFile(config.MetaFilename, []byte(result.Metafile), 0o644); err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				os.Exit(1)
 			}

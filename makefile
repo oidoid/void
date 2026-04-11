@@ -2,7 +2,7 @@ include config.make
 
 out_demo := dist/demo/index.wasm
 tinygo_flags ?=
-void_demo := go run ./src/cmd/void --config=src/demo/void.json
+pack_demo := go run ./src/cmd/pack --config=src/demo/void.json
 
 .PHONY: build build-cmd build-demo build-web clean dependencies fat fat-analyze fat-save fmt fmt-go fmt-mod fmt-web lint lint-critic lint-static lint-vet lint-web test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-web
 
@@ -12,7 +12,7 @@ watch-go:; watchexec --exts=go --quiet --watch=src/ -- $(MAKE) build-demo
 watch-web:
 	mkdir --parents dist/demo/
 	touch $(out_demo)
-	$(void_demo) --watch
+	$(pack_demo) --watch
 
 build: build-cmd build-demo build-web
 build-cmd:; go build -o dist/ ./src/cmd/...
@@ -20,7 +20,7 @@ build-demo:
 	# no concurrency.
 	tinygo build $(tinygo_flags) -o $(out_demo) --scheduler=none --target=wasm ./src/demo/web/
 	$(if $(value DEBUG),,wasm-opt -o $(out_demo) -Oz --strip-debug --strip-producers $(out_demo))
-build-web: build-demo; $(void_demo) --minify --one-file
+build-web: build-demo; $(pack_demo) --minify --one-file
 
 clean:; rm --force --recursive dist/
 
