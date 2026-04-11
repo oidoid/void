@@ -1,15 +1,11 @@
 package cliconfig
 
 import (
-	"bytes"
 	"encoding/json"
+	"path/filepath"
 	"regexp"
 
 	"os"
-	"path/filepath"
-
-	"github.com/oidoid/void/schemas"
-	"github.com/santhosh-tekuri/jsonschema/v6"
 )
 
 type CLIConfig struct {
@@ -18,7 +14,6 @@ type CLIConfig struct {
 	Conditions       []string
 	Entry            string
 	EntryDir         string
-	MetaFilename     string
 	Minify           bool
 	OneFile          bool
 	OutDir           string
@@ -39,41 +34,26 @@ var (
 )
 
 func NewCLIConfig(argv Argv) (*CLIConfig, error) {
-	void, err := readVoidConfig(argv.configFilename)
+	// void, err := readVoidConfig(argv.configFilename)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	tsconfig, err := readTsconfig(argv.TsconfigFilename)
 	if err != nil {
 		return nil, err
 	}
-
-	configDir := filepath.Dir(argv.configFilename)
-	outDir := filepath.Join(configDir, void.Out.Dir)
-
-	var tsconfigFilename string
-	var conditions []string
-	if void.Tsconfig != "" {
-		tsconfigFilename = filepath.Join(configDir, void.Tsconfig)
-		tsconfig, err := readTsconfig(tsconfigFilename)
-		if err != nil {
-			return nil, err
-		}
-		conditions = tsconfig.CompilerOptions.CustomConditions
-	}
-
-	var metaFilename string
-	if void.Out.Meta != "" {
-		metaFilename = filepath.Join(outDir, void.Out.Meta)
-	}
+	conditions := tsconfig.CompilerOptions.CustomConditions
 
 	return &CLIConfig{
-		ConfigDir:        configDir,
 		Conditions:       conditions,
-		Entry:            filepath.Join(configDir, void.Entry),
-		EntryDir:         filepath.Join(configDir, filepath.Dir(void.Entry)),
-		MetaFilename:     metaFilename,
-		Minify:           argv.minify,
-		OneFile:          argv.oneFile,
-		OutDir:           outDir,
-		TsconfigFilename: tsconfigFilename,
-		WatchPort:        argv.watch.port,
+		Entry:            argv.Entry,
+		EntryDir:         filepath.Dir(argv.Entry),
+		Minify:           argv.Minify,
+		OneFile:          argv.OneFile,
+		OutDir:           argv.OutDir,
+		TsconfigFilename: argv.TsconfigFilename,
+		WatchPort:        argv.Watch.port,
 	}, nil
 }
 
@@ -89,22 +69,22 @@ func readTsconfig(filename string) (*tsconfig, error) {
 	return &tsconfig, nil
 }
 
-func readVoidConfig(filename string) (*schemas.VoidConfig, error) {
-	jsonStr, err := os.ReadFile(filename)
-	if err != nil {
-		return nil, err
-	}
-	if err := validateVoidJSON(jsonStr); err != nil {
-		return nil, err
-	}
+// func readVoidConfig(filename string) (*schemas.VoidConfig, error) {
+// 	jsonStr, err := os.ReadFile(filename)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	if err := validateVoidJSON(jsonStr); err != nil {
+// 		return nil, err
+// 	}
 
-	config, err := schemas.UnmarshalVoidConfig(jsonStr)
-	if err != nil {
-		return nil, err
-	}
+// 	config, err := schemas.UnmarshalVoidConfig(jsonStr)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	return config, nil
-}
+// 	return config, nil
+// }
 
 func stripJSONC(jsonStr []byte) []byte {
 	jsonStr = jsoncCommentRe.ReplaceAllFunc(jsonStr, func(match []byte) []byte {
@@ -116,22 +96,22 @@ func stripJSONC(jsonStr []byte) []byte {
 	return jsoncTrailingCommaRe.ReplaceAll(jsonStr, []byte("$1"))
 }
 
-func validateVoidJSON(jsonStr []byte) error {
-	jsonAny, err := jsonschema.UnmarshalJSON(bytes.NewReader(jsonStr))
-	if err != nil {
-		return err
-	}
-	schemaAny, err := jsonschema.UnmarshalJSON(bytes.NewReader(schemas.VoidSchemaBytes))
-	if err != nil {
-		return err
-	}
-	cc := jsonschema.NewCompiler()
-	if err := cc.AddResource("void.v0.json", schemaAny); err != nil {
-		return err
-	}
-	schema, err := cc.Compile("void.v0.json")
-	if err != nil {
-		return err
-	}
-	return schema.Validate(jsonAny)
-}
+// func validateVoidJSON(jsonStr []byte) error {
+// 	jsonAny, err := jsonschema.UnmarshalJSON(bytes.NewReader(jsonStr))
+// 	if err != nil {
+// 		return err
+// 	}
+// 	schemaAny, err := jsonschema.UnmarshalJSON(bytes.NewReader(schemas.VoidSchemaBytes))
+// 	if err != nil {
+// 		return err
+// 	}
+// 	cc := jsonschema.NewCompiler()
+// 	if err := cc.AddResource("void.v0.json", schemaAny); err != nil {
+// 		return err
+// 	}
+// 	schema, err := cc.Compile("void.v0.json")
+// 	if err != nil {
+// 		return err
+// 	}
+// 	return schema.Validate(jsonAny)
+// }

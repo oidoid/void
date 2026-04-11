@@ -2,7 +2,7 @@ include config.make
 
 out_demo := dist/demo/index.wasm
 tinygo_flags ?=
-pack_demo := go run ./src/cmd/pack --config=src/demo/void.json
+pack_demo := go run ./src/cmd/pack --entry=src/demo/web/assets/index.html --out=dist/demo/ --tsconfig=src/demo/web/tsconfig.json
 
 .PHONY: build build-cmd build-demo build-web clean dependencies fat fat-analyze fat-save fmt fmt-go fmt-mod fmt-web lint lint-critic lint-static lint-vet lint-web test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-web
 

@@ -14,9 +14,13 @@ import (
 )
 
 func main() {
-	argv := cliconfig.NewArgv()
+	argv, err := cliconfig.NewArgv()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 
-	config, err := cliconfig.NewCLIConfig(argv)
+	config, err := cliconfig.NewCLIConfig(*argv)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -75,11 +79,9 @@ func main() {
 		if len(result.Errors) > 0 {
 			os.Exit(1)
 		}
-		if config.MetaFilename != "" {
-			if err := os.WriteFile(config.MetaFilename, []byte(result.Metafile), 0o644); err != nil {
-				fmt.Fprintln(os.Stderr, err)
-				os.Exit(1)
-			}
+		if err := os.WriteFile(filepath.Join(config.OutDir, "meta.json"), []byte(result.Metafile), 0o644); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
 		}
 	}
 }

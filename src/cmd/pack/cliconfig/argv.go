@@ -1,23 +1,35 @@
 package cliconfig
 
 import (
+	"errors"
 	"flag"
+	"fmt"
 )
 
 type Argv struct {
-	// void.json path relative to CWD.
-	configFilename string
-	minify         bool
-	oneFile        bool
-	watch          watchFlag
+	Entry            string
+	Minify           bool
+	OneFile          bool
+	OutDir           string
+	TsconfigFilename string
+	Watch            watchFlag
 }
 
-func NewArgv() Argv {
+func NewArgv() (*Argv, error) {
 	argv := Argv{}
-	flag.StringVar(&argv.configFilename, "config", "void.json", "path to void config file")
-	flag.Var(&argv.watch, "watch", "live reload on http://localhost:port (default port 1234)")
-	flag.BoolVar(&argv.minify, "minify", false, "minify output")
-	flag.BoolVar(&argv.oneFile, "one-file", false, "inline everything into a single HTML file")
+	flag.StringVar(&argv.Entry, "entry", "", "path to HTML entry file")
+	flag.BoolVar(&argv.Minify, "minify", false, "minify output")
+	flag.BoolVar(&argv.OneFile, "one-file", false, "inline everything into a single HTML file")
+	flag.StringVar(&argv.OutDir, "out", "dist/", "output dir")
+	flag.StringVar(&argv.TsconfigFilename, "tsconfig", "tsconfig.json", "path to tsconfig file")
+	flag.Var(&argv.Watch, "watch", "live reload on http://localhost:port (default port 1234)")
+	flag.Usage = func() {
+		fmt.Fprintf(flag.CommandLine.Output(), "pack --entry=<file> [--minify] [--one-file] [--out=<dir>] [--tsconfig=<file>] [--watch[=port]]\n")
+		flag.PrintDefaults()
+	}
 	flag.Parse()
-	return argv
+	if argv.Entry == "" {
+		return nil, errors.New("--entry is required")
+	}
+	return &argv, nil
 }
