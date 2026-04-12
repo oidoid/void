@@ -13,11 +13,11 @@ import (
 )
 
 func TestTransformFavicons_OneFile(t *testing.T) {
-	config := mockCLIConfig(t, true)
-	os.WriteFile(filepath.Join(config.EntryDir, "icon.png"), []byte("png"), 0o644)
+	config, entryDir := mockCLIConfig(t, true)
+	os.WriteFile(filepath.Join(entryDir, "icon.png"), []byte("png"), 0o644)
 
 	doc := parseDoc(t, `<html><head><link rel="icon" href="icon.png"></head></html>`)
-	if result := transformFavicons(doc, config); len(result.Errors) > 0 {
+	if result := transformFavicons(doc, config, entryDir); len(result.Errors) > 0 {
 		t.Fatal(result.Errors[0].Text)
 	}
 
@@ -28,11 +28,11 @@ func TestTransformFavicons_OneFile(t *testing.T) {
 }
 
 func TestTransformFavicons_NotOneFile(t *testing.T) {
-	config := mockCLIConfig(t, false)
-	os.WriteFile(filepath.Join(config.EntryDir, "icon.png"), []byte("png"), 0o644)
+	config, entryDir := mockCLIConfig(t, false)
+	os.WriteFile(filepath.Join(entryDir, "icon.png"), []byte("png"), 0o644)
 
 	doc := parseDoc(t, `<html><head><link rel="icon" href="icon.png"></head></html>`)
-	if result := transformFavicons(doc, config); len(result.Errors) > 0 {
+	if result := transformFavicons(doc, config, entryDir); len(result.Errors) > 0 {
 		t.Fatal(result.Errors[0].Text)
 	}
 
@@ -46,11 +46,11 @@ func TestTransformFavicons_NotOneFile(t *testing.T) {
 }
 
 func TestTransformImages_OneFile(t *testing.T) {
-	config := mockCLIConfig(t, true)
-	os.WriteFile(filepath.Join(config.EntryDir, "img.png"), []byte("png"), 0o644)
+	config, entryDir := mockCLIConfig(t, true)
+	os.WriteFile(filepath.Join(entryDir, "img.png"), []byte("png"), 0o644)
 
 	doc := parseDoc(t, `<html><body><img src="img.png"></body></html>`)
-	if result := transformImages(doc, config); len(result.Errors) > 0 {
+	if result := transformImages(doc, config, entryDir); len(result.Errors) > 0 {
 		t.Fatal(result.Errors[0].Text)
 	}
 
@@ -61,11 +61,11 @@ func TestTransformImages_OneFile(t *testing.T) {
 }
 
 func TestTransformImages_NotOneFile(t *testing.T) {
-	config := mockCLIConfig(t, false)
-	os.WriteFile(filepath.Join(config.EntryDir, "img.png"), []byte("png"), 0o644)
+	config, entryDir := mockCLIConfig(t, false)
+	os.WriteFile(filepath.Join(entryDir, "img.png"), []byte("png"), 0o644)
 
 	doc := parseDoc(t, `<html><body><img src="img.png"></body></html>`)
-	if result := transformImages(doc, config); len(result.Errors) > 0 {
+	if result := transformImages(doc, config, entryDir); len(result.Errors) > 0 {
 		t.Fatal(result.Errors[0].Text)
 	}
 
@@ -79,17 +79,17 @@ func TestTransformImages_NotOneFile(t *testing.T) {
 }
 
 func TestTransformManifests_OneFile(t *testing.T) {
-	config := mockCLIConfig(t, true)
-	os.WriteFile(filepath.Join(config.EntryDir, "icon.png"), []byte("png"), 0o644)
+	config, entryDir := mockCLIConfig(t, true)
+	os.WriteFile(filepath.Join(entryDir, "icon.png"), []byte("png"), 0o644)
 	manifest := map[string]any{
 		"name":  "Test",
 		"icons": []any{map[string]any{"src": "icon.png", "sizes": "192x192"}},
 	}
 	manifestBytes, _ := json.Marshal(manifest)
-	os.WriteFile(filepath.Join(config.EntryDir, "manifest.json"), manifestBytes, 0o644)
+	os.WriteFile(filepath.Join(entryDir, "manifest.json"), manifestBytes, 0o644)
 
 	doc := parseDoc(t, `<html><head><link rel="manifest" href="manifest.json"></head></html>`)
-	if result := transformManifests(doc, config); len(result.Errors) > 0 {
+	if result := transformManifests(doc, config, entryDir); len(result.Errors) > 0 {
 		t.Fatal(result.Errors[0].Text)
 	}
 
@@ -114,17 +114,17 @@ func TestTransformManifests_OneFile(t *testing.T) {
 }
 
 func TestTransformManifests_NotOneFile(t *testing.T) {
-	config := mockCLIConfig(t, false)
-	os.WriteFile(filepath.Join(config.EntryDir, "icon.png"), []byte("png"), 0o644)
+	config, entryDir := mockCLIConfig(t, false)
+	os.WriteFile(filepath.Join(entryDir, "icon.png"), []byte("png"), 0o644)
 	manifest := map[string]any{
 		"name":  "Test",
 		"icons": []any{map[string]any{"src": "icon.png", "sizes": "192x192"}},
 	}
 	manifestBytes, _ := json.Marshal(manifest)
-	os.WriteFile(filepath.Join(config.EntryDir, "manifest.json"), manifestBytes, 0o644)
+	os.WriteFile(filepath.Join(entryDir, "manifest.json"), manifestBytes, 0o644)
 
 	doc := parseDoc(t, `<html><head><link rel="manifest" href="manifest.json"></head></html>`)
-	if result := transformManifests(doc, config); len(result.Errors) > 0 {
+	if result := transformManifests(doc, config, entryDir); len(result.Errors) > 0 {
 		t.Fatal(result.Errors[0].Text)
 	}
 
@@ -141,7 +141,7 @@ func TestTransformManifests_NotOneFile(t *testing.T) {
 }
 
 func TestTransformScripts_OneFile(t *testing.T) {
-	config := mockCLIConfig(t, true)
+	config, _ := mockCLIConfig(t, true)
 	os.WriteFile(filepath.Join(config.OutDir, "index.js"), []byte("console.log(1)"), 0o644)
 
 	doc := parseDoc(t, `<html><head><script type="module" src="index.ts"></script></head></html>`)
@@ -159,7 +159,7 @@ func TestTransformScripts_OneFile(t *testing.T) {
 }
 
 func TestTransformScripts_NotOneFile(t *testing.T) {
-	config := mockCLIConfig(t, false)
+	config, _ := mockCLIConfig(t, false)
 
 	doc := parseDoc(t, `<html><head><script type="module" src="index.ts"></script></head></html>`)
 	if result := transformScripts(doc, config); len(result.Errors) > 0 {
@@ -173,7 +173,7 @@ func TestTransformScripts_NotOneFile(t *testing.T) {
 }
 
 func TestTransformScripts_NonModuleSkipped(t *testing.T) {
-	config := mockCLIConfig(t, false)
+	config, _ := mockCLIConfig(t, false)
 
 	doc := parseDoc(t, `<html><head><script src="other.js"></script></head></html>`)
 	if result := transformScripts(doc, config); len(result.Errors) > 0 {
@@ -187,7 +187,7 @@ func TestTransformScripts_NonModuleSkipped(t *testing.T) {
 }
 
 func TestTransformStylesheets_OneFile(t *testing.T) {
-	config := mockCLIConfig(t, true)
+	config, _ := mockCLIConfig(t, true)
 	os.WriteFile(filepath.Join(config.OutDir, "style.css"), []byte("body{margin:0}"), 0o644)
 
 	doc := parseDoc(t, `<html><head><link rel="stylesheet" href="style.css"></head></html>`)
@@ -208,7 +208,7 @@ func TestTransformStylesheets_OneFile(t *testing.T) {
 }
 
 func TestTransformStylesheets_NotOneFile(t *testing.T) {
-	config := mockCLIConfig(t, false)
+	config, _ := mockCLIConfig(t, false)
 	os.WriteFile(filepath.Join(config.OutDir, "style.css"), []byte("body{margin:0}"), 0o644)
 
 	doc := parseDoc(t, `<html><head><link rel="stylesheet" href="style.css"></head></html>`)
@@ -223,18 +223,18 @@ func TestTransformStylesheets_NotOneFile(t *testing.T) {
 }
 
 func TestTransformHTML(t *testing.T) {
-	config := mockCLIConfig(t, false)
-	config.Entry = filepath.Join(config.EntryDir, "index.html")
+	config, entryDir := mockCLIConfig(t, false)
+	entry := filepath.Join(entryDir, "index.html")
 
-	os.WriteFile(config.Entry, []byte(`<html><head>
+	os.WriteFile(entry, []byte(`<html><head>
 		<link rel="stylesheet" href="style.css">
 		<script type="module" src="index.ts"></script>
 	</head><body><img src="img.png"></body></html>`), 0o644)
-	os.WriteFile(filepath.Join(config.EntryDir, "img.png"), []byte("png"), 0o644)
+	os.WriteFile(filepath.Join(entryDir, "img.png"), []byte("png"), 0o644)
 	os.WriteFile(filepath.Join(config.OutDir, "style.css"), []byte("body{margin:0}"), 0o644)
 	os.WriteFile(filepath.Join(config.OutDir, "index.js"), []byte("console.log(1)"), 0o644)
 
-	if result := transformHTML(config); len(result.Errors) > 0 {
+	if result := transformHTML(config, entry, entryDir); len(result.Errors) > 0 {
 		t.Fatal(result.Errors[0].Text)
 	}
 
@@ -257,13 +257,13 @@ func TestTransformHTML(t *testing.T) {
 	}
 }
 
-func mockCLIConfig(t *testing.T, oneFile bool) *cliconfig.CLIConfig {
+func mockCLIConfig(t *testing.T, oneFile bool) (*cliconfig.CLIConfig, string) {
 	t.Helper()
+	entryDir := t.TempDir()
 	return &cliconfig.CLIConfig{
-		EntryDir: t.TempDir(),
-		OutDir:   t.TempDir(),
-		OneFile:  oneFile,
-	}
+		OutDir:  t.TempDir(),
+		OneFile: oneFile,
+	}, entryDir
 }
 
 func parseDoc(t *testing.T, src string) *html.Node {

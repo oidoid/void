@@ -2,7 +2,6 @@ package cliconfig
 
 import (
 	"encoding/json"
-	"path/filepath"
 	"regexp"
 
 	"os"
@@ -10,10 +9,9 @@ import (
 
 type CLIConfig struct {
 	// void.json dir.
-	ConfigDir        string
+	// ConfigDir        string
 	Conditions       []string
-	Entry            string
-	EntryDir         string
+	Entries          []string
 	Minify           bool
 	OneFile          bool
 	OutDir           string
@@ -47,8 +45,7 @@ func NewCLIConfig(argv Argv) (*CLIConfig, error) {
 
 	return &CLIConfig{
 		Conditions:       conditions,
-		Entry:            argv.Entry,
-		EntryDir:         filepath.Dir(argv.Entry),
+		Entries:          argv.Entries,
 		Minify:           argv.Minify,
 		OneFile:          argv.OneFile,
 		OutDir:           argv.OutDir,

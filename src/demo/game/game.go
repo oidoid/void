@@ -6,6 +6,8 @@ type Game struct {
 	engine V.Engine
 }
 
+var version string
+
 func NewGame() Game {
 	return Game{engine: V.NewEngine()}
 }
@@ -30,4 +32,8 @@ func (this *Game) SetCanvasWH(w, h int32) {
 
 func (this *Game) Update() V.LoopState {
 	return this.engine.Update()
+}
+
+func init() {
+	println(version)
 }

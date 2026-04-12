@@ -31,10 +31,6 @@ export async function bundle(
       ctx.watch(),
       ctx.serve({port: config.port, servedir: config.out.dir})
     ])
-  } else {
-    const build = await esbuild.build(opts)
-    if (config.meta)
-      await fs.promises.writeFile(config.meta, JSON.stringify(build.metafile))
   }
 }
 

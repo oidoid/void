@@ -1,26 +1,29 @@
 include config.make
 
 out_demo := dist/demo/index.wasm
-tinygo_flags ?=
-pack_demo := go run ./src/cmd/pack --entry=src/demo/web/assets/index.html --out=dist/demo/ --tsconfig=src/demo/web/tsconfig.json
+tinygo_nodebug := --no-debug
+tinygo_flags += --ldflags="-X game.version=$(shell git rev-parse --short HEAD)" --scheduler=none --target=wasm $(if $(value DEBUG),,$(tinygo_nodebug) --panic=trap)
+# $(1) flags
+pack_demo = go run ./src/cmd/pack --out=dist/demo/ --tsconfig=src/demo/web/tsconfig.json $(1) src/demo/web/assets/index.html
+# $(1) flags
+packsprites_demo = go run ./src/cmd/packsprites --name=atlas --out=dist/demo/ $(1) src/demo/assets/atlas/
 
-.PHONY: build build-cmd build-demo build-web clean dependencies fat fat-analyze fat-save fmt fmt-go fmt-mod fmt-web lint lint-critic lint-static lint-vet lint-web test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-web
+.PHONY: build build-cmd build-demo build-sprites build-web clean dependencies fat fat-analyze fat-save fmt fmt-go fmt-mod fmt-web lint lint-critic lint-static lint-vet lint-web test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-sprites watch-web
 
 watch: export DEBUG := 1
-watch: dependencies .WAIT watch-go watch-web
+watch: dependencies .WAIT watch-go watch-sprites watch-web
 watch-go:; watchexec --exts=go --quiet --watch=src/ -- $(MAKE) build-demo
-watch-web:
-	mkdir --parents dist/demo/
-	touch $(out_demo)
-	$(pack_demo) --watch
+watch-sprites:; $(call packsprites_demo,--watch)
+watch-web: build-demo build-sprites; $(call pack_demo,--watch)
 
-build: build-cmd build-demo build-web
+build: build-cmd build-demo build-sprites build-web
 build-cmd:; go build -o dist/ ./src/cmd/...
 build-demo:
 	# no concurrency.
-	tinygo build $(tinygo_flags) -o $(out_demo) --scheduler=none --target=wasm ./src/demo/web/
+	tinygo build $(tinygo_flags) -o $(out_demo) ./src/demo/web/
 	$(if $(value DEBUG),,wasm-opt -o $(out_demo) -Oz --strip-debug --strip-producers $(out_demo))
-build-web: build-demo; $(pack_demo) --minify --one-file
+build-sprites:; $(call packsprites_demo,)
+build-web: build-demo build-sprites; $(call pack_demo,--minify --one-file)
 
 clean:; rm --force --recursive dist/
 
@@ -30,9 +33,10 @@ dependencies:
 	done
 
 fat:; go run ./src/cmd/fat
-fat-analyze: tinygo_flags += -size full
+fat-analyze: tinygo_nodebug :=
+fat-analyze: tinygo_flags += --size full
 fat-analyze: build
-fat-save:; go run ./src/cmd/fat $(out_demo) dist/demo/index.css dist/demo/index.html dist/demo/index.js
+fat-save:; go run ./src/cmd/fat dist/demo/atlas.json dist/demo/atlas.webp dist/demo/index.css dist/demo/index.html dist/demo/index.js $(out_demo)
 
 fmt: fmt-mod fmt-go fmt-web
 fmt-mod:; go mod tidy
@@ -40,7 +44,7 @@ fmt-go:; gofmt -s -w ./src/
 fmt-web:; npx lint --fix > /dev/null
 
 lint: lint-critic lint-static lint-vet lint-web
-lint-critic:; go tool go-critic check --enableAll ./src/...
+lint-critic:; go tool go-critic check --enableAll --disable=unnamedResult ./src/...
 lint-static:; go tool staticcheck ./src/...
 lint-vet:; go vet ./src/...
 lint-web:; npx lint > /dev/null

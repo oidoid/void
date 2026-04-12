@@ -22,24 +22,32 @@ func HTMLPlugin(config *cliconfig.CLIConfig) api.Plugin {
 				if len(result.Errors) > 0 {
 					return api.OnEndResult{}, nil
 				}
-				return transformHTML(config), nil
+				for _, entry := range config.Entries {
+					if filepath.Ext(entry) != ".html" {
+						continue
+					}
+					if result := transformHTML(config, entry, filepath.Dir(entry)); len(result.Errors) > 0 {
+						return result, nil
+					}
+				}
+				return api.OnEndResult{}, nil
 			})
 		},
 	}
 }
 
-func transformHTML(config *cliconfig.CLIConfig) api.OnEndResult {
-	doc, err := htmlparser.ParseDoc(config.Entry)
+func transformHTML(config *cliconfig.CLIConfig, entry, entryDir string) api.OnEndResult {
+	doc, err := htmlparser.ParseDoc(entry)
 	if err != nil {
 		return errorEndResult(err)
 	}
-	if result := transformFavicons(doc, config); len(result.Errors) > 0 {
+	if result := transformFavicons(doc, config, entryDir); len(result.Errors) > 0 {
 		return result
 	}
-	if result := transformImages(doc, config); len(result.Errors) > 0 {
+	if result := transformImages(doc, config, entryDir); len(result.Errors) > 0 {
 		return result
 	}
-	if result := transformManifests(doc, config); len(result.Errors) > 0 {
+	if result := transformManifests(doc, config, entryDir); len(result.Errors) > 0 {
 		return result
 	}
 	if result := transformScripts(doc, config); len(result.Errors) > 0 {
@@ -48,7 +56,7 @@ func transformHTML(config *cliconfig.CLIConfig) api.OnEndResult {
 	if result := transformStylesheets(doc, config); len(result.Errors) > 0 {
 		return result
 	}
-	filename := filepath.Join(config.OutDir, filepath.Base(config.Entry))
+	filename := filepath.Join(config.OutDir, filepath.Base(entry))
 	file, err := os.Create(filename)
 	if err != nil {
 		return errorEndResult(err)
@@ -60,7 +68,7 @@ func transformHTML(config *cliconfig.CLIConfig) api.OnEndResult {
 	return api.OnEndResult{}
 }
 
-func transformFavicons(doc *html.Node, config *cliconfig.CLIConfig) api.OnEndResult {
+func transformFavicons(doc *html.Node, config *cliconfig.CLIConfig, entryDir string) api.OnEndResult {
 	for _, node := range htmlparser.QueryTag(doc, "link") {
 		rel := htmlparser.NodeAttr(node, "rel")
 		if rel != "icon" {
@@ -70,7 +78,7 @@ func transformFavicons(doc *html.Node, config *cliconfig.CLIConfig) api.OnEndRes
 		if href == "" {
 			continue
 		}
-		src, err := transformImageSrc(config, href)
+		src, err := transformImageSrc(config, entryDir, href)
 		if err != nil {
 			return errorEndResult(err)
 		}
@@ -79,13 +87,13 @@ func transformFavicons(doc *html.Node, config *cliconfig.CLIConfig) api.OnEndRes
 	return api.OnEndResult{}
 }
 
-func transformImages(doc *html.Node, config *cliconfig.CLIConfig) api.OnEndResult {
+func transformImages(doc *html.Node, config *cliconfig.CLIConfig, entryDir string) api.OnEndResult {
 	for _, node := range htmlparser.QueryTag(doc, "img") {
 		src := htmlparser.NodeAttr(node, "src")
 		if src == "" {
 			continue
 		}
-		newSrc, err := transformImageSrc(config, src)
+		newSrc, err := transformImageSrc(config, entryDir, src)
 		if err != nil {
 			return errorEndResult(err)
 		}
@@ -94,9 +102,9 @@ func transformImages(doc *html.Node, config *cliconfig.CLIConfig) api.OnEndResul
 	return api.OnEndResult{}
 }
 
-func transformImageSrc(config *cliconfig.CLIConfig, src string) (string, error) {
+func transformImageSrc(config *cliconfig.CLIConfig, entryDir, src string) (string, error) {
 	filename := filepath.Base(src)
-	srcBytes, err := os.ReadFile(filepath.Join(config.EntryDir, src))
+	srcBytes, err := os.ReadFile(filepath.Join(entryDir, src))
 	if err != nil {
 		return "", err
 	}
@@ -113,7 +121,7 @@ func transformImageSrc(config *cliconfig.CLIConfig, src string) (string, error) 
 	return filename, nil
 }
 
-func transformManifests(doc *html.Node, config *cliconfig.CLIConfig) api.OnEndResult {
+func transformManifests(doc *html.Node, config *cliconfig.CLIConfig, entryDir string) api.OnEndResult {
 	for _, node := range htmlparser.QueryTag(doc, "link") {
 		if htmlparser.NodeAttr(node, "rel") != "manifest" {
 			continue
@@ -123,7 +131,7 @@ func transformManifests(doc *html.Node, config *cliconfig.CLIConfig) api.OnEndRe
 			continue
 		}
 		filename := filepath.Base(href)
-		srcBytes, err := os.ReadFile(filepath.Join(config.EntryDir, href))
+		srcBytes, err := os.ReadFile(filepath.Join(entryDir, href))
 		if err != nil {
 			return errorEndResult(err)
 		}
@@ -142,7 +150,7 @@ func transformManifests(doc *html.Node, config *cliconfig.CLIConfig) api.OnEndRe
 				if iconSrc == "" {
 					continue
 				}
-				newSrc, err := transformImageSrc(config, iconSrc)
+				newSrc, err := transformImageSrc(config, entryDir, iconSrc)
 				if err != nil {
 					return errorEndResult(err)
 				}

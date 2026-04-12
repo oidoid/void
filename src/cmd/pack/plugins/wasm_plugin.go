@@ -34,6 +34,14 @@ func WasmPlugin(config *cliconfig.CLIConfig) api.Plugin {
 						return errorLoadResult(err), nil
 					}
 					uri = "./" + filepath.ToSlash(relative)
+					if config.WatchPort != 0 {
+						stat, err := os.Stat(args.Path)
+						if err != nil {
+							return errorLoadResult(err), nil
+						}
+						// force watch event.
+						uri += fmt.Sprintf("?t=%d", stat.ModTime().UnixMilli())
+					}
 				}
 				contents := fmt.Sprintf("export default %q", uri)
 				return api.OnLoadResult{Contents: &contents, Loader: api.LoaderJS}, nil

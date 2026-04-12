@@ -8,7 +8,7 @@ tool github.com/go-critic/go-critic/cmd/go-critic
 
 require (
 	github.com/evanw/esbuild v0.28.0
-	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2
+	github.com/fsnotify/fsnotify v1.9.0
 	golang.org/x/net v0.53.0
 )
 
@@ -33,7 +33,6 @@ require (
 	golang.org/x/mod v0.34.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.43.0 // indirect
-	golang.org/x/text v0.36.0 // indirect
 	golang.org/x/tools v0.43.0 // indirect
 	honnef.co/go/tools v0.7.0 // indirect
 )

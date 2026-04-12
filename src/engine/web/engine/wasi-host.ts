@@ -1,4 +1,7 @@
-/** WASI preview1 host for Wasm modules. */
+/**
+ * WASI preview1 host for Wasm modules. see
+ * https://github.com/tinygo-org/tinygo/blob/release/targets/wasm_exec.js.
+ */
 export class WASIHost {
   [k: string]: WebAssembly.ImportValue
   #decoder: TextDecoder = new TextDecoder()

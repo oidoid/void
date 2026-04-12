@@ -1,4 +1,4 @@
-// compiles images into an atlas and bundles an HTML entrypoint.
+// compiles HTML entrypoints.
 
 package main
 
@@ -31,19 +31,23 @@ func main() {
 		logLevel = api.LogLevelInfo
 	}
 
-	entryPoints, err := parseEntrypoints(config.Entry)
+	entryPoints, err := parseEntries(config.Entries)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 
 	opts := api.BuildOptions{
-		Bundle:            true,
-		Conditions:        config.Conditions,
-		EntryNames:        "[name]",
-		EntryPoints:       entryPoints,
-		Format:            api.FormatESModule,
-		Loader:            map[string]api.Loader{".css": api.LoaderCSS},
+		Bundle:      true,
+		Conditions:  config.Conditions,
+		EntryNames:  "[name]",
+		EntryPoints: entryPoints,
+		Format:      api.FormatESModule,
+		Loader: map[string]api.Loader{
+			".css":  api.LoaderCSS,
+			".png":  api.LoaderNone, // just for watching.
+			".webp": api.LoaderNone, // "
+		},
 		LogLevel:          logLevel,
 		Metafile:          true,
 		MinifyIdentifiers: config.Minify,
@@ -86,7 +90,23 @@ func main() {
 	}
 }
 
-func parseEntrypoints(filename string) ([]string, error) {
+func parseEntries(entries []string) ([]string, error) {
+	var all []string
+	for _, entry := range entries {
+		if filepath.Ext(entry) == ".html" {
+			htmlEntries, err := parseHTMLEntries(entry)
+			if err != nil {
+				return nil, err
+			}
+			all = append(all, htmlEntries...)
+		} else {
+			all = append(all, entry)
+		}
+	}
+	return all, nil
+}
+
+func parseHTMLEntries(filename string) ([]string, error) {
 	doc, err := htmlparser.ParseDoc(filename)
 	if err != nil {
 		return nil, err

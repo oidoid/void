@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/oidoid/void/src/demo/game"
-	V "github.com/oidoid/void/src/engine"
+	V "github.com/oidoid/void/src/engine" // to-do: rename V?
 )
 
 var gam = game.NewGame()
