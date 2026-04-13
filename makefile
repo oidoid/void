@@ -8,7 +8,7 @@ pack_demo = go run ./src/cmd/pack --out=dist/demo/ --tsconfig=src/demo/web/tscon
 # $(1) flags
 packsprites_demo = go run ./src/cmd/packsprites --name=atlas --out=dist/demo/ $(1) src/demo/assets/atlas/
 
-.PHONY: build build-cmd build-demo build-sprites build-web clean dependencies fat fat-analyze fat-save fmt fmt-go fmt-mod fmt-web lint lint-critic lint-static lint-vet lint-web test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-sprites watch-web
+.PHONY: build build-cmd build-demo build-sprites build-web clean dependencies fat-analyze fat-check fat-save fmt fmt-go fmt-mod fmt-web lint lint-critic lint-static lint-vet lint-web test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-sprites watch-web
 
 watch: export DEBUG := 1
 watch: dependencies .WAIT watch-go watch-sprites watch-web
@@ -32,11 +32,11 @@ dependencies:
 		command -v $$exe > /dev/null || { echo "no $$exe" >&2; false; }
 	done
 
-fat:; go run ./src/cmd/fat
 fat-analyze: tinygo_nodebug :=
 fat-analyze: tinygo_flags += --size full
 fat-analyze: build
-fat-save:; go run ./src/cmd/fat dist/demo/atlas.json dist/demo/atlas.webp dist/demo/index.css dist/demo/index.html dist/demo/index.js $(out_demo)
+fat-check:; go run ./src/cmd/fat check
+fat-save:; go run ./src/cmd/fat save
 
 fmt: fmt-mod fmt-go fmt-web
 fmt-mod:; go mod tidy
@@ -49,7 +49,7 @@ lint-static:; go tool staticcheck ./src/...
 lint-vet:; go vet ./src/...
 lint-web:; npx lint > /dev/null
 
-test: dependencies .WAIT build test-fmt-go test-fmt-mod lint test-go test-web typecheck-web .WAIT fat
+test: dependencies .WAIT build test-fmt-go test-fmt-mod lint test-go test-web typecheck-web .WAIT fat-check
 test-fmt-go:
 	out=$$(gofmt -l -s ./src/)
 	[ -z "$$out" ] || { printf >&2 "unformatted files:\n%s\n" "$$out"; false; }

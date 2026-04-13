@@ -9,25 +9,90 @@ import (
 	"strings"
 )
 
+type entry struct {
+	path string
+	size int64
+}
+
 const (
 	baselineFilename = ".fat"
 	maxDelta         = int64(1024)
 )
 
 func main() {
-	var err error
-
 	args := os.Args[1:]
-	if len(args) == 0 {
+
+	var err error
+	switch {
+	case len(args) >= 1 && args[0] == "save":
+		err = runSave(args[1:])
+	case len(args) == 1 && args[0] == "check":
 		err = runCheck()
-	} else {
-		err = runSave(args)
+	default:
+		err = fmt.Errorf("fat check | fat save files…")
 	}
 
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+}
+
+func check(reader io.Reader, stdout, stderr io.Writer) error {
+	entries, err := readFat(reader)
+	if err != nil {
+		return err
+	}
+	ok := true
+	for _, entry := range entries {
+		stat, err := os.Stat(entry.path)
+		if err != nil {
+			fmt.Fprintln(stderr, err)
+			ok = false
+			continue
+		}
+		got := stat.Size()
+
+		delta := got - entry.size
+		deltaSign := "+"
+		if delta < 0 {
+			deltaSign = ""
+		}
+		out := stdout
+		if delta < -maxDelta || delta > maxDelta {
+			out = stderr
+			ok = false
+		}
+		_, err = fmt.Fprintf(out, "%s: %d %s%d\n", entry.path, entry.size, deltaSign, delta)
+		if err != nil {
+			return err
+		}
+	}
+	if !ok {
+		return fmt.Errorf("max delta exceeded")
+	}
+	return nil
+}
+
+func readFat(reader io.Reader) ([]entry, error) {
+	var entries []entry
+	scanner := bufio.NewScanner(reader)
+	for scanner.Scan() {
+		parts := strings.Fields(scanner.Text())
+		if len(parts) == 0 || len(parts) > 2 {
+			continue
+		}
+		var size int64
+		if len(parts) == 2 {
+			var err error
+			size, err = strconv.ParseInt(parts[1], 10, 64)
+			if err != nil {
+				return nil, fmt.Errorf("%s: bad baseline value %q: %w", parts[0], parts[1], err)
+			}
+		}
+		entries = append(entries, entry{parts[0], size})
+	}
+	return entries, scanner.Err()
 }
 
 func runCheck() error {
@@ -40,56 +105,27 @@ func runCheck() error {
 }
 
 func runSave(paths []string) error {
+	if len(paths) == 0 {
+		file, err := os.Open(baselineFilename)
+		if err != nil {
+			return err
+		}
+		entries, err := readFat(file)
+		file.Close()
+		if err != nil {
+			return err
+		}
+		for _, entry := range entries {
+			paths = append(paths, entry.path)
+		}
+	}
+
 	file, err := os.Create(baselineFilename)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 	return save(file, paths)
-}
-
-func check(reader io.Reader, stdout, stderr io.Writer) error {
-	ok := true
-	scanner := bufio.NewScanner(reader)
-	for scanner.Scan() {
-		parts := strings.Fields(scanner.Text())
-		if len(parts) != 2 {
-			continue
-		}
-		path, wantStr := parts[0], parts[1]
-
-		want, err := strconv.ParseInt(wantStr, 10, 64)
-		if err != nil {
-			return fmt.Errorf("%s: bad baseline value %q: %w", path, wantStr, err)
-		}
-
-		stat, err := os.Stat(path)
-		if err != nil {
-			fmt.Fprintln(stderr, err)
-			ok = false
-			continue
-		}
-		got := stat.Size()
-
-		delta := got - want
-		deltaSign := "+"
-		if delta < 0 {
-			deltaSign = ""
-		}
-		out := stdout
-		if delta < -maxDelta || delta > maxDelta {
-			out = stderr
-			ok = false
-		}
-		_, err = fmt.Fprintf(out, "%s: %d %s%d\n", path, want, deltaSign, delta)
-		if err != nil {
-			return err
-		}
-	}
-	if !ok {
-		return fmt.Errorf("max delta exceeded")
-	}
-	return nil
 }
 
 func save(writer io.Writer, paths []string) error {

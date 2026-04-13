@@ -88,10 +88,29 @@ func TestCheck_SkipsMalformedLines(t *testing.T) {
 	dir := t.TempDir()
 	path := writeTextToFile(t, dir, "file.txt", strings.Repeat("x", 10))
 
-	baseline := fmt.Sprintf("\n   \nonefield\n%s 10\n", path)
+	baseline := fmt.Sprintf("\n   \n%s 10\n", path)
 	var stdout, stderr strings.Builder
 	if err := check(strings.NewReader(baseline), &stdout, &stderr); err != nil {
 		t.Errorf("want ok, err: %v", err)
+	}
+}
+
+func TestReadFat_OmittedSize(t *testing.T) {
+	dir := t.TempDir()
+	path := writeTextToFile(t, dir, "file.txt", "hello")
+
+	entries, err := readFat(strings.NewReader(path + "\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(entries) != 1 {
+		t.Fatalf("want 1 entry, got %d", len(entries))
+	}
+	if entries[0].path != path {
+		t.Errorf("got path %q, want %q", entries[0].path, path)
+	}
+	if entries[0].size != 0 {
+		t.Errorf("got size %d, want 0", entries[0].size)
 	}
 }
 

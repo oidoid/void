@@ -23,7 +23,7 @@ func NewArgv() (*Argv, error) {
 	flag.StringVar(&argv.OutDir, "out", "", "output directory")
 	flag.BoolVar(&argv.Watch, "watch", false, "re-pack on file changes")
 	flag.Usage = func() {
-		fmt.Fprintf(flag.CommandLine.Output(), "packatlas --name=<name> --out=<dir> [--color-mode=<mode>] [--no-webp] [--watch] <entries...>\n")
+		fmt.Fprintf(flag.CommandLine.Output(), "packatlas --name=<name> --out=<dir> [--color-mode=<mode>] [--no-webp] [--watch] <entries…>\n")
 		flag.PrintDefaults()
 	}
 	flag.Parse()
