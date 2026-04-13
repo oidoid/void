@@ -44,9 +44,9 @@ export class Pointer {
   /** readonly. */
   polls: {[pointerID: number]: PointerPoll} = {}
   onEvent: OnEvent = () => {}
-  readonly #target: EventTarget
+  readonly #target: Element
 
-  constructor(target: EventTarget) {
+  constructor(target: Element) {
     this.#target = target
   }
 
@@ -65,8 +65,11 @@ export class Pointer {
   }
 
   #onPointer = (ev: PointerEvent): void => {
-    if (ev.type === 'pointercancel') delete this.polls[ev.pointerId]
-    else
+    if (ev.type === 'pointercancel' || ev.type === 'pointerup')
+      delete this.polls[ev.pointerId]
+    else {
+      if (ev.type === 'pointerdown')
+        this.#target.setPointerCapture(ev.pointerId)
       this.polls[ev.pointerId] = {
         id: ev.pointerId,
         x: ev.clientX,
@@ -81,6 +84,7 @@ export class Pointer {
         primary: ev.isPrimary,
         buttons: ev.buttons
       }
+    }
     this.onEvent(`input-${ev.type}` as AnyEvent)
   }
 }
