@@ -63,7 +63,7 @@ func check(reader io.Reader, stdout, stderr io.Writer) error {
 			out = stderr
 			ok = false
 		}
-		_, err = fmt.Fprintf(out, "%s: %d %s%d\n", entry.path, entry.size, deltaSign, delta)
+		_, err = fmt.Fprintf(out, "%s: %d %s%d\n", entry.path, got, deltaSign, delta)
 		if err != nil {
 			return err
 		}
