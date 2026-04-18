@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -47,7 +48,7 @@ func check(reader io.Reader, stdout, stderr io.Writer) error {
 	for _, entry := range entries {
 		stat, err := os.Stat(entry.path)
 		if err != nil {
-			fmt.Fprintln(stderr, err)
+			fmt.Fprintf(stderr, "%s: %v\n", entry.path, errors.Unwrap(err))
 			ok = false
 			continue
 		}
