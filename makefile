@@ -2,7 +2,8 @@ include config.make
 
 out_demo := dist/demo/index.wasm
 tinygo_nodebug := --no-debug
-tinygo_flags += --ldflags="-X game.version=$(shell git rev-parse --short HEAD)" --scheduler=none --target=wasm $(if $(value DEBUG),,$(tinygo_nodebug) --panic=trap)
+tinygo_flags += --buildmode=c-shared --ldflags="-X game.version=$(shell git rev-parse --short HEAD)" --scheduler=none $(if $(value DEBUG),,$(tinygo_nodebug) --panic=trap)
+go := GOOS=wasip1 GOARCH=wasm tinygo
 # $(1) flags
 pack_demo = go run ./src/cmd/pack --out=dist/demo/ --tsconfig=src/demo/web/tsconfig.json $(1) src/demo/web/assets/index.html
 # $(1) flags
@@ -20,7 +21,7 @@ build: build-cmd build-demo build-sprites build-web
 build-cmd:; go build -o dist/ ./src/cmd/...
 build-demo:
 	# no concurrency.
-	tinygo build $(tinygo_flags) -o $(out_demo) ./src/demo/web/
+	$(go) build $(tinygo_flags) -o $(out_demo) ./src/demo/web/
 	$(if $(value DEBUG),,wasm-opt -o $(out_demo) -Oz --strip-debug --strip-producers $(out_demo))
 build-sprites:; $(call packsprites_demo,)
 build-web: build-demo build-sprites; $(call pack_demo,--minify --one-file)
