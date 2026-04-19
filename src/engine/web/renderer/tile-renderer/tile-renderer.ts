@@ -1,0 +1,100 @@
+import {buildProgram} from '../gl.ts'
+import {tileFrag} from './tile.frag.ts'
+import {tileVert} from './tile.vert.ts'
+
+export class TileRenderer {
+  static new(
+    gl: WebGL2RenderingContext,
+    tiles: Uint16Array,
+    tileW: number,
+    tileH: number,
+    levelX: number,
+    levelY: number,
+    levelW: number,
+    levelH: number
+  ): TileRenderer {
+    const pgm = buildProgram(gl, tileVert, tileFrag)
+    const uResolution = gl.getUniformLocation(pgm, 'uResolution')!
+    const uCamXY = gl.getUniformLocation(pgm, 'uCamXY')!
+    const uLevel = gl.getUniformLocation(pgm, 'uLevel')!
+    const uTileWH = gl.getUniformLocation(pgm, 'uTileWH')!
+
+    const gridW = Math.ceil(levelW / tileW)
+    const gridH = Math.ceil(levelH / tileH)
+
+    const vao = gl.createVertexArray()!
+
+    const texture = gl.createTexture()!
+    gl.bindTexture(gl.TEXTURE_2D, texture)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+    gl.activeTexture(gl.TEXTURE0)
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.R16UI,
+      gridW,
+      gridH,
+      0,
+      gl.RED_INTEGER,
+      gl.UNSIGNED_SHORT,
+      tiles
+    )
+    gl.bindTexture(gl.TEXTURE_2D, null)
+
+    gl.useProgram(pgm)
+    gl.uniform4f(uLevel, levelX, levelY, levelW, levelH)
+    gl.uniform2f(uTileWH, tileW, tileH)
+
+    return new TileRenderer(gl, pgm, uResolution, uCamXY, vao, texture)
+  }
+
+  readonly #gl: WebGL2RenderingContext
+  readonly #pgm: WebGLProgram
+  readonly #uResolution: WebGLUniformLocation
+  readonly #uCamXY: WebGLUniformLocation
+  readonly #vao: WebGLVertexArrayObject
+  readonly #texture: WebGLTexture
+
+  private constructor(
+    gl: WebGL2RenderingContext,
+    pgm: WebGLProgram,
+    uResolution: WebGLUniformLocation,
+    uCamXY: WebGLUniformLocation,
+    vao: WebGLVertexArrayObject,
+    texture: WebGLTexture
+  ) {
+    this.#gl = gl
+    this.#pgm = pgm
+    this.#uResolution = uResolution
+    this.#uCamXY = uCamXY
+    this.#vao = vao
+    this.#texture = texture
+  }
+
+  dispose(): void {
+    const gl = this.#gl
+    gl.deleteProgram(this.#pgm)
+    gl.deleteVertexArray(this.#vao)
+    gl.deleteTexture(this.#texture)
+  }
+
+  draw(camX: number, camY: number): void {
+    const gl = this.#gl
+    gl.useProgram(this.#pgm)
+    gl.uniform2f(this.#uCamXY, camX, camY)
+    gl.uniform2i(
+      this.#uResolution,
+      gl.drawingBufferWidth,
+      gl.drawingBufferHeight
+    )
+    gl.activeTexture(gl.TEXTURE0)
+    gl.bindTexture(gl.TEXTURE_2D, this.#texture)
+    gl.bindVertexArray(this.#vao)
+    gl.drawArrays(gl.TRIANGLES, 0, 6)
+    gl.bindVertexArray(null)
+    gl.bindTexture(gl.TEXTURE_2D, null)
+  }
+}

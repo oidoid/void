@@ -7,7 +7,8 @@ type Update struct {
 	// time since the last frame was _requested_ in milliseconds.
 	DeltaMs float64
 	// time in UTC milliseconds.
-	NowMs float64
+	NowMs            float64
+	CanvasW, CanvasH uint32
 }
 
 type LoopState uint8
@@ -21,6 +22,5 @@ type WasmAPI interface {
 	GetSpriteCount() uint32
 	GetSpritePointer() uintptr
 	GetUpdatePointer() uintptr
-	SetCanvasWH(w, h int32)
 	Update() LoopState
 }

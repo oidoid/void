@@ -5,15 +5,19 @@ import (
 
 	"math/rand/v2"
 
+	"github.com/oidoid/void/src/engine/geo"
 	"github.com/oidoid/void/src/engine/input"
 )
 
 var _ WasmAPI = (*Engine)(nil)
 
 type Engine struct {
-	update Update
-	zoo    Zoo
-	rnd    *rand.Rand
+	update  Update
+	zoo     Zoo
+	rnd     *rand.Rand
+	Cam     geo.XY[float32]
+	CanvasW int32
+	CanvasH int32
 }
 
 func NewEngine() Engine {
@@ -32,11 +36,14 @@ func (this *Engine) GetUpdatePointer() uintptr {
 	return uintptr(unsafe.Pointer(&this.update))
 }
 
-func (this *Engine) SetCanvasWH(w, h int32) {
-	this.zoo.SetSize(int(w), int(h))
-}
+func (this *Engine) Frame() *Update { return &this.update }
+
+func (this *Engine) GetCamX() float32 { return this.Cam.X }
+func (this *Engine) GetCamY() float32 { return this.Cam.Y }
 
 func (this *Engine) Update() LoopState {
+	// to-do: moveinto demo and make ball bounds level sized.
+	this.zoo.SetSize(int(this.update.CanvasW), int(this.update.CanvasH))
 	this.zoo.Update()
 	loop := Pause
 	if this.zoo.count > 0 {

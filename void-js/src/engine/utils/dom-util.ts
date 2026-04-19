@@ -6,13 +6,6 @@ export function download(uri: string, filename: string): void {
   a.remove()
 }
 
-export function initBody(): void {
-  document.body.style.margin = '0'
-  // fill the screen except for UI chrome.
-  document.body.style.width = '100dvw'
-  document.body.style.height = '100dvh'
-  document.body.style.overflow = 'hidden'
-}
 
 export function initMetaViewport(description: string | undefined): void {
   if (!document.querySelector('meta[name="viewport"]')) {

@@ -13,6 +13,10 @@ export function initCanvas(
   // update on each pointermove *touch* Event like *mouse* Events.
   canvas.style.touchAction = 'none'
   canvas.tabIndex = 0
+
+  canvas.style.width = '100%'
+  canvas.style.height = '100%'
+
   canvas.focus()
   if (!canvas.parentNode) {
     const main = document.createElement('main') // a11y.

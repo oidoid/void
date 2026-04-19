@@ -29,5 +29,9 @@ export const deltaMsOffset: number =
   gamepadsOffset + maxGamepads * gamepadPollSize
 /** byte offset of NowMs field within Update. */
 export const nowMsOffset: number = deltaMsOffset + 8
+/** byte offset of CanvasW field within Update (CSS logical px). */
+export const canvasWOffset: number = nowMsOffset + 8
+/** byte offset of CanvasH field within Update (CSS logical px). */
+export const canvasHOffset: number = canvasWOffset + 4
 /** total byte size of the Update struct. */
-export const updateByteLen: number = nowMsOffset + 8
+export const updateByteLen: number = canvasHOffset + 4

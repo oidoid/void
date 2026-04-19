@@ -2,6 +2,10 @@
 
 ## Development
 
+JS depends on Go.
+
+### Make
+
 debug make with `V=1 make --jobs=1`.
 
 make debug builds with `DEBUG=1 make`.
