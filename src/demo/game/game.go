@@ -20,16 +20,16 @@ func NewGame() Game {
 
 var _ V.WasmAPI = (*Game)(nil)
 
-func (this *Game) GetUpdatePointer() uintptr {
-	return this.engine.GetUpdatePointer()
+func (this *Game) FramePointer() uintptr {
+	return this.engine.FramePointer()
 }
 
-func (this *Game) GetSpritePointer() uintptr {
-	return this.engine.GetSpritePointer()
+func (this *Game) SpritePointer() uintptr {
+	return this.engine.SpritePointer()
 }
 
-func (this *Game) GetSpriteCount() uint32 {
-	return this.engine.GetSpriteCount()
+func (this *Game) SpriteCount() uint32 {
+	return this.engine.SpriteCount()
 }
 
 func (this *Game) Update() V.LoopState {
@@ -80,23 +80,23 @@ func (this *Game) Update() V.LoopState {
 	return loop
 }
 
-func (this *Game) GetCamX() float32 { return this.engine.GetCamX() }
-func (this *Game) GetCamY() float32 { return this.engine.GetCamY() }
+func (this *Game) CamX() float32 { return this.engine.CamX() }
+func (this *Game) CamY() float32 { return this.engine.CamY() }
 
-func (this *Game) GetTilePointer() uintptr {
+func (this *Game) TilePointer() uintptr {
 	return uintptr(unsafe.Pointer(&demo.InitLevel.Tiles[0]))
 }
 
-func (this *Game) GetTileCount() uint32 {
+func (this *Game) TileCount() uint32 {
 	return uint32(len(demo.InitLevel.Tiles))
 }
 
-func (this *Game) GetLevelX() int16     { return demo.InitLevel.X }
-func (this *Game) GetLevelY() int16     { return demo.InitLevel.Y }
-func (this *Game) GetLevelW() uint16    { return demo.InitLevel.W }
-func (this *Game) GetLevelH() uint16    { return demo.InitLevel.H }
-func (this *Game) GetLevelTileW() uint8 { return demo.InitLevel.Tile.W }
-func (this *Game) GetLevelTileH() uint8 { return demo.InitLevel.Tile.H }
+func (this *Game) LevelX() int16     { return demo.InitLevel.X }
+func (this *Game) LevelY() int16     { return demo.InitLevel.Y }
+func (this *Game) LevelW() uint16    { return demo.InitLevel.W }
+func (this *Game) LevelH() uint16    { return demo.InitLevel.H }
+func (this *Game) LevelTileW() uint8 { return demo.InitLevel.Tile.W }
+func (this *Game) LevelTileH() uint8 { return demo.InitLevel.Tile.H }
 
 func init() {
 	println(version)

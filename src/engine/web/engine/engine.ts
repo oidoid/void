@@ -35,10 +35,10 @@ export class Engine {
     })
     this.#wasm = result.instance.exports as WasmAPI
     wasi.link(this.#wasm.memory)
-    this.#wasm._start()
+    this.#wasm._initialize()
     this.#update = new DataView(
       this.#wasm.memory.buffer,
-      this.#wasm.GetUpdatePointer(),
+      this.#wasm.FramePointer(),
       updateByteLen
     )
 
@@ -47,14 +47,14 @@ export class Engine {
     this.#renderer = new Renderer(
       canvas,
       this.#wasm.memory.buffer,
-      this.#wasm.GetTilePointer(),
-      this.#wasm.GetTileCount(),
-      this.#wasm.GetLevelX(),
-      this.#wasm.GetLevelY(),
-      this.#wasm.GetLevelW(),
-      this.#wasm.GetLevelH(),
-      this.#wasm.GetLevelTileW(),
-      this.#wasm.GetLevelTileH()
+      this.#wasm.TilePointer(),
+      this.#wasm.TileCount(),
+      this.#wasm.LevelX(),
+      this.#wasm.LevelY(),
+      this.#wasm.LevelW(),
+      this.#wasm.LevelH(),
+      this.#wasm.LevelTileW(),
+      this.#wasm.LevelTileH()
     )
   }
 
@@ -75,10 +75,10 @@ export class Engine {
     this.#writeUpdate()
     this.#renderer.draw(
       this.#wasm.memory.buffer,
-      this.#wasm.GetSpritePointer(),
-      this.#wasm.GetSpriteCount(),
-      this.#wasm.GetCamX(),
-      this.#wasm.GetCamY()
+      this.#wasm.SpritePointer(),
+      this.#wasm.SpriteCount(),
+      this.#wasm.CamX(),
+      this.#wasm.CamY()
     )
     if (this.#wasm.Update() !== LoopLoop) {
       cancelAnimationFrame(this.#rafId)
@@ -99,7 +99,7 @@ export class Engine {
     if (this.#update.buffer !== this.#wasm.memory.buffer)
       this.#update = new DataView(
         this.#wasm.memory.buffer,
-        this.#wasm.GetUpdatePointer(),
+        this.#wasm.FramePointer(),
         updateByteLen
       )
     const now = performance.now()

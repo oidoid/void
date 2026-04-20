@@ -2,29 +2,29 @@ export type WasmAPI = {
   // linear memory shared between Go and JS.
   memory: WebAssembly.Memory
   // initialises the Go runtime and calls `main()`.
-  _start(): void
-  // byte offset into `memory` of the update.
-  GetUpdatePointer(): number
+  _initialize(): void
+  // byte offset into `memory` of the frame.
+  FramePointer(): number
   // byte offset into `memory` of the first sprite.
-  GetSpritePointer(): number
+  SpritePointer(): number
   // number of sprites to draw this frame.
-  GetSpriteCount(): number
+  SpriteCount(): number
   Update(): Loop
   // byte offset into `memory` of the first tile.
-  GetTilePointer(): number
+  TilePointer(): number
   // total number of tiles.
-  GetTileCount(): number
+  TileCount(): number
   // level origin and size in pixels.
-  GetLevelX(): number
-  GetLevelY(): number
-  GetLevelW(): number
-  GetLevelH(): number
+  LevelX(): number
+  LevelY(): number
+  LevelW(): number
+  LevelH(): number
   // tile pixel dimensions.
-  GetLevelTileW(): number
-  GetLevelTileH(): number
+  LevelTileW(): number
+  LevelTileH(): number
   // camera position in world pixels.
-  GetCamX(): number
-  GetCamY(): number
+  CamX(): number
+  CamY(): number
 }
 
 export type Loop = typeof LoopPause | typeof LoopLoop

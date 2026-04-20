@@ -9,19 +9,19 @@ var gam = game.NewGame()
 
 func main() {}
 
-//export GetUpdatePointer
-func GetUpdatePointer() uintptr {
-	return gam.GetUpdatePointer()
+//export FramePointer
+func FramePointer() uintptr {
+	return gam.FramePointer()
 }
 
-//export GetSpritePointer
-func GetSpritePointer() uintptr {
-	return gam.GetSpritePointer()
+//export SpritePointer
+func SpritePointer() uintptr {
+	return gam.SpritePointer()
 }
 
-//export GetSpriteCount
-func GetSpriteCount() uint32 {
-	return gam.GetSpriteCount()
+//export SpriteCount
+func SpriteCount() uint32 {
+	return gam.SpriteCount()
 }
 
 //export Update
@@ -29,36 +29,36 @@ func Update() V.LoopState {
 	return gam.Update()
 }
 
-//export GetTilePointer
-func GetTilePointer() uintptr {
-	return gam.GetTilePointer()
+//export TilePointer
+func TilePointer() uintptr {
+	return gam.TilePointer()
 }
 
-//export GetTileCount
-func GetTileCount() uint32 {
-	return gam.GetTileCount()
+//export TileCount
+func TileCount() uint32 {
+	return gam.TileCount()
 }
 
-//export GetLevelX
-func GetLevelX() int32 { return int32(gam.GetLevelX()) }
+//export LevelX
+func LevelX() int32 { return int32(gam.LevelX()) }
 
-//export GetLevelY
-func GetLevelY() int32 { return int32(gam.GetLevelY()) }
+//export LevelY
+func LevelY() int32 { return int32(gam.LevelY()) }
 
-//export GetLevelW
-func GetLevelW() int32 { return int32(gam.GetLevelW()) }
+//export LevelW
+func LevelW() int32 { return int32(gam.LevelW()) }
 
-//export GetLevelH
-func GetLevelH() int32 { return int32(gam.GetLevelH()) }
+//export LevelH
+func LevelH() int32 { return int32(gam.LevelH()) }
 
-//export GetLevelTileW
-func GetLevelTileW() int32 { return int32(gam.GetLevelTileW()) }
+//export LevelTileW
+func LevelTileW() int32 { return int32(gam.LevelTileW()) }
 
-//export GetLevelTileH
-func GetLevelTileH() int32 { return int32(gam.GetLevelTileH()) }
+//export LevelTileH
+func LevelTileH() int32 { return int32(gam.LevelTileH()) }
 
-//export GetCamX
-func GetCamX() float32 { return gam.GetCamX() }
+//export CamX
+func CamX() float32 { return gam.CamX() }
 
-//export GetCamY
-func GetCamY() float32 { return gam.GetCamY() }
+//export CamY
+func CamY() float32 { return gam.CamY() }
