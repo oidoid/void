@@ -3,8 +3,6 @@ package void
 import (
 	"unsafe"
 
-	"math/rand/v2"
-
 	"github.com/oidoid/void/src/engine/geo"
 	"github.com/oidoid/void/src/engine/input"
 )
@@ -14,14 +12,14 @@ var _ WasmAPI = (*Engine)(nil)
 type Engine struct {
 	update  Update
 	zoo     Zoo
-	rnd     *rand.Rand
+	Rnd     Random
 	Cam     geo.XY[float32]
 	CanvasW int32
 	CanvasH int32
 }
 
 func NewEngine() Engine {
-	return Engine{rnd: rand.New(rand.NewPCG(rand.Uint64(), rand.Uint64()))}
+	return Engine{Rnd: newRandom()}
 }
 
 func (this *Engine) GetSpriteCount() uint32 {
@@ -52,9 +50,9 @@ func (this *Engine) Update() LoopState {
 	for _, pointer := range this.update.Input.Pointers[:this.update.Input.PointersLen] {
 		if pointer.Buttons != 0 {
 			for range 1000 {
-				radius := uint8(this.rnd.IntN(3) + 8)
+				radius := uint8(this.Rnd.Float64()*3 + 8)
 				this.zoo.DrawCircle(pointer.X, pointer.Y, radius,
-					this.rnd.Float32()*4-2, this.rnd.Float32()*4-2, uint8(this.rnd.IntN(256)), uint8(this.rnd.IntN(256)), uint8(this.rnd.IntN(256)), 255)
+					float32(this.Rnd.Float64()*4-2), float32(this.Rnd.Float64()*4-2), uint8(this.Rnd.Float64()*256), uint8(this.Rnd.Float64()*256), uint8(this.Rnd.Float64()*256), 255)
 			}
 			println(this.zoo.count, this.update.DeltaMs, this.update.NowMs)
 			loop = Loop
