@@ -16,8 +16,8 @@ type entry struct {
 }
 
 const (
-	baselineFilename = ".fat"
-	maxDelta         = int64(1024)
+	filename = ".fat"
+	maxDelta = int64(1024)
 )
 
 func main() {
@@ -97,7 +97,7 @@ func readFat(reader io.Reader) ([]entry, error) {
 }
 
 func runCheck() error {
-	file, err := os.Open(baselineFilename)
+	file, err := os.Open(filename)
 	if err != nil {
 		return err
 	}
@@ -107,7 +107,7 @@ func runCheck() error {
 
 func runSave(paths []string) error {
 	if len(paths) == 0 {
-		file, err := os.Open(baselineFilename)
+		file, err := os.Open(filename)
 		if err != nil {
 			return err
 		}
@@ -121,7 +121,7 @@ func runSave(paths []string) error {
 		}
 	}
 
-	file, err := os.Create(baselineFilename)
+	file, err := os.Create(filename)
 	if err != nil {
 		return err
 	}
