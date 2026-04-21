@@ -3,5 +3,5 @@
   "compilerOptions": {
     "lib": ["DOM", "ES2023", "ESNext.Disposable"]
   },
-  "references": [{"path": "../../engine/web"}]
+  "references": [{"path": "../../void/web"}]
 }

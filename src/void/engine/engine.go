@@ -1,19 +1,19 @@
-package void
+package engine
 
 import (
 	"unsafe"
 
-	"github.com/oidoid/void/src/engine/geo"
+	VMath "github.com/oidoid/void/src/void/math"
 )
 
 type Engine struct {
 	frame Frame
-	Rnd   Random
-	Cam   geo.XY[float32]
+	Rnd   VMath.Random
+	Cam   VMath.XY[float32]
 }
 
 func NewEngine() *Engine {
-	return &Engine{Rnd: newRandom()}
+	return &Engine{Rnd: VMath.NewRandom()}
 }
 
 func (this *Engine) FramePointer() uintptr {

@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/oidoid/void/src/demo/game"
-	V "github.com/oidoid/void/src/engine" // to-do: rename V?
+	VEngine "github.com/oidoid/void/src/void/engine" // to-do: rename V?
 )
 
 var gam = game.NewGame()
@@ -25,7 +25,7 @@ func SpriteCount() uint32 {
 }
 
 //export Update
-func Update() V.LoopState {
+func Update() VEngine.LoopState {
 	return gam.Update()
 }
 

@@ -1,6 +1,6 @@
-package void
+package engine
 
-import "github.com/oidoid/void/src/engine/input"
+import "github.com/oidoid/void/src/void/input"
 
 type Frame struct {
 	Input input.Input

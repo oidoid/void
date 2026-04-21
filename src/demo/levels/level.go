@@ -1,15 +1,15 @@
-package demo
+package levels
 
 import (
-	V "github.com/oidoid/void/src/engine" // to-do: call package V?
-	"github.com/oidoid/void/src/engine/geo"
+	VLevels "github.com/oidoid/void/src/void/levels"
+	VMath "github.com/oidoid/void/src/void/math"
 )
 
 // to-do: encode.
-var InitLevel = V.Level{
-	Box:  geo.Box[int16, uint16]{XY: geo.XY[int16]{X: -24, Y: -24}, WH: geo.WH[uint16]{W: 4096, H: 4096}},
-	Tile: geo.WH[uint8]{W: 16, H: 16},
-	Tiles: []V.Tile{
+var InitLevel = VLevels.Level{
+	Box:  VMath.Box[int16, uint16]{XY: VMath.XY[int16]{X: -24, Y: -24}, WH: VMath.WH[uint16]{W: 4096, H: 4096}},
+	Tile: VMath.WH[uint8]{W: 16, H: 16},
+	Tiles: []VLevels.Tile{
 		1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
 		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
 		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,

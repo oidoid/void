@@ -1,26 +1,31 @@
-package void
+package ents
 
-import "unsafe"
+import (
+	"unsafe"
+
+	"github.com/oidoid/void/src/void/engine"
+	"github.com/oidoid/void/src/void/gfx"
+)
 
 const MaxSprites = 1024 * 1024
 
 // Ent is a generic entity managed by Zoo.
 type Ent interface {
 	Update(w, h int)
-	Sprite() Sprite
+	Sprite() gfx.Sprite
 }
 
 type Zoo struct {
 	count   int
 	ents    [MaxSprites]Ent
-	sprites [MaxSprites]Sprite
+	sprites [MaxSprites]gfx.Sprite
 }
 
 func NewZoo() *Zoo {
 	return &Zoo{}
 }
 
-func (this *Zoo) Update(frame *Frame) {
+func (this *Zoo) Update(frame *engine.Frame) {
 	w, h := int(frame.CanvasW), int(frame.CanvasH)
 	for i := range this.count {
 		this.ents[i].Update(w, h)

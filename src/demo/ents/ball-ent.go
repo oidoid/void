@@ -1,31 +1,34 @@
 package ents
 
 import (
-	V "github.com/oidoid/void/src/engine"
+	"github.com/oidoid/void/src/void/gfx"
+	VMath "github.com/oidoid/void/src/void/math"
+
+	VEnts "github.com/oidoid/void/src/void/ents"
 	// to-do: rename package void.
 )
 
 type Vel struct{ X, Y float32 }
 
 type BallEnt struct {
-	sprite V.Sprite
+	sprite gfx.Sprite
 	vel    Vel
 }
 
 // to-do: use zoo.
 type BallPool struct {
-	pool  [V.MaxSprites]BallEnt
+	pool  [VEnts.MaxSprites]BallEnt
 	count int
 }
 
-func (p *BallPool) New(rnd *V.Random, x, y float32) *BallEnt {
+func (p *BallPool) New(rnd *VMath.Random, x, y float32) *BallEnt {
 	if p.count >= len(p.pool) {
 		return nil
 	}
 	b := &p.pool[p.count]
 	p.count++
 	*b = BallEnt{
-		sprite: V.Sprite{
+		sprite: gfx.Sprite{
 			X:      x,
 			Y:      y,
 			Radius: uint8(rnd.Float64()*3 + 8),
@@ -42,7 +45,7 @@ func (p *BallPool) New(rnd *V.Random, x, y float32) *BallEnt {
 	return b
 }
 
-func (this *BallEnt) Sprite() V.Sprite { return this.sprite }
+func (this *BallEnt) Sprite() gfx.Sprite { return this.sprite }
 
 func (this *BallEnt) Update(w, h int) {
 	radius := float32(this.sprite.Radius)

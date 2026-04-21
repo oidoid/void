@@ -1,4 +1,4 @@
-package geo
+package math
 
 type Box[Pos, Size any] struct {
 	XY[Pos]

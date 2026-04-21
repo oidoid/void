@@ -3,25 +3,27 @@ package game
 import (
 	"unsafe"
 
-	"github.com/oidoid/void/src/demo"
 	"github.com/oidoid/void/src/demo/ents"
-	V "github.com/oidoid/void/src/engine"
-	"github.com/oidoid/void/src/engine/input"
+	DLevels "github.com/oidoid/void/src/demo/levels"
+	VEngine "github.com/oidoid/void/src/void/engine"
+	VEnts "github.com/oidoid/void/src/void/ents"
+	"github.com/oidoid/void/src/void/input"
+	VWeb "github.com/oidoid/void/src/void/web"
 )
 
 type Game struct {
-	engine   *V.Engine
-	balls    *V.Zoo
+	engine   *VEngine.Engine
+	balls    *VEnts.Zoo
 	ballPool ents.BallPool
 }
 
 var version string
 
 func NewGame() Game {
-	return Game{engine: V.NewEngine(), balls: V.NewZoo()}
+	return Game{engine: VEngine.NewEngine(), balls: VEnts.NewZoo()}
 }
 
-var _ V.WasmAPI = (*Game)(nil)
+var _ VWeb.WasmAPI = (*Game)(nil)
 
 func (this *Game) FramePointer() uintptr {
 	return this.engine.FramePointer()
@@ -35,12 +37,12 @@ func (this *Game) SpriteCount() uint32 {
 	return this.balls.SpriteCount()
 }
 
-func (this *Game) Update() V.LoopState {
+func (this *Game) Update() VEngine.LoopState {
 	frame := this.engine.Frame()
 	this.balls.Update(frame)
-	loop := V.Pause
+	loop := VEngine.Pause
 	if this.balls.SpriteCount() > 0 {
-		loop = V.Loop
+		loop = VEngine.Loop
 	}
 	// to-do: ball bounds level sized.
 	for i := range frame.Input.PointersLen {
@@ -52,7 +54,7 @@ func (this *Game) Update() V.LoopState {
 				}
 			}
 			println(this.balls.SpriteCount(), "balls")
-			loop = V.Loop
+			loop = VEngine.Loop
 		}
 	}
 	if frame.Input.Wheel.DeltaX != 0 || frame.Input.Wheel.DeltaY != 0 || frame.Input.Wheel.DeltaZ != 0 {
@@ -62,7 +64,7 @@ func (this *Game) Update() V.LoopState {
 		gamepad := &frame.Input.Gamepads[i]
 		println("gamepad", gamepad.Index, gamepad.Buttons, gamepad.Axes[0], gamepad.Axes[1])
 		if gamepad.Buttons != 0 {
-			loop = V.Loop
+			loop = VEngine.Loop
 		}
 	}
 	kbd := &frame.Input.Keyboard
@@ -73,19 +75,19 @@ func (this *Game) Update() V.LoopState {
 	}
 	if kbd.Keys&input.KeyLeft != 0 {
 		this.engine.Cam.X -= dx
-		loop = V.Loop
+		loop = VEngine.Loop
 	}
 	if kbd.Keys&input.KeyRight != 0 {
 		this.engine.Cam.X += dx
-		loop = V.Loop
+		loop = VEngine.Loop
 	}
 	if kbd.Keys&input.KeyUp != 0 {
 		this.engine.Cam.Y -= dx
-		loop = V.Loop
+		loop = VEngine.Loop
 	}
 	if kbd.Keys&input.KeyDown != 0 {
 		this.engine.Cam.Y += dx
-		loop = V.Loop
+		loop = VEngine.Loop
 	}
 	const edgeZone = float32(64)
 	for i := range frame.Input.PointersLen {
@@ -95,23 +97,23 @@ func (this *Game) Update() V.LoopState {
 		}
 		if pointer.X < edgeZone {
 			this.engine.Cam.X -= dx
-			loop = V.Loop
+			loop = VEngine.Loop
 		} else if pointer.X > float32(frame.CanvasW)-edgeZone {
 			this.engine.Cam.X += dx
-			loop = V.Loop
+			loop = VEngine.Loop
 		}
 		if pointer.Y < edgeZone {
 			this.engine.Cam.Y -= dx
-			loop = V.Loop
+			loop = VEngine.Loop
 		} else if pointer.Y > float32(frame.CanvasH)-edgeZone {
 			this.engine.Cam.Y += dx
-			loop = V.Loop
+			loop = VEngine.Loop
 		}
 	}
 	for bit := input.Key(1); bit != 0; bit <<= 1 {
 		if kbd.Keys&bit != 0 {
 			println("key", bit)
-			loop = V.Loop
+			loop = VEngine.Loop
 		}
 	}
 	if kbd.TextLen > 0 {
@@ -120,7 +122,7 @@ func (this *Game) Update() V.LoopState {
 		if kbd.TextOverflow {
 			println("error: text overflow")
 		}
-		loop = V.Loop
+		loop = VEngine.Loop
 	}
 	return loop
 }
@@ -129,19 +131,19 @@ func (this *Game) CamX() float32 { return this.engine.CamX() }
 func (this *Game) CamY() float32 { return this.engine.CamY() }
 
 func (this *Game) TilePointer() uintptr {
-	return uintptr(unsafe.Pointer(&demo.InitLevel.Tiles[0]))
+	return uintptr(unsafe.Pointer(&DLevels.InitLevel.Tiles[0]))
 }
 
 func (this *Game) TileCount() uint32 {
-	return uint32(len(demo.InitLevel.Tiles))
+	return uint32(len(DLevels.InitLevel.Tiles))
 }
 
-func (this *Game) LevelX() int16     { return demo.InitLevel.X }
-func (this *Game) LevelY() int16     { return demo.InitLevel.Y }
-func (this *Game) LevelW() uint16    { return demo.InitLevel.W }
-func (this *Game) LevelH() uint16    { return demo.InitLevel.H }
-func (this *Game) LevelTileW() uint8 { return demo.InitLevel.Tile.W }
-func (this *Game) LevelTileH() uint8 { return demo.InitLevel.Tile.H }
+func (this *Game) LevelX() int16     { return DLevels.InitLevel.X }
+func (this *Game) LevelY() int16     { return DLevels.InitLevel.Y }
+func (this *Game) LevelW() uint16    { return DLevels.InitLevel.W }
+func (this *Game) LevelH() uint16    { return DLevels.InitLevel.H }
+func (this *Game) LevelTileW() uint8 { return DLevels.InitLevel.Tile.W }
+func (this *Game) LevelTileH() uint8 { return DLevels.InitLevel.Tile.H }
 
 func init() {
 	println(version)

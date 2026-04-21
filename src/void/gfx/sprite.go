@@ -1,4 +1,4 @@
-package void
+package gfx
 
 // to-do: hold a ref?
 type Sprite struct {
