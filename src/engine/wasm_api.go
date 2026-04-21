@@ -8,8 +8,6 @@ const (
 )
 
 type WasmAPI interface {
-	SpriteCount() uint32
-	SpritePointer() uintptr
 	FramePointer() uintptr
 	Update() LoopState
 }

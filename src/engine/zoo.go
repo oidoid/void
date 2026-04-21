@@ -1,56 +1,45 @@
 package void
 
-const maxSprites = 1024 * 1024
+import "unsafe"
+
+const MaxSprites = 1024 * 1024
+
+// Ent is a generic entity managed by Zoo.
+type Ent interface {
+	Update(w, h int)
+	Sprite() Sprite
+}
 
 type Zoo struct {
-	w, h    int
-	sprites [maxSprites]Sprite
-	vels    [maxSprites]Vel
 	count   int
+	ents    [MaxSprites]Ent
+	sprites [MaxSprites]Sprite
 }
 
-type Vel struct {
-	X, Y float32
+func NewZoo() *Zoo {
+	return &Zoo{}
 }
 
-func (this *Zoo) SetSize(w, h int) {
-	this.w = w
-	this.h = h
-}
-
-func (this *Zoo) Update() {
+func (this *Zoo) Update(frame *Frame) {
+	w, h := int(frame.CanvasW), int(frame.CanvasH)
 	for i := range this.count {
-		sprite := &this.sprites[i]
-		vel := &this.vels[i]
-		radius := float32(sprite.Radius)
-		sprite.X += vel.X
-		sprite.Y += vel.Y
-		if sprite.X-radius < 0 {
-			sprite.X = radius
-			vel.X = -vel.X
-		} else if sprite.X+radius > float32(this.w) {
-			sprite.X = float32(this.w) - radius
-			vel.X = -vel.X
-		}
-		if sprite.Y-radius < 0 {
-			sprite.Y = radius
-			vel.Y = -vel.Y
-		} else if sprite.Y+radius > float32(this.h) {
-			sprite.Y = float32(this.h) - radius
-			vel.Y = -vel.Y
-		}
+		this.ents[i].Update(w, h)
+		this.sprites[i] = this.ents[i].Sprite()
 	}
 }
 
-func (this *Zoo) DrawCircle(cx, cy float32, radius uint8, vx, vy float32, r, g, b, a uint8) {
-	if this.count >= maxSprites {
+func (this *Zoo) Add(ent Ent) {
+	if this.count >= MaxSprites {
 		return
 	}
-	this.sprites[this.count] = Sprite{
-		X: cx, Y: cy,
-		Radius: radius,
-		R:      r, G: g, B: b, A: a,
-	}
-	this.vels[this.count] = Vel{X: vx, Y: vy}
+	this.ents[this.count] = ent
 	this.count++
+}
+
+func (this *Zoo) SpritePointer() uintptr {
+	return uintptr(unsafe.Pointer(&this.sprites[0]))
+}
+
+func (this *Zoo) SpriteCount() uint32 {
+	return uint32(this.count)
 }
