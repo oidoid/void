@@ -7,7 +7,7 @@ sudo apt update
 sudo apt install --no-install-recommends --yes webp
 
 # TinyGo.
-curl --location https://github.com/tinygo-org/tinygo/releases/download/v0.40.1/tinygo_0.40.1_amd64.deb --output /tmp/tinygo.deb
+curl --location https://github.com/tinygo-org/tinygo/releases/download/v0.41.0/tinygo_0.41.0_amd64.deb --output /tmp/tinygo.deb
 sudo dpkg --install /tmp/tinygo.deb
 
 # wasm-opt.
