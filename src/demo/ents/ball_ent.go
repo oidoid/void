@@ -3,13 +3,12 @@ package ents
 import (
 	"github.com/oidoid/void/src/demo/game"
 	"github.com/oidoid/void/src/void/vgfx"
+	"github.com/oidoid/void/src/void/vmath"
 )
-
-type Vel struct{ X, Y float32 }
 
 type BallEnt[Game game.Game] struct {
 	sprite *vgfx.Sprite
-	vel    Vel
+	vel    vmath.XY[float32]
 }
 
 func NewBallEnt[Game game.Game](gam Game, x, y float32) *BallEnt[Game] {
@@ -25,10 +24,7 @@ func NewBallEnt[Game game.Game](gam Game, x, y float32) *BallEnt[Game] {
 	}
 	return &BallEnt[Game]{
 		sprite: sprite,
-		vel: Vel{
-			X: gam.Random()*4 - 2,
-			Y: gam.Random()*4 - 2,
-		},
+		vel:    vmath.XY[float32]{X: gam.Random()*4 - 2, Y: gam.Random()*4 - 2},
 	}
 }
 
