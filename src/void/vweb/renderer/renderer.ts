@@ -32,6 +32,9 @@ export class Renderer {
       throw Error('webgl2 unavailable')
     }
 
+    gl.enable(gl.BLEND)
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+
     const tiles = new Uint16Array(buffer, tilePtr, tileCount)
     this.#gl = gl
     this.#sprites = SpriteRenderer.new(gl) // to-do: can we avoid work at construction?

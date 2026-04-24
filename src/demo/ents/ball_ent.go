@@ -20,7 +20,7 @@ func NewBallEnt[Game game.Game](gam Game, x, y float32) *BallEnt[Game] {
 		R:      uint8(gam.Random() * 256),
 		G:      uint8(gam.Random() * 256),
 		B:      uint8(gam.Random() * 256),
-		A:      255,
+		A:      32 + uint8(gam.Random()*224),
 	}
 	return &BallEnt[Game]{
 		sprite: sprite,
