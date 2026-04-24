@@ -18,8 +18,10 @@ const MaxTextLen = 4096
 
 type KeyboardPoll struct {
 	// buttons pressed bitfield.
-	Keys         Key
-	TextLen      uint16
-	Text         [MaxTextLen]byte
+	Keys    Key
+	TextLen uint16
+	// UTF-8 encoded text input this frame.
+	Text [MaxTextLen]byte
+	// true if text input exceeded MaxTextLen and was truncated.
 	TextOverflow bool
 }

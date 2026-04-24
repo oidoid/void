@@ -18,7 +18,7 @@ type PointerPoll struct {
 	// pointer ID; -1 if nonpointing device (eg, a click event fired on a button
 	// activated via keyboard).
 	ID int32
-	// coords in client pixels from top-left and contact area in client pixels.
+	// coords in physical pixels from top-left and contact area in physical pixels.
 	vmath.Box[float32, float32]
 	// normalized pressure in [0, 1].
 	Pressure float32

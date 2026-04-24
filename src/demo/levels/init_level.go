@@ -18,13 +18,12 @@ func Update(gam game.Game) vgame.Status {
 		pointer := &gam.Input().Pointers[i]
 		if pointer.Buttons&1 == 1 {
 			for range int(20_000 * (frame.DeltaMs / 1000)) {
-				gam.Balls().Add(ents.NewBallEnt(gam, pointer.X, pointer.Y))
+				gam.Balls().Add(ents.NewBallEnt(gam, gam.CamX()+pointer.X, gam.CamY()+pointer.Y))
 			}
 			println(gam.SpriteCount(), "balls", int(pointer.X), int(pointer.Y), int(frame.DeltaMs))
 			loop = vgame.Loop
 		}
 	}
-	println(gam.Canvas().W, gam.Canvas().H)
 	if gam.Input().Wheel.Delta.X != 0 || gam.Input().Wheel.Delta.Y != 0 || gam.Input().Wheel.Delta.Z != 0 {
 		println("wheel", gam.Input().Wheel.Delta.X, gam.Input().Wheel.Delta.Y, gam.Input().Wheel.Delta.Z)
 	}

@@ -14,13 +14,13 @@ export type PointerPoll = {
    * activated via keyboard).
    */
   id: number
-  /** x coord in client pixels from top-left; readonly. */
+  /** x coord in physical pixels from top-left; readonly. */
   x: number
-  /** y coord in client pixels from top-left; readonly. */
+  /** y coord in physical pixels from top-left; readonly. */
   y: number
-  /** contact width in client pixels. */
+  /** contact width in physical pixels. */
   w: number
-  /** contact height in client pixels. */
+  /** contact height in physical pixels. */
   h: number
   /** normalized pressure in [0, 1]. */
   pressure: number
@@ -72,10 +72,10 @@ export class Pointer {
         this.#target.setPointerCapture(ev.pointerId)
       this.polls[ev.pointerId] = {
         id: ev.pointerId,
-        x: ev.clientX,
-        y: ev.clientY,
-        w: ev.width,
-        h: ev.height,
+        x: ev.clientX * devicePixelRatio,
+        y: ev.clientY * devicePixelRatio,
+        w: ev.width * devicePixelRatio,
+        h: ev.height * devicePixelRatio,
         pressure: ev.pressure,
         tiltX: ev.tiltX,
         tiltY: ev.tiltY,

@@ -66,6 +66,7 @@ export class Keyboard {
     canvas.parentNode.appendChild(this.#input)
   }
 
+  // bitmask of currently pressed keys; see Key constants in Go.
   get keys(): number {
     let keys = 0
     for (const code of this.#keys) keys |= keyByCode[code] ?? 0
@@ -96,6 +97,7 @@ export class Keyboard {
     this.register('remove')
   }
 
+  // UTF-8 text accumulated this frame.
   get text(): string {
     return this.#input.value
   }
