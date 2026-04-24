@@ -17,7 +17,7 @@ func NewBallEnt[Game game.Game](gam Game, x, y float32) *BallEnt[Game] {
 	*sprite = vgfx.Sprite{
 		X:      x,
 		Y:      y,
-		Radius: uint8(gam.Random()*1 + 8),
+		Radius: uint8(1 + gam.Random()*4),
 		R:      uint8(gam.Random() * 256),
 		G:      uint8(gam.Random() * 256),
 		B:      uint8(gam.Random() * 256),

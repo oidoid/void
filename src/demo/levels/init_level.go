@@ -35,7 +35,7 @@ func Update(gam game.Game) vgame.Status {
 		}
 	}
 	kbd := gam.Input().Keyboard
-	const camSpeed = float32(1) // px/ms = 100 px/s
+	const camSpeed = .1 // px/ms = 10 px/s
 	dx := camSpeed * float32(frame.DeltaMs)
 	if kbd.Keys&vinput.KeyC != 0 {
 		dx *= 10
