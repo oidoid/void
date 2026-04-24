@@ -3,44 +3,42 @@ package vents
 import (
 	"unsafe"
 
-	"github.com/oidoid/void/src/void/vengine"
+	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgfx"
 )
 
 const MaxSprites = 1024 * 1024
 
-// Ent is a generic entity managed by Zoo.
-type Ent interface {
-	Update(w, h int)
+type Ent[Game vgame.Game] interface {
+	Update(Game)
 }
 
-type Zoo struct {
-	ents    []Ent
+type Zoo[Game vgame.Game] struct {
+	ents    []Ent[Game]
 	sprites [MaxSprites]vgfx.Sprite
 	len     int
 }
 
-func (this *Zoo) Update(frame *vengine.Frame) {
-	w, h := int(frame.CanvasW), int(frame.CanvasH)
+func (this *Zoo[Game]) Update(game Game) {
 	for _, ent := range this.ents {
-		ent.Update(w, h)
+		ent.Update(game)
 	}
 }
 
-func (this *Zoo) Alloc() *vgfx.Sprite {
+func (this *Zoo[Game]) Alloc() *vgfx.Sprite {
 	sprite := &this.sprites[this.len]
 	this.len++
 	return sprite
 }
 
-func (this *Zoo) Add(ent Ent) {
+func (this *Zoo[Game]) Add(ent Ent[Game]) {
 	this.ents = append(this.ents, ent)
 }
 
-func (this *Zoo) SpritePointer() uintptr {
+func (this *Zoo[Game]) SpritePointer() uintptr {
 	return uintptr(unsafe.Pointer(&this.sprites[0]))
 }
 
-func (this *Zoo) SpriteCount() int {
+func (this *Zoo[Game]) SpriteCount() int {
 	return this.len
 }

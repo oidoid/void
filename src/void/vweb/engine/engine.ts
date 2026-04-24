@@ -62,8 +62,8 @@ export class Engine {
     if (this.#registered) return
     this.#input.onEvent = () => this.#requestUpdate()
     this.#input.register('add')
-    addEventListener('blur', this.#onReset)
-    addEventListener('visibilitychange', this.#onReset)
+    addEventListener('blur', this.#onReset) // to-do: requestUpdate()?
+    addEventListener('visibilitychange', this.#onReset) // to-do: requestUpdate()?
     this.#registered = true
     this.update()
   }
