@@ -104,12 +104,11 @@ func packAtlas(argv *Argv) error {
 	args = append(args, ases...)
 	json, err := exec.Command("aseprite", args...).Output()
 	if err != nil {
-		return err
+		return fmt.Errorf("aseprite failed: %w", err)
 	}
 	if !argv.NoWebP {
 		if err := pngToWebP(sheet, filepath.Join(argv.OutDir, argv.Name+".webp")); err != nil {
-			fmt.Println("cwebp failed")
-			return err
+			return fmt.Errorf("cwebp failed: %w", err)
 		}
 	}
 	jsonFile := filepath.Join(argv.OutDir, argv.Name+".json")

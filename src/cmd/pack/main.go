@@ -67,13 +67,16 @@ func main() {
 		}
 		ctx, err := api.Context(opts)
 		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
 		if err := ctx.Watch(api.WatchOptions{}); err != nil {
+			fmt.Fprintln(os.Stderr, err)
 			ctx.Dispose()
 			os.Exit(1)
 		}
 		if _, err := ctx.Serve(api.ServeOptions{Port: config.WatchPort, Servedir: config.OutDir}); err != nil {
+			fmt.Fprintln(os.Stderr, err)
 			ctx.Dispose()
 			os.Exit(1)
 		}
@@ -81,6 +84,7 @@ func main() {
 	} else {
 		result := api.Build(opts)
 		if len(result.Errors) > 0 {
+			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
 		if err := os.WriteFile(filepath.Join(config.OutDir, "meta.json"), []byte(result.Metafile), 0o644); err != nil {
