@@ -4,26 +4,25 @@ import (
 	"unsafe"
 
 	"github.com/oidoid/void/src/demo/ents"
-	DLevels "github.com/oidoid/void/src/demo/levels"
-	VEngine "github.com/oidoid/void/src/void/engine"
-	VEnts "github.com/oidoid/void/src/void/ents"
+	"github.com/oidoid/void/src/demo/levels"
+	"github.com/oidoid/void/src/void/engine"
+	vents "github.com/oidoid/void/src/void/ents"
 	"github.com/oidoid/void/src/void/input"
-	VWeb "github.com/oidoid/void/src/void/web"
+	"github.com/oidoid/void/src/void/web"
 )
 
 type Game struct {
-	engine   *VEngine.Engine
-	balls    *VEnts.Zoo
-	ballPool ents.BallPool
+	engine *engine.Engine
+	balls  *vents.Zoo
 }
 
 var version string
 
 func NewGame() Game {
-	return Game{engine: VEngine.NewEngine(), balls: VEnts.NewZoo()}
+	return Game{engine: engine.NewEngine(), balls: &vents.Zoo{}}
 }
 
-var _ VWeb.WasmAPI = (*Game)(nil)
+var _ web.WasmAPI = (*Game)(nil)
 
 func (this *Game) FramePointer() uintptr {
 	return this.engine.FramePointer()
@@ -33,28 +32,28 @@ func (this *Game) SpritePointer() uintptr {
 	return this.balls.SpritePointer()
 }
 
-func (this *Game) SpriteCount() uint32 {
+func (this *Game) SpriteCount() int {
 	return this.balls.SpriteCount()
 }
 
-func (this *Game) Update() VEngine.LoopState {
+func (this *Game) Update() engine.LoopState {
 	frame := this.engine.Frame()
 	this.balls.Update(frame)
-	loop := VEngine.Pause
+	loop := engine.Pause
 	if this.balls.SpriteCount() > 0 {
-		loop = VEngine.Loop
+		loop = engine.Loop
 	}
 	// to-do: ball bounds level sized.
 	for i := range frame.Input.PointersLen {
 		pointer := &frame.Input.Pointers[i]
 		if pointer.Buttons&1 == 1 {
 			for range 1000 {
-				if b := this.ballPool.New(&this.engine.Rnd, pointer.X, pointer.Y); b != nil {
-					this.balls.Add(b)
+				if ball := ents.NewBallEnt(this.balls, &this.engine.Rnd, pointer.X, pointer.Y); ball != nil {
+					this.balls.Add(ball)
 				}
 			}
 			println(this.balls.SpriteCount(), "balls")
-			loop = VEngine.Loop
+			loop = engine.Loop
 		}
 	}
 	if frame.Input.Wheel.DeltaX != 0 || frame.Input.Wheel.DeltaY != 0 || frame.Input.Wheel.DeltaZ != 0 {
@@ -64,7 +63,7 @@ func (this *Game) Update() VEngine.LoopState {
 		gamepad := &frame.Input.Gamepads[i]
 		println("gamepad", gamepad.Index, gamepad.Buttons, gamepad.Axes[0], gamepad.Axes[1])
 		if gamepad.Buttons != 0 {
-			loop = VEngine.Loop
+			loop = engine.Loop
 		}
 	}
 	kbd := &frame.Input.Keyboard
@@ -75,19 +74,19 @@ func (this *Game) Update() VEngine.LoopState {
 	}
 	if kbd.Keys&input.KeyLeft != 0 {
 		this.engine.Cam.X -= dx
-		loop = VEngine.Loop
+		loop = engine.Loop
 	}
 	if kbd.Keys&input.KeyRight != 0 {
 		this.engine.Cam.X += dx
-		loop = VEngine.Loop
+		loop = engine.Loop
 	}
 	if kbd.Keys&input.KeyUp != 0 {
 		this.engine.Cam.Y -= dx
-		loop = VEngine.Loop
+		loop = engine.Loop
 	}
 	if kbd.Keys&input.KeyDown != 0 {
 		this.engine.Cam.Y += dx
-		loop = VEngine.Loop
+		loop = engine.Loop
 	}
 	const edgeZone = float32(64)
 	for i := range frame.Input.PointersLen {
@@ -97,23 +96,23 @@ func (this *Game) Update() VEngine.LoopState {
 		}
 		if pointer.X < edgeZone {
 			this.engine.Cam.X -= dx
-			loop = VEngine.Loop
+			loop = engine.Loop
 		} else if pointer.X > float32(frame.CanvasW)-edgeZone {
 			this.engine.Cam.X += dx
-			loop = VEngine.Loop
+			loop = engine.Loop
 		}
 		if pointer.Y < edgeZone {
 			this.engine.Cam.Y -= dx
-			loop = VEngine.Loop
+			loop = engine.Loop
 		} else if pointer.Y > float32(frame.CanvasH)-edgeZone {
 			this.engine.Cam.Y += dx
-			loop = VEngine.Loop
+			loop = engine.Loop
 		}
 	}
 	for bit := input.Key(1); bit != 0; bit <<= 1 {
 		if kbd.Keys&bit != 0 {
 			println("key", bit)
-			loop = VEngine.Loop
+			loop = engine.Loop
 		}
 	}
 	if kbd.TextLen > 0 {
@@ -122,7 +121,7 @@ func (this *Game) Update() VEngine.LoopState {
 		if kbd.TextOverflow {
 			println("error: text overflow")
 		}
-		loop = VEngine.Loop
+		loop = engine.Loop
 	}
 	return loop
 }
@@ -131,19 +130,19 @@ func (this *Game) CamX() float32 { return this.engine.CamX() }
 func (this *Game) CamY() float32 { return this.engine.CamY() }
 
 func (this *Game) TilePointer() uintptr {
-	return uintptr(unsafe.Pointer(&DLevels.InitLevel.Tiles[0]))
+	return uintptr(unsafe.Pointer(&levels.InitLevel.Tiles[0]))
 }
 
 func (this *Game) TileCount() uint32 {
-	return uint32(len(DLevels.InitLevel.Tiles))
+	return uint32(len(levels.InitLevel.Tiles))
 }
 
-func (this *Game) LevelX() int16     { return DLevels.InitLevel.X }
-func (this *Game) LevelY() int16     { return DLevels.InitLevel.Y }
-func (this *Game) LevelW() uint16    { return DLevels.InitLevel.W }
-func (this *Game) LevelH() uint16    { return DLevels.InitLevel.H }
-func (this *Game) LevelTileW() uint8 { return DLevels.InitLevel.Tile.W }
-func (this *Game) LevelTileH() uint8 { return DLevels.InitLevel.Tile.H }
+func (this *Game) LevelX() int16     { return levels.InitLevel.X }
+func (this *Game) LevelY() int16     { return levels.InitLevel.Y }
+func (this *Game) LevelW() uint16    { return levels.InitLevel.W }
+func (this *Game) LevelH() uint16    { return levels.InitLevel.H }
+func (this *Game) LevelTileW() uint8 { return levels.InitLevel.Tile.W }
+func (this *Game) LevelTileH() uint8 { return levels.InitLevel.Tile.H }
 
 func init() {
 	println(version)

@@ -1,51 +1,37 @@
 package ents
 
 import (
+	"github.com/oidoid/void/src/void/ents"
 	"github.com/oidoid/void/src/void/gfx"
-	VMath "github.com/oidoid/void/src/void/math"
-
-	VEnts "github.com/oidoid/void/src/void/ents"
-	// to-do: rename package void.
+	"github.com/oidoid/void/src/void/math"
 )
 
 type Vel struct{ X, Y float32 }
 
 type BallEnt struct {
-	sprite gfx.Sprite
+	sprite *gfx.Sprite
 	vel    Vel
 }
 
-// to-do: use zoo.
-type BallPool struct {
-	pool  [VEnts.MaxSprites]BallEnt
-	count int
-}
-
-func (p *BallPool) New(rnd *VMath.Random, x, y float32) *BallEnt {
-	if p.count >= len(p.pool) {
-		return nil
+func NewBallEnt(zoo *ents.Zoo, rnd *math.Random, x, y float32) *BallEnt {
+	sprite := zoo.Alloc()
+	*sprite = gfx.Sprite{
+		X:      x,
+		Y:      y,
+		Radius: uint8(rnd.Float64()*3 + 8),
+		R:      uint8(rnd.Float64() * 256),
+		G:      uint8(rnd.Float64() * 256),
+		B:      uint8(rnd.Float64() * 256),
+		A:      255,
 	}
-	b := &p.pool[p.count]
-	p.count++
-	*b = BallEnt{
-		sprite: gfx.Sprite{
-			X:      x,
-			Y:      y,
-			Radius: uint8(rnd.Float64()*3 + 8),
-			R:      uint8(rnd.Float64() * 256),
-			G:      uint8(rnd.Float64() * 256),
-			B:      uint8(rnd.Float64() * 256),
-			A:      255,
-		},
+	return &BallEnt{
+		sprite: sprite,
 		vel: Vel{
 			X: float32(rnd.Float64()*4 - 2),
 			Y: float32(rnd.Float64()*4 - 2),
 		},
 	}
-	return b
 }
-
-func (this *BallEnt) Sprite() gfx.Sprite { return this.sprite }
 
 func (this *BallEnt) Update(w, h int) {
 	radius := float32(this.sprite.Radius)

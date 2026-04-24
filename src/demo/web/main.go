@@ -21,7 +21,7 @@ func SpritePointer() uintptr {
 
 //export SpriteCount
 func SpriteCount() uint32 {
-	return gam.SpriteCount()
+	return uint32(gam.SpriteCount())
 }
 
 //export Update

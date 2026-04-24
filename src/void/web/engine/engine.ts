@@ -106,8 +106,8 @@ export class Engine {
     const delta = this.#lastTime === 0 ? 0 : now - this.#lastTime
     this.#update.setFloat64(deltaMsOffset, delta, true)
     this.#update.setFloat64(nowMsOffset, performance.timeOrigin + now, true)
-    this.#update.setUint32(canvasWOffset, this.#renderer.canvasW, true)
-    this.#update.setUint32(canvasHOffset, this.#renderer.canvasH, true)
+    this.#update.setUint16(canvasWOffset, this.#renderer.canvasW, true)
+    this.#update.setUint16(canvasHOffset, this.#renderer.canvasH, true)
     this.#input.update(this.#update)
     this.#input.postupdate() // to-do: move to postupdate()?
     this.#lastTime = 0

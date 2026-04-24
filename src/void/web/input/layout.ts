@@ -32,6 +32,6 @@ export const nowMsOffset: number = deltaMsOffset + 8
 /** byte offset of CanvasW field within Update (CSS logical px). */
 export const canvasWOffset: number = nowMsOffset + 8
 /** byte offset of CanvasH field within Update (CSS logical px). */
-export const canvasHOffset: number = canvasWOffset + 4
+export const canvasHOffset: number = canvasWOffset + 2
 /** total byte size of the Update struct. */
-export const updateByteLen: number = canvasHOffset + 4
+export const updateByteLen: number = canvasHOffset + 2

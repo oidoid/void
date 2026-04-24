@@ -96,6 +96,7 @@ func packAtlas(argv *Argv) error {
 		"--list-slices",
 		"--list-tags",
 		"--merge-duplicates",
+		// to-do: "--power-of-two-size",
 		"--sheet=" + sheet,
 		"--sheet-pack",
 		"--tagname-format={title}--{tag}", // to-do: still relevant?
@@ -107,6 +108,7 @@ func packAtlas(argv *Argv) error {
 	}
 	if !argv.NoWebP {
 		if err := pngToWebP(sheet, filepath.Join(argv.OutDir, argv.Name+".webp")); err != nil {
+			fmt.Println("cwebp failed")
 			return err
 		}
 	}
