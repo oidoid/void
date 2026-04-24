@@ -4,6 +4,7 @@ import (
 	"unsafe"
 
 	"github.com/oidoid/void/src/void/vgame"
+	"github.com/oidoid/void/src/void/vinput"
 	"github.com/oidoid/void/src/void/vlevels"
 	"github.com/oidoid/void/src/void/vmath"
 )
@@ -29,9 +30,11 @@ func (this *Engine) FramePointer() uintptr {
 	return uintptr(unsafe.Pointer(&this.frame))
 }
 
-func (this *Engine) Cam() *vmath.XY[float32] { return &this.cam }
-func (this *Engine) CamX() float32           { return this.cam.X }
-func (this *Engine) CamY() float32           { return this.cam.Y }
+func (this *Engine) Cam() *vmath.XY[float32]   { return &this.cam }
+func (this *Engine) CamX() float32             { return this.cam.X }
+func (this *Engine) CamY() float32             { return this.cam.Y }
+func (this *Engine) Canvas() *vmath.WH[uint16] { return &this.frame.Canvas }
+func (this *Engine) Input() *vinput.Input      { return &this.frame.Input }
 
 func (this *Engine) LevelX() int16  { return this.Level.X }
 func (this *Engine) LevelY() int16  { return this.Level.Y }

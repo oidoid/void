@@ -1,10 +1,15 @@
 package vgame
 
-import "github.com/oidoid/void/src/void/vmath"
+import (
+	"github.com/oidoid/void/src/void/vinput"
+	"github.com/oidoid/void/src/void/vmath"
+)
 
 type Game interface {
 	Platform
 	Frame() *Frame
 	Random() float32
 	Cam() *vmath.XY[float32]
+	Canvas() *vmath.WH[uint16]
+	Input() *vinput.Input
 }
