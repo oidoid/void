@@ -16,13 +16,12 @@ type Game struct {
 	balls  *vents.Zoo
 }
 
+var _ vweb.WasmAPI = (*Game)(nil)
 var version string
 
 func NewGame() Game {
 	return Game{engine: vengine.NewEngine(), balls: &vents.Zoo{}}
 }
-
-var _ vweb.WasmAPI = (*Game)(nil)
 
 func (this *Game) FramePointer() uintptr {
 	return this.engine.FramePointer()
@@ -43,16 +42,15 @@ func (this *Game) Update() vengine.LoopState {
 	if this.balls.SpriteCount() > 0 {
 		loop = vengine.Loop
 	}
-	// to-do: ball bounds level sized.
 	for i := range frame.Input.PointersLen {
 		pointer := &frame.Input.Pointers[i]
 		if pointer.Buttons&1 == 1 {
-			for range 1000 {
+			for range int(1_000 * (frame.DeltaMs / 1000)) {
 				if ball := ents.NewBallEnt(this.balls, this.engine.Rnd, pointer.X, pointer.Y); ball != nil {
 					this.balls.Add(ball)
 				}
 			}
-			println(this.balls.SpriteCount(), "balls")
+			println(this.balls.SpriteCount(), "balls", int(pointer.X), int(pointer.Y), int(frame.DeltaMs))
 			loop = vengine.Loop
 		}
 	}

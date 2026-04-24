@@ -83,11 +83,13 @@ export class Engine {
     if (this.#wasm.Update() !== LoopLoop) {
       cancelAnimationFrame(this.#rafId)
       this.#rafId = 0
+      this.#lastTime = 0
     }
   }
 
   #requestUpdate(): void {
-    this.#rafId ||= requestAnimationFrame(() => this.update())
+    if (this.#rafId) return
+    this.#rafId = requestAnimationFrame(() => this.update())
     this.#lastTime ||= performance.now()
   }
 
@@ -110,6 +112,6 @@ export class Engine {
     this.#update.setUint16(canvasHOffset, this.#renderer.canvasH, true)
     this.#input.update(this.#update)
     this.#input.postupdate() // to-do: move to postupdate()?
-    this.#lastTime = 0
+    this.#lastTime = now
   }
 }
