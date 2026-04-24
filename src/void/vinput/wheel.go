@@ -1,4 +1,4 @@
-package input
+package vinput
 
 type WheelPoll struct {
 	// horizontal scroll delta in client pixels.

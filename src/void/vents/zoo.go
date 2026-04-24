@@ -1,10 +1,10 @@
-package ents
+package vents
 
 import (
 	"unsafe"
 
-	"github.com/oidoid/void/src/void/engine"
-	"github.com/oidoid/void/src/void/gfx"
+	"github.com/oidoid/void/src/void/vengine"
+	"github.com/oidoid/void/src/void/vgfx"
 )
 
 const MaxSprites = 1024 * 1024
@@ -16,18 +16,18 @@ type Ent interface {
 
 type Zoo struct {
 	ents    []Ent
-	sprites [MaxSprites]gfx.Sprite
+	sprites [MaxSprites]vgfx.Sprite
 	len     int
 }
 
-func (this *Zoo) Update(frame *engine.Frame) {
+func (this *Zoo) Update(frame *vengine.Frame) {
 	w, h := int(frame.CanvasW), int(frame.CanvasH)
 	for _, ent := range this.ents {
 		ent.Update(w, h)
 	}
 }
 
-func (this *Zoo) Alloc() *gfx.Sprite {
+func (this *Zoo) Alloc() *vgfx.Sprite {
 	sprite := &this.sprites[this.len]
 	this.len++
 	return sprite

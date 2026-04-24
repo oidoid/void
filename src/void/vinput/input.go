@@ -1,4 +1,4 @@
-package input
+package vinput
 
 const MaxPointers uint8 = 5
 const MaxGamepads uint8 = 4

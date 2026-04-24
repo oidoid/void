@@ -1,26 +1,24 @@
-package engine
+package vengine
 
 import (
 	"unsafe"
 
-	VMath "github.com/oidoid/void/src/void/math"
+	"github.com/oidoid/void/src/void/vmath"
 )
 
 type Engine struct {
-	frame Frame
-	Rnd   VMath.Random
-	Cam   VMath.XY[float32]
+	Frame *Frame
+	Rnd   vmath.Random
+	Cam   vmath.XY[float32]
 }
 
 func NewEngine() *Engine {
-	return &Engine{Rnd: VMath.NewRandom()}
+	return &Engine{Rnd: vmath.NewRandom()}
 }
 
 func (this *Engine) FramePointer() uintptr {
-	return uintptr(unsafe.Pointer(&this.frame))
+	return uintptr(unsafe.Pointer(this.Frame))
 }
-
-func (this *Engine) Frame() *Frame { return &this.frame }
 
 func (this *Engine) CamX() float32 { return this.Cam.X }
 func (this *Engine) CamY() float32 { return this.Cam.Y }

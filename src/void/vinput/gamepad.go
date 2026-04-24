@@ -1,4 +1,4 @@
-package input
+package vinput
 
 type GamepadMapping uint8
 

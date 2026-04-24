@@ -1,4 +1,4 @@
-package input
+package vinput
 
 type PointerDevice uint8
 

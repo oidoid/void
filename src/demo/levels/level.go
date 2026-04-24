@@ -1,15 +1,15 @@
 package levels
 
 import (
-	VLevels "github.com/oidoid/void/src/void/levels"
-	VMath "github.com/oidoid/void/src/void/math"
+	"github.com/oidoid/void/src/void/vlevels"
+	"github.com/oidoid/void/src/void/vmath"
 )
 
 // to-do: encode.
-var InitLevel = VLevels.Level{
-	Box:  VMath.Box[int16, uint16]{XY: VMath.XY[int16]{X: -24, Y: -24}, WH: VMath.WH[uint16]{W: 4096, H: 4096}},
-	Tile: VMath.WH[uint8]{W: 16, H: 16},
-	Tiles: []VLevels.Tile{
+var InitLevel = vlevels.Level{
+	Box:  vmath.Box[int16, uint16]{XY: vmath.XY[int16]{X: -24, Y: -24}, WH: vmath.WH[uint16]{W: 4096, H: 4096}},
+	Tile: vmath.WH[uint8]{W: 16, H: 16},
+	Tiles: []vlevels.Tile{
 		1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
 		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
 		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,

@@ -1,4 +1,4 @@
-package gfx
+package vgfx
 
 // to-do: hold a ref?
 type Sprite struct {

@@ -1,21 +1,21 @@
 package ents
 
 import (
-	"github.com/oidoid/void/src/void/ents"
-	"github.com/oidoid/void/src/void/gfx"
-	"github.com/oidoid/void/src/void/math"
+	"github.com/oidoid/void/src/void/vents"
+	"github.com/oidoid/void/src/void/vgfx"
+	"github.com/oidoid/void/src/void/vmath"
 )
 
 type Vel struct{ X, Y float32 }
 
 type BallEnt struct {
-	sprite *gfx.Sprite
+	sprite *vgfx.Sprite
 	vel    Vel
 }
 
-func NewBallEnt(zoo *ents.Zoo, rnd *math.Random, x, y float32) *BallEnt {
+func NewBallEnt(zoo *vents.Zoo, rnd *vmath.Random, x, y float32) *BallEnt {
 	sprite := zoo.Alloc()
-	*sprite = gfx.Sprite{
+	*sprite = vgfx.Sprite{
 		X:      x,
 		Y:      y,
 		Radius: uint8(rnd.Float64()*3 + 8),

@@ -5,24 +5,24 @@ import (
 
 	"github.com/oidoid/void/src/demo/ents"
 	"github.com/oidoid/void/src/demo/levels"
-	"github.com/oidoid/void/src/void/engine"
-	vents "github.com/oidoid/void/src/void/ents"
-	"github.com/oidoid/void/src/void/input"
-	"github.com/oidoid/void/src/void/web"
+	"github.com/oidoid/void/src/void/vengine"
+	"github.com/oidoid/void/src/void/vents"
+	"github.com/oidoid/void/src/void/vinput"
+	"github.com/oidoid/void/src/void/vweb"
 )
 
 type Game struct {
-	engine *engine.Engine
+	engine *vengine.Engine
 	balls  *vents.Zoo
 }
 
 var version string
 
 func NewGame() Game {
-	return Game{engine: engine.NewEngine(), balls: &vents.Zoo{}}
+	return Game{engine: vengine.NewEngine(), balls: &vents.Zoo{}}
 }
 
-var _ web.WasmAPI = (*Game)(nil)
+var _ vweb.WasmAPI = (*Game)(nil)
 
 func (this *Game) FramePointer() uintptr {
 	return this.engine.FramePointer()
@@ -36,12 +36,12 @@ func (this *Game) SpriteCount() int {
 	return this.balls.SpriteCount()
 }
 
-func (this *Game) Update() engine.LoopState {
-	frame := this.engine.Frame()
+func (this *Game) Update() vengine.LoopState {
+	frame := this.engine.Frame
 	this.balls.Update(frame)
-	loop := engine.Pause
+	loop := vengine.Pause
 	if this.balls.SpriteCount() > 0 {
-		loop = engine.Loop
+		loop = vengine.Loop
 	}
 	// to-do: ball bounds level sized.
 	for i := range frame.Input.PointersLen {
@@ -53,7 +53,7 @@ func (this *Game) Update() engine.LoopState {
 				}
 			}
 			println(this.balls.SpriteCount(), "balls")
-			loop = engine.Loop
+			loop = vengine.Loop
 		}
 	}
 	if frame.Input.Wheel.DeltaX != 0 || frame.Input.Wheel.DeltaY != 0 || frame.Input.Wheel.DeltaZ != 0 {
@@ -63,30 +63,30 @@ func (this *Game) Update() engine.LoopState {
 		gamepad := &frame.Input.Gamepads[i]
 		println("gamepad", gamepad.Index, gamepad.Buttons, gamepad.Axes[0], gamepad.Axes[1])
 		if gamepad.Buttons != 0 {
-			loop = engine.Loop
+			loop = vengine.Loop
 		}
 	}
 	kbd := &frame.Input.Keyboard
 	const camSpeed = float32(1) // px/ms = 100 px/s
 	dx := camSpeed * float32(frame.DeltaMs)
-	if kbd.Keys&input.KeyC != 0 {
+	if kbd.Keys&vinput.KeyC != 0 {
 		dx *= 10
 	}
-	if kbd.Keys&input.KeyLeft != 0 {
+	if kbd.Keys&vinput.KeyLeft != 0 {
 		this.engine.Cam.X -= dx
-		loop = engine.Loop
+		loop = vengine.Loop
 	}
-	if kbd.Keys&input.KeyRight != 0 {
+	if kbd.Keys&vinput.KeyRight != 0 {
 		this.engine.Cam.X += dx
-		loop = engine.Loop
+		loop = vengine.Loop
 	}
-	if kbd.Keys&input.KeyUp != 0 {
+	if kbd.Keys&vinput.KeyUp != 0 {
 		this.engine.Cam.Y -= dx
-		loop = engine.Loop
+		loop = vengine.Loop
 	}
-	if kbd.Keys&input.KeyDown != 0 {
+	if kbd.Keys&vinput.KeyDown != 0 {
 		this.engine.Cam.Y += dx
-		loop = engine.Loop
+		loop = vengine.Loop
 	}
 	const edgeZone = float32(64)
 	for i := range frame.Input.PointersLen {
@@ -96,23 +96,23 @@ func (this *Game) Update() engine.LoopState {
 		}
 		if pointer.X < edgeZone {
 			this.engine.Cam.X -= dx
-			loop = engine.Loop
+			loop = vengine.Loop
 		} else if pointer.X > float32(frame.CanvasW)-edgeZone {
 			this.engine.Cam.X += dx
-			loop = engine.Loop
+			loop = vengine.Loop
 		}
 		if pointer.Y < edgeZone {
 			this.engine.Cam.Y -= dx
-			loop = engine.Loop
+			loop = vengine.Loop
 		} else if pointer.Y > float32(frame.CanvasH)-edgeZone {
 			this.engine.Cam.Y += dx
-			loop = engine.Loop
+			loop = vengine.Loop
 		}
 	}
-	for bit := input.Key(1); bit != 0; bit <<= 1 {
+	for bit := vinput.Key(1); bit != 0; bit <<= 1 {
 		if kbd.Keys&bit != 0 {
 			println("key", bit)
-			loop = engine.Loop
+			loop = vengine.Loop
 		}
 	}
 	if kbd.TextLen > 0 {
@@ -121,7 +121,7 @@ func (this *Game) Update() engine.LoopState {
 		if kbd.TextOverflow {
 			println("error: text overflow")
 		}
-		loop = engine.Loop
+		loop = vengine.Loop
 	}
 	return loop
 }
