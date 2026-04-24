@@ -20,7 +20,15 @@ func TestSave(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want := fmt.Sprintf("%s 3\n%s 5\n", paths[0], paths[1])
+	gz0, err := gzipSize(paths[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	gz1, err := gzipSize(paths[1])
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := fmt.Sprintf("%s 3 %d\n%s 5 %d\n", paths[0], gz0, paths[1], gz1)
 	if got := baseline.String(); got != want {
 		t.Errorf("got:\n%s\nwant:\n%s", got, want)
 	}
@@ -37,14 +45,19 @@ func TestCheck(t *testing.T) {
 	dir := t.TempDir()
 	path := writeTextToFile(t, dir, "file.text", strings.Repeat("x", 100))
 
+	gz, err := gzipSize(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	var stdout, stderr strings.Builder
-	if err := check(strings.NewReader(fmt.Sprintf("%s 100\n", path)), &stdout, &stderr); err != nil {
+	if err := check(strings.NewReader(fmt.Sprintf("%s 100 %d\n", path, gz)), &stdout, &stderr); err != nil {
 		t.Errorf("want ok, err: %v", err)
 	}
 	if stderr.Len() != 0 {
 		t.Errorf("want empty stderr: %s", stderr.String())
 	}
-	wantOut := fmt.Sprintf("%s: 100 +0\n", path)
+	wantOut := fmt.Sprintf("%s: 100 %d +0 +0\n", path, gz)
 	if got := stdout.String(); got != wantOut {
 		t.Errorf("stdout got:\n%s\nwant:\n%s", got, wantOut)
 	}
@@ -54,14 +67,19 @@ func TestCheck_ExceedsMaxDelta(t *testing.T) {
 	dir := t.TempDir()
 	path := writeTextToFile(t, dir, "file.txt", strings.Repeat("x", 100))
 
+	gz, err := gzipSize(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	var stdout, stderr strings.Builder
-	if err := check(strings.NewReader(fmt.Sprintf("%s 1125\n", path)), &stdout, &stderr); err == nil {
+	if err := check(strings.NewReader(fmt.Sprintf("%s 1125 %d\n", path, gz)), &stdout, &stderr); err == nil {
 		t.Error("want fail: max delta exceeded")
 	}
 	if stdout.Len() != 0 {
 		t.Errorf("want empty stdout, got: %s", stdout.String())
 	}
-	wantErr := fmt.Sprintf("%s: 100 -1025\n", path)
+	wantErr := fmt.Sprintf("%s: 100 %d -1025 +0\n", path, gz)
 	if got := stderr.String(); got != wantErr {
 		t.Errorf("stderr got:\n%s\nwant:\n%s", got, wantErr)
 	}
@@ -106,11 +124,11 @@ func TestReadFat_OmittedSize(t *testing.T) {
 	if len(entries) != 1 {
 		t.Fatalf("want 1 entry, got %d", len(entries))
 	}
-	if entries[0].path != path {
-		t.Errorf("got path %q, want %q", entries[0].path, path)
+	if entries[0].Path != path {
+		t.Errorf("got path %q, want %q", entries[0].Path, path)
 	}
-	if entries[0].size != 0 {
-		t.Errorf("got size %d, want 0", entries[0].size)
+	if entries[0].Size != 0 {
+		t.Errorf("got size %d, want 0", entries[0].Size)
 	}
 }
 

@@ -2,17 +2,21 @@ package main
 
 import (
 	"bufio"
+	"compress/gzip"
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"strconv"
 	"strings"
 )
 
-type entry struct {
-	path string
-	size int64
+// fat file record.
+type Line struct {
+	Path     string
+	Size     int64
+	GzipSize int64
 }
 
 const (
@@ -46,25 +50,38 @@ func check(reader io.Reader, stdout, stderr io.Writer) error {
 	}
 	ok := true
 	for _, entry := range entries {
-		stat, err := os.Stat(entry.path)
+		stat, err := os.Stat(entry.Path)
 		if err != nil {
-			fmt.Fprintf(stderr, "%s: %v\n", entry.path, errors.Unwrap(err))
+			fmt.Fprintf(stderr, "%s: %v\n", entry.Path, errors.Unwrap(err))
 			ok = false
 			continue
 		}
 		got := stat.Size()
-
-		delta := got - entry.size
+		delta := got - entry.Size
 		deltaSign := "+"
 		if delta < 0 {
 			deltaSign = ""
 		}
+
+		gotGzip, err := gzipSize(entry.Path)
+		if err != nil {
+			fmt.Fprintf(stderr, "%s: %v\n", entry.Path, err)
+			ok = false
+			continue
+		}
+		gzipDelta := gotGzip - entry.GzipSize
+		gzipDeltaSign := "+"
+		if gzipDelta < 0 {
+			gzipDeltaSign = ""
+		}
+
 		out := stdout
-		if delta < -maxDelta || delta > maxDelta {
+		if math.Abs(float64(delta)) > float64(maxDelta) ||
+			math.Abs(float64(gzipDelta)) > float64(maxDelta) {
 			out = stderr
 			ok = false
 		}
-		_, err = fmt.Fprintf(out, "%s: %d %s%d\n", entry.path, got, deltaSign, delta)
+		_, err = fmt.Fprintf(out, "%s: %d %d %s%d %s%d\n", entry.Path, got, gotGzip, deltaSign, delta, gzipDeltaSign, gzipDelta)
 		if err != nil {
 			return err
 		}
@@ -75,23 +92,44 @@ func check(reader io.Reader, stdout, stderr io.Writer) error {
 	return nil
 }
 
-func readFat(reader io.Reader) ([]entry, error) {
-	var entries []entry
+func gzipSize(path string) (int64, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return 0, err
+	}
+	defer file.Close()
+	count := &filesizeWriter{}
+	// https://nginx.org/en/docs/http/ngx_http_gzip_module.html#gzip_comp_level
+	gz, err := gzip.NewWriterLevel(count, gzip.BestSpeed)
+	if err != nil {
+		return 0, err
+	}
+	if _, err := io.Copy(gz, file); err != nil {
+		return 0, err
+	}
+	if err := gz.Close(); err != nil {
+		return 0, err
+	}
+	return count.n, nil
+}
+
+func readFat(reader io.Reader) ([]Line, error) {
+	var entries []Line
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		parts := strings.Fields(scanner.Text())
-		if len(parts) == 0 || len(parts) > 2 {
+		if len(parts) == 0 {
 			continue
 		}
 		var size int64
-		if len(parts) == 2 {
-			var err error
-			size, err = strconv.ParseInt(parts[1], 10, 64)
-			if err != nil {
-				return nil, fmt.Errorf("%s: bad baseline value %q: %w", parts[0], parts[1], err)
-			}
+		if len(parts) >= 2 {
+			size, _ = strconv.ParseInt(parts[1], 10, 64)
 		}
-		entries = append(entries, entry{parts[0], size})
+		var gz int64
+		if len(parts) == 3 {
+			gz, _ = strconv.ParseInt(parts[2], 10, 64)
+		}
+		entries = append(entries, Line{Path: parts[0], Size: size, GzipSize: gz})
 	}
 	return entries, scanner.Err()
 }
@@ -117,7 +155,7 @@ func runSave(paths []string) error {
 			return err
 		}
 		for _, entry := range entries {
-			paths = append(paths, entry.path)
+			paths = append(paths, entry.Path)
 		}
 	}
 
@@ -135,7 +173,11 @@ func save(writer io.Writer, paths []string) error {
 		if err != nil {
 			return err
 		}
-		_, err = fmt.Fprintf(writer, "%s %d\n", path, stat.Size())
+		gz, err := gzipSize(path)
+		if err != nil {
+			return err
+		}
+		_, err = fmt.Fprintf(writer, "%s %d %d\n", path, stat.Size(), gz)
 		if err != nil {
 			return err
 		}
