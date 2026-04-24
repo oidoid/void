@@ -37,7 +37,7 @@ func (this *Game) SpriteCount() int {
 }
 
 func (this *Game) Update() vengine.LoopState {
-	frame := this.engine.Frame
+	frame := this.engine.Frame()
 	this.balls.Update(frame)
 	loop := vengine.Pause
 	if this.balls.SpriteCount() > 0 {

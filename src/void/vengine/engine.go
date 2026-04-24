@@ -7,7 +7,7 @@ import (
 )
 
 type Engine struct {
-	Frame *Frame
+	frame Frame
 	Rnd   vmath.Random
 	Cam   vmath.XY[float32]
 }
@@ -16,8 +16,10 @@ func NewEngine() *Engine {
 	return &Engine{Rnd: vmath.NewRandom()}
 }
 
+func (this *Engine) Frame() *Frame { return &this.frame }
+
 func (this *Engine) FramePointer() uintptr {
-	return uintptr(unsafe.Pointer(this.Frame))
+	return uintptr(unsafe.Pointer(&this.frame))
 }
 
 func (this *Engine) CamX() float32 { return this.Cam.X }
