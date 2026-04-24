@@ -1,12 +1,10 @@
-package vweb
+package vgame
 
-import "github.com/oidoid/void/src/void/vgame"
-
-type WasmAPI interface {
+type Platform interface {
 	FramePointer() uintptr
 	SpritePointer() uintptr
 	SpriteCount() int
-	Update() vgame.LoopState
+	Update() Status
 	TilePointer() uintptr
 	TileCount() uint32
 	LevelX() int16

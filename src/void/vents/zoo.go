@@ -14,7 +14,8 @@ type Ent[Game vgame.Game] interface {
 }
 
 type Zoo[Game vgame.Game] struct {
-	ents    []Ent[Game]
+	ents []Ent[Game]
+	// fixed sprites to avoid pointer management in ents.
 	sprites [MaxSprites]vgfx.Sprite
 	len     int
 }

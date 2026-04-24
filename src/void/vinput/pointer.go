@@ -1,5 +1,7 @@
 package vinput
 
+import "github.com/oidoid/void/src/void/vmath"
+
 type PointerDevice uint8
 
 const (
@@ -16,10 +18,8 @@ type PointerPoll struct {
 	// pointer ID; -1 if nonpointing device (eg, a click event fired on a button
 	// activated via keyboard).
 	ID int32
-	// coords in client pixels from top-left.
-	X, Y float32
-	// contact area in client pixels.
-	W, H float32
+	// coords in client pixels from top-left and contact area in client pixels.
+	vmath.Box[float32, float32]
 	// normalized pressure in [0, 1].
 	Pressure float32
 	// pen tilt from the screen plane in [-90°, 90°].

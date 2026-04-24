@@ -1,6 +1,10 @@
 package levels
 
 import (
+	"github.com/oidoid/void/src/demo/ents"
+	"github.com/oidoid/void/src/demo/game"
+	"github.com/oidoid/void/src/void/vgame"
+	"github.com/oidoid/void/src/void/vinput"
 	"github.com/oidoid/void/src/void/vlevels"
 	"github.com/oidoid/void/src/void/vmath"
 )
@@ -4107,4 +4111,91 @@ var InitLevel = vlevels.Level{
 		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
 		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,
 	},
+}
+
+func Update(game game.Game) vgame.Status {
+	frame := game.Frame()
+	game.Balls().Update(game)
+	loop := vgame.Pause
+	if game.SpriteCount() > 0 {
+		loop = vgame.Loop
+	}
+	for i := range frame.Input.PointersLen {
+		pointer := &frame.Input.Pointers[i]
+		if pointer.Buttons&1 == 1 {
+			for range int(10_000 * (frame.DeltaMs / 1000)) {
+				game.Balls().Add(ents.NewBallEnt(game, pointer.X, pointer.Y))
+			}
+			println(game.SpriteCount(), "balls", int(pointer.X), int(pointer.Y), int(frame.DeltaMs))
+			loop = vgame.Loop
+		}
+	}
+	if frame.Input.Wheel.Delta.X != 0 || frame.Input.Wheel.Delta.Y != 0 || frame.Input.Wheel.Delta.Z != 0 {
+		println("wheel", frame.Input.Wheel.Delta.X, frame.Input.Wheel.Delta.Y, frame.Input.Wheel.Delta.Z)
+	}
+	for i := range frame.Input.GamepadsLen {
+		gamepad := &frame.Input.Gamepads[i]
+		println("gamepad", gamepad.Index, gamepad.Buttons, gamepad.Axes[0], gamepad.Axes[1])
+		if gamepad.Buttons != 0 {
+			loop = vgame.Loop
+		}
+	}
+	kbd := &frame.Input.Keyboard
+	const camSpeed = float32(1) // px/ms = 100 px/s
+	dx := camSpeed * float32(frame.DeltaMs)
+	if kbd.Keys&vinput.KeyC != 0 {
+		dx *= 10
+	}
+	if kbd.Keys&vinput.KeyLeft != 0 {
+		game.Cam().X -= dx
+		loop = vgame.Loop
+	}
+	if kbd.Keys&vinput.KeyRight != 0 {
+		game.Cam().X += dx
+		loop = vgame.Loop
+	}
+	if kbd.Keys&vinput.KeyUp != 0 {
+		game.Cam().Y -= dx
+		loop = vgame.Loop
+	}
+	if kbd.Keys&vinput.KeyDown != 0 {
+		game.Cam().Y += dx
+		loop = vgame.Loop
+	}
+	const edgeZone = float32(64)
+	for i := range frame.Input.PointersLen {
+		pointer := &frame.Input.Pointers[i]
+		if pointer.Buttons == 0 {
+			continue
+		}
+		if pointer.X < edgeZone {
+			game.Cam().X -= dx
+			loop = vgame.Loop
+		} else if pointer.X > float32(frame.Canvas.W)-edgeZone {
+			game.Cam().X += dx
+			loop = vgame.Loop
+		}
+		if pointer.Y < edgeZone {
+			game.Cam().Y -= dx
+			loop = vgame.Loop
+		} else if pointer.Y > float32(frame.Canvas.H)-edgeZone {
+			game.Cam().Y += dx
+			loop = vgame.Loop
+		}
+	}
+	for bit := vinput.Key(1); bit != 0; bit <<= 1 {
+		if kbd.Keys&bit != 0 {
+			println("key", bit)
+			loop = vgame.Loop
+		}
+	}
+	if kbd.TextLen > 0 {
+		text := string(kbd.Text[:kbd.TextLen])
+		println("text", text)
+		if kbd.TextOverflow {
+			println("error: text overflow")
+		}
+		loop = vgame.Loop
+	}
+	return loop
 }

@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/oidoid/void/src/demo/game"
+	"github.com/oidoid/void/src/demo/engine"
 	"github.com/oidoid/void/src/void/vgame"
 )
 
-var gam = game.NewGame()
+var gam = engine.NewEngine()
 
 func main() {}
 
@@ -25,7 +25,7 @@ func SpriteCount() uint32 {
 }
 
 //export Update
-func Update() vgame.LoopState {
+func Update() vgame.Status {
 	return gam.Update()
 }
 
