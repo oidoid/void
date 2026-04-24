@@ -12,7 +12,7 @@ type BallEnt[Game game.Game] struct {
 }
 
 func NewBallEnt[Game game.Game](gam Game, x, y float32) *BallEnt[Game] {
-	sprite := gam.Balls().Alloc()
+	sprite := gam.Balls().AllocSprite()
 	*sprite = vgfx.Sprite{
 		X:      x,
 		Y:      y,

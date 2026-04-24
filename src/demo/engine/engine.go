@@ -19,7 +19,7 @@ var _ game.Game = (*Engine)(nil)
 var version string
 
 func NewEngine() Engine {
-	eng := Engine{Engine: vengine.NewEngine(), balls: &vents.Zoo[game.Game]{}}
+	eng := Engine{Engine: vengine.NewEngine(), balls: vents.NewZoo[game.Game](1024 * 1024)}
 	eng.Level = &levels.InitLevel
 	return eng
 }
