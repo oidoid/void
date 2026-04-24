@@ -4113,20 +4113,20 @@ var InitLevel = vlevels.Level{
 	},
 }
 
-func Update(game game.Game) vgame.Status {
-	frame := game.Frame()
-	game.Balls().Update(game)
+func Update(gam game.Game) vgame.Status {
+	frame := gam.Frame()
+	gam.Balls().Update(gam)
 	loop := vgame.Pause
-	if game.SpriteCount() > 0 {
+	if gam.SpriteCount() > 0 {
 		loop = vgame.Loop
 	}
 	for i := range frame.Input.PointersLen {
 		pointer := &frame.Input.Pointers[i]
 		if pointer.Buttons&1 == 1 {
 			for range int(10_000 * (frame.DeltaMs / 1000)) {
-				game.Balls().Add(ents.NewBallEnt(game, pointer.X, pointer.Y))
+				gam.Balls().Add(ents.NewBallEnt(gam, pointer.X, pointer.Y))
 			}
-			println(game.SpriteCount(), "balls", int(pointer.X), int(pointer.Y), int(frame.DeltaMs))
+			println(gam.SpriteCount(), "balls", int(pointer.X), int(pointer.Y), int(frame.DeltaMs))
 			loop = vgame.Loop
 		}
 	}
@@ -4147,19 +4147,19 @@ func Update(game game.Game) vgame.Status {
 		dx *= 10
 	}
 	if kbd.Keys&vinput.KeyLeft != 0 {
-		game.Cam().X -= dx
+		gam.Cam().X -= dx
 		loop = vgame.Loop
 	}
 	if kbd.Keys&vinput.KeyRight != 0 {
-		game.Cam().X += dx
+		gam.Cam().X += dx
 		loop = vgame.Loop
 	}
 	if kbd.Keys&vinput.KeyUp != 0 {
-		game.Cam().Y -= dx
+		gam.Cam().Y -= dx
 		loop = vgame.Loop
 	}
 	if kbd.Keys&vinput.KeyDown != 0 {
-		game.Cam().Y += dx
+		gam.Cam().Y += dx
 		loop = vgame.Loop
 	}
 	const edgeZone = float32(64)
@@ -4169,17 +4169,17 @@ func Update(game game.Game) vgame.Status {
 			continue
 		}
 		if pointer.X < edgeZone {
-			game.Cam().X -= dx
+			gam.Cam().X -= dx
 			loop = vgame.Loop
 		} else if pointer.X > float32(frame.Canvas.W)-edgeZone {
-			game.Cam().X += dx
+			gam.Cam().X += dx
 			loop = vgame.Loop
 		}
 		if pointer.Y < edgeZone {
-			game.Cam().Y -= dx
+			gam.Cam().Y -= dx
 			loop = vgame.Loop
 		} else if pointer.Y > float32(frame.Canvas.H)-edgeZone {
-			game.Cam().Y += dx
+			gam.Cam().Y += dx
 			loop = vgame.Loop
 		}
 	}

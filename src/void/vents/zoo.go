@@ -20,9 +20,9 @@ type Zoo[Game vgame.Game] struct {
 	len     int
 }
 
-func (this *Zoo[Game]) Update(game Game) {
+func (this *Zoo[Game]) Update(gam Game) {
 	for _, ent := range this.ents {
-		ent.Update(game)
+		ent.Update(gam)
 	}
 }
 

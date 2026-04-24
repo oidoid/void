@@ -12,31 +12,31 @@ type BallEnt[Game game.Game] struct {
 	vel    Vel
 }
 
-func NewBallEnt[Game game.Game](game Game, x, y float32) *BallEnt[Game] {
-	sprite := game.Balls().Alloc()
+func NewBallEnt[Game game.Game](gam Game, x, y float32) *BallEnt[Game] {
+	sprite := gam.Balls().Alloc()
 	*sprite = vgfx.Sprite{
 		X:      x,
 		Y:      y,
-		Radius: uint8(game.Random()*3 + 8),
-		R:      uint8(game.Random() * 256),
-		G:      uint8(game.Random() * 256),
-		B:      uint8(game.Random() * 256),
+		Radius: uint8(gam.Random()*3 + 8),
+		R:      uint8(gam.Random() * 256),
+		G:      uint8(gam.Random() * 256),
+		B:      uint8(gam.Random() * 256),
 		A:      255,
 	}
 	return &BallEnt[Game]{
 		sprite: sprite,
 		vel: Vel{
-			X: game.Random()*4 - 2,
-			Y: game.Random()*4 - 2,
+			X: gam.Random()*4 - 2,
+			Y: gam.Random()*4 - 2,
 		},
 	}
 }
 
-func (this *BallEnt[Game]) Update(game Game) {
-	minX := float32(game.LevelX())
-	minY := float32(game.LevelY())
-	maxX := minX + float32(game.LevelW())
-	maxY := minY + float32(game.LevelH())
+func (this *BallEnt[Game]) Update(gam Game) {
+	minX := float32(gam.LevelX())
+	minY := float32(gam.LevelY())
+	maxX := minX + float32(gam.LevelW())
+	maxY := minY + float32(gam.LevelH())
 	radius := float32(this.sprite.Radius)
 	this.sprite.X += this.vel.X
 	this.sprite.Y += this.vel.Y
