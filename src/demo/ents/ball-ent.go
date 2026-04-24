@@ -13,22 +13,22 @@ type BallEnt struct {
 	vel    Vel
 }
 
-func NewBallEnt(zoo *vents.Zoo, rnd *vmath.Random, x, y float32) *BallEnt {
+func NewBallEnt(zoo *vents.Zoo, rnd vmath.Random, x, y float32) *BallEnt {
 	sprite := zoo.Alloc()
 	*sprite = vgfx.Sprite{
 		X:      x,
 		Y:      y,
-		Radius: uint8(rnd.Float64()*3 + 8),
-		R:      uint8(rnd.Float64() * 256),
-		G:      uint8(rnd.Float64() * 256),
-		B:      uint8(rnd.Float64() * 256),
+		Radius: uint8(rnd.Float32()*3 + 8),
+		R:      uint8(rnd.Float32() * 256),
+		G:      uint8(rnd.Float32() * 256),
+		B:      uint8(rnd.Float32() * 256),
 		A:      255,
 	}
 	return &BallEnt{
 		sprite: sprite,
 		vel: Vel{
-			X: float32(rnd.Float64()*4 - 2),
-			Y: float32(rnd.Float64()*4 - 2),
+			X: rnd.Float32()*4 - 2,
+			Y: rnd.Float32()*4 - 2,
 		},
 	}
 }

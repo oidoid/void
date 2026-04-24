@@ -48,7 +48,7 @@ func (this *Game) Update() vengine.LoopState {
 		pointer := &frame.Input.Pointers[i]
 		if pointer.Buttons&1 == 1 {
 			for range 1000 {
-				if ball := ents.NewBallEnt(this.balls, &this.engine.Rnd, pointer.X, pointer.Y); ball != nil {
+				if ball := ents.NewBallEnt(this.balls, this.engine.Rnd, pointer.X, pointer.Y); ball != nil {
 					this.balls.Add(ball)
 				}
 			}
