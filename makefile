@@ -2,7 +2,7 @@ include config.make
 
 out_demo := dist/demo/index.wasm
 tinygo_nodebug := --no-debug
-tinygo_flags += --buildmode=c-shared --ldflags="-X game.version=$(shell git rev-parse --short HEAD)" --scheduler=none $(if $(value DEBUG),,$(tinygo_nodebug) --panic=trap) $(if $(value V),--print-allocs=.,)
+tinygo_flags += --buildmode=c-shared --ldflags="-X github.com/oidoid/void/src/demo/game.version=$(shell git describe --dirty)" --scheduler=none $(if $(value DEBUG),,$(tinygo_nodebug) --panic=trap) $(if $(value V),--print-allocs=.,)
 go := GOOS=wasip1 GOARCH=wasm tinygo
 # $(1) flags
 pack_demo = go run ./src/cmd/pack --out=dist/demo/ --tsconfig=src/demo/web/tsconfig.json $(1) src/demo/web/assets/index.html
