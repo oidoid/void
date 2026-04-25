@@ -2,8 +2,7 @@ include config.make
 
 out_demo := dist/demo/index.wasm
 tinygo_nodebug := --no-debug
-tinygo_flags += --buildmode=c-shared --ldflags="-X github.com/oidoid/void/src/demo/engine.version=$(shell git describe --dirty)" --scheduler=none $(if $(value DEBUG),,$(tinygo_nodebug) --panic=trap) $(if $(value V),--print-allocs=.,)
-go := GOOS=wasip1 GOARCH=wasm tinygo
+tinygo_flags += --ldflags="-X github.com/oidoid/void/src/demo/engine.version=$(shell git describe --dirty)" --scheduler=none $(if $(value DEBUG),,$(tinygo_nodebug) --panic=trap) $(if $(value V),--print-allocs=.,)
 # $(1) flags
 pack_demo = go run ./src/cmd/pack --out=dist/demo/ --tsconfig=src/demo/web/tsconfig.json $(1) src/demo/web/assets/index.html
 # $(1) flags
@@ -19,9 +18,11 @@ watch-web: build-demo build-sprites; $(call pack_demo,--watch)
 
 build: build-cmd build-demo build-sprites build-web
 build-cmd:; go build -o dist/ ./src/cmd/...
+build-demo: export GOOS := wasip1
+build-demo: export GOARCH := wasm
 build-demo:
 	# no concurrency.
-	$(go) build $(tinygo_flags) -o $(out_demo) ./src/demo/web/
+	tinygo build $(tinygo_flags) -o $(out_demo) ./src/demo/web/
 	$(if $(value DEBUG),,wasm-opt -o $(out_demo) -Oz --strip-debug --strip-producers $(out_demo))
 build-sprites:; $(call packsprites_demo,)
 build-web: build-demo build-sprites; $(call pack_demo,--minify --one-file)

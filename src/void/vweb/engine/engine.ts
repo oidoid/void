@@ -35,7 +35,7 @@ export class Engine {
     })
     this.#wasm = result.instance.exports as WasmAPI
     wasi.link(this.#wasm.memory)
-    this.#wasm._initialize()
+    this.#wasm._start()
     this.#update = new DataView(
       this.#wasm.memory.buffer,
       this.#wasm.FramePointer(),
