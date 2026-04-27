@@ -9,7 +9,7 @@ import {
 import {Renderer} from '../renderer/renderer.ts'
 import {initCanvas} from '../utils/canvas-util.ts'
 import {initBody} from '../utils/dom-util.ts'
-import {WASIHost} from './wasi-host.ts'
+import {WASI} from './wasi.ts'
 import {LoopLoop, type WasmAPI} from './wasm-api.ts'
 
 export class Engine {
@@ -29,7 +29,7 @@ export class Engine {
     canvas = initCanvas(canvas, 'Float') // to-do: pass render mode.
 
     this.#input = new Input(canvas)
-    const wasi = new WASIHost()
+    const wasi = new WASI()
     const result = await WebAssembly.instantiateStreaming(fetch(wasmURL), {
       wasi_snapshot_preview1: wasi
     })
