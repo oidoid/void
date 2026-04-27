@@ -13,12 +13,12 @@ import {WASIHost} from './wasi-host.ts'
 import {LoopLoop, type WasmAPI} from './wasm-api.ts'
 
 export class Engine {
+  #frame!: DataView
   #input!: Input
   #lastTime: number = 0
   #rafId: number = 0
   #registered: boolean = false
   #renderer!: Renderer
-  #update!: DataView
   #wasm!: WasmAPI
 
   // to-do: use Wasm import.
@@ -36,7 +36,7 @@ export class Engine {
     this.#wasm = result.instance.exports as WasmAPI
     wasi.link(this.#wasm.memory)
     this.#wasm._start()
-    this.#update = new DataView(
+    this.#frame = new DataView(
       this.#wasm.memory.buffer,
       this.#wasm.FramePointer(),
       updateByteLen
@@ -69,10 +69,25 @@ export class Engine {
   }
 
   update(): void {
+    try {
+      this.#update()
+    } catch (err) {
+      // to-do: this.register('remove') instead.
+      cancelAnimationFrame(this.#rafId)
+      throw err
+    }
+  }
+
+  #update(): void {
     this.#rafId = 0
     this.#requestUpdate()
     this.#renderer.resize()
     this.#writeUpdate()
+    if (this.#wasm.Update() !== LoopLoop) {
+      cancelAnimationFrame(this.#rafId)
+      this.#rafId = 0
+      this.#lastTime = 0
+    }
     this.#renderer.draw(
       this.#wasm.memory.buffer,
       this.#wasm.SpritePointer(),
@@ -80,11 +95,6 @@ export class Engine {
       this.#wasm.CamX(),
       this.#wasm.CamY()
     )
-    if (this.#wasm.Update() !== LoopLoop) {
-      cancelAnimationFrame(this.#rafId)
-      this.#rafId = 0
-      this.#lastTime = 0
-    }
   }
 
   #requestUpdate(): void {
@@ -98,19 +108,19 @@ export class Engine {
   }
 
   #writeUpdate(): void {
-    if (this.#update.buffer !== this.#wasm.memory.buffer)
-      this.#update = new DataView(
+    if (this.#frame.buffer !== this.#wasm.memory.buffer)
+      this.#frame = new DataView(
         this.#wasm.memory.buffer,
         this.#wasm.FramePointer(),
         updateByteLen
       )
     const now = performance.now()
     const delta = this.#lastTime === 0 ? 0 : now - this.#lastTime
-    this.#update.setFloat64(deltaMsOffset, delta, true)
-    this.#update.setFloat64(nowMsOffset, performance.timeOrigin + now, true)
-    this.#update.setUint16(canvasWOffset, this.#renderer.canvasW, true)
-    this.#update.setUint16(canvasHOffset, this.#renderer.canvasH, true)
-    this.#input.update(this.#update)
+    this.#frame.setFloat64(deltaMsOffset, delta, true)
+    this.#frame.setFloat64(nowMsOffset, performance.timeOrigin + now, true)
+    this.#frame.setUint16(canvasWOffset, this.#renderer.canvasW, true)
+    this.#frame.setUint16(canvasHOffset, this.#renderer.canvasH, true)
+    this.#input.update(this.#frame)
     this.#input.postupdate() // to-do: move to postupdate()?
     this.#lastTime = now
   }

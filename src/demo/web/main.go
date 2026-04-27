@@ -5,9 +5,11 @@ import (
 	"github.com/oidoid/void/src/void/vgame"
 )
 
-var gam = engine.NewEngine()
+var gam engine.Engine
 
-func main() {}
+func main() {
+	gam = engine.NewEngine()
+}
 
 //export FramePointer
 func FramePointer() uintptr {

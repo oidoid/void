@@ -3,23 +3,40 @@ package vengine
 import (
 	"unsafe"
 
+	"math/rand/v2"
+
 	"github.com/oidoid/void/src/void/vgame"
+	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vinput"
 	"github.com/oidoid/void/src/void/vlevels"
 	"github.com/oidoid/void/src/void/vmath"
+	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
 var _ vgame.Game = (*Engine)(nil)
 
 type Engine struct {
-	Level *vlevels.Level
-	frame vgame.Frame
-	cam   vmath.XY[float32]
-	rnd   vmath.Random
+	Level   *vlevels.Level
+	frame   vgame.Frame
+	cam     vmath.XY[float32]
+	rnd     *rand.Rand
+	sprites vvec.Vec[vgfx.Sprite]
 }
 
-func NewEngine() *Engine {
-	return &Engine{rnd: vmath.NewRandom()}
+type EngineOpts struct {
+	MaxSprites int
+	Seed1      uint64
+	Seed2      uint64
+}
+
+func NewEngine(opts *EngineOpts) *Engine {
+	if opts == nil {
+		opts = &EngineOpts{}
+	}
+	return &Engine{
+		rnd:     rand.New(rand.NewPCG(opts.Seed1|rand.Uint64(), opts.Seed2|rand.Uint64())),
+		sprites: vvec.New[vgfx.Sprite](opts.MaxSprites),
+	}
 }
 
 func (this *Engine) Random() float32 { return this.rnd.Float32() }
@@ -41,12 +58,13 @@ func (this *Engine) LevelY() int16  { return this.Level.Y }
 func (this *Engine) LevelW() uint16 { return this.Level.W }
 func (this *Engine) LevelH() uint16 { return this.Level.H }
 
-func (this *Engine) SpritePointer() uintptr { return 0 }
-func (this *Engine) SpriteCount() int       { return 0 }
-func (this *Engine) TilePointer() uintptr   { return 0 }
-func (this *Engine) TileCount() uint32      { return 0 }
-func (this *Engine) LevelTileW() uint8      { return 0 }
-func (this *Engine) LevelTileH() uint8      { return 0 }
+func (this *Engine) SpritePointer() uintptr          { return this.sprites.Pointer() }
+func (this *Engine) SpriteCount() int                { return this.sprites.Len() }
+func (this *Engine) Sprites() *vvec.Vec[vgfx.Sprite] { return &this.sprites }
+func (this *Engine) TilePointer() uintptr            { return 0 }
+func (this *Engine) TileCount() uint32               { return 0 }
+func (this *Engine) LevelTileW() uint8               { return 0 }
+func (this *Engine) LevelTileH() uint8               { return 0 }
 
 func (this *Engine) Update() vgame.Status {
 	return vgame.Pause

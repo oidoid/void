@@ -9,7 +9,7 @@ import (
 
 func Update(gam game.Game) vgame.Status {
 	frame := gam.Frame()
-	gam.Balls().Update(gam)
+	gam.Zoo().Update(gam)
 	loop := vgame.Pause
 	if gam.SpriteCount() > 0 {
 		loop = vgame.Loop
@@ -17,8 +17,8 @@ func Update(gam game.Game) vgame.Status {
 	for i := range gam.Input().PointersLen {
 		pointer := &gam.Input().Pointers[i]
 		if pointer.Buttons&1 == 1 {
-			for range int(20_000 * (frame.DeltaMs / 1000)) {
-				gam.Balls().Add(ents.NewBallEnt(gam, gam.CamX()+pointer.X, gam.CamY()+pointer.Y))
+			for range min(3000, int(60_000*(frame.DeltaMs/1000))) {
+				ents.NewBallEnt(gam.Balls(), gam.Sprites(), gam.Random, gam.CamX()+pointer.X, gam.CamY()+pointer.Y)
 			}
 			println(gam.SpriteCount(), "balls", int(pointer.X), int(pointer.Y), int(frame.DeltaMs))
 			loop = vgame.Loop
@@ -34,7 +34,7 @@ func Update(gam game.Game) vgame.Status {
 			loop = vgame.Loop
 		}
 	}
-	kbd := gam.Input().Keyboard
+	kbd := &gam.Input().Keyboard
 	const camSpeed = .1 // px/ms = 10 px/s
 	dx := camSpeed * float32(frame.DeltaMs)
 	if kbd.Keys&vinput.KeyC != 0 {

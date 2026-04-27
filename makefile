@@ -2,7 +2,8 @@ include config.make
 
 out_demo := dist/demo/index.wasm
 tinygo_nodebug := --no-debug
-tinygo_flags += --ldflags="-X github.com/oidoid/void/src/demo/engine.version=$(shell git describe --dirty)" --scheduler=none $(if $(value DEBUG),,$(tinygo_nodebug) --panic=trap) $(if $(value V),--print-allocs=.,)
+go_tags := $(if $(value DEBUG),--tags=debug,)
+tinygo_flags += $(go_tags) --ldflags="-X github.com/oidoid/void/src/demo/engine.version=$(shell git describe --dirty)" --scheduler=none $(if $(value DEBUG),,$(tinygo_nodebug) --panic=trap) $(if $(value V),--print-allocs=.,)
 # $(1) flags
 pack_demo = go run ./src/cmd/pack --out=dist/demo/ --tsconfig=src/demo/web/tsconfig.json $(1) src/demo/web/assets/index.html
 # $(1) flags
@@ -17,7 +18,7 @@ watch-sprites:; $(call packsprites_demo,--watch)
 watch-web: build-demo build-sprites; $(call pack_demo,--watch)
 
 build: build-cmd build-demo build-sprites build-web
-build-cmd:; go build -o dist/ ./src/cmd/...
+build-cmd:; go build $(go_tags) -o dist/ ./src/cmd/...
 build-demo: export GOOS := wasip1
 build-demo: export GOARCH := wasm
 build-demo:
@@ -57,7 +58,7 @@ test-fmt-go:
 	[ -z "$$out" ] || { printf >&2 "unformatted files:\n%s\n" "$$out"; false; }
 test-fmt-mod:; go mod tidy -diff
 test-go:
-	go test ./src/...|
+	go test $(go_tags) ./src/...|
 	grep --color=always --extended --line-buffered '^--- FAIL: [^ ]+|$$'|
 	sed --regexp-extended --unbuffered $(if $(value V),'','/^ok |\[no test files\]$$/d')
 test-web:;

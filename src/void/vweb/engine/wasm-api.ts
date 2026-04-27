@@ -3,6 +3,7 @@ export type WasmAPI = {
   memory: WebAssembly.Memory
   // initialises the Go runtime and calls `main()`.
   _start(): void
+  // to-do: better name for "frame"?
   // byte offset into `memory` of the frame.
   FramePointer(): number
   // byte offset into `memory` of the first sprite.

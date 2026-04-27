@@ -1,3 +1,4 @@
+// to-do: rename wasi.ts
 /**
  * WASI preview1 host for Wasm modules. see
  * https://github.com/tinygo-org/tinygo/blob/release/targets/wasm_exec.js.
@@ -6,6 +7,31 @@ export class WASIHost {
   [k: string]: WebAssembly.ImportValue
   #decoder: TextDecoder = new TextDecoder()
   #mem!: WebAssembly.Memory
+
+  args_get = (argv: number, argvBuf: number): number => {
+    const view = new DataView(this.#mem.buffer)
+    view.setUint32(argv, argvBuf, true)
+    return 0
+  }
+
+  args_sizes_get = (argc: number, argvBufSize: number): number => {
+    const view = new DataView(this.#mem.buffer)
+    view.setUint32(argc, 0, true)
+    view.setUint32(argvBufSize, 0, true)
+    return 0
+  }
+
+  clock_time_get = (
+    _clockID: number,
+    _precision: bigint,
+    result: number
+  ): number => {
+    const now = BigInt(
+      Math.floor((performance.timeOrigin + performance.now()) * 1e6)
+    )
+    new DataView(this.#mem.buffer).setBigUint64(result, now, true)
+    return 0
+  }
 
   /** writes file descriptor stdout / err to `console.log()` / `error()`. */
   fd_write = (
@@ -41,8 +67,9 @@ export class WASIHost {
     this.#mem = mem
   }
 
-  /** process exit. */
-  proc_exit = (_code: number): void => {}
+  proc_exit = (code: number): void => {
+    if (code !== 0) throw Error(`WASI exit ${code}`)
+  }
 
   random_get = (ptr: number, len: number): number => {
     crypto.getRandomValues(new Uint8Array(this.#mem.buffer, ptr, len))
