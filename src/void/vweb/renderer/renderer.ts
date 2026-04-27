@@ -32,6 +32,8 @@ export class Renderer {
       throw Error('webgl2 unavailable')
     }
 
+    //gl.enable(gl.DEPTH_TEST)
+    //gl.depthFunc(gl.LEQUAL)
     gl.enable(gl.BLEND)
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
@@ -74,7 +76,8 @@ export class Renderer {
   ): void {
     const gl = this.#gl
     gl.clearColor(15 / 255, 15 / 255, 30 / 255, 1)
-    gl.clear(gl.COLOR_BUFFER_BIT)
+    gl.clearDepth(1)
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
     this.#tiles.draw(camX, camY)
     this.#sprites.draw(buffer, spritePtr, spriteCount, camX, camY)

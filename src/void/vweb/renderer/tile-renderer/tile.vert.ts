@@ -22,6 +22,6 @@ void main() {
   highp vec2 px = uLevel.xy + vPx - floor(uCamXY);
   highp vec2 ndc = px / vec2(uResolution) * 2. - 1.;
   ndc.y = -ndc.y;
-  gl_Position = vec4(ndc, 0., 1.);
+  gl_Position = vec4(ndc, 1., 1.);
 }
 `

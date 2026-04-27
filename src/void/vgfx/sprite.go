@@ -5,4 +5,5 @@ type Sprite struct {
 	X, Y       float32
 	Radius     uint8
 	R, G, B, A uint8
+	Z          uint32
 }

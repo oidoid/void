@@ -2,7 +2,10 @@ import {buildProgram} from '../gl.ts'
 import {spriteFrag} from './sprite.frag.ts'
 import {spriteVert} from './sprite.vert.ts'
 
-export const spriteStride: number = 16
+export const spriteStride: number = 20
+const spriteRadiusOffset: number = 8
+const spriteColorOffset: number = 9
+const spriteZOffset: number = 16
 
 export class SpriteRenderer {
   static new(gl: WebGL2RenderingContext): SpriteRenderer {
@@ -19,18 +22,37 @@ export class SpriteRenderer {
 
     // aXY.
     gl.enableVertexAttribArray(0)
-    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 16, 0)
+    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, spriteStride, 0)
     gl.vertexAttribDivisor(0, 1)
 
     // aRadius (cast to float).
     gl.enableVertexAttribArray(1)
-    gl.vertexAttribPointer(1, 1, gl.UNSIGNED_BYTE, false, 16, 8)
+    gl.vertexAttribPointer(
+      1,
+      1,
+      gl.UNSIGNED_BYTE,
+      false,
+      spriteStride,
+      spriteRadiusOffset
+    )
     gl.vertexAttribDivisor(1, 1)
 
     // aColor (normalized to [0.0, 1.0]).
     gl.enableVertexAttribArray(2)
-    gl.vertexAttribPointer(2, 4, gl.UNSIGNED_BYTE, true, 16, 9)
+    gl.vertexAttribPointer(
+      2,
+      4,
+      gl.UNSIGNED_BYTE,
+      true,
+      spriteStride,
+      spriteColorOffset
+    )
     gl.vertexAttribDivisor(2, 1)
+
+    // aZ as uint.
+    gl.enableVertexAttribArray(3)
+    gl.vertexAttribIPointer(3, 1, gl.UNSIGNED_INT, spriteStride, spriteZOffset)
+    gl.vertexAttribDivisor(3, 1)
 
     gl.bindVertexArray(null)
 

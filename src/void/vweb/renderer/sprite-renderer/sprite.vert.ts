@@ -6,6 +6,7 @@ uniform highp vec2 uCamXY;
 layout(location=0) in highp vec2 aXY;
 layout(location=1) in highp float aRadius;
 layout(location=2) in highp vec4 aColor;
+layout(location=3) in highp uint aZ;
 
 out highp vec2 vUV;
 out highp vec4 vColor;
@@ -24,8 +25,9 @@ void main() {
   highp vec2 uv = quad[gl_VertexID];
   highp vec2 px = aXY + uv * aRadius - floor(uCamXY);
   highp vec2 ndc = px / vec2(uResolution) * 2. - 1.;
+  highp float z = 1. - float(aZ) / 4294967295. * 2.;
   ndc.y = -ndc.y;
-  gl_Position = vec4(ndc, 0., 1.);
+  gl_Position = vec4(ndc, z, 1.);
 
   vUV = uv;
   vColor = aColor;
