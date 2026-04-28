@@ -10,12 +10,12 @@ import (
 
 type BallEnt struct {
 	// handle vvec.Handle
-	sprite vvec.Handle
+	sprite vgfx.Sprite // to-do: separate transform.
 	vel    vmath.XY[float32]
 	// hits   uint8
 }
 
-func NewBallEnt(balls *vvec.Vec[BallEnt], sprites *vvec.Vec[vgfx.Sprite], rnd func() float32, x, y float32) {
+func NewBallEnt(balls *vvec.Vec[BallEnt], rnd func() float32, x, y float32) {
 	sprite := vgfx.Sprite{
 		X:      x,
 		Y:      y,
@@ -38,22 +38,23 @@ func NewBallEnt(balls *vvec.Vec[BallEnt], sprites *vvec.Vec[vgfx.Sprite], rnd fu
 			}
 		}
 	}
-	spriteHandle := sprites.Add(&sprite)
 	ball := BallEnt{
-		sprite: spriteHandle,
+		sprite: sprite,
 		vel:    vmath.XY[float32]{X: rnd()*4 - 2, Y: rnd()*4 - 2},
 	}
 	_ = balls.Add(&ball)
 	// balls.Get(ballHandle).handle = ballHandle
 }
 
-func UpdateBalls(balls *vvec.Vec[BallEnt], sprites *vvec.Vec[vgfx.Sprite], minX, minY, maxX, maxY float32) {
+func UpdateBalls(balls *vvec.Vec[BallEnt], sprites *vvec.Vec[vgfx.Sprite], minX, minY, maxX, maxY, vpMinX, vpMinY, vpMaxX, vpMaxY float32) {
 	for i := 0; i < balls.Len(); {
 		ball := &balls.Vals()[i]
-		sprite := sprites.Get(ball.sprite)
-		ball.update(sprite, minX, minY, maxX, maxY)
-		// if ball.update(sprite, minX, minY, maxX, maxY) {
-		// 	sprites.Free(ball.sprite)
+		ball.update(minX, minY, maxX, maxY)
+		if ball.sprite.X >= vpMinX && ball.sprite.X <= vpMaxX &&
+			ball.sprite.Y >= vpMinY && ball.sprite.Y <= vpMaxY {
+			sprites.Add(&ball.sprite)
+		}
+		// if ball.update(minX, minY, maxX, maxY) {
 		// 	balls.Free(ball.handle)
 		// 	continue
 		// }
@@ -61,25 +62,25 @@ func UpdateBalls(balls *vvec.Vec[BallEnt], sprites *vvec.Vec[vgfx.Sprite], minX,
 	}
 }
 
-func (this *BallEnt) update(sprite *vgfx.Sprite, minX, minY, maxX, maxY float32) bool {
-	radius := float32(sprite.Radius)
-	sprite.X += this.vel.X
-	sprite.Y += this.vel.Y
-	if sprite.X-radius < minX {
-		sprite.X = minX + radius
+func (this *BallEnt) update(minX, minY, maxX, maxY float32) bool {
+	radius := float32(this.sprite.Radius)
+	this.sprite.X += this.vel.X
+	this.sprite.Y += this.vel.Y
+	if this.sprite.X-radius < minX {
+		this.sprite.X = minX + radius
 		this.vel.X = -this.vel.X
 		// this.hits++
-	} else if sprite.X+radius > maxX {
-		sprite.X = maxX - radius
+	} else if this.sprite.X+radius > maxX {
+		this.sprite.X = maxX - radius
 		this.vel.X = -this.vel.X
 		// this.hits++
 	}
-	if sprite.Y-radius < minY {
-		sprite.Y = minY + radius
+	if this.sprite.Y-radius < minY {
+		this.sprite.Y = minY + radius
 		this.vel.Y = -this.vel.Y
 		// this.hits++
-	} else if sprite.Y+radius > maxY {
-		sprite.Y = maxY - radius
+	} else if this.sprite.Y+radius > maxY {
+		this.sprite.Y = maxY - radius
 		this.vel.Y = -this.vel.Y
 		// this.hits++
 	}

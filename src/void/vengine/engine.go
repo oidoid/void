@@ -73,5 +73,6 @@ func (this *Engine) LevelTileW() uint8               { return 0 }
 func (this *Engine) LevelTileH() uint8               { return 0 }
 
 func (this *Engine) Update() vgame.Status {
+	this.sprites.Clear()
 	return vgame.Pause
 }

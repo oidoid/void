@@ -18,9 +18,9 @@ func Update(gam game.Game) vgame.Status {
 		pointer := &gam.Input().Pointers[i]
 		if pointer.Buttons&1 == 1 {
 			for range min(3000, int(60_000*(frame.DeltaMs/1000))) {
-				ents.NewBallEnt(gam.Balls(), gam.Sprites(), gam.Random, gam.CamX()+pointer.X, gam.CamY()+pointer.Y)
+				ents.NewBallEnt(gam.Balls(), gam.Random, gam.CamX()+pointer.X, gam.CamY()+pointer.Y)
 			}
-			println(gam.SpriteCount(), "balls", int(pointer.X), int(pointer.Y), int(frame.DeltaMs))
+			println(gam.Balls().Len(), "ents", gam.SpriteCount(), "balls", int(pointer.X), int(pointer.Y), int(frame.DeltaMs))
 			loop = vgame.Loop
 		}
 	}

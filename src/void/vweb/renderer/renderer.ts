@@ -32,8 +32,8 @@ export class Renderer {
       throw Error('webgl2 unavailable')
     }
 
-    //gl.enable(gl.DEPTH_TEST)
-    //gl.depthFunc(gl.LEQUAL)
+    gl.enable(gl.DEPTH_TEST)
+    gl.depthFunc(gl.LEQUAL)
     gl.enable(gl.BLEND)
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 

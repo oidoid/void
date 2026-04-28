@@ -21,6 +21,8 @@ type Engine struct {
 var _ game.Game = (*Engine)(nil)
 var version string
 
+const MaxSpriteRadius = 16
+
 func New() *Engine {
 	this := &Engine{
 		Engine: vengine.New(&vengine.EngineOpts{
@@ -34,6 +36,9 @@ func New() *Engine {
 			float32(gam.LevelX()), float32(gam.LevelY()),
 			float32(gam.LevelX())+float32(gam.LevelW()),
 			float32(gam.LevelY())+float32(gam.LevelH()),
+			gam.CamX()-MaxSpriteRadius, gam.CamY()-MaxSpriteRadius,
+			gam.CamX()+float32(gam.Canvas().W)+MaxSpriteRadius,
+			gam.CamY()+float32(gam.Canvas().H)+MaxSpriteRadius,
 		)
 	})
 	this.Level = &levels.InitLevel

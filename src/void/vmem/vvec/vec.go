@@ -53,6 +53,7 @@ func (this *Vec[V]) Add(v *V) Handle {
 }
 
 func (this *Vec[V]) Cap() int { return cap(this.vals) }
+func (this *Vec[V]) Clear()   { this.vals = this.vals[:0] }
 
 func (this *Vec[V]) Get(handle Handle) *V {
 	if vdebug.Enabled && this.stale(handle) {
