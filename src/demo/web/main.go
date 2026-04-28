@@ -5,10 +5,10 @@ import (
 	"github.com/oidoid/void/src/void/vgame"
 )
 
-var gam engine.Engine
+var gam *engine.Engine
 
 func main() {
-	gam = engine.NewEngine()
+	gam = engine.New()
 }
 
 //export FramePointer

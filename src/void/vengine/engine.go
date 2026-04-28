@@ -29,12 +29,18 @@ type EngineOpts struct {
 	Seed2      uint64
 }
 
-func NewEngine(opts *EngineOpts) *Engine {
+func New(opts *EngineOpts) *Engine {
 	if opts == nil {
 		opts = &EngineOpts{}
 	}
+	if opts.Seed1 == 0 {
+		opts.Seed1 = rand.Uint64()
+	}
+	if opts.Seed2 == 0 {
+		opts.Seed2 = rand.Uint64()
+	}
 	return &Engine{
-		rnd:     rand.New(rand.NewPCG(opts.Seed1|rand.Uint64(), opts.Seed2|rand.Uint64())),
+		rnd:     rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
 		sprites: vvec.New[vgfx.Sprite](opts.MaxSprites),
 	}
 }

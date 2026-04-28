@@ -46,7 +46,8 @@ func (this *Vec[V]) Add(v *V) Handle {
 	slotIndex := this.slotIndexByValIndex[valIndex]
 	gen := this.slots[slotIndex].gen()
 	this.slots[slotIndex] = newSlot(uint32(valIndex), gen)
-	this.vals = append(this.vals, *v)
+	this.vals = this.vals[:valIndex+1]
+	this.vals[valIndex] = *v
 
 	return newHandle(slotIndex, gen)
 }

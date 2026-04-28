@@ -21,10 +21,12 @@ type Engine struct {
 var _ game.Game = (*Engine)(nil)
 var version string
 
-func NewEngine() Engine {
-	this := Engine{
-		Engine: vengine.NewEngine(&vengine.EngineOpts{MaxSprites: 2 * 1024 * 1024}),
-		balls:  vvec.New[ents.BallEnt](2 * 1024 * 1024),
+func New() *Engine {
+	this := &Engine{
+		Engine: vengine.New(&vengine.EngineOpts{
+			MaxSprites: 2 * 1024 * 1024,
+		}),
+		balls: vvec.New[ents.BallEnt](2 * 1024 * 1024),
 	}
 	this.zoo.Register(func(gam game.Game) {
 		// to-do: how can i pass just `this`?
