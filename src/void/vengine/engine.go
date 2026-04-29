@@ -33,6 +33,9 @@ func New(opts *EngineOpts) *Engine {
 	if opts == nil {
 		opts = &EngineOpts{}
 	}
+	if opts.MaxSprites == 0 {
+		opts.MaxSprites = 1024 * 1024
+	}
 	if opts.Seed1 == 0 {
 		opts.Seed1 = rand.Uint64()
 	}
