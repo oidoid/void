@@ -46,13 +46,15 @@ func NewBallEnt(balls *vvec.Vec[BallEnt], rnd func() float32, x, y float32) {
 	// balls.Get(ballHandle).handle = ballHandle
 }
 
-func UpdateBalls(balls *vvec.Vec[BallEnt], sprites *vvec.Vec[vgfx.Sprite], minX, minY, maxX, maxY, vpMinX, vpMinY, vpMaxX, vpMaxY float32) {
+func UpdateBalls(balls *vvec.Vec[BallEnt], sprites *[]vgfx.Sprite, minX, minY, maxX, maxY, vpMinX, vpMinY, vpMaxX, vpMaxY float32) {
 	for i := 0; i < balls.Len(); {
 		ball := &balls.Vals()[i]
 		ball.update(minX, minY, maxX, maxY)
 		if ball.sprite.X >= vpMinX && ball.sprite.X <= vpMaxX &&
 			ball.sprite.Y >= vpMinY && ball.sprite.Y <= vpMaxY {
-			sprites.Add(&ball.sprite)
+			n := len(*sprites)
+			*sprites = (*sprites)[:n+1]
+			(*sprites)[n] = ball.sprite
 		}
 		// if ball.update(minX, minY, maxX, maxY) {
 		// 	balls.Free(ball.handle)

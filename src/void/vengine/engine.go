@@ -10,7 +10,6 @@ import (
 	"github.com/oidoid/void/src/void/vinput"
 	"github.com/oidoid/void/src/void/vlevels"
 	"github.com/oidoid/void/src/void/vmath"
-	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
 var _ vgame.Game = (*Engine)(nil)
@@ -20,7 +19,7 @@ type Engine struct {
 	frame   vgame.Frame
 	cam     vmath.XY[float32]
 	rnd     *rand.Rand
-	sprites vvec.Vec[vgfx.Sprite]
+	sprites []vgfx.Sprite
 }
 
 type EngineOpts struct {
@@ -44,7 +43,7 @@ func New(opts *EngineOpts) *Engine {
 	}
 	return &Engine{
 		rnd:     rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
-		sprites: vvec.New[vgfx.Sprite](opts.MaxSprites),
+		sprites: make([]vgfx.Sprite, 0, opts.MaxSprites),
 	}
 }
 
@@ -67,15 +66,20 @@ func (this *Engine) LevelY() int16  { return this.Level.Y }
 func (this *Engine) LevelW() uint16 { return this.Level.W }
 func (this *Engine) LevelH() uint16 { return this.Level.H }
 
-func (this *Engine) SpritePointer() uintptr          { return this.sprites.Pointer() }
-func (this *Engine) SpriteCount() int                { return this.sprites.Len() }
-func (this *Engine) Sprites() *vvec.Vec[vgfx.Sprite] { return &this.sprites }
-func (this *Engine) TilePointer() uintptr            { return 0 }
-func (this *Engine) TileCount() uint32               { return 0 }
-func (this *Engine) LevelTileW() uint8               { return 0 }
-func (this *Engine) LevelTileH() uint8               { return 0 }
+func (this *Engine) SpritePointer() uintptr {
+	if cap(this.sprites) == 0 {
+		return 0
+	}
+	return uintptr(unsafe.Pointer(unsafe.SliceData(this.sprites)))
+}
+func (this *Engine) SpriteCount() int        { return len(this.sprites) }
+func (this *Engine) Sprites() *[]vgfx.Sprite { return &this.sprites }
+func (this *Engine) TilePointer() uintptr    { return 0 }
+func (this *Engine) TileCount() uint32       { return 0 }
+func (this *Engine) LevelTileW() uint8       { return 0 }
+func (this *Engine) LevelTileH() uint8       { return 0 }
 
 func (this *Engine) Update() vgame.Status {
-	this.sprites.Clear()
+	this.sprites = this.sprites[:0]
 	return vgame.Pause
 }
