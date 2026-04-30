@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/oidoid/void/src/cmd/internal/fileutils"
 )
 
 func main() {
@@ -64,27 +65,8 @@ func watch(argv *Argv) error {
 	}
 }
 
-func globStarExt(entries []string, ext string) ([]string, error) {
-	var paths []string
-	for _, entry := range entries {
-		err := filepath.WalkDir(entry, func(path string, entry os.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
-			if !entry.IsDir() && filepath.Ext(path) == ext {
-				paths = append(paths, path)
-			}
-			return nil
-		})
-		if err != nil {
-			return nil, err
-		}
-	}
-	return paths, nil
-}
-
 func packAtlas(argv *Argv) error {
-	ases, err := globStarExt(argv.Entries, ".aseprite")
+	ases, err := fileutils.GlobStarExt(argv.Entries, ".aseprite")
 	if err != nil {
 		return err
 	}
