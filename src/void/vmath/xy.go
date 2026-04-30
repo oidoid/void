@@ -11,6 +11,10 @@ type XYZ[T vtypes.Number] struct {
 	Z T
 }
 
+func NewXY[T vtypes.Number](x, y T) XY[T] {
+	return XY[T]{X: x, Y: y}
+}
+
 func (this *XY[T]) Add(xy XY[T]) {
 	this.X += xy.X
 	this.Y += xy.Y

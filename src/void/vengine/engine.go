@@ -15,11 +15,14 @@ import (
 var _ vgame.Game = (*Engine)(nil)
 
 type Engine struct {
-	Level   *vlevels.Level
-	frame   vgame.Frame
-	cam     vmath.XY[float32]
-	rnd     *rand.Rand
-	sprites []vgfx.Sprite
+	Level *vlevels.Level
+	frame vgame.Frame
+	cam   vmath.XY[float32]
+	// not true viewport size. adjusted by max sprite size.
+	viewport    vmath.Bounds[float32]
+	levelBounds vmath.Bounds[float32]
+	rnd         *rand.Rand
+	sprites     []vgfx.Sprite
 }
 
 type EngineOpts struct {
@@ -72,14 +75,32 @@ func (this *Engine) SpritePointer() uintptr {
 	}
 	return uintptr(unsafe.Pointer(unsafe.SliceData(this.sprites)))
 }
-func (this *Engine) SpriteCount() int        { return len(this.sprites) }
-func (this *Engine) Sprites() *[]vgfx.Sprite { return &this.sprites }
-func (this *Engine) TilePointer() uintptr    { return 0 }
-func (this *Engine) TileCount() uint32       { return 0 }
-func (this *Engine) LevelTileW() uint8       { return 0 }
-func (this *Engine) LevelTileH() uint8       { return 0 }
+func (this *Engine) SpriteCount() int                    { return len(this.sprites) }
+func (this *Engine) Sprites() *[]vgfx.Sprite             { return &this.sprites }
+func (this *Engine) LevelBounds() *vmath.Bounds[float32] { return &this.levelBounds }
+func (this *Engine) DrawSprite(sprite *vgfx.Sprite) {
+	if !this.viewport.HitsXY(sprite.XY) {
+		return
+	}
+	n := len(this.sprites)
+	this.sprites = this.sprites[:n+1]
+	this.sprites[n] = *sprite
+}
+func (this *Engine) TilePointer() uintptr { return 0 }
+func (this *Engine) TileCount() uint32    { return 0 }
+func (this *Engine) LevelTileW() uint8    { return 0 }
+func (this *Engine) LevelTileH() uint8    { return 0 }
 
 func (this *Engine) Update() vgame.Status {
 	this.sprites = this.sprites[:0]
+	w := float32(this.frame.Canvas.W)
+	h := float32(this.frame.Canvas.H)
+	r := vgfx.MaxRadius
+	this.viewport = vmath.NewBounds(this.cam.X-r, this.cam.Y-r, this.cam.X+w+r, this.cam.Y+h+r)
+	this.levelBounds = vmath.NewBounds(
+		float32(this.Level.X), float32(this.Level.Y),
+		float32(this.Level.X)+float32(this.Level.W),
+		float32(this.Level.Y)+float32(this.Level.H),
+	)
 	return vgame.Pause
 }

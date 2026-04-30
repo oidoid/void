@@ -1,9 +1,12 @@
 package vgfx
 
-// to-do: hold a ref?
+import "github.com/oidoid/void/src/void/vmath"
+
 type Sprite struct {
-	X, Y       float32
+	vmath.XY[float32]
 	Radius     uint8
 	R, G, B, A uint8
 	Z          uint32
 }
+
+const MaxRadius = float32(16)

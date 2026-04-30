@@ -1,7 +1,7 @@
 package game
 
 import (
-	"github.com/oidoid/void/src/demo/ents"
+	"github.com/oidoid/void/src/demo/ents/entdata"
 	"github.com/oidoid/void/src/void/vents"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vmem/vvec"
@@ -9,7 +9,7 @@ import (
 
 type Game interface {
 	vgame.Game
-	Balls() *vvec.Vec[ents.BallEnt]
+	Balls() *vvec.Vec[entdata.BallEnt]
 	Zoo() *vents.Zoo[Game]
 }
 

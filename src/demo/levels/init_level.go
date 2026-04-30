@@ -1,7 +1,7 @@
 package levels
 
 import (
-	"github.com/oidoid/void/src/demo/ents"
+	"github.com/oidoid/void/src/demo/ents/entdata"
 	"github.com/oidoid/void/src/demo/game"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vinput"
@@ -18,7 +18,8 @@ func Update(gam game.Game) vgame.Status {
 		pointer := &gam.Input().Pointers[i]
 		if pointer.Buttons&1 == 1 {
 			for range min(3000, int(60_000*(frame.DeltaMs/1000))) {
-				ents.NewBallEnt(gam.Balls(), gam.Random, gam.CamX()+pointer.X, gam.CamY()+pointer.Y)
+				ball := entdata.NewBallEnt(gam.Random, gam.CamX()+pointer.X, gam.CamY()+pointer.Y)
+				_ = gam.Balls().Add(ball)
 			}
 			println(gam.Balls().Len(), "ents", gam.SpriteCount(), "balls", int(pointer.X), int(pointer.Y), int(frame.DeltaMs))
 			loop = vgame.Loop
