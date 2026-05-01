@@ -16,6 +16,14 @@ func WasmPlugin(config *cliconfig.CLIConfig) api.Plugin {
 	return api.Plugin{
 		Name: "WasmPlugin",
 		Setup: func(build api.PluginBuild) {
+			build.OnResolve(api.OnResolveOptions{Filter: `\.wasm$`}, func(args api.OnResolveArgs) (api.OnResolveResult, error) {
+				if config.WatchPort == 0 {
+					return api.OnResolveResult{}, nil // resolve normally.
+				}
+				// don't require existence.
+				file, err := filepath.Abs(filepath.Join(filepath.Dir(args.Importer), args.Path))
+				return api.OnResolveResult{Path: file}, err
+			})
 			build.OnLoad(api.OnLoadOptions{Filter: `\.wasm$`}, func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 				var uri string
 				if config.OneFile {
@@ -35,12 +43,10 @@ func WasmPlugin(config *cliconfig.CLIConfig) api.Plugin {
 					}
 					uri = "./" + filepath.ToSlash(relative)
 					if config.WatchPort != 0 {
-						stat, err := os.Stat(args.Path)
-						if err != nil {
-							return errorLoadResult(err), nil
+						if stat, err := os.Stat(args.Path); err == nil {
+							// force watch event.
+							uri += fmt.Sprintf("?t=%d", stat.ModTime().UnixMilli())
 						}
-						// force watch event.
-						uri += fmt.Sprintf("?t=%d", stat.ModTime().UnixMilli())
 					}
 				}
 				contents := fmt.Sprintf("export default %q", uri)

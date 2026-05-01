@@ -15,7 +15,7 @@ watch: export DEBUG := 1
 watch: dependencies .WAIT watch-go watch-sprites watch-web
 watch-go:; watchexec --exts=go --quiet --watch=src/ -- $(MAKE) build-demo
 watch-sprites:; $(call packsprites_demo,--watch)
-watch-web: build-demo build-sprites; $(call pack_demo,--watch)
+watch-web:; $(call pack_demo,--watch)
 
 build: build-cmd build-demo build-sprites build-web
 build-cmd:; go build $(go_tags) -o dist/ ./src/cmd/...
