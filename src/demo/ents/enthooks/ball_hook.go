@@ -1,7 +1,7 @@
 package enthooks
 
 import (
-	"github.com/oidoid/void/src/demo/ents/entdata"
+	"github.com/oidoid/void/src/demo/ents"
 	"github.com/oidoid/void/src/demo/game"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vmath"
@@ -9,7 +9,7 @@ import (
 
 // const maxBallWallHits = 3
 
-func UpdateBalls(gam game.Game) {
+func Update(gam game.Game) {
 	balls := gam.Balls()
 	lvl := gam.LevelBounds()
 	sprites := gam.Sprites()
@@ -20,7 +20,7 @@ func UpdateBalls(gam game.Game) {
 	viewport := vmath.NewBounds(cam.X-r, cam.Y-r, cam.X+float32(canvas.W)+r, cam.Y+float32(canvas.H)+r)
 	for i := 0; i < balls.Len(); {
 		ball := &balls.Vals()[i]
-		updateBall(ball, lvl)
+		update(ball, lvl)
 		if viewport.HitsXY(ball.Sprite.XY) {
 			n := len(*sprites)
 			*sprites = (*sprites)[:n+1]
@@ -34,7 +34,7 @@ func UpdateBalls(gam game.Game) {
 	}
 }
 
-func updateBall(ent *entdata.BallEnt, lvl *vmath.Bounds[float32]) bool {
+func update(ent *ents.BallEnt, lvl *vmath.Bounds[float32]) bool {
 	radius := float32(ent.Sprite.Radius)
 	ent.Sprite.X += ent.Vel.X
 	ent.Sprite.Y += ent.Vel.Y

@@ -8,7 +8,7 @@ tool github.com/go-critic/go-critic/cmd/go-critic
 
 require (
 	github.com/evanw/esbuild v0.28.0
-	github.com/fsnotify/fsnotify v1.9.0
+	github.com/fsnotify/fsnotify v1.10.0
 	golang.org/x/net v0.53.0
 )
 

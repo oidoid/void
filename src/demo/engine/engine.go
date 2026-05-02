@@ -3,7 +3,7 @@ package engine
 import (
 	"unsafe"
 
-	"github.com/oidoid/void/src/demo/ents/entdata"
+	"github.com/oidoid/void/src/demo/ents"
 	"github.com/oidoid/void/src/demo/ents/enthooks"
 	"github.com/oidoid/void/src/demo/game"
 	"github.com/oidoid/void/src/demo/levels"
@@ -15,7 +15,7 @@ import (
 
 type Engine struct {
 	*vengine.Engine
-	balls vvec.Vec[entdata.BallEnt]
+	balls vvec.Vec[ents.BallEnt]
 	zoo   vents.Zoo[game.Game]
 }
 
@@ -27,14 +27,14 @@ func New() *Engine {
 		Engine: vengine.New(&vengine.EngineOpts{
 			MaxSprites: 2 * 1024 * 1024,
 		}),
-		balls: vvec.New[entdata.BallEnt](2 * 1024 * 1024),
+		balls: vvec.New[ents.BallEnt](2 * 1024 * 1024),
 	}
-	this.zoo.Register(enthooks.UpdateBalls)
+	this.zoo.Register(enthooks.Update)
 	this.Level = &levels.InitLevel
 	return this
 }
 
-func (this *Engine) Balls() *vvec.Vec[entdata.BallEnt] {
+func (this *Engine) Balls() *vvec.Vec[ents.BallEnt] {
 	return &this.balls
 }
 
