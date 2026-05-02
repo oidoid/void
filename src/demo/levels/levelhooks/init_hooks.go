@@ -14,15 +14,14 @@ func UpdateInit(gam *game.Game) vgame.Status {
 	if gam.SpriteCount() > 0 {
 		loop = vgame.Loop
 	}
-	balls := gam.Balls()
 	for i := range gam.Input().PointersLen {
 		pointer := &gam.Input().Pointers[i]
 		if pointer.Buttons&1 == 1 {
 			for range min(3000, int(60_000*(frame.DeltaMs/1000))) {
-				ball := ents.NewBallEnt(gam.Random, gam.CamX()+pointer.X, gam.CamY()+pointer.Y)
-				_ = balls.Add(ball)
+				ball := ents.NewBallEnt(gam.Random, gam.CamX()+pointer.Min.X, gam.CamY()+pointer.Min.Y)
+				_ = gam.Balls.Add(ball)
 			}
-			println(balls.Len(), "ents", gam.SpriteCount(), "balls", int(pointer.X), int(pointer.Y), int(frame.DeltaMs))
+			println(gam.Balls.Len(), "ents", gam.SpriteCount(), "balls", int(pointer.Min.X), int(pointer.Min.Y), int(frame.DeltaMs))
 			loop = vgame.Loop
 		}
 	}
@@ -64,17 +63,17 @@ func UpdateInit(gam *game.Game) vgame.Status {
 		if pointer.Buttons == 0 {
 			continue
 		}
-		if pointer.X < edgeZone {
+		if pointer.Min.X < edgeZone {
 			gam.Cam().X -= dx
 			loop = vgame.Loop
-		} else if pointer.X > float32(gam.Canvas().W)-edgeZone {
+		} else if pointer.Min.X > float32(gam.Canvas().W)-edgeZone {
 			gam.Cam().X += dx
 			loop = vgame.Loop
 		}
-		if pointer.Y < edgeZone {
+		if pointer.Min.Y < edgeZone {
 			gam.Cam().Y -= dx
 			loop = vgame.Loop
-		} else if pointer.Y > float32(gam.Canvas().H)-edgeZone {
+		} else if pointer.Min.Y > float32(gam.Canvas().H)-edgeZone {
 			gam.Cam().Y += dx
 			loop = vgame.Loop
 		}

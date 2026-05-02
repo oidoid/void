@@ -8,11 +8,14 @@ import (
 	"github.com/oidoid/void/src/void/vgame"
 )
 
+var version string
+
 var gam *game.Game
 
 func main() {
+	println(version)
 	gam = game.New()
-	gam.SetLevel(levelhooks.UpdateInit)
+	gam.Router.Update = levelhooks.UpdateInit
 	gam.RegisterUpdate(enthooks.UpdateBalls)
 	gam.RegisterUpdate(func(gam *game.Game) {
 		venthooks.UpdateButtons(gam.Engine)

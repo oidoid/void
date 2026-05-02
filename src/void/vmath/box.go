@@ -2,22 +2,21 @@ package vmath
 
 import "github.com/oidoid/void/src/void/vtypes"
 
-// to-do: use Bounds and rename to Box.
-type Box[Pos vtypes.Number, Size vtypes.Number] struct {
-	XY[Pos]
-	WH[Size]
+type Box[T vtypes.Number] struct {
+	Min, Max XY[T]
 }
 
-func NewBox[Pos vtypes.Number, Size vtypes.Number](x, y Pos, w, h Size) Box[Pos, Size] {
-	return Box[Pos, Size]{XY: XY[Pos]{X: x, Y: y}, WH: WH[Size]{W: w, H: h}}
+func NewBox[T vtypes.Number](minX, minY, maxX, maxY T) Box[T] {
+	return Box[T]{Min: XY[T]{X: minX, Y: minY}, Max: XY[T]{X: maxX, Y: maxY}}
 }
 
-func (this *Box[Pos, Size]) HitsPoint(x, y Pos) bool {
-	return x >= this.X && x <= this.X+Pos(this.W) && y >= this.Y && y <= this.Y+Pos(this.H)
+func (this *Box[T]) HitsPoint(x, y T) bool {
+	return x >= this.Min.X && x <= this.Max.X && y >= this.Min.Y && y <= this.Max.Y
 }
 
-func (this *Box[Pos, Size]) HitsXY(xy XY[Pos]) bool {
+func (this *Box[T]) HitsXY(xy XY[T]) bool {
 	return this.HitsPoint(xy.X, xy.Y)
 }
 
-// MoveBy uses XY.Add()
+func (this *Box[T]) W() T { return this.Max.X - this.Min.X }
+func (this *Box[T]) H() T { return this.Max.Y - this.Min.Y }

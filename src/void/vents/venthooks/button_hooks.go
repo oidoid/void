@@ -1,7 +1,7 @@
 package venthooks
 
-import "github.com/oidoid/void/src/void/vgame"
+import "github.com/oidoid/void/src/void/vengine"
 
-func UpdateButtons(gam *vgame.Engine) {
+func UpdateButtons[Game any](gam *vengine.Engine[Game]) {
 	println(gam.CamX())
 }
