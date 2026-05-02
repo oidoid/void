@@ -2,7 +2,7 @@ package vmath
 
 import "github.com/oidoid/void/src/void/vtypes"
 
-// XY2, MinMax?
+// XY2, MinMax? bounds is for... bounds checks. Hitbox, not good for translation, just fixed sizes.
 
 type Bounds[T vtypes.Number] struct {
 	Min, Max XY[T]

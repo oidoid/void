@@ -3,6 +3,7 @@ package enthooks
 import (
 	"github.com/oidoid/void/src/demo/ents/entdata"
 	"github.com/oidoid/void/src/demo/game"
+	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vmath"
 )
 
@@ -11,10 +12,20 @@ import (
 func UpdateBalls(gam game.Game) {
 	balls := gam.Balls()
 	lvl := gam.LevelBounds()
+	sprites := gam.Sprites()
+	cam := gam.Cam()
+	canvas := gam.Canvas()
+	r := vgfx.MaxRadius
+	// to-do: export viewport from gam.
+	viewport := vmath.NewBounds(cam.X-r, cam.Y-r, cam.X+float32(canvas.W)+r, cam.Y+float32(canvas.H)+r)
 	for i := 0; i < balls.Len(); {
 		ball := &balls.Vals()[i]
 		updateBall(ball, lvl)
-		gam.DrawSprite(&ball.Sprite)
+		if viewport.HitsXY(ball.Sprite.XY) {
+			n := len(*sprites)
+			*sprites = (*sprites)[:n+1]
+			(*sprites)[n] = ball.Sprite
+		}
 		// if updateBall(ball, &level) {
 		// 	balls.Free(ball.handle)
 		// 	continue
