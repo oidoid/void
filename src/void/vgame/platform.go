@@ -7,10 +7,10 @@ type Platform interface {
 	Update() Status
 	TilePointer() uintptr
 	TileCount() uint32
-	LevelX() int16
-	LevelY() int16
-	LevelW() uint16
-	LevelH() uint16
+	LevelX() int32
+	LevelY() int32
+	LevelW() int32
+	LevelH() int32
 	LevelTileW() uint8
 	LevelTileH() uint8
 	CamX() float32

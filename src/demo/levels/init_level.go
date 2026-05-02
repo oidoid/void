@@ -7,7 +7,7 @@ import (
 
 // to-do: encode.
 var InitLevel = vlevels.Level{
-	Box:  vmath.Box[int16]{Min: vmath.XY[int16]{X: -24, Y: -24}, Max: vmath.XY[int16]{X: 4072, Y: 4072}},
+	Box:  vmath.Box[int32]{Min: vmath.XY[int32]{X: -24, Y: -24}, Max: vmath.XY[int32]{X: 4072, Y: 4072}},
 	Tile: vmath.WH[uint8]{W: 16, H: 16},
 	Tiles: []vlevels.Tile{
 		1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,

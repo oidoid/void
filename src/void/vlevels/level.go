@@ -5,7 +5,7 @@ import "github.com/oidoid/void/src/void/vmath"
 type Tile = uint16
 
 type Level struct {
-	vmath.Box[int16]
+	vmath.Box[int32]
 	Tile  vmath.WH[uint8]
 	Tiles []Tile
 }

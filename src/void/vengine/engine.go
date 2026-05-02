@@ -33,6 +33,8 @@ type EngineOpts struct {
 	Seed2      uint64
 }
 
+var _ vgame.Platform = (*Engine[any])(nil)
+
 func New[Game any](opts *EngineOpts) *Engine[Game] {
 	if opts == nil {
 		opts = &EngineOpts{}
@@ -71,10 +73,10 @@ func (this *Engine[Game]) CamY() float32             { return this.cam.Y }
 func (this *Engine[Game]) Canvas() *vmath.WH[uint16] { return &this.frame.Canvas }
 func (this *Engine[Game]) Input() *vinput.Input      { return &this.frame.Input }
 
-func (this *Engine[Game]) LevelX() int16  { return this.Level.Min.X }
-func (this *Engine[Game]) LevelY() int16  { return this.Level.Min.Y }
-func (this *Engine[Game]) LevelW() uint16 { return uint16(this.Level.W()) }
-func (this *Engine[Game]) LevelH() uint16 { return uint16(this.Level.H()) }
+func (this *Engine[Game]) LevelX() int32 { return this.Level.Min.X }
+func (this *Engine[Game]) LevelY() int32 { return this.Level.Min.Y }
+func (this *Engine[Game]) LevelW() int32 { return this.Level.W() }
+func (this *Engine[Game]) LevelH() int32 { return this.Level.H() }
 
 func (this *Engine[Game]) SpritePointer() uintptr {
 	if cap(this.sprites) == 0 {
