@@ -10,14 +10,15 @@ import (
 // const maxBallWallHits = 3
 
 func UpdateBalls(gam *game.Game) {
+	balls := gam.Balls()
 	sprites := gam.Sprites()
 	cam := gam.Cam()
 	canvas := gam.Canvas()
 	r := vgfx.MaxRadius
 	// to-do: export viewport from gam.
 	viewport := vmath.NewBounds(cam.X-r, cam.Y-r, cam.X+float32(canvas.W)+r, cam.Y+float32(canvas.H)+r)
-	for i := 0; i < gam.Balls.Len(); {
-		ball := &gam.Balls.Vals()[i]
+	for i := 0; i < balls.Len(); {
+		ball := &balls.Vals()[i]
 		updateBall(ball, gam)
 		if viewport.HitsXY(ball.Sprite.XY) {
 			n := len(*sprites)

@@ -3,26 +3,27 @@ package levelhooks
 import (
 	"github.com/oidoid/void/src/demo/ents"
 	"github.com/oidoid/void/src/demo/game"
-	"github.com/oidoid/void/src/void/vengine"
+	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vinput"
 )
 
-func UpdateInit(gam *game.Game) vengine.Status {
+func UpdateInit(gam *game.Game) vgame.Status {
 	frame := gam.Frame()
-	gam.Zoo().Update(gam)
-	loop := vengine.Pause
+	gam.Ents().Update(gam)
+	loop := vgame.Pause
 	if gam.SpriteCount() > 0 {
-		loop = vengine.Loop
+		loop = vgame.Loop
 	}
+	balls := gam.Balls()
 	for i := range gam.Input().PointersLen {
 		pointer := &gam.Input().Pointers[i]
 		if pointer.Buttons&1 == 1 {
 			for range min(3000, int(60_000*(frame.DeltaMs/1000))) {
 				ball := ents.NewBallEnt(gam.Random, gam.CamX()+pointer.X, gam.CamY()+pointer.Y)
-				_ = gam.Balls.Add(ball)
+				_ = balls.Add(ball)
 			}
-			println(gam.Balls.Len(), "ents", gam.SpriteCount(), "balls", int(pointer.X), int(pointer.Y), int(frame.DeltaMs))
-			loop = vengine.Loop
+			println(balls.Len(), "ents", gam.SpriteCount(), "balls", int(pointer.X), int(pointer.Y), int(frame.DeltaMs))
+			loop = vgame.Loop
 		}
 	}
 	if gam.Input().Wheel.Delta.X != 0 || gam.Input().Wheel.Delta.Y != 0 || gam.Input().Wheel.Delta.Z != 0 {
@@ -32,7 +33,7 @@ func UpdateInit(gam *game.Game) vengine.Status {
 		gamepad := &gam.Input().Gamepads[i]
 		println("gamepad", gamepad.Index, gamepad.Buttons, gamepad.Axes[0], gamepad.Axes[1])
 		if gamepad.Buttons != 0 {
-			loop = vengine.Loop
+			loop = vgame.Loop
 		}
 	}
 	kbd := &gam.Input().Keyboard
@@ -43,19 +44,19 @@ func UpdateInit(gam *game.Game) vengine.Status {
 	}
 	if kbd.Keys&vinput.KeyLeft != 0 {
 		gam.Cam().X -= dx
-		loop = vengine.Loop
+		loop = vgame.Loop
 	}
 	if kbd.Keys&vinput.KeyRight != 0 {
 		gam.Cam().X += dx
-		loop = vengine.Loop
+		loop = vgame.Loop
 	}
 	if kbd.Keys&vinput.KeyUp != 0 {
 		gam.Cam().Y -= dx
-		loop = vengine.Loop
+		loop = vgame.Loop
 	}
 	if kbd.Keys&vinput.KeyDown != 0 {
 		gam.Cam().Y += dx
-		loop = vengine.Loop
+		loop = vgame.Loop
 	}
 	const edgeZone = float32(64)
 	for i := range gam.Input().PointersLen {
@@ -65,23 +66,23 @@ func UpdateInit(gam *game.Game) vengine.Status {
 		}
 		if pointer.X < edgeZone {
 			gam.Cam().X -= dx
-			loop = vengine.Loop
+			loop = vgame.Loop
 		} else if pointer.X > float32(gam.Canvas().W)-edgeZone {
 			gam.Cam().X += dx
-			loop = vengine.Loop
+			loop = vgame.Loop
 		}
 		if pointer.Y < edgeZone {
 			gam.Cam().Y -= dx
-			loop = vengine.Loop
+			loop = vgame.Loop
 		} else if pointer.Y > float32(gam.Canvas().H)-edgeZone {
 			gam.Cam().Y += dx
-			loop = vengine.Loop
+			loop = vgame.Loop
 		}
 	}
 	for bit := vinput.Key(1); bit != 0; bit <<= 1 {
 		if kbd.Keys&bit != 0 {
 			println("key", bit)
-			loop = vengine.Loop
+			loop = vgame.Loop
 		}
 	}
 	if kbd.TextLen > 0 {
@@ -90,7 +91,7 @@ func UpdateInit(gam *game.Game) vengine.Status {
 		if kbd.TextOverflow {
 			println("error: text overflow")
 		}
-		loop = vengine.Loop
+		loop = vgame.Loop
 	}
 	return loop
 }

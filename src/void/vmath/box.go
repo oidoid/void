@@ -2,6 +2,7 @@ package vmath
 
 import "github.com/oidoid/void/src/void/vtypes"
 
+// to-do: use Bounds and rename to Box.
 type Box[Pos vtypes.Number, Size vtypes.Number] struct {
 	XY[Pos]
 	WH[Size]

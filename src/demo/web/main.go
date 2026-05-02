@@ -4,8 +4,8 @@ import (
 	"github.com/oidoid/void/src/demo/ents/enthooks"
 	"github.com/oidoid/void/src/demo/game"
 	"github.com/oidoid/void/src/demo/levels/levelhooks"
-	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/vents/venthooks"
+	"github.com/oidoid/void/src/void/vgame"
 )
 
 var gam *game.Game
@@ -35,7 +35,7 @@ func SpriteCount() uint32 {
 }
 
 //export Update
-func Update() vengine.Status {
+func Update() vgame.Status {
 	return gam.Update()
 }
 

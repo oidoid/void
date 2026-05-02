@@ -1,4 +1,4 @@
-package vengine
+package vgame
 
 type Platform interface {
 	FramePointer() uintptr
