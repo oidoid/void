@@ -1,14 +1,22 @@
 package main
 
 import (
-	"github.com/oidoid/void/src/demo/engine"
-	"github.com/oidoid/void/src/void/vgame"
+	"github.com/oidoid/void/src/demo/ents/enthooks"
+	"github.com/oidoid/void/src/demo/game"
+	"github.com/oidoid/void/src/demo/levels/levelhooks"
+	"github.com/oidoid/void/src/void/vengine"
+	"github.com/oidoid/void/src/void/vents/venthooks"
 )
 
-var gam *engine.Engine
+var gam *game.Game
 
 func main() {
-	gam = engine.New()
+	gam = game.New()
+	gam.SetLevel(levelhooks.UpdateInit)
+	gam.RegisterUpdate(enthooks.UpdateBalls)
+	gam.RegisterUpdate(func(gam *game.Game) {
+		venthooks.UpdateButtons(gam.Engine)
+	})
 }
 
 //export FramePointer
@@ -27,7 +35,7 @@ func SpriteCount() uint32 {
 }
 
 //export Update
-func Update() vgame.Status {
+func Update() vengine.Status {
 	return gam.Update()
 }
 

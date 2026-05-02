@@ -1,4 +1,4 @@
-package vgame
+package vengine
 
 import (
 	"github.com/oidoid/void/src/void/vinput"

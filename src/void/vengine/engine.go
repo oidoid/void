@@ -5,22 +5,19 @@ import (
 
 	"math/rand/v2"
 
-	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vinput"
 	"github.com/oidoid/void/src/void/vlevels"
 	"github.com/oidoid/void/src/void/vmath"
 )
 
-var _ vgame.Game = (*Engine)(nil)
-
 type Engine struct {
 	Level *vlevels.Level
-	frame vgame.Frame
+	frame Frame
 	cam   vmath.XY[float32]
 	// not true viewport size. adjusted by max sprite size.
 	viewport    vmath.Bounds[float32]
-	levelBounds vmath.Bounds[float32]
+	LevelBounds vmath.Bounds[float32] // to-do: can this be in vlevels.Level?
 	rnd         *rand.Rand
 	sprites     []vgfx.Sprite
 }
@@ -52,7 +49,7 @@ func New(opts *EngineOpts) *Engine {
 
 func (this *Engine) Random() float32 { return this.rnd.Float32() }
 
-func (this *Engine) Frame() *vgame.Frame { return &this.frame }
+func (this *Engine) Frame() *Frame { return &this.frame }
 
 func (this *Engine) FramePointer() uintptr {
 	return uintptr(unsafe.Pointer(&this.frame))
@@ -75,9 +72,8 @@ func (this *Engine) SpritePointer() uintptr {
 	}
 	return uintptr(unsafe.Pointer(unsafe.SliceData(this.sprites)))
 }
-func (this *Engine) SpriteCount() int                    { return len(this.sprites) }
-func (this *Engine) Sprites() *[]vgfx.Sprite             { return &this.sprites }
-func (this *Engine) LevelBounds() *vmath.Bounds[float32] { return &this.levelBounds }
+func (this *Engine) SpriteCount() int        { return len(this.sprites) }
+func (this *Engine) Sprites() *[]vgfx.Sprite { return &this.sprites }
 func (this *Engine) DrawSprite(sprite *vgfx.Sprite) {
 	if !this.viewport.HitsXY(sprite.XY) {
 		return
@@ -91,16 +87,16 @@ func (this *Engine) TileCount() uint32    { return 0 }
 func (this *Engine) LevelTileW() uint8    { return 0 }
 func (this *Engine) LevelTileH() uint8    { return 0 }
 
-func (this *Engine) Update() vgame.Status {
+func (this *Engine) Update() Status {
 	this.sprites = this.sprites[:0]
 	w := float32(this.frame.Canvas.W)
 	h := float32(this.frame.Canvas.H)
 	r := vgfx.MaxRadius
 	this.viewport = vmath.NewBounds(this.cam.X-r, this.cam.Y-r, this.cam.X+w+r, this.cam.Y+h+r)
-	this.levelBounds = vmath.NewBounds(
+	this.LevelBounds = vmath.NewBounds(
 		float32(this.Level.X), float32(this.Level.Y),
 		float32(this.Level.X)+float32(this.Level.W),
 		float32(this.Level.Y)+float32(this.Level.H),
 	)
-	return vgame.Pause
+	return Pause
 }
