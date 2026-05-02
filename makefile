@@ -3,13 +3,16 @@ include config.make
 out_demo := dist/demo/index.wasm
 tinygo_nodebug := --no-debug
 go_tags := $(if $(value DEBUG),--tags=debug,)
+go_test_filter = \
+	grep --color=always --extended --line-buffered '^--- FAIL: [^ ]+|$$'| \
+	sed --regexp-extended --unbuffered $(if $(value V),'','/^ok |\[no test files\]$$|PASS$$|^goos: |^goarch: |^pkg: |^cpu: /d')
 tinygo_flags += $(go_tags) --ldflags="-X github.com/oidoid/void/src/demo.version=$(shell git describe --dirty)" --scheduler=none $(if $(value DEBUG),,$(tinygo_nodebug) --panic=trap) $(if $(value V),--print-allocs=.,)
 # $(1) flags
 pack_demo = go run ./src/cmd/pack --out=dist/demo/ --tsconfig=src/demo/web/tsconfig.json $(1) src/demo/web/assets/index.html
 # $(1) flags
 packsprites_demo = go run ./src/cmd/packsprites --name=atlas --out=dist/demo/ $(1) src/demo/assets/atlas/
 
-.PHONY: build build-cmd build-demo build-sprites build-web clean dependencies fat-analyze fat-check fat-save fmt fmt-go fmt-mod fmt-web lint lint-critic lint-static lint-vet lint-web test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-sprites watch-web
+.PHONY: bench build build-cmd build-demo build-sprites build-web clean dependencies fat-analyze fat-check fat-save fmt fmt-go fmt-mod fmt-web lint lint-critic lint-static lint-vet lint-web test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-sprites watch-web
 
 watch: export DEBUG := 1
 watch: dependencies .WAIT watch-go watch-sprites watch-web
@@ -57,11 +60,10 @@ test-fmt-go:
 	out=$$(gofmt -l -s ./src/)
 	[ -z "$$out" ] || { printf >&2 "unformatted files:\n%s\n" "$$out"; false; }
 test-fmt-mod:; go mod tidy -diff
-test-go:
-	go test $(go_tags) ./src/...|
-	grep --color=always --extended --line-buffered '^--- FAIL: [^ ]+|$$'|
-	sed --regexp-extended --unbuffered $(if $(value V),'','/^ok |\[no test files\]$$/d')
+test-go:;	go test $(go_tags) ./src/... | $(go_test_filter)
 test-web:;
 	FORCE_COLOR=3 npm run test:unit|
 	sed --unbuffered $(if $(value V),'','1,/✖ failing tests:/ {/[✔ℹ▶✖] /d}')
 typecheck-web:; npm run typecheck
+
+bench:; go test --bench=. --benchtime=1000x $(go_tags) ./src/... | $(go_test_filter)
