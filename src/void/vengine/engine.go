@@ -33,7 +33,7 @@ type EngineOpts struct {
 	Seed2      uint64
 }
 
-var _ vgame.Platform = (*Engine[any])(nil)
+var _ vgame.Game = (*Engine[any])(nil)
 
 func New[Game any](opts *EngineOpts) *Engine[Game] {
 	if opts == nil {

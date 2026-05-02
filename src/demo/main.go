@@ -11,12 +11,15 @@ var version string
 
 var Gam *game.Game
 
+func NewGame() *game.Game {
+	gam := game.New()
+	gam.Router.Update = levelhooks.UpdateInit
+	gam.RegisterUpdate(enthooks.UpdateBalls)
+	gam.RegisterUpdate(venthooks.UpdateButtons[*game.Game])
+	return gam
+}
+
 func Init() {
 	println(version)
-	Gam = game.New()
-	Gam.Router.Update = levelhooks.UpdateInit
-	Gam.RegisterUpdate(enthooks.UpdateBalls)
-	Gam.RegisterUpdate(func(gam *game.Game) {
-		venthooks.UpdateButtons(gam.Engine)
-	})
+	Gam = NewGame()
 }
