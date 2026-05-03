@@ -1,13 +1,13 @@
 package levelhooks
 
 import (
+	"github.com/oidoid/void/src/demo/engine"
 	"github.com/oidoid/void/src/demo/ents"
-	"github.com/oidoid/void/src/demo/game"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vinput"
 )
 
-func UpdateInit(gam *game.Game) vgame.Status {
+func UpdateInit(gam *engine.Engine) vgame.Status {
 	frame := gam.Frame()
 	gam.Ents().Update(gam)
 	loop := vgame.Pause

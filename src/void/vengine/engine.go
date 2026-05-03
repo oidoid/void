@@ -57,7 +57,7 @@ func New[Game any](opts *EngineOpts) *Engine[Game] {
 
 func (this *Engine[Game]) Random() float32 { return this.rnd.Float32() }
 
-func (this *Engine[Game]) RegisterUpdate(update func(*Game)) {
+func (this *Engine[Game]) RegisterEntUpdate(update func(*Game)) {
 	this.ents.Register(update)
 }
 
@@ -85,14 +85,10 @@ func (this *Engine[Game]) SpritePointer() uintptr {
 	return uintptr(unsafe.Pointer(unsafe.SliceData(this.sprites)))
 }
 func (this *Engine[Game]) SpriteCount() int { return len(this.sprites) }
-func (this *Engine[Game]) DrawSprite(sprite *vgfx.Sprite) {
-	if !this.viewport.HitsXY(sprite.XY) {
-		return
-	}
-	n := len(this.sprites)
-	this.sprites = this.sprites[:n+1]
-	this.sprites[n] = *sprite
+func (this *Engine[Game]) BeginDraw() vgfx.SpriteBatch {
+	return vgfx.SpriteBatch{Sprites: this.sprites, Viewport: this.viewport}
 }
+func (this *Engine[Game]) EndDraw(batch vgfx.SpriteBatch) { this.sprites = batch.Sprites }
 
 func (this *Engine[Game]) TilePointer() uintptr {
 	return uintptr(unsafe.Pointer(&this.Level.Tiles[0]))

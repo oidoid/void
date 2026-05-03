@@ -3,11 +3,11 @@ include config.make
 out_demo := dist/demo/index.wasm
 tinygo_nodebug := --no-debug
 go_tags := $(if $(value DEBUG),--tags=debug,)
-bench_test := go test --bench=. --count=7 $(go_tags) ./src/...
+bench_test := go test --bench=. --count=13 $(go_tags) ./src/...
 go_test_filter = \
 	grep --color=always --extended --line-buffered '^--- FAIL: [^ ]+|$$'| \
 	sed --regexp-extended --unbuffered $(if $(value V),'','/^ok |\[no test files\]$$|PASS$$|^goos: |^goarch: |^pkg: |^cpu: /d')
-tinygo_flags += $(go_tags) --ldflags="-X github.com/oidoid/void/src/demo.version=$(shell git describe --dirty)" --scheduler=none $(if $(value DEBUG),,$(tinygo_nodebug) --panic=trap) $(if $(value V),--print-allocs=.,)
+tinygo_flags += $(go_tags) --ldflags="-X github.com/oidoid/void/src/demo/engine.Version=$(shell git describe --dirty)" --scheduler=none $(if $(value DEBUG),,$(tinygo_nodebug) --panic=trap) $(if $(value V),--print-allocs=.,)
 # $(1) flags
 pack_demo = go run ./src/cmd/pack --out=dist/demo/ --tsconfig=src/demo/web/tsconfig.json $(1) src/demo/web/assets/index.html
 # $(1) flags

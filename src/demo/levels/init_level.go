@@ -5,9 +5,10 @@ import (
 	"github.com/oidoid/void/src/void/vmath"
 )
 
+// to-do: most levels too large for literal?
 // to-do: encode.
 var InitLevel = vlevels.Level{
-	Box:  vmath.Box[int32]{Min: vmath.XY[int32]{X: -24, Y: -24}, Max: vmath.XY[int32]{X: 4072, Y: 4072}},
+	Box:  vmath.NewXYWH[int32](-24, -24, 4096, 4096),
 	Tile: vmath.WH[uint8]{W: 16, H: 16},
 	Tiles: []vlevels.Tile{
 		1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,

@@ -58,10 +58,6 @@ func check(reader io.Reader, stdout, stderr io.Writer) error {
 		}
 		got := stat.Size()
 		delta := got - entry.Size
-		deltaSign := "+"
-		if delta < 0 {
-			deltaSign = ""
-		}
 
 		gotGzip, err := gzipSize(entry.Path)
 		if err != nil {
@@ -70,10 +66,6 @@ func check(reader io.Reader, stdout, stderr io.Writer) error {
 			continue
 		}
 		gzipDelta := gotGzip - entry.GzipSize
-		gzipDeltaSign := "+"
-		if gzipDelta < 0 {
-			gzipDeltaSign = ""
-		}
 
 		out := stdout
 		if math.Abs(float64(delta)) > float64(maxDelta) ||
@@ -81,7 +73,7 @@ func check(reader io.Reader, stdout, stderr io.Writer) error {
 			out = stderr
 			ok = false
 		}
-		_, err = fmt.Fprintf(out, "%s: %d %dz %s%d %s%dz\n", entry.Path, got, gotGzip, deltaSign, delta, gzipDeltaSign, gzipDelta)
+		_, err = fmt.Fprintf(out, "%s: %d %dz %+d %+dz\n", entry.Path, got, gotGzip, delta, gzipDelta)
 		if err != nil {
 			return err
 		}

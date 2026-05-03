@@ -1,25 +1,27 @@
 package enthooks
 
 import (
+	"github.com/oidoid/void/src/demo/engine"
 	"github.com/oidoid/void/src/demo/ents"
-	"github.com/oidoid/void/src/demo/game"
 	"github.com/oidoid/void/src/void/vmath"
 )
 
 // const maxBallWallHits = 3
 
-func UpdateBalls(gam *game.Game) {
+func UpdateBalls(gam *engine.Engine) {
+	batch := gam.BeginDraw()
 	lvl := gam.LevelBounds
 	vals := gam.Balls.Vals()
 	for i := range vals {
 		ball := &vals[i]
 		updateBall(ball, lvl)
-		gam.DrawSprite(&ball.Sprite)
+		batch.Draw(&ball.Sprite)
 		// if updateBall(ball, lvl) {
 		// 	balls.Free(ball.handle)
 		// 	continue
 		// }
 	}
+	gam.EndDraw(batch)
 }
 
 func updateBall(ent *ents.BallEnt, lvl vmath.Box[float32]) bool {

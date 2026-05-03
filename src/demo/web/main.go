@@ -1,64 +1,68 @@
 package main
 
 import (
-	"github.com/oidoid/void/src/demo"
+	"github.com/oidoid/void/src/demo/engine"
+	"github.com/oidoid/void/src/demo/game"
 	"github.com/oidoid/void/src/void/vgame"
 )
 
+var gam *engine.Engine
+
 func main() {
-	demo.Init()
+	println(engine.Version)
+	gam = game.New()
 }
 
 //export FramePointer
 func FramePointer() uintptr {
-	return demo.Gam.FramePointer()
+	return gam.FramePointer()
 }
 
 //export SpritePointer
 func SpritePointer() uintptr {
-	return demo.Gam.SpritePointer()
+	return gam.SpritePointer()
 }
 
 //export SpriteCount
 func SpriteCount() uint32 {
-	return uint32(demo.Gam.SpriteCount())
+	return uint32(gam.SpriteCount())
 }
 
 //export Update
 func Update() vgame.Status {
-	return demo.Gam.Update()
+	return gam.Update()
 }
 
 //export TilePointer
 func TilePointer() uintptr {
-	return demo.Gam.TilePointer()
+	return gam.TilePointer()
 }
 
 //export TileCount
 func TileCount() uint32 {
-	return demo.Gam.TileCount()
+	return gam.TileCount()
 }
 
 //export LevelX
-func LevelX() int32 { return demo.Gam.LevelX() }
+func LevelX() int32 { return gam.LevelX() }
 
 //export LevelY
-func LevelY() int32 { return demo.Gam.LevelY() }
+func LevelY() int32 { return gam.LevelY() }
 
 //export LevelW
-func LevelW() int32 { return demo.Gam.LevelW() }
+func LevelW() int32 { return gam.LevelW() }
 
 //export LevelH
-func LevelH() int32 { return demo.Gam.LevelH() }
+func LevelH() int32 { return gam.LevelH() }
 
 //export LevelTileW
-func LevelTileW() int32 { return int32(demo.Gam.LevelTileW()) }
+func LevelTileW() int32 { return int32(gam.LevelTileW()) }
 
 //export LevelTileH
-func LevelTileH() int32 { return int32(demo.Gam.LevelTileH()) }
+func LevelTileH() int32 { return int32(gam.LevelTileH()) }
 
 //export CamX
-func CamX() float32 { return demo.Gam.CamX() }
+func CamX() float32 { return gam.CamX() }
 
 //export CamY
-func CamY() float32 { return demo.Gam.CamY() }
+func CamY() float32 { return gam.CamY() }

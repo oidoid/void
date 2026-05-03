@@ -51,23 +51,14 @@ func check(baseline, got []Line, stdout, stderr io.Writer) error {
 	}
 	ok := true
 	for _, got := range got {
-		want, exists := byName[got.Name]
-		if !exists {
-			fmt.Fprintf(stderr, "%s: no baseline\n", got.Name)
-			ok = false
-			continue
-		}
+		want := byName[got.Name]
 		delta := (got.OpMillis - want) / want
-		deltaSign := "+"
-		if delta < 0 {
-			deltaSign = ""
-		}
 		out := stdout
 		if math.Abs(delta) > maxDelta {
 			out = stderr
 			ok = false
 		}
-		fmt.Fprintf(out, "%s: %.1f %s%.1f%%\n", got.Name, got.OpMillis, deltaSign, delta*100)
+		fmt.Fprintf(out, "%s: %.3f %+.1f%%\n", got.Name, got.OpMillis, delta*100)
 	}
 	if !ok {
 		return fmt.Errorf("max delta exceeded")

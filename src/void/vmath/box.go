@@ -10,6 +10,10 @@ func NewBox[T vtypes.Number](minX, minY, maxX, maxY T) Box[T] {
 	return Box[T]{Min: XY[T]{X: minX, Y: minY}, Max: XY[T]{X: maxX, Y: maxY}}
 }
 
+func NewXYWH[T vtypes.Number](minX, minY, w, h T) Box[T] {
+	return Box[T]{Min: XY[T]{X: minX, Y: minY}, Max: XY[T]{X: minX + w, Y: minY + h}}
+}
+
 func (this *Box[T]) HitsPoint(x, y T) bool {
 	return x >= this.Min.X && x <= this.Max.X && y >= this.Min.Y && y <= this.Max.Y
 }
