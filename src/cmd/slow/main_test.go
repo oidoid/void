@@ -123,13 +123,23 @@ func TestCheck_ExceedsThreshold(t *testing.T) {
 	}
 }
 
-func TestCheck_Improvement(t *testing.T) {
-	baseline := []Line{{"BenchmarkFoo", 10.000}}
-	got := []Line{{"BenchmarkFoo", 8.000}} // -20%, should pass
+func TestCheck_ImprovementWithinThreshold(t *testing.T) {
+	baseline := []Line{{"BenchmarkFoo", 5.000}}
+	got := []Line{{"BenchmarkFoo", 4.760}} // -4.8%, within 5%
 
 	var stdout, stderr strings.Builder
 	if err := check(baseline, got, &stdout, &stderr); err != nil {
-		t.Errorf("want ok for improvement, got err: %v", err)
+		t.Errorf("want ok for small improvement, got err: %v", err)
+	}
+}
+
+func TestCheck_ImprovementExceedsThreshold(t *testing.T) {
+	baseline := []Line{{"BenchmarkFoo", 10.000}}
+	got := []Line{{"BenchmarkFoo", 8.000}} // -20%, exceeds ±5%
+
+	var stdout, stderr strings.Builder
+	if err := check(baseline, got, &stdout, &stderr); err == nil {
+		t.Error("want fail: absolute delta exceeded")
 	}
 }
 

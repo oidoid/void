@@ -16,24 +16,26 @@ func UpdateBalls(gam *game.Game) {
 	r := vgfx.MaxRadius
 	// to-do: export viewport from gam.
 	viewport := vmath.NewBox(cam.X-r, cam.Y-r, cam.X+float32(canvas.W)+r, cam.Y+float32(canvas.H)+r)
-	for i := 0; i < gam.Balls.Len(); {
-		ball := &gam.Balls.Vals()[i]
-		updateBall(ball, gam)
+	lvl := gam.LevelBounds
+	spr := *sprites
+	vals := gam.Balls.Vals()
+	for i := range vals {
+		ball := &vals[i]
+		updateBall(ball, lvl)
 		if viewport.HitsXY(ball.Sprite.XY) {
-			n := len(*sprites)
-			*sprites = (*sprites)[:n+1]
-			(*sprites)[n] = ball.Sprite
+			n := len(spr)
+			spr = spr[:n+1]
+			spr[n] = ball.Sprite
 		}
-		// if updateBall(ball, &level) {
+		// if updateBall(ball, lvl) {
 		// 	balls.Free(ball.handle)
 		// 	continue
 		// }
-		i++
 	}
+	*sprites = spr
 }
 
-func updateBall(ent *ents.BallEnt, gam *game.Game) bool {
-	lvl := gam.LevelBounds
+func updateBall(ent *ents.BallEnt, lvl vmath.Box[float32]) bool {
 	radius := float32(ent.Sprite.Radius)
 	ent.Sprite.X += ent.Vel.X
 	ent.Sprite.Y += ent.Vel.Y

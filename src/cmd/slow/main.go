@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"regexp"
 	"slices"
@@ -62,7 +63,7 @@ func check(baseline, got []Line, stdout, stderr io.Writer) error {
 			deltaSign = ""
 		}
 		out := stdout
-		if delta > maxDelta {
+		if math.Abs(delta) > maxDelta {
 			out = stderr
 			ok = false
 		}
