@@ -85,6 +85,14 @@ func (this *Engine[Game]) SpritePointer() uintptr {
 	return uintptr(unsafe.Pointer(unsafe.SliceData(this.sprites)))
 }
 func (this *Engine[Game]) SpriteCount() int { return len(this.sprites) }
+func (this *Engine[Game]) DrawSprite(sprite *vgfx.Sprite) {
+	if !this.viewport.HitsXY(sprite.XY) {
+		return
+	}
+	n := len(this.sprites)
+	this.sprites = this.sprites[:n+1]
+	this.sprites[n] = *sprite
+}
 func (this *Engine[Game]) BeginDraw() vgfx.SpriteBatch {
 	return vgfx.SpriteBatch{Sprites: this.sprites, Viewport: this.viewport}
 }

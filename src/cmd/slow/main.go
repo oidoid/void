@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-var reLine = regexp.MustCompile(`^(Benchmark\S+?)-\d+\s+\d+\s+([\d.]+)\s+ms/op`)
+var reLine = regexp.MustCompile(`^(Benchmark\S+?)(?:-\d+)?\s+\d+\s+([\d.]+)\s+ms/op`)
 
 // slowfile baseline record.
 type Line struct {

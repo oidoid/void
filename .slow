@@ -1,2 +1,2 @@
-BenchmarkEngineUpdate_CullAll 5.196
-BenchmarkEngineUpdate_DrawAll 8.777
+BenchmarkGameUpdate_CullAll 12.490
+BenchmarkGameUpdate_DrawAll 20.400

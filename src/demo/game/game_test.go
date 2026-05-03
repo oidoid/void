@@ -1,4 +1,4 @@
-package engine_test
+package game_test
 
 import (
 	"testing"
@@ -13,17 +13,19 @@ const (
 	benchCanvasSize = 4096
 )
 
-func BenchmarkEngineUpdate_CullAll(b *testing.B) {
+func BenchmarkGameUpdate_CullAll(b *testing.B) {
 	gam := newGame(-5000, -5000)
 	for b.Loop() {
+		gam.Frame().NowMs += 1000. / 120
 		gam.Update()
 	}
 	reportMetrics(b)
 }
 
-func BenchmarkEngineUpdate_DrawAll(b *testing.B) {
+func BenchmarkGameUpdate_DrawAll(b *testing.B) {
 	gam := newGame(0, 0)
 	for b.Loop() {
+		gam.Frame().NowMs += 1000. / 120
 		gam.Update()
 	}
 	reportMetrics(b)
@@ -35,6 +37,7 @@ func newGame(camX, camY float32) *engine.Engine {
 	gam.Canvas().H = benchCanvasSize
 	gam.Cam().X = camX
 	gam.Cam().Y = camY
+	gam.Frame().DeltaMs = 1000. / 120
 	for i := range ballCount {
 		ball := ents.NewBallEnt(gam.Random, float32(i%benchCanvasSize), float32(i/benchCanvasSize))
 		gam.Balls.Add(ball)
