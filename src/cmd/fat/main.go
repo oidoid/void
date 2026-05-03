@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-// fat file record.
+// fatfile record.
 type Line struct {
 	Path     string
 	Size     int64
@@ -81,7 +81,7 @@ func check(reader io.Reader, stdout, stderr io.Writer) error {
 			out = stderr
 			ok = false
 		}
-		_, err = fmt.Fprintf(out, "%s: %d %d %s%d %s%d\n", entry.Path, got, gotGzip, deltaSign, delta, gzipDeltaSign, gzipDelta)
+		_, err = fmt.Fprintf(out, "%s: %d %dz %s%d %s%dz\n", entry.Path, got, gotGzip, deltaSign, delta, gzipDeltaSign, gzipDelta)
 		if err != nil {
 			return err
 		}

@@ -3,6 +3,7 @@ include config.make
 out_demo := dist/demo/index.wasm
 tinygo_nodebug := --no-debug
 go_tags := $(if $(value DEBUG),--tags=debug,)
+bench_test := go test --bench=. --count=7 $(go_tags) ./src/...
 go_test_filter = \
 	grep --color=always --extended --line-buffered '^--- FAIL: [^ ]+|$$'| \
 	sed --regexp-extended --unbuffered $(if $(value V),'','/^ok |\[no test files\]$$|PASS$$|^goos: |^goarch: |^pkg: |^cpu: /d')
@@ -12,7 +13,7 @@ pack_demo = go run ./src/cmd/pack --out=dist/demo/ --tsconfig=src/demo/web/tscon
 # $(1) flags
 packsprites_demo = go run ./src/cmd/packsprites --name=atlas --out=dist/demo/ $(1) src/demo/assets/atlas/
 
-.PHONY: bench build build-cmd build-demo build-sprites build-web clean dependencies fat-analyze fat-check fat-save fmt fmt-go fmt-mod fmt-web lint lint-critic lint-static lint-vet lint-web test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-sprites watch-web
+.PHONY: bench build build-cmd build-demo build-sprites build-web clean dependencies fat-analyze fat-check fat-save fmt fmt-go fmt-mod fmt-web lint lint-critic lint-static lint-vet lint-web slow-check slow-save test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-sprites watch-web
 
 watch: export DEBUG := 1
 watch: dependencies .WAIT watch-go watch-sprites watch-web
@@ -66,4 +67,6 @@ test-web:;
 	sed --unbuffered $(if $(value V),'','1,/✖ failing tests:/ {/[✔ℹ▶✖] /d}')
 typecheck-web:; npm run typecheck
 
-bench:; go test --bench=. --benchtime=1000x $(go_tags) ./src/... | $(go_test_filter)
+bench:; $(bench_test) | $(go_test_filter)
+slow-check:; $(bench_test) | go run ./src/cmd/slow check
+slow-save:; $(bench_test) | go run ./src/cmd/slow save

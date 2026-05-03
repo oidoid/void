@@ -57,7 +57,7 @@ func TestCheck(t *testing.T) {
 	if stderr.Len() != 0 {
 		t.Errorf("want empty stderr: %s", stderr.String())
 	}
-	wantOut := fmt.Sprintf("%s: 100 %d +0 +0\n", path, gz)
+	wantOut := fmt.Sprintf("%s: 100 %dz +0 +0z\n", path, gz)
 	if got := stdout.String(); got != wantOut {
 		t.Errorf("stdout got:\n%s\nwant:\n%s", got, wantOut)
 	}
@@ -79,7 +79,7 @@ func TestCheck_ExceedsMaxDelta(t *testing.T) {
 	if stdout.Len() != 0 {
 		t.Errorf("want empty stdout, got: %s", stdout.String())
 	}
-	wantErr := fmt.Sprintf("%s: 100 %d -1025 +0\n", path, gz)
+	wantErr := fmt.Sprintf("%s: 100 %dz -1025 +0z\n", path, gz)
 	if got := stderr.String(); got != wantErr {
 		t.Errorf("stderr got:\n%s\nwant:\n%s", got, wantErr)
 	}

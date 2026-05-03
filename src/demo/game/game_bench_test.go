@@ -46,5 +46,5 @@ func reportMetrics(b *testing.B) {
 	b.Helper()
 	b.ReportMetric(0, "ns/op")
 	millisPerLoop := float64(b.Elapsed().Nanoseconds()) / float64(b.N) / 1e6
-	b.ReportMetric(millisPerLoop, "ms/loop")
+	b.ReportMetric(millisPerLoop, "ms/op")
 }
