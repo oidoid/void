@@ -9,7 +9,7 @@ bench_test := \
 	sudo cpupower set --turbo-boost=0; \
 	GOMAXPROCS=1 powerprofilesctl launch --profile performance -- \
   taskset --cpu-list 3 \
-	go test --bench=. --count=7 --cpu=1 --p=1 --parallel=1 --run='^$$' $(go_tags) ./src/...
+	go test --bench=. --count=7 --cpu=1 --p=1 --parallel=1 --run='^$$' $(go_tags) ./src/demo/...
 go_test_filter = \
 	grep --color=always --extended --line-buffered '^--- FAIL: [^ ]+|$$'| \
 	sed --regexp-extended --unbuffered $(if $(value V),'','/^ok |\[no test files\]$$|PASS$$|^goos: |^goarch: |^pkg: |^cpu: /d')

@@ -11,12 +11,13 @@ import (
 const (
 	ballCount       = 2 * 1024 * 1024
 	benchCanvasSize = 4096
+	fps             = 120
 )
 
 func BenchmarkGameUpdate_CullAll(b *testing.B) {
 	gam := newGame(-5000, -5000)
 	for b.Loop() {
-		gam.Frame().NowMs += 1000. / 120
+		gam.Frame().NowMs += 1000. / fps
 		gam.Update()
 	}
 	reportMetrics(b)
@@ -25,7 +26,7 @@ func BenchmarkGameUpdate_CullAll(b *testing.B) {
 func BenchmarkGameUpdate_DrawAll(b *testing.B) {
 	gam := newGame(0, 0)
 	for b.Loop() {
-		gam.Frame().NowMs += 1000. / 120
+		gam.Frame().NowMs += 1000. / fps
 		gam.Update()
 	}
 	reportMetrics(b)
@@ -37,7 +38,7 @@ func newGame(camX, camY float32) *engine.Engine {
 	gam.Canvas().H = benchCanvasSize
 	gam.Cam().X = camX
 	gam.Cam().Y = camY
-	gam.Frame().DeltaMs = 1000. / 120
+	gam.Frame().DeltaMs = 1000. / fps
 	for i := range ballCount {
 		ball := ents.NewBallEnt(gam.Random, float32(i%benchCanvasSize), float32(i/benchCanvasSize))
 		gam.Balls.Add(ball)
