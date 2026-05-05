@@ -9,8 +9,8 @@ import {
 import {Renderer} from '../renderer/renderer.ts'
 import {initCanvas} from '../utils/canvas-util.ts'
 import {initBody} from '../utils/dom-util.ts'
+import {LoopLoop, type Platform} from './platform.ts'
 import {WASI} from './wasi.ts'
-import {LoopLoop, type WasmAPI} from './wasm-api.ts'
 
 export class Engine {
   #frame!: DataView
@@ -19,7 +19,7 @@ export class Engine {
   #rafId: number = 0
   #registered: boolean = false
   #renderer!: Renderer
-  #wasm!: WasmAPI
+  #wasm!: Platform
 
   // to-do: use Wasm import.
   async load(
@@ -33,7 +33,7 @@ export class Engine {
     const result = await WebAssembly.instantiateStreaming(fetch(wasmURL), {
       wasi_snapshot_preview1: wasi
     })
-    this.#wasm = result.instance.exports as WasmAPI
+    this.#wasm = result.instance.exports as Platform
     wasi.link(this.#wasm.memory)
     this.#wasm._start()
     this.#frame = new DataView(

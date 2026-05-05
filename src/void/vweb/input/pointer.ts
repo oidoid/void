@@ -1,4 +1,4 @@
-import type {AnyEvent, OnEvent} from '../event.ts'
+import type {AnyEvent, OnEvent} from '../engine/event.ts'
 
 export type PointerDevice = (typeof PointerDevice)[keyof typeof PointerDevice]
 const PointerDevice = {Unknown: 0, Mouse: 1, Pen: 2, Touch: 3} as const

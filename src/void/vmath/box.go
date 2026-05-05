@@ -24,3 +24,5 @@ func (this *Box[T]) HitsXY(xy XY[T]) bool {
 
 func (this *Box[T]) W() T { return this.Max.X - this.Min.X }
 func (this *Box[T]) H() T { return this.Max.Y - this.Min.Y }
+
+// to-do: old intersection code.

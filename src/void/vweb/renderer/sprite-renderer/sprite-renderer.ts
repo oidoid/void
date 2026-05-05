@@ -1,11 +1,12 @@
+import {
+  spriteColorOffset,
+  spriteRadiusOffset,
+  spriteStride,
+  spriteZOffset
+} from '../../engine/layout.ts'
 import {buildProgram} from '../gl.ts'
 import {spriteFrag} from './sprite.frag.ts'
 import {spriteVert} from './sprite.vert.ts'
-
-export const spriteStride: number = 20
-const spriteRadiusOffset: number = 8
-const spriteColorOffset: number = 9
-const spriteZOffset: number = 16
 
 export class SpriteRenderer {
   static new(gl: WebGL2RenderingContext): SpriteRenderer {

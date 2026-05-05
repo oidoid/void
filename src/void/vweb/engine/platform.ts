@@ -1,4 +1,4 @@
-export type WasmAPI = {
+export type Platform = {
   // linear memory shared between Go and JS.
   memory: WebAssembly.Memory
   // initialises the Go runtime and calls `main()`.

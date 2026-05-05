@@ -1,4 +1,4 @@
-import type {OnEvent} from '../event.ts'
+import type {OnEvent} from '../engine/event.ts'
 
 export type GamepadMapping =
   (typeof GamepadMapping)[keyof typeof GamepadMapping]

@@ -1,4 +1,4 @@
-import type {OnEvent} from '../event.ts'
+import type {OnEvent} from '../engine/event.ts'
 
 export class Wheel {
   /** scroll delta X in client pixels; readonly. */

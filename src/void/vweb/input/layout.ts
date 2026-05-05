@@ -1,3 +1,5 @@
+// to-do: collapse with engine/layout.ts.
+
 /** max concurrent pointers tracked (one per finger). */
 export const maxPointers: number = 5
 /** bytes per PointerPoll. */

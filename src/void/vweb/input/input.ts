@@ -1,4 +1,4 @@
-import type {OnEvent} from '../event.ts'
+import type {OnEvent} from '../engine/event.ts'
 import {ContextMenu} from './context-menu.ts'
 import {Gamepad} from './gamepad.ts'
 import {Keyboard} from './keyboard.ts'

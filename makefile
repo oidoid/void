@@ -5,7 +5,7 @@ tinygo_nodebug := --no-debug
 go_tags := $(if $(value DEBUG),--tags=debug,)
 # pick fastest CPU with `lscpu --extended`.
 bench_test := \
-	trap 'sudo cpupower set --turbo-boost=1' exit int term; \
+	trap 'trap - exit int term; sudo cpupower set --turbo-boost=1' exit int term; \
 	sudo cpupower set --turbo-boost=0; \
 	GOMAXPROCS=1 powerprofilesctl launch --profile performance -- \
   taskset --cpu-list 3 \

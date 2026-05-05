@@ -1,4 +1,4 @@
-import type {AnyEvent, OnEvent} from '../event.ts'
+import type {AnyEvent, OnEvent} from '../engine/event.ts'
 
 // keyboard button physical location codes on a virtual standard keyboard
 // irrespective of layout and modifiers hashed to bits. use for game bindings.
