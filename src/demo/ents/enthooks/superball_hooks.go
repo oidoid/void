@@ -4,17 +4,18 @@ import (
 	"github.com/oidoid/void/src/demo/engine"
 	"github.com/oidoid/void/src/demo/ents"
 	"github.com/oidoid/void/src/void/vmath"
+	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
 // const maxBallWallHits = 3
 
-func UpdateBalls(gam *engine.Engine) {
+func UpdateSuperballs(ents *vvec.Vec[ents.BallEnt], gam *engine.Engine) {
 	batch := gam.BeginDraw()
 	lvl := gam.LevelBounds
-	vals := gam.Balls.Vals()
+	vals := ents.Vals()
 	for i := range vals {
 		ball := &vals[i]
-		updateBall(ball, lvl)
+		updateSuperball(ball, lvl)
 		batch.Draw(&ball.Sprite)
 		// if updateBall(ball, lvl) {
 		// 	balls.Free(ball.handle)
@@ -24,25 +25,25 @@ func UpdateBalls(gam *engine.Engine) {
 	gam.EndDraw(batch)
 }
 
-func updateBall(ent *ents.BallEnt, lvl vmath.Box[float32]) bool {
-	radius := float32(ent.Sprite.Radius)
+func updateSuperball(ent *ents.BallEnt, lvl vmath.Box[float32]) bool {
+	r := float32(ent.Sprite.Radius)
 	ent.Sprite.X += ent.Vel.X
 	ent.Sprite.Y += ent.Vel.Y
-	if ent.Sprite.X-radius < lvl.Min.X {
-		ent.Sprite.X = lvl.Min.X + radius
+	if ent.Sprite.X-r < lvl.Min.X {
+		ent.Sprite.X = lvl.Min.X + r
 		ent.Vel.X = -ent.Vel.X
 		// ball.hits++
-	} else if ent.Sprite.X+radius > lvl.Max.X {
-		ent.Sprite.X = lvl.Max.X - radius
+	} else if ent.Sprite.X+r > lvl.Max.X {
+		ent.Sprite.X = lvl.Max.X - r
 		ent.Vel.X = -ent.Vel.X
 		// ball.hits++
 	}
-	if ent.Sprite.Y-radius < lvl.Min.Y {
-		ent.Sprite.Y = lvl.Min.Y + radius
+	if ent.Sprite.Y-r < lvl.Min.Y {
+		ent.Sprite.Y = lvl.Min.Y + r
 		ent.Vel.Y = -ent.Vel.Y
 		// ball.hits++
-	} else if ent.Sprite.Y+radius > lvl.Max.Y {
-		ent.Sprite.Y = lvl.Max.Y - radius
+	} else if ent.Sprite.Y+r > lvl.Max.Y {
+		ent.Sprite.Y = lvl.Max.Y - r
 		ent.Vel.Y = -ent.Vel.Y
 		// ball.hits++
 	}

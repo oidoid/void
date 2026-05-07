@@ -57,8 +57,8 @@ func New[Game any](opts *EngineOpts) *Engine[Game] {
 
 func (this *Engine[Game]) Random() float32 { return this.rnd.Float32() }
 
-func (this *Engine[Game]) RegisterEntUpdate(update func(*Game)) {
-	this.ents.Register(update)
+func (this *Engine[Game]) RegisterEntUpdate(vec interface{ Update(Game) }) {
+	this.ents.Register(vec.Update)
 }
 
 func (this *Engine[Game]) Frame() *vgame.Frame { return &this.frame }
@@ -99,6 +99,9 @@ func (this *Engine[Game]) BeginDraw() vgfx.SpriteBatch {
 func (this *Engine[Game]) EndDraw(batch vgfx.SpriteBatch) { this.sprites = batch.Sprites }
 
 func (this *Engine[Game]) TilePointer() uintptr {
+	if this.Level == nil || len(this.Level.Tiles) == 0 {
+		return 0
+	}
 	return uintptr(unsafe.Pointer(&this.Level.Tiles[0]))
 }
 func (this *Engine[Game]) TileCount() uint32 {
