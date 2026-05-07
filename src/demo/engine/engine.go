@@ -1,7 +1,7 @@
 package engine
 
 import (
-	"github.com/oidoid/void/src/demo/ents"
+	"github.com/oidoid/void/src/demo/ents/entdata"
 	"github.com/oidoid/void/src/demo/levels"
 	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/vents"
@@ -10,13 +10,13 @@ import (
 
 type Engine struct {
 	*vengine.Engine[*Engine]
-	Balls vents.EntVec[*Engine, ents.BallEnt]
+	Balls vents.EntVec[*Engine, entdata.BallEnt]
 }
 
 var Version string
 var _ vgame.Game = (*Engine)(nil)
 
-func New(balls *vents.EntVec[*Engine, ents.BallEnt]) *Engine {
+func New(balls *vents.EntVec[*Engine, entdata.BallEnt]) *Engine {
 	return &Engine{
 		Engine: vengine.New[*Engine](&vengine.EngineOpts{
 			Level:      &levels.InitLevel,

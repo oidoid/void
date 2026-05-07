@@ -2,14 +2,14 @@ package enthooks
 
 import (
 	"github.com/oidoid/void/src/demo/engine"
-	"github.com/oidoid/void/src/demo/ents"
+	"github.com/oidoid/void/src/demo/ents/entdata"
 	"github.com/oidoid/void/src/void/vmath"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
 // const maxBallWallHits = 3
 
-func UpdateSuperballs(ents *vvec.Vec[ents.BallEnt], gam *engine.Engine) {
+func UpdateSuperballs(ents *vvec.Vec[entdata.BallEnt], gam *engine.Engine) {
 	batch := gam.BeginDraw()
 	lvl := gam.LevelBounds
 	vals := ents.Vals()
@@ -25,7 +25,7 @@ func UpdateSuperballs(ents *vvec.Vec[ents.BallEnt], gam *engine.Engine) {
 	gam.EndDraw(batch)
 }
 
-func updateSuperball(ent *ents.BallEnt, lvl vmath.Box[float32]) bool {
+func updateSuperball(ent *entdata.BallEnt, lvl vmath.Box[float32]) bool {
 	r := float32(ent.Sprite.Radius)
 	ent.Sprite.X += ent.Vel.X
 	ent.Sprite.Y += ent.Vel.Y

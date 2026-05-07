@@ -2,7 +2,7 @@ package levelhooks
 
 import (
 	"github.com/oidoid/void/src/demo/engine"
-	"github.com/oidoid/void/src/demo/ents"
+	"github.com/oidoid/void/src/demo/ents/entdata"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vinput"
 )
@@ -18,7 +18,7 @@ func UpdateInit(gam *engine.Engine) vgame.Status {
 		pointer := &gam.Input().Pointers[i]
 		if pointer.Buttons&1 == 1 {
 			for range min(3000, int(60_000*(frame.DeltaMs/1000))) {
-				ball := ents.NewBallEnt(gam.Random, gam.CamX()+pointer.Min.X, gam.CamY()+pointer.Min.Y)
+				ball := entdata.NewBallEnt(gam.Random, gam.CamX()+pointer.Min.X, gam.CamY()+pointer.Min.Y)
 				_ = gam.Balls.Add(ball)
 			}
 			println(gam.Balls.Len(), "ents", gam.SpriteCount(), "balls", int(pointer.Min.X), int(pointer.Min.Y), int(frame.DeltaMs))

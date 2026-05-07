@@ -1,4 +1,4 @@
-package ents
+package entdata
 
 import (
 	"github.com/oidoid/void/src/void/vgfx"

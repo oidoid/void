@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/oidoid/void/src/demo/engine"
-	"github.com/oidoid/void/src/demo/ents"
+	"github.com/oidoid/void/src/demo/ents/entdata"
 	"github.com/oidoid/void/src/demo/game"
 )
 
@@ -40,7 +40,7 @@ func newGame(camX, camY float32) *engine.Engine {
 	gam.Cam().Y = camY
 	gam.Frame().DeltaMs = 1000. / fps
 	for i := range ballCount {
-		ball := ents.NewBallEnt(gam.Random, float32(i%benchCanvasSize), float32(i/benchCanvasSize))
+		ball := entdata.NewBallEnt(gam.Random, float32(i%benchCanvasSize), float32(i/benchCanvasSize))
 		gam.Balls.Add(ball)
 	}
 	return gam
