@@ -1,8 +1,6 @@
 {
   "private": true,
   "type": "module",
-  "devDependencies": {
-    "@oidoid/void": "*",
-    "mem-font": "11.0.0-10"
+  "devDependencies": {    "@oidoid/void": "*"
   }
 }
