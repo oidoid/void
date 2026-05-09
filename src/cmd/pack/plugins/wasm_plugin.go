@@ -27,11 +27,11 @@ func WasmPlugin(config *cliconfig.CLIConfig) api.Plugin {
 			build.OnLoad(api.OnLoadOptions{Filter: `\.wasm$`}, func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 				var uri string
 				if config.OneFile {
-					wasm, err := os.ReadFile(args.Path)
+					bin, err := os.ReadFile(args.Path)
 					if err != nil {
 						return errorLoadResult(err), nil
 					}
-					uri = "data:application/wasm;base64," + base64.StdEncoding.EncodeToString(wasm)
+					uri = "data:application/wasm;base64," + base64.StdEncoding.EncodeToString(bin)
 				} else {
 					outDir, err := filepath.Abs(config.OutDir)
 					if err != nil {

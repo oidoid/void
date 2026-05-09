@@ -55,27 +55,27 @@ func NewCLIConfig(argv Argv) (*CLIConfig, error) {
 }
 
 func readTsconfig(filename string) (*tsconfig, error) {
-	jsonStr, err := os.ReadFile(filename)
+	bin, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
 	var tsconfig tsconfig
-	if err := json.Unmarshal(stripJSONC(jsonStr), &tsconfig); err != nil {
+	if err := json.Unmarshal(stripJSONC(bin), &tsconfig); err != nil {
 		return nil, err
 	}
 	return &tsconfig, nil
 }
 
 // func readVoidConfig(filename string) (*schemas.VoidConfig, error) {
-// 	jsonStr, err := os.ReadFile(filename)
+// 	bin, err := os.ReadFile(filename)
 // 	if err != nil {
 // 		return nil, err
 // 	}
-// 	if err := validateVoidJSON(jsonStr); err != nil {
+// 	if err := validateVoidJSON(bin); err != nil {
 // 		return nil, err
 // 	}
 
-// 	config, err := schemas.UnmarshalVoidConfig(jsonStr)
+// 	config, err := schemas.UnmarshalVoidConfig(bin)
 // 	if err != nil {
 // 		return nil, err
 // 	}
@@ -83,14 +83,14 @@ func readTsconfig(filename string) (*tsconfig, error) {
 // 	return config, nil
 // }
 
-func stripJSONC(jsonStr []byte) []byte {
-	jsonStr = jsoncCommentRe.ReplaceAllFunc(jsonStr, func(match []byte) []byte {
+func stripJSONC(bin []byte) []byte {
+	bin = jsoncCommentRe.ReplaceAllFunc(bin, func(match []byte) []byte {
 		if match[0] == '"' {
 			return match
 		}
 		return nil
 	})
-	return jsoncTrailingCommaRe.ReplaceAll(jsonStr, []byte("$1"))
+	return jsoncTrailingCommaRe.ReplaceAll(bin, []byte("$1"))
 }
 
 // func validateVoidJSON(jsonStr []byte) error {

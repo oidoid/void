@@ -85,8 +85,8 @@ func TestTransformManifests_OneFile(t *testing.T) {
 		"name":  "Test",
 		"icons": []any{map[string]any{"src": "icon.png", "sizes": "192x192"}},
 	}
-	manifestBytes, _ := json.Marshal(manifest)
-	os.WriteFile(filepath.Join(entryDir, "manifest.json"), manifestBytes, 0o644)
+	manifestBin, _ := json.Marshal(manifest)
+	os.WriteFile(filepath.Join(entryDir, "manifest.json"), manifestBin, 0o644)
 
 	doc := parseDoc(t, `<html><head><link rel="manifest" href="manifest.json"></head></html>`)
 	if result := transformManifests(doc, config, entryDir); len(result.Errors) > 0 {
@@ -120,8 +120,8 @@ func TestTransformManifests_NotOneFile(t *testing.T) {
 		"name":  "Test",
 		"icons": []any{map[string]any{"src": "icon.png", "sizes": "192x192"}},
 	}
-	manifestBytes, _ := json.Marshal(manifest)
-	os.WriteFile(filepath.Join(entryDir, "manifest.json"), manifestBytes, 0o644)
+	manifestBin, _ := json.Marshal(manifest)
+	os.WriteFile(filepath.Join(entryDir, "manifest.json"), manifestBin, 0o644)
 
 	doc := parseDoc(t, `<html><head><link rel="manifest" href="manifest.json"></head></html>`)
 	if result := transformManifests(doc, config, entryDir); len(result.Errors) > 0 {
@@ -238,11 +238,11 @@ func TestTransformHTML(t *testing.T) {
 		t.Fatal(result.Errors[0].Text)
 	}
 
-	htmlBytes, err := os.ReadFile(filepath.Join(config.OutDir, "index.html"))
+	bin, err := os.ReadFile(filepath.Join(config.OutDir, "index.html"))
 	if err != nil {
 		t.Fatalf("output HTML not written: %v", err)
 	}
-	out := string(htmlBytes)
+	out := string(bin)
 	if !strings.Contains(out, `href="style.css"`) {
 		t.Errorf("expected stylesheet href, got: %s", out)
 	}

@@ -1,6 +1,7 @@
 {
   "private": true,
   "type": "module",
-  "devDependencies": {    "@oidoid/void": "*"
+  "devDependencies": {
+    "@oidoid/void": "*"
   }
 }

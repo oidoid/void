@@ -104,7 +104,7 @@ func transformImages(doc *html.Node, config *cliconfig.CLIConfig, entryDir strin
 
 func transformImageSrc(config *cliconfig.CLIConfig, entryDir, src string) (string, error) {
 	filename := filepath.Base(src)
-	srcBytes, err := os.ReadFile(filepath.Join(entryDir, src))
+	bin, err := os.ReadFile(filepath.Join(entryDir, src))
 	if err != nil {
 		return "", err
 	}
@@ -113,9 +113,9 @@ func transformImageSrc(config *cliconfig.CLIConfig, entryDir, src string) (strin
 		if mimeType == "" {
 			mimeType = "application/octet-stream"
 		}
-		return "data:" + mimeType + ";base64," + base64.StdEncoding.EncodeToString(srcBytes), nil
+		return "data:" + mimeType + ";base64," + base64.StdEncoding.EncodeToString(bin), nil
 	}
-	if err := os.WriteFile(filepath.Join(config.OutDir, filename), srcBytes, 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(config.OutDir, filename), bin, 0o644); err != nil {
 		return "", err
 	}
 	return filename, nil
@@ -131,13 +131,13 @@ func transformManifests(doc *html.Node, config *cliconfig.CLIConfig, entryDir st
 			continue
 		}
 		filename := filepath.Base(href)
-		srcBytes, err := os.ReadFile(filepath.Join(entryDir, href))
+		srcBin, err := os.ReadFile(filepath.Join(entryDir, href))
 		if err != nil {
 			return errorEndResult(err)
 		}
 
 		var manifest map[string]any
-		if err := json.Unmarshal(srcBytes, &manifest); err != nil {
+		if err := json.Unmarshal(srcBin, &manifest); err != nil {
 			return errorEndResult(err)
 		}
 		if icons, ok := manifest["icons"].([]any); ok {
@@ -163,16 +163,16 @@ func transformManifests(doc *html.Node, config *cliconfig.CLIConfig, entryDir st
 		// if (config.watch)
 		//   manifest.start_url = `http://localhost:${config.port}`
 
-		manifestBytes, err := json.Marshal(manifest)
+		manifestBin, err := json.Marshal(manifest)
 		if err != nil {
 			return errorEndResult(err)
 		}
 		if config.OneFile {
-			dataURI := "data:application/manifest+json;base64," + base64.StdEncoding.EncodeToString(manifestBytes)
+			dataURI := "data:application/manifest+json;base64," + base64.StdEncoding.EncodeToString(manifestBin)
 			htmlparser.SetNodeAttr(node, "href", dataURI)
 			continue
 		}
-		if err := os.WriteFile(filepath.Join(config.OutDir, filename), manifestBytes, 0o644); err != nil {
+		if err := os.WriteFile(filepath.Join(config.OutDir, filename), manifestBin, 0o644); err != nil {
 			return errorEndResult(err)
 		}
 		htmlparser.SetNodeAttr(node, "href", filename)
@@ -192,12 +192,12 @@ func transformScripts(doc *html.Node, config *cliconfig.CLIConfig) api.OnEndResu
 		}
 
 		if config.OneFile {
-			jsBytes, err := os.ReadFile(filepath.Join(config.OutDir, filename))
+			bin, err := os.ReadFile(filepath.Join(config.OutDir, filename))
 			if err != nil {
 				return errorEndResult(err)
 			}
 			htmlparser.RemoveNodeAttr(node, "src")
-			htmlparser.SetTextContent(node, string(jsBytes))
+			htmlparser.SetTextContent(node, string(bin))
 			continue
 		}
 
@@ -217,13 +217,13 @@ func transformStylesheets(doc *html.Node, config *cliconfig.CLIConfig) api.OnEnd
 		}
 		filename := filepath.Base(href)
 
-		cssBytes, err := os.ReadFile(filepath.Join(config.OutDir, filename))
+		bin, err := os.ReadFile(filepath.Join(config.OutDir, filename))
 		if err != nil {
 			return errorEndResult(err)
 		}
 		if config.OneFile {
 			styleNode := &html.Node{Type: html.ElementNode, Data: "style"}
-			htmlparser.SetTextContent(styleNode, string(cssBytes))
+			htmlparser.SetTextContent(styleNode, string(bin))
 			htmlparser.ReplaceNode(node, styleNode)
 			continue
 		}
