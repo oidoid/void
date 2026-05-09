@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -68,8 +67,8 @@ func check(reader io.Reader, stdout, stderr io.Writer) error {
 		gzipDelta := gotGzip - entry.GzipSize
 
 		out := stdout
-		if math.Abs(float64(delta)) > float64(maxDelta) ||
-			math.Abs(float64(gzipDelta)) > float64(maxDelta) {
+		if delta < -maxDelta || delta > maxDelta ||
+			gzipDelta < -maxDelta || gzipDelta > maxDelta {
 			out = stderr
 			ok = false
 		}

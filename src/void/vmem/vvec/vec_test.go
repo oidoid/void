@@ -22,7 +22,7 @@ func TestPointerEmptySliceUsesBackingArray(t *testing.T) {
 	}
 
 	v := 7
-	vec.Add(&v)
+	vec.Add(v)
 
 	pointerAfterAdd := uintptr(unsafe.Pointer(&vec.Vals()[0]))
 	if pointerBeforeAdd != pointerAfterAdd {
@@ -34,9 +34,9 @@ func TestFreeCompactsAndPreservesLiveHandles(t *testing.T) {
 	vec := New[int](3)
 
 	a, b, c := 10, 20, 30
-	handleA := vec.Add(&a)
-	handleB := vec.Add(&b)
-	handleC := vec.Add(&c)
+	handleA := vec.Add(a)
+	handleB := vec.Add(b)
+	handleC := vec.Add(c)
 
 	vec.Free(handleB)
 
@@ -62,14 +62,14 @@ func TestAddReusesFreedSlotWithNextGen(t *testing.T) {
 	vec := New[int](3)
 
 	a, b, c := 10, 20, 30
-	_ = vec.Add(&a)
-	freedHandle := vec.Add(&b)
-	_ = vec.Add(&c)
+	_ = vec.Add(a)
+	freedHandle := vec.Add(b)
+	_ = vec.Add(c)
 
 	vec.Free(freedHandle)
 
 	d := 40
-	newHandle := vec.Add(&d)
+	newHandle := vec.Add(d)
 
 	if newHandle.slotIndex() != freedHandle.slotIndex() {
 		t.Fatalf("got slot %d, want reused slot %d", newHandle.slotIndex(), freedHandle.slotIndex())

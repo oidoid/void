@@ -10,7 +10,7 @@ type BallEnt struct {
 	Vel    vmath.XY[float32]
 }
 
-func NewBallEnt(rnd func() float32, x, y float32) *BallEnt {
+func NewBallEnt(rnd func() float32, x, y float32) BallEnt {
 	sprite := vgfx.Sprite{
 		XY:     vmath.NewXY(x, y),
 		Z:      uint32(rnd() * 0xffff_ffff),
@@ -29,7 +29,7 @@ func NewBallEnt(rnd func() float32, x, y float32) *BallEnt {
 			}
 		}
 	}
-	return &BallEnt{
+	return BallEnt{
 		Sprite: sprite,
 		Vel:    vmath.NewXY(rnd()*4-2, rnd()*4-2),
 	}

@@ -10,7 +10,9 @@ type Sprite struct {
 	vmath.XY[float32]
 	Radius     uint8
 	R, G, B, A uint8
+	_          [3]byte
 	Z          uint32
+	_          [4]byte
 	flags      uint64
 }
 

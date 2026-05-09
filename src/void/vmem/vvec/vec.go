@@ -36,7 +36,7 @@ func New[V any](capacity int) Vec[V] {
 	}
 }
 
-func (this *Vec[V]) Add(v *V) Handle {
+func (this *Vec[V]) Add(v V) Handle {
 	valIndex := len(this.vals)
 
 	if vdebug.Enabled && valIndex == this.Cap() {
@@ -47,7 +47,7 @@ func (this *Vec[V]) Add(v *V) Handle {
 	gen := this.slots[slotIndex].gen()
 	this.slots[slotIndex] = newSlot(uint32(valIndex), gen)
 	this.vals = this.vals[:valIndex+1]
-	this.vals[valIndex] = *v
+	this.vals[valIndex] = v
 
 	return newHandle(slotIndex, gen)
 }
@@ -55,6 +55,7 @@ func (this *Vec[V]) Add(v *V) Handle {
 func (this *Vec[V]) Cap() int { return cap(this.vals) }
 func (this *Vec[V]) Clear()   { this.vals = this.vals[:0] }
 
+// do not hold pointer.
 func (this *Vec[V]) Get(handle Handle) *V {
 	if vdebug.Enabled && this.stale(handle) {
 		panic(fmt.Sprintf("stale access %s", handle))
