@@ -8,7 +8,7 @@ import (
 // to-do: most levels too large for literal?
 // to-do: encode.
 var InitLevel = vlevels.Level{
-	Box:  vmath.NewXYWH[int32](-24, -24, 4096, 4096),
+	Box:  vmath.XYWH[int32](-24, -24, 4096, 4096),
 	Tile: vmath.WH[uint8]{W: 16, H: 16},
 	Tiles: []vlevels.Tile{
 		1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,

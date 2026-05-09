@@ -16,16 +16,6 @@ export type Secs = (number & {readonly secs: unique symbol}) | 0
 
 export type UTCMillis = number & {readonly utcMillis: unique symbol}
 
-export function dateToTimestamp(date: Readonly<Date>): string {
-  const yyyy = `${date.getFullYear()}`.padStart(4, '0')
-  const MM = `${date.getMonth() + 1}`.padStart(2, '0')
-  const dd = `${date.getDate()}`.padStart(2, '0')
-  const hh = `${date.getHours()}`.padStart(2, '0')
-  const mm = `${date.getMinutes()}`.padStart(2, '0')
-  const ss = `${date.getSeconds()}`.padStart(2, '0')
-  return `${yyyy}${MM}${dd}${hh}${mm}${ss}`
-}
-
 /**
  * returns [0, 59_999].
  * @internal

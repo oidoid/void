@@ -57,30 +57,30 @@ func (this *Font) CharToTag(ch rune) string {
 	return this.ID + "--" + string([]byte{hexChars[ch>>4], hexChars[ch&0xf]})
 }
 
-func (this *Font) CharH(ch rune) int {
+func (this *Font) CharH(ch rune) uint8 {
 	if this.Descends[ch] {
-		return int(this.CellH)
+		return this.CellH
 	}
-	return int(this.CellH) - int(this.Baseline)
+	return this.CellH - this.Baseline
 }
 
 // empty r means end of line.
-func (this *Font) Kerning(l, r rune) int {
+func (this *Font) Kerning(l, r rune) int8 {
 	if l == '\n' || r == 0 || r == '\n' {
-		return int(this.EndOfLineKerning)
+		return this.EndOfLineKerning
 	}
 	if kerning, ok := this.KerningPairs[[2]rune{l, r}]; ok {
-		return int(kerning)
+		return kerning
 	}
 	if isBlankCh(l) || isBlankCh(r) {
-		return int(this.DefaultWhitespaceKerning)
+		return this.DefaultWhitespaceKerning
 	}
-	return int(this.DefaultKerning)
+	return this.DefaultKerning
 }
 
-func (this *Font) CharW(ch rune) int {
+func (this *Font) CharW(ch rune) uint8 {
 	if w, ok := this.CharWidths[ch]; ok {
-		return int(w)
+		return w
 	}
-	return int(this.DefaultCharW)
+	return this.DefaultCharW
 }
