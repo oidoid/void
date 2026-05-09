@@ -1,5 +1,5 @@
 import {test} from 'node:test'
-import {assert} from '../../test/assert.ts'
+import {assert} from '../test/assert.ts'
 import {localStorageGetJSON, localStoragePutJSON} from './local-storage.ts'
 
 test('localStorageGetJSON() / localStoragePutJSON()', () => {

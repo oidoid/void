@@ -1,5 +1,5 @@
 import {test} from 'node:test'
-import {assert} from '../../test/assert.ts'
+import {assert} from '../test/assert.ts'
 import {idbDelete, idbGet, idbOpen, idbPut} from './idb.ts'
 
 test('idbGet() / idbPut()', async () => {
