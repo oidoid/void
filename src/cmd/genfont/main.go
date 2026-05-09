@@ -6,9 +6,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"go/format"
+	"maps"
 	"os"
 	"path/filepath"
+	"slices"
+	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 type fontJSON struct {
@@ -74,21 +78,25 @@ func run(in, out string) error {
 	fmt.Fprintf(&str, "\tEndOfLineKerning: %d,\n", font.EndOfLineKerning)
 	fmt.Fprintf(&str, "\tDefaultCharW: %d,\n", font.DefaultCharW)
 
-	fmt.Fprintf(&str, "\tKerningPairs: map[string]int{\n")
-	for k, v := range font.Kerning {
-		fmt.Fprintf(&str, "\t\t%q: %d,\n", k, v)
+	fmt.Fprintf(&str, "\tKerningPairs: map[[2]rune]int8{\n")
+	for _, k := range slices.Sorted(maps.Keys(font.Kerning)) {
+		l, size := utf8.DecodeRuneInString(k)
+		r, _ := utf8.DecodeRuneInString(k[size:])
+		fmt.Fprintf(&str, "\t\t{%s, %s}: %d,\n", strconv.QuoteRune(l), strconv.QuoteRune(r), font.Kerning[k])
 	}
 	fmt.Fprintf(&str, "\t},\n")
 
-	fmt.Fprintf(&str, "\tCharWidths: map[string]int{\n")
-	for k, v := range font.CharW {
-		fmt.Fprintf(&str, "\t\t%q: %d,\n", k, v)
+	fmt.Fprintf(&str, "\tCharWidths: map[rune]uint8{\n")
+	for _, k := range slices.Sorted(maps.Keys(font.CharW)) {
+		r, _ := utf8.DecodeRuneInString(k)
+		fmt.Fprintf(&str, "\t\t%s: %d,\n", strconv.QuoteRune(r), font.CharW[k])
 	}
 	fmt.Fprintf(&str, "\t},\n")
 
-	fmt.Fprintf(&str, "\tDescends: map[string]bool{\n")
-	for k, v := range font.Descends {
-		fmt.Fprintf(&str, "\t\t%q: %v,\n", k, v)
+	fmt.Fprintf(&str, "\tDescends: map[rune]bool{\n")
+	for _, k := range slices.Sorted(maps.Keys(font.Descends)) {
+		r, _ := utf8.DecodeRuneInString(k)
+		fmt.Fprintf(&str, "\t\t%s: %v,\n", strconv.QuoteRune(r), font.Descends[k])
 	}
 	fmt.Fprintf(&str, "\t},\n")
 

@@ -28,7 +28,7 @@ func New(balls *vents.EntVec[*Engine, entdata.BallEnt]) *Engine {
 
 // to-do: separate method for resizing cam or whatever.
 func (this *Engine) Update() vgame.Status {
-	var stat = this.Engine.Update()
+	stat := this.Engine.Update()
 	stat |= this.Router.Update(this)
 	return stat
 }

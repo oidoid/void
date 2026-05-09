@@ -33,7 +33,7 @@ func main() {
 	case len(args) == 1 && args[0] == "check":
 		err = runCheck()
 	default:
-		err = fmt.Errorf("fat check | fat save files…")
+		err = errors.New("fat check | fat save files…")
 	}
 
 	if err != nil {
@@ -78,7 +78,7 @@ func check(reader io.Reader, stdout, stderr io.Writer) error {
 		}
 	}
 	if !ok {
-		return fmt.Errorf("max delta exceeded")
+		return errors.New("max delta exceeded")
 	}
 	return nil
 }

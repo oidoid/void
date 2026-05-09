@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"math"
@@ -35,7 +36,7 @@ func main() {
 	case len(args) == 1 && args[0] == "check":
 		err = runCheck()
 	default:
-		err = fmt.Errorf("go test --bench=. --count=5 | slow <check | save>")
+		err = errors.New("go test --bench=. --count=5 | slow <check | save>")
 	}
 
 	if err != nil {
@@ -61,7 +62,7 @@ func check(baseline, got []Line, stdout, stderr io.Writer) error {
 		fmt.Fprintf(out, "%s: %.3f %+.1f%%\n", got.Name, got.OpMillis, delta*100)
 	}
 	if !ok {
-		return fmt.Errorf("max delta exceeded")
+		return errors.New("max delta exceeded")
 	}
 	return nil
 }
