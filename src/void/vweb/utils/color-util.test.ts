@@ -1,5 +1,5 @@
 import {describe, test} from 'node:test'
-import {assert} from '../../test/assert.ts'
+import {assert} from '../test/assert.ts'
 import {parseComputedColor, rgbaHex} from './color-util.ts'
 
 describe('parseComputedColor()', () => {
