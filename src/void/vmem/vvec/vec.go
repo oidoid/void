@@ -21,17 +21,21 @@ const (
 type Vec[V any] struct {
 	vals                []V
 	slots               []slot
-	slotIndexByValIndex []uint32 // len(vals): is free.
+	slotIndexByValIndex []uint32 // >= len(vals): is free.
 }
 
-func New[V any](capacity int) Vec[V] {
-	slotIndexByValIndex := make([]uint32, capacity)
+func New[V any](size ...int) Vec[V] {
+	initSize := 0
+	if len(size) > 0 {
+		initSize = size[0]
+	}
+	slotIndexByValIndex := make([]uint32, initSize)
 	for i := range slotIndexByValIndex {
 		slotIndexByValIndex[i] = uint32(i)
 	}
 	return Vec[V]{
-		vals:                make([]V, 0, capacity),
-		slots:               make([]slot, capacity),
+		vals:                make([]V, 0, initSize),
+		slots:               make([]slot, initSize),
 		slotIndexByValIndex: slotIndexByValIndex,
 	}
 }
@@ -39,15 +43,18 @@ func New[V any](capacity int) Vec[V] {
 func (this *Vec[V]) Add(v V) Handle {
 	valIndex := len(this.vals)
 
-	if vdebug.Enabled && valIndex == this.Cap() {
-		panic(fmt.Sprintf("vec overflow at %d", this.Cap()))
+	var slotIndex uint32
+	if valIndex == len(this.slots) {
+		slotIndex = uint32(valIndex)
+		this.slots = append(this.slots, 0)
+		this.slotIndexByValIndex = append(this.slotIndexByValIndex, slotIndex)
+	} else {
+		slotIndex = this.slotIndexByValIndex[valIndex]
 	}
 
-	slotIndex := this.slotIndexByValIndex[valIndex]
 	gen := this.slots[slotIndex].gen()
 	this.slots[slotIndex] = newSlot(uint32(valIndex), gen)
-	this.vals = this.vals[:valIndex+1]
-	this.vals[valIndex] = v
+	this.vals = append(this.vals, v)
 
 	return newHandle(slotIndex, gen)
 }

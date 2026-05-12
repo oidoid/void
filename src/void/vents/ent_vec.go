@@ -10,10 +10,10 @@ type EntVec[Game any, Ent any] struct {
 }
 
 func NewEntVec[Game any, Ent any](
-	capacity int, update UpdateAll[Game, Ent],
+	update UpdateAll[Game, Ent], size ...int,
 ) *EntVec[Game, Ent] {
 	return &EntVec[Game, Ent]{
-		Vec:    vvec.New[Ent](capacity),
+		Vec:    vvec.New[Ent](size...),
 		update: update,
 	}
 }

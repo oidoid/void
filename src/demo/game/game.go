@@ -9,10 +9,10 @@ import (
 )
 
 func New() *engine.Engine {
-	this := engine.New(vents.NewEntVec(2*1024*1024, enthooks.UpdateSuperballs))
+	this := engine.New(vents.NewEntVec(enthooks.UpdateSuperballs))
 	this.Router.Update = levelhooks.UpdateInit
 
 	this.RegisterEntUpdate(&this.Balls)
-	this.RegisterEntUpdate(vents.NewEntVec(32, venthooks.UpdateButtons[*engine.Engine]))
+	this.RegisterEntUpdate(vents.NewEntVec(venthooks.UpdateButtons[*engine.Engine]))
 	return this
 }
