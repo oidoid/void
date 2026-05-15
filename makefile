@@ -17,7 +17,7 @@ tinygo_flags += $(go_tags) --ldflags="-X github.com/oidoid/void/src/demo/engine.
 # $(1) flags
 pack_demo = go run ./src/cmd/pack --out=dist/demo/ --tsconfig=src/demo/web/tsconfig.json $(1) src/demo/web/assets/index.html
 # $(1) flags
-packsprites_demo = go run ./src/cmd/packsprites --name=atlas --out=dist/demo/ $(1) src/demo/assets/atlas/
+packsprites_demo = go run ./src/cmd/packsprites --name=atlas --img-out=dist/demo/ --code-out=src/demo/assets/ $(1) src/demo/assets/atlas/
 
 .PHONY: bench build build-cmd build-demo build-sprites build-web clean dependencies fat-analyze fat-check fat-save fmt fmt-go fmt-mod fmt-web lint lint-critic lint-static lint-vet lint-web slow-check slow-save test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-sprites watch-web
 
@@ -27,18 +27,20 @@ watch-go:; watchexec --exts=go --quiet --watch=src/ -- $(MAKE) build-demo
 watch-sprites:; $(call packsprites_demo,--watch)
 watch-web:; $(call pack_demo,--watch)
 
-build: build-cmd build-demo build-sprites build-web
+build: build-cmd build-demo build-web
 build-cmd:; go build $(go_tags) -o dist/ ./src/cmd/...
-build-demo: export GOOS := wasip1
-build-demo: export GOARCH := wasm
-build-demo:
+build-demo: build-sprites
 	# no concurrency.
-	tinygo build $(tinygo_flags) -o $(out_demo) ./src/demo/web/
+	GOOS=wasip1 GOARCH=wasm tinygo build $(tinygo_flags) -o $(out_demo) ./src/demo/web/
 	$(if $(value DEBUG),,wasm-opt -o $(out_demo) -Oz --strip-debug --strip-producers $(out_demo))
 build-sprites:; $(call packsprites_demo,)
 build-web: build-demo build-sprites; $(call pack_demo,--minify --one-file)
 
-clean:; rm --force --recursive dist/
+clean:; rm --force --recursive dist/ src/demo/assets/atlas_bin.go src/demo/assets/atlas_ids.go
+
+# to-do:
+# go generate
+# src/void/vtext/mem_prop_5x6_gen.go
 
 dependencies:
 	for exe in go node tinygo wasm-opt watchexec; do

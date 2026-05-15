@@ -1,2 +1,2 @@
-BenchmarkGameUpdate_CullAll 12.190
-BenchmarkGameUpdate_DrawAll 23.180
+BenchmarkGameUpdate_CullAll 12.200
+BenchmarkGameUpdate_DrawAll 23.130

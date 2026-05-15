@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"compress/gzip"
 	"errors"
 	"fmt"
@@ -150,12 +151,18 @@ func runSave(paths []string) error {
 		}
 	}
 
+	var buf bytes.Buffer
+	if err := save(&buf, paths); err != nil {
+		return err
+	}
+
 	file, err := os.Create(filename)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
-	return save(file, paths)
+	_, err = file.Write(buf.Bytes())
+	return err
 }
 
 func save(writer io.Writer, paths []string) error {

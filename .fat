@@ -1,6 +1,5 @@
-dist/demo/atlas.json 60118 4223
 dist/demo/atlas.webp 1264 1292
 dist/demo/index.css 69 97
-dist/demo/index.html 47326 22201
-dist/demo/index.js 45027 20352
-dist/demo/index.wasm 22660 10824
+dist/demo/index.html 52838 23999
+dist/demo/index.js 50539 22124
+dist/demo/index.wasm 26796 12261

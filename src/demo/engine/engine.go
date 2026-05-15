@@ -1,8 +1,10 @@
 package engine
 
 import (
+	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/demo/ents/entdata"
 	"github.com/oidoid/void/src/demo/levels"
+	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/vents"
 	"github.com/oidoid/void/src/void/vgame"
@@ -10,6 +12,7 @@ import (
 
 type Engine struct {
 	*vengine.Engine[*Engine]
+	Atlas vatlas.Atlas
 	Balls vents.EntVec[*Engine, entdata.BallEnt]
 }
 
@@ -22,6 +25,7 @@ func New(balls *vents.EntVec[*Engine, entdata.BallEnt]) *Engine {
 			Level:      &levels.InitLevel,
 			MaxSprites: 2 * 1024 * 1024,
 		}),
+		Atlas: vatlas.DecodeAtlas(assets.AtlasBin),
 		Balls: *balls,
 	}
 }

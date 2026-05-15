@@ -17,7 +17,7 @@ const (
 	genShift = 24
 )
 
-// contiguous unordered array.
+// fixed contiguous unordered array.
 type Vec[V any] struct {
 	vals                []V
 	slots               []slot

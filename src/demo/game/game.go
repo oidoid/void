@@ -14,5 +14,7 @@ func New() *engine.Engine {
 
 	this.RegisterEntUpdate(&this.Balls)
 	this.RegisterEntUpdate(vents.NewEntVec(venthooks.UpdateButtons[*engine.Engine]))
+
+	println("hello", this.Atlas.Anims[1].W, this.Atlas.Anims[5].Cels)
 	return this
 }
