@@ -26,6 +26,10 @@ export type Platform = {
   // camera position in world pixels.
   CamX(): number
   CamY(): number
+  AtlasAnimCount(): number
+  AtlasCelsPerAnim(): number
+  AtlasCelsPointer(): number
+  AtlasCelsCount(): number
 }
 
 export type Loop = typeof LoopPause | typeof LoopLoop

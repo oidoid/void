@@ -15,4 +15,8 @@ type Platform interface {
 	LevelTileH() uint8
 	CamX() float32
 	CamY() float32
+	AtlasAnimCount() uint32
+	AtlasCelsPerAnim() uint32
+	AtlasCelsPointer() uintptr
+	AtlasCelsCount() uint32
 }

@@ -13,6 +13,7 @@ import {LoopLoop, type Platform} from './platform.ts'
 import {WASI} from './wasi.ts'
 
 export class Engine {
+  #canvas!: HTMLCanvasElement
   #frame!: DataView
   #input!: Input
   #lastTime: number = 0
@@ -44,18 +45,10 @@ export class Engine {
 
     initBody()
 
-    this.#renderer = new Renderer(
-      canvas,
-      this.#wasm.memory.buffer,
-      this.#wasm.TilePointer(),
-      this.#wasm.TileCount(),
-      this.#wasm.LevelX(),
-      this.#wasm.LevelY(),
-      this.#wasm.LevelW(),
-      this.#wasm.LevelH(),
-      this.#wasm.LevelTileW(),
-      this.#wasm.LevelTileH()
-    )
+    this.#canvas = canvas
+    canvas.addEventListener('webglcontextlost', this.#onContextLost)
+    canvas.addEventListener('webglcontextrestored', this.#onContextRestored)
+    this.#renderer = this.#newRenderer()
   }
 
   register(): void {
@@ -101,6 +94,46 @@ export class Engine {
     if (this.#rafId) return
     this.#rafId = requestAnimationFrame(() => this.update())
     this.#lastTime ||= performance.now()
+  }
+
+  #onContextLost = (ev: Event): void => {
+    ev.preventDefault()
+    cancelAnimationFrame(this.#rafId)
+    this.#rafId = 0
+    this.#lastTime = 0
+  }
+
+  #onContextRestored = (): void => {
+    this.#renderer.dispose()
+    this.#renderer = this.#newRenderer()
+    if (this.#registered) this.update()
+  }
+
+  #newRenderer(): Renderer {
+    const atlasCelsPtr = this.#wasm.AtlasCelsPointer()
+    const atlasCelsCount = this.#wasm.AtlasCelsCount()
+    const atlasCels = new Uint16Array(
+      this.#wasm.memory.buffer,
+      atlasCelsPtr,
+      atlasCelsCount
+    )
+    const atlasImg = document.getElementById('atlas') as HTMLImageElement
+    return new Renderer(
+      this.#canvas,
+      this.#wasm.memory.buffer,
+      this.#wasm.TilePointer(),
+      this.#wasm.TileCount(),
+      this.#wasm.LevelX(),
+      this.#wasm.LevelY(),
+      this.#wasm.LevelW(),
+      this.#wasm.LevelH(),
+      this.#wasm.LevelTileW(),
+      this.#wasm.LevelTileH(),
+      atlasCels,
+      this.#wasm.AtlasAnimCount(),
+      this.#wasm.AtlasCelsPerAnim(),
+      atlasImg
+    )
   }
 
   #onReset = (): void => {

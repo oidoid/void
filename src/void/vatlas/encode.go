@@ -35,7 +35,15 @@ func EncodeAtlas(atlas *Atlas) []byte {
 			buf = appendBox(buf, anim.Hurtbox)
 		}
 	}
-	rle := vrle.Encode[uint16, uint16](atlas.CelXY)
+	// drop WH which is known from Anims.
+	celXY := make([]uint16, 0)
+	for animIdx, anim := range atlas.Anims {
+		base := animIdx * CelsPerAnim * 4
+		for cel := 0; cel < int(anim.Cels); cel++ {
+			celXY = append(celXY, atlas.Cels[base+cel*4], atlas.Cels[base+cel*4+1])
+		}
+	}
+	rle := vrle.Encode[uint16, uint16](celXY)
 	buf = appendU16(buf, uint16(len(rle)))
 	for _, pair := range rle {
 		buf = appendU16(buf, pair.Val)

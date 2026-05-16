@@ -49,5 +49,5 @@ func DecodeAtlas(bin []byte) Atlas {
 		}
 	}
 
-	return Atlas{Anims: anims, CelXY: celXY}
+	return NewAtlas(anims, celXY)
 }

@@ -208,8 +208,8 @@ func TestParseAnimFrames_multiCelDuration(t *testing.T) {
 func TestParseAnimFrames_shortAnimCapped(t *testing.T) {
 	// more frames than AnimCels: capped at AnimCels.
 	duration := uint16(vatlas.CelMillis)
-	frames := make([]vatlas.AseFrame, vatlas.AnimCels+4)
-	expected := make([]int, vatlas.AnimCels)
+	frames := make([]vatlas.AseFrame, vatlas.CelsPerAnim+4)
+	expected := make([]int, vatlas.CelsPerAnim)
 	for i := range frames {
 		frames[i] = newAseFrame(duration, 0, 0, 1, 1, 1, 1)
 	}

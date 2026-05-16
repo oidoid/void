@@ -49,7 +49,8 @@ func parseAtlas(file *vatlas.AseFile) (*vatlas.Atlas, []string, error) {
 		}
 	}
 
-	return &vatlas.Atlas{Anims: anims, CelXY: celXY}, tags, nil
+	atlas := vatlas.NewAtlas(anims, celXY)
+	return &atlas, tags, nil
 }
 
 func intAbs(x int) int {
@@ -112,7 +113,7 @@ func parseAnimFrames(
 	}
 
 	for i := 0; i < end &&
-		len(frames) < vatlas.AnimCels &&
+		len(frames) < vatlas.CelsPerAnim &&
 		animDuration < vatlas.MaxAnimLoopMillis; i++ {
 		// `--filename-format='{title}--{tag}--{frame}'`.
 		frameTag := fmt.Sprintf("%s--%d", span.Name, indexByDir(i))
@@ -121,7 +122,7 @@ func parseAnimFrames(
 			return nil, fmt.Errorf("no atlas frame %q", frameTag)
 		}
 		for celDur := 0; celDur < int(frame.Duration) &&
-			len(frames) < vatlas.AnimCels &&
+			len(frames) < vatlas.CelsPerAnim &&
 			animDuration < vatlas.MaxAnimLoopMillis; celDur += vatlas.CelMillis {
 			animDuration += vatlas.CelMillis
 			frames = append(frames, frame)

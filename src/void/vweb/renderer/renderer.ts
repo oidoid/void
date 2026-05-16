@@ -16,7 +16,11 @@ export class Renderer {
     levelW: number,
     levelH: number,
     tileW: number,
-    tileH: number
+    tileH: number,
+    atlasCels: Uint16Array,
+    atlasAnimCount: number,
+    atlasCelsPerAnim: number,
+    atlasImg: HTMLImageElement
   ) {
     const gl = canvas.getContext('webgl2') // to-do: can't do this here and always need to use props.
     if (!gl) {
@@ -39,7 +43,13 @@ export class Renderer {
 
     const tiles = new Uint16Array(buffer, tilePtr, tileCount)
     this.#gl = gl
-    this.#sprites = SpriteRenderer.new(gl) // to-do: can we avoid work at construction?
+    this.#sprites = SpriteRenderer.new(
+      gl,
+      atlasCels,
+      atlasAnimCount,
+      atlasCelsPerAnim,
+      atlasImg
+    )
     this.#tiles = TileRenderer.new(
       gl,
       tiles,
@@ -75,7 +85,8 @@ export class Renderer {
     camY: number
   ): void {
     const gl = this.#gl
-    gl.clearColor(15 / 255, 15 / 255, 30 / 255, 1)
+    gl.clearColor(0xe6 / 255, 0xe6 / 255, 0xe6 / 255, 1)
+    // to-do: expose.
     gl.clearDepth(1)
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 

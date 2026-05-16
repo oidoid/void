@@ -8,15 +8,14 @@ import (
 
 type Sprite struct {
 	vmath.XY[float32]
-	Radius     uint8
-	R, G, B, A uint8
-	_          [3]byte
-	Z          uint32
-	_          [4]byte
-	flags      uint64
+	AnimID uint16
+	Cel    uint8
+	_      [1]byte
+	Z      uint32
+	flags  uint64
 }
 
-const MaxRadius = float32(16)
+const MaxSpriteSize = float32(16)
 const SpriteStride = int(unsafe.Sizeof(Sprite{}))
 
 func (this *Sprite) Hidden() bool {

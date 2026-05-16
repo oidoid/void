@@ -7,6 +7,7 @@ import (
 
 	"math/rand/v2"
 
+	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vents"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgfx"
@@ -18,6 +19,7 @@ import (
 type Engine[Game any] struct {
 	Level  *vlevels.Level
 	Router vlevels.Router[Game]
+	Atlas  vatlas.Atlas
 	frame  vgame.Frame
 	cam    vmath.XY[float32]
 	ents   vents.Zoo[Game]
@@ -116,7 +118,7 @@ func (this *Engine[Game]) Update() vgame.Status {
 	this.sprites = this.sprites[:0]
 	w := float32(this.frame.Canvas.W)
 	h := float32(this.frame.Canvas.H)
-	r := vgfx.MaxRadius
+	r := vgfx.MaxSpriteSize
 	this.viewport = vmath.NewBox(this.cam.X-r, this.cam.Y-r, this.cam.X+w+r, this.cam.Y+h+r)
 	this.LevelBounds = vmath.NewBox(
 		float32(this.Level.Min.X), float32(this.Level.Min.Y),
@@ -127,4 +129,23 @@ func (this *Engine[Game]) Update() vgame.Status {
 
 func (this *Engine[Game]) Ents() *vents.Zoo[Game] {
 	return &this.ents
+}
+
+func (this *Engine[Game]) AtlasAnimCount() uint32 {
+	return uint32(len(this.Atlas.Anims))
+}
+
+func (this *Engine[Game]) AtlasCelsPerAnim() uint32 {
+	return uint32(vatlas.CelsPerAnim)
+}
+
+func (this *Engine[Game]) AtlasCelsPointer() uintptr {
+	if len(this.Atlas.Cels) == 0 {
+		return 0
+	}
+	return uintptr(unsafe.Pointer(unsafe.SliceData(this.Atlas.Cels)))
+}
+
+func (this *Engine[Game]) AtlasCelsCount() uint32 {
+	return uint32(len(this.Atlas.Cels))
 }

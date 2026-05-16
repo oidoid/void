@@ -1,4 +1,4 @@
-export const spriteRadiusOffset = 8 as const
-export const spriteColorOffset = 9 as const
-export const spriteZOffset = 16 as const
-export const spriteStride = 32 as const
+export const spriteAnimIDOffset: number = 8
+export const spriteCelOffset: number = 10
+export const spriteZOffset: number = 12
+export const spriteStride: number = 24

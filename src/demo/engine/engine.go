@@ -12,7 +12,6 @@ import (
 
 type Engine struct {
 	*vengine.Engine[*Engine]
-	Atlas vatlas.Atlas
 	Balls vents.EntVec[*Engine, entdata.BallEnt]
 }
 
@@ -20,14 +19,15 @@ var Version string
 var _ vgame.Game = (*Engine)(nil)
 
 func New(balls *vents.EntVec[*Engine, entdata.BallEnt]) *Engine {
-	return &Engine{
+	this := &Engine{
 		Engine: vengine.New[*Engine](&vengine.EngineOpts{
 			Level:      &levels.InitLevel,
 			MaxSprites: 2 * 1024 * 1024,
 		}),
-		Atlas: vatlas.DecodeAtlas(assets.AtlasBin),
 		Balls: *balls,
 	}
+	this.Atlas = vatlas.DecodeAtlas(assets.AtlasBin)
+	return this
 }
 
 // to-do: separate method for resizing cam or whatever.

@@ -66,3 +66,15 @@ func CamX() float32 { return gam.CamX() }
 
 //export CamY
 func CamY() float32 { return gam.CamY() }
+
+//export AtlasAnimCount
+func AtlasAnimCount() uint32 { return gam.AtlasAnimCount() }
+
+//export AtlasCelsPerAnim
+func AtlasCelsPerAnim() uint32 { return gam.AtlasCelsPerAnim() }
+
+//export AtlasCelsPointer
+func AtlasCelsPointer() uintptr { return gam.AtlasCelsPointer() }
+
+//export AtlasCelsCount
+func AtlasCelsCount() uint32 { return gam.AtlasCelsCount() }

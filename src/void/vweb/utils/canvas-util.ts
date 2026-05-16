@@ -21,6 +21,7 @@ export function initCanvas(
   // canvas.style.cursor = 'none'
   canvas.style.display = 'block' // no line height spacing.
   canvas.style.outline = 'none' // disable focus outline.
+  // to-do: fix me and also fix the context pixelation setting!
   canvas.style.imageRendering = mode === 'Int' ? 'pixelated' : 'smooth' // to-do: why doesn't cam mode set this?
   // update on each pointermove *touch* Event like *mouse* Events.
   canvas.style.touchAction = 'none'
