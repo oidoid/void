@@ -31,10 +31,10 @@ type Engine[Game any] struct {
 }
 
 type EngineOpts struct {
-	Level *vlevels.Level
+	Level      *vlevels.Level
 	MaxSprites int
-	Seed1 uint64
-	Seed2 uint64
+	Seed1      uint64
+	Seed2      uint64
 }
 
 var _ vgame.Game = (*Engine[any])(nil)
