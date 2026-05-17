@@ -23,8 +23,8 @@ func TestParseAtlas_empty(t *testing.T) {
 	if len(tags) != 1 || tags[0] != "void--Nil" {
 		t.Fatalf("tags: got %v", tags)
 	}
-	if len(atlas.CelXY) != 2 {
-		t.Fatalf("CelXY len: got %d, want 2", len(atlas.CelXY))
+	if len(atlas.Cels) != vatlas.CelsPerAnim*4 {
+		t.Fatalf("Cels len: got %d, want %d", len(atlas.Cels), vatlas.CelsPerAnim*4)
 	}
 }
 
@@ -98,8 +98,9 @@ func TestParseAtlas_singleAnim(t *testing.T) {
 	if anim.W != 8 || anim.H != 8 || anim.Cels != 1 {
 		t.Fatalf("anim: got %+v", anim)
 	}
-	if atlas.CelXY[2] != 10 || atlas.CelXY[3] != 20 {
-		t.Fatalf("CelXY[2:4]: got %v %v, want 10 20", atlas.CelXY[2], atlas.CelXY[3])
+	const idx = vatlas.CelsPerAnim * 4
+	if atlas.Cels[idx] != 10 || atlas.Cels[idx+1] != 20 {
+		t.Fatalf("Cels[%d:%d]: got %v %v, want 10 20", idx, idx+1, atlas.Cels[idx], atlas.Cels[idx+1])
 	}
 }
 

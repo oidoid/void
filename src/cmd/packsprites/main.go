@@ -17,6 +17,10 @@ import (
 	"github.com/oidoid/void/src/void/vatlas"
 )
 
+var initialisms = map[string]bool{
+	"UI": true,
+}
+
 func main() {
 	argv, err := NewArgv()
 	if err != nil {
@@ -154,9 +158,14 @@ func tagToIdent(tag string) string {
 		if seg == "" {
 			continue
 		}
-		chars := []rune(seg)
-		str.WriteRune(unicode.ToUpper(chars[0]))
-		str.WriteString(string(chars[1:]))
+		upper := strings.ToUpper(seg)
+		if initialisms[upper] {
+			str.WriteString(upper)
+		} else {
+			chars := []rune(seg)
+			str.WriteRune(unicode.ToUpper(chars[0]))
+			str.WriteString(string(chars[1:]))
+		}
 	}
 	return str.String()
 }

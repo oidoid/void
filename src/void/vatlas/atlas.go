@@ -43,7 +43,7 @@ func NewAtlas(anims []Anim, celXY []uint16) Atlas {
 
 // an animation within an Atlas.
 type Anim struct {
-	//number of cels in a full animation cycle including cels extended for
+	// number of cels in a full animation cycle including cels extended for
 	// duration and the second half of pingpongs.
 	Cels uint8
 	// clipbox / source area.

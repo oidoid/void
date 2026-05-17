@@ -157,5 +157,5 @@ const (
 	PolyTriangle
 	PolySquare
 	SuperballDefault
-	UiCheckboxChecked
+	UICheckboxChecked
 )
