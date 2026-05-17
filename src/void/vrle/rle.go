@@ -2,7 +2,7 @@ package vrle
 
 import "github.com/oidoid/void/src/void/vtypes"
 
-type Pair[V any, Count vtypes.Uint] struct {
+type Pair[V comparable, Count vtypes.Uint] struct {
 	Val   V
 	Count Count
 }

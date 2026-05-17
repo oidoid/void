@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	ballCount       = 2 * 1024 * 1024
+	superballCount  = 2*1024*1024 - 100 // - 100 for misc non-superballs.
 	benchCanvasSize = 4096
 	fps             = 120
 )
@@ -39,7 +39,7 @@ func newGame(camX, camY float32) *engine.Engine {
 	gam.Cam().X = camX
 	gam.Cam().Y = camY
 	gam.Frame().DeltaMs = 1000. / fps
-	for i := range ballCount {
+	for i := range superballCount {
 		ball := entdata.NewBallEnt(gam.Random, float32(i%benchCanvasSize), float32(i/benchCanvasSize))
 		gam.Balls.Add(ball)
 	}

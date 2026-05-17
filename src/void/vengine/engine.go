@@ -31,10 +31,10 @@ type Engine[Game any] struct {
 }
 
 type EngineOpts struct {
-	Level      *vlevels.Level
+	Level *vlevels.Level
 	MaxSprites int
-	Seed1      uint64
-	Seed2      uint64
+	Seed1 uint64
+	Seed2 uint64
 }
 
 var _ vgame.Game = (*Engine[any])(nil)
@@ -44,7 +44,7 @@ func New[Game any](opts *EngineOpts) *Engine[Game] {
 		opts = &EngineOpts{}
 	}
 	if opts.MaxSprites == 0 {
-		opts.MaxSprites = 1024 * 1024
+		opts.MaxSprites = 16 * 1024
 	}
 	if opts.Seed1 == 0 {
 		opts.Seed1 = rand.Uint64()
