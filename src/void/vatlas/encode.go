@@ -35,18 +35,21 @@ func EncodeAtlas(atlas *Atlas) []byte {
 			buf = appendBox(buf, anim.Hurtbox)
 		}
 	}
-	// drop WH which is known from Anims.
-	celXY := make([]uint16, 0)
+	// drop WH which is known from Anims. encode as uint32 since that's the size
+	// of a cel that will repeat.
+	celXY := make([]uint32, 0)
 	for animIdx, anim := range atlas.Anims {
 		base := animIdx * CelsPerAnim * 4
 		for cel := 0; cel < int(anim.Cels); cel++ {
-			celXY = append(celXY, atlas.Cels[base+cel*4], atlas.Cels[base+cel*4+1])
+			x := uint32(atlas.Cels[base+cel*4])
+			y := uint32(atlas.Cels[base+cel*4+1])
+			celXY = append(celXY, x|y<<16)
 		}
 	}
-	rle := vrle.Encode[uint16, uint16](celXY)
+	rle := vrle.Encode[uint32, uint16](celXY)
 	buf = appendU16(buf, uint16(len(rle)))
 	for _, pair := range rle {
-		buf = appendU16(buf, pair.Val)
+		buf = appendU32(buf, pair.Val)
 		buf = appendU16(buf, pair.Count)
 	}
 	return buf
@@ -62,4 +65,8 @@ func appendBox(buf []byte, box vmath.Box[uint16]) []byte {
 
 func appendU16(buf []byte, v uint16) []byte {
 	return append(buf, byte(v), byte(v>>8))
+}
+
+func appendU32(buf []byte, v uint32) []byte {
+	return append(buf, byte(v), byte(v>>8), byte(v>>16), byte(v>>24))
 }
