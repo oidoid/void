@@ -21,7 +21,7 @@ var _ vgame.Game = (*Engine)(nil)
 func New(balls *vents.EntVec[*Engine, entdata.BallEnt]) *Engine {
 	this := &Engine{
 		Engine: vengine.New[*Engine](&vengine.EngineOpts{
-			Level: &levels.InitLevel,
+			Level:      &levels.InitLevel,
 			MaxSprites: 2 * 1024 * 1024,
 		}),
 		Balls: *balls,

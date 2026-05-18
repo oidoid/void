@@ -1,8 +1,11 @@
 package vents
 
-import "github.com/oidoid/void/src/void/vmem/vvec"
+import (
+	"github.com/oidoid/void/src/void/vgame"
+	"github.com/oidoid/void/src/void/vmem/vvec"
+)
 
-type UpdateAll[Game any, Ent any] = func(ents *vvec.Vec[Ent], gam Game)
+type UpdateAll[Game any, Ent any] = func(ents *vvec.Vec[Ent], gam Game) vgame.Status
 
 type EntVec[Game any, Ent any] struct {
 	vvec.Vec[Ent]
@@ -18,6 +21,6 @@ func NewEntVec[Game any, Ent any](
 	}
 }
 
-func (this *EntVec[Game, Ent]) Update(gam Game) {
-	this.update(&this.Vec, gam)
+func (this *EntVec[Game, Ent]) Update(gam Game) vgame.Status {
+	return this.update(&this.Vec, gam)
 }

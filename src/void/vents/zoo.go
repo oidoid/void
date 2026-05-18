@@ -1,15 +1,19 @@
 package vents
 
+import "github.com/oidoid/void/src/void/vgame"
+
 type Zoo[Game any] struct {
-	updaters []func(Game)
+	updaters []func(Game) vgame.Status
 }
 
-func (this *Zoo[Game]) Register(fn func(Game)) {
+func (this *Zoo[Game]) Register(fn func(Game) vgame.Status) {
 	this.updaters = append(this.updaters, fn)
 }
 
-func (this *Zoo[Game]) Update(gam Game) {
+func (this *Zoo[Game]) Update(gam Game) vgame.Status {
+	var loop vgame.Status
 	for _, fn := range this.updaters {
-		fn(gam)
+		loop |= fn(gam)
 	}
+	return loop
 }

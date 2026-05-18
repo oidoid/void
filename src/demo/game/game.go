@@ -2,6 +2,7 @@ package game
 
 import (
 	"github.com/oidoid/void/src/demo/engine"
+	"github.com/oidoid/void/src/demo/ents/entdata"
 	"github.com/oidoid/void/src/demo/ents/enthooks"
 	"github.com/oidoid/void/src/demo/levels/levelhooks"
 	"github.com/oidoid/void/src/void/vents"
@@ -14,6 +15,11 @@ func New() *engine.Engine {
 
 	this.RegisterEntUpdate(&this.Balls)
 	this.RegisterEntUpdate(vents.NewEntVec(venthooks.UpdateButtons[*engine.Engine]))
+	spawner := vents.NewEntVec(enthooks.UpdateSuperballSpawner)
+	spawner.Add(entdata.SuperballSpawnerEnt{})
+	this.RegisterEntUpdate(spawner)
+	this.RegisterUpdate(enthooks.UpdateCam)
+	this.RegisterUpdate(venthooks.DebugInput[*engine.Engine])
 
 	return this
 }

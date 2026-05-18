@@ -17,12 +17,12 @@ import (
 )
 
 type Engine[Game any] struct {
-	Level  *vlevels.Level
-	Router vlevels.Router[Game]
-	Atlas  vatlas.Atlas
-	frame  vgame.Frame
-	cam    vmath.XY[float32]
-	ents   vents.Zoo[Game]
+	Level    *vlevels.Level
+	Router   vlevels.Router[Game]
+	Atlas    vatlas.Atlas
+	frame    vgame.Frame
+	cam      vmath.XY[float32]
+	updaters vents.Zoo[Game]
 	// not true viewport size. adjusted by max sprite size.
 	viewport    vmath.Box[float32]
 	LevelBounds vmath.Box[float32] // to-do: can this be in vlevels.Level?
@@ -61,8 +61,12 @@ func New[Game any](opts *EngineOpts) *Engine[Game] {
 
 func (this *Engine[Game]) Random() float32 { return this.rnd.Float32() }
 
-func (this *Engine[Game]) RegisterEntUpdate(vec interface{ Update(Game) }) {
-	this.ents.Register(vec.Update)
+func (this *Engine[Game]) RegisterEntUpdate(vec interface{ Update(Game) vgame.Status }) {
+	this.updaters.Register(vec.Update)
+}
+
+func (this *Engine[Game]) RegisterUpdate(fn func(Game) vgame.Status) {
+	this.updaters.Register(fn)
 }
 
 func (this *Engine[Game]) Frame() *vgame.Frame { return &this.frame }
@@ -128,7 +132,7 @@ func (this *Engine[Game]) Update() vgame.Status {
 }
 
 func (this *Engine[Game]) Ents() *vents.Zoo[Game] {
-	return &this.ents
+	return &this.updaters
 }
 
 func (this *Engine[Game]) AtlasAnimCount() uint32 {

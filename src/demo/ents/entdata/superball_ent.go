@@ -8,7 +8,7 @@ import (
 
 type BallEnt struct {
 	Sprite vgfx.Sprite // to-do: separate transform.
-	Vel    vmath.XY[float32]
+	D      vmath.XY[float32]
 }
 
 func NewBallEnt(rnd func() float32, x, y float32) BallEnt {
@@ -18,6 +18,6 @@ func NewBallEnt(rnd func() float32, x, y float32) BallEnt {
 			AnimID: uint16(assets.SuperballDefault),
 			Z:      uint32(rnd() * 0xffff_ffff),
 		},
-		Vel: vmath.NewXY(rnd()*4-2, rnd()*4-2),
+		D: vmath.NewXY(rnd()*4-2, rnd()*4-2),
 	}
 }
