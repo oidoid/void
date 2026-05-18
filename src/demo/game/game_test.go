@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/oidoid/void/src/demo/engine"
-	"github.com/oidoid/void/src/demo/ents/entdata"
+	"github.com/oidoid/void/src/demo/entdata"
 	"github.com/oidoid/void/src/demo/game"
 )
 

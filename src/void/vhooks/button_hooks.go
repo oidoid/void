@@ -1,7 +1,7 @@
-package venthooks
+package vhooks
 
 import (
-	"github.com/oidoid/void/src/void/vents/ventdata"
+	"github.com/oidoid/void/src/void/ventdata"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )

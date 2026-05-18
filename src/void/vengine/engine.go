@@ -8,9 +8,9 @@ import (
 	"math/rand/v2"
 
 	"github.com/oidoid/void/src/void/vatlas"
-	"github.com/oidoid/void/src/void/vents"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgfx"
+	"github.com/oidoid/void/src/void/vhooks"
 	"github.com/oidoid/void/src/void/vinput"
 	"github.com/oidoid/void/src/void/vlevels"
 	"github.com/oidoid/void/src/void/vmath"
@@ -22,7 +22,7 @@ type Engine[Game any] struct {
 	Atlas    vatlas.Atlas
 	frame    vgame.Frame
 	cam      vmath.XY[float32]
-	updaters vents.Zoo[Game]
+	updaters vhooks.Zoo[Game]
 	// not true viewport size. adjusted by max sprite size.
 	viewport    vmath.Box[float32]
 	LevelBounds vmath.Box[float32] // to-do: can this be in vlevels.Level?
@@ -131,7 +131,7 @@ func (this *Engine[Game]) Update() vgame.Status {
 	return vgame.Pause
 }
 
-func (this *Engine[Game]) Ents() *vents.Zoo[Game] {
+func (this *Engine[Game]) Ents() *vhooks.Zoo[Game] {
 	return &this.updaters
 }
 

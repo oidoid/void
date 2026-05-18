@@ -1,4 +1,4 @@
-package enthooks
+package hooks
 
 import (
 	"github.com/oidoid/void/src/demo/engine"

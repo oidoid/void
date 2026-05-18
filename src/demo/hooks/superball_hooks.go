@@ -1,9 +1,9 @@
-package enthooks
+package hooks
 
 import (
 	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/demo/engine"
-	"github.com/oidoid/void/src/demo/ents/entdata"
+	"github.com/oidoid/void/src/demo/entdata"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vmath"
 	"github.com/oidoid/void/src/void/vmem/vvec"
