@@ -1,10 +1,7 @@
 package vvec
 
 import (
-	"fmt"
 	"unsafe"
-
-	"github.com/oidoid/void/src/void/vdebug"
 )
 
 const (
@@ -62,19 +59,11 @@ func (this *Vec[V]) Add(v V) Handle {
 func (this *Vec[V]) Cap() int { return cap(this.vals) }
 func (this *Vec[V]) Clear()   { this.vals = this.vals[:0] }
 
-// do not hold pointer.
-func (this *Vec[V]) Get(handle Handle) *V {
-	if vdebug.Enabled && this.stale(handle) {
-		panic(fmt.Sprintf("stale access %s", handle))
-	}
+func (this *Vec[V]) get(handle Handle) *V {
 	return &this.vals[this.slots[handle.slotIndex()].valIndex()]
 }
 
-func (this *Vec[V]) Free(handle Handle) {
-	if vdebug.Enabled && this.stale(handle) {
-		panic(fmt.Sprintf("stale free %s", handle))
-	}
-
+func (this *Vec[V]) free(handle Handle) {
 	victim := this.slots[handle.slotIndex()].valIndex()
 	last := uint32(len(this.vals) - 1)
 
@@ -97,6 +86,3 @@ func (this *Vec[V]) Pointer() uintptr {
 	return uintptr(unsafe.Pointer(unsafe.SliceData(this.vals)))
 }
 func (this *Vec[V]) Vals() []V { return this.vals }
-func (this *Vec[V]) stale(handle Handle) bool {
-	return this.slots[handle.slotIndex()].gen() != handle.gen()
-}

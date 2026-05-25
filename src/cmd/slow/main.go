@@ -119,7 +119,7 @@ func readSlow(reader io.Reader) ([]Line, error) {
 func runCheck() error {
 	file, err := os.Open(filename)
 	if err != nil {
-		return err
+		return fmt.Errorf("opening slowfile: %w", err)
 	}
 	baseline, err := readSlow(file)
 	file.Close()
@@ -140,7 +140,7 @@ func runSave() error {
 	}
 	file, err := os.Create(filename)
 	if err != nil {
-		return err
+		return fmt.Errorf("creating slowfile: %w", err)
 	}
 	defer file.Close()
 	return writeSlow(file, entries)

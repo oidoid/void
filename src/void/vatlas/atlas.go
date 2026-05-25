@@ -2,6 +2,9 @@ package vatlas
 
 import "github.com/oidoid/void/src/void/vmath"
 
+// identifies an animation in an Atlas.
+type AnimID uint16
+
 // the number of cels every animation is padded to by repeating the sequence.
 const CelsPerAnim = 16
 

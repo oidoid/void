@@ -26,7 +26,7 @@ func UpdateSuperballSpawner(ents *vvec.Vec[entdata.SuperballSpawnerEnt], gam *en
 			}
 		}
 		if kbd.Keys&vinput.KeyMenu != 0 && spawner.PrevKeys&vinput.KeyMenu == 0 {
-			toSpawn := 2*1024*1024 - gam.Balls.Len()
+			toSpawn := int(1.7*1024*1024 - float32(gam.Balls.Len()))
 			loop = vgame.Loop
 			if toSpawn <= 0 {
 				gam.Balls.Clear()

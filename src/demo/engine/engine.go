@@ -6,25 +6,28 @@ import (
 	"github.com/oidoid/void/src/demo/levels"
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vengine"
+	"github.com/oidoid/void/src/void/ventdata"
 	"github.com/oidoid/void/src/void/vgame"
-	"github.com/oidoid/void/src/void/vhooks"
+	"github.com/oidoid/void/src/void/vtext"
 )
 
 type Engine struct {
 	*vengine.Engine[*Engine]
-	Balls vhooks.EntVec[*Engine, entdata.BallEnt]
+	Balls ventdata.EntVec[*Engine, entdata.BallEnt]
 }
 
 var Version string
 var _ vgame.Game = (*Engine)(nil)
 
-func New(balls *vhooks.EntVec[*Engine, entdata.BallEnt]) *Engine {
+func New() *Engine {
+	font := vtext.MemProp5x6
+	font.FirstAnimID = assets.MemProp5x600
 	this := &Engine{
 		Engine: vengine.New[*Engine](&vengine.EngineOpts{
+			Font:       font,
 			Level:      &levels.InitLevel,
 			MaxSprites: 2 * 1024 * 1024,
 		}),
-		Balls: *balls,
 	}
 	this.Atlas = vatlas.DecodeAtlas(assets.AtlasBin)
 	return this

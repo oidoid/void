@@ -8,5 +8,6 @@ out highp vec4 fragColor;
 
 void main() {
   fragColor = texture(uSpritesheet, vTexUV);
+  if (fragColor.a == 0.) discard;
 }
 `

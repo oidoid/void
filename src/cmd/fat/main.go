@@ -115,11 +115,19 @@ func readFat(reader io.Reader) ([]Line, error) {
 		}
 		var size int64
 		if len(parts) >= 2 {
-			size, _ = strconv.ParseInt(parts[1], 10, 64)
+			var err error
+			size, err = strconv.ParseInt(parts[1], 10, 64)
+			if err != nil {
+				return nil, fmt.Errorf("parsing size %q: %w", parts[1], err)
+			}
 		}
 		var gz int64
 		if len(parts) == 3 {
-			gz, _ = strconv.ParseInt(parts[2], 10, 64)
+			var err error
+			gz, err = strconv.ParseInt(parts[2], 10, 64)
+			if err != nil {
+				return nil, fmt.Errorf("parsing gzip size %q: %w", parts[2], err)
+			}
 		}
 		entries = append(entries, Line{Path: parts[0], Size: size, GzipSize: gz})
 	}
@@ -129,7 +137,7 @@ func readFat(reader io.Reader) ([]Line, error) {
 func runCheck() error {
 	file, err := os.Open(filename)
 	if err != nil {
-		return err
+		return fmt.Errorf("opening fatfile: %w", err)
 	}
 	defer file.Close()
 	return check(file, os.Stdout, os.Stderr)
@@ -139,7 +147,7 @@ func runSave(paths []string) error {
 	if len(paths) == 0 {
 		file, err := os.Open(filename)
 		if err != nil {
-			return err
+			return fmt.Errorf("opening fatfile: %w", err)
 		}
 		entries, err := readFat(file)
 		file.Close()
@@ -158,7 +166,7 @@ func runSave(paths []string) error {
 
 	file, err := os.Create(filename)
 	if err != nil {
-		return err
+		return fmt.Errorf("creating fatfile: %w", err)
 	}
 	defer file.Close()
 	_, err = file.Write(buf.Bytes())

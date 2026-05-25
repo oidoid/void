@@ -1,4 +1,4 @@
-package vhooks
+package ventdata
 
 import (
 	"github.com/oidoid/void/src/void/vgame"
@@ -7,7 +7,7 @@ import (
 
 type UpdateAll[Game any, Ent any] = func(ents *vvec.Vec[Ent], gam Game) vgame.Status
 
-// to-do: name? UpdateVec?
+// to-do: name? UpdateVec? HookVec? Engine.updaters?
 type EntVec[Game any, Ent any] struct {
 	vvec.Vec[Ent]
 	update UpdateAll[Game, Ent]

@@ -51,7 +51,7 @@ func applyPalette(argv *Argv) error {
 			"--palette", pal,
 			"--save-as", abs,
 		).Run(); err != nil {
-			return fmt.Errorf("aseprite failed on %s: %w", ase, err)
+			return fmt.Errorf("rasterizing %s: %w", ase, err)
 		}
 	}
 	return nil

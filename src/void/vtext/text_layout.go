@@ -3,7 +3,7 @@ package vtext
 import "github.com/oidoid/void/src/void/vmath"
 
 type TextLayout struct {
-	vmath.WH[int16]
+	vmath.Box[int16]
 	// the length of this slice matches the string length. zero boxes are
 	// whitespace.
 	Chars []vmath.Box[int16]
@@ -17,8 +17,8 @@ type TextLayoutOpts struct {
 	Font  *Font
 	MaxW  int16
 	Scale uint8
-	Start vmath.XY[int16]
 	Text  string
+	XY    vmath.XY[int16]
 }
 
 func LayoutText(opts TextLayoutOpts) TextLayout {
@@ -32,7 +32,7 @@ func LayoutText(opts TextLayoutOpts) TextLayout {
 	if maxW == 0 {
 		maxW = 1<<15 - 1
 	}
-	cursor := opts.Start
+	cursor := opts.XY
 	var w int16
 	var trimmedH uint8
 	for i := 0; i < len(runes); {
@@ -40,7 +40,7 @@ func LayoutText(opts TextLayoutOpts) TextLayout {
 		var layout TextLayout
 		switch {
 		case ch == '\n':
-			layout = layoutNewline(opts.Font, cursor, opts.Start.X, scale, w)
+			layout = layoutNewline(opts.Font, cursor, opts.XY.X, scale, w)
 		case isBlankCh(ch):
 			var next rune
 			if i+1 < len(runes) {
@@ -49,28 +49,28 @@ func LayoutText(opts TextLayoutOpts) TextLayout {
 			layout = layoutSpace(
 				opts.Font, cursor, maxW,
 				tracking(opts.Font, ch, next, scale),
-				opts.Start.X, scale, trimmedH, ch, w,
+				opts.XY.X, scale, trimmedH, ch, w,
 			)
 		default:
-			layout = layoutWord(opts.Font, cursor, maxW, runes, i, opts.Start.X, scale, trimmedH, w)
-			if cursor.X > 0 && layout.Cursor.Y == layoutNextLine(opts.Font, opts.Start.X, cursor.Y, scale).Y &&
+			layout = layoutWord(opts.Font, cursor, maxW, runes, i, opts.XY.X, scale, trimmedH, w)
+			if cursor.X > 0 && layout.Cursor.Y == layoutNextLine(opts.Font, opts.XY.X, cursor.Y, scale).Y &&
 				layout.Cursor.X <= cursor.X {
 				// word can fit on one line if cursor is reset to the start of line.
-				cursor = layoutNextLine(opts.Font, opts.Start.X, cursor.Y, scale)
-				layout = layoutWord(opts.Font, cursor, maxW, runes, i, opts.Start.X, scale, trimmedH, w)
+				cursor = layoutNextLine(opts.Font, opts.XY.X, cursor.Y, scale)
+				layout = layoutWord(opts.Font, cursor, maxW, runes, i, opts.XY.X, scale, trimmedH, w)
 			}
 		}
 		copy(chars[i:], layout.Chars)
 		cursor = layout.Cursor
-		w = layout.W
+		w = layout.W()
 		trimmedH = uint8(layout.TrimmedH)
 		i += len(layout.Chars)
 	}
 	return TextLayout{
 		Chars:    chars,
 		Cursor:   cursor,
-		WH:       vmath.WH[int16]{W: w, H: layoutNextLine(opts.Font, opts.Start.X, cursor.Y, scale).Y - opts.Start.Y},
-		TrimmedH: cursor.Y - opts.Start.Y + int16(trimmedH),
+		Box:      vmath.NewBox(opts.XY.X, opts.XY.Y, opts.XY.X+w, layoutNextLine(opts.Font, opts.XY.X, cursor.Y, scale).Y),
+		TrimmedH: cursor.Y - opts.XY.Y + int16(trimmedH),
 	}
 }
 
@@ -97,7 +97,7 @@ func layoutWord(
 			nextCh = runes[index+1]
 		}
 		span := tracking(font, ch, nextCh, scale)
-		next := x > startX && x+span > startX+maxW
+		next := x > startX && x-startX+span > maxW
 		if next {
 			nl := layoutNextLine(font, startX, y, scale)
 			x, y = nl.X, nl.Y
@@ -121,7 +121,7 @@ func layoutWord(
 		Chars:    chars[:n],
 		Cursor:   vmath.XY[int16]{X: x, Y: y},
 		TrimmedH: int16(trimmedH),
-		WH:       vmath.WH[int16]{W: fw},
+		Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: fw}},
 	}
 }
 
@@ -141,7 +141,7 @@ func layoutNewline(
 	return TextLayout{
 		Chars:  []vmath.Box[int16]{{}},
 		Cursor: nextCursor,
-		WH:     vmath.WH[int16]{W: w},
+		Box:    vmath.Box[int16]{Max: vmath.XY[int16]{X: w}},
 	}
 }
 
@@ -175,7 +175,7 @@ func layoutSpace(
 		Chars:    []vmath.Box[int16]{{}},
 		Cursor:   nextCursor,
 		TrimmedH: int16(newTrimmedH),
-		WH:       vmath.WH[int16]{W: w},
+		Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: w}},
 	}
 }
 

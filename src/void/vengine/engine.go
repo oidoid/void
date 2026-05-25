@@ -8,21 +8,24 @@ import (
 	"math/rand/v2"
 
 	"github.com/oidoid/void/src/void/vatlas"
+	"github.com/oidoid/void/src/void/ventdata"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgfx"
-	"github.com/oidoid/void/src/void/vhooks"
 	"github.com/oidoid/void/src/void/vinput"
 	"github.com/oidoid/void/src/void/vlevels"
 	"github.com/oidoid/void/src/void/vmath"
+	"github.com/oidoid/void/src/void/vtext"
 )
 
-type Engine[Game any] struct {
+type Engine[Game vgame.Game] struct {
 	Level    *vlevels.Level
 	Router   vlevels.Router[Game]
 	Atlas    vatlas.Atlas
+	Texts    ventdata.EntVec[Game, ventdata.TextEnt]
+	font     *vtext.Font
 	frame    vgame.Frame
 	cam      vmath.XY[float32]
-	updaters vhooks.Zoo[Game]
+	updaters ventdata.Zoo[Game]
 	// not true viewport size. adjusted by max sprite size.
 	viewport    vmath.Box[float32]
 	LevelBounds vmath.Box[float32] // to-do: can this be in vlevels.Level?
@@ -31,15 +34,16 @@ type Engine[Game any] struct {
 }
 
 type EngineOpts struct {
+	Font       *vtext.Font
 	Level      *vlevels.Level
 	MaxSprites int
 	Seed1      uint64
 	Seed2      uint64
 }
 
-var _ vgame.Game = (*Engine[any])(nil)
+var _ vgame.Game = (*Engine[vgame.Game])(nil)
 
-func New[Game any](opts *EngineOpts) *Engine[Game] {
+func New[Game vgame.Game](opts *EngineOpts) *Engine[Game] {
 	if opts == nil {
 		opts = &EngineOpts{}
 	}
@@ -53,6 +57,7 @@ func New[Game any](opts *EngineOpts) *Engine[Game] {
 		opts.Seed2 = rand.Uint64()
 	}
 	return &Engine[Game]{
+		font:    opts.Font,
 		Level:   opts.Level,
 		rnd:     rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
 		sprites: make([]vgfx.Sprite, 0, opts.MaxSprites),
@@ -67,6 +72,10 @@ func (this *Engine[Game]) RegisterEntUpdate(vec interface{ Update(Game) vgame.St
 
 func (this *Engine[Game]) RegisterUpdate(fn func(Game) vgame.Status) {
 	this.updaters.Register(fn)
+}
+
+func (this *Engine[Game]) Font() *vtext.Font {
+	return this.font
 }
 
 func (this *Engine[Game]) Frame() *vgame.Frame { return &this.frame }
@@ -131,7 +140,7 @@ func (this *Engine[Game]) Update() vgame.Status {
 	return vgame.Pause
 }
 
-func (this *Engine[Game]) Ents() *vhooks.Zoo[Game] {
+func (this *Engine[Game]) Ents() *ventdata.Zoo[Game] {
 	return &this.updaters
 }
 

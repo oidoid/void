@@ -5,6 +5,7 @@ import (
 	"github.com/oidoid/void/src/demo/engine"
 	"github.com/oidoid/void/src/demo/entdata"
 	"github.com/oidoid/void/src/void/vgame"
+	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vmath"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
@@ -20,7 +21,13 @@ func UpdateSuperballs(ents *vvec.Vec[entdata.BallEnt], gam *engine.Engine) vgame
 	for i := range vals {
 		ball := &vals[i]
 		updateSuperball(ball, lvl, radius)
-		batch.Draw(&ball.Sprite)
+		if batch.Viewport.HitsXY(ball.XY) {
+			n := len(batch.Sprites)
+			batch.Sprites = batch.Sprites[:n+1]
+			batch.Sprites[n] = vgfx.Sprite{
+				XY: ball.XY, AnimID: assets.SuperballDefault, Z: ball.Z,
+			}
+		}
 		// if updateBall(ball, lvl) {
 		// 	balls.Free(ball.handle)
 		// 	continue
@@ -34,23 +41,24 @@ func UpdateSuperballs(ents *vvec.Vec[entdata.BallEnt], gam *engine.Engine) vgame
 }
 
 func updateSuperball(ent *entdata.BallEnt, lvl vmath.Box[float32], radius float32) bool {
-	ent.Sprite.X += ent.D.X
-	ent.Sprite.Y += ent.D.Y
-	if ent.Sprite.X-radius < lvl.Min.X {
-		ent.Sprite.X = lvl.Min.X + radius
+	diameter := radius * 2
+	ent.X += ent.D.X
+	ent.Y += ent.D.Y
+	if ent.X < lvl.Min.X {
+		ent.X = lvl.Min.X
 		ent.D.X = -ent.D.X
 		// ball.hits++
-	} else if ent.Sprite.X+radius > lvl.Max.X {
-		ent.Sprite.X = lvl.Max.X - radius
+	} else if ent.X+diameter > lvl.Max.X {
+		ent.X = lvl.Max.X - diameter
 		ent.D.X = -ent.D.X
 		// ball.hits++
 	}
-	if ent.Sprite.Y-radius < lvl.Min.Y {
-		ent.Sprite.Y = lvl.Min.Y + radius
+	if ent.Y < lvl.Min.Y {
+		ent.Y = lvl.Min.Y
 		ent.D.Y = -ent.D.Y
 		// ball.hits++
-	} else if ent.Sprite.Y+radius > lvl.Max.Y {
-		ent.Sprite.Y = lvl.Max.Y - radius
+	} else if ent.Y+diameter > lvl.Max.Y {
+		ent.Y = lvl.Max.Y - diameter
 		ent.D.Y = -ent.D.Y
 		// ball.hits++
 	}

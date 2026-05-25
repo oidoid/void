@@ -95,10 +95,10 @@ func packAtlas(argv *Argv) error {
 	args = append(args, ases...)
 	jsonBytes, err := exec.Command("aseprite", args...).Output()
 	if err != nil {
-		return fmt.Errorf("aseprite failed: %w", err)
+		return fmt.Errorf("rasterizing: %w", err)
 	}
 	if err := pngToWebP(sheet, filepath.Join(argv.ImgOut, argv.Name+".webp")); err != nil {
-		return fmt.Errorf("cwebp failed: %w", err)
+		return fmt.Errorf("converting to WebP: %w", err)
 	}
 	var aseData vatlas.AseFile
 	if err := json.Unmarshal(jsonBytes, &aseData); err != nil {
@@ -138,10 +138,10 @@ func genData(pkg string, data []byte) ([]byte, error) {
 
 func genIDs(pkg string, tags []string) ([]byte, error) {
 	var str strings.Builder
-	fmt.Fprintf(&str, "// codegen by packsprites.\npackage %s\n\n// identifies an animation in an Atlas.\ntype AnimID uint16\n\nconst (\n", pkg)
+	fmt.Fprintf(&str, "// codegen by packsprites.\npackage %s\n\nimport \"github.com/oidoid/void/src/void/vatlas\"\n\nconst (\n", pkg)
 	for i, tag := range tags {
 		if i == 0 {
-			fmt.Fprintf(&str, "\t%s AnimID = iota\n", tagToIdent(tag))
+			fmt.Fprintf(&str, "\t%s vatlas.AnimID = iota\n", tagToIdent(tag))
 		} else {
 			fmt.Fprintf(&str, "\t%s\n", tagToIdent(tag))
 		}

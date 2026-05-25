@@ -6,13 +6,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"go/format"
-	"maps"
 	"os"
 	"path/filepath"
-	"slices"
-	"strconv"
 	"strings"
-	"unicode/utf8"
+
+	"github.com/oidoid/void/src/void/vtext"
 )
 
 type fontJSON struct {
@@ -46,17 +44,17 @@ func main() {
 func run(in, out string) error {
 	bin, err := os.ReadFile(in)
 	if err != nil {
-		return err
+		return fmt.Errorf("reading font JSON: %w", err)
 	}
 
 	var font fontJSON
 	if err := json.Unmarshal(bin, &font); err != nil {
-		return err
+		return fmt.Errorf("parsing font JSON %s: %w", in, err)
 	}
 
 	absOut, err := filepath.Abs(out)
 	if err != nil {
-		return err
+		return fmt.Errorf("resolving font codegen output path: %w", err)
 	}
 	pkg := filepath.Base(filepath.Dir(absOut))
 
@@ -65,7 +63,7 @@ func run(in, out string) error {
 	fmt.Fprintf(&str, "package %s\n\n", pkg)
 
 	varName := shishKebabToTitleCase(font.ID)
-	fmt.Fprintf(&str, "var %s = Font{\n", varName)
+	fmt.Fprintf(&str, "var %s = decodeFont(&Font{\n", varName)
 	fmt.Fprintf(&str, "\tID: %q,\n", font.ID)
 	fmt.Fprintf(&str, "\tName: %q,\n", font.Name)
 	fmt.Fprintf(&str, "\tCellW: %d,\n", font.CellW)
@@ -77,30 +75,19 @@ func run(in, out string) error {
 	fmt.Fprintf(&str, "\tDefaultWhitespaceKerning: %d,\n", font.DefaultWhitespaceKerning)
 	fmt.Fprintf(&str, "\tEndOfLineKerning: %d,\n", font.EndOfLineKerning)
 	fmt.Fprintf(&str, "\tDefaultCharW: %d,\n", font.DefaultCharW)
-
-	fmt.Fprintf(&str, "\tKerningPairs: map[[2]rune]int8{\n")
-	for _, k := range slices.Sorted(maps.Keys(font.Kerning)) {
-		l, size := utf8.DecodeRuneInString(k)
-		r, _ := utf8.DecodeRuneInString(k[size:])
-		fmt.Fprintf(&str, "\t\t{%s, %s}: %d,\n", strconv.QuoteRune(l), strconv.QuoteRune(r), font.Kerning[k])
+	fmt.Fprintf(&str, "}, []byte{\n")
+	for _, b := range vtext.EncodeKerning(font.Kerning, font.DefaultKerning, font.DefaultWhitespaceKerning) {
+		fmt.Fprintf(&str, "\t%d,\n", b)
 	}
-	fmt.Fprintf(&str, "\t},\n")
-
-	fmt.Fprintf(&str, "\tCharWidths: map[rune]uint8{\n")
-	for _, k := range slices.Sorted(maps.Keys(font.CharW)) {
-		r, _ := utf8.DecodeRuneInString(k)
-		fmt.Fprintf(&str, "\t\t%s: %d,\n", strconv.QuoteRune(r), font.CharW[k])
+	fmt.Fprintf(&str, "}, []byte{\n")
+	for _, b := range vtext.EncodeWidths(font.CharW, font.DefaultCharW) {
+		fmt.Fprintf(&str, "\t%d,\n", b)
 	}
-	fmt.Fprintf(&str, "\t},\n")
-
-	fmt.Fprintf(&str, "\tDescends: map[rune]bool{\n")
-	for _, k := range slices.Sorted(maps.Keys(font.Descends)) {
-		r, _ := utf8.DecodeRuneInString(k)
-		fmt.Fprintf(&str, "\t\t%s: %v,\n", strconv.QuoteRune(r), font.Descends[k])
+	fmt.Fprintf(&str, "}, []byte{\n")
+	for _, b := range vtext.EncodeDescends(font.Descends) {
+		fmt.Fprintf(&str, "\t%d,\n", b)
 	}
-	fmt.Fprintf(&str, "\t},\n")
-
-	fmt.Fprintf(&str, "}\n")
+	fmt.Fprintf(&str, "})\n")
 
 	src, err := format.Source([]byte(str.String()))
 	if err != nil {

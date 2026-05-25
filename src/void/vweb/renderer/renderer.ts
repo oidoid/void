@@ -98,8 +98,8 @@ export class Renderer {
   resize(): void {
     const canvas = this.#gl.canvas as HTMLCanvasElement
     const bounds = canvas.getBoundingClientRect()
-    const displayW = Math.ceil(bounds.width * devicePixelRatio)
-    const displayH = Math.ceil(bounds.height * devicePixelRatio)
+    const displayW = Math.round(bounds.width * devicePixelRatio)
+    const displayH = Math.round(bounds.height * devicePixelRatio)
     if (canvas.width === displayW && canvas.height === displayH) return
 
     canvas.width = displayW

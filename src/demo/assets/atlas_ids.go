@@ -1,11 +1,10 @@
 // codegen by packsprites.
 package assets
 
-// identifies an animation in an Atlas.
-type AnimID uint16
+import "github.com/oidoid/void/src/void/vatlas"
 
 const (
-	VoidNil AnimID = iota
+	VoidNil vatlas.AnimID = iota
 	BackgroundOrangeCheckerboard
 	BackgroundGreyCheckerboard
 	BackgroundBlackCheckerboard

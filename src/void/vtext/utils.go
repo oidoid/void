@@ -1,8 +1,6 @@
 package vtext
 
-import "unicode"
-
-// whether char iz zero or a whitespace character.
+// whether char is zero or a whitespace character.
 func isBlankCh(ch rune) bool {
-	return ch == 0 || unicode.IsSpace(ch)
+	return ch == 0 || ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' || ch == '\v' || ch == '\f'
 }

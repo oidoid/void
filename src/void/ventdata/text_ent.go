@@ -1,8 +1,11 @@
 package ventdata
 
-import "github.com/oidoid/void/src/void/vmath"
+import (
+	"github.com/oidoid/void/src/void/vtext"
+)
 
 type TextEnt struct {
-	vmath.Box[float32]
 	Text string
+	// nil `Layout.Chars` to force relayout.
+	Layout vtext.TextLayout
 }

@@ -3,12 +3,13 @@ package vgfx
 import (
 	"unsafe"
 
+	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vmath"
 )
 
 type Sprite struct {
 	vmath.XY[float32]
-	AnimID uint16
+	AnimID vatlas.AnimID
 	Cel    uint8
 	_      [1]byte
 	Z      uint32

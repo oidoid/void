@@ -1,5 +1,7 @@
 package vtext
 
+import "github.com/oidoid/void/src/void/vatlas"
+
 //go:generate go run github.com/oidoid/void/src/cmd/genfont mem-prop-5x6.json mem_prop_5x6_gen.go
 
 // holds metrics and detail metadata for a bitmap font.
@@ -24,9 +26,6 @@ type Font struct {
 	// the font's baseline as measured in pixels from the bottom of the cell
 	// (`cellH`). when nonzero, this is the space available for descenders.
 	Baseline uint8
-	// variable distance between characters in pixels. the key is two characters
-	// and the value may be negative.
-	KerningPairs map[[2]rune]int8
 	// character-to-character kerning pair widths in pixels. when a pair is not
 	// present, `endOfLineKerning` is used when the pair matches the regular
 	// expression `.$`, `defaultWhitespaceKerning` is used when the pair matches
@@ -37,14 +36,24 @@ type Font struct {
 	DefaultWhitespaceKerning int8
 	// kerning for when the right character is a newline.
 	EndOfLineKerning int8
-	// character width in pixels. When a character is not present, `defaultCharW`
-	// is used.
-	CharWidths map[rune]uint8
-	// character width in pixels. when a character is not present in `charW`,
+	// character width in pixels. when a character is not present in `charWidths`,
 	// `defaultCharW` is used.
 	DefaultCharW uint8
-	// whether a character descends below the baseline.
-	Descends map[rune]bool
+	// variable distance between characters in pixels. the key is two
+	// characters (left, right) and the value may be negative.
+	kerningPairs map[[2]byte]int8
+	// character width in pixels. when a character is not present, `defaultCharW`
+	// is used.
+	charWidths [256]uint8
+	// characters that descend below the baseline.
+	descends [32]uint8
+	// the first animation ID in the atlas for this font's glyphs. character
+	// sprites are indexed as FirstAnimID + charCode.
+	FirstAnimID vatlas.AnimID
+}
+
+func (this *Font) AnimID(ch rune) vatlas.AnimID {
+	return this.FirstAnimID + vatlas.AnimID(ch)
 }
 
 const hexChars = "0123456789abcdef"
@@ -58,7 +67,8 @@ func (this *Font) CharToTag(ch rune) string {
 }
 
 func (this *Font) CharH(ch rune) uint8 {
-	if this.Descends[ch] {
+	b := byte(ch)
+	if this.descends[b/8]>>(b%8)&1 != 0 {
 		return this.CellH
 	}
 	return this.CellH - this.Baseline
@@ -69,8 +79,8 @@ func (this *Font) Kerning(l, r rune) int8 {
 	if l == '\n' || r == 0 || r == '\n' {
 		return this.EndOfLineKerning
 	}
-	if kerning, ok := this.KerningPairs[[2]rune{l, r}]; ok {
-		return kerning
+	if kern, ok := this.kerningPairs[[2]byte{byte(l), byte(r)}]; ok {
+		return kern
 	}
 	if isBlankCh(l) || isBlankCh(r) {
 		return this.DefaultWhitespaceKerning
@@ -79,8 +89,5 @@ func (this *Font) Kerning(l, r rune) int8 {
 }
 
 func (this *Font) CharW(ch rune) uint8 {
-	if w, ok := this.CharWidths[ch]; ok {
-		return w
-	}
-	return this.DefaultCharW
+	return this.charWidths[byte(ch)]
 }

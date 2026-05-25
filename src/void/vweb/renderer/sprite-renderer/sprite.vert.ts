@@ -28,7 +28,7 @@ void main() {
   highp vec2 wh = vec2(float(cel.z), float(cel.w));
 
   highp vec2 corner = corners[gl_VertexID];
-  highp vec2 px = floor(aXY + (corner - 0.5) * wh) - floor(uCamXY);
+  highp vec2 px = floor(aXY + corner * wh) - floor(uCamXY);
   highp vec2 ndc = px / vec2(uResolution) * 2. - 1.;
   highp float z = 1. - float(aZ) / 4294967295. * 2.;
   ndc.y = -ndc.y;

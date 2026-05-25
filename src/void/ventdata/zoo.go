@@ -1,4 +1,4 @@
-package vhooks
+package ventdata
 
 import "github.com/oidoid/void/src/void/vgame"
 
