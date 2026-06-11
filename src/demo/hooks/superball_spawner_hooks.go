@@ -8,25 +8,41 @@ import (
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
-func UpdateSuperballSpawner(ents *vvec.Vec[entdata.SuperballSpawnerEnt], gam *engine.Engine) vgame.Status {
+func UpdateSuperballSpawners(
+	ents *vvec.Vec[entdata.SuperballSpawnerEnt],
+	gam *engine.Engine,
+) vgame.Status {
 	frame := gam.Frame()
 	kbd := &gam.Input().Keyboard
+	vals := ents.Vals()
 	loop := vgame.Pause
-	for i := range ents.Vals() {
-		spawner := &ents.Vals()[i]
+	for i := range vals {
+		spawner := &vals[i]
 		for j := range gam.Input().PointersLen {
 			pointer := &gam.Input().Pointers[j]
 			if pointer.Buttons&1 == 1 {
 				for range min(3000, int(60_000*(frame.DeltaMs/1000))) {
-					ball := entdata.NewBallEnt(gam.Random, gam.CamX()+pointer.Min.X, gam.CamY()+pointer.Min.Y)
+					ball := entdata.NewBallEnt(
+						gam.Random,
+						gam.CamX()+pointer.Min.X,
+						gam.CamY()+pointer.Min.Y,
+					)
 					_ = gam.Balls.Add(ball)
 				}
-				println(gam.Balls.Len(), "ents", gam.SpriteCount(), "balls", int(pointer.Min.X), int(pointer.Min.Y), int(frame.DeltaMs))
+				println(
+					gam.Balls.Len(),
+					"ents",
+					gam.SpriteCount(),
+					"balls",
+					int(pointer.Min.X),
+					int(pointer.Min.Y),
+					int(frame.DeltaMs),
+				)
 				loop = vgame.Loop
 			}
 		}
 		if kbd.Keys&vinput.KeyMenu != 0 && spawner.PrevKeys&vinput.KeyMenu == 0 {
-			toSpawn := int(1.7*1024*1024 - float32(gam.Balls.Len()))
+			toSpawn := int(2.5*1024*1024 - float32(gam.Balls.Len()))
 			loop = vgame.Loop
 			if toSpawn <= 0 {
 				gam.Balls.Clear()

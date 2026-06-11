@@ -100,7 +100,13 @@ func TestParseAtlas_singleAnim(t *testing.T) {
 	}
 	const idx = vatlas.CelsPerAnim * 4
 	if atlas.Cels[idx] != 10 || atlas.Cels[idx+1] != 20 {
-		t.Fatalf("Cels[%d:%d]: got %v %v, want 10 20", idx, idx+1, atlas.Cels[idx], atlas.Cels[idx+1])
+		t.Fatalf(
+			"Cels[%d:%d]: got %v %v, want 10 20",
+			idx,
+			idx+1,
+			atlas.Cels[idx],
+			atlas.Cels[idx+1],
+		)
 	}
 }
 
@@ -382,7 +388,13 @@ func TestParseHitboxes_zeroForNoSlices(t *testing.T) {
 
 // checks that `parseAnimFrames()` returns cels whose positions in the map match
 // expected (position in the frames slice passed in).
-func assertFrameIndices(t *testing.T, span vatlas.AseTagSpan, frames []vatlas.AseFrame, expected []int, msg string) {
+func assertFrameIndices(
+	t *testing.T,
+	span vatlas.AseTagSpan,
+	frames []vatlas.AseFrame,
+	expected []int,
+	msg string,
+) {
 	t.Helper()
 	frameMap := map[string]vatlas.AseFrame{}
 	for i, frame := range frames {
@@ -398,12 +410,23 @@ func assertFrameIndices(t *testing.T, span vatlas.AseTagSpan, frames []vatlas.As
 	for celIdx, frameIdx := range expected {
 		want := frames[frameIdx]
 		if got[celIdx] != want {
-			t.Fatalf("%s: cel[%d] got frame[%v], want frame[%d]", msg, celIdx, got[celIdx], frameIdx)
+			t.Fatalf(
+				"%s: cel[%d] got frame[%v], want frame[%d]",
+				msg,
+				celIdx,
+				got[celIdx],
+				frameIdx,
+			)
 		}
 	}
 }
 
-func newAseFrame(duration uint16, x, y int32, w, h, sW, sH uint32) vatlas.AseFrame {
+func newAseFrame(
+	duration uint16,
+	x, y int32,
+	w, h uint32,
+	sW, sH uint32,
+) vatlas.AseFrame {
 	return vatlas.AseFrame{
 		Duration:         duration,
 		Frame:            vatlas.AseXYWH{X: x, Y: y, W: w, H: h},
@@ -420,6 +443,10 @@ func newAseSlice(name, color string, x, y int32, w, h uint32) vatlas.AseSlice {
 	}
 }
 
-func newAseTagSpan(name string, from, to uint16, dir vatlas.AseDir) vatlas.AseTagSpan {
+func newAseTagSpan(
+	name string,
+	from, to uint16,
+	dir vatlas.AseDir,
+) vatlas.AseTagSpan {
 	return vatlas.AseTagSpan{Name: name, From: from, To: to, Direction: dir}
 }

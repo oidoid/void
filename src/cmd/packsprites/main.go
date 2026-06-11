@@ -97,7 +97,10 @@ func packAtlas(argv *Argv) error {
 	if err != nil {
 		return fmt.Errorf("rasterizing: %w", err)
 	}
-	if err := pngToWebP(sheet, filepath.Join(argv.ImgOut, argv.Name+".webp")); err != nil {
+	if err := pngToWebP(
+		sheet,
+		filepath.Join(argv.ImgOut, argv.Name+".webp"),
+	); err != nil {
 		return fmt.Errorf("converting to WebP: %w", err)
 	}
 	var aseData vatlas.AseFile
@@ -113,19 +116,31 @@ func packAtlas(argv *Argv) error {
 	if err != nil {
 		return err
 	}
-	if err := os.WriteFile(filepath.Join(argv.CodeOut, argv.Name+"_bin.go"), dataSrc, 0o644); err != nil {
+	if err := os.WriteFile(
+		filepath.Join(argv.CodeOut, argv.Name+"_bin.go"),
+		dataSrc,
+		0o644,
+	); err != nil {
 		return err
 	}
 	idsSrc, err := genIDs(argv.Pkg, tags)
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(filepath.Join(argv.CodeOut, argv.Name+"_ids.go"), idsSrc, 0o644)
+	return os.WriteFile(
+		filepath.Join(argv.CodeOut, argv.Name+"_ids.go"),
+		idsSrc,
+		0o644,
+	)
 }
 
 func genData(pkg string, data []byte) ([]byte, error) {
 	var str strings.Builder
-	fmt.Fprintf(&str, "// codegen by packsprites.\npackage %s\n\nvar AtlasBin = []byte{", pkg)
+	fmt.Fprintf(
+		&str,
+		"// codegen by packsprites.\npackage %s\n\nvar AtlasBin = []byte{",
+		pkg,
+	)
 	for i, v := range data {
 		if i%16 == 0 {
 			str.WriteString("\n\t")
@@ -138,7 +153,12 @@ func genData(pkg string, data []byte) ([]byte, error) {
 
 func genIDs(pkg string, tags []string) ([]byte, error) {
 	var str strings.Builder
-	fmt.Fprintf(&str, "// codegen by packsprites.\npackage %s\n\nimport \"github.com/oidoid/void/src/void/vatlas\"\n\nconst (\n", pkg)
+	fmt.Fprintf(
+		&str,
+		"// codegen by packsprites.\npackage %s\n\n"+
+			"import \"github.com/oidoid/void/src/void/vatlas\"\n\nconst (\n",
+		pkg,
+	)
 	for i, tag := range tags {
 		if i == 0 {
 			fmt.Fprintf(&str, "\t%s vatlas.AnimID = iota\n", tagToIdent(tag))

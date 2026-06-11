@@ -19,7 +19,8 @@ func DecodeAtlas(bin []byte) Atlas {
 		return v
 	}
 	readU32 := func() uint32 {
-		v := uint32(bin[i]) | uint32(bin[i+1])<<8 | uint32(bin[i+2])<<16 | uint32(bin[i+3])<<24
+		v := uint32(bin[i]) | uint32(bin[i+1])<<8 |
+			uint32(bin[i+2])<<16 | uint32(bin[i+3])<<24
 		i += 4
 		return v
 	}
@@ -43,7 +44,10 @@ func DecodeAtlas(bin []byte) Atlas {
 		if flags&flagHurtbox != 0 {
 			hurtbox = readBox()
 		}
-		anims = append(anims, Anim{Cels: cels, W: w, H: h, Hitbox: hitbox, Hurtbox: hurtbox})
+		anims = append(anims, Anim{
+			Cels: cels, W: w, H: h,
+			Hitbox: hitbox, Hurtbox: hurtbox,
+		})
 		totalCels += int(cels)
 	}
 

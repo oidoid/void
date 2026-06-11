@@ -9,6 +9,7 @@ layout(location=0) in highp vec2 aXY; // sprite center.
 layout(location=1) in highp uint aAnimID;
 layout(location=2) in highp uint aCel;
 layout(location=3) in highp uint aZ;
+layout(location=4) in highp uvec2 aWH; // when nonzero, stretch sprite to this size.
 
 out highp vec2 vTexUV;
 
@@ -25,15 +26,18 @@ const highp vec2 corners[6] = vec2[6](
 void main() {
   highp uvec4 cel = texelFetch(uAtlasCels, ivec2(int(aCel), int(aAnimID)), 0);
   highp vec2 celMin = vec2(float(cel.x), float(cel.y));
-  highp vec2 wh = vec2(float(cel.z), float(cel.w));
+  highp vec2 celWH = vec2(float(cel.z), float(cel.w));
+  highp vec2 wh = aWH.x != 0u ? vec2(float(aWH.x), float(aWH.y)) : celWH;
 
   highp vec2 corner = corners[gl_VertexID];
-  highp vec2 px = floor(aXY + corner * wh) - floor(uCamXY);
+  // LayerUI and greater are in screen-space; camera is not applied.
+  highp vec2 camXY = aZ >= 0x80u ? vec2(0., 0.) : floor(uCamXY);
+  highp vec2 px = floor(aXY + corner * wh) - camXY;
   highp vec2 ndc = px / vec2(uResolution) * 2. - 1.;
-  highp float z = 1. - float(aZ) / 4294967295. * 2.;
+  highp float z = (128. - float(aZ)) / 128.;
   ndc.y = -ndc.y;
   gl_Position = vec4(ndc, z, 1.);
 
-  vTexUV = (celMin + 0.5 + (wh - 1.0) * corner) / uAtlasSize;
+  vTexUV = (celMin + 0.5 + (celWH - 1.) * corner) / uAtlasSize;
 }
 `

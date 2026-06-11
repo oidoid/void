@@ -13,7 +13,9 @@ import (
 	"strings"
 )
 
-var reLine = regexp.MustCompile(`^(Benchmark\S+?)(?:-\d+)?\s+\d+\s+([\d.]+)\s+ms/op`)
+var reLine = regexp.MustCompile(
+	`^(Benchmark\S+?)(?:-\d+)?\s+\d+\s+([\d.]+)\s+ms/op`,
+)
 
 // slowfile baseline record.
 type Line struct {
@@ -148,7 +150,12 @@ func runSave() error {
 
 func writeSlow(writer io.Writer, entries []Line) error {
 	for _, entry := range entries {
-		if _, err := fmt.Fprintf(writer, "%s %.3f\n", entry.Name, entry.OpMillis); err != nil {
+		if _, err := fmt.Fprintf(
+			writer,
+			"%s %.3f\n",
+			entry.Name,
+			entry.OpMillis,
+		); err != nil {
 			return err
 		}
 	}

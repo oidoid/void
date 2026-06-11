@@ -26,7 +26,11 @@ func HTMLPlugin(config *cliconfig.CLIConfig) api.Plugin {
 					if filepath.Ext(entry) != ".html" {
 						continue
 					}
-					if result := transformHTML(config, entry, filepath.Dir(entry)); len(result.Errors) > 0 {
+					if result := transformHTML(
+						config,
+						entry,
+						filepath.Dir(entry),
+					); len(result.Errors) > 0 {
 						return result, nil
 					}
 				}
@@ -36,7 +40,10 @@ func HTMLPlugin(config *cliconfig.CLIConfig) api.Plugin {
 	}
 }
 
-func transformHTML(config *cliconfig.CLIConfig, entry, entryDir string) api.OnEndResult {
+func transformHTML(
+	config *cliconfig.CLIConfig,
+	entry, entryDir string,
+) api.OnEndResult {
 	doc, err := htmlparser.ParseDoc(entry)
 	if err != nil {
 		return errorEndResult(err)
@@ -47,7 +54,11 @@ func transformHTML(config *cliconfig.CLIConfig, entry, entryDir string) api.OnEn
 	if result := transformImages(doc, config, entryDir); len(result.Errors) > 0 {
 		return result
 	}
-	if result := transformManifests(doc, config, entryDir); len(result.Errors) > 0 {
+	if result := transformManifests(
+		doc,
+		config,
+		entryDir,
+	); len(result.Errors) > 0 {
 		return result
 	}
 	if result := transformScripts(doc, config); len(result.Errors) > 0 {
@@ -68,7 +79,11 @@ func transformHTML(config *cliconfig.CLIConfig, entry, entryDir string) api.OnEn
 	return api.OnEndResult{}
 }
 
-func transformFavicons(doc *html.Node, config *cliconfig.CLIConfig, entryDir string) api.OnEndResult {
+func transformFavicons(
+	doc *html.Node,
+	config *cliconfig.CLIConfig,
+	entryDir string,
+) api.OnEndResult {
 	for _, node := range htmlparser.QueryTag(doc, "link") {
 		rel := htmlparser.NodeAttr(node, "rel")
 		if rel != "icon" {
@@ -87,7 +102,11 @@ func transformFavicons(doc *html.Node, config *cliconfig.CLIConfig, entryDir str
 	return api.OnEndResult{}
 }
 
-func transformImages(doc *html.Node, config *cliconfig.CLIConfig, entryDir string) api.OnEndResult {
+func transformImages(
+	doc *html.Node,
+	config *cliconfig.CLIConfig,
+	entryDir string,
+) api.OnEndResult {
 	for _, node := range htmlparser.QueryTag(doc, "img") {
 		src := htmlparser.NodeAttr(node, "src")
 		if src == "" {
@@ -102,7 +121,10 @@ func transformImages(doc *html.Node, config *cliconfig.CLIConfig, entryDir strin
 	return api.OnEndResult{}
 }
 
-func transformImageSrc(config *cliconfig.CLIConfig, entryDir, src string) (string, error) {
+func transformImageSrc(
+	config *cliconfig.CLIConfig,
+	entryDir, src string,
+) (string, error) {
 	filename := filepath.Base(src)
 	bin, err := os.ReadFile(filepath.Join(entryDir, src))
 	if err != nil {
@@ -113,15 +135,24 @@ func transformImageSrc(config *cliconfig.CLIConfig, entryDir, src string) (strin
 		if mimeType == "" {
 			mimeType = "application/octet-stream"
 		}
-		return "data:" + mimeType + ";base64," + base64.StdEncoding.EncodeToString(bin), nil
+		return "data:" + mimeType + ";base64," +
+			base64.StdEncoding.EncodeToString(bin), nil
 	}
-	if err := os.WriteFile(filepath.Join(config.OutDir, filename), bin, 0o644); err != nil {
+	if err := os.WriteFile(
+		filepath.Join(config.OutDir, filename),
+		bin,
+		0o644,
+	); err != nil {
 		return "", err
 	}
 	return filename, nil
 }
 
-func transformManifests(doc *html.Node, config *cliconfig.CLIConfig, entryDir string) api.OnEndResult {
+func transformManifests(
+	doc *html.Node,
+	config *cliconfig.CLIConfig,
+	entryDir string,
+) api.OnEndResult {
 	for _, node := range htmlparser.QueryTag(doc, "link") {
 		if htmlparser.NodeAttr(node, "rel") != "manifest" {
 			continue
@@ -168,11 +199,16 @@ func transformManifests(doc *html.Node, config *cliconfig.CLIConfig, entryDir st
 			return errorEndResult(err)
 		}
 		if config.OneFile {
-			dataURI := "data:application/manifest+json;base64," + base64.StdEncoding.EncodeToString(manifestBin)
+			dataURI := "data:application/manifest+json;base64," +
+				base64.StdEncoding.EncodeToString(manifestBin)
 			htmlparser.SetNodeAttr(node, "href", dataURI)
 			continue
 		}
-		if err := os.WriteFile(filepath.Join(config.OutDir, filename), manifestBin, 0o644); err != nil {
+		if err := os.WriteFile(
+			filepath.Join(config.OutDir, filename),
+			manifestBin,
+			0o644,
+		); err != nil {
 			return errorEndResult(err)
 		}
 		htmlparser.SetNodeAttr(node, "href", filename)
@@ -180,7 +216,10 @@ func transformManifests(doc *html.Node, config *cliconfig.CLIConfig, entryDir st
 	return api.OnEndResult{}
 }
 
-func transformScripts(doc *html.Node, config *cliconfig.CLIConfig) api.OnEndResult {
+func transformScripts(
+	doc *html.Node,
+	config *cliconfig.CLIConfig,
+) api.OnEndResult {
 	for _, node := range htmlparser.QueryTag(doc, "script") {
 		src := htmlparser.NodeAttr(node, "src")
 		if src == "" || htmlparser.NodeAttr(node, "type") != "module" {
@@ -206,7 +245,10 @@ func transformScripts(doc *html.Node, config *cliconfig.CLIConfig) api.OnEndResu
 	return api.OnEndResult{}
 }
 
-func transformStylesheets(doc *html.Node, config *cliconfig.CLIConfig) api.OnEndResult {
+func transformStylesheets(
+	doc *html.Node,
+	config *cliconfig.CLIConfig,
+) api.OnEndResult {
 	for _, node := range htmlparser.QueryTag(doc, "link") {
 		if htmlparser.NodeAttr(node, "rel") != "stylesheet" {
 			continue

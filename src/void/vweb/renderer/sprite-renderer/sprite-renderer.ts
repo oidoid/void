@@ -2,6 +2,7 @@ import {
   spriteAnimIDOffset,
   spriteCelOffset,
   spriteStride,
+  spriteWHOffset,
   spriteZOffset
 } from '../../engine/layout.ts'
 import {buildProgram} from '../gl.ts'
@@ -99,10 +100,21 @@ export class SpriteRenderer {
     )
     gl.vertexAttribDivisor(2, 1)
 
-    // aZ as uint.
+    // aZ as uint8.
     gl.enableVertexAttribArray(3)
-    gl.vertexAttribIPointer(3, 1, gl.UNSIGNED_INT, spriteStride, spriteZOffset)
+    gl.vertexAttribIPointer(3, 1, gl.UNSIGNED_BYTE, spriteStride, spriteZOffset)
     gl.vertexAttribDivisor(3, 1)
+
+    // aWH (uvec2 of uint16).
+    gl.enableVertexAttribArray(4)
+    gl.vertexAttribIPointer(
+      4,
+      2,
+      gl.UNSIGNED_SHORT,
+      spriteStride,
+      spriteWHOffset
+    )
+    gl.vertexAttribDivisor(4, 1)
 
     gl.bindVertexArray(null)
 

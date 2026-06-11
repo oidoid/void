@@ -98,7 +98,9 @@ func stripJSONC(bin []byte) []byte {
 // 	if err != nil {
 // 		return err
 // 	}
-// 	schemaAny, err := jsonschema.UnmarshalJSON(bytes.NewReader(schemas.VoidSchemaBytes))
+// 	schemaAny, err := jsonschema.UnmarshalJSON(
+// 		bytes.NewReader(schemas.VoidSchemaBytes),
+// 	)
 // 	if err != nil {
 // 		return err
 // 	}

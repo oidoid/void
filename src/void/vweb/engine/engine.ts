@@ -3,17 +3,21 @@ import {
   canvasHOffset,
   canvasWOffset,
   deltaMsOffset,
+  drawMsOffset,
+  isFullscreenOffset,
   nowMsOffset,
   updateByteLen
 } from '../input/layout.ts'
 import {Renderer} from '../renderer/renderer.ts'
 import {initCanvas} from '../utils/canvas-util.ts'
 import {initBody} from '../utils/dom-util.ts'
+import {isFullscreen} from '../utils/fullscreen-util.ts'
 import {LoopLoop, type Platform} from './platform.ts'
 import {WASI} from './wasi.ts'
 
 export class Engine {
   #canvas!: HTMLCanvasElement
+  #drawMs: number = 0
   #frame!: DataView
   #input!: Input
   #lastTime: number = 0
@@ -81,6 +85,7 @@ export class Engine {
       this.#rafId = 0
       this.#lastTime = 0
     }
+    const drawStart = performance.now()
     this.#renderer.draw(
       this.#wasm.memory.buffer,
       this.#wasm.SpritePointer(),
@@ -88,6 +93,7 @@ export class Engine {
       this.#wasm.CamX(),
       this.#wasm.CamY()
     )
+    this.#drawMs = performance.now() - drawStart
   }
 
   #requestUpdate(): void {
@@ -153,6 +159,8 @@ export class Engine {
     this.#frame.setFloat64(nowMsOffset, performance.timeOrigin + now, true)
     this.#frame.setUint16(canvasWOffset, this.#renderer.canvasW, true)
     this.#frame.setUint16(canvasHOffset, this.#renderer.canvasH, true)
+    this.#frame.setUint8(isFullscreenOffset, isFullscreen() ? 1 : 0)
+    this.#frame.setFloat64(drawMsOffset, this.#drawMs, true)
     this.#input.update(this.#frame)
     this.#input.postupdate() // to-do: move to postupdate()?
     this.#lastTime = now

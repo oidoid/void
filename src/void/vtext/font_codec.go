@@ -7,7 +7,11 @@ import (
 
 // encodes a JSON kerning map to a flat byte slice `[l, r, kern, …]`,
 // filtering entries that match the default kerning values.
-func EncodeKerning(kerning map[string]int, defaultKerning, defaultWhitespaceKerning int) []byte {
+func EncodeKerning(
+	kerning map[string]int,
+	defaultKerning int,
+	defaultWhitespaceKerning int,
+) []byte {
 	pairs := make(map[[2]byte]int8, len(kerning))
 	for k, v := range kerning {
 		l, size := utf8.DecodeRuneInString(k)

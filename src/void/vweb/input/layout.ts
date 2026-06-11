@@ -35,5 +35,9 @@ export const nowMsOffset: number = deltaMsOffset + 8
 export const canvasWOffset: number = nowMsOffset + 8
 /** byte offset of CanvasH field within Update (CSS logical px). */
 export const canvasHOffset: number = canvasWOffset + 2
+/** byte offset of Fullscreen field within Update. */
+export const isFullscreenOffset: number = canvasHOffset + 2
+/** byte offset of DrawMs field within Update (7 bytes padding after bool). */
+export const drawMsOffset: number = isFullscreenOffset + 8
 /** total byte size of the Update struct. */
-export const updateByteLen: number = canvasHOffset + 2
+export const updateByteLen: number = drawMsOffset + 8

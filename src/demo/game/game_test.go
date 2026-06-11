@@ -40,7 +40,11 @@ func newGame(camX, camY float32) *engine.Engine {
 	gam.Cam().Y = camY
 	gam.Frame().DeltaMs = 1000. / fps
 	for i := range superballCount {
-		ball := entdata.NewBallEnt(gam.Random, float32(i%benchCanvasSize), float32(i/benchCanvasSize))
+		ball := entdata.NewBallEnt(
+			gam.Random,
+			float32(i%benchCanvasSize),
+			float32(i/benchCanvasSize),
+		)
 		gam.Balls.Add(ball)
 	}
 	return gam

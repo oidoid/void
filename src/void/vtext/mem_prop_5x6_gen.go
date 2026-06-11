@@ -1614,6 +1614,8 @@ var MemProp5x6 = decodeFont(&Font{
 	122,
 	0,
 }, []byte{
+	0,
+	1,
 	10,
 	0,
 	32,

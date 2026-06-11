@@ -70,7 +70,8 @@ func (this *Vec[V]) free(handle Handle) {
 	this.vals[victim] = this.vals[last]
 	this.slotIndexByValIndex[victim] = this.slotIndexByValIndex[last]
 	if victim != last {
-		this.slots[this.slotIndexByValIndex[victim]] = this.slots[this.slotIndexByValIndex[victim]].withValIndex(victim)
+		this.slots[this.slotIndexByValIndex[victim]] =
+			this.slots[this.slotIndexByValIndex[victim]].withValIndex(victim)
 	}
 
 	this.slotIndexByValIndex[last] = handle.slotIndex()

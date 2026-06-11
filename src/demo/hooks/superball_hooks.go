@@ -12,7 +12,10 @@ import (
 
 // const maxBallWallHits = 3
 
-func UpdateSuperballs(ents *vvec.Vec[entdata.BallEnt], gam *engine.Engine) vgame.Status {
+func UpdateSuperballs(
+	ents *vvec.Vec[entdata.BallEnt],
+	gam *engine.Engine,
+) vgame.Status {
 	anim := gam.Atlas.Anims[int(assets.SuperballDefault)]
 	radius := float32(anim.W) / 2
 	batch := gam.BeginDraw()
@@ -25,7 +28,7 @@ func UpdateSuperballs(ents *vvec.Vec[entdata.BallEnt], gam *engine.Engine) vgame
 			n := len(batch.Sprites)
 			batch.Sprites = batch.Sprites[:n+1]
 			batch.Sprites[n] = vgfx.Sprite{
-				XY: ball.XY, AnimID: assets.SuperballDefault, Z: ball.Z,
+				AnimID: assets.SuperballDefault, XY: ball.XY,
 			}
 		}
 		// if updateBall(ball, lvl) {
@@ -40,7 +43,11 @@ func UpdateSuperballs(ents *vvec.Vec[entdata.BallEnt], gam *engine.Engine) vgame
 	return vgame.Loop
 }
 
-func updateSuperball(ent *entdata.BallEnt, lvl vmath.Box[float32], radius float32) bool {
+func updateSuperball(
+	ent *entdata.BallEnt,
+	lvl vmath.Box[float32],
+	radius float32,
+) bool {
 	diameter := radius * 2
 	ent.X += ent.D.X
 	ent.Y += ent.D.Y

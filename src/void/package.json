@@ -2,6 +2,6 @@
   "private": true,
   "type": "module",
   "devDependencies": {
-    "mem-font": "11.0.0-10"
+    "mem-font": "11.0.0-11"
   }
 }

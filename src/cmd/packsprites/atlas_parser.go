@@ -61,7 +61,9 @@ func intAbs(x int) int {
 }
 
 func parseAnim(
-	name string, frames []vatlas.AseFrame, slices []vatlas.AseSlice,
+	name string,
+	frames []vatlas.AseFrame,
+	slices []vatlas.AseSlice,
 ) (vatlas.Anim, error) {
 	if len(frames) == 0 {
 		return vatlas.Anim{}, fmt.Errorf("no atlas frame %q", name)
@@ -84,7 +86,8 @@ func parseAnim(
 // period is defined for the direction. no warns for overflowing past on second
 // or uneven periods.
 func parseAnimFrames(
-	span vatlas.AseTagSpan, frameMap map[string]vatlas.AseFrame,
+	span vatlas.AseTagSpan,
+	frameMap map[string]vatlas.AseFrame,
 ) ([]vatlas.AseFrame, error) {
 	var frames []vatlas.AseFrame
 	animDuration := 0
@@ -141,7 +144,8 @@ func parseCel(frame vatlas.AseFrame) vmath.XY[uint16] {
 }
 
 func parseHitboxes(
-	name string, slices []vatlas.AseSlice,
+	name string,
+	slices []vatlas.AseSlice,
 ) (vmath.Box[uint16], vmath.Box[uint16], error) {
 	var hitbox, hurtbox vmath.Box[uint16]
 	for _, slice := range slices {
@@ -151,14 +155,23 @@ func parseHitboxes(
 		first := slice.Keys[0].Bounds
 		for _, k := range slice.Keys {
 			if k.Bounds != first {
-				return vmath.Box[uint16]{}, vmath.Box[uint16]{}, fmt.Errorf("atlas tag %q hitbox bounds varies across frames", name)
+				return vmath.Box[uint16]{}, vmath.Box[uint16]{},
+					fmt.Errorf(
+						"atlas tag %q hitbox bounds varies across frames",
+						name,
+					)
 			}
 		}
 		red := slice.Color == "#ff0000ff"
 		green := slice.Color == "#00ff00ff"
 		blue := slice.Color == "#0000ffff"
 		if !red && !green && !blue {
-			return vmath.Box[uint16]{}, vmath.Box[uint16]{}, fmt.Errorf("atlas tag %q hitbox color %s unsupported", name, slice.Color)
+			return vmath.Box[uint16]{}, vmath.Box[uint16]{},
+				fmt.Errorf(
+					"atlas tag %q hitbox color %s unsupported",
+					name,
+					slice.Color,
+				)
 		}
 		var zero vmath.Box[uint16]
 		if hitbox != zero && (red || blue) {
@@ -167,7 +180,12 @@ func parseHitboxes(
 		if hurtbox != zero && (green || blue) {
 			return zero, zero, fmt.Errorf("atlas tag %q has multiple hurtboxes", name)
 		}
-		box := vmath.XYWH(uint16(first.X), uint16(first.Y), uint16(first.W), uint16(first.H))
+		box := vmath.XYWH(
+			uint16(first.X),
+			uint16(first.Y),
+			uint16(first.W),
+			uint16(first.H),
+		)
 		if red || blue {
 			hitbox = box
 		}
@@ -180,7 +198,9 @@ func parseHitboxes(
 
 func parseTag(name string) (string, error) {
 	if !strings.Contains(name, "--") {
-		return "", fmt.Errorf("atlas tag %q not in <filestem>--<animation> format", name)
+		return "", fmt.Errorf(
+			"atlas tag %q not in <filestem>--<animation> format", name,
+		)
 	}
 	return name, nil
 }

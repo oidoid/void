@@ -27,7 +27,7 @@ func TestLayoutText(t *testing.T) {
 			str: "",
 			w:   maxW,
 			expected: TextLayout{
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 0, Y: 7}},
+				WH:       vmath.WH[int16]{W: 0, H: 7},
 				Chars:    nil,
 				Cursor:   vmath.NewXY[int16](0, 0*lH),
 				TrimmedH: 0,
@@ -38,7 +38,7 @@ func TestLayoutText(t *testing.T) {
 			str: " ",
 			w:   maxW,
 			expected: TextLayout{
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 0, Y: 7}},
+				WH:       vmath.WH[int16]{W: 0, H: 7},
 				Chars:    []vmath.Box[int16]{zero},
 				Cursor:   vmath.NewXY[int16](4, 0*lH),
 				TrimmedH: 5,
@@ -49,7 +49,7 @@ func TestLayoutText(t *testing.T) {
 			str: "\n",
 			w:   maxW,
 			expected: TextLayout{
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 0, Y: 14}},
+				WH:       vmath.WH[int16]{W: 0, H: 14},
 				Chars:    []vmath.Box[int16]{zero},
 				Cursor:   vmath.NewXY[int16](0, 1*lH),
 				TrimmedH: 7,
@@ -67,7 +67,7 @@ func TestLayoutText(t *testing.T) {
 					XYWH(37, 0*lH, 3, cH), XYWH(41, 0*lH, 3, cH), XYWH(45, 0*lH, 1, cH), zero,
 					XYWH(48, 0*lH, 5, cH), XYWH(54, 0*lH, 3, cH), XYWH(58, 0*lH, 3, cH),
 				},
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 61, Y: 7}},
+				WH:       vmath.WH[int16]{W: 61, H: 7},
 				Cursor:   vmath.NewXY[int16](61, 0*lH),
 				TrimmedH: 6,
 			},
@@ -84,7 +84,7 @@ func TestLayoutText(t *testing.T) {
 					XYWH(0, 3*lH, 3, cH), XYWH(4, 3*lH, 3, cH), XYWH(8, 3*lH, 1, cH), zero,
 					XYWH(0, 4*lH, 5, cH), XYWH(6, 4*lH, 3, cH), XYWH(0, 5*lH, 3, cH),
 				},
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 10, Y: 42}},
+				WH:       vmath.WH[int16]{W: 10, H: 42},
 				Cursor:   vmath.NewXY[int16](3, 5*lH),
 				TrimmedH: 40,
 			},
@@ -101,7 +101,7 @@ func TestLayoutText(t *testing.T) {
 					XYWH(11, 2*lH, 3, cH), XYWH(15, 2*lH, 3, cH), XYWH(19, 2*lH, 1, cH), zero,
 					XYWH(0, 3*lH, 5, cH), XYWH(6, 3*lH, 3, cH), XYWH(10, 3*lH, 3, cH),
 				},
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 19, Y: 28}},
+				WH:       vmath.WH[int16]{W: 19, H: 28},
 				Cursor:   vmath.NewXY[int16](13, 3*lH),
 				TrimmedH: 26,
 			},
@@ -118,7 +118,7 @@ func TestLayoutText(t *testing.T) {
 					XYWH(0, 2*lH, 3, cH), XYWH(4, 2*lH, 3, cH), XYWH(8, 2*lH, 1, cH), zero,
 					XYWH(0, 3*lH, 5, cH), XYWH(6, 3*lH, 3, cH), XYWH(10, 3*lH, 3, cH),
 				},
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 21, Y: 28}},
+				WH:       vmath.WH[int16]{W: 21, H: 28},
 				Cursor:   vmath.NewXY[int16](13, 3*lH),
 				TrimmedH: 27,
 			},
@@ -132,7 +132,7 @@ func TestLayoutText(t *testing.T) {
 					XYWH(0, 0*lH, 3, cH), zero, zero,
 					XYWH(0, 2*lH, 3, cH),
 				},
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 3, Y: 21}},
+				WH:       vmath.WH[int16]{W: 3, H: 21},
 				Cursor:   vmath.NewXY[int16](3, 2*lH),
 				TrimmedH: 19,
 			},
@@ -146,7 +146,7 @@ func TestLayoutText(t *testing.T) {
 					XYWH(0, 0*lH, 3, cH), zero, zero,
 					XYWH(0, 2*lH, 3, cH), zero,
 				},
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 2, Y: 28}},
+				WH:       vmath.WH[int16]{W: 2, H: 28},
 				Cursor:   vmath.NewXY[int16](0, 3*lH),
 				TrimmedH: 26,
 			},
@@ -157,7 +157,7 @@ func TestLayoutText(t *testing.T) {
 			w:   3,
 			expected: TextLayout{
 				Chars:    []vmath.Box[int16]{XYWH(0, 0*lH, 3, cH), zero},
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 3, Y: 14}},
+				WH:       vmath.WH[int16]{W: 3, H: 14},
 				Cursor:   vmath.NewXY[int16](0, 1*lH),
 				TrimmedH: 7,
 			},
@@ -181,7 +181,7 @@ func TestLayoutText(t *testing.T) {
 					XYWH(29, 0*lH, 3, cH), // d
 					XYWH(33, 0*lH, 1, cH), // !
 				},
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 34, Y: 7}},
+				WH:       vmath.WH[int16]{W: 34, H: 7},
 				Cursor:   vmath.NewXY[int16](34, 0*lH),
 				TrimmedH: 6,
 			},
@@ -189,7 +189,8 @@ func TestLayoutText(t *testing.T) {
 	}
 
 	for i, tc := range cases {
-		t.Run(fmt.Sprintf("Case %d: str=%q w=%v", i, tc.str, tc.w), func(t *testing.T) {
+		name := fmt.Sprintf("Case %d: str=%q w=%v", i, tc.str, tc.w)
+		t.Run(name, func(t *testing.T) {
 			got := LayoutText(TextLayoutOpts{Font: font, Text: tc.str, MaxW: tc.w})
 			assertLayout(t, got, tc.expected)
 		})
@@ -213,17 +214,29 @@ func TestLayoutWord(t *testing.T) {
 		// case 0: space at start → no chars
 		{
 			xy: vmath.NewXY[int16](0, 0*lH), maxW: maxW, str: " ", index: 0,
-			expected: TextLayout{Chars: nil, Cursor: vmath.NewXY[int16](0, 0*lH), Box: vmath.Box[int16]{}},
+			expected: TextLayout{
+				Chars:  nil,
+				Cursor: vmath.NewXY[int16](0, 0*lH),
+				WH:     vmath.WH[int16]{},
+			},
 		},
 		// case 1: empty string
 		{
 			xy: vmath.NewXY[int16](0, 0*lH), maxW: maxW, str: "", index: 0,
-			expected: TextLayout{Chars: nil, Cursor: vmath.NewXY[int16](0, 0*lH), Box: vmath.Box[int16]{}},
+			expected: TextLayout{
+				Chars:  nil,
+				Cursor: vmath.NewXY[int16](0, 0*lH),
+				WH:     vmath.WH[int16]{},
+			},
 		},
 		// case 2: newline at start → no chars
 		{
 			xy: vmath.NewXY[int16](0, 0*lH), maxW: maxW, str: "\n", index: 0,
-			expected: TextLayout{Chars: nil, Cursor: vmath.NewXY[int16](0, 0*lH), Box: vmath.Box[int16]{}},
+			expected: TextLayout{
+				Chars:  nil,
+				Cursor: vmath.NewXY[int16](0, 0*lH),
+				WH:     vmath.WH[int16]{},
+			},
 		},
 		// case 3: "a"
 		{
@@ -232,7 +245,7 @@ func TestLayoutWord(t *testing.T) {
 				Chars:    []vmath.Box[int16]{XYWH(0, 0*lH, 3, cH)},
 				Cursor:   vmath.NewXY[int16](3, 0*lH),
 				TrimmedH: 5,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 3}},
+				WH:       vmath.WH[int16]{W: 3},
 			},
 		},
 		// case 4: "."
@@ -242,7 +255,7 @@ func TestLayoutWord(t *testing.T) {
 				Chars:    []vmath.Box[int16]{XYWH(0, 0*lH, 1, cH)},
 				Cursor:   vmath.NewXY[int16](1, 0*lH),
 				TrimmedH: 5,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 1}},
+				WH:       vmath.WH[int16]{W: 1},
 			},
 		},
 		// case 5: "a " → only 'a', space stops word
@@ -252,7 +265,7 @@ func TestLayoutWord(t *testing.T) {
 				Chars:    []vmath.Box[int16]{XYWH(0, 0*lH, 3, cH)},
 				Cursor:   vmath.NewXY[int16](2, 0*lH),
 				TrimmedH: 5,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 2}},
+				WH:       vmath.WH[int16]{W: 2},
 			},
 		},
 		// case 6: "a\n" → only 'a', newline stops word
@@ -262,7 +275,7 @@ func TestLayoutWord(t *testing.T) {
 				Chars:    []vmath.Box[int16]{XYWH(0, 0*lH, 3, cH)},
 				Cursor:   vmath.NewXY[int16](3, 0*lH),
 				TrimmedH: 5,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 3}},
+				WH:       vmath.WH[int16]{W: 3},
 			},
 		},
 		// case 7: "a a" → only first 'a'
@@ -272,7 +285,7 @@ func TestLayoutWord(t *testing.T) {
 				Chars:    []vmath.Box[int16]{XYWH(0, 0*lH, 3, cH)},
 				Cursor:   vmath.NewXY[int16](2, 0*lH),
 				TrimmedH: 5,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 2}},
+				WH:       vmath.WH[int16]{W: 2},
 			},
 		},
 		// case 8: "a."
@@ -282,7 +295,7 @@ func TestLayoutWord(t *testing.T) {
 				Chars:    []vmath.Box[int16]{XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 1, cH)},
 				Cursor:   vmath.NewXY[int16](5, 0*lH),
 				TrimmedH: 5,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 5}},
+				WH:       vmath.WH[int16]{W: 5},
 			},
 		},
 		// case 9: "aa"
@@ -292,7 +305,7 @@ func TestLayoutWord(t *testing.T) {
 				Chars:    []vmath.Box[int16]{XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 3, cH)},
 				Cursor:   vmath.NewXY[int16](7, 0*lH),
 				TrimmedH: 5,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 7}},
+				WH:       vmath.WH[int16]{W: 7},
 			},
 		},
 		// case 10: "aa\n"
@@ -302,7 +315,7 @@ func TestLayoutWord(t *testing.T) {
 				Chars:    []vmath.Box[int16]{XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 3, cH)},
 				Cursor:   vmath.NewXY[int16](7, 0*lH),
 				TrimmedH: 5,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 7}},
+				WH:       vmath.WH[int16]{W: 7},
 			},
 		},
 		// case 11: "aa aa" → stops at space
@@ -312,7 +325,7 @@ func TestLayoutWord(t *testing.T) {
 				Chars:    []vmath.Box[int16]{XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 3, cH)},
 				Cursor:   vmath.NewXY[int16](6, 0*lH),
 				TrimmedH: 5,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 6}},
+				WH:       vmath.WH[int16]{W: 6},
 			},
 		},
 		// case 12: "g" (descends)
@@ -322,7 +335,7 @@ func TestLayoutWord(t *testing.T) {
 				Chars:    []vmath.Box[int16]{XYWH(0, 0*lH, 3, cH)},
 				Cursor:   vmath.NewXY[int16](3, 0*lH),
 				TrimmedH: 6,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 3}},
+				WH:       vmath.WH[int16]{W: 3},
 			},
 		},
 		// case 13: "abcdefgh" full word, maxW=unlimited, index=0
@@ -330,12 +343,14 @@ func TestLayoutWord(t *testing.T) {
 			xy: vmath.NewXY[int16](0, 0*lH), maxW: maxW, str: "abcdefgh", index: 0,
 			expected: TextLayout{
 				Chars: []vmath.Box[int16]{
-					XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 3, cH), XYWH(8, 0*lH, 3, cH), XYWH(12, 0*lH, 3, cH),
-					XYWH(16, 0*lH, 3, cH), XYWH(20, 0*lH, 3, cH), XYWH(24, 0*lH, 3, cH), XYWH(28, 0*lH, 3, cH),
+					XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 3, cH),
+					XYWH(8, 0*lH, 3, cH), XYWH(12, 0*lH, 3, cH),
+					XYWH(16, 0*lH, 3, cH), XYWH(20, 0*lH, 3, cH),
+					XYWH(24, 0*lH, 3, cH), XYWH(28, 0*lH, 3, cH),
 				},
 				Cursor:   vmath.NewXY[int16](31, 0*lH),
 				TrimmedH: 6,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 31}},
+				WH:       vmath.WH[int16]{W: 31},
 			},
 		},
 		// case 14: "abcdefgh" index=1 → starts at 'b'
@@ -343,30 +358,38 @@ func TestLayoutWord(t *testing.T) {
 			xy: vmath.NewXY[int16](0, 0*lH), maxW: maxW, str: "abcdefgh", index: 1,
 			expected: TextLayout{
 				Chars: []vmath.Box[int16]{
-					XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 3, cH), XYWH(8, 0*lH, 3, cH), XYWH(12, 0*lH, 3, cH),
-					XYWH(16, 0*lH, 3, cH), XYWH(20, 0*lH, 3, cH), XYWH(24, 0*lH, 3, cH),
+					XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 3, cH),
+					XYWH(8, 0*lH, 3, cH), XYWH(12, 0*lH, 3, cH),
+					XYWH(16, 0*lH, 3, cH), XYWH(20, 0*lH, 3, cH),
+					XYWH(24, 0*lH, 3, cH),
 				},
 				Cursor:   vmath.NewXY[int16](27, 0*lH),
 				TrimmedH: 6,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 27}},
+				WH:       vmath.WH[int16]{W: 27},
 			},
 		},
 		// case 15: "abcdefgh" index=8 → past end
 		{
 			xy: vmath.NewXY[int16](0, 0*lH), maxW: maxW, str: "abcdefgh", index: 8,
-			expected: TextLayout{Chars: nil, Cursor: vmath.NewXY[int16](0, 0*lH), Box: vmath.Box[int16]{}},
+			expected: TextLayout{
+				Chars:  nil,
+				Cursor: vmath.NewXY[int16](0, 0*lH),
+				WH:     vmath.WH[int16]{},
+			},
 		},
 		// case 16: "abcdefgh" maxW=0, index=0 → each char wraps
 		{
 			xy: vmath.NewXY[int16](0, 0*lH), maxW: 0, str: "abcdefgh", index: 0,
 			expected: TextLayout{
 				Chars: []vmath.Box[int16]{
-					XYWH(0, 0*lH, 3, cH), XYWH(0, 1*lH, 3, cH), XYWH(0, 2*lH, 3, cH), XYWH(0, 3*lH, 3, cH),
-					XYWH(0, 4*lH, 3, cH), XYWH(0, 5*lH, 3, cH), XYWH(0, 6*lH, 3, cH), XYWH(0, 7*lH, 3, cH),
+					XYWH(0, 0*lH, 3, cH), XYWH(0, 1*lH, 3, cH),
+					XYWH(0, 2*lH, 3, cH), XYWH(0, 3*lH, 3, cH),
+					XYWH(0, 4*lH, 3, cH), XYWH(0, 5*lH, 3, cH),
+					XYWH(0, 6*lH, 3, cH), XYWH(0, 7*lH, 3, cH),
 				},
 				Cursor:   vmath.NewXY[int16](3, 7*lH),
 				TrimmedH: 5,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 4}},
+				WH:       vmath.WH[int16]{W: 4},
 			},
 		},
 		// case 17: "abcdefgh" maxW=1, index=0 → each char wraps
@@ -374,12 +397,14 @@ func TestLayoutWord(t *testing.T) {
 			xy: vmath.NewXY[int16](0, 0*lH), maxW: 1, str: "abcdefgh", index: 0,
 			expected: TextLayout{
 				Chars: []vmath.Box[int16]{
-					XYWH(0, 0*lH, 3, cH), XYWH(0, 1*lH, 3, cH), XYWH(0, 2*lH, 3, cH), XYWH(0, 3*lH, 3, cH),
-					XYWH(0, 4*lH, 3, cH), XYWH(0, 5*lH, 3, cH), XYWH(0, 6*lH, 3, cH), XYWH(0, 7*lH, 3, cH),
+					XYWH(0, 0*lH, 3, cH), XYWH(0, 1*lH, 3, cH),
+					XYWH(0, 2*lH, 3, cH), XYWH(0, 3*lH, 3, cH),
+					XYWH(0, 4*lH, 3, cH), XYWH(0, 5*lH, 3, cH),
+					XYWH(0, 6*lH, 3, cH), XYWH(0, 7*lH, 3, cH),
 				},
 				Cursor:   vmath.NewXY[int16](3, 7*lH),
 				TrimmedH: 5,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 4}},
+				WH:       vmath.WH[int16]{W: 4},
 			},
 		},
 		// case 18: "abcdefgh" maxW=3, index=0
@@ -387,12 +412,14 @@ func TestLayoutWord(t *testing.T) {
 			xy: vmath.NewXY[int16](0, 0*lH), maxW: 3, str: "abcdefgh", index: 0,
 			expected: TextLayout{
 				Chars: []vmath.Box[int16]{
-					XYWH(0, 0*lH, 3, cH), XYWH(0, 1*lH, 3, cH), XYWH(0, 2*lH, 3, cH), XYWH(0, 3*lH, 3, cH),
-					XYWH(0, 4*lH, 3, cH), XYWH(0, 5*lH, 3, cH), XYWH(0, 6*lH, 3, cH), XYWH(0, 7*lH, 3, cH),
+					XYWH(0, 0*lH, 3, cH), XYWH(0, 1*lH, 3, cH),
+					XYWH(0, 2*lH, 3, cH), XYWH(0, 3*lH, 3, cH),
+					XYWH(0, 4*lH, 3, cH), XYWH(0, 5*lH, 3, cH),
+					XYWH(0, 6*lH, 3, cH), XYWH(0, 7*lH, 3, cH),
 				},
 				Cursor:   vmath.NewXY[int16](3, 7*lH),
 				TrimmedH: 5,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 4}},
+				WH:       vmath.WH[int16]{W: 4},
 			},
 		},
 		// case 19: "abcdefgh" maxW=5, index=0
@@ -400,12 +427,14 @@ func TestLayoutWord(t *testing.T) {
 			xy: vmath.NewXY[int16](0, 0*lH), maxW: 5, str: "abcdefgh", index: 0,
 			expected: TextLayout{
 				Chars: []vmath.Box[int16]{
-					XYWH(0, 0*lH, 3, cH), XYWH(0, 1*lH, 3, cH), XYWH(0, 2*lH, 3, cH), XYWH(0, 3*lH, 3, cH),
-					XYWH(0, 4*lH, 3, cH), XYWH(0, 5*lH, 3, cH), XYWH(0, 6*lH, 3, cH), XYWH(0, 7*lH, 3, cH),
+					XYWH(0, 0*lH, 3, cH), XYWH(0, 1*lH, 3, cH),
+					XYWH(0, 2*lH, 3, cH), XYWH(0, 3*lH, 3, cH),
+					XYWH(0, 4*lH, 3, cH), XYWH(0, 5*lH, 3, cH),
+					XYWH(0, 6*lH, 3, cH), XYWH(0, 7*lH, 3, cH),
 				},
 				Cursor:   vmath.NewXY[int16](3, 7*lH),
 				TrimmedH: 5,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 4}},
+				WH:       vmath.WH[int16]{W: 4},
 			},
 		},
 		// case 20: "abcdefgh" maxW=6, index=0
@@ -413,12 +442,14 @@ func TestLayoutWord(t *testing.T) {
 			xy: vmath.NewXY[int16](0, 0*lH), maxW: 6, str: "abcdefgh", index: 0,
 			expected: TextLayout{
 				Chars: []vmath.Box[int16]{
-					XYWH(0, 0*lH, 3, cH), XYWH(0, 1*lH, 3, cH), XYWH(0, 2*lH, 3, cH), XYWH(0, 3*lH, 3, cH),
-					XYWH(0, 4*lH, 3, cH), XYWH(0, 5*lH, 3, cH), XYWH(0, 6*lH, 3, cH), XYWH(0, 7*lH, 3, cH),
+					XYWH(0, 0*lH, 3, cH), XYWH(0, 1*lH, 3, cH),
+					XYWH(0, 2*lH, 3, cH), XYWH(0, 3*lH, 3, cH),
+					XYWH(0, 4*lH, 3, cH), XYWH(0, 5*lH, 3, cH),
+					XYWH(0, 6*lH, 3, cH), XYWH(0, 7*lH, 3, cH),
 				},
 				Cursor:   vmath.NewXY[int16](3, 7*lH),
 				TrimmedH: 5,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 4}},
+				WH:       vmath.WH[int16]{W: 4},
 			},
 		},
 		// case 21: "abcdefgh" maxW=7, index=0 → fits 2 per row starting at 7
@@ -426,12 +457,14 @@ func TestLayoutWord(t *testing.T) {
 			xy: vmath.NewXY[int16](0, 0*lH), maxW: 7, str: "abcdefgh", index: 0,
 			expected: TextLayout{
 				Chars: []vmath.Box[int16]{
-					XYWH(0, 0*lH, 3, cH), XYWH(0, 1*lH, 3, cH), XYWH(0, 2*lH, 3, cH), XYWH(0, 3*lH, 3, cH),
-					XYWH(0, 4*lH, 3, cH), XYWH(0, 5*lH, 3, cH), XYWH(0, 6*lH, 3, cH), XYWH(4, 6*lH, 3, cH),
+					XYWH(0, 0*lH, 3, cH), XYWH(0, 1*lH, 3, cH),
+					XYWH(0, 2*lH, 3, cH), XYWH(0, 3*lH, 3, cH),
+					XYWH(0, 4*lH, 3, cH), XYWH(0, 5*lH, 3, cH),
+					XYWH(0, 6*lH, 3, cH), XYWH(4, 6*lH, 3, cH),
 				},
 				Cursor:   vmath.NewXY[int16](7, 6*lH),
 				TrimmedH: 6,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 7}},
+				WH:       vmath.WH[int16]{W: 7},
 			},
 		},
 		// case 22: "abcdefgh" maxW=8, index=0 → 2 per row
@@ -446,7 +479,7 @@ func TestLayoutWord(t *testing.T) {
 				},
 				Cursor:   vmath.NewXY[int16](7, 3*lH),
 				TrimmedH: 6,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 8}},
+				WH:       vmath.WH[int16]{W: 8},
 			},
 		},
 		// case 23: "abcdefgh" maxW=9, index=0 → 2 per row
@@ -461,7 +494,7 @@ func TestLayoutWord(t *testing.T) {
 				},
 				Cursor:   vmath.NewXY[int16](7, 3*lH),
 				TrimmedH: 6,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 8}},
+				WH:       vmath.WH[int16]{W: 8},
 			},
 		},
 		// case 24: "abcdefgh" maxW=10, index=0 → 2 per row
@@ -476,7 +509,7 @@ func TestLayoutWord(t *testing.T) {
 				},
 				Cursor:   vmath.NewXY[int16](7, 3*lH),
 				TrimmedH: 6,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 8}},
+				WH:       vmath.WH[int16]{W: 8},
 			},
 		},
 		// case 25: "abcdefgh" maxW=11, index=0 → 2 per row
@@ -491,7 +524,7 @@ func TestLayoutWord(t *testing.T) {
 				},
 				Cursor:   vmath.NewXY[int16](7, 3*lH),
 				TrimmedH: 6,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 8}},
+				WH:       vmath.WH[int16]{W: 8},
 			},
 		},
 		// case 26: "abcdefgh" maxW=12, index=0 → 3 per row
@@ -505,7 +538,7 @@ func TestLayoutWord(t *testing.T) {
 				},
 				Cursor:   vmath.NewXY[int16](7, 2*lH),
 				TrimmedH: 6,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 12}},
+				WH:       vmath.WH[int16]{W: 12},
 			},
 		},
 		// case 27: "abcdefgh" maxW=5, xy={1,0}, index=0 → first fits, rest wrap
@@ -515,24 +548,28 @@ func TestLayoutWord(t *testing.T) {
 				Chars: []vmath.Box[int16]{
 					XYWH(1, 0*lH, 3, cH),
 					XYWH(0, 1*lH, 3, cH), XYWH(0, 2*lH, 3, cH), XYWH(0, 3*lH, 3, cH),
-					XYWH(0, 4*lH, 3, cH), XYWH(0, 5*lH, 3, cH), XYWH(0, 6*lH, 3, cH), XYWH(0, 7*lH, 3, cH),
+					XYWH(0, 4*lH, 3, cH), XYWH(0, 5*lH, 3, cH),
+					XYWH(0, 6*lH, 3, cH), XYWH(0, 7*lH, 3, cH),
 				},
 				Cursor:   vmath.NewXY[int16](3, 7*lH),
 				TrimmedH: 5,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 5}},
+				WH:       vmath.WH[int16]{W: 5},
 			},
 		},
-		// case 28: "abcdefgh" maxW=5, xy={2,0}, index=0 → first doesn't fit, all on new lines
+		// case 28: "abcdefgh" maxW=5, xy={2,0}, index=0 →
+		// first doesn't fit, all on new lines
 		{
 			xy: vmath.NewXY[int16](2, 0*lH), maxW: 5, str: "abcdefgh", index: 0,
 			expected: TextLayout{
 				Chars: []vmath.Box[int16]{
-					XYWH(0, 1*lH, 3, cH), XYWH(0, 2*lH, 3, cH), XYWH(0, 3*lH, 3, cH), XYWH(0, 4*lH, 3, cH),
-					XYWH(0, 5*lH, 3, cH), XYWH(0, 6*lH, 3, cH), XYWH(0, 7*lH, 3, cH), XYWH(0, 8*lH, 3, cH),
+					XYWH(0, 1*lH, 3, cH), XYWH(0, 2*lH, 3, cH),
+					XYWH(0, 3*lH, 3, cH), XYWH(0, 4*lH, 3, cH),
+					XYWH(0, 5*lH, 3, cH), XYWH(0, 6*lH, 3, cH),
+					XYWH(0, 7*lH, 3, cH), XYWH(0, 8*lH, 3, cH),
 				},
 				Cursor:   vmath.NewXY[int16](3, 8*lH),
 				TrimmedH: 5,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 4}},
+				WH:       vmath.WH[int16]{W: 4},
 			},
 		},
 		// case 29: "abcdefgh" maxW=5, xy={2,1}, index=0 → same but y offset by 1
@@ -540,21 +577,41 @@ func TestLayoutWord(t *testing.T) {
 			xy: vmath.NewXY[int16](2, 1+0*lH), maxW: 5, str: "abcdefgh", index: 0,
 			expected: TextLayout{
 				Chars: []vmath.Box[int16]{
-					XYWH(0, 1+1*lH, 3, cH), XYWH(0, 1+2*lH, 3, cH), XYWH(0, 1+3*lH, 3, cH), XYWH(0, 1+4*lH, 3, cH),
-					XYWH(0, 1+5*lH, 3, cH), XYWH(0, 1+6*lH, 3, cH), XYWH(0, 1+7*lH, 3, cH), XYWH(0, 1+8*lH, 3, cH),
+					XYWH(0, 1+1*lH, 3, cH), XYWH(0, 1+2*lH, 3, cH),
+					XYWH(0, 1+3*lH, 3, cH), XYWH(0, 1+4*lH, 3, cH),
+					XYWH(0, 1+5*lH, 3, cH), XYWH(0, 1+6*lH, 3, cH),
+					XYWH(0, 1+7*lH, 3, cH), XYWH(0, 1+8*lH, 3, cH),
 				},
 				Cursor:   vmath.NewXY[int16](3, 1+8*lH),
 				TrimmedH: 5,
-				Box:      vmath.Box[int16]{Max: vmath.XY[int16]{X: 4}},
+				WH:       vmath.WH[int16]{W: 4},
 			},
 		},
 	}
 
 	for i, tc := range cases {
 		t.Run(
-			fmt.Sprintf("case %d: xy=(%v,%v) maxW=%v str=%q index=%d", i, tc.xy.X, tc.xy.Y, tc.maxW, tc.str, tc.index),
+			fmt.Sprintf(
+				"case %d: xy=(%v,%v) maxW=%v str=%q index=%d",
+				i,
+				tc.xy.X,
+				tc.xy.Y,
+				tc.maxW,
+				tc.str,
+				tc.index,
+			),
 			func(t *testing.T) {
-				got := layoutWord(font, tc.xy, tc.maxW, []rune(tc.str), tc.index, 0, 1, 0, 0)
+				got := layoutWord(
+					font,
+					tc.xy,
+					tc.maxW,
+					[]rune(tc.str),
+					tc.index,
+					0,
+					1,
+					0,
+					0,
+				)
 				assertWordLayout(t, got, tc.expected)
 			},
 		)

@@ -51,7 +51,11 @@ func TestCheck(t *testing.T) {
 	}
 
 	var stdout, stderr strings.Builder
-	if err := check(strings.NewReader(fmt.Sprintf("%s 100 %d\n", path, gz)), &stdout, &stderr); err != nil {
+	if err := check(
+		strings.NewReader(fmt.Sprintf("%s 100 %d\n", path, gz)),
+		&stdout,
+		&stderr,
+	); err != nil {
 		t.Errorf("want ok, err: %v", err)
 	}
 	if stderr.Len() != 0 {
@@ -73,7 +77,11 @@ func TestCheck_ExceedsMaxDelta(t *testing.T) {
 	}
 
 	var stdout, stderr strings.Builder
-	if err := check(strings.NewReader(fmt.Sprintf("%s 1125 %d\n", path, gz)), &stdout, &stderr); err == nil {
+	if err := check(
+		strings.NewReader(fmt.Sprintf("%s 1125 %d\n", path, gz)),
+		&stdout,
+		&stderr,
+	); err == nil {
 		t.Error("want fail: max delta exceeded")
 	}
 	if stdout.Len() != 0 {
@@ -87,7 +95,11 @@ func TestCheck_ExceedsMaxDelta(t *testing.T) {
 
 func TestCheck_MissingFile(t *testing.T) {
 	var stdout, stderr strings.Builder
-	if err := check(strings.NewReader("/nonexistent/file.txt 100\n"), &stdout, &stderr); err == nil {
+	if err := check(
+		strings.NewReader("/nonexistent/file.txt 100\n"),
+		&stdout,
+		&stderr,
+	); err == nil {
 		t.Error("want fail for missing file")
 	}
 	if stderr.Len() == 0 {
@@ -97,7 +109,11 @@ func TestCheck_MissingFile(t *testing.T) {
 
 func TestCheck_BadBaselineValue(t *testing.T) {
 	var stdout, stderr strings.Builder
-	if err := check(strings.NewReader("somefile.txt notanumber\n"), &stdout, &stderr); err == nil {
+	if err := check(
+		strings.NewReader("somefile.txt notanumber\n"),
+		&stdout,
+		&stderr,
+	); err == nil {
 		t.Error("want fail for bad baseline value")
 	}
 }

@@ -46,7 +46,8 @@ func TestParseBenchOutput_MedianOfFive(t *testing.T) {
 }
 
 func TestParseBenchOutput_SkipsNonBenchLines(t *testing.T) {
-	input := "goos: linux\ngoarch: amd64\npkg: something\ncpu: AMD\n" + benchLine + "PASS\nok  pkg  1.000s\n"
+	input := "goos: linux\ngoarch: amd64\npkg: something\ncpu: AMD\n" +
+		benchLine + "PASS\nok  pkg  1.000s\n"
 	entries, err := parseBenchOutput(strings.NewReader(input))
 	if err != nil {
 		t.Fatal(err)
@@ -68,7 +69,8 @@ func TestParseBenchOutput_SkipsNoMsOp(t *testing.T) {
 }
 
 func TestSave(t *testing.T) {
-	input := "BenchmarkFoo-24\t1000\t5.903 ms/op\nBenchmarkBar-24\t1000\t9.362 ms/op\n"
+	input := "BenchmarkFoo-24\t1000\t5.903 ms/op\n" +
+		"BenchmarkBar-24\t1000\t9.362 ms/op\n"
 	entries, err := parseBenchOutput(strings.NewReader(input))
 	if err != nil {
 		t.Fatal(err)

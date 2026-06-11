@@ -72,11 +72,19 @@ func run(in, out string) error {
 	fmt.Fprintf(&str, "\tLineH: %d,\n", font.LineH)
 	fmt.Fprintf(&str, "\tBaseline: %d,\n", font.Baseline)
 	fmt.Fprintf(&str, "\tDefaultKerning: %d,\n", font.DefaultKerning)
-	fmt.Fprintf(&str, "\tDefaultWhitespaceKerning: %d,\n", font.DefaultWhitespaceKerning)
+	fmt.Fprintf(
+		&str,
+		"\tDefaultWhitespaceKerning: %d,\n",
+		font.DefaultWhitespaceKerning,
+	)
 	fmt.Fprintf(&str, "\tEndOfLineKerning: %d,\n", font.EndOfLineKerning)
 	fmt.Fprintf(&str, "\tDefaultCharW: %d,\n", font.DefaultCharW)
 	fmt.Fprintf(&str, "}, []byte{\n")
-	for _, b := range vtext.EncodeKerning(font.Kerning, font.DefaultKerning, font.DefaultWhitespaceKerning) {
+	for _, b := range vtext.EncodeKerning(
+		font.Kerning,
+		font.DefaultKerning,
+		font.DefaultWhitespaceKerning,
+	) {
 		fmt.Fprintf(&str, "\t%d,\n", b)
 	}
 	fmt.Fprintf(&str, "}, []byte{\n")

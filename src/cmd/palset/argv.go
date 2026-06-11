@@ -15,7 +15,10 @@ func NewArgv() (*Argv, error) {
 	this := Argv{}
 	flag.StringVar(&this.Palette, "palette", "", "palette .aseprite file")
 	flag.Usage = func() {
-		fmt.Fprintf(flag.CommandLine.Output(), "palset --palette=<palette.aseprite> <entries…>\n")
+		fmt.Fprintf(
+			flag.CommandLine.Output(),
+			"palset --palette=<palette.aseprite> <entries…>\n",
+		)
 		flag.PrintDefaults()
 	}
 	flag.Parse()

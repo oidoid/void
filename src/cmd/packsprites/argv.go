@@ -25,7 +25,10 @@ func NewArgv() (*Argv, error) {
 	flag.StringVar(&this.CodeOut, "code-out", "", "gencode output directory")
 	flag.BoolVar(&this.Watch, "watch", false, "re-pack on file changes")
 	flag.Usage = func() {
-		fmt.Fprintf(flag.CommandLine.Output(), "packatlas --name=<name> --img-out=<dir> [--color-mode=<mode>] [--watch] <entries…>\n")
+		fmt.Fprintf(
+			flag.CommandLine.Output(),
+			"packatlas --name=<name> --img-out=<dir> [--color-mode=<mode>] [--watch] <entries…>\n",
+		)
 		flag.PrintDefaults()
 	}
 	flag.Parse()

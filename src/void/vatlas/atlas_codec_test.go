@@ -13,13 +13,17 @@ func TestDecodeAtlas_empty(t *testing.T) {
 }
 
 func TestDecodeAtlas_singleAnimNoCels(t *testing.T) {
-	assertRoundTrip(t, vatlas.NewAtlas([]vatlas.Anim{{Cels: 1, W: 0, H: 0}}, []uint16{0, 0}))
+	assertRoundTrip(t, vatlas.NewAtlas(
+		[]vatlas.Anim{{Cels: 1, W: 0, H: 0}}, []uint16{0, 0},
+	))
 }
 
 func TestDecodeAtlas_multiCelAnim(t *testing.T) {
 	assertRoundTrip(t, vatlas.NewAtlas(
 		[]vatlas.Anim{{Cels: 8, W: 16, H: 24}},
-		[]uint16{10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160},
+		[]uint16{
+			10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160,
+		},
 	))
 }
 
@@ -39,7 +43,11 @@ func TestDecodeAtlas_hurtboxOnly(t *testing.T) {
 
 func TestDecodeAtlas_hitboxAndHurtbox(t *testing.T) {
 	assertRoundTrip(t, vatlas.NewAtlas(
-		[]vatlas.Anim{{Cels: 1, W: 16, H: 16, Hitbox: vmath.XYWH[uint16](1, 2, 3, 4), Hurtbox: vmath.XYWH[uint16](5, 6, 7, 8)}},
+		[]vatlas.Anim{{
+			Cels: 1, W: 16, H: 16,
+			Hitbox:  vmath.XYWH[uint16](1, 2, 3, 4),
+			Hurtbox: vmath.XYWH[uint16](5, 6, 7, 8),
+		}},
 		[]uint16{0, 0},
 	))
 }

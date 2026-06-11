@@ -26,7 +26,11 @@ func TestPointerEmptySliceUsesBackingArray(t *testing.T) {
 
 	pointerAfterAdd := uintptr(unsafe.Pointer(&vec.Vals()[0]))
 	if pointerBeforeAdd != pointerAfterAdd {
-		t.Errorf("got pointer %d before add and %d after add, want same backing array", pointerBeforeAdd, pointerAfterAdd)
+		t.Errorf(
+			"got pointer %d before add and %d after add, want same backing array",
+			pointerBeforeAdd,
+			pointerAfterAdd,
+		)
 	}
 }
 
@@ -72,7 +76,11 @@ func TestAddReusesFreedSlotWithNextGen(t *testing.T) {
 	newHandle := vec.Add(d)
 
 	if newHandle.slotIndex() != freedHandle.slotIndex() {
-		t.Fatalf("got slot %d, want reused slot %d", newHandle.slotIndex(), freedHandle.slotIndex())
+		t.Fatalf(
+			"got slot %d, want reused slot %d",
+			newHandle.slotIndex(),
+			freedHandle.slotIndex(),
+		)
 	}
 
 	if newHandle.gen() == freedHandle.gen() {

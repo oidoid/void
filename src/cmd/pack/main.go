@@ -54,11 +54,14 @@ func main() {
 		MinifySyntax:      config.Minify,
 		MinifyWhitespace:  config.Minify,
 		Outdir:            config.OutDir,
-		Plugins:           []api.Plugin{plugins.HTMLPlugin(config), plugins.WasmPlugin(config)},
-		Sourcemap:         api.SourceMapLinked,
-		Target:            api.ES2024, // // https://esbuild.github.io/content-types/#tsconfig-json
-		Tsconfig:          config.TsconfigFilename,
-		Write:             true, //to-do: false
+		Plugins: []api.Plugin{
+			plugins.HTMLPlugin(config),
+			plugins.WasmPlugin(config),
+		},
+		Sourcemap: api.SourceMapLinked,
+		Target:    api.ES2024, // https://esbuild.github.io/content-types/#tsconfig-json
+		Tsconfig:  config.TsconfigFilename,
+		Write:     true, //to-do: false
 	}
 
 	if config.WatchPort != 0 {
@@ -75,7 +78,9 @@ func main() {
 			ctx.Dispose()
 			os.Exit(1)
 		}
-		if _, err := ctx.Serve(api.ServeOptions{Port: config.WatchPort, Servedir: config.OutDir}); err != nil {
+		if _, err := ctx.Serve(api.ServeOptions{
+			Port: config.WatchPort, Servedir: config.OutDir,
+		}); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			ctx.Dispose()
 			os.Exit(1)
@@ -87,7 +92,11 @@ func main() {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
-		if err := os.WriteFile(filepath.Join(config.OutDir, "meta.json"), []byte(result.Metafile), 0o644); err != nil {
+		if err := os.WriteFile(
+			filepath.Join(config.OutDir, "meta.json"),
+			[]byte(result.Metafile),
+			0o644,
+		); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}

@@ -37,5 +37,6 @@ func New() *Engine {
 func (this *Engine) Update() vgame.Status {
 	stat := this.Engine.Update()
 	stat |= this.Router.Update(this)
+	this.Engine.EndTick() // to-do: better API?
 	return stat
 }

@@ -3,6 +3,7 @@
 package vengine
 
 import (
+	"time"
 	"unsafe"
 
 	"math/rand/v2"
@@ -31,6 +32,8 @@ type Engine[Game vgame.Game] struct {
 	LevelBounds vmath.Box[float32] // to-do: can this be in vlevels.Level?
 	rnd         *rand.Rand
 	sprites     []vgfx.Sprite
+	tick        vgame.Tick
+	tickStart   time.Time
 }
 
 type EngineOpts struct {
@@ -66,7 +69,9 @@ func New[Game vgame.Game](opts *EngineOpts) *Engine[Game] {
 
 func (this *Engine[Game]) Random() float32 { return this.rnd.Float32() }
 
-func (this *Engine[Game]) RegisterEntUpdate(vec interface{ Update(Game) vgame.Status }) {
+func (this *Engine[Game]) RegisterEntUpdate(
+	vec interface{ Update(Game) vgame.Status },
+) {
 	this.updaters.Register(vec.Update)
 }
 
@@ -79,16 +84,23 @@ func (this *Engine[Game]) Font() *vtext.Font {
 }
 
 func (this *Engine[Game]) Frame() *vgame.Frame { return &this.frame }
+func (this *Engine[Game]) Fullscreen() bool    { return this.frame.Fullscreen }
+func (this *Engine[Game]) NowMs() float64      { return this.frame.NowMs }
+func (this *Engine[Game]) Tick() *vgame.Tick   { return &this.tick }
 
 func (this *Engine[Game]) FramePointer() uintptr {
 	return uintptr(unsafe.Pointer(&this.frame))
 }
 
-func (this *Engine[Game]) Cam() *vmath.XY[float32]   { return &this.cam }
-func (this *Engine[Game]) CamX() float32             { return this.cam.X }
-func (this *Engine[Game]) CamY() float32             { return this.cam.Y }
-func (this *Engine[Game]) Canvas() *vmath.WH[uint16] { return &this.frame.Canvas }
-func (this *Engine[Game]) Input() *vinput.Input      { return &this.frame.Input }
+func (this *Engine[Game]) Cam() *vmath.XY[float32] { return &this.cam }
+func (this *Engine[Game]) CamX() float32           { return this.cam.X }
+func (this *Engine[Game]) CamY() float32           { return this.cam.Y }
+func (this *Engine[Game]) Canvas() *vmath.WH[uint16] {
+	return &this.frame.Canvas
+}
+func (this *Engine[Game]) Input() *vinput.Input {
+	return &this.frame.Input
+}
 
 func (this *Engine[Game]) LevelX() int32 { return this.Level.Min.X }
 func (this *Engine[Game]) LevelY() int32 { return this.Level.Min.Y }
@@ -113,7 +125,9 @@ func (this *Engine[Game]) DrawSprite(sprite *vgfx.Sprite) {
 func (this *Engine[Game]) BeginDraw() vgfx.SpriteBatch {
 	return vgfx.SpriteBatch{Sprites: this.sprites, Viewport: this.viewport}
 }
-func (this *Engine[Game]) EndDraw(batch vgfx.SpriteBatch) { this.sprites = batch.Sprites }
+func (this *Engine[Game]) EndDraw(batch vgfx.SpriteBatch) {
+	this.sprites = batch.Sprites
+}
 
 func (this *Engine[Game]) TilePointer() uintptr {
 	if this.Level == nil || len(this.Level.Tiles) == 0 {
@@ -127,15 +141,28 @@ func (this *Engine[Game]) TileCount() uint32 {
 func (this *Engine[Game]) LevelTileW() uint8 { return this.Level.Tile.W }
 func (this *Engine[Game]) LevelTileH() uint8 { return this.Level.Tile.H }
 
+func (this *Engine[Game]) EndTick() {
+	this.tick.DeltaMs = float64(time.Since(this.tickStart).Nanoseconds()) / 1e6
+}
+
 func (this *Engine[Game]) Update() vgame.Status {
+	this.tickStart = time.Now()
+	this.tick.DrawMs = this.frame.DrawMs
 	this.sprites = this.sprites[:0]
 	w := float32(this.frame.Canvas.W)
 	h := float32(this.frame.Canvas.H)
 	r := vgfx.MaxSpriteSize
-	this.viewport = vmath.NewBox(this.cam.X-r, this.cam.Y-r, this.cam.X+w+r, this.cam.Y+h+r)
+	this.viewport = vmath.NewBox(
+		this.cam.X-r,
+		this.cam.Y-r,
+		this.cam.X+w+r,
+		this.cam.Y+h+r,
+	)
 	this.LevelBounds = vmath.NewBox(
-		float32(this.Level.Min.X), float32(this.Level.Min.Y),
-		float32(this.Level.Max.X), float32(this.Level.Max.Y),
+		float32(this.Level.Min.X),
+		float32(this.Level.Min.Y),
+		float32(this.Level.Max.X),
+		float32(this.Level.Max.Y),
 	)
 	return vgame.Pause
 }

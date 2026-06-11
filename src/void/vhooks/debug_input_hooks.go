@@ -7,12 +7,25 @@ import (
 
 func DebugInput[Game vgame.Game](gam Game) vgame.Status {
 	loop := vgame.Pause
-	if gam.Input().Wheel.Delta.X != 0 || gam.Input().Wheel.Delta.Y != 0 || gam.Input().Wheel.Delta.Z != 0 {
-		println("wheel", gam.Input().Wheel.Delta.X, gam.Input().Wheel.Delta.Y, gam.Input().Wheel.Delta.Z)
+	if gam.Input().Wheel.Delta.X != 0 ||
+		gam.Input().Wheel.Delta.Y != 0 ||
+		gam.Input().Wheel.Delta.Z != 0 {
+		println(
+			"wheel",
+			gam.Input().Wheel.Delta.X,
+			gam.Input().Wheel.Delta.Y,
+			gam.Input().Wheel.Delta.Z,
+		)
 	}
 	for i := range gam.Input().GamepadsLen {
 		gamepad := &gam.Input().Gamepads[i]
-		println("gamepad", gamepad.Index, gamepad.Buttons, gamepad.Axes[0], gamepad.Axes[1])
+		println(
+			"gamepad",
+			gamepad.Index,
+			gamepad.Buttons,
+			gamepad.Axes[0],
+			gamepad.Axes[1],
+		)
 		if gamepad.Buttons != 0 {
 			loop = vgame.Loop
 		}

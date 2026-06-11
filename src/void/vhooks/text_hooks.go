@@ -12,72 +12,70 @@ import (
 var zeroChar = vmath.Box[int16]{}
 
 func UpdateTexts[Game vgame.Game](
-	ents *vvec.Vec[ventdata.TextEnt], gam Game,
+	ents *vvec.Vec[ventdata.TextEnt],
+	gam Game,
 ) vgame.Status {
 	batch := gam.BeginDraw()
 	vals := ents.Vals()
 	loop := vgame.Pause
 	font := gam.Font()
 	for i := range vals {
-		loop |= drawTextEnt(&vals[i], font, &batch)
+		loop |= updateText(&vals[i], font, &batch)
 	}
 	gam.EndDraw(batch)
 	return loop
 }
 
-// update text and invalidate layout.
-func SetText(ent *ventdata.TextEnt, text string) {
-	ent.Text = text
-	ent.Layout.Chars = nil
-}
-
-func MoveTo(ent *ventdata.TextEnt, x, y int16) {
-	dx := x - ent.Layout.Min.X
-	dy := y - ent.Layout.Min.Y
-	ent.Layout.Min.X += dx
-	ent.Layout.Min.Y += dy
-	ent.Layout.Max.X += dx
-	ent.Layout.Max.Y += dy
-	ent.Layout.Cursor.X += dx
-	ent.Layout.Cursor.Y += dy
-	for i := range ent.Layout.Chars {
-		ch := &ent.Layout.Chars[i]
-		ch.Min.X += dx
-		ch.Min.Y += dy
-		ch.Max.X += dx
-		ch.Max.Y += dy
-	}
-}
-
-func drawTextEnt(
-	ent *ventdata.TextEnt, font *vtext.Font, batch *vgfx.SpriteBatch,
+func updateText(
+	ent *ventdata.TextEnt,
+	font *vtext.Font,
+	batch *vgfx.SpriteBatch,
 ) vgame.Status {
 	loop := vgame.Pause
 	if ent.Layout.Chars == nil {
-		ent.Layout = vtext.LayoutText(vtext.TextLayoutOpts{
-			Font:  font,
-			Scale: 1,
-			XY:    ent.Layout.Min,
-			Text:  ent.Text,
-		})
+		layoutText(ent, font)
 		loop |= vgame.Loop
 	}
-	i := 0
-	for _, ch := range ent.Text {
+	for i, ch := range []rune(ent.Text) {
 		chBox := ent.Layout.Chars[i]
-		i++
 		if chBox == zeroChar {
+			// to-do: better to just draw instead of testing every char?
 			continue
 		}
-		xy := vmath.NewXY(float32(chBox.Min.X), float32(chBox.Min.Y))
-		if xy.Y > batch.Viewport.Max.Y {
-			break
+		xy := vmath.NewXY(
+			float32(chBox.Min.X+ent.XY.X), float32(chBox.Min.Y+ent.XY.Y),
+		)
+		if !ent.Z.UI() {
+			if xy.Y > batch.Viewport.Max.Y {
+				break
+			}
+			if !batch.Viewport.HitsXY(xy) {
+				continue
+			}
 		}
-		if batch.Viewport.HitsXY(xy) {
-			n := len(batch.Sprites)
-			batch.Sprites = batch.Sprites[:n+1]
-			batch.Sprites[n] = vgfx.Sprite{XY: xy, AnimID: font.AnimID(ch)}
-		}
+		n := len(batch.Sprites)
+		batch.Sprites = batch.Sprites[:n+1]
+		batch.Sprites[n] = vgfx.Sprite{XY: xy, AnimID: font.AnimID(ch), Z: ent.Z}
 	}
 	return loop
+}
+
+func layoutText(ent *ventdata.TextEnt, font *vtext.Font) {
+	if ent.Layout.Chars != nil {
+		return
+	}
+	ent.Layout = vtext.LayoutText(vtext.TextLayoutOpts{
+		Font:  font,
+		Scale: 1,
+		Text:  ent.Text,
+	})
+}
+
+// update text and invalidate layout if changed.
+func setText(ent *ventdata.TextEnt, text string) {
+	if ent.Text == text {
+		return
+	}
+	ent.Text = text
+	ent.Layout.Chars = nil
 }

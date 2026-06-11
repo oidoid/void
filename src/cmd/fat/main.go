@@ -73,7 +73,15 @@ func check(reader io.Reader, stdout, stderr io.Writer) error {
 			out = stderr
 			ok = false
 		}
-		_, err = fmt.Fprintf(out, "%s: %d %dz %+d %+dz\n", entry.Path, got, gotGzip, delta, gzipDelta)
+		_, err = fmt.Fprintf(
+			out,
+			"%s: %d %dz %+d %+dz\n",
+			entry.Path,
+			got,
+			gotGzip,
+			delta,
+			gzipDelta,
+		)
 		if err != nil {
 			return err
 		}

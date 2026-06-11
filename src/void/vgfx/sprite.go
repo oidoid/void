@@ -12,8 +12,9 @@ type Sprite struct {
 	AnimID vatlas.AnimID
 	Cel    uint8
 	_      [1]byte
-	Z      uint32
-	flags  uint64
+	Z      Layer
+	WH     vmath.WH[uint16]
+	flags  uint32
 }
 
 const MaxSpriteSize = float32(16)
