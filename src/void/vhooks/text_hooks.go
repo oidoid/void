@@ -10,13 +10,13 @@ func UpdateTexts[Game vgame.Game](
 	ents *vvec.Vec[ventdata.TextEnt],
 	gam Game,
 ) vgame.Status {
-	batch := gam.BeginDraw()
+	sprites := gam.Sprites()
+	font := gam.Font()
+	viewport := gam.Viewport()
 	vals := ents.Vals()
 	loop := vgame.Pause
-	font := gam.Font()
 	for i := range vals {
-		loop |= vals[i].Draw(font, &batch)
+		loop |= vals[i].Update(font, sprites, viewport)
 	}
-	gam.EndDraw(batch)
 	return loop
 }

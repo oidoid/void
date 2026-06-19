@@ -11,3 +11,12 @@ type Input struct {
 	GamepadsLen uint8
 	Gamepads    [MaxGamepads]GamepadPoll
 }
+
+func (this *Input) PrimaryPointer() *PointerPoll {
+	for i := range this.PointersLen {
+		if this.Pointers[i].Primary {
+			return &this.Pointers[i]
+		}
+	}
+	return nil
+}

@@ -18,7 +18,9 @@ type TextEnt struct {
 
 var zeroChar = vmath.Box[int16]{}
 
-func (this *TextEnt) Draw(font *vtext.Font, batch *vgfx.SpriteBatch) vgame.Status {
+func (this *TextEnt) Update(
+	font *vtext.Font, sprites *[]vgfx.Sprite, viewport vmath.Box[float32],
+) vgame.Status {
 	loop := vgame.Pause
 	if this.Layout.Chars == nil {
 		this.LayoutChars(font)
@@ -34,16 +36,16 @@ func (this *TextEnt) Draw(font *vtext.Font, batch *vgfx.SpriteBatch) vgame.Statu
 			float32(chBox.Min.X+this.XY.X), float32(chBox.Min.Y+this.XY.Y),
 		)
 		if !this.Z.UI() {
-			if xy.Y > batch.Viewport.Max.Y {
+			if xy.Y > viewport.Max.Y {
 				break
 			}
-			if !batch.Viewport.HitsXY(xy) {
+			if !viewport.HitsXY(xy) {
 				continue
 			}
 		}
-		n := len(batch.Sprites)
-		batch.Sprites = batch.Sprites[:n+1]
-		batch.Sprites[n] = vgfx.Sprite{XY: xy, AnimID: font.AnimID(ch), Z: this.Z}
+		*sprites = append(
+			*sprites, vgfx.Sprite{XY: xy, AnimID: font.AnimID(ch), Z: this.Z},
+		)
 	}
 	return loop
 }

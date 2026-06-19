@@ -17,21 +17,21 @@ type CamStatusEnt struct {
 }
 
 func NewCamStatusEnt(backgroundAnimID vatlas.AnimID) CamStatusEnt {
-	ent := CamStatusEnt{BackgroundAnimID: backgroundAnimID}
-	ent.Anchor = vmath.NE
-	ent.Margin = 4
-	return ent
+	this := CamStatusEnt{BackgroundAnimID: backgroundAnimID}
+	this.Anchor = vmath.NE
+	this.Margin = vmath.Border[int16]{N: 4, E: 4, S: 4, W: 4}
+	this.Trim = vtext.TrimLeading
+	this.Z = vgfx.LayerTop
+	return this
 }
 
 func (this *CamStatusEnt) Update(
 	font *vtext.Font,
-	batch *vgfx.SpriteBatch,
+	sprites *[]vgfx.Sprite,
 	canvas vmath.WH[uint16],
 	camX, camY float32,
 	fullscreen bool,
 ) vgame.Status {
-	this.Z = vgfx.LayerTop
-
 	text := "(" + vtext.FmtFloat(camX) + ", " + vtext.FmtFloat(camY) + ") " +
 		strconv.Itoa(int(canvas.W)) + "x" + strconv.Itoa(int(canvas.H))
 	if fullscreen {
@@ -42,24 +42,22 @@ func (this *CamStatusEnt) Update(
 
 	this.LayoutChars(font)
 	// to-do: if invalid / cam.invalid / return value from LayoutChars().
-	this.XY = hudXY(this.HUDEnt, this.Layout.W, this.Layout.TrimmedH, canvas)
+	this.XY = HudXY(this.HUDEnt, this.Layout.W, this.Layout.TrimmedH, canvas)
 
-	this.DrawBackground(batch)
+	this.DrawBackground(sprites)
 
-	return this.Draw(font, batch)
+	return this.TextEnt.Update(font, sprites, vmath.Box[float32]{})
 }
 
-func (this *CamStatusEnt) DrawBackground(batch *vgfx.SpriteBatch) {
+func (this *CamStatusEnt) DrawBackground(sprites *[]vgfx.Sprite) {
 	const margin = int16(1)
-	n := len(batch.Sprites)
-	batch.Sprites = batch.Sprites[:n+1]
-	batch.Sprites[n] = vgfx.Sprite{
+	*sprites = append(*sprites, vgfx.Sprite{
 		XY:     vmath.NewXY(float32(this.XY.X-margin), float32(this.XY.Y-margin)),
 		AnimID: this.BackgroundAnimID,
-		Z:      vgfx.LayerTop - 1,
+		Z:      this.Z - 1,
 		WH: vmath.WH[uint16]{
 			W: uint16(this.Layout.W + margin*2),
 			H: uint16(this.Layout.TrimmedH + margin*2),
 		},
-	}
+	})
 }

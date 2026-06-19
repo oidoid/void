@@ -2,6 +2,9 @@
 package entdata
 
 import (
+	"github.com/oidoid/void/src/demo/assets"
+	"github.com/oidoid/void/src/void/vgame"
+	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vmath"
 )
 
@@ -17,7 +20,12 @@ func NewBallEnt(rnd func() float32, x, y float32) BallEnt {
 	}
 }
 
-func (this *BallEnt) Update(lvl vmath.Box[float32], radius float32) {
+func (this *BallEnt) Update(
+	sprites *[]vgfx.Sprite,
+	viewport vmath.Box[float32],
+	lvl vmath.Box[float32],
+	radius float32,
+) vgame.Status {
 	diameter := radius * 2
 	this.X += this.D.X
 	this.Y += this.D.Y
@@ -35,4 +43,8 @@ func (this *BallEnt) Update(lvl vmath.Box[float32], radius float32) {
 		this.Y = lvl.Max.Y - diameter
 		this.D.Y = -this.D.Y
 	}
+	if viewport.HitsXY(this.XY) {
+		*sprites = append(*sprites, vgfx.Sprite{AnimID: assets.SuperballDefault, XY: this.XY})
+	}
+	return vgame.Loop
 }

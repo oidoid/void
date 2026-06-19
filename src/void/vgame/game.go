@@ -10,13 +10,12 @@ import (
 type Game interface {
 	Platform
 	Canvas() *vmath.WH[uint16]
-	DrawSprite(sprite *vgfx.Sprite)
 	Font() *vtext.Font
 	Fullscreen() bool
 	Input() *vinput.Input
 	NowMs() float64
 	Tick() *Tick
-	BeginDraw() vgfx.SpriteBatch
-	EndDraw(batch vgfx.SpriteBatch)
+	Sprites() *[]vgfx.Sprite
+	Viewport() vmath.Box[float32]
 	Random() float32
 }

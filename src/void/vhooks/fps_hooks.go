@@ -10,7 +10,7 @@ func UpdateFPSes[Game vgame.Game](
 	ents *vvec.Vec[ventdata.FPSEnt],
 	gam Game,
 ) vgame.Status {
-	batch := gam.BeginDraw()
+	sprites := gam.Sprites()
 	font := gam.Font()
 	nowMs := gam.NowMs()
 	tick := gam.Tick()
@@ -18,8 +18,7 @@ func UpdateFPSes[Game vgame.Game](
 	vals := ents.Vals()
 	loop := vgame.Pause
 	for i := range vals {
-		loop |= vals[i].Update(font, &batch, nowMs, tick, canvas)
+		loop |= vals[i].Update(font, sprites, nowMs, tick, canvas)
 	}
-	gam.EndDraw(batch)
 	return loop
 }

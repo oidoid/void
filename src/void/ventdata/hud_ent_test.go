@@ -33,8 +33,13 @@ func TestHudXY(t *testing.T) {
 	var canvas = vmath.WH[uint16]{W: 100, H: 60}
 	for _, test := range cases {
 		t.Run(test.name, func(t *testing.T) {
-			hud := HUDEnt{Anchor: test.anchor, Margin: test.margin}
-			got := hudXY(hud, test.w, test.h, canvas)
+			hud := HUDEnt{
+				Anchor: test.anchor,
+				Margin: vmath.Border[int16]{
+					N: test.margin, E: test.margin, S: test.margin, W: test.margin,
+				},
+			}
+			got := HudXY(hud, test.w, test.h, canvas)
 			if got.X != test.wantX || got.Y != test.wantY {
 				t.Fatalf(
 					"hudXY(%s) = (%d, %d), want (%d, %d)",

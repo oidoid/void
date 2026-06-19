@@ -23,7 +23,7 @@ type PointerPoll struct {
 	// normalized pressure in [0, 1].
 	Pressure float32
 	// pen tilt from the screen plane in [-90°, 90°].
-	TiltX, TiltY int8
+	vmath.XY[int8]
 	// pen rotation around its axis in degrees [0°, 359°].
 	Twist  uint16
 	Device PointerDevice

@@ -1,26 +1,23 @@
 package hooks
 
 import (
-	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/demo/engine"
 	"github.com/oidoid/void/src/demo/entdata"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
-func UpdateSuperballs(
-	ents *vvec.Vec[entdata.BallEnt],
+func UpdateMouseStatuses(
+	ents *vvec.Vec[entdata.MouseStatusEnt],
 	gam *engine.Engine,
 ) vgame.Status {
-	anim := gam.Atlas.Anims[int(assets.SuperballDefault)]
-	radius := float32(anim.W) / 2
 	sprites := gam.Sprites()
-	viewport := gam.Viewport()
-	lvl := gam.LevelBounds
+	input := gam.Input()
+	canvas := *gam.Canvas()
 	vals := ents.Vals()
 	loop := vgame.Pause
 	for i := range vals {
-		loop |= vals[i].Update(sprites, viewport, lvl, radius)
+		loop |= vals[i].Update(sprites, input, canvas)
 	}
 	return loop
 }

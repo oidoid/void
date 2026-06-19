@@ -30,6 +30,10 @@ func InitInit(gam *engine.Engine) {
 	fpses.Add(ventdata.NewFPSEnt(assets.BackgroundKiwi))
 	gam.RegisterEntUpdate(fpses)
 
+	entStatuses := ventdata.NewEntVec(hooks.UpdateEntStatuses)
+	entStatuses.Add(entdata.NewEntStatusEnt())
+	gam.RegisterEntUpdate(entStatuses)
+
 	gam.RegisterEntUpdate(
 		ventdata.NewEntVec(vhooks.UpdateButtons[*engine.Engine]),
 	)
@@ -37,6 +41,10 @@ func InitInit(gam *engine.Engine) {
 	camStatuses := ventdata.NewEntVec(vhooks.UpdateCamStatuses[*engine.Engine])
 	camStatuses.Add(ventdata.NewCamStatusEnt(assets.BackgroundBubblegum))
 	gam.RegisterEntUpdate(camStatuses)
+
+	mouseStatuses := ventdata.NewEntVec(hooks.UpdateMouseStatuses)
+	mouseStatuses.Add(entdata.NewMouseStatusEnt())
+	gam.RegisterEntUpdate(mouseStatuses)
 }
 
 func UpdateInit(gam *engine.Engine) vgame.Status {

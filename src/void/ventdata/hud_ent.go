@@ -9,45 +9,48 @@ import (
 // HUDEnt pins content to a screen edge following the camera.
 type HUDEnt struct {
 	Anchor vmath.CompassDir
-	Margin int16
+	Margin vmath.Border[int16]
 }
 
 // compute XY for a given WH and HUD config. non-UI layers must offset by cam.
-func hudXY[T vtypes.Number](
+func HudXY[T vtypes.Number](
 	hud HUDEnt,
 	w, h T,
 	canvas vmath.WH[uint16],
 ) vmath.XY[T] {
 	canvasW := T(canvas.W)
 	canvasH := T(canvas.H)
-	margin := T(hud.Margin)
+	marginTop := T(hud.Margin.N)
+	marginRight := T(hud.Margin.E)
+	marginBottom := T(hud.Margin.S)
+	marginLeft := T(hud.Margin.W)
 
 	var x, y T
 	switch hud.Anchor {
 	case vmath.N:
 		x = (canvasW - w) / 2
-		y = margin
+		y = marginTop
 	case vmath.NE:
-		x = canvasW - w - margin
-		y = margin
+		x = canvasW - w - marginRight
+		y = marginTop
 	case vmath.E:
-		x = canvasW - w - margin
+		x = canvasW - w - marginRight
 		y = (canvasH - h) / 2
 	case vmath.SE:
-		x = canvasW - w - margin
-		y = canvasH - h - margin
+		x = canvasW - w - marginRight
+		y = canvasH - h - marginBottom
 	case vmath.S:
 		x = (canvasW - w) / 2
-		y = canvasH - h - margin
+		y = canvasH - h - marginBottom
 	case vmath.SW:
-		x = margin
-		y = canvasH - h - margin
+		x = marginLeft
+		y = canvasH - h - marginBottom
 	case vmath.W:
-		x = margin
+		x = marginLeft
 		y = (canvasH - h) / 2
 	case vmath.NW:
-		x = margin
-		y = margin
+		x = marginLeft
+		y = marginTop
 	case vmath.Center:
 		x = (canvasW - w) / 2
 		y = (canvasH - h) / 2
