@@ -12,7 +12,7 @@ type Game interface {
 	Canvas() *vmath.WH[uint16]
 	Font() *vtext.Font
 	Fullscreen() bool
-	Input() *vinput.Input
+	Input() *vinput.InputPoll
 	NowMs() float64
 	Tick() *Tick
 	Sprites() *[]vgfx.Sprite

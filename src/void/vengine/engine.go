@@ -24,7 +24,7 @@ type Engine[Game vgame.Game] struct {
 	Atlas    vatlas.Atlas
 	Texts    ventdata.EntVec[Game, ventdata.TextEnt]
 	font     *vtext.Font
-	frame    vgame.Frame
+	frame    vgame.Poll
 	cam      vmath.XY[float32]
 	updaters ventdata.Zoo[Game]
 	// not true viewport size. adjusted by max sprite size.
@@ -83,10 +83,10 @@ func (this *Engine[Game]) Font() *vtext.Font {
 	return this.font
 }
 
-func (this *Engine[Game]) Frame() *vgame.Frame { return &this.frame }
-func (this *Engine[Game]) Fullscreen() bool    { return this.frame.Fullscreen }
-func (this *Engine[Game]) NowMs() float64      { return this.frame.NowMs }
-func (this *Engine[Game]) Tick() *vgame.Tick   { return &this.tick }
+func (this *Engine[Game]) Frame() *vgame.Poll { return &this.frame }
+func (this *Engine[Game]) Fullscreen() bool   { return this.frame.Fullscreen }
+func (this *Engine[Game]) NowMs() float64     { return this.frame.NowMs }
+func (this *Engine[Game]) Tick() *vgame.Tick  { return &this.tick }
 
 func (this *Engine[Game]) FramePointer() uintptr {
 	return uintptr(unsafe.Pointer(&this.frame))
@@ -98,8 +98,8 @@ func (this *Engine[Game]) CamY() float32           { return this.cam.Y }
 func (this *Engine[Game]) Canvas() *vmath.WH[uint16] {
 	return &this.frame.Canvas
 }
-func (this *Engine[Game]) Input() *vinput.Input {
-	return &this.frame.Input
+func (this *Engine[Game]) Input() *vinput.InputPoll {
+	return &this.frame.InputPoll
 }
 
 func (this *Engine[Game]) LevelX() int32 { return this.Level.Min.X }

@@ -27,7 +27,7 @@ func NewMouseStatusEnt() MouseStatusEnt {
 
 func (this *MouseStatusEnt) Update(
 	sprites *[]vgfx.Sprite,
-	input *vinput.Input,
+	input *vinput.InputPoll,
 	canvas vmath.WH[uint16],
 ) vgame.Status {
 	loop := vgame.Pause

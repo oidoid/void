@@ -13,7 +13,7 @@ type SuperballSpawnerEnt struct {
 
 func (this *SuperballSpawnerEnt) Update(
 	balls *vvec.Vec[BallEnt],
-	input *vinput.Input,
+	input *vinput.InputPoll,
 	deltaMs float64,
 	rnd func() float32,
 	camX, camY float32,

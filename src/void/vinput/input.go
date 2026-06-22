@@ -3,7 +3,7 @@ package vinput
 const MaxPointers uint8 = 5
 const MaxGamepads uint8 = 4
 
-type Input struct {
+type InputPoll struct {
 	PointersLen uint8
 	Pointers    [MaxPointers]PointerPoll
 	Wheel       WheelPoll
@@ -12,7 +12,7 @@ type Input struct {
 	Gamepads    [MaxGamepads]GamepadPoll
 }
 
-func (this *Input) PrimaryPointer() *PointerPoll {
+func (this *InputPoll) PrimaryPointer() *PointerPoll {
 	for i := range this.PointersLen {
 		if this.Pointers[i].Primary {
 			return &this.Pointers[i]
