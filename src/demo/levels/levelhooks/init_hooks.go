@@ -26,9 +26,9 @@ func InitInit(gam *engine.Engine) {
 	spawners.Add(entdata.SuperballSpawnerEnt{})
 	gam.RegisterEntUpdate(spawners)
 
-	fpses := ventdata.NewEntVec(vhooks.UpdateFPSes[*engine.Engine])
-	fpses.Add(ventdata.NewFPSEnt(assets.BackgroundKiwi))
-	gam.RegisterEntUpdate(fpses)
+	drawStatuses := ventdata.NewEntVec(vhooks.UpdateDrawStatuses[*engine.Engine])
+	drawStatuses.Add(ventdata.NewDrawStatusEnt(assets.BackgroundKiwi))
+	gam.RegisterEntUpdate(drawStatuses)
 
 	entStatuses := ventdata.NewEntVec(hooks.UpdateEntStatuses)
 	entStatuses.Add(entdata.NewEntStatusEnt())

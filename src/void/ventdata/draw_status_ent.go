@@ -9,7 +9,7 @@ import (
 )
 
 // to-do: make fields private?
-type FPSEnt struct {
+type DrawStatusEnt struct {
 	HUDEnt
 	TextEnt
 	BackgroundAnimID vatlas.AnimID
@@ -23,8 +23,8 @@ type FPSEnt struct {
 	PrevFPS int
 }
 
-func NewFPSEnt(backgroundAnimID vatlas.AnimID) FPSEnt {
-	this := FPSEnt{BackgroundAnimID: backgroundAnimID}
+func NewDrawStatusEnt(backgroundAnimID vatlas.AnimID) DrawStatusEnt {
+	this := DrawStatusEnt{BackgroundAnimID: backgroundAnimID}
 	this.Anchor = vmath.SE
 	this.Margin = vmath.Border[int16]{N: 4, E: 4, S: 4, W: 4}
 	this.Trim = vtext.TrimLead
@@ -32,7 +32,7 @@ func NewFPSEnt(backgroundAnimID vatlas.AnimID) FPSEnt {
 	return this
 }
 
-func (this *FPSEnt) Update(
+func (this *DrawStatusEnt) Update(
 	font *vtext.Font,
 	sprites *[]vgfx.Sprite,
 	nowMs float64,
@@ -59,7 +59,7 @@ func (this *FPSEnt) Update(
 	return this.TextEnt.Update(font, sprites, vmath.Box[float32]{})
 }
 
-func (this *FPSEnt) DrawBackground(sprites *[]vgfx.Sprite) {
+func (this *DrawStatusEnt) DrawBackground(sprites *[]vgfx.Sprite) {
 	const margin = int16(1)
 	*sprites = append(*sprites, vgfx.Sprite{
 		XY:     vmath.NewXY(float32(this.XY.X-margin), float32(this.XY.Y-margin)),

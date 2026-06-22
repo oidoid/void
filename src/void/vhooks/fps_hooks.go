@@ -6,8 +6,8 @@ import (
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
-func UpdateFPSes[Game vgame.Game](
-	ents *vvec.Vec[ventdata.FPSEnt],
+func UpdateDrawStatuses[Game vgame.Game](
+	ents *vvec.Vec[ventdata.DrawStatusEnt],
 	gam Game,
 ) vgame.Status {
 	sprites := gam.Sprites()
