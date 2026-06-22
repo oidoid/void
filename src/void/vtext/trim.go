@@ -3,12 +3,13 @@ package vtext
 type Trim uint8
 
 const (
-	TrimNone    Trim = iota
-	TrimLeading      // exclude trailing leading from height.
-	// exclude trailing leading and descender space from height.
-	TrimLeadingAndDescender
+	TrimNone Trim = iota
+	TrimLead      // exclude trailing leading from height.
+	TrimAll       // exclude trailing leading and descender space from height.
+	// exclude trailing leading from height even when the leading is in use.
+	TrimLeadForce
+	// exclude trailing leading and descender space from height even when in use.
+	TrimAllForce
 )
 
-// to-do: add unconditional forms that trim leading and both leading and
-//        descender even if used.
 // to-do: can i gen Go from JSON Schema?

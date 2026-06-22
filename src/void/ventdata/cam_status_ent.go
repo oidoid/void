@@ -20,7 +20,7 @@ func NewCamStatusEnt(backgroundAnimID vatlas.AnimID) CamStatusEnt {
 	this := CamStatusEnt{BackgroundAnimID: backgroundAnimID}
 	this.Anchor = vmath.NE
 	this.Margin = vmath.Border[int16]{N: 4, E: 4, S: 4, W: 4}
-	this.Trim = vtext.TrimLeading
+	this.Trim = vtext.TrimLead
 	this.Z = vgfx.LayerTop
 	return this
 }
@@ -42,7 +42,7 @@ func (this *CamStatusEnt) Update(
 
 	this.LayoutChars(font)
 	// to-do: if invalid / cam.invalid / return value from LayoutChars().
-	this.XY = HudXY(this.HUDEnt, this.Layout.W, this.Layout.TrimmedH, canvas)
+	this.XY = HudXY(this.HUDEnt, this.Layout.W, this.Layout.TrimH, canvas)
 
 	this.DrawBackground(sprites)
 
@@ -57,7 +57,7 @@ func (this *CamStatusEnt) DrawBackground(sprites *[]vgfx.Sprite) {
 		Z:      this.Z - 1,
 		WH: vmath.WH[uint16]{
 			W: uint16(this.Layout.W + margin*2),
-			H: uint16(this.Layout.TrimmedH + margin*2),
+			H: uint16(this.Layout.TrimH + margin*2),
 		},
 	})
 }

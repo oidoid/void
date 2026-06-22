@@ -11,7 +11,13 @@ type TextLayout struct {
 	Cursor vmath.XY[int16]
 	// the actual height without trailing leading and without descenders if
 	// unused.
-	TrimmedH int16
+	TrimH int16
+	// height without trailing leading regardless of whether descenders are in
+	// use.
+	TrimLeadForceH int16
+	// height without trailing leading and without descender space regardless of
+	// whether descenders are in use.
+	TrimAllForceH int16
 }
 
 type TextLayoutOpts struct {
@@ -34,7 +40,7 @@ func LayoutText(opts TextLayoutOpts) TextLayout {
 	}
 	cursor := vmath.XY[int16]{}
 	var w int16
-	var trimmedH uint8
+	var trimH uint8
 	for i := 0; i < len(runes); {
 		ch := runes[i]
 		var layout TextLayout
@@ -53,7 +59,7 @@ func LayoutText(opts TextLayoutOpts) TextLayout {
 				tracking(opts.Font, ch, next, scale),
 				0,
 				scale,
-				trimmedH,
+				trimH,
 				ch,
 				w,
 			)
@@ -66,7 +72,7 @@ func LayoutText(opts TextLayoutOpts) TextLayout {
 				i,
 				0,
 				scale,
-				trimmedH,
+				trimH,
 				w,
 			)
 			nl := layoutNextLine(opts.Font, 0, cursor.Y, scale)
@@ -83,7 +89,7 @@ func LayoutText(opts TextLayoutOpts) TextLayout {
 					i,
 					0,
 					scale,
-					trimmedH,
+					trimH,
 					w,
 				)
 			}
@@ -91,14 +97,16 @@ func LayoutText(opts TextLayoutOpts) TextLayout {
 		copy(chars[i:], layout.Chars)
 		cursor = layout.Cursor
 		w = layout.W
-		trimmedH = uint8(layout.TrimmedH)
+		trimH = uint8(layout.TrimH)
 		i += len(layout.Chars)
 	}
 	return TextLayout{
-		Chars:    chars,
-		Cursor:   cursor,
-		WH:       vmath.WH[int16]{W: w, H: layoutNextLine(opts.Font, 0, cursor.Y, scale).Y},
-		TrimmedH: cursor.Y + int16(trimmedH),
+		Chars:          chars,
+		Cursor:         cursor,
+		WH:             vmath.WH[int16]{W: w, H: layoutNextLine(opts.Font, 0, cursor.Y, scale).Y},
+		TrimH:          cursor.Y + int16(trimH),
+		TrimLeadForceH: cursor.Y + int16(opts.Font.CellH)*int16(scale),
+		TrimAllForceH:  cursor.Y + int16(opts.Font.CellH-opts.Font.Baseline)*int16(scale),
 	}
 }
 
@@ -111,7 +119,7 @@ func layoutWord(
 	index int,
 	startX int16,
 	scale uint8,
-	trimmedH uint8,
+	trimH uint8,
 	w int16,
 ) TextLayout {
 	chars := make([]vmath.Box[int16], len(runes)-index)
@@ -134,9 +142,9 @@ func layoutWord(
 			x, y = nl.X, nl.Y
 		}
 		if next {
-			trimmedH = chH
+			trimH = chH
 		} else {
-			trimmedH = max(trimmedH, chH)
+			trimH = max(trimH, chH)
 		}
 		// width is not span since, with kerning, that may exceed the actual
 		// width of the character's sprite. eg, if w has the maximal character width
@@ -149,10 +157,10 @@ func layoutWord(
 		fw = max(fw, x-startX)
 	}
 	return TextLayout{
-		Chars:    chars[:n],
-		Cursor:   vmath.XY[int16]{X: x, Y: y},
-		TrimmedH: int16(trimmedH),
-		WH:       vmath.WH[int16]{W: fw},
+		Chars:  chars[:n],
+		Cursor: vmath.XY[int16]{X: x, Y: y},
+		TrimH:  int16(trimH),
+		WH:     vmath.WH[int16]{W: fw},
 	}
 }
 
@@ -193,7 +201,7 @@ func layoutSpace(
 	span int16,
 	startX int16,
 	scale uint8,
-	trimmedH uint8,
+	trimH uint8,
 	ch rune,
 	w int16,
 ) TextLayout {
@@ -204,20 +212,20 @@ func layoutSpace(
 		nextCursor = vmath.NewXY(cursor.X+span, cursor.Y)
 	}
 	chH := font.CharH(ch) * scale
-	var newTrimmedH uint8
+	var newTrimH uint8
 	if cursor.Y == nextCursor.Y {
-		newTrimmedH = max(trimmedH, chH)
+		newTrimH = max(trimH, chH)
 	} else {
-		newTrimmedH = chH
+		newTrimH = chH
 	}
 	if d := cursor.X - startX; d > 0 {
 		w = max(w, d)
 	}
 	return TextLayout{
-		Chars:    []vmath.Box[int16]{{}},
-		Cursor:   nextCursor,
-		TrimmedH: int16(newTrimmedH),
-		WH:       vmath.WH[int16]{W: w},
+		Chars:  []vmath.Box[int16]{{}},
+		Cursor: nextCursor,
+		TrimH:  int16(newTrimH),
+		WH:     vmath.WH[int16]{W: w},
 	}
 }
 

@@ -18,7 +18,7 @@ func NewEntStatusEnt() EntStatusEnt {
 	this := EntStatusEnt{}
 	this.Anchor = vmath.SW
 	this.Margin = vmath.Border[int16]{N: 4, E: 4, S: 4, W: 4}
-	this.Trim = vtext.TrimLeading
+	this.Trim = vtext.TrimLead
 	this.Z = vgfx.LayerTop
 	return this
 }
@@ -33,7 +33,7 @@ func (this *EntStatusEnt) Update(
 
 	this.LayoutChars(font)
 	this.XY = ventdata.HudXY(
-		this.HUDEnt, this.Layout.W, this.Layout.TrimmedH, canvas,
+		this.HUDEnt, this.Layout.W, this.Layout.TrimH, canvas,
 	)
 
 	this.drawBackground(sprites)
@@ -49,7 +49,7 @@ func (this *EntStatusEnt) drawBackground(sprites *[]vgfx.Sprite) {
 		Z:      this.Z - 1,
 		WH: vmath.WH[uint16]{
 			W: uint16(this.Layout.W + margin*2),
-			H: uint16(this.Layout.TrimmedH + margin*2),
+			H: uint16(this.Layout.TrimH + margin*2),
 		},
 	})
 }
