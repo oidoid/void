@@ -18,7 +18,7 @@ type CamStatusEnt struct {
 
 func NewCamStatusEnt(backgroundAnimID vatlas.AnimID) CamStatusEnt {
 	this := CamStatusEnt{BackgroundAnimID: backgroundAnimID}
-	this.Anchor = vmath.NE
+	this.Anchor = vmath.DirNE
 	this.Margin = vmath.Border[int16]{N: 4, E: 4, S: 4, W: 4}
 	this.Trim = vtext.TrimLead
 	this.Z = vgfx.LayerTop

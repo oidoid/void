@@ -8,7 +8,7 @@ import (
 // to-do: just HUD?
 // HUDEnt pins content to a screen edge following the camera.
 type HUDEnt struct {
-	Anchor vmath.CompassDir
+	Anchor vmath.Dir
 	Margin vmath.Border[int16]
 }
 
@@ -27,31 +27,31 @@ func HudXY[T vtypes.Number](
 
 	var x, y T
 	switch hud.Anchor {
-	case vmath.N:
+	case vmath.DirN:
 		x = (canvasW - w) / 2
 		y = marginTop
-	case vmath.NE:
+	case vmath.DirNE:
 		x = canvasW - w - marginRight
 		y = marginTop
-	case vmath.E:
+	case vmath.DirE:
 		x = canvasW - w - marginRight
 		y = (canvasH - h) / 2
-	case vmath.SE:
+	case vmath.DirSE:
 		x = canvasW - w - marginRight
 		y = canvasH - h - marginBottom
-	case vmath.S:
+	case vmath.DirS:
 		x = (canvasW - w) / 2
 		y = canvasH - h - marginBottom
-	case vmath.SW:
+	case vmath.DirSW:
 		x = marginLeft
 		y = canvasH - h - marginBottom
-	case vmath.W:
+	case vmath.DirW:
 		x = marginLeft
 		y = (canvasH - h) / 2
-	case vmath.NW:
+	case vmath.DirNW:
 		x = marginLeft
 		y = marginTop
-	case vmath.Center:
+	case vmath.DirCenter:
 		x = (canvasW - w) / 2
 		y = (canvasH - h) / 2
 	}

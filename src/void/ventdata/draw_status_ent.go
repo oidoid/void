@@ -25,7 +25,7 @@ type DrawStatusEnt struct {
 
 func NewDrawStatusEnt(backgroundAnimID vatlas.AnimID) DrawStatusEnt {
 	this := DrawStatusEnt{BackgroundAnimID: backgroundAnimID}
-	this.Anchor = vmath.SE
+	this.Anchor = vmath.DirSE
 	this.Margin = vmath.Border[int16]{N: 4, E: 4, S: 4, W: 4}
 	this.Trim = vtext.TrimLead
 	this.Z = vgfx.LayerTop

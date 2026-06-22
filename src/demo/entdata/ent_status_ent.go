@@ -16,7 +16,7 @@ type EntStatusEnt struct {
 
 func NewEntStatusEnt() EntStatusEnt {
 	this := EntStatusEnt{}
-	this.Anchor = vmath.SW
+	this.Anchor = vmath.DirSW
 	this.Margin = vmath.Border[int16]{N: 4, E: 4, S: 4, W: 4}
 	this.Trim = vtext.TrimLead
 	this.Z = vgfx.LayerTop

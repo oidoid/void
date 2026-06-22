@@ -20,7 +20,7 @@ const mouseStatusSize = float32(16)
 
 func NewMouseStatusEnt() MouseStatusEnt {
 	this := MouseStatusEnt{}
-	this.Anchor = vmath.SE
+	this.Anchor = vmath.DirSE
 	this.Margin = vmath.Border[int16]{E: 4, S: 14}
 	return this
 }
