@@ -11,7 +11,7 @@ curl --location https://github.com/tinygo-org/tinygo/releases/download/v0.41.1/t
 sudo dpkg --install /tmp/tinygo.deb
 
 # wasm-opt.
-curl --location https://github.com/WebAssembly/binaryen/releases/download/version_128/binaryen-version_128-x86_64-linux.tar.gz |
+curl --location https://github.com/WebAssembly/binaryen/releases/download/version_130/binaryen-version_130-x86_64-linux.tar.gz |
 sudo tar --extract --gzip --directory /usr/local/bin/ --strip-components=2 --wildcards '*/bin/wasm-opt'
 
 # watchexec.

@@ -9,9 +9,9 @@
     "src/**"
   ],
   "devDependencies": {
-    "@oidoid/config": "0.0.12",
+    "@oidoid/config": "0.0.13",
     "@types/node": "24.4.0",
-    "@biomejs/biome": "2.4.10",
+    "@biomejs/biome": "2.5.0",
     "typescript": "6.0.3"
   }
 }

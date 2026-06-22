@@ -7,9 +7,9 @@ tool honnef.co/go/tools/cmd/staticcheck
 tool github.com/go-critic/go-critic/cmd/go-critic
 
 require (
-	github.com/evanw/esbuild v0.28.0
-	github.com/fsnotify/fsnotify v1.10.0
-	golang.org/x/net v0.53.0
+	github.com/evanw/esbuild v0.28.1
+	github.com/fsnotify/fsnotify v1.10.1
+	golang.org/x/net v0.56.0
 )
 
 require (
@@ -32,7 +32,7 @@ require (
 	golang.org/x/exp/typeparams v0.0.0-20251023183803-a4bb9ffd2546 // indirect
 	golang.org/x/mod v0.34.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
-	golang.org/x/sys v0.43.0 // indirect
+	golang.org/x/sys v0.46.0 // indirect
 	golang.org/x/tools v0.43.0 // indirect
 	honnef.co/go/tools v0.7.0 // indirect
 )
