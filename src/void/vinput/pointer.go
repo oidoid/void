@@ -1,6 +1,6 @@
 package vinput
 
-import "github.com/oidoid/void/src/void/vmath"
+import "github.com/oidoid/void/src/void/vgeo"
 
 type PointerDevice uint8
 
@@ -19,11 +19,11 @@ type PointerPoll struct {
 	// activated via keyboard).
 	ID int32
 	// coords in physical pixels from top-left and contact area in physical pixels.
-	vmath.Box[float32]
+	vgeo.Box[float32]
 	// normalized pressure in [0, 1].
 	Pressure float32
 	// pen tilt from the screen plane in [-90°, 90°].
-	vmath.XY[int8]
+	vgeo.XY[int8]
 	// pen rotation around its axis in degrees [0°, 359°].
 	Twist  uint16
 	Device PointerDevice

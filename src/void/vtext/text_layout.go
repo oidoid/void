@@ -1,14 +1,14 @@
 package vtext
 
-import "github.com/oidoid/void/src/void/vmath"
+import "github.com/oidoid/void/src/void/vgeo"
 
 type TextLayout struct {
-	vmath.WH[int16]
+	vgeo.WH[int16]
 	// the length of this slice matches the string length. zero boxes are
 	// whitespace.
-	Chars []vmath.Box[int16]
+	Chars []vgeo.Box[int16]
 	// the offset in pixels.
-	Cursor vmath.XY[int16]
+	Cursor vgeo.XY[int16]
 	// the actual height without trailing leading and without descenders if
 	// unused.
 	TrimH int16
@@ -29,7 +29,7 @@ type TextLayoutOpts struct {
 
 func LayoutText(opts TextLayoutOpts) TextLayout {
 	runes := []rune(opts.Text)
-	chars := make([]vmath.Box[int16], len(runes))
+	chars := make([]vgeo.Box[int16], len(runes))
 	scale := opts.Scale
 	if scale == 0 {
 		scale = 1
@@ -38,7 +38,7 @@ func LayoutText(opts TextLayoutOpts) TextLayout {
 	if maxW == 0 {
 		maxW = 1<<15 - 1
 	}
-	cursor := vmath.XY[int16]{}
+	cursor := vgeo.XY[int16]{}
 	var w int16
 	var trimH uint8
 	for i := 0; i < len(runes); {
@@ -103,7 +103,7 @@ func LayoutText(opts TextLayoutOpts) TextLayout {
 	return TextLayout{
 		Chars:          chars,
 		Cursor:         cursor,
-		WH:             vmath.WH[int16]{W: w, H: layoutNextLine(opts.Font, 0, cursor.Y, scale).Y},
+		WH:             vgeo.WH[int16]{W: w, H: layoutNextLine(opts.Font, 0, cursor.Y, scale).Y},
 		TrimH:          cursor.Y + int16(trimH),
 		TrimLeadForceH: cursor.Y + int16(opts.Font.CellH)*int16(scale),
 		TrimAllForceH:  cursor.Y + int16(opts.Font.CellH-opts.Font.Baseline)*int16(scale),
@@ -113,7 +113,7 @@ func LayoutText(opts TextLayoutOpts) TextLayout {
 // lays out a run of non-whitespace characters starting at index.
 func layoutWord(
 	font *Font,
-	cursor vmath.XY[int16],
+	cursor vgeo.XY[int16],
 	maxW int16,
 	runes []rune,
 	index int,
@@ -122,7 +122,7 @@ func layoutWord(
 	trimH uint8,
 	w int16,
 ) TextLayout {
-	chars := make([]vmath.Box[int16], len(runes)-index)
+	chars := make([]vgeo.Box[int16], len(runes)-index)
 	n := 0
 	x, y, fw := cursor.X, cursor.Y, w
 	for ; index < len(runes); index++ {
@@ -151,16 +151,16 @@ func layoutWord(
 		// of five pixels and a one pixel kerning for a given pair of characters, it
 		// will have a span of six pixels which is greater than the maximal five
 		// pixel sprite that can be rendered.
-		chars[n] = vmath.XYWH(x, y, int16(font.CharW(ch)), int16(font.CellH))
+		chars[n] = vgeo.XYWH(x, y, int16(font.CharW(ch)), int16(font.CellH))
 		n++
 		x += span
 		fw = max(fw, x-startX)
 	}
 	return TextLayout{
 		Chars:  chars[:n],
-		Cursor: vmath.XY[int16]{X: x, Y: y},
+		Cursor: vgeo.XY[int16]{X: x, Y: y},
 		TrimH:  int16(trimH),
-		WH:     vmath.WH[int16]{W: fw},
+		WH:     vgeo.WH[int16]{W: fw},
 	}
 }
 
@@ -169,13 +169,13 @@ func layoutNextLine(
 	startX int16,
 	curY int16,
 	scale uint8,
-) vmath.XY[int16] {
-	return vmath.NewXY(startX, curY+int16(font.LineH)*int16(scale))
+) vgeo.XY[int16] {
+	return vgeo.NewXY(startX, curY+int16(font.LineH)*int16(scale))
 }
 
 func layoutNewline(
 	font *Font,
-	cursor vmath.XY[int16],
+	cursor vgeo.XY[int16],
 	startX int16,
 	scale uint8,
 	w int16,
@@ -185,9 +185,9 @@ func layoutNewline(
 		w = max(w, d)
 	}
 	return TextLayout{
-		Chars:  []vmath.Box[int16]{{}},
+		Chars:  []vgeo.Box[int16]{{}},
 		Cursor: nextCursor,
-		WH:     vmath.WH[int16]{W: w},
+		WH:     vgeo.WH[int16]{W: w},
 	}
 }
 
@@ -196,7 +196,7 @@ func layoutNewline(
 // the start of the next including scale.
 func layoutSpace(
 	font *Font,
-	cursor vmath.XY[int16],
+	cursor vgeo.XY[int16],
 	maxW int16,
 	span int16,
 	startX int16,
@@ -205,11 +205,11 @@ func layoutSpace(
 	ch rune,
 	w int16,
 ) TextLayout {
-	var nextCursor vmath.XY[int16]
+	var nextCursor vgeo.XY[int16]
 	if cursor.X > startX && cursor.X+span >= maxW {
 		nextCursor = layoutNextLine(font, startX, cursor.Y, scale)
 	} else {
-		nextCursor = vmath.NewXY(cursor.X+span, cursor.Y)
+		nextCursor = vgeo.NewXY(cursor.X+span, cursor.Y)
 	}
 	chH := font.CharH(ch) * scale
 	var newTrimH uint8
@@ -222,10 +222,10 @@ func layoutSpace(
 		w = max(w, d)
 	}
 	return TextLayout{
-		Chars:  []vmath.Box[int16]{{}},
+		Chars:  []vgeo.Box[int16]{{}},
 		Cursor: nextCursor,
 		TrimH:  int16(newTrimH),
-		WH:     vmath.WH[int16]{W: w},
+		WH:     vgeo.WH[int16]{W: w},
 	}
 }
 

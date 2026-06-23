@@ -1,7 +1,7 @@
 package vatlas
 
 import (
-	"github.com/oidoid/void/src/void/vmath"
+	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vrle"
 )
 
@@ -24,9 +24,9 @@ func DecodeAtlas(bin []byte) Atlas {
 		i += 4
 		return v
 	}
-	readBox := func() vmath.Box[uint16] {
+	readBox := func() vgeo.Box[uint16] {
 		minX, minY, maxX, maxY := readU16(), readU16(), readU16(), readU16()
-		return vmath.NewBox(minX, minY, maxX, maxY)
+		return vgeo.NewBox(minX, minY, maxX, maxY)
 	}
 
 	numAnims := int(readU16())
@@ -37,7 +37,7 @@ func DecodeAtlas(bin []byte) Atlas {
 		w := readU16()
 		h := readU16()
 		flags := readByte()
-		var hitbox, hurtbox vmath.Box[uint16]
+		var hitbox, hurtbox vgeo.Box[uint16]
 		if flags&flagHitbox != 0 {
 			hitbox = readBox()
 		}
@@ -78,7 +78,7 @@ func EncodeAtlas(atlas *Atlas) []byte {
 		buf = append(buf, anim.Cels)
 		buf = appendU16(buf, anim.W)
 		buf = appendU16(buf, anim.H)
-		var zeroBox vmath.Box[uint16]
+		var zeroBox vgeo.Box[uint16]
 		flags := uint8(0)
 		if anim.Hitbox != zeroBox {
 			flags |= flagHitbox
@@ -114,7 +114,7 @@ func EncodeAtlas(atlas *Atlas) []byte {
 	return buf
 }
 
-func appendBox(buf []byte, box vmath.Box[uint16]) []byte {
+func appendBox(buf []byte, box vgeo.Box[uint16]) []byte {
 	buf = appendU16(buf, box.Min.X)
 	buf = appendU16(buf, box.Min.Y)
 	buf = appendU16(buf, box.Max.X)

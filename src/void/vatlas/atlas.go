@@ -1,6 +1,6 @@
 package vatlas
 
-import "github.com/oidoid/void/src/void/vmath"
+import "github.com/oidoid/void/src/void/vgeo"
 
 // identifies an animation in an Atlas.
 type AnimID uint16
@@ -52,7 +52,7 @@ type Anim struct {
 	// clipbox / source area.
 	W, H uint16
 	// outgoing collision rectangle (red / blue). may be zero.
-	Hitbox vmath.Box[uint16]
+	Hitbox vgeo.Box[uint16]
 	// incoming collision rectangle (green / blue). may be zero.
-	Hurtbox vmath.Box[uint16]
+	Hurtbox vgeo.Box[uint16]
 }

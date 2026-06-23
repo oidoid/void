@@ -7,14 +7,14 @@ import (
 	"github.com/oidoid/void/src/demo/hooks"
 	"github.com/oidoid/void/src/void/ventdata"
 	"github.com/oidoid/void/src/void/vgame"
+	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vhooks"
-	"github.com/oidoid/void/src/void/vmath"
 )
 
 func InitInit(gam *engine.Engine) {
 	text := ventdata.TextEnt{
 		Text: "an ancient pond / a frog jumps in / the splash of water",
-		XY:   vmath.XY[int16]{X: 100, Y: 100},
+		XY:   vgeo.XY[int16]{X: 100, Y: 100},
 	}
 	gam.Texts.Add(text)
 

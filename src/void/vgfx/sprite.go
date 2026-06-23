@@ -4,16 +4,16 @@ import (
 	"unsafe"
 
 	"github.com/oidoid/void/src/void/vatlas"
-	"github.com/oidoid/void/src/void/vmath"
+	"github.com/oidoid/void/src/void/vgeo"
 )
 
 type Sprite struct {
-	vmath.XY[float32]
+	vgeo.XY[float32]
 	AnimID vatlas.AnimID
 	Cel    uint8
 	_      [1]byte
 	Z      Layer
-	WH     vmath.WH[uint16]
+	WH     vgeo.WH[uint16]
 	flags  uint32
 }
 

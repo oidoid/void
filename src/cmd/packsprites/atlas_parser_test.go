@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/oidoid/void/src/void/vatlas"
-	"github.com/oidoid/void/src/void/vmath"
+	"github.com/oidoid/void/src/void/vgeo"
 )
 
 func TestParseAtlas_empty(t *testing.T) {
@@ -264,10 +264,10 @@ func TestParseHitboxes_hitboxOnly(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if hit != vmath.XYWH[uint16](1, 2, 3, 4) {
+	if hit != vgeo.XYWH[uint16](1, 2, 3, 4) {
 		t.Fatalf("got hitbox %v", hit)
 	}
-	var zero vmath.Box[uint16]
+	var zero vgeo.Box[uint16]
 	if hurt != zero {
 		t.Fatalf("got hurtbox %v, want zero", hurt)
 	}
@@ -280,11 +280,11 @@ func TestParseHitboxes_hurtboxOnly(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	var zero vmath.Box[uint16]
+	var zero vgeo.Box[uint16]
 	if hit != zero {
 		t.Fatalf("got hitbox %v, want zero", hit)
 	}
-	if hurt != vmath.XYWH[uint16](5, 6, 7, 8) {
+	if hurt != vgeo.XYWH[uint16](5, 6, 7, 8) {
 		t.Fatalf("got hurtbox %v", hurt)
 	}
 }
@@ -296,7 +296,7 @@ func TestParseHitboxes_blueIsBoth(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := vmath.XYWH[uint16](1, 2, 3, 4)
+	want := vgeo.XYWH[uint16](1, 2, 3, 4)
 	if hit != want {
 		t.Fatalf("got hitbox %v, want %v", hit, want)
 	}
@@ -313,10 +313,10 @@ func TestParseHitboxes_hitboxAndHurtboxSeparate(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if hit != vmath.XYWH[uint16](1, 2, 3, 4) {
+	if hit != vgeo.XYWH[uint16](1, 2, 3, 4) {
 		t.Fatalf("got hitbox %v", hit)
 	}
-	if hurt != vmath.XYWH[uint16](5, 6, 7, 8) {
+	if hurt != vgeo.XYWH[uint16](5, 6, 7, 8) {
 		t.Fatalf("got hurtbox %v", hurt)
 	}
 }
@@ -328,7 +328,7 @@ func TestParseHitboxes_filtersUnrelatedTags(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	var zero vmath.Box[uint16]
+	var zero vgeo.Box[uint16]
 	if hit != zero || hurt != zero {
 		t.Fatalf("got %v/%v, want zero/zero for unrelated tag", hit, hurt)
 	}
@@ -380,7 +380,7 @@ func TestParseHitboxes_errorMultipleHurtboxes(t *testing.T) {
 
 func TestParseHitboxes_zeroForNoSlices(t *testing.T) {
 	hit, hurt, err := parseHitboxes("tag--A", nil)
-	var zero vmath.Box[uint16]
+	var zero vgeo.Box[uint16]
 	if err != nil || hit != zero || hurt != zero {
 		t.Fatalf("got %v/%v/%v, want zero/zero/nil", err, hit, hurt)
 	}

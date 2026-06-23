@@ -3,8 +3,8 @@ package ventdata
 import (
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vgame"
+	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
-	"github.com/oidoid/void/src/void/vmath"
 	"github.com/oidoid/void/src/void/vtext"
 )
 
@@ -25,8 +25,8 @@ type DrawStatusEnt struct {
 
 func NewDrawStatusEnt(backgroundAnimID vatlas.AnimID) DrawStatusEnt {
 	this := DrawStatusEnt{BackgroundAnimID: backgroundAnimID}
-	this.Anchor = vmath.DirSE
-	this.Margin = vmath.Border[int16]{N: 4, E: 4, S: 4, W: 4}
+	this.Anchor = vgeo.DirSE
+	this.Margin = vgeo.Border[int16]{N: 4, E: 4, S: 4, W: 4}
 	this.Trim = vtext.TrimLead
 	this.Z = vgfx.LayerTop
 	return this
@@ -37,7 +37,7 @@ func (this *DrawStatusEnt) Update(
 	sprites *[]vgfx.Sprite,
 	nowMs float64,
 	tick *vgame.Tick,
-	canvas vmath.WH[uint16],
+	canvas vgeo.WH[uint16],
 ) vgame.Status {
 	this.Next.Frames++
 	if nowMs-this.Next.Start >= 1000 {
@@ -56,16 +56,16 @@ func (this *DrawStatusEnt) Update(
 
 	this.DrawBackground(sprites)
 
-	return this.TextEnt.Update(font, sprites, vmath.Box[float32]{})
+	return this.TextEnt.Update(font, sprites, vgeo.Box[float32]{})
 }
 
 func (this *DrawStatusEnt) DrawBackground(sprites *[]vgfx.Sprite) {
 	const margin = int16(1)
 	*sprites = append(*sprites, vgfx.Sprite{
-		XY:     vmath.NewXY(float32(this.XY.X-margin), float32(this.XY.Y-margin)),
+		XY:     vgeo.NewXY(float32(this.XY.X-margin), float32(this.XY.Y-margin)),
 		AnimID: this.BackgroundAnimID,
 		Z:      this.Z - 1,
-		WH: vmath.WH[uint16]{
+		WH: vgeo.WH[uint16]{
 			W: uint16(this.Layout.W + margin*2),
 			H: uint16(this.Layout.TrimH + margin*2),
 		},

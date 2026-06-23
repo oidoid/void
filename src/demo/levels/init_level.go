@@ -1,15 +1,15 @@
 package levels
 
 import (
+	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vlevels"
-	"github.com/oidoid/void/src/void/vmath"
 )
 
 // to-do: most levels too large for literal?
 // to-do: encode.
 var InitLevel = vlevels.Level{
-	Box:  vmath.XYWH[int32](-24, -24, 4096, 4096),
-	Tile: vmath.WH[uint8]{W: 16, H: 16},
+	Box:  vgeo.XYWH[int32](-24, -24, 4096, 4096),
+	Tile: vgeo.WH[uint8]{W: 16, H: 16},
 	Tiles: []vlevels.Tile{
 		1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
 		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,

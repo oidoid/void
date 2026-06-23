@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/oidoid/void/src/void/vatlas"
-	"github.com/oidoid/void/src/void/vmath"
+	"github.com/oidoid/void/src/void/vgeo"
 )
 
 // converts raw Aseprite JSON into an Atlas and the ordered tag names. the
@@ -137,17 +137,17 @@ func parseAnimFrames(
 	return frames, nil
 }
 
-func parseCel(frame vatlas.AseFrame) vmath.XY[uint16] {
+func parseCel(frame vatlas.AseFrame) vgeo.XY[uint16] {
 	x := frame.Frame.X + int32((frame.Frame.W-uint32(frame.SourceSize.W))/2)
 	y := frame.Frame.Y + int32((frame.Frame.H-uint32(frame.SourceSize.H))/2)
-	return vmath.NewXY(uint16(x), uint16(y))
+	return vgeo.NewXY(uint16(x), uint16(y))
 }
 
 func parseHitboxes(
 	name string,
 	slices []vatlas.AseSlice,
-) (vmath.Box[uint16], vmath.Box[uint16], error) {
-	var hitbox, hurtbox vmath.Box[uint16]
+) (vgeo.Box[uint16], vgeo.Box[uint16], error) {
+	var hitbox, hurtbox vgeo.Box[uint16]
 	for _, slice := range slices {
 		if slice.Name != name || len(slice.Keys) == 0 {
 			continue
@@ -155,7 +155,7 @@ func parseHitboxes(
 		first := slice.Keys[0].Bounds
 		for _, k := range slice.Keys {
 			if k.Bounds != first {
-				return vmath.Box[uint16]{}, vmath.Box[uint16]{},
+				return vgeo.Box[uint16]{}, vgeo.Box[uint16]{},
 					fmt.Errorf(
 						"atlas tag %q hitbox bounds varies across frames",
 						name,
@@ -166,21 +166,21 @@ func parseHitboxes(
 		green := slice.Color == "#00ff00ff"
 		blue := slice.Color == "#0000ffff"
 		if !red && !green && !blue {
-			return vmath.Box[uint16]{}, vmath.Box[uint16]{},
+			return vgeo.Box[uint16]{}, vgeo.Box[uint16]{},
 				fmt.Errorf(
 					"atlas tag %q hitbox color %s unsupported",
 					name,
 					slice.Color,
 				)
 		}
-		var zero vmath.Box[uint16]
+		var zero vgeo.Box[uint16]
 		if hitbox != zero && (red || blue) {
 			return zero, zero, fmt.Errorf("atlas tag %q has multiple hitboxes", name)
 		}
 		if hurtbox != zero && (green || blue) {
 			return zero, zero, fmt.Errorf("atlas tag %q has multiple hurtboxes", name)
 		}
-		box := vmath.XYWH(
+		box := vgeo.XYWH(
 			uint16(first.X),
 			uint16(first.Y),
 			uint16(first.W),

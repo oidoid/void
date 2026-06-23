@@ -1,4 +1,4 @@
-package vmath
+package vgeo
 
 import "github.com/oidoid/void/src/void/vtypes"
 

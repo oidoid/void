@@ -1,11 +1,11 @@
 package vlevels
 
-import "github.com/oidoid/void/src/void/vmath"
+import "github.com/oidoid/void/src/void/vgeo"
 
 type Tile = uint16
 
 type Level struct {
-	vmath.Box[int32]
-	Tile  vmath.WH[uint8]
+	vgeo.Box[int32]
+	Tile  vgeo.WH[uint8]
 	Tiles []Tile
 }

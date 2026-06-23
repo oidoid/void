@@ -4,26 +4,26 @@ package entdata
 import (
 	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/void/vgame"
+	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
-	"github.com/oidoid/void/src/void/vmath"
 )
 
 type BallEnt struct {
-	vmath.XY[float32]
-	D vmath.XY[float32]
+	vgeo.XY[float32]
+	D vgeo.XY[float32]
 }
 
 func NewBallEnt(rnd func() float32, x, y float32) BallEnt {
 	return BallEnt{
-		XY: vmath.NewXY(x, y),
-		D:  vmath.NewXY(rnd()*4-2, rnd()*4-2),
+		XY: vgeo.NewXY(x, y),
+		D:  vgeo.NewXY(rnd()*4-2, rnd()*4-2),
 	}
 }
 
 func (this *BallEnt) Update(
 	sprites *[]vgfx.Sprite,
-	viewport vmath.Box[float32],
-	lvl vmath.Box[float32],
+	viewport vgeo.Box[float32],
+	lvl vgeo.Box[float32],
 	radius float32,
 ) vgame.Status {
 	diameter := radius * 2

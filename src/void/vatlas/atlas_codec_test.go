@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/oidoid/void/src/void/vatlas"
-	"github.com/oidoid/void/src/void/vmath"
+	"github.com/oidoid/void/src/void/vgeo"
 )
 
 func TestDecodeAtlas_empty(t *testing.T) {
@@ -29,14 +29,14 @@ func TestDecodeAtlas_multiCelAnim(t *testing.T) {
 
 func TestDecodeAtlas_hitboxOnly(t *testing.T) {
 	assertRoundTrip(t, vatlas.NewAtlas(
-		[]vatlas.Anim{{Cels: 1, W: 8, H: 8, Hitbox: vmath.XYWH[uint16](1, 2, 3, 4)}},
+		[]vatlas.Anim{{Cels: 1, W: 8, H: 8, Hitbox: vgeo.XYWH[uint16](1, 2, 3, 4)}},
 		[]uint16{0, 0},
 	))
 }
 
 func TestDecodeAtlas_hurtboxOnly(t *testing.T) {
 	assertRoundTrip(t, vatlas.NewAtlas(
-		[]vatlas.Anim{{Cels: 1, W: 8, H: 8, Hurtbox: vmath.XYWH[uint16](5, 6, 7, 8)}},
+		[]vatlas.Anim{{Cels: 1, W: 8, H: 8, Hurtbox: vgeo.XYWH[uint16](5, 6, 7, 8)}},
 		[]uint16{0, 0},
 	))
 }
@@ -45,8 +45,8 @@ func TestDecodeAtlas_hitboxAndHurtbox(t *testing.T) {
 	assertRoundTrip(t, vatlas.NewAtlas(
 		[]vatlas.Anim{{
 			Cels: 1, W: 16, H: 16,
-			Hitbox:  vmath.XYWH[uint16](1, 2, 3, 4),
-			Hurtbox: vmath.XYWH[uint16](5, 6, 7, 8),
+			Hitbox:  vgeo.XYWH[uint16](1, 2, 3, 4),
+			Hurtbox: vgeo.XYWH[uint16](5, 6, 7, 8),
 		}},
 		[]uint16{0, 0},
 	))

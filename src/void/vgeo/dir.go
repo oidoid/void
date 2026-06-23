@@ -1,4 +1,4 @@
-package vmath
+package vgeo
 
 type Dir uint8
 

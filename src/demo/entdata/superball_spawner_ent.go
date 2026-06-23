@@ -2,8 +2,8 @@ package entdata
 
 import (
 	"github.com/oidoid/void/src/void/vgame"
+	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vinput"
-	"github.com/oidoid/void/src/void/vmath"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
@@ -17,7 +17,7 @@ func (this *SuperballSpawnerEnt) Update(
 	deltaMs float64,
 	rnd func() float32,
 	camX, camY float32,
-	levelBounds vmath.Box[float32],
+	levelBounds vgeo.Box[float32],
 ) vgame.Status {
 	kbd := &input.Keyboard
 	loop := vgame.Pause

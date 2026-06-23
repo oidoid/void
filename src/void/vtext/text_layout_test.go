@@ -5,10 +5,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/oidoid/void/src/void/vmath"
+	"github.com/oidoid/void/src/void/vgeo"
 )
 
-var zero vmath.Box[int16] // whitespace.
+var zero vgeo.Box[int16] // whitespace.
 
 func TestLayoutText(t *testing.T) {
 	font := MemProp5x6
@@ -28,9 +28,9 @@ func TestLayoutText(t *testing.T) {
 			str: "",
 			w:   maxW,
 			expected: TextLayout{
-				WH:             vmath.WH[int16]{W: 0, H: 7},
+				WH:             vgeo.WH[int16]{W: 0, H: 7},
 				Chars:          nil,
-				Cursor:         vmath.NewXY[int16](0, 0*lH),
+				Cursor:         vgeo.NewXY[int16](0, 0*lH),
 				TrimH:          0,
 				TrimLeadForceH: cH,
 				TrimAllForceH:  capH,
@@ -41,9 +41,9 @@ func TestLayoutText(t *testing.T) {
 			str: " ",
 			w:   maxW,
 			expected: TextLayout{
-				WH:             vmath.WH[int16]{W: 0, H: 7},
-				Chars:          []vmath.Box[int16]{zero},
-				Cursor:         vmath.NewXY[int16](4, 0*lH),
+				WH:             vgeo.WH[int16]{W: 0, H: 7},
+				Chars:          []vgeo.Box[int16]{zero},
+				Cursor:         vgeo.NewXY[int16](4, 0*lH),
 				TrimH:          5,
 				TrimLeadForceH: cH,
 				TrimAllForceH:  capH,
@@ -54,9 +54,9 @@ func TestLayoutText(t *testing.T) {
 			str: "\n",
 			w:   maxW,
 			expected: TextLayout{
-				WH:             vmath.WH[int16]{W: 0, H: 14},
-				Chars:          []vmath.Box[int16]{zero},
-				Cursor:         vmath.NewXY[int16](0, 1*lH),
+				WH:             vgeo.WH[int16]{W: 0, H: 14},
+				Chars:          []vgeo.Box[int16]{zero},
+				Cursor:         vgeo.NewXY[int16](0, 1*lH),
 				TrimH:          7,
 				TrimLeadForceH: 1*lH + cH,
 				TrimAllForceH:  1*lH + capH,
@@ -67,15 +67,15 @@ func TestLayoutText(t *testing.T) {
 			str: "abc def ghi jkl mno",
 			w:   maxW,
 			expected: TextLayout{
-				Chars: []vmath.Box[int16]{
+				Chars: []vgeo.Box[int16]{
 					XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 3, cH), XYWH(8, 0*lH, 3, cH), zero,
 					XYWH(13, 0*lH, 3, cH), XYWH(17, 0*lH, 3, cH), XYWH(21, 0*lH, 3, cH), zero,
 					XYWH(26, 0*lH, 3, cH), XYWH(30, 0*lH, 3, cH), XYWH(34, 0*lH, 1, cH), zero,
 					XYWH(37, 0*lH, 3, cH), XYWH(41, 0*lH, 3, cH), XYWH(45, 0*lH, 1, cH), zero,
 					XYWH(48, 0*lH, 5, cH), XYWH(54, 0*lH, 3, cH), XYWH(58, 0*lH, 3, cH),
 				},
-				WH:             vmath.WH[int16]{W: 61, H: 7},
-				Cursor:         vmath.NewXY[int16](61, 0*lH),
+				WH:             vgeo.WH[int16]{W: 61, H: 7},
+				Cursor:         vgeo.NewXY[int16](61, 0*lH),
 				TrimH:          6,
 				TrimLeadForceH: cH,
 				TrimAllForceH:  capH,
@@ -86,15 +86,15 @@ func TestLayoutText(t *testing.T) {
 			str: "abc def ghi jkl mno",
 			w:   10,
 			expected: TextLayout{
-				Chars: []vmath.Box[int16]{
+				Chars: []vgeo.Box[int16]{
 					XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 3, cH), XYWH(8, 0*lH, 3, cH), zero,
 					XYWH(0, 1*lH, 3, cH), XYWH(4, 1*lH, 3, cH), XYWH(8, 1*lH, 3, cH), zero,
 					XYWH(0, 2*lH, 3, cH), XYWH(4, 2*lH, 3, cH), XYWH(8, 2*lH, 1, cH), zero,
 					XYWH(0, 3*lH, 3, cH), XYWH(4, 3*lH, 3, cH), XYWH(8, 3*lH, 1, cH), zero,
 					XYWH(0, 4*lH, 5, cH), XYWH(6, 4*lH, 3, cH), XYWH(0, 5*lH, 3, cH),
 				},
-				WH:             vmath.WH[int16]{W: 10, H: 42},
-				Cursor:         vmath.NewXY[int16](3, 5*lH),
+				WH:             vgeo.WH[int16]{W: 10, H: 42},
+				Cursor:         vgeo.NewXY[int16](3, 5*lH),
 				TrimH:          40,
 				TrimLeadForceH: 5*lH + cH,
 				TrimAllForceH:  5*lH + capH,
@@ -105,15 +105,15 @@ func TestLayoutText(t *testing.T) {
 			str: "abc def ghi jkl mno",
 			w:   20,
 			expected: TextLayout{
-				Chars: []vmath.Box[int16]{
+				Chars: []vgeo.Box[int16]{
 					XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 3, cH), XYWH(8, 0*lH, 3, cH), zero,
 					XYWH(0, 1*lH, 3, cH), XYWH(4, 1*lH, 3, cH), XYWH(8, 1*lH, 3, cH), zero,
 					XYWH(0, 2*lH, 3, cH), XYWH(4, 2*lH, 3, cH), XYWH(8, 2*lH, 1, cH), zero,
 					XYWH(11, 2*lH, 3, cH), XYWH(15, 2*lH, 3, cH), XYWH(19, 2*lH, 1, cH), zero,
 					XYWH(0, 3*lH, 5, cH), XYWH(6, 3*lH, 3, cH), XYWH(10, 3*lH, 3, cH),
 				},
-				WH:             vmath.WH[int16]{W: 19, H: 28},
-				Cursor:         vmath.NewXY[int16](13, 3*lH),
+				WH:             vgeo.WH[int16]{W: 19, H: 28},
+				Cursor:         vgeo.NewXY[int16](13, 3*lH),
 				TrimH:          26,
 				TrimLeadForceH: 3*lH + cH,
 				TrimAllForceH:  3*lH + capH,
@@ -124,15 +124,15 @@ func TestLayoutText(t *testing.T) {
 			str: "abc def ghi jkl mno",
 			w:   21,
 			expected: TextLayout{
-				Chars: []vmath.Box[int16]{
+				Chars: []vgeo.Box[int16]{
 					XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 3, cH), XYWH(8, 0*lH, 3, cH), zero,
 					XYWH(0, 1*lH, 3, cH), XYWH(4, 1*lH, 3, cH), XYWH(8, 1*lH, 3, cH), zero,
 					XYWH(13, 1*lH, 3, cH), XYWH(17, 1*lH, 3, cH), XYWH(21, 1*lH, 1, cH), zero,
 					XYWH(0, 2*lH, 3, cH), XYWH(4, 2*lH, 3, cH), XYWH(8, 2*lH, 1, cH), zero,
 					XYWH(0, 3*lH, 5, cH), XYWH(6, 3*lH, 3, cH), XYWH(10, 3*lH, 3, cH),
 				},
-				WH:             vmath.WH[int16]{W: 21, H: 28},
-				Cursor:         vmath.NewXY[int16](13, 3*lH),
+				WH:             vgeo.WH[int16]{W: 21, H: 28},
+				Cursor:         vgeo.NewXY[int16](13, 3*lH),
 				TrimH:          27,
 				TrimLeadForceH: 3*lH + cH,
 				TrimAllForceH:  3*lH + capH,
@@ -143,12 +143,12 @@ func TestLayoutText(t *testing.T) {
 			str: "a  b",
 			w:   4,
 			expected: TextLayout{
-				Chars: []vmath.Box[int16]{
+				Chars: []vgeo.Box[int16]{
 					XYWH(0, 0*lH, 3, cH), zero, zero,
 					XYWH(0, 2*lH, 3, cH),
 				},
-				WH:             vmath.WH[int16]{W: 3, H: 21},
-				Cursor:         vmath.NewXY[int16](3, 2*lH),
+				WH:             vgeo.WH[int16]{W: 3, H: 21},
+				Cursor:         vgeo.NewXY[int16](3, 2*lH),
 				TrimH:          19,
 				TrimLeadForceH: 2*lH + cH,
 				TrimAllForceH:  2*lH + capH,
@@ -159,12 +159,12 @@ func TestLayoutText(t *testing.T) {
 			str: "a  b ",
 			w:   4,
 			expected: TextLayout{
-				Chars: []vmath.Box[int16]{
+				Chars: []vgeo.Box[int16]{
 					XYWH(0, 0*lH, 3, cH), zero, zero,
 					XYWH(0, 2*lH, 3, cH), zero,
 				},
-				WH:             vmath.WH[int16]{W: 2, H: 28},
-				Cursor:         vmath.NewXY[int16](0, 3*lH),
+				WH:             vgeo.WH[int16]{W: 2, H: 28},
+				Cursor:         vgeo.NewXY[int16](0, 3*lH),
 				TrimH:          26,
 				TrimLeadForceH: 3*lH + cH,
 				TrimAllForceH:  3*lH + capH,
@@ -175,9 +175,9 @@ func TestLayoutText(t *testing.T) {
 			str: "a\n",
 			w:   3,
 			expected: TextLayout{
-				Chars:          []vmath.Box[int16]{XYWH(0, 0*lH, 3, cH), zero},
-				WH:             vmath.WH[int16]{W: 3, H: 14},
-				Cursor:         vmath.NewXY[int16](0, 1*lH),
+				Chars:          []vgeo.Box[int16]{XYWH(0, 0*lH, 3, cH), zero},
+				WH:             vgeo.WH[int16]{W: 3, H: 14},
+				Cursor:         vgeo.NewXY[int16](0, 1*lH),
 				TrimH:          7,
 				TrimLeadForceH: 1*lH + cH,
 				TrimAllForceH:  1*lH + capH,
@@ -188,7 +188,7 @@ func TestLayoutText(t *testing.T) {
 			str: "hello, void!",
 			w:   maxW,
 			expected: TextLayout{
-				Chars: []vmath.Box[int16]{
+				Chars: []vgeo.Box[int16]{
 					XYWH(0, 0*lH, 3, cH),  // h
 					XYWH(4, 0*lH, 3, cH),  // e  (e→l span=4: charW=3 + defaultKerning=1)
 					XYWH(8, 0*lH, 1, cH),  // l  (l→l span=2: charW=1 + defaultKerning=1)
@@ -202,8 +202,8 @@ func TestLayoutText(t *testing.T) {
 					XYWH(29, 0*lH, 3, cH), // d
 					XYWH(33, 0*lH, 1, cH), // !
 				},
-				WH:             vmath.WH[int16]{W: 34, H: 7},
-				Cursor:         vmath.NewXY[int16](34, 0*lH),
+				WH:             vgeo.WH[int16]{W: 34, H: 7},
+				Cursor:         vgeo.NewXY[int16](34, 0*lH),
 				TrimH:          6,
 				TrimLeadForceH: cH,
 				TrimAllForceH:  capH,
@@ -227,7 +227,7 @@ func TestLayoutWord(t *testing.T) {
 	const maxW = 8191
 
 	type tcase struct {
-		xy       vmath.XY[int16]
+		xy       vgeo.XY[int16]
 		maxW     int16
 		str      string
 		index    int
@@ -236,378 +236,378 @@ func TestLayoutWord(t *testing.T) {
 	cases := []tcase{
 		// case 0: space at start → no chars
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: maxW, str: " ", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: maxW, str: " ", index: 0,
 			expected: TextLayout{
 				Chars:  nil,
-				Cursor: vmath.NewXY[int16](0, 0*lH),
-				WH:     vmath.WH[int16]{},
+				Cursor: vgeo.NewXY[int16](0, 0*lH),
+				WH:     vgeo.WH[int16]{},
 			},
 		},
 		// case 1: empty string
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: maxW, str: "", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: maxW, str: "", index: 0,
 			expected: TextLayout{
 				Chars:  nil,
-				Cursor: vmath.NewXY[int16](0, 0*lH),
-				WH:     vmath.WH[int16]{},
+				Cursor: vgeo.NewXY[int16](0, 0*lH),
+				WH:     vgeo.WH[int16]{},
 			},
 		},
 		// case 2: newline at start → no chars
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: maxW, str: "\n", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: maxW, str: "\n", index: 0,
 			expected: TextLayout{
 				Chars:  nil,
-				Cursor: vmath.NewXY[int16](0, 0*lH),
-				WH:     vmath.WH[int16]{},
+				Cursor: vgeo.NewXY[int16](0, 0*lH),
+				WH:     vgeo.WH[int16]{},
 			},
 		},
 		// case 3: "a"
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: maxW, str: "a", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: maxW, str: "a", index: 0,
 			expected: TextLayout{
-				Chars:  []vmath.Box[int16]{XYWH(0, 0*lH, 3, cH)},
-				Cursor: vmath.NewXY[int16](3, 0*lH),
+				Chars:  []vgeo.Box[int16]{XYWH(0, 0*lH, 3, cH)},
+				Cursor: vgeo.NewXY[int16](3, 0*lH),
 				TrimH:  5,
-				WH:     vmath.WH[int16]{W: 3},
+				WH:     vgeo.WH[int16]{W: 3},
 			},
 		},
 		// case 4: "."
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: maxW, str: ".", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: maxW, str: ".", index: 0,
 			expected: TextLayout{
-				Chars:  []vmath.Box[int16]{XYWH(0, 0*lH, 1, cH)},
-				Cursor: vmath.NewXY[int16](1, 0*lH),
+				Chars:  []vgeo.Box[int16]{XYWH(0, 0*lH, 1, cH)},
+				Cursor: vgeo.NewXY[int16](1, 0*lH),
 				TrimH:  5,
-				WH:     vmath.WH[int16]{W: 1},
+				WH:     vgeo.WH[int16]{W: 1},
 			},
 		},
 		// case 5: "a " → only 'a', space stops word
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: maxW, str: "a ", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: maxW, str: "a ", index: 0,
 			expected: TextLayout{
-				Chars:  []vmath.Box[int16]{XYWH(0, 0*lH, 3, cH)},
-				Cursor: vmath.NewXY[int16](2, 0*lH),
+				Chars:  []vgeo.Box[int16]{XYWH(0, 0*lH, 3, cH)},
+				Cursor: vgeo.NewXY[int16](2, 0*lH),
 				TrimH:  5,
-				WH:     vmath.WH[int16]{W: 2},
+				WH:     vgeo.WH[int16]{W: 2},
 			},
 		},
 		// case 6: "a\n" → only 'a', newline stops word
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: maxW, str: "a\n", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: maxW, str: "a\n", index: 0,
 			expected: TextLayout{
-				Chars:  []vmath.Box[int16]{XYWH(0, 0*lH, 3, cH)},
-				Cursor: vmath.NewXY[int16](3, 0*lH),
+				Chars:  []vgeo.Box[int16]{XYWH(0, 0*lH, 3, cH)},
+				Cursor: vgeo.NewXY[int16](3, 0*lH),
 				TrimH:  5,
-				WH:     vmath.WH[int16]{W: 3},
+				WH:     vgeo.WH[int16]{W: 3},
 			},
 		},
 		// case 7: "a a" → only first 'a'
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: maxW, str: "a a", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: maxW, str: "a a", index: 0,
 			expected: TextLayout{
-				Chars:  []vmath.Box[int16]{XYWH(0, 0*lH, 3, cH)},
-				Cursor: vmath.NewXY[int16](2, 0*lH),
+				Chars:  []vgeo.Box[int16]{XYWH(0, 0*lH, 3, cH)},
+				Cursor: vgeo.NewXY[int16](2, 0*lH),
 				TrimH:  5,
-				WH:     vmath.WH[int16]{W: 2},
+				WH:     vgeo.WH[int16]{W: 2},
 			},
 		},
 		// case 8: "a."
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: maxW, str: "a.", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: maxW, str: "a.", index: 0,
 			expected: TextLayout{
-				Chars:  []vmath.Box[int16]{XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 1, cH)},
-				Cursor: vmath.NewXY[int16](5, 0*lH),
+				Chars:  []vgeo.Box[int16]{XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 1, cH)},
+				Cursor: vgeo.NewXY[int16](5, 0*lH),
 				TrimH:  5,
-				WH:     vmath.WH[int16]{W: 5},
+				WH:     vgeo.WH[int16]{W: 5},
 			},
 		},
 		// case 9: "aa"
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: maxW, str: "aa", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: maxW, str: "aa", index: 0,
 			expected: TextLayout{
-				Chars:  []vmath.Box[int16]{XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 3, cH)},
-				Cursor: vmath.NewXY[int16](7, 0*lH),
+				Chars:  []vgeo.Box[int16]{XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 3, cH)},
+				Cursor: vgeo.NewXY[int16](7, 0*lH),
 				TrimH:  5,
-				WH:     vmath.WH[int16]{W: 7},
+				WH:     vgeo.WH[int16]{W: 7},
 			},
 		},
 		// case 10: "aa\n"
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: maxW, str: "aa\n", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: maxW, str: "aa\n", index: 0,
 			expected: TextLayout{
-				Chars:  []vmath.Box[int16]{XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 3, cH)},
-				Cursor: vmath.NewXY[int16](7, 0*lH),
+				Chars:  []vgeo.Box[int16]{XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 3, cH)},
+				Cursor: vgeo.NewXY[int16](7, 0*lH),
 				TrimH:  5,
-				WH:     vmath.WH[int16]{W: 7},
+				WH:     vgeo.WH[int16]{W: 7},
 			},
 		},
 		// case 11: "aa aa" → stops at space
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: maxW, str: "aa aa", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: maxW, str: "aa aa", index: 0,
 			expected: TextLayout{
-				Chars:  []vmath.Box[int16]{XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 3, cH)},
-				Cursor: vmath.NewXY[int16](6, 0*lH),
+				Chars:  []vgeo.Box[int16]{XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 3, cH)},
+				Cursor: vgeo.NewXY[int16](6, 0*lH),
 				TrimH:  5,
-				WH:     vmath.WH[int16]{W: 6},
+				WH:     vgeo.WH[int16]{W: 6},
 			},
 		},
 		// case 12: "g" (descends)
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: maxW, str: "g", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: maxW, str: "g", index: 0,
 			expected: TextLayout{
-				Chars:  []vmath.Box[int16]{XYWH(0, 0*lH, 3, cH)},
-				Cursor: vmath.NewXY[int16](3, 0*lH),
+				Chars:  []vgeo.Box[int16]{XYWH(0, 0*lH, 3, cH)},
+				Cursor: vgeo.NewXY[int16](3, 0*lH),
 				TrimH:  6,
-				WH:     vmath.WH[int16]{W: 3},
+				WH:     vgeo.WH[int16]{W: 3},
 			},
 		},
 		// case 13: "abcdefgh" full word, maxW=unlimited, index=0
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: maxW, str: "abcdefgh", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: maxW, str: "abcdefgh", index: 0,
 			expected: TextLayout{
-				Chars: []vmath.Box[int16]{
+				Chars: []vgeo.Box[int16]{
 					XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 3, cH),
 					XYWH(8, 0*lH, 3, cH), XYWH(12, 0*lH, 3, cH),
 					XYWH(16, 0*lH, 3, cH), XYWH(20, 0*lH, 3, cH),
 					XYWH(24, 0*lH, 3, cH), XYWH(28, 0*lH, 3, cH),
 				},
-				Cursor: vmath.NewXY[int16](31, 0*lH),
+				Cursor: vgeo.NewXY[int16](31, 0*lH),
 				TrimH:  6,
-				WH:     vmath.WH[int16]{W: 31},
+				WH:     vgeo.WH[int16]{W: 31},
 			},
 		},
 		// case 14: "abcdefgh" index=1 → starts at 'b'
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: maxW, str: "abcdefgh", index: 1,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: maxW, str: "abcdefgh", index: 1,
 			expected: TextLayout{
-				Chars: []vmath.Box[int16]{
+				Chars: []vgeo.Box[int16]{
 					XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 3, cH),
 					XYWH(8, 0*lH, 3, cH), XYWH(12, 0*lH, 3, cH),
 					XYWH(16, 0*lH, 3, cH), XYWH(20, 0*lH, 3, cH),
 					XYWH(24, 0*lH, 3, cH),
 				},
-				Cursor: vmath.NewXY[int16](27, 0*lH),
+				Cursor: vgeo.NewXY[int16](27, 0*lH),
 				TrimH:  6,
-				WH:     vmath.WH[int16]{W: 27},
+				WH:     vgeo.WH[int16]{W: 27},
 			},
 		},
 		// case 15: "abcdefgh" index=8 → past end
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: maxW, str: "abcdefgh", index: 8,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: maxW, str: "abcdefgh", index: 8,
 			expected: TextLayout{
 				Chars:  nil,
-				Cursor: vmath.NewXY[int16](0, 0*lH),
-				WH:     vmath.WH[int16]{},
+				Cursor: vgeo.NewXY[int16](0, 0*lH),
+				WH:     vgeo.WH[int16]{},
 			},
 		},
 		// case 16: "abcdefgh" maxW=0, index=0 → each char wraps
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: 0, str: "abcdefgh", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: 0, str: "abcdefgh", index: 0,
 			expected: TextLayout{
-				Chars: []vmath.Box[int16]{
+				Chars: []vgeo.Box[int16]{
 					XYWH(0, 0*lH, 3, cH), XYWH(0, 1*lH, 3, cH),
 					XYWH(0, 2*lH, 3, cH), XYWH(0, 3*lH, 3, cH),
 					XYWH(0, 4*lH, 3, cH), XYWH(0, 5*lH, 3, cH),
 					XYWH(0, 6*lH, 3, cH), XYWH(0, 7*lH, 3, cH),
 				},
-				Cursor: vmath.NewXY[int16](3, 7*lH),
+				Cursor: vgeo.NewXY[int16](3, 7*lH),
 				TrimH:  5,
-				WH:     vmath.WH[int16]{W: 4},
+				WH:     vgeo.WH[int16]{W: 4},
 			},
 		},
 		// case 17: "abcdefgh" maxW=1, index=0 → each char wraps
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: 1, str: "abcdefgh", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: 1, str: "abcdefgh", index: 0,
 			expected: TextLayout{
-				Chars: []vmath.Box[int16]{
+				Chars: []vgeo.Box[int16]{
 					XYWH(0, 0*lH, 3, cH), XYWH(0, 1*lH, 3, cH),
 					XYWH(0, 2*lH, 3, cH), XYWH(0, 3*lH, 3, cH),
 					XYWH(0, 4*lH, 3, cH), XYWH(0, 5*lH, 3, cH),
 					XYWH(0, 6*lH, 3, cH), XYWH(0, 7*lH, 3, cH),
 				},
-				Cursor: vmath.NewXY[int16](3, 7*lH),
+				Cursor: vgeo.NewXY[int16](3, 7*lH),
 				TrimH:  5,
-				WH:     vmath.WH[int16]{W: 4},
+				WH:     vgeo.WH[int16]{W: 4},
 			},
 		},
 		// case 18: "abcdefgh" maxW=3, index=0
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: 3, str: "abcdefgh", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: 3, str: "abcdefgh", index: 0,
 			expected: TextLayout{
-				Chars: []vmath.Box[int16]{
+				Chars: []vgeo.Box[int16]{
 					XYWH(0, 0*lH, 3, cH), XYWH(0, 1*lH, 3, cH),
 					XYWH(0, 2*lH, 3, cH), XYWH(0, 3*lH, 3, cH),
 					XYWH(0, 4*lH, 3, cH), XYWH(0, 5*lH, 3, cH),
 					XYWH(0, 6*lH, 3, cH), XYWH(0, 7*lH, 3, cH),
 				},
-				Cursor: vmath.NewXY[int16](3, 7*lH),
+				Cursor: vgeo.NewXY[int16](3, 7*lH),
 				TrimH:  5,
-				WH:     vmath.WH[int16]{W: 4},
+				WH:     vgeo.WH[int16]{W: 4},
 			},
 		},
 		// case 19: "abcdefgh" maxW=5, index=0
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: 5, str: "abcdefgh", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: 5, str: "abcdefgh", index: 0,
 			expected: TextLayout{
-				Chars: []vmath.Box[int16]{
+				Chars: []vgeo.Box[int16]{
 					XYWH(0, 0*lH, 3, cH), XYWH(0, 1*lH, 3, cH),
 					XYWH(0, 2*lH, 3, cH), XYWH(0, 3*lH, 3, cH),
 					XYWH(0, 4*lH, 3, cH), XYWH(0, 5*lH, 3, cH),
 					XYWH(0, 6*lH, 3, cH), XYWH(0, 7*lH, 3, cH),
 				},
-				Cursor: vmath.NewXY[int16](3, 7*lH),
+				Cursor: vgeo.NewXY[int16](3, 7*lH),
 				TrimH:  5,
-				WH:     vmath.WH[int16]{W: 4},
+				WH:     vgeo.WH[int16]{W: 4},
 			},
 		},
 		// case 20: "abcdefgh" maxW=6, index=0
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: 6, str: "abcdefgh", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: 6, str: "abcdefgh", index: 0,
 			expected: TextLayout{
-				Chars: []vmath.Box[int16]{
+				Chars: []vgeo.Box[int16]{
 					XYWH(0, 0*lH, 3, cH), XYWH(0, 1*lH, 3, cH),
 					XYWH(0, 2*lH, 3, cH), XYWH(0, 3*lH, 3, cH),
 					XYWH(0, 4*lH, 3, cH), XYWH(0, 5*lH, 3, cH),
 					XYWH(0, 6*lH, 3, cH), XYWH(0, 7*lH, 3, cH),
 				},
-				Cursor: vmath.NewXY[int16](3, 7*lH),
+				Cursor: vgeo.NewXY[int16](3, 7*lH),
 				TrimH:  5,
-				WH:     vmath.WH[int16]{W: 4},
+				WH:     vgeo.WH[int16]{W: 4},
 			},
 		},
 		// case 21: "abcdefgh" maxW=7, index=0 → fits 2 per row starting at 7
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: 7, str: "abcdefgh", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: 7, str: "abcdefgh", index: 0,
 			expected: TextLayout{
-				Chars: []vmath.Box[int16]{
+				Chars: []vgeo.Box[int16]{
 					XYWH(0, 0*lH, 3, cH), XYWH(0, 1*lH, 3, cH),
 					XYWH(0, 2*lH, 3, cH), XYWH(0, 3*lH, 3, cH),
 					XYWH(0, 4*lH, 3, cH), XYWH(0, 5*lH, 3, cH),
 					XYWH(0, 6*lH, 3, cH), XYWH(4, 6*lH, 3, cH),
 				},
-				Cursor: vmath.NewXY[int16](7, 6*lH),
+				Cursor: vgeo.NewXY[int16](7, 6*lH),
 				TrimH:  6,
-				WH:     vmath.WH[int16]{W: 7},
+				WH:     vgeo.WH[int16]{W: 7},
 			},
 		},
 		// case 22: "abcdefgh" maxW=8, index=0 → 2 per row
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: 8, str: "abcdefgh", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: 8, str: "abcdefgh", index: 0,
 			expected: TextLayout{
-				Chars: []vmath.Box[int16]{
+				Chars: []vgeo.Box[int16]{
 					XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 3, cH),
 					XYWH(0, 1*lH, 3, cH), XYWH(4, 1*lH, 3, cH),
 					XYWH(0, 2*lH, 3, cH), XYWH(4, 2*lH, 3, cH),
 					XYWH(0, 3*lH, 3, cH), XYWH(4, 3*lH, 3, cH),
 				},
-				Cursor: vmath.NewXY[int16](7, 3*lH),
+				Cursor: vgeo.NewXY[int16](7, 3*lH),
 				TrimH:  6,
-				WH:     vmath.WH[int16]{W: 8},
+				WH:     vgeo.WH[int16]{W: 8},
 			},
 		},
 		// case 23: "abcdefgh" maxW=9, index=0 → 2 per row
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: 9, str: "abcdefgh", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: 9, str: "abcdefgh", index: 0,
 			expected: TextLayout{
-				Chars: []vmath.Box[int16]{
+				Chars: []vgeo.Box[int16]{
 					XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 3, cH),
 					XYWH(0, 1*lH, 3, cH), XYWH(4, 1*lH, 3, cH),
 					XYWH(0, 2*lH, 3, cH), XYWH(4, 2*lH, 3, cH),
 					XYWH(0, 3*lH, 3, cH), XYWH(4, 3*lH, 3, cH),
 				},
-				Cursor: vmath.NewXY[int16](7, 3*lH),
+				Cursor: vgeo.NewXY[int16](7, 3*lH),
 				TrimH:  6,
-				WH:     vmath.WH[int16]{W: 8},
+				WH:     vgeo.WH[int16]{W: 8},
 			},
 		},
 		// case 24: "abcdefgh" maxW=10, index=0 → 2 per row
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: 10, str: "abcdefgh", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: 10, str: "abcdefgh", index: 0,
 			expected: TextLayout{
-				Chars: []vmath.Box[int16]{
+				Chars: []vgeo.Box[int16]{
 					XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 3, cH),
 					XYWH(0, 1*lH, 3, cH), XYWH(4, 1*lH, 3, cH),
 					XYWH(0, 2*lH, 3, cH), XYWH(4, 2*lH, 3, cH),
 					XYWH(0, 3*lH, 3, cH), XYWH(4, 3*lH, 3, cH),
 				},
-				Cursor: vmath.NewXY[int16](7, 3*lH),
+				Cursor: vgeo.NewXY[int16](7, 3*lH),
 				TrimH:  6,
-				WH:     vmath.WH[int16]{W: 8},
+				WH:     vgeo.WH[int16]{W: 8},
 			},
 		},
 		// case 25: "abcdefgh" maxW=11, index=0 → 2 per row
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: 11, str: "abcdefgh", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: 11, str: "abcdefgh", index: 0,
 			expected: TextLayout{
-				Chars: []vmath.Box[int16]{
+				Chars: []vgeo.Box[int16]{
 					XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 3, cH),
 					XYWH(0, 1*lH, 3, cH), XYWH(4, 1*lH, 3, cH),
 					XYWH(0, 2*lH, 3, cH), XYWH(4, 2*lH, 3, cH),
 					XYWH(0, 3*lH, 3, cH), XYWH(4, 3*lH, 3, cH),
 				},
-				Cursor: vmath.NewXY[int16](7, 3*lH),
+				Cursor: vgeo.NewXY[int16](7, 3*lH),
 				TrimH:  6,
-				WH:     vmath.WH[int16]{W: 8},
+				WH:     vgeo.WH[int16]{W: 8},
 			},
 		},
 		// case 26: "abcdefgh" maxW=12, index=0 → 3 per row
 		{
-			xy: vmath.NewXY[int16](0, 0*lH), maxW: 12, str: "abcdefgh", index: 0,
+			xy: vgeo.NewXY[int16](0, 0*lH), maxW: 12, str: "abcdefgh", index: 0,
 			expected: TextLayout{
-				Chars: []vmath.Box[int16]{
+				Chars: []vgeo.Box[int16]{
 					XYWH(0, 0*lH, 3, cH), XYWH(4, 0*lH, 3, cH), XYWH(8, 0*lH, 3, cH),
 					XYWH(0, 1*lH, 3, cH), XYWH(4, 1*lH, 3, cH), XYWH(8, 1*lH, 3, cH),
 					XYWH(0, 2*lH, 3, cH), XYWH(4, 2*lH, 3, cH),
 				},
-				Cursor: vmath.NewXY[int16](7, 2*lH),
+				Cursor: vgeo.NewXY[int16](7, 2*lH),
 				TrimH:  6,
-				WH:     vmath.WH[int16]{W: 12},
+				WH:     vgeo.WH[int16]{W: 12},
 			},
 		},
 		// case 27: "abcdefgh" maxW=5, xy={1,0}, index=0 → first fits, rest wrap
 		{
-			xy: vmath.NewXY[int16](1, 0*lH), maxW: 5, str: "abcdefgh", index: 0,
+			xy: vgeo.NewXY[int16](1, 0*lH), maxW: 5, str: "abcdefgh", index: 0,
 			expected: TextLayout{
-				Chars: []vmath.Box[int16]{
+				Chars: []vgeo.Box[int16]{
 					XYWH(1, 0*lH, 3, cH),
 					XYWH(0, 1*lH, 3, cH), XYWH(0, 2*lH, 3, cH), XYWH(0, 3*lH, 3, cH),
 					XYWH(0, 4*lH, 3, cH), XYWH(0, 5*lH, 3, cH),
 					XYWH(0, 6*lH, 3, cH), XYWH(0, 7*lH, 3, cH),
 				},
-				Cursor: vmath.NewXY[int16](3, 7*lH),
+				Cursor: vgeo.NewXY[int16](3, 7*lH),
 				TrimH:  5,
-				WH:     vmath.WH[int16]{W: 5},
+				WH:     vgeo.WH[int16]{W: 5},
 			},
 		},
 		// case 28: "abcdefgh" maxW=5, xy={2,0}, index=0 →
 		// first doesn't fit, all on new lines
 		{
-			xy: vmath.NewXY[int16](2, 0*lH), maxW: 5, str: "abcdefgh", index: 0,
+			xy: vgeo.NewXY[int16](2, 0*lH), maxW: 5, str: "abcdefgh", index: 0,
 			expected: TextLayout{
-				Chars: []vmath.Box[int16]{
+				Chars: []vgeo.Box[int16]{
 					XYWH(0, 1*lH, 3, cH), XYWH(0, 2*lH, 3, cH),
 					XYWH(0, 3*lH, 3, cH), XYWH(0, 4*lH, 3, cH),
 					XYWH(0, 5*lH, 3, cH), XYWH(0, 6*lH, 3, cH),
 					XYWH(0, 7*lH, 3, cH), XYWH(0, 8*lH, 3, cH),
 				},
-				Cursor: vmath.NewXY[int16](3, 8*lH),
+				Cursor: vgeo.NewXY[int16](3, 8*lH),
 				TrimH:  5,
-				WH:     vmath.WH[int16]{W: 4},
+				WH:     vgeo.WH[int16]{W: 4},
 			},
 		},
 		// case 29: "abcdefgh" maxW=5, xy={2,1}, index=0 → same but y offset by 1
 		{
-			xy: vmath.NewXY[int16](2, 1+0*lH), maxW: 5, str: "abcdefgh", index: 0,
+			xy: vgeo.NewXY[int16](2, 1+0*lH), maxW: 5, str: "abcdefgh", index: 0,
 			expected: TextLayout{
-				Chars: []vmath.Box[int16]{
+				Chars: []vgeo.Box[int16]{
 					XYWH(0, 1+1*lH, 3, cH), XYWH(0, 1+2*lH, 3, cH),
 					XYWH(0, 1+3*lH, 3, cH), XYWH(0, 1+4*lH, 3, cH),
 					XYWH(0, 1+5*lH, 3, cH), XYWH(0, 1+6*lH, 3, cH),
 					XYWH(0, 1+7*lH, 3, cH), XYWH(0, 1+8*lH, 3, cH),
 				},
-				Cursor: vmath.NewXY[int16](3, 1+8*lH),
+				Cursor: vgeo.NewXY[int16](3, 1+8*lH),
 				TrimH:  5,
-				WH:     vmath.WH[int16]{W: 4},
+				WH:     vgeo.WH[int16]{W: 4},
 			},
 		},
 	}
@@ -661,6 +661,6 @@ func assertWordLayout(t *testing.T, got, want TextLayout) {
 	}
 }
 
-func XYWH(x, y, w, h int16) vmath.Box[int16] {
-	return vmath.XYWH(x, y, w, h)
+func XYWH(x, y, w, h int16) vgeo.Box[int16] {
+	return vgeo.XYWH(x, y, w, h)
 }

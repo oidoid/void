@@ -5,9 +5,9 @@ import (
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/ventdata"
 	"github.com/oidoid/void/src/void/vgame"
+	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vinput"
-	"github.com/oidoid/void/src/void/vmath"
 )
 
 type MouseStatusEnt struct {
@@ -20,15 +20,15 @@ const mouseStatusSize = float32(16)
 
 func NewMouseStatusEnt() MouseStatusEnt {
 	this := MouseStatusEnt{}
-	this.Anchor = vmath.DirSE
-	this.Margin = vmath.Border[int16]{E: 4, S: 14}
+	this.Anchor = vgeo.DirSE
+	this.Margin = vgeo.Border[int16]{E: 4, S: 14}
 	return this
 }
 
 func (this *MouseStatusEnt) Update(
 	sprites *[]vgfx.Sprite,
 	input *vinput.InputPoll,
-	canvas vmath.WH[uint16],
+	canvas vgeo.WH[uint16],
 ) vgame.Status {
 	loop := vgame.Pause
 	// to-do: just unpack to avoid extra conditionals.
@@ -66,7 +66,7 @@ func (this *MouseStatusEnt) Update(
 func (this *MouseStatusEnt) addOverlay(
 	sprites *[]vgfx.Sprite,
 	animID vatlas.AnimID,
-	xy vmath.XY[float32],
+	xy vgeo.XY[float32],
 	on bool,
 ) {
 	if !on {

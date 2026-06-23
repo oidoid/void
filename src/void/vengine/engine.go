@@ -11,10 +11,10 @@ import (
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/ventdata"
 	"github.com/oidoid/void/src/void/vgame"
+	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vinput"
 	"github.com/oidoid/void/src/void/vlevels"
-	"github.com/oidoid/void/src/void/vmath"
 	"github.com/oidoid/void/src/void/vtext"
 )
 
@@ -25,11 +25,11 @@ type Engine[Game vgame.Game] struct {
 	Texts    ventdata.EntVec[Game, ventdata.TextEnt]
 	font     *vtext.Font
 	frame    vgame.Poll
-	cam      vmath.XY[float32]
+	cam      vgeo.XY[float32]
 	updaters ventdata.Zoo[Game]
 	// not true viewport size. adjusted by max sprite size.
-	viewport    vmath.Box[float32]
-	LevelBounds vmath.Box[float32] // to-do: can this be in vlevels.Level?
+	viewport    vgeo.Box[float32]
+	LevelBounds vgeo.Box[float32] // to-do: can this be in vlevels.Level?
 	rnd         *rand.Rand
 	sprites     []vgfx.Sprite
 	tick        vgame.Tick
@@ -92,10 +92,10 @@ func (this *Engine[Game]) FramePointer() uintptr {
 	return uintptr(unsafe.Pointer(&this.frame))
 }
 
-func (this *Engine[Game]) Cam() *vmath.XY[float32] { return &this.cam }
-func (this *Engine[Game]) CamX() float32           { return this.cam.X }
-func (this *Engine[Game]) CamY() float32           { return this.cam.Y }
-func (this *Engine[Game]) Canvas() *vmath.WH[uint16] {
+func (this *Engine[Game]) Cam() *vgeo.XY[float32] { return &this.cam }
+func (this *Engine[Game]) CamX() float32          { return this.cam.X }
+func (this *Engine[Game]) CamY() float32          { return this.cam.Y }
+func (this *Engine[Game]) Canvas() *vgeo.WH[uint16] {
 	return &this.frame.Canvas
 }
 func (this *Engine[Game]) Input() *vinput.InputPoll {
@@ -117,7 +117,7 @@ func (this *Engine[Game]) SpriteCount() int { return len(this.sprites) }
 func (this *Engine[Game]) Sprites() *[]vgfx.Sprite {
 	return &this.sprites
 }
-func (this *Engine[Game]) Viewport() vmath.Box[float32] {
+func (this *Engine[Game]) Viewport() vgeo.Box[float32] {
 	return this.viewport
 }
 
@@ -144,13 +144,13 @@ func (this *Engine[Game]) Update() vgame.Status {
 	w := float32(this.frame.Canvas.W)
 	h := float32(this.frame.Canvas.H)
 	r := vgfx.MaxSpriteSize
-	this.viewport = vmath.NewBox(
+	this.viewport = vgeo.NewBox(
 		this.cam.X-r,
 		this.cam.Y-r,
 		this.cam.X+w+r,
 		this.cam.Y+h+r,
 	)
-	this.LevelBounds = vmath.NewBox(
+	this.LevelBounds = vgeo.NewBox(
 		float32(this.Level.Min.X),
 		float32(this.Level.Min.Y),
 		float32(this.Level.Max.X),

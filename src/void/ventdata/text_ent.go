@@ -2,8 +2,8 @@ package ventdata
 
 import (
 	"github.com/oidoid/void/src/void/vgame"
+	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
-	"github.com/oidoid/void/src/void/vmath"
 	"github.com/oidoid/void/src/void/vtext"
 )
 
@@ -11,15 +11,15 @@ import (
 type TextEnt struct {
 	Text   string
 	Layout vtext.TextLayout // nil `Layout.Chars` to force relayout.
-	XY     vmath.XY[int16]
+	XY     vgeo.XY[int16]
 	Z      vgfx.Layer
 	Trim   vtext.Trim
 }
 
-var zeroChar = vmath.Box[int16]{}
+var zeroChar = vgeo.Box[int16]{}
 
 func (this *TextEnt) Update(
-	font *vtext.Font, sprites *[]vgfx.Sprite, viewport vmath.Box[float32],
+	font *vtext.Font, sprites *[]vgfx.Sprite, viewport vgeo.Box[float32],
 ) vgame.Status {
 	loop := vgame.Pause
 	if this.Layout.Chars == nil {
@@ -32,7 +32,7 @@ func (this *TextEnt) Update(
 			// to-do: better to just draw instead of testing every char?
 			continue
 		}
-		xy := vmath.NewXY(
+		xy := vgeo.NewXY(
 			float32(chBox.Min.X+this.XY.X), float32(chBox.Min.Y+this.XY.Y),
 		)
 		if !this.Z.UI() {
