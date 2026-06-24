@@ -11,9 +11,7 @@ const (
 	PointerDeviceTouch
 )
 
-// devices are ephemeral and may be virtual.
-
-// virtual pointing device state.
+// virtual pointing device state. devices are ephemeral and may be virtual.
 type PointerPoll struct {
 	// pointer ID; -1 if nonpointing device (eg, a click event fired on a button
 	// activated via keyboard).
