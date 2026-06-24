@@ -8,6 +8,7 @@ import (
 	"github.com/oidoid/void/src/void/ventdata"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
+	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vhooks"
 )
 
@@ -27,7 +28,12 @@ func InitInit(gam *engine.Engine) {
 	gam.RegisterEntUpdate(spawners)
 
 	drawStatuses := ventdata.NewEntVec(vhooks.UpdateDrawStatuses[*engine.Engine])
-	drawStatuses.Add(ventdata.NewDrawStatusEnt(assets.BackgroundKiwi))
+	drawStatuses.Add(ventdata.NewDrawStatusEnt(
+		assets.BackgroundKiwi,
+		vgeo.DirSE,
+		vgeo.Border[int16]{N: 4, E: 4, S: 4, W: 4},
+		vgfx.LayerTop,
+	))
 	gam.RegisterEntUpdate(drawStatuses)
 
 	entStatuses := ventdata.NewEntVec(hooks.UpdateEntStatuses)

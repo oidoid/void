@@ -12,8 +12,8 @@ import (
 type DrawStatusEnt struct {
 	HUDEnt
 	TextEnt
-	BackgroundAnimID vatlas.AnimID
-	Next             struct {
+	BgAnimID vatlas.AnimID
+	Next     struct {
 		// start of the current one-second FPS counting window in milliseconds.
 		Start float64
 		// frames counted in the current window.
@@ -23,12 +23,16 @@ type DrawStatusEnt struct {
 	PrevFPS int
 }
 
-func NewDrawStatusEnt(backgroundAnimID vatlas.AnimID) DrawStatusEnt {
-	this := DrawStatusEnt{BackgroundAnimID: backgroundAnimID}
-	this.Anchor = vgeo.DirSE
-	this.Margin = vgeo.Border[int16]{N: 4, E: 4, S: 4, W: 4}
-	this.Trim = vtext.TrimLead
-	this.Z = vgfx.LayerTop
+func NewDrawStatusEnt(
+	bgAnimID vatlas.AnimID,
+	anchor vgeo.Dir,
+	margin vgeo.Border[int16],
+	z vgfx.Layer,
+) DrawStatusEnt {
+	this := DrawStatusEnt{BgAnimID: bgAnimID}
+	this.Anchor = anchor
+	this.Margin = margin
+	this.Z = z
 	return this
 }
 
@@ -51,8 +55,7 @@ func (this *DrawStatusEnt) Update(
 	this.SetText(text)
 
 	this.LayoutChars(font)
-	// to-do: if invalid / cam.invalid / return value from LayoutChars().
-	this.XY = HudXY(this.HUDEnt, this.Layout.W, this.Layout.TrimH, canvas)
+	this.XY = HudXY(this.HUDEnt, this.Layout.W, this.Layout.TrimLeadForceH, canvas)
 
 	this.DrawBackground(sprites)
 
@@ -63,11 +66,11 @@ func (this *DrawStatusEnt) DrawBackground(sprites *[]vgfx.Sprite) {
 	const margin = int16(1)
 	*sprites = append(*sprites, vgfx.Sprite{
 		XY:     vgeo.NewXY(float32(this.XY.X-margin), float32(this.XY.Y-margin)),
-		AnimID: this.BackgroundAnimID,
+		AnimID: this.BgAnimID,
 		Z:      this.Z - 1,
 		WH: vgeo.WH[uint16]{
 			W: uint16(this.Layout.W + margin*2),
-			H: uint16(this.Layout.TrimH + margin*2),
+			H: uint16(this.Layout.TrimLeadForceH + margin*2),
 		},
 	})
 }

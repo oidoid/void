@@ -15,10 +15,11 @@ func UpdateEntStatuses(
 	font := gam.Font()
 	canvas := *gam.Canvas()
 	count := gam.Balls.Len()
+	spriteCount := gam.SpriteCount()
 	vals := ents.Vals()
 	loop := vgame.Pause
 	for i := range vals {
-		loop |= vals[i].Update(font, sprites, canvas, count)
+		loop |= vals[i].Update(font, sprites, canvas, count, spriteCount)
 	}
 	return loop
 }
