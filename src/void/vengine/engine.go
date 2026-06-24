@@ -95,8 +95,8 @@ func (this *Engine[Game]) FramePointer() uintptr {
 func (this *Engine[Game]) Cam() *vgeo.XY[float32] { return &this.cam }
 func (this *Engine[Game]) CamX() float32          { return this.cam.X }
 func (this *Engine[Game]) CamY() float32          { return this.cam.Y }
-func (this *Engine[Game]) Canvas() *vgeo.WH[uint16] {
-	return &this.frame.Canvas
+func (this *Engine[Game]) CanvasPhy() *vgeo.WH[uint16] {
+	return &this.frame.CanvasPhy
 }
 func (this *Engine[Game]) Input() *vinput.InputPoll {
 	return &this.frame.InputPoll
@@ -141,9 +141,10 @@ func (this *Engine[Game]) Update() vgame.Status {
 	this.tickStart = time.Now()
 	this.tick.DrawMs = this.frame.DrawMs
 	this.sprites = this.sprites[:0]
-	w := float32(this.frame.Canvas.W)
-	h := float32(this.frame.Canvas.H)
+	w := float32(this.frame.CanvasPhy.W)
+	h := float32(this.frame.CanvasPhy.H)
 	r := vgfx.MaxSpriteSize
+	// to-do: this is all in physical pixels which is probably incorrect.
 	this.viewport = vgeo.NewBox(
 		this.cam.X-r,
 		this.cam.Y-r,

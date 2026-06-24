@@ -13,11 +13,11 @@ func UpdateMouseStatuses(
 ) vgame.Status {
 	sprites := gam.Sprites()
 	input := gam.Input()
-	canvas := *gam.Canvas()
+	canvasPhy := *gam.CanvasPhy()
 	vals := ents.Vals()
 	loop := vgame.Pause
 	for i := range vals {
-		loop |= vals[i].Update(sprites, input, canvas)
+		loop |= vals[i].Update(sprites, input, canvasPhy)
 	}
 	return loop
 }

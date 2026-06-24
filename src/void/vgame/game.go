@@ -9,7 +9,7 @@ import (
 
 type Game interface {
 	Platform
-	Canvas() *vgeo.WH[uint16]
+	CanvasPhy() *vgeo.WH[uint16]
 	Font() *vtext.Font
 	Fullscreen() bool
 	Input() *vinput.InputPoll

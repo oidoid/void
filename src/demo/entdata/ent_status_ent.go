@@ -25,7 +25,7 @@ func NewEntStatusEnt() EntStatusEnt {
 func (this *EntStatusEnt) Update(
 	font *vtext.Font,
 	sprites *[]vgfx.Sprite,
-	canvas vgeo.WH[uint16],
+	canvasPhy vgeo.WH[uint16],
 	count int,
 	spriteCount int,
 ) vgame.Status {
@@ -36,7 +36,8 @@ func (this *EntStatusEnt) Update(
 
 	this.LayoutChars(font)
 	this.XY = ventdata.HudXY(
-		this.HUDEnt, this.Layout.W, this.Layout.TrimLeadForceH, canvas,
+		// to-do: canvasPhy is probably incorrect. should be same units of w/h.
+		this.HUDEnt, this.Layout.W, this.Layout.TrimLeadForceH, canvasPhy,
 	)
 
 	this.drawBackground(sprites)

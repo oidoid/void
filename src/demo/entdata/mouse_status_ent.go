@@ -28,7 +28,7 @@ func NewMouseStatusEnt() MouseStatusEnt {
 func (this *MouseStatusEnt) Update(
 	sprites *[]vgfx.Sprite,
 	input *vinput.InputPoll,
-	canvas vgeo.WH[uint16],
+	canvasPhy vgeo.WH[uint16],
 ) vgame.Status {
 	loop := vgame.Pause
 	// to-do: just unpack to avoid extra conditionals.
@@ -52,7 +52,8 @@ func (this *MouseStatusEnt) Update(
 		return vgame.Pause
 	}
 
-	xy := ventdata.HudXY(this.HUDEnt, mouseStatusSize, mouseStatusSize, canvas)
+	// to-do: canvasPhy is probably incorrect. should be same units of w/h.
+	xy := ventdata.HudXY(this.HUDEnt, mouseStatusSize, mouseStatusSize, canvasPhy)
 	*sprites = append(
 		*sprites,
 		vgfx.Sprite{XY: xy, AnimID: assets.MouseStatusBase, Z: vgfx.LayerTop},

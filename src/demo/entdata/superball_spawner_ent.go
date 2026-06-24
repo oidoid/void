@@ -25,7 +25,7 @@ func (this *SuperballSpawnerEnt) Update(
 		pointer := &input.Pointers[i]
 		if pointer.Buttons&1 == 1 {
 			for range min(3000, int(60_000*(deltaMs/1000))) {
-				ball := NewBallEnt(rnd, camX+pointer.Min.X, camY+pointer.Min.Y)
+				ball := NewBallEnt(rnd, camX+pointer.Phy.Min.X, camY+pointer.Phy.Min.Y)
 				_ = balls.Add(ball)
 			}
 			loop = vgame.Loop

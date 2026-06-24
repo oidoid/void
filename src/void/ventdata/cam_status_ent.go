@@ -28,12 +28,12 @@ func NewCamStatusEnt(backgroundAnimID vatlas.AnimID) CamStatusEnt {
 func (this *CamStatusEnt) Update(
 	font *vtext.Font,
 	sprites *[]vgfx.Sprite,
-	canvas vgeo.WH[uint16],
+	canvasPhy vgeo.WH[uint16],
 	camX, camY float32,
 	fullscreen bool,
 ) vgame.Status {
 	text := "(" + vtext.FmtFloat(camX) + ", " + vtext.FmtFloat(camY) + ") " +
-		strconv.Itoa(int(canvas.W)) + "x" + strconv.Itoa(int(canvas.H))
+		strconv.Itoa(int(canvasPhy.W)) + "x" + strconv.Itoa(int(canvasPhy.H))
 	if fullscreen {
 		text += "f"
 	}
@@ -42,7 +42,7 @@ func (this *CamStatusEnt) Update(
 
 	this.LayoutChars(font)
 	// to-do: if invalid / cam.invalid / return value from LayoutChars().
-	this.XY = HudXY(this.HUDEnt, this.Layout.W, this.Layout.TrimH, canvas)
+	this.XY = HudXY(this.HUDEnt, this.Layout.W, this.Layout.TrimH, canvasPhy)
 
 	this.DrawBackground(sprites)
 

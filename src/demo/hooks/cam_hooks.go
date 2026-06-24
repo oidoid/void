@@ -37,17 +37,17 @@ func UpdateCam(gam *engine.Engine) vgame.Status {
 		if pointer.Buttons == 0 {
 			continue
 		}
-		if pointer.Min.X < edgeZone {
+		if pointer.Phy.Min.X < edgeZone {
 			gam.Cam().X -= dx
 			loop = vgame.Loop
-		} else if pointer.Min.X > float32(gam.Canvas().W)-edgeZone {
+		} else if pointer.Phy.Min.X > float32(gam.CanvasPhy().W)-edgeZone {
 			gam.Cam().X += dx
 			loop = vgame.Loop
 		}
-		if pointer.Min.Y < edgeZone {
+		if pointer.Phy.Min.Y < edgeZone {
 			gam.Cam().Y -= dx
 			loop = vgame.Loop
-		} else if pointer.Min.Y > float32(gam.Canvas().H)-edgeZone {
+		} else if pointer.Phy.Min.Y > float32(gam.CanvasPhy().H)-edgeZone {
 			gam.Cam().Y += dx
 			loop = vgame.Loop
 		}

@@ -11,7 +11,7 @@ type Poll struct {
 	DeltaMs float64
 	// time in milliseconds since page load (performance.now()).
 	NowMs      float64
-	Canvas     vgeo.WH[uint16]
+	CanvasPhy  vgeo.WH[uint16]
 	Fullscreen bool
 	_          [7]byte // padding for DrawMs alignment
 	DrawMs     float64

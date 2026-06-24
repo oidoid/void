@@ -41,7 +41,7 @@ func (this *DrawStatusEnt) Update(
 	sprites *[]vgfx.Sprite,
 	nowMs float64,
 	tick *vgame.Tick,
-	canvas vgeo.WH[uint16],
+	canvasPhy vgeo.WH[uint16],
 ) vgame.Status {
 	this.Next.Frames++
 	if nowMs-this.Next.Start >= 1000 {
@@ -55,7 +55,10 @@ func (this *DrawStatusEnt) Update(
 	this.SetText(text)
 
 	this.LayoutChars(font)
-	this.XY = HudXY(this.HUDEnt, this.Layout.W, this.Layout.TrimLeadForceH, canvas)
+	this.XY = HudXY(
+		// to-do: canvasPhy is probably incorrect. should be same units of w/h.
+		this.HUDEnt, this.Layout.W, this.Layout.TrimLeadForceH, canvasPhy,
+	)
 
 	this.DrawBackground(sprites)
 

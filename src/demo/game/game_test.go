@@ -34,8 +34,8 @@ func BenchmarkGameUpdate_DrawAll(b *testing.B) {
 
 func newGame(camX, camY float32) *engine.Engine {
 	gam := game.New()
-	gam.Canvas().W = benchCanvasSize
-	gam.Canvas().H = benchCanvasSize
+	gam.CanvasPhy().W = benchCanvasSize
+	gam.CanvasPhy().H = benchCanvasSize
 	gam.Cam().X = camX
 	gam.Cam().Y = camY
 	gam.Frame().DeltaMs = 1000. / fps

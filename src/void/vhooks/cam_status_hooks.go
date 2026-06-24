@@ -12,14 +12,14 @@ func UpdateCamStatuses[Game vgame.Game](
 ) vgame.Status {
 	sprites := gam.Sprites()
 	font := gam.Font()
-	canvas := *gam.Canvas()
+	canvasPhy := *gam.CanvasPhy()
 	camX := gam.CamX()
 	camY := gam.CamY()
 	fullscreen := gam.Fullscreen()
 	vals := ents.Vals()
 	loop := vgame.Pause
 	for i := range vals {
-		loop |= vals[i].Update(font, sprites, canvas, camX, camY, fullscreen)
+		loop |= vals[i].Update(font, sprites, canvasPhy, camX, camY, fullscreen)
 	}
 	return loop
 }

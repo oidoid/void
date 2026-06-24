@@ -15,11 +15,11 @@ func UpdateDrawStatuses[Game vgame.Game](
 	font := gam.Font()
 	nowMs := gam.NowMs()
 	tick := gam.Tick()
-	canvas := *gam.Canvas()
+	canvasPhy := *gam.CanvasPhy()
 	vals := ents.Vals()
 	loop := vgame.Pause
 	for i := range vals {
-		loop |= vals[i].Update(font, sprites, nowMs, tick, canvas)
+		loop |= vals[i].Update(font, sprites, nowMs, tick, canvasPhy)
 	}
 	return loop
 }
