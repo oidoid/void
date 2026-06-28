@@ -1,10 +1,34 @@
 package vtext
 
-import (
-	"strconv"
+import "github.com/oidoid/void/src/void/vtypes"
 
-	"github.com/oidoid/void/src/void/vtypes"
-)
+// fat savings version of `strconv.Itoa()`.
+func Itoa(n int) string {
+	if n == 0 {
+		return "0"
+	}
+
+	neg := n < 0
+	var u uint
+	if neg {
+		u = uint(-(n + 1)) + 1
+	} else {
+		u = uint(n)
+	}
+
+	var buf [20]byte
+	i := len(buf)
+	for u > 0 {
+		i--
+		buf[i] = byte('0' + u%10)
+		u /= 10
+	}
+	if neg {
+		i--
+		buf[i] = '-'
+	}
+	return string(buf[i:])
+}
 
 // format a float to a string with one decimal place.
 func FmtFloat[T vtypes.Number](num T) string {
@@ -14,9 +38,9 @@ func FmtFloat[T vtypes.Number](num T) string {
 		frac = -frac
 	}
 	if num < 0 && i == 0 {
-		return "-0." + strconv.Itoa(frac)
+		return "-0." + Itoa(frac)
 	}
-	return strconv.Itoa(i) + "." + strconv.Itoa(frac)
+	return Itoa(i) + "." + Itoa(frac)
 }
 
 // `FmtFloat()` but pad the integer part to at least two digits.
@@ -30,11 +54,11 @@ func FmtFloat2[T vtypes.Number](num T) string {
 
 // pads a non-negative integer to at least width digits with spaces.
 func PadInt(n, width int) string {
-	s := strconv.Itoa(n)
-	for len(s) < width {
-		s = " " + s
+	str := Itoa(n)
+	for len(str) < width {
+		str = " " + str
 	}
-	return s
+	return str
 }
 
 // whether char is zero or a whitespace character.

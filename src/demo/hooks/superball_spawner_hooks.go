@@ -14,14 +14,12 @@ func UpdateSuperballSpawners(
 	deltaMs := gam.Frame().DeltaMs
 	input := gam.Input()
 	rnd := gam.Random
-	camX := gam.CamX()
-	camY := gam.CamY()
 	levelBounds := gam.LevelBounds
 	balls := &gam.Balls.Vec
 	vals := ents.Vals()
 	loop := vgame.Pause
 	for i := range vals {
-		loop |= vals[i].Update(balls, input, deltaMs, rnd, camX, camY, levelBounds)
+		loop |= vals[i].Update(balls, input, deltaMs, rnd, levelBounds)
 	}
 	return loop
 }

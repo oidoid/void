@@ -12,7 +12,8 @@ type Game interface {
 	CanvasPhy() *vgeo.WH[uint16]
 	Font() *vtext.Font
 	Fullscreen() bool
-	Input() *vinput.InputPoll
+	// to-do: rename In().
+	Input() *vinput.Input
 	NowMs() float64
 	Tick() *Tick
 	Sprites() *[]vgfx.Sprite

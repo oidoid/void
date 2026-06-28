@@ -12,8 +12,7 @@ import (
 
 type MouseStatusEnt struct {
 	ventdata.HUDEnt
-	lastButtons uint8
-	visible     bool
+	visible bool
 }
 
 const mouseStatusSize = float32(16)
@@ -27,27 +26,10 @@ func NewMouseStatusEnt() MouseStatusEnt {
 
 func (this *MouseStatusEnt) Update(
 	sprites *[]vgfx.Sprite,
-	input *vinput.InputPoll,
+	input *vinput.Input,
 	canvasPhy vgeo.WH[uint16],
 ) vgame.Status {
-	loop := vgame.Pause
-	// to-do: just unpack to avoid extra conditionals.
-	primary := input.PrimaryPointer()
-	if primary == nil {
-		if this.lastButtons != 0 {
-			loop = vgame.Loop
-		}
-		this.lastButtons = 0
-	} else {
-		if primary.Buttons != this.lastButtons {
-			loop = vgame.Loop
-		}
-		this.lastButtons = primary.Buttons
-		if primary.Device == vinput.PointerDeviceMouse {
-			this.visible = true
-		}
-	}
-
+	this.visible = this.visible || input.Ptr.Device() == vinput.PointerDeviceMouse
 	if !this.visible {
 		return vgame.Pause
 	}
@@ -58,10 +40,14 @@ func (this *MouseStatusEnt) Update(
 		*sprites,
 		vgfx.Sprite{XY: xy, AnimID: assets.MouseStatusBase, Z: vgfx.LayerTop},
 	)
-	this.addOverlay(sprites, assets.MouseStatusPrimary, xy, this.lastButtons&1 != 0)
-	this.addOverlay(sprites, assets.MouseStatusSecondary, xy, this.lastButtons&2 != 0)
-	this.addOverlay(sprites, assets.MouseStatusTertiary, xy, this.lastButtons&4 != 0)
-	return loop
+	clicks := input.Ptr.Clicks()
+	this.addOverlay(sprites, assets.MouseStatusPrimary, xy, clicks&1 != 0)
+	this.addOverlay(sprites, assets.MouseStatusSecondary, xy, clicks&2 != 0)
+	this.addOverlay(sprites, assets.MouseStatusTertiary, xy, clicks&4 != 0)
+	if input.Dirty {
+		return vgame.Loop
+	}
+	return vgame.Pause
 }
 
 func (this *MouseStatusEnt) addOverlay(

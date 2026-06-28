@@ -11,19 +11,6 @@ import {isUILayer, type Layer} from './layer.ts'
 import type {RenderMode} from './render-mode.ts'
 import {diagonalize} from './sprite.ts'
 
-export type LevelClientLocalXY = {
-  /** position relative canvas top-left (in device pixel ratio scale). */
-  client: XY
-  /**
-   * position relative canvas top-left in level scale (like level xy but no cam
-   * offset) within cam.
-   */
-  local: XY
-  /** level x-coord within cam. */
-  x: number
-  /** level y-coord within cam. */
-  y: number
-}
 
 /** @internal */
 export type Canvas = {

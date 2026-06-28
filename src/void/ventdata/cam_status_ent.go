@@ -1,8 +1,6 @@
 package ventdata
 
 import (
-	"strconv"
-
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
@@ -33,7 +31,7 @@ func (this *CamStatusEnt) Update(
 	fullscreen bool,
 ) vgame.Status {
 	text := "(" + vtext.FmtFloat(camX) + ", " + vtext.FmtFloat(camY) + ") " +
-		strconv.Itoa(int(canvasPhy.W)) + "x" + strconv.Itoa(int(canvasPhy.H))
+		vtext.Itoa(int(canvasPhy.W)) + "x" + vtext.Itoa(int(canvasPhy.H))
 	if fullscreen {
 		text += "f"
 	}

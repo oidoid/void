@@ -3,6 +3,7 @@ package vgeo
 import "github.com/oidoid/void/src/void/vtypes"
 
 type Box[T vtypes.Number] struct {
+	// to-do: Min may not be minimum. rename From and To?
 	Min, Max XY[T]
 }
 

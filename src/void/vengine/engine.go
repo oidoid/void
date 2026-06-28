@@ -3,7 +3,6 @@
 package vengine
 
 import (
-	"time"
 	"unsafe"
 
 	"math/rand/v2"
@@ -19,13 +18,15 @@ import (
 )
 
 type Engine[Game vgame.Game] struct {
-	Level    *vlevels.Level
-	Router   vlevels.Router[Game]
-	Atlas    vatlas.Atlas
-	Texts    ventdata.EntVec[Game, ventdata.TextEnt]
-	font     *vtext.Font
-	frame    vgame.Poll
-	cam      vgeo.XY[float32]
+	Level  *vlevels.Level
+	Router vlevels.Router[Game]
+	Atlas  vatlas.Atlas
+	Texts  ventdata.EntVec[Game, ventdata.TextEnt]
+	font   *vtext.Font
+	frame  vgame.Poll
+	// to-do: rename in.
+	input    *vinput.Input
+	cam      vgeo.XY[float32] // to-do: cam always moves in physical space.
 	updaters ventdata.Zoo[Game]
 	// not true viewport size. adjusted by max sprite size.
 	viewport    vgeo.Box[float32]
@@ -33,7 +34,6 @@ type Engine[Game vgame.Game] struct {
 	rnd         *rand.Rand
 	sprites     []vgfx.Sprite
 	tick        vgame.Tick
-	tickStart   time.Time
 }
 
 type EngineOpts struct {
@@ -62,6 +62,7 @@ func New[Game vgame.Game](opts *EngineOpts) *Engine[Game] {
 	return &Engine[Game]{
 		font:    opts.Font,
 		Level:   opts.Level,
+		input:   vinput.NewInput(),
 		rnd:     rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
 		sprites: make([]vgfx.Sprite, 0, opts.MaxSprites),
 	}
@@ -95,11 +96,13 @@ func (this *Engine[Game]) FramePointer() uintptr {
 func (this *Engine[Game]) Cam() *vgeo.XY[float32] { return &this.cam }
 func (this *Engine[Game]) CamX() float32          { return this.cam.X }
 func (this *Engine[Game]) CamY() float32          { return this.cam.Y }
+
+// to-do: add ViewportPhy?
 func (this *Engine[Game]) CanvasPhy() *vgeo.WH[uint16] {
 	return &this.frame.CanvasPhy
 }
-func (this *Engine[Game]) Input() *vinput.InputPoll {
-	return &this.frame.InputPoll
+func (this *Engine[Game]) Input() *vinput.Input {
+	return this.input
 }
 
 func (this *Engine[Game]) LevelX() int32 { return this.Level.Min.X }
@@ -134,17 +137,21 @@ func (this *Engine[Game]) LevelTileW() uint8 { return this.Level.Tile.W }
 func (this *Engine[Game]) LevelTileH() uint8 { return this.Level.Tile.H }
 
 func (this *Engine[Game]) EndTick() {
-	this.tick.DeltaMs = float64(time.Since(this.tickStart).Nanoseconds()) / 1e6
+	this.tick.DeltaMs = this.frame.DeltaMs
 }
 
 func (this *Engine[Game]) Update() vgame.Status {
-	this.tickStart = time.Now()
+	this.input.Update(
+		this.frame.NowMs,
+		&this.frame.InputPoll,
+		vgeo.Box[float32]{Min: this.cam}, // to-do: actual cam box.
+	)
 	this.tick.DrawMs = this.frame.DrawMs
 	this.sprites = this.sprites[:0]
 	w := float32(this.frame.CanvasPhy.W)
 	h := float32(this.frame.CanvasPhy.H)
 	r := vgfx.MaxSpriteSize
-	// to-do: this is all in physical pixels which is probably incorrect.
+	// to-do: this is all in physical pixels which is probably incorrect. how to get offset to origin? how to get level pixels?
 	this.viewport = vgeo.NewBox(
 		this.cam.X-r,
 		this.cam.Y-r,

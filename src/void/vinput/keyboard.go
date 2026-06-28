@@ -12,7 +12,15 @@ const (
 	KeyC
 	KeyMenu
 	KeyBack
+
+	keyBits = iota
 )
+
+type Keyboard struct {
+	Keys         Key
+	Text         string
+	TextOverflow bool
+}
 
 const MaxTextLen = 4096
 

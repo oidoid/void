@@ -10,6 +10,7 @@ import (
 
 func New() *engine.Engine {
 	this := engine.New()
+	this.Input().MapDefaults()
 	this.Balls = *ventdata.NewEntVec(hooks.UpdateSuperballs)
 	this.RegisterEntUpdate(&this.Balls)
 	this.Texts = *ventdata.NewEntVec(vhooks.UpdateTexts[*engine.Engine])
