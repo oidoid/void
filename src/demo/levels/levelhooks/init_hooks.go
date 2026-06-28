@@ -30,7 +30,7 @@ func InitInit(gam *engine.Engine) {
 		assets.BackgroundKiwi,
 		vgeo.DirSE,
 		vgeo.Border[int16]{N: 4, E: 4, S: 4, W: 4},
-		vgfx.LayerTop,
+		vgfx.LayerSubTop,
 	))
 	gam.RegisterEntUpdate(drawStatuses)
 

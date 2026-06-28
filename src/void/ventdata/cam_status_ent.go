@@ -19,7 +19,7 @@ func NewCamStatusEnt(backgroundAnimID vatlas.AnimID) CamStatusEnt {
 	this.Anchor = vgeo.DirNE
 	this.Margin = vgeo.Border[int16]{N: 4, E: 4, S: 4, W: 4}
 	this.Trim = vtext.TrimLead
-	this.Z = vgfx.LayerTop
+	this.Z = vgfx.LayerSubTop
 	return this
 }
 

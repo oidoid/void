@@ -27,7 +27,7 @@ func NewDrawStatusEnt(
 	bgAnimID vatlas.AnimID,
 	anchor vgeo.Dir,
 	margin vgeo.Border[int16],
-	z vgfx.Layer,
+	z vgfx.LayerSub,
 ) DrawStatusEnt {
 	this := DrawStatusEnt{BgAnimID: bgAnimID}
 	this.Anchor = anchor

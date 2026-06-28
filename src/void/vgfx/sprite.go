@@ -10,13 +10,13 @@ import (
 type Sprite struct {
 	vgeo.XY[float32]
 	AnimCel vatlas.AnimCel
-	Z       Layer
+	Z       LayerSub
 	_       [1]byte
 	vgeo.WH[uint16]
 	flags uint32
 }
 
-const MaxSpriteSize = float32(16)
+const MaxSpriteSize = float32(16) // to-do: move to demo.
 const SpriteStride = int(unsafe.Sizeof(Sprite{}))
 
 func (this *Sprite) Anim() vatlas.AnimID {
@@ -34,7 +34,9 @@ func (this *Sprite) Cel() uint8 {
 }
 
 func (this *Sprite) SetCel(cel uint8) {
-	this.AnimCel = vatlas.AnimCel(uint16(this.AnimCel)&^uint16(vatlas.AnimCelMask) | uint16(cel&uint8(vatlas.AnimCelMask)))
+	this.AnimCel = vatlas.AnimCel(
+		uint16(this.AnimCel)&^uint16(vatlas.AnimCelMask) | uint16(cel&uint8(vatlas.AnimCelMask)),
+	)
 }
 
 func (this *Sprite) Hidden() bool {

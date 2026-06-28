@@ -12,7 +12,7 @@ type TextEnt struct {
 	Text   string
 	Layout vtext.TextLayout // nil `Layout.Chars` to force relayout.
 	XY     vgeo.XY[int16]
-	Z      vgfx.Layer
+	Z      vgfx.LayerSub
 	Trim   vtext.Trim
 }
 
@@ -35,7 +35,7 @@ func (this *TextEnt) Update(
 		xy := vgeo.NewXY(
 			float32(chBox.Min.X+this.XY.X), float32(chBox.Min.Y+this.XY.Y),
 		)
-		if !this.Z.UI() {
+		if !this.Z.IsFixed() {
 			if xy.Y > viewport.Max.Y {
 				break
 			}
