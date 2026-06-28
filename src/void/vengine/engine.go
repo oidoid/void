@@ -18,14 +18,13 @@ import (
 )
 
 type Engine[Game vgame.Game] struct {
-	Level  *vlevels.Level
-	Router vlevels.Router[Game]
-	Atlas  vatlas.Atlas
-	Texts  ventdata.EntVec[Game, ventdata.TextEnt]
-	font   *vtext.Font
-	frame  vgame.Poll
-	// to-do: rename in.
-	input    *vinput.Input
+	Level    *vlevels.Level
+	Router   vlevels.Router[Game]
+	Atlas    vatlas.Atlas
+	Texts    ventdata.EntVec[Game, ventdata.TextEnt]
+	font     *vtext.Font
+	frame    vgame.Poll
+	in       *vinput.In
 	cam      vgeo.XY[float32] // to-do: cam always moves in physical space.
 	updaters ventdata.Zoo[Game]
 	// not true viewport size. adjusted by max sprite size.
@@ -62,7 +61,7 @@ func New[Game vgame.Game](opts *EngineOpts) *Engine[Game] {
 	return &Engine[Game]{
 		font:    opts.Font,
 		Level:   opts.Level,
-		input:   vinput.NewInput(),
+		in:      vinput.NewIn(),
 		rnd:     rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
 		sprites: make([]vgfx.Sprite, 0, opts.MaxSprites),
 	}
@@ -101,8 +100,8 @@ func (this *Engine[Game]) CamY() float32          { return this.cam.Y }
 func (this *Engine[Game]) CanvasPhy() *vgeo.WH[uint16] {
 	return &this.frame.CanvasPhy
 }
-func (this *Engine[Game]) Input() *vinput.Input {
-	return this.input
+func (this *Engine[Game]) In() *vinput.In {
+	return this.in
 }
 
 func (this *Engine[Game]) LevelX() int32 { return this.Level.Min.X }
@@ -141,7 +140,7 @@ func (this *Engine[Game]) EndTick() {
 }
 
 func (this *Engine[Game]) Update() vgame.Status {
-	this.input.Update(
+	this.in.Update(
 		this.frame.NowMs,
 		&this.frame.InputPoll,
 		vgeo.Box[float32]{Min: this.cam}, // to-do: actual cam box.

@@ -8,7 +8,7 @@ import (
 
 func UpdateCam(gam *engine.Engine) vgame.Status {
 	frame := gam.Frame()
-	in := gam.Input()
+	in := gam.In()
 	const camSpeed = .1 // px/ms = 10 px/s
 	dx := camSpeed * float32(frame.DeltaMs)
 	if in.IsOn(vinput.ButtonC) {

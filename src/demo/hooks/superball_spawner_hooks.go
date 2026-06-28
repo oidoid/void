@@ -12,14 +12,14 @@ func UpdateSuperballSpawners(
 	gam *engine.Engine,
 ) vgame.Status {
 	deltaMs := gam.Frame().DeltaMs
-	input := gam.Input()
+	in := gam.In()
 	rnd := gam.Random
 	levelBounds := gam.LevelBounds
 	balls := &gam.Balls.Vec
 	vals := ents.Vals()
 	loop := vgame.Pause
 	for i := range vals {
-		loop |= vals[i].Update(balls, input, deltaMs, rnd, levelBounds)
+		loop |= vals[i].Update(balls, in, deltaMs, rnd, levelBounds)
 	}
 	return loop
 }

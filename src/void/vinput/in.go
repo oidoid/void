@@ -2,12 +2,11 @@ package vinput
 
 import "github.com/oidoid/void/src/void/vgeo"
 
-// to-do: rename In and Game.In().
 // to-do: per pad player assignment.
 // to-do: offer prior device state too. there's no way to tell if a specific pad
 // triggered.
 // to-do: add void-js combo support.
-type Input struct {
+type In struct {
 	Kbd   Keyboard  // all keyboards aggregated.
 	Ptr   *Pointer  // primary pointer; nil if absent.
 	Ptrs  []Pointer // all pointers including primary if exists; aggregate into on.
@@ -42,18 +41,18 @@ type Input struct {
 	prevPoll InputPoll
 }
 
-func NewInput() *Input {
-	return &Input{MinHeldMillis: 300, textMap: make(map[rune]Button)}
+func NewIn() *In {
+	return &In{MinHeldMillis: 300, textMap: make(map[rune]Button)}
 }
 
 // true if on hasn't changed in MinHeldAge ms.
-func (this *Input) IsHeld() bool {
+func (this *In) IsHeld() bool {
 	return this.now-this.onChangedAt >= this.MinHeldMillis
 }
 
 // true if all buttons are off inclusively. eg, `IsOff(ButtonU)` is true when up
 // is released or when up and down are released. updates mask if true.
-func (this *Input) IsOff(btns Button) bool {
+func (this *In) IsOff(btns Button) bool {
 	ok := this.On&^this.Mask&btns == 0
 	if ok {
 		this.Mask |= btns
@@ -64,7 +63,7 @@ func (this *Input) IsOff(btns Button) bool {
 // true if all buttons are off inclusively and at least one of those buttons
 // just turned off. eg, `IsOffStart(ButtonU)` is true when up is just released
 // or when up is just released and down is released. updates mask if true.
-func (this *Input) IsOffStart(btns Button) bool {
+func (this *In) IsOffStart(btns Button) bool {
 	ok := this.On&^this.Mask&btns == 0 && this.PrevOn&btns != 0
 	if ok {
 		this.Mask |= btns
@@ -73,7 +72,7 @@ func (this *Input) IsOffStart(btns Button) bool {
 }
 
 // true if all buttons just became on from a fully off state. updates mask if true.
-func (this *Input) IsOffEnd(btns Button) bool {
+func (this *In) IsOffEnd(btns Button) bool {
 	ok := this.On&^this.Mask&btns == btns && this.PrevOn&btns == 0
 	if ok {
 		this.Mask |= btns
@@ -83,7 +82,7 @@ func (this *Input) IsOffEnd(btns Button) bool {
 
 // true if all buttons are on inclusively. eg, `IsOn(ButtonU)` is true when up
 // is pressed or when up and down are pressed. updates mask if true.
-func (this *Input) IsOn(btns Button) bool {
+func (this *In) IsOn(btns Button) bool {
 	ok := this.On&^this.Mask&btns == btns
 	if ok {
 		this.Mask |= btns
@@ -94,7 +93,7 @@ func (this *Input) IsOn(btns Button) bool {
 // true if all buttons are on inclusively and at least one of those buttons
 // just turned on. eg, `IsOnStart(ButtonU)` is true when up is just pressed or
 // when up is just pressed and down is pressed. updates mask if true.
-func (this *Input) IsOnStart(btns Button) bool {
+func (this *In) IsOnStart(btns Button) bool {
 	ok := this.On&^this.Mask&btns == btns && this.PrevOn&btns != btns
 	if ok {
 		this.Mask |= btns
@@ -105,7 +104,7 @@ func (this *Input) IsOnStart(btns Button) bool {
 // true if all buttons were on inclusively and at least one of those buttons
 // just turned off. eg, `IsOnEnd(ButtonU)` is true when up is just released
 // or when up is just released and down is released. updates mask if true.
-func (this *Input) IsOnEnd(btns Button) bool {
+func (this *In) IsOnEnd(btns Button) bool {
 	ok := this.On&^this.Mask&btns != btns && this.PrevOn&btns == btns
 	if ok {
 		this.Mask |= btns
@@ -115,7 +114,7 @@ func (this *Input) IsOnEnd(btns Button) bool {
 
 // true if any button is on inclusively. eg, `IsAnyOn(ButtonU)` is true when up
 // is pressed or when up and down are pressed. updates mask if true.
-func (this *Input) IsAnyOn(btns Button) bool {
+func (this *In) IsAnyOn(btns Button) bool {
 	ok := this.On&^this.Mask&btns != 0
 	if ok {
 		this.Mask |= btns
@@ -126,7 +125,7 @@ func (this *Input) IsAnyOn(btns Button) bool {
 // true if any button is on inclusively and at least one of those buttons just
 // turned on. eg, `IsAnyOnStart(ButtonU)` is true when up is just pressed or
 // when up is just pressed and down is pressed. updates mask if true.
-func (this *Input) IsAnyOnStart(btns Button) bool {
+func (this *In) IsAnyOnStart(btns Button) bool {
 	ok := this.On&^this.Mask&^this.PrevOn&btns != 0
 	if ok {
 		this.Mask |= btns
@@ -135,7 +134,7 @@ func (this *Input) IsAnyOnStart(btns Button) bool {
 }
 
 // true if any button just turned off this frame. updates mask if true.
-func (this *Input) IsAnyOnEnd(btns Button) bool {
+func (this *In) IsAnyOnEnd(btns Button) bool {
 	ok := this.PrevOn&^this.On&btns != 0
 	if ok {
 		this.Mask |= btns
@@ -144,7 +143,7 @@ func (this *Input) IsAnyOnEnd(btns Button) bool {
 }
 
 // map each keyboard key to all buttons.
-func (this *Input) MapKey(keys Key, btns Button) {
+func (this *In) MapKey(keys Key, btns Button) {
 	for bit := range keyBits {
 		if keys&(1<<bit) != 0 {
 			this.keyMap[bit] = btns
@@ -153,7 +152,7 @@ func (this *Input) MapKey(keys Key, btns Button) {
 }
 
 // map each pointer button to all buttons.
-func (this *Input) MapClick(clicks Click, btns Button) {
+func (this *In) MapClick(clicks Click, btns Button) {
 	for bit := range clickBits {
 		if clicks&(1<<bit) != 0 {
 			this.clickMap[bit] = btns
@@ -162,19 +161,19 @@ func (this *Input) MapClick(clicks Click, btns Button) {
 }
 
 // map gamepad axis to negative and positive dir buttons.
-func (this *Input) MapAxis(axis int, negBtns, posBtns Button) {
+func (this *In) MapAxis(axis int, negBtns, posBtns Button) {
 	this.axisMap[axis][0] = negBtns
 	this.axisMap[axis][1] = posBtns
 }
 
 // map negative and positive wheel dir buttons.
-func (this *Input) MapWheel(negBtns, posBtns Button) {
+func (this *In) MapWheel(negBtns, posBtns Button) {
 	this.wheelMap[0] = negBtns
 	this.wheelMap[1] = posBtns
 }
 
 // map each gamepad button to all buttons.
-func (this *Input) MapButton(padBtns GamepadButton, btns Button) {
+func (this *In) MapButton(padBtns GamepadButton, btns Button) {
 	for bit := range gamepadButtonBits {
 		if padBtns&(1<<bit) != 0 {
 			this.buttonMap[bit] = btns
@@ -183,24 +182,24 @@ func (this *Input) MapButton(padBtns GamepadButton, btns Button) {
 }
 
 // map char to all buttons.
-func (this *Input) MapText(ch rune, btns Button) {
+func (this *In) MapText(ch rune, btns Button) {
 	this.textMap[ch] = btns
 }
 
-func (this *Input) MapDefaults() {
+func (this *In) MapDefaults() {
 	this.MapDefaultKeyboard()
 	this.MapDefaultPointer()
 	this.MapDefaultGamepad()
 	this.MapDefaultText()
 }
 
-func (this *Input) MapDefaultText() {
+func (this *In) MapDefaultText() {
 	this.MapText('+', ButtonScaleInc)
 	this.MapText('=', ButtonScaleReset)
 	this.MapText('-', ButtonScaleDec)
 }
 
-func (this *Input) MapDefaultKeyboard() {
+func (this *In) MapDefaultKeyboard() {
 	this.MapKey(KeyUp, ButtonU)
 	this.MapKey(KeyDown, ButtonD)
 	this.MapKey(KeyLeft, ButtonL)
@@ -212,14 +211,14 @@ func (this *Input) MapDefaultKeyboard() {
 	this.MapKey(KeyBack, ButtonBack)
 }
 
-func (this *Input) MapDefaultPointer() {
+func (this *In) MapDefaultPointer() {
 	this.MapClick(ClickPrimary, ButtonA)
 	this.MapClick(ClickSecondary, ButtonB)
 	this.MapClick(ClickAuxiliary, ButtonC)
 	this.MapClick(ClickBack, ButtonBack)
 }
 
-func (this *Input) MapDefaultGamepad() {
+func (this *In) MapDefaultGamepad() {
 	this.MapButton(GamepadButtonA, ButtonA) // cross.
 	this.MapButton(GamepadButtonB, ButtonB) // circle.
 	this.MapButton(GamepadButtonX, ButtonC) // square.
@@ -235,7 +234,7 @@ func (this *Input) MapDefaultGamepad() {
 	this.MapAxis(3, ButtonU, ButtonD) // right stick Y.
 }
 
-func (this *Input) Reset(now float64) {
+func (this *In) Reset(now float64) {
 	this.Dirty = true
 	this.Mask = 0
 	this.PrevOn = 0
@@ -253,7 +252,7 @@ func (this *Input) Reset(now float64) {
 	this.Dir = vgeo.XY[int8]{}
 }
 
-func (this *Input) Update(now float64, poll *InputPoll, cam vgeo.Box[float32]) {
+func (this *In) Update(now float64, poll *InputPoll, cam vgeo.Box[float32]) {
 	if poll == nil {
 		poll = &InputPoll{}
 	}
@@ -310,7 +309,7 @@ func (this *Input) Update(now float64, poll *InputPoll, cam vgeo.Box[float32]) {
 	}
 }
 
-func (this *Input) evalOn(poll *InputPoll) Button {
+func (this *In) evalOn(poll *InputPoll) Button {
 	var on Button
 
 	keys := poll.Kbd.Keys

@@ -26,10 +26,10 @@ func NewMouseStatusEnt() MouseStatusEnt {
 
 func (this *MouseStatusEnt) Update(
 	sprites *[]vgfx.Sprite,
-	input *vinput.Input,
+	in *vinput.In,
 	canvasPhy vgeo.WH[uint16],
 ) vgame.Status {
-	this.visible = this.visible || input.Ptr.Device() == vinput.PointerDeviceMouse
+	this.visible = this.visible || in.Ptr.Device() == vinput.PointerDeviceMouse
 	if !this.visible {
 		return vgame.Pause
 	}
@@ -40,11 +40,11 @@ func (this *MouseStatusEnt) Update(
 		*sprites,
 		vgfx.Sprite{XY: xy, AnimID: assets.MouseStatusBase, Z: vgfx.LayerTop},
 	)
-	clicks := input.Ptr.Clicks()
+	clicks := in.Ptr.Clicks()
 	this.addOverlay(sprites, assets.MouseStatusPrimary, xy, clicks&1 != 0)
 	this.addOverlay(sprites, assets.MouseStatusSecondary, xy, clicks&2 != 0)
 	this.addOverlay(sprites, assets.MouseStatusTertiary, xy, clicks&4 != 0)
-	if input.Dirty {
+	if in.Dirty {
 		return vgame.Loop
 	}
 	return vgame.Pause
