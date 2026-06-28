@@ -10,7 +10,7 @@ import (
 type Sprite struct {
 	vgeo.XY[float32]
 	AnimCel vatlas.AnimCel
-	Z       LayerSub
+	Z       Layer
 	_       [1]byte
 	vgeo.WH[uint16]
 	flags uint32

@@ -18,7 +18,7 @@ func NewEntStatusEnt() EntStatusEnt {
 	this := EntStatusEnt{}
 	this.Anchor = vgeo.DirSW
 	this.Margin = vgeo.Border[int16]{N: 4, E: 4, S: 4, W: 4}
-	this.Z = vgfx.LayerSubTop
+	this.Z = vgfx.LayerTop
 	return this
 }
 

@@ -12,7 +12,7 @@ type TextEnt struct {
 	Text   string
 	Layout vtext.TextLayout // nil `Layout.Chars` to force relayout.
 	XY     vgeo.XY[int16]
-	Z      vgfx.LayerSub
+	Z      vgfx.Layer
 	Trim   vtext.Trim
 }
 
