@@ -9,6 +9,8 @@ import {
   keyboardTextOffset,
   keyboardTextOverflowOffset,
   maxTextLen,
+  pollSize,
+  pollsOffset,
   updateByteLen
 } from './layout.ts'
 import type {Pointer} from './pointer.ts'
@@ -46,6 +48,43 @@ test('writeUpdate()', async ctx => {
       new Uint8Array(0)
     )
     assert(view.getUint16(keyboardOffset, true), 0b101)
+  })
+
+  await ctx.test('pointer box writes Go Min and Max', () => {
+    const view = newView()
+    const {pointer, wheel, keyboard, gamepad} = newInputs('')
+    pointer.polls = {
+      7: {
+        id: 7,
+        physX: 10,
+        physY: 20,
+        physW: 3,
+        physH: 4,
+        pressure: 0.5,
+        tiltX: -1,
+        tiltY: 2,
+        twist: 30,
+        device: 1,
+        primary: true,
+        buttons: 1
+      }
+    }
+    writeUpdate(
+      view,
+      pointer,
+      wheel,
+      keyboard,
+      gamepad,
+      encoder,
+      new Uint8Array(0)
+    )
+    const o = pollsOffset
+    assert(view.getInt32(o, true), 7)
+    assert(view.getFloat32(o + 4, true), 10)
+    assert(view.getFloat32(o + 8, true), 20)
+    assert(view.getFloat32(o + 12, true), 13)
+    assert(view.getFloat32(o + 16, true), 24)
+    assert(view.getUint8(o + pollSize - 2), 1)
   })
 
   await ctx.test('short text is written', () => {

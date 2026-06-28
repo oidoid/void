@@ -15,13 +15,13 @@ export type PointerPoll = {
    */
   id: number
   /** x coord in physical pixels from top-left; readonly. */
-  x: number
+  physX: number
   /** y coord in physical pixels from top-left; readonly. */
-  y: number
+  physY: number
   /** contact width in physical pixels. */
-  w: number
+  physW: number
   /** contact height in physical pixels. */
-  h: number
+  physH: number
   /** normalized pressure in [0, 1]. */
   pressure: number
   /** pen x-axis tilt from the screen plane in [-90°, 90°]. */
@@ -44,9 +44,9 @@ export class Pointer {
   /** readonly. */
   polls: {[pointerID: number]: PointerPoll} = {}
   onEvent: OnEvent = () => {}
-  readonly #target: Element
+  readonly #target: HTMLCanvasElement
 
-  constructor(target: Element) {
+  constructor(target: HTMLCanvasElement) {
     this.#target = target
   }
 
@@ -70,12 +70,16 @@ export class Pointer {
     else {
       if (ev.type === 'pointerdown')
         this.#target.setPointerCapture(ev.pointerId)
+      const bounds = this.#target.getBoundingClientRect()
+      const scaleX = bounds.width === 0 ? 0 : this.#target.width / bounds.width
+      const scaleY =
+        bounds.height === 0 ? 0 : this.#target.height / bounds.height
       this.polls[ev.pointerId] = {
         id: ev.pointerId,
-        x: ev.clientX * devicePixelRatio,
-        y: ev.clientY * devicePixelRatio,
-        w: ev.width * devicePixelRatio,
-        h: ev.height * devicePixelRatio,
+        physX: (ev.clientX - bounds.left) * scaleX,
+        physY: (ev.clientY - bounds.top) * scaleY,
+        physW: ev.width * devicePixelRatio,
+        physH: ev.height * devicePixelRatio,
         pressure: ev.pressure,
         tiltX: ev.tiltX,
         tiltY: ev.tiltY,

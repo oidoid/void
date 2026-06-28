@@ -30,7 +30,7 @@ export class Input {
   #u8: Uint8Array = new Uint8Array(0)
   readonly #wheel: Wheel
 
-  constructor(canvas: Element) {
+  constructor(canvas: HTMLCanvasElement) {
     this.#ctxMenu = new ContextMenu(canvas)
     this.#gamepad = new Gamepad(canvas)
     this.#keyboard = new Keyboard(canvas)
@@ -97,10 +97,10 @@ export function writeUpdate(
     const poll = polls[i]!
     const o = pollsOffset + i * pollSize
     view.setInt32(o, poll.id, true)
-    view.setFloat32(o + 4, poll.x, true)
-    view.setFloat32(o + 8, poll.y, true)
-    view.setFloat32(o + 12, poll.w, true)
-    view.setFloat32(o + 16, poll.h, true)
+    view.setFloat32(o + 4, poll.physX, true)
+    view.setFloat32(o + 8, poll.physY, true)
+    view.setFloat32(o + 12, poll.physX + poll.physW, true)
+    view.setFloat32(o + 16, poll.physY + poll.physH, true)
     view.setFloat32(o + 20, poll.pressure, true)
     view.setInt8(o + 24, poll.tiltX)
     view.setInt8(o + 25, poll.tiltY)
