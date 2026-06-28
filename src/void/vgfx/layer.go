@@ -28,7 +28,7 @@ const (
 // reports whether the layer does not apply the camera offset.
 func (this LayerSub) IsFixed() bool { return this >= LayerSubUIA }
 
-func (this LayerSub) Group() Layer { return Layer(this >> LayerShift) }
+func (this LayerSub) Layer() Layer { return Layer(this >> LayerShift) }
 
 // sprite
 // each layer may be scaled independently and camera may be fixed or relative.
