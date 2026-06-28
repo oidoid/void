@@ -5,6 +5,11 @@ import (
 	"github.com/oidoid/void/src/void/vrle"
 )
 
+const (
+	flagHitbox  = 1
+	flagHurtbox = 2
+)
+
 func DecodeAtlas(bin []byte) Atlas {
 	i := 0
 

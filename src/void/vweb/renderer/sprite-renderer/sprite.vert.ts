@@ -6,10 +6,9 @@ uniform highp usampler2D uAtlasCels;
 uniform highp vec2 uAtlasSize;
 
 layout(location=0) in highp vec2 aXY; // sprite center.
-layout(location=1) in highp uint aAnimID;
-layout(location=2) in highp uint aCel;
-layout(location=3) in highp uint aZ;
-layout(location=4) in highp uvec2 aWH; // when nonzero, stretch sprite to this size.
+layout(location=1) in highp uint aAnimCel; // hi 12 bits = AnimID, lo 4 bits = Cel.
+layout(location=2) in highp uint aZ;
+layout(location=3) in highp uvec2 aWH; // when nonzero, stretch sprite to this size.
 
 out highp vec2 vTexUV;
 
@@ -24,6 +23,8 @@ const highp vec2 corners[6] = vec2[6](
 );
 
 void main() {
+  highp uint aAnimID = aAnimCel >> 4u;
+  highp uint aCel = aAnimCel & 0xfu;
   highp uvec4 cel = texelFetch(uAtlasCels, ivec2(int(aCel), int(aAnimID)), 0);
   highp vec2 celMin = vec2(float(cel.x), float(cel.y));
   highp vec2 celWH = vec2(float(cel.z), float(cel.w));

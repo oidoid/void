@@ -48,9 +48,9 @@ func (this *EntStatusEnt) Update(
 func (this *EntStatusEnt) drawBackground(sprites *[]vgfx.Sprite) {
 	const margin = int16(1)
 	*sprites = append(*sprites, vgfx.Sprite{
-		XY:     vgeo.NewXY(float32(this.XY.X-margin), float32(this.XY.Y-margin)),
-		AnimID: assets.BackgroundKiwi,
-		Z:      this.Z - 1,
+		AnimCel: assets.BackgroundKiwi.Cel(0),
+		XY:      vgeo.NewXY(float32(this.XY.X-margin), float32(this.XY.Y-margin)),
+		Z:       this.Z - 1,
 		WH: vgeo.WH[uint16]{
 			W: uint16(this.Layout.W + margin*2),
 			H: uint16(this.Layout.TrimLeadForceH + margin*2),

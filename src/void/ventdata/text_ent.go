@@ -44,7 +44,8 @@ func (this *TextEnt) Update(
 			}
 		}
 		*sprites = append(
-			*sprites, vgfx.Sprite{XY: xy, AnimID: font.AnimID(ch), Z: this.Z},
+			*sprites,
+			vgfx.Sprite{AnimCel: font.AnimID(ch).Cel(0), XY: xy, Z: this.Z},
 		)
 	}
 	return loop

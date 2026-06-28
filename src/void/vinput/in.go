@@ -1,4 +1,4 @@
-package vinput
+package vinput // to-do: rename vin.
 
 import "github.com/oidoid/void/src/void/vgeo"
 

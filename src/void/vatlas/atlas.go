@@ -1,10 +1,5 @@
 package vatlas
 
-import "github.com/oidoid/void/src/void/vgeo"
-
-// identifies an animation in an Atlas.
-type AnimID uint16
-
 // the number of cels every animation is padded to by repeating the sequence.
 const CelsPerAnim = 16
 
@@ -14,15 +9,9 @@ const MaxAnimLoopMillis = 1000
 // the duration of one cel in milliseconds (62.5).
 const CelMillis = MaxAnimLoopMillis / CelsPerAnim
 
-const (
-	flagHitbox  = 1
-	flagHurtbox = 2
-)
-
 type Atlas struct {
 	Anims []Anim
-	// cel subimages as XYWH.
-	Cels []uint16
+	Cels  []uint16 // cel subimages as XYWH.
 }
 
 // builds an Atlas from the compact [srcX, srcY] pairs produced by the atlas
@@ -42,17 +31,4 @@ func NewAtlas(anims []Anim, celXY []uint16) Atlas {
 		cellI += int(anim.Cels) * 2
 	}
 	return Atlas{Anims: anims, Cels: cels}
-}
-
-// an animation within an Atlas.
-type Anim struct {
-	// number of cels in a full animation cycle including cels extended for
-	// duration and the second half of pingpongs.
-	Cels uint8
-	// clipbox / source area.
-	W, H uint16
-	// outgoing collision rectangle (red / blue). may be zero.
-	Hitbox vgeo.Box[uint16]
-	// incoming collision rectangle (green / blue). may be zero.
-	Hurtbox vgeo.Box[uint16]
 }

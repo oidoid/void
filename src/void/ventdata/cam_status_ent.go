@@ -50,9 +50,9 @@ func (this *CamStatusEnt) Update(
 func (this *CamStatusEnt) DrawBackground(sprites *[]vgfx.Sprite) {
 	const margin = int16(1)
 	*sprites = append(*sprites, vgfx.Sprite{
-		XY:     vgeo.NewXY(float32(this.XY.X-margin), float32(this.XY.Y-margin)),
-		AnimID: this.BackgroundAnimID,
-		Z:      this.Z - 1,
+		XY:      vgeo.NewXY(float32(this.XY.X-margin), float32(this.XY.Y-margin)),
+		AnimCel: this.BackgroundAnimID.Cel(0),
+		Z:       this.Z - 1,
 		WH: vgeo.WH[uint16]{
 			W: uint16(this.Layout.W + margin*2),
 			H: uint16(this.Layout.TrimH + margin*2),

@@ -44,7 +44,10 @@ func (this *BallEnt) Update(
 		this.D.Y = -this.D.Y
 	}
 	if viewport.HitsXY(this.XY) {
-		*sprites = append(*sprites, vgfx.Sprite{AnimID: assets.SuperballDefault, XY: this.XY})
+		*sprites = append(
+			*sprites,
+			vgfx.Sprite{AnimCel: assets.SuperballDefault.Cel(0), XY: this.XY},
+		)
 	}
 	return vgame.Loop
 }

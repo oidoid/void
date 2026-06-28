@@ -1,6 +1,5 @@
 import {
-  spriteAnimIDOffset,
-  spriteCelOffset,
+  spriteAnimCelOffset,
   spriteStride,
   spriteWHOffset,
   spriteZOffset
@@ -78,43 +77,32 @@ export class SpriteRenderer {
     gl.vertexAttribPointer(0, 2, gl.FLOAT, false, spriteStride, 0)
     gl.vertexAttribDivisor(0, 1)
 
-    // aAnimID (uint16).
+    // aAnimCel (uint16): hi 12 bits = AnimID, lo 4 bits = Cel.
     gl.enableVertexAttribArray(1)
     gl.vertexAttribIPointer(
       1,
       1,
       gl.UNSIGNED_SHORT,
       spriteStride,
-      spriteAnimIDOffset
+      spriteAnimCelOffset
     )
     gl.vertexAttribDivisor(1, 1)
 
-    // aCel (uint8).
+    // aZ as uint8.
     gl.enableVertexAttribArray(2)
-    gl.vertexAttribIPointer(
-      2,
-      1,
-      gl.UNSIGNED_BYTE,
-      spriteStride,
-      spriteCelOffset
-    )
+    gl.vertexAttribIPointer(2, 1, gl.UNSIGNED_BYTE, spriteStride, spriteZOffset)
     gl.vertexAttribDivisor(2, 1)
 
-    // aZ as uint8.
-    gl.enableVertexAttribArray(3)
-    gl.vertexAttribIPointer(3, 1, gl.UNSIGNED_BYTE, spriteStride, spriteZOffset)
-    gl.vertexAttribDivisor(3, 1)
-
     // aWH (uvec2 of uint16).
-    gl.enableVertexAttribArray(4)
+    gl.enableVertexAttribArray(3)
     gl.vertexAttribIPointer(
-      4,
+      3,
       2,
       gl.UNSIGNED_SHORT,
       spriteStride,
       spriteWHOffset
     )
-    gl.vertexAttribDivisor(4, 1)
+    gl.vertexAttribDivisor(3, 1)
 
     gl.bindVertexArray(null)
 
