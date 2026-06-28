@@ -13,5 +13,4 @@ export type Rotate = {speed: number}
 export type SoundToggle = object
 export type Tally = {updates: number}
 export type ScreenshotButton = object
-export type Superball = {vx: number; vy: number}
 export type SuperballButton = object
