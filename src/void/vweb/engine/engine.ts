@@ -12,6 +12,7 @@ import {Renderer} from '../renderer/renderer.ts'
 import {initCanvas} from '../utils/canvas-util.ts'
 import {initBody} from '../utils/dom-util.ts'
 import {isFullscreen} from '../utils/fullscreen-util.ts'
+import {layerCount} from './layout.ts'
 import {LoopLoop, type Platform} from './platform.ts'
 import {WASI} from './wasi.ts'
 
@@ -21,6 +22,7 @@ export class Engine {
   #frame!: DataView
   #input!: Input
   #lastTime: number = 0
+  #layerFixedMin: number = 0
   #rafId: number = 0
   #registered: boolean = false
   #renderer!: Renderer
@@ -52,6 +54,7 @@ export class Engine {
     this.#canvas = canvas
     canvas.addEventListener('webglcontextlost', this.#onContextLost)
     canvas.addEventListener('webglcontextrestored', this.#onContextRestored)
+    this.#layerFixedMin = this.#wasm.LayerFixedMin()
     this.#renderer = this.#newRenderer()
   }
 
@@ -86,13 +89,19 @@ export class Engine {
       this.#lastTime = 0
     }
     const drawStart = performance.now()
-    this.#renderer.draw(
-      this.#wasm.memory.buffer,
-      this.#wasm.SpritePointer(),
-      this.#wasm.SpriteCount(),
-      this.#wasm.CamX(),
-      this.#wasm.CamY()
-    )
+    const buffer = this.#wasm.memory.buffer
+    const camX = this.#wasm.CamX()
+    const camY = this.#wasm.CamY()
+    this.#renderer.clear()
+    this.#renderer.drawTiles(camX, camY)
+    for (let layer = 0; layer < layerCount; layer++) {
+      const count = this.#wasm.SpriteCount(layer)
+      if (count === 0) continue
+      const ptr = this.#wasm.SpritePointer(layer)
+      const lx = layer >= this.#layerFixedMin ? 0 : camX
+      const ly = layer >= this.#layerFixedMin ? 0 : camY
+      this.#renderer.drawLayer(buffer, ptr, count, lx, ly)
+    }
     this.#drawMs = performance.now() - drawStart
   }
 

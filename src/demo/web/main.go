@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/oidoid/void/src/demo/engine"
 	"github.com/oidoid/void/src/demo/game"
+	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/vgame"
 )
 
@@ -19,13 +20,20 @@ func FramePointer() uintptr {
 }
 
 //export SpritePointer
-func SpritePointer() uintptr {
-	return gam.SpritePointer()
+func SpritePointer(layer uint32) uintptr {
+	return gam.SpritePointer(layer)
 }
 
 //export SpriteCount
-func SpriteCount() uint32 {
-	return uint32(gam.SpriteCount())
+func SpriteCount(layer uint32) uint32 {
+	return gam.SpriteCount(layer)
+}
+
+// to-do: remove
+//
+//export LayerFixedMin
+func LayerFixedMin() uint32 {
+	return uint32(gfx.LayerUI)
 }
 
 //export Update

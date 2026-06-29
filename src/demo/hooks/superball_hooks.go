@@ -4,6 +4,7 @@ import (
 	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/demo/engine"
 	"github.com/oidoid/void/src/demo/entdata"
+	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
@@ -14,7 +15,7 @@ func UpdateSuperballs(
 ) vgame.Status {
 	anim := gam.Atlas.Anims[int(assets.SuperballDefault)]
 	radius := float32(anim.W) / 2
-	sprites := gam.Sprites()
+	sprites := gam.Sprites(gfx.LayerBg)
 	viewport := gam.Viewport()
 	lvl := gam.LevelBounds
 	vals := ents.Vals()
@@ -22,5 +23,10 @@ func UpdateSuperballs(
 	for i := range vals {
 		loop |= vals[i].Update(sprites, viewport, lvl, radius)
 	}
+
+	if len(*sprites) > 0 {
+		loop |= vgame.Loop
+	}
+
 	return loop
 }

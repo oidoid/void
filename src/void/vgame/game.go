@@ -15,7 +15,7 @@ type Game interface {
 	In() *vinput.In
 	NowMs() float64
 	Tick() *Tick
-	Sprites() *[]vgfx.Sprite
+	Sprites(vgfx.Layer) *[]vgfx.Sprite
 	Viewport() vgeo.Box[float32]
 	Random() float32
 }

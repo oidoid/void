@@ -2,8 +2,8 @@ package vgame
 
 type Platform interface {
 	FramePointer() uintptr
-	SpritePointer() uintptr
-	SpriteCount() int
+	SpritePointer(layer uint32) uintptr
+	SpriteCount(layer uint32) uint32
 	Update() Status
 	TilePointer() uintptr
 	TileCount() uint32
@@ -13,7 +13,7 @@ type Platform interface {
 	LevelH() int32
 	LevelTileW() uint8
 	LevelTileH() uint8
-	CamX() float32
+	CamX() float32 // to-do: rename Phy.
 	CamY() float32
 	AtlasAnimCount() uint32
 	AtlasCelsPerAnim() uint32

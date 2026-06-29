@@ -31,7 +31,7 @@ type Engine[Game vgame.Game] struct {
 	viewport    vgeo.Box[float32]
 	LevelBounds vgeo.Box[float32] // to-do: can this be in vlevels.Level?
 	rnd         *rand.Rand
-	sprites     []vgfx.Sprite
+	sprites     [vgfx.LayerCount][]vgfx.Sprite
 	tick        vgame.Tick
 }
 
@@ -58,13 +58,16 @@ func New[Game vgame.Game](opts *EngineOpts) *Engine[Game] {
 	if opts.Seed2 == 0 {
 		opts.Seed2 = rand.Uint64()
 	}
-	return &Engine[Game]{
-		font:    opts.Font,
-		Level:   opts.Level,
-		in:      vinput.NewIn(),
-		rnd:     rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
-		sprites: make([]vgfx.Sprite, 0, opts.MaxSprites),
+	this := &Engine[Game]{
+		font:  opts.Font,
+		Level: opts.Level,
+		in:    vinput.NewIn(),
+		rnd:   rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
 	}
+	for i := range this.sprites {
+		this.sprites[i] = make([]vgfx.Sprite, 0, opts.MaxSprites/vgfx.LayerCount)
+	}
+	return this
 }
 
 func (this *Engine[Game]) Random() float32 { return this.rnd.Float32() }
@@ -109,15 +112,18 @@ func (this *Engine[Game]) LevelY() int32 { return this.Level.Min.Y }
 func (this *Engine[Game]) LevelW() int32 { return this.Level.W() }
 func (this *Engine[Game]) LevelH() int32 { return this.Level.H() }
 
-func (this *Engine[Game]) SpritePointer() uintptr {
-	if cap(this.sprites) == 0 {
+func (this *Engine[Game]) SpritePointer(layer uint32) uintptr {
+	sprites := this.sprites[layer]
+	if len(sprites) == 0 {
 		return 0
 	}
-	return uintptr(unsafe.Pointer(unsafe.SliceData(this.sprites)))
+	return uintptr(unsafe.Pointer(unsafe.SliceData(sprites)))
 }
-func (this *Engine[Game]) SpriteCount() int { return len(this.sprites) }
-func (this *Engine[Game]) Sprites() *[]vgfx.Sprite {
-	return &this.sprites
+func (this *Engine[Game]) SpriteCount(layer uint32) uint32 {
+	return uint32(len(this.sprites[layer]))
+}
+func (this *Engine[Game]) Sprites(layer vgfx.Layer) *[]vgfx.Sprite {
+	return &this.sprites[layer]
 }
 func (this *Engine[Game]) Viewport() vgeo.Box[float32] {
 	return this.viewport
@@ -146,7 +152,9 @@ func (this *Engine[Game]) Update() vgame.Status {
 		vgeo.Box[float32]{Min: this.cam}, // to-do: actual cam box.
 	)
 	this.tick.DrawMs = this.frame.DrawMs
-	this.sprites = this.sprites[:0]
+	for i := range this.sprites {
+		this.sprites[i] = this.sprites[i][:0]
+	}
 	w := float32(this.frame.CanvasPhy.W)
 	h := float32(this.frame.CanvasPhy.H)
 	r := vgfx.MaxSpriteSize

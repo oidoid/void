@@ -10,8 +10,6 @@ func UpdateDrawStatuses[Game vgame.Game](
 	ents *vvec.Vec[ventdata.DrawStatusEnt],
 	gam Game,
 ) vgame.Status {
-	// to-do: get prior frame's sprite count.
-	sprites := gam.Sprites()
 	font := gam.Font()
 	nowMs := gam.NowMs()
 	tick := gam.Tick()
@@ -19,6 +17,7 @@ func UpdateDrawStatuses[Game vgame.Game](
 	vals := ents.Vals()
 	loop := vgame.Pause
 	for i := range vals {
+		sprites := gam.Sprites(vals[i].Z.Layer())
 		loop |= vals[i].Update(font, sprites, nowMs, tick, canvasPhy)
 	}
 	return loop

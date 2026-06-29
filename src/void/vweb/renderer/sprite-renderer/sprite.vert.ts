@@ -31,8 +31,7 @@ void main() {
   highp vec2 wh = aWH.x != 0u ? vec2(float(aWH.x), float(aWH.y)) : celWH;
 
   highp vec2 corner = corners[gl_VertexID];
-  // LayerUI and greater are in screen-space; camera is not applied.
-  highp vec2 camXY = aZ >= 0x80u ? vec2(0., 0.) : floor(uCamXY);
+  highp vec2 camXY = floor(uCamXY);
   highp vec2 px = floor(aXY + corner * wh) - camXY;
   highp vec2 ndc = px / vec2(uResolution) * 2. - 1.;
   highp float z = (128. - float(aZ)) / 128.;

@@ -10,7 +10,6 @@ func UpdateCamStatuses[Game vgame.Game](
 	ents *vvec.Vec[ventdata.CamStatusEnt],
 	gam Game,
 ) vgame.Status {
-	sprites := gam.Sprites()
 	font := gam.Font()
 	canvasPhy := *gam.CanvasPhy()
 	camX := gam.CamX()
@@ -19,6 +18,7 @@ func UpdateCamStatuses[Game vgame.Game](
 	vals := ents.Vals()
 	loop := vgame.Pause
 	for i := range vals {
+		sprites := gam.Sprites(vals[i].Z.Layer())
 		loop |= vals[i].Update(font, sprites, canvasPhy, camX, camY, fullscreen)
 	}
 	return loop

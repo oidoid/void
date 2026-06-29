@@ -3,6 +3,7 @@ package hooks
 import (
 	"github.com/oidoid/void/src/demo/engine"
 	"github.com/oidoid/void/src/demo/entdata"
+	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
@@ -11,7 +12,7 @@ func UpdateMouseStatuses(
 	ents *vvec.Vec[entdata.MouseStatusEnt],
 	gam *engine.Engine,
 ) vgame.Status {
-	sprites := gam.Sprites()
+	sprites := gam.Sprites(gfx.LayerUI)
 	in := gam.In()
 	canvasPhy := *gam.CanvasPhy()
 	vals := ents.Vals()

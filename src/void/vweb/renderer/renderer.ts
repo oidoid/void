@@ -77,20 +77,25 @@ export class Renderer {
     this.#tiles.dispose()
   }
 
-  draw(
+  clear(): void {
+    const gl = this.#gl
+    gl.clearColor(0xe6 / 255, 0xe6 / 255, 0xe6 / 255, 1)
+    // to-do: expose.
+    gl.clearDepth(1)
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+  }
+
+  drawTiles(camX: number, camY: number): void {
+    this.#tiles.draw(camX, camY)
+  }
+
+  drawLayer(
     buffer: ArrayBuffer,
     spritePtr: number,
     spriteCount: number,
     camX: number,
     camY: number
   ): void {
-    const gl = this.#gl
-    gl.clearColor(0xe6 / 255, 0xe6 / 255, 0xe6 / 255, 1)
-    // to-do: expose.
-    gl.clearDepth(1)
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-
-    this.#tiles.draw(camX, camY)
     this.#sprites.draw(buffer, spritePtr, spriteCount, camX, camY)
   }
 

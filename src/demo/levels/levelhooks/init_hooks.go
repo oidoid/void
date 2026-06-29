@@ -52,10 +52,5 @@ func InitInit(gam *engine.Engine) {
 }
 
 func UpdateInit(gam *engine.Engine) vgame.Status {
-	loop := vgame.Pause
-	if gam.SpriteCount() > 0 {
-		loop = vgame.Loop
-	}
-	loop |= gam.Ents().Update(gam)
-	return loop
+	return gam.Ents().Update(gam)
 }
