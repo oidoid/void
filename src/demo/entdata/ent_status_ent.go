@@ -2,6 +2,7 @@ package entdata
 
 import (
 	"github.com/oidoid/void/src/demo/assets"
+	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/ventdata"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
@@ -18,7 +19,8 @@ func NewEntStatusEnt() EntStatusEnt {
 	this := EntStatusEnt{}
 	this.Anchor = vgeo.DirSW
 	this.Margin = vgeo.Border[int16]{N: 4, E: 4, S: 4, W: 4}
-	this.Z = vgfx.LayerTop
+	this.Z = gfx.LayerUI.Z(0)
+	this.Fixed = true
 	return this
 }
 

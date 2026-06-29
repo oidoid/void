@@ -2,6 +2,7 @@ package entdata
 
 import (
 	"github.com/oidoid/void/src/demo/assets"
+	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/ventdata"
 	"github.com/oidoid/void/src/void/vgame"
@@ -38,7 +39,7 @@ func (this *MouseStatusEnt) Update(
 	xy := ventdata.HudXY(this.HUDEnt, mouseStatusSize, mouseStatusSize, canvasPhy)
 	*sprites = append(
 		*sprites,
-		vgfx.Sprite{XY: xy, AnimCel: assets.MouseStatusBase.Cel(0), Z: vgfx.LayerTop},
+		vgfx.Sprite{XY: xy, AnimCel: assets.MouseStatusBase.Cel(0), Z: gfx.LayerUI.Z(0)},
 	)
 	clicks := in.Ptr.Clicks()
 	this.addOverlay(sprites, assets.MouseStatusPrimary, xy, clicks&1 != 0)
@@ -60,6 +61,6 @@ func (this *MouseStatusEnt) addOverlay(
 		return
 	}
 	*sprites = append(
-		*sprites, vgfx.Sprite{XY: xy, AnimCel: animID.Cel(0), Z: vgfx.LayerTop},
+		*sprites, vgfx.Sprite{XY: xy, AnimCel: animID.Cel(0), Z: gfx.LayerUI.Z(0)},
 	)
 }

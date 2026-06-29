@@ -14,12 +14,13 @@ type CamStatusEnt struct {
 	BackgroundAnimID vatlas.AnimID
 }
 
-func NewCamStatusEnt(backgroundAnimID vatlas.AnimID) CamStatusEnt {
+func NewCamStatusEnt(backgroundAnimID vatlas.AnimID, z vgfx.Z) CamStatusEnt {
 	this := CamStatusEnt{BackgroundAnimID: backgroundAnimID}
 	this.Anchor = vgeo.DirNE
 	this.Margin = vgeo.Border[int16]{N: 4, E: 4, S: 4, W: 4}
 	this.Trim = vtext.TrimLead
-	this.Z = vgfx.LayerTop
+	this.Z = z
+	this.Fixed = true
 	return this
 }
 

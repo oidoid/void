@@ -12,8 +12,10 @@ type TextEnt struct {
 	Text   string
 	Layout vtext.TextLayout // nil `Layout.Chars` to force relayout.
 	XY     vgeo.XY[int16]
-	Z      vgfx.Layer
-	Trim   vtext.Trim
+	Z      vgfx.Z
+	// to-do: move to layer detail from vengine.
+	Fixed bool // when true, skips viewport culling (screen-space layers).
+	Trim  vtext.Trim
 }
 
 var zeroChar = vgeo.Box[int16]{}
@@ -35,7 +37,7 @@ func (this *TextEnt) Update(
 		xy := vgeo.NewXY(
 			float32(chBox.Min.X+this.XY.X), float32(chBox.Min.Y+this.XY.Y),
 		)
-		if !this.Z.IsFixed() {
+		if !this.Fixed {
 			if xy.Y > viewport.Max.Y {
 				break
 			}

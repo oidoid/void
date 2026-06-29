@@ -4,11 +4,11 @@ import (
 	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/demo/engine"
 	"github.com/oidoid/void/src/demo/entdata"
+	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/demo/hooks"
 	"github.com/oidoid/void/src/void/ventdata"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
-	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vhooks"
 )
 
@@ -30,7 +30,7 @@ func InitInit(gam *engine.Engine) {
 		assets.BackgroundKiwi,
 		vgeo.DirSE,
 		vgeo.Border[int16]{N: 4, E: 4, S: 4, W: 4},
-		vgfx.LayerTop,
+		gfx.LayerUI.Z(0),
 	))
 	gam.RegisterEntUpdate(drawStatuses)
 
@@ -43,7 +43,7 @@ func InitInit(gam *engine.Engine) {
 	)
 
 	camStatuses := ventdata.NewEntVec(vhooks.UpdateCamStatuses[*engine.Engine])
-	camStatuses.Add(ventdata.NewCamStatusEnt(assets.BackgroundBubblegum))
+	camStatuses.Add(ventdata.NewCamStatusEnt(assets.BackgroundBubblegum, gfx.LayerUI.Z(0)))
 	gam.RegisterEntUpdate(camStatuses)
 
 	mouseStatuses := ventdata.NewEntVec(hooks.UpdateMouseStatuses)
