@@ -22,7 +22,7 @@ export function initCanvas(
   canvas.style.display = 'block' // no line height spacing.
   canvas.style.outline = 'none' // disable focus outline.
   // to-do: fix me and also fix the context pixelation setting!
-  canvas.style.imageRendering = mode === 'Int' ? 'pixelated' : 'smooth' // to-do: why doesn't cam mode set this?
+  canvas.style.imageRendering = mode === 'Int' ? 'pixelated' : 'smooth' // to-do: why doesn't cam mode set this? do we even want this given shader?
   // update on each pointermove *touch* Event like *mouse* Events.
   canvas.style.touchAction = 'none'
   canvas.tabIndex = 0
