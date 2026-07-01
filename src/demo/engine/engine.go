@@ -3,6 +3,7 @@ package engine
 import (
 	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/demo/entdata"
+	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/demo/levels"
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vengine"
@@ -29,6 +30,8 @@ func New() *Engine {
 			MaxSprites: 2 * 1024 * 1024,
 		}),
 	}
+	this.Layer(gfx.LayerUI).CamMode = vengine.LayerCamModeFixed
+	this.Layer(gfx.LayerCursor).CamMode = vengine.LayerCamModeFixed
 	this.Atlas = vatlas.DecodeAtlas(assets.AtlasBin)
 	return this
 }

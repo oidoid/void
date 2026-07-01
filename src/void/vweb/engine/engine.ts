@@ -12,7 +12,26 @@ import {Renderer} from '../renderer/renderer.ts'
 import {initCanvas} from '../utils/canvas-util.ts'
 import {initBody} from '../utils/dom-util.ts'
 import {isFullscreen} from '../utils/fullscreen-util.ts'
-import {layerCount} from './layout.ts'
+import {
+  type LayerCamMode,
+  type LayerConfig,
+  type LayerRenderMode,
+  layerCamModeFixed,
+  layerConfigCamModeOffset,
+  layerConfigClipHPhyOffset,
+  layerConfigClipWPhyOffset,
+  layerConfigClipXPhyOffset,
+  layerConfigClipYPhyOffset,
+  layerConfigNoDepthOffset,
+  layerConfigRenderModeOffset,
+  layerConfigScaleOffset,
+  layerConfigShaderOffset,
+  layerConfigSpriteCountOffset,
+  layerConfigSpritesPtrOffset,
+  layerConfigStride,
+  layerCount,
+  type Shader
+} from './layout.ts'
 import {LoopLoop, type Platform} from './platform.ts'
 import {WASI} from './wasi.ts'
 
@@ -22,7 +41,6 @@ export class Engine {
   #frame!: DataView
   #input!: Input
   #lastTime: number = 0
-  #layerFixedMin: number = 0
   #rafId: number = 0
   #registered: boolean = false
   #renderer!: Renderer
@@ -54,7 +72,6 @@ export class Engine {
     this.#canvas = canvas
     canvas.addEventListener('webglcontextlost', this.#onContextLost)
     canvas.addEventListener('webglcontextrestored', this.#onContextRestored)
-    this.#layerFixedMin = this.#wasm.LayerFixedMin()
     this.#renderer = this.#newRenderer()
   }
 
@@ -90,19 +107,47 @@ export class Engine {
     }
     const drawStart = performance.now()
     const buffer = this.#wasm.memory.buffer
+    const layerConfigPtr = this.#wasm.LayerConfigsPointer()
+    const layerConfigView = new DataView(buffer)
     const camX = this.#wasm.CamX()
     const camY = this.#wasm.CamY()
     this.#renderer.clear()
     this.#renderer.drawTiles(camX, camY)
     for (let layer = 0; layer < layerCount; layer++) {
-      const count = this.#wasm.SpriteCount(layer)
-      if (count === 0) continue
-      const ptr = this.#wasm.SpritePointer(layer)
-      const lx = layer >= this.#layerFixedMin ? 0 : camX
-      const ly = layer >= this.#layerFixedMin ? 0 : camY
-      this.#renderer.drawLayer(buffer, ptr, count, lx, ly)
+      const config = this.#layerConfig(layerConfigView, layerConfigPtr, layer)
+      if (config.spriteCount === 0) continue
+      const lx = config.camMode === layerCamModeFixed ? 0 : camX
+      const ly = config.camMode === layerCamModeFixed ? 0 : camY
+      this.#renderer.drawLayer(
+        buffer,
+        config.spritesPtr,
+        config.spriteCount,
+        lx,
+        ly
+      )
     }
     this.#drawMs = performance.now() - drawStart
+  }
+
+  #layerConfig(view: DataView, ptr: number, layer: number): LayerConfig {
+    const o = ptr + layer * layerConfigStride
+    return {
+      renderMode: view.getUint8(
+        o + layerConfigRenderModeOffset
+      ) as LayerRenderMode,
+      clipPhy: {
+        x: view.getUint16(o + layerConfigClipXPhyOffset, true),
+        y: view.getUint16(o + layerConfigClipYPhyOffset, true),
+        w: view.getUint16(o + layerConfigClipWPhyOffset, true),
+        h: view.getUint16(o + layerConfigClipHPhyOffset, true)
+      },
+      camMode: view.getUint8(o + layerConfigCamModeOffset) as LayerCamMode,
+      scale: view.getFloat32(o + layerConfigScaleOffset, true),
+      shader: view.getUint8(o + layerConfigShaderOffset) as Shader,
+      noDepth: view.getUint8(o + layerConfigNoDepthOffset) !== 0,
+      spritesPtr: view.getUint32(o + layerConfigSpritesPtrOffset, true),
+      spriteCount: view.getUint32(o + layerConfigSpriteCountOffset, true)
+    }
   }
 
   #requestUpdate(): void {

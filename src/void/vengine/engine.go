@@ -28,11 +28,12 @@ type Engine[Game vgame.Game] struct {
 	cam      vgeo.XY[float32] // to-do: cam always moves in physical space.
 	updaters ventdata.Zoo[Game]
 	// not true viewport size. adjusted by max sprite size.
-	viewport    vgeo.Box[float32]
-	LevelBounds vgeo.Box[float32] // to-do: can this be in vlevels.Level?
-	rnd         *rand.Rand
-	sprites     [vgfx.LayerCount][]vgfx.Sprite
-	tick        vgame.Tick
+	viewport          vgeo.Box[float32]
+	LevelBounds       vgeo.Box[float32] // to-do: can this be in vlevels.Level?
+	rnd               *rand.Rand
+	layers            [vgfx.LayerCount]LayerConfig
+	layerConfigExport [vgfx.LayerCount]LayerConfigExport
+	tick              vgame.Tick
 }
 
 type EngineOpts struct {
@@ -64,8 +65,8 @@ func New[Game vgame.Game](opts *EngineOpts) *Engine[Game] {
 		in:    vinput.NewIn(),
 		rnd:   rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
 	}
-	for i := range this.sprites {
-		this.sprites[i] = make([]vgfx.Sprite, 0, opts.MaxSprites/vgfx.LayerCount)
+	for i := range this.layers {
+		this.layers[i] = NewLayerConfig(opts.MaxSprites)
 	}
 	return this
 }
@@ -112,18 +113,16 @@ func (this *Engine[Game]) LevelY() int32 { return this.Level.Min.Y }
 func (this *Engine[Game]) LevelW() int32 { return this.Level.W() }
 func (this *Engine[Game]) LevelH() int32 { return this.Level.H() }
 
-func (this *Engine[Game]) SpritePointer(layer uint32) uintptr {
-	sprites := this.sprites[layer]
-	if len(sprites) == 0 {
-		return 0
-	}
-	return uintptr(unsafe.Pointer(unsafe.SliceData(sprites)))
+func (this *Engine[Game]) LayerConfigsPointer() uintptr {
+	return uintptr(unsafe.Pointer(unsafe.SliceData(this.layerConfigExport[:])))
 }
-func (this *Engine[Game]) SpriteCount(layer uint32) uint32 {
-	return uint32(len(this.sprites[layer]))
+func (this *Engine[Game]) Layer(layer vgfx.Layer) *LayerConfig {
+	return &this.layers[layer]
 }
+
+// to-do: consolidate with Layer?
 func (this *Engine[Game]) Sprites(layer vgfx.Layer) *[]vgfx.Sprite {
-	return &this.sprites[layer]
+	return &this.layers[layer].Sprites
 }
 func (this *Engine[Game]) Viewport() vgeo.Box[float32] {
 	return this.viewport
@@ -143,6 +142,9 @@ func (this *Engine[Game]) LevelTileH() uint8 { return this.Level.Tile.H }
 
 func (this *Engine[Game]) EndTick() {
 	this.tick.DeltaMs = this.frame.DeltaMs
+	// to-do: make frame finalization explicit instead of hanging this off
+	// EndTick.
+	this.updateLayerConfigExport()
 }
 
 func (this *Engine[Game]) Update() vgame.Status {
@@ -152,8 +154,8 @@ func (this *Engine[Game]) Update() vgame.Status {
 		vgeo.Box[float32]{Min: this.cam}, // to-do: actual cam box.
 	)
 	this.tick.DrawMs = this.frame.DrawMs
-	for i := range this.sprites {
-		this.sprites[i] = this.sprites[i][:0]
+	for i := range this.layers {
+		this.layers[i].Sprites = this.layers[i].Sprites[:0]
 	}
 	w := float32(this.frame.CanvasPhy.W)
 	h := float32(this.frame.CanvasPhy.H)
@@ -195,4 +197,32 @@ func (this *Engine[Game]) AtlasCelsPointer() uintptr {
 
 func (this *Engine[Game]) AtlasCelsCount() uint32 {
 	return uint32(len(this.Atlas.Cels))
+}
+
+func (this *Engine[Game]) updateLayerConfigExport() {
+	for i := range this.layers {
+		layer := &this.layers[i]
+		sprites := layer.Sprites
+		spritesPtr := uint32(0)
+		if len(sprites) != 0 {
+			spritesPtr = uint32(uintptr(unsafe.Pointer(unsafe.SliceData(sprites))))
+		}
+		noDepth := uint8(0)
+		if layer.NoDepth {
+			noDepth = 1
+		}
+		this.layerConfigExport[i] = LayerConfigExport{
+			RenderMode:  layer.RenderMode,
+			CamMode:     layer.CamMode,
+			Shader:      layer.Shader,
+			NoDepth:     noDepth,
+			ClipXPhy:    layer.ClipPhy.Min.X,
+			ClipYPhy:    layer.ClipPhy.Min.Y,
+			ClipWPhy:    layer.ClipPhy.W(),
+			ClipHPhy:    layer.ClipPhy.H(),
+			Scale:       layer.ScaleOrDefault(),
+			SpritesPtr:  spritesPtr,
+			SpriteCount: uint32(len(sprites)),
+		}
+	}
 }

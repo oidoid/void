@@ -2,8 +2,7 @@ package vgame
 
 type Platform interface {
 	FramePointer() uintptr
-	SpritePointer(layer uint32) uintptr
-	SpriteCount(layer uint32) uint32
+	LayerConfigsPointer() uintptr
 	Update() Status
 	TilePointer() uintptr
 	TileCount() uint32

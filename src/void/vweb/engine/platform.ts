@@ -6,12 +6,7 @@ export type Platform = {
   // to-do: better name for "frame"?
   // byte offset into `memory` of the frame.
   FramePointer(): number
-  // byte offset into `memory` of the first sprite in the given layer.
-  SpritePointer(layer: number): number
-  // number of sprites in the given layer.
-  SpriteCount(layer: number): number
-  // first layer index drawn in screen-space (no camera offset).
-  LayerFixedMin(): number
+  LayerConfigsPointer(): number
   Update(): Loop
   // byte offset into `memory` of the first tile.
   TilePointer(): number
