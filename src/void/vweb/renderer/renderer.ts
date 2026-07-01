@@ -97,8 +97,19 @@ export class Renderer {
     camY: number,
     layerScale: number,
     renderMode: number,
-    noDepth: boolean
+    noDepth: boolean,
+    clipPhy: {x: number; y: number; w: number; h: number}
   ): void {
+    const clip = clipPhy.w !== 0 && clipPhy.h !== 0
+    if (clip) {
+      this.#gl.enable(this.#gl.SCISSOR_TEST)
+      this.#gl.scissor(
+        clipPhy.x,
+        this.canvasH - clipPhy.y - clipPhy.h,
+        clipPhy.w,
+        clipPhy.h
+      )
+    }
     if (noDepth) this.#gl.disable(this.#gl.DEPTH_TEST)
     this.#sprites.draw(
       buffer,
@@ -110,6 +121,7 @@ export class Renderer {
       renderMode
     )
     if (noDepth) this.#gl.enable(this.#gl.DEPTH_TEST)
+    if (clip) this.#gl.disable(this.#gl.SCISSOR_TEST)
   }
 
   // https://webgl2fundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html

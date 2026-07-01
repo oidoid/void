@@ -126,7 +126,8 @@ export class Engine {
         ly,
         config.scale,
         config.renderMode,
-        config.noDepth
+        config.noDepth,
+        config.clipPhy
       )
     }
     this.#drawMs = performance.now() - drawStart
