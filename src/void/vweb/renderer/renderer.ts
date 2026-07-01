@@ -96,8 +96,10 @@ export class Renderer {
     camX: number,
     camY: number,
     layerScale: number,
-    renderMode: number
+    renderMode: number,
+    noDepth: boolean
   ): void {
+    if (noDepth) this.#gl.disable(this.#gl.DEPTH_TEST)
     this.#sprites.draw(
       buffer,
       spritePtr,
@@ -107,6 +109,7 @@ export class Renderer {
       layerScale,
       renderMode
     )
+    if (noDepth) this.#gl.enable(this.#gl.DEPTH_TEST)
   }
 
   // https://webgl2fundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html
