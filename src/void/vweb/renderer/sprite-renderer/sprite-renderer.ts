@@ -19,6 +19,8 @@ export class SpriteRenderer {
     const pgm = buildProgram(gl, spriteVert, spriteFrag)
     const uResolution = gl.getUniformLocation(pgm, 'uResolution')!
     const uCamXY = gl.getUniformLocation(pgm, 'uCamXY')!
+    const uLayerScale = gl.getUniformLocation(pgm, 'uLayerScale')!
+    const uRenderMode = gl.getUniformLocation(pgm, 'uRenderMode')!
 
     gl.useProgram(pgm)
 
@@ -111,6 +113,8 @@ export class SpriteRenderer {
       pgm,
       uResolution,
       uCamXY,
+      uLayerScale,
+      uRenderMode,
       vao,
       instanceVBO,
       atlasCelsTex,
@@ -122,6 +126,8 @@ export class SpriteRenderer {
   readonly #pgm: WebGLProgram
   readonly #uResolution: WebGLUniformLocation
   readonly #uCamXY: WebGLUniformLocation
+  readonly #uLayerScale: WebGLUniformLocation
+  readonly #uRenderMode: WebGLUniformLocation
   readonly #vao: WebGLVertexArrayObject
   readonly #instanceVBO: WebGLBuffer
   readonly #atlasCelsTex: WebGLTexture
@@ -132,6 +138,8 @@ export class SpriteRenderer {
     pgm: WebGLProgram,
     uResolution: WebGLUniformLocation,
     uCamXY: WebGLUniformLocation,
+    uLayerScale: WebGLUniformLocation,
+    uRenderMode: WebGLUniformLocation,
     vao: WebGLVertexArrayObject,
     instanceVBO: WebGLBuffer,
     atlasCelsTex: WebGLTexture,
@@ -141,6 +149,8 @@ export class SpriteRenderer {
     this.#pgm = pgm
     this.#uResolution = uResolution
     this.#uCamXY = uCamXY
+    this.#uLayerScale = uLayerScale
+    this.#uRenderMode = uRenderMode
     this.#vao = vao
     this.#instanceVBO = instanceVBO
     this.#atlasCelsTex = atlasCelsTex
@@ -161,12 +171,16 @@ export class SpriteRenderer {
     spritePtr: number,
     count: number,
     camX: number,
-    camY: number
+    camY: number,
+    layerScale: number,
+    renderMode: number
   ): void {
     if (!count) return
     const gl = this.#gl
     gl.useProgram(this.#pgm)
     gl.uniform2f(this.#uCamXY, camX, camY)
+    gl.uniform1f(this.#uLayerScale, layerScale)
+    gl.uniform1i(this.#uRenderMode, renderMode)
     gl.uniform2i(
       this.#uResolution,
       gl.drawingBufferWidth,

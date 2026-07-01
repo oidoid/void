@@ -17,8 +17,8 @@ export const layerConfigSpritesPtrOffset: number = 16
 export const layerConfigSpriteCountOffset: number = 20
 export const layerConfigStride: number = 24
 
-export const layerRenderModeFloat = 0 as const
-export const layerRenderModeInt = 1 as const
+export const layerRenderModeInt = 0 as const
+export const layerRenderModeFloat = 1 as const
 export type LayerRenderMode =
   | typeof layerRenderModeFloat
   | typeof layerRenderModeInt

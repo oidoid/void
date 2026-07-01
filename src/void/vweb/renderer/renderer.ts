@@ -94,9 +94,19 @@ export class Renderer {
     spritePtr: number,
     spriteCount: number,
     camX: number,
-    camY: number
+    camY: number,
+    layerScale: number,
+    renderMode: number
   ): void {
-    this.#sprites.draw(buffer, spritePtr, spriteCount, camX, camY)
+    this.#sprites.draw(
+      buffer,
+      spritePtr,
+      spriteCount,
+      camX,
+      camY,
+      layerScale,
+      renderMode
+    )
   }
 
   // https://webgl2fundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html

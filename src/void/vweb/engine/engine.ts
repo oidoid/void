@@ -123,7 +123,9 @@ export class Engine {
         config.spritesPtr,
         config.spriteCount,
         lx,
-        ly
+        ly,
+        config.scale,
+        config.renderMode
       )
     }
     this.#drawMs = performance.now() - drawStart

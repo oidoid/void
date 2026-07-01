@@ -9,8 +9,8 @@ import (
 type LayerRenderMode uint8
 
 const (
-	LayerRenderModeFloat LayerRenderMode = iota // smooth.
-	LayerRenderModeInt                          // pixelated.
+	LayerRenderModeInt   LayerRenderMode = iota // pixelated.
+	LayerRenderModeFloat                        // smooth.
 )
 
 // whether camera offset is applied to a layer.
@@ -24,7 +24,8 @@ const (
 // per-layer render config and state.
 type LayerConfig struct {
 	// described in this layer's coord system.
-	Sprites    []vgfx.Sprite
+	Sprites []vgfx.Sprite
+	// to-do: necessary? we only care about int mode in cam and shader modulo.
 	RenderMode LayerRenderMode
 	ClipPhy    vgeo.Box[uint16]
 	CamMode    LayerCamMode
@@ -51,10 +52,8 @@ type LayerConfigExport struct {
 func NewLayerConfig(capacity int) LayerConfig {
 	return LayerConfig{
 		Sprites: make([]vgfx.Sprite, 0, capacity),
-		// to-do: necessary? we only care about int mode in cam and shader modulo.
-		RenderMode: LayerRenderModeFloat,
-		CamMode:    LayerCamModeApply,
-		Shader:     vgfx.ShaderSprites,
+		CamMode: LayerCamModeApply,
+		Shader:  vgfx.ShaderSprites,
 	}
 }
 

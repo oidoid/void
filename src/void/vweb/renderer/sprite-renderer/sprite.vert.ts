@@ -2,6 +2,8 @@ export const spriteVert: string = `#version 300 es
 
 uniform highp ivec2 uResolution;
 uniform highp vec2 uCamXY;
+uniform highp float uLayerScale;
+uniform highp int uRenderMode;
 uniform highp usampler2D uAtlasCels;
 uniform highp vec2 uAtlasSize;
 
@@ -31,8 +33,10 @@ void main() {
   highp vec2 wh = aWH.x != 0u ? vec2(float(aWH.x), float(aWH.y)) : celWH;
 
   highp vec2 corner = corners[gl_VertexID];
-  highp vec2 camXY = floor(uCamXY);
-  highp vec2 px = floor(aXY + corner * wh) - camXY;
+  highp vec2 scaledPx = (aXY + corner * wh) * uLayerScale;
+  highp vec2 px = uRenderMode == 0
+    ? floor(scaledPx) - floor(uCamXY)
+    : scaledPx - uCamXY;
   highp vec2 ndc = px / vec2(uResolution) * 2. - 1.;
   highp float z = (128. - float(aZ)) / 128.;
   ndc.y = -ndc.y;
