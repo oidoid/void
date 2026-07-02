@@ -12,12 +12,14 @@ func UpdateTexts[Game vgame.Game](
 ) vgame.Status {
 	// to-do: move _Layer_ not Z to Vec?
 	font := gam.Font()
-	viewport := gam.Viewport()
 	vals := ents.Vals()
 	loop := vgame.Pause
 	for i := range vals {
-		sprites := gam.Sprites(vals[i].Z.Layer())
-		loop |= vals[i].Update(font, sprites, viewport)
+		ent := &vals[i]
+		layer := ent.Z.Layer()
+		sprites := gam.Sprites(layer)
+		clip := gam.Layer(layer).Clip
+		loop |= ent.Update(font, sprites, clip)
 	}
 	return loop
 }

@@ -19,7 +19,7 @@ func InitInit(gam *engine.Engine) {
 	}
 	gam.Texts.Add(text)
 
-	gam.RegisterUpdate(hooks.UpdateCam)
+	gam.RegisterPreupdate(hooks.UpdateCam)
 
 	spawners := ventdata.NewEntVec(hooks.UpdateSuperballSpawners)
 	spawners.Add(entdata.SuperballSpawnerEnt{})

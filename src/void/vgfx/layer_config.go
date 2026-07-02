@@ -1,8 +1,7 @@
-package vengine
+package vgfx
 
 import (
 	"github.com/oidoid/void/src/void/vgeo"
-	"github.com/oidoid/void/src/void/vgfx"
 )
 
 // how a layer's pixel coords are resolved.
@@ -24,21 +23,27 @@ const (
 // per-layer render config and state.
 type LayerConfig struct {
 	// described in this layer's coord system.
-	Sprites []vgfx.Sprite
+	Sprites []Sprite
 	// to-do: necessary? we only care about int mode in cam and shader modulo.
 	RenderMode LayerRenderMode
-	ClipPhy    vgeo.Box[uint16]
-	CamMode    LayerCamMode
-	Scale      float32
-	Shader     vgfx.Shader
-	NoDepth    bool
+	// physical clipbox. zero width or height means full canvas. used for GPU
+	// scissorbox. to-do: this isn't great because Clip is derived and testing
+	// ClipPhy at 0,0,0,0 should be valid.
+	ClipPhy vgeo.Box[uint16]
+	// clipbox in this layer's coordinate system derived from `ClipPhy`. used to
+	// test whether sprites are culled CPU side.
+	Clip    vgeo.Box[float32]
+	CamMode LayerCamMode
+	Scale   float32
+	Shader  Shader
+	NoDepth bool
 }
 
 // packed layer config.
 type LayerConfigExport struct {
 	RenderMode  LayerRenderMode
 	CamMode     LayerCamMode
-	Shader      vgfx.Shader
+	Shader      Shader
 	NoDepth     uint8
 	ClipXPhy    uint16
 	ClipYPhy    uint16
@@ -51,9 +56,9 @@ type LayerConfigExport struct {
 
 func NewLayerConfig(capacity int) LayerConfig {
 	return LayerConfig{
-		Sprites: make([]vgfx.Sprite, 0, capacity),
+		Sprites: make([]Sprite, 0, capacity),
 		CamMode: LayerCamModeApply,
-		Shader:  vgfx.ShaderSprites,
+		Shader:  ShaderSprites,
 	}
 }
 

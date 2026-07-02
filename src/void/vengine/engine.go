@@ -18,21 +18,22 @@ import (
 )
 
 type Engine[Game vgame.Game] struct {
-	Level    *vlevels.Level
-	Router   vlevels.Router[Game]
-	Atlas    vatlas.Atlas
-	Texts    ventdata.EntVec[Game, ventdata.TextEnt]
-	font     *vtext.Font
-	frame    vgame.Poll
-	in       *vinput.In
-	cam      vgeo.XY[float32] // to-do: cam always moves in physical space.
-	updaters ventdata.Zoo[Game]
-	// not true viewport size. adjusted by max sprite size.
+	Level       *vlevels.Level
+	Router      vlevels.Router[Game]
+	Atlas       vatlas.Atlas
+	Texts       ventdata.EntVec[Game, ventdata.TextEnt]
+	font        *vtext.Font
+	frame       vgame.Poll
+	in          *vinput.In
+	cam         vgeo.XY[float32] // to-do: cam always moves in physical space.
+	preupdaters ventdata.Zoo[Game]
+	updaters    ventdata.Zoo[Game]
+	// not true viewport size. adjusted by max sprite size. to-do: call canvas? drop?
 	viewport          vgeo.Box[float32]
 	LevelBounds       vgeo.Box[float32] // to-do: can this be in vlevels.Level?
 	rnd               *rand.Rand
-	layers            [vgfx.LayerCount]LayerConfig
-	layerConfigExport [vgfx.LayerCount]LayerConfigExport
+	layers            [vgfx.LayerCount]vgfx.LayerConfig
+	layerConfigExport [vgfx.LayerCount]vgfx.LayerConfigExport
 	tick              vgame.Tick
 }
 
@@ -43,8 +44,6 @@ type EngineOpts struct {
 	Seed1      uint64
 	Seed2      uint64
 }
-
-var _ vgame.Game = (*Engine[vgame.Game])(nil)
 
 func New[Game vgame.Game](opts *EngineOpts) *Engine[Game] {
 	if opts == nil {
@@ -66,7 +65,7 @@ func New[Game vgame.Game](opts *EngineOpts) *Engine[Game] {
 		rnd:   rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
 	}
 	for i := range this.layers {
-		this.layers[i] = NewLayerConfig(opts.MaxSprites)
+		this.layers[i] = vgfx.NewLayerConfig(opts.MaxSprites)
 	}
 	return this
 }
@@ -77,6 +76,10 @@ func (this *Engine[Game]) RegisterEntUpdate(
 	vec interface{ Update(Game) vgame.Status },
 ) {
 	this.updaters.Register(vec.Update)
+}
+
+func (this *Engine[Game]) RegisterPreupdate(fn func(Game) vgame.Status) {
+	this.preupdaters.Register(fn)
 }
 
 func (this *Engine[Game]) RegisterUpdate(fn func(Game) vgame.Status) {
@@ -116,7 +119,7 @@ func (this *Engine[Game]) LevelH() int32 { return this.Level.H() }
 func (this *Engine[Game]) LayerConfigsPointer() uintptr {
 	return uintptr(unsafe.Pointer(unsafe.SliceData(this.layerConfigExport[:])))
 }
-func (this *Engine[Game]) Layer(layer vgfx.Layer) *LayerConfig {
+func (this *Engine[Game]) Layer(layer vgfx.Layer) *vgfx.LayerConfig {
 	return &this.layers[layer]
 }
 
@@ -124,6 +127,7 @@ func (this *Engine[Game]) Layer(layer vgfx.Layer) *LayerConfig {
 func (this *Engine[Game]) Sprites(layer vgfx.Layer) *[]vgfx.Sprite {
 	return &this.layers[layer].Sprites
 }
+
 func (this *Engine[Game]) Viewport() vgeo.Box[float32] {
 	return this.viewport
 }
@@ -147,33 +151,13 @@ func (this *Engine[Game]) EndTick() {
 	this.updateLayerConfigExport()
 }
 
-func (this *Engine[Game]) Update() vgame.Status {
-	this.in.Update(
-		this.frame.NowMs,
-		&this.frame.InputPoll,
-		vgeo.Box[float32]{Min: this.cam}, // to-do: actual cam box.
-	)
-	this.tick.DrawMs = this.frame.DrawMs
-	for i := range this.layers {
-		this.layers[i].Sprites = this.layers[i].Sprites[:0]
-	}
-	w := float32(this.frame.CanvasPhy.W)
-	h := float32(this.frame.CanvasPhy.H)
-	r := vgfx.MaxSpriteSize
-	// to-do: this is all in physical pixels which is probably incorrect. how to get offset to origin? how to get level pixels?
-	this.viewport = vgeo.NewBox(
-		this.cam.X-r,
-		this.cam.Y-r,
-		this.cam.X+w+r,
-		this.cam.Y+h+r,
-	)
-	this.LevelBounds = vgeo.NewBox(
-		float32(this.Level.Min.X),
-		float32(this.Level.Min.Y),
-		float32(this.Level.Max.X),
-		float32(this.Level.Max.Y),
-	)
-	return vgame.Pause
+func (this *Engine[Game]) Preupdate(gam Game) vgame.Status {
+	return this.preupdaters.Update(gam)
+}
+
+func (this *Engine[Game]) UpdateLayerState() {
+	this.updateLayerClips()
+	this.updateViewport()
 }
 
 func (this *Engine[Game]) Ents() *ventdata.Zoo[Game] {
@@ -199,6 +183,54 @@ func (this *Engine[Game]) AtlasCelsCount() uint32 {
 	return uint32(len(this.Atlas.Cels))
 }
 
+func (this *Engine[Game]) BeginTick() vgame.Status {
+	this.in.Update(
+		this.frame.NowMs,
+		&this.frame.InputPoll,
+		vgeo.Box[float32]{Min: this.cam}, // to-do: actual cam box.
+	)
+	this.tick.DrawMs = this.frame.DrawMs
+	for i := range this.layers {
+		this.layers[i].Sprites = this.layers[i].Sprites[:0]
+	}
+	this.LevelBounds = vgeo.NewBox(
+		float32(this.Level.Min.X),
+		float32(this.Level.Min.Y),
+		float32(this.Level.Max.X),
+		float32(this.Level.Max.Y),
+	)
+	return vgame.Pause
+}
+
+func (this *Engine[Game]) updateLayerClips() {
+	for i := range this.layers {
+		config := &this.layers[i]
+		scale := config.ScaleOrDefault()
+		clip := config.ClipPhy
+		clipX := float32(clip.Min.X)
+		clipY := float32(clip.Min.Y)
+		clipW := float32(clip.W())
+		clipH := float32(clip.H())
+		if clipW == 0 || clipH == 0 {
+			clipX = 0
+			clipY = 0
+			clipW = float32(this.frame.CanvasPhy.W)
+			clipH = float32(this.frame.CanvasPhy.H)
+		}
+		if config.CamMode == vgfx.LayerCamModeApply {
+			clipX += this.cam.X
+			clipY += this.cam.Y
+		}
+		size := vgfx.MaxSpriteSize
+		config.Clip = vgeo.NewBox(
+			clipX/scale-size,
+			clipY/scale-size,
+			(clipX+clipW)/scale+size,
+			(clipY+clipH)/scale+size,
+		)
+	}
+}
+
 func (this *Engine[Game]) updateLayerConfigExport() {
 	for i := range this.layers {
 		layer := &this.layers[i]
@@ -211,7 +243,7 @@ func (this *Engine[Game]) updateLayerConfigExport() {
 		if layer.NoDepth {
 			noDepth = 1
 		}
-		this.layerConfigExport[i] = LayerConfigExport{
+		this.layerConfigExport[i] = vgfx.LayerConfigExport{
 			RenderMode:  layer.RenderMode,
 			CamMode:     layer.CamMode,
 			Shader:      layer.Shader,
@@ -225,4 +257,17 @@ func (this *Engine[Game]) updateLayerConfigExport() {
 			SpriteCount: uint32(len(sprites)),
 		}
 	}
+}
+
+func (this *Engine[Game]) updateViewport() {
+	w := float32(this.frame.CanvasPhy.W)
+	h := float32(this.frame.CanvasPhy.H)
+	r := vgfx.MaxSpriteSize
+	// to-do: this is all in physical pixels which is probably incorrect. how to get offset to origin? how to get level pixels?
+	this.viewport = vgeo.NewBox(
+		this.cam.X-r,
+		this.cam.Y-r,
+		this.cam.X+w+r,
+		this.cam.Y+h+r,
+	)
 }

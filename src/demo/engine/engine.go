@@ -9,6 +9,7 @@ import (
 	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/ventdata"
 	"github.com/oidoid/void/src/void/vgame"
+	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vtext"
 )
 
@@ -30,16 +31,18 @@ func New() *Engine {
 			MaxSprites: 2 * 1024 * 1024,
 		}),
 	}
-	this.Layer(gfx.LayerUI).CamMode = vengine.LayerCamModeFixed
-	this.Layer(gfx.LayerCursor).CamMode = vengine.LayerCamModeFixed
+	this.Layer(gfx.LayerUI).CamMode = vgfx.LayerCamModeFixed
+	this.Layer(gfx.LayerCursor).CamMode = vgfx.LayerCamModeFixed
 	this.Atlas = vatlas.DecodeAtlas(assets.AtlasBin)
 	return this
 }
 
 // to-do: separate method for resizing cam or whatever.
 func (this *Engine) Update() vgame.Status {
-	stat := this.Engine.Update()
+	stat := this.Engine.BeginTick()
+	stat |= this.Engine.Preupdate(this)
+	this.Engine.UpdateLayerState()
 	stat |= this.Router.Update(this)
-	this.Engine.EndTick() // to-do: better API?
+	this.Engine.EndTick()
 	return stat
 }

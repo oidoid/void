@@ -22,7 +22,7 @@ func NewBallEnt(rnd func() float32, x, y float32) BallEnt {
 
 func (this *BallEnt) Update(
 	sprites *[]vgfx.Sprite,
-	viewport vgeo.Box[float32],
+	clip vgeo.Box[float32],
 	lvl vgeo.Box[float32],
 	radius float32,
 ) vgame.Status {
@@ -43,7 +43,7 @@ func (this *BallEnt) Update(
 		this.Y = lvl.Max.Y - diameter
 		this.D.Y = -this.D.Y
 	}
-	if viewport.HitsXY(this.XY) {
+	if clip.HitsXY(this.XY) {
 		*sprites = append(
 			*sprites,
 			vgfx.Sprite{AnimCel: assets.SuperballDefault.Cel(0), XY: this.XY},

@@ -16,12 +16,12 @@ func UpdateSuperballs(
 	anim := gam.Atlas.Anims[int(assets.SuperballDefault)]
 	radius := float32(anim.W) / 2
 	sprites := gam.Sprites(gfx.LayerBg)
-	viewport := gam.Viewport()
+	clip := gam.Layer(gfx.LayerBg).Clip
 	lvl := gam.LevelBounds
 	vals := ents.Vals()
 	loop := vgame.Pause
 	for i := range vals {
-		loop |= vals[i].Update(sprites, viewport, lvl, radius)
+		loop |= vals[i].Update(sprites, clip, lvl, radius)
 	}
 
 	if len(*sprites) > 0 {

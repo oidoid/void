@@ -14,40 +14,40 @@ func UpdateCam(gam *engine.Engine) vgame.Status {
 	if in.IsOn(vinput.ButtonC) {
 		dx *= 10
 	}
-	loop := vgame.Pause
+	stat := vgame.Pause
 	if in.IsOn(vinput.ButtonL) {
 		gam.Cam().X -= dx
-		loop = vgame.Loop
+		stat = vgame.Loop
 	}
 	if in.IsOn(vinput.ButtonR) {
 		gam.Cam().X += dx
-		loop = vgame.Loop
+		stat = vgame.Loop
 	}
 	if in.IsOn(vinput.ButtonU) {
 		gam.Cam().Y -= dx
-		loop = vgame.Loop
+		stat = vgame.Loop
 	}
 	if in.IsOn(vinput.ButtonD) {
 		gam.Cam().Y += dx
-		loop = vgame.Loop
+		stat = vgame.Loop
 	}
 	const edgeZone = float32(64)
 	if in.Ptr.Clicks() != 0 {
 		xy := in.Ptr.Phy()
 		if xy.Min.X < edgeZone {
 			gam.Cam().X -= dx
-			loop = vgame.Loop
+			stat = vgame.Loop
 		} else if xy.Min.X > float32(gam.CanvasPhy().W)-edgeZone {
 			gam.Cam().X += dx
-			loop = vgame.Loop
+			stat = vgame.Loop
 		}
 		if xy.Min.Y < edgeZone {
 			gam.Cam().Y -= dx
-			loop = vgame.Loop
+			stat = vgame.Loop
 		} else if xy.Min.Y > float32(gam.CanvasPhy().H)-edgeZone {
 			gam.Cam().Y += dx
-			loop = vgame.Loop
+			stat = vgame.Loop
 		}
 	}
-	return loop
+	return stat
 }
