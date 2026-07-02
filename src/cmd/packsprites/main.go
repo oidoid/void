@@ -28,7 +28,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := packAtlas(argv); err != nil {
+	if err := packAtlas(&argv); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		if !argv.Watch {
 			os.Exit(1)
@@ -36,7 +36,7 @@ func main() {
 	}
 
 	if argv.Watch {
-		if err := watch(argv); err != nil {
+		if err := watch(&argv); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}

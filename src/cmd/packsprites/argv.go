@@ -17,7 +17,7 @@ type Argv struct {
 	Watch     bool
 }
 
-func NewArgv() (*Argv, error) {
+func NewArgv() (Argv, error) {
 	this := Argv{}
 	flag.StringVar(&this.ColorMode, "color-mode", "indexed", "Aseprite color mode")
 	flag.StringVar(&this.Name, "name", "", "atlas name")
@@ -34,15 +34,15 @@ func NewArgv() (*Argv, error) {
 	flag.Parse()
 	this.Entries = flag.Args()
 	if len(this.Entries) == 0 {
-		return nil, errors.New("no entry")
+		return Argv{}, errors.New("no entry")
 	}
 	if this.Name == "" {
-		return nil, errors.New("--name required")
+		return Argv{}, errors.New("--name required")
 	}
 	if this.ImgOut == "" {
-		return nil, errors.New("--img-out required")
+		return Argv{}, errors.New("--img-out required")
 	}
 	this.Pkg = filepath.Base(this.CodeOut)
 
-	return &this, nil
+	return this, nil
 }

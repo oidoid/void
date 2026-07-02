@@ -29,7 +29,7 @@ func main() {
 	}
 }
 
-func applyPalette(argv *Argv) error {
+func applyPalette(argv Argv) error {
 	ases, err := fileutils.GlobStarExt(argv.Entries, ".aseprite")
 	if err != nil {
 		return err

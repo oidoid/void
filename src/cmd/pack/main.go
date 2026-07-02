@@ -20,7 +20,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	config, err := cliconfig.NewCLIConfig(*argv)
+	config, err := cliconfig.NewCLIConfig(argv)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

@@ -15,7 +15,7 @@ type Argv struct {
 	Watch            watchFlag
 }
 
-func NewArgv() (*Argv, error) {
+func NewArgv() (Argv, error) {
 	this := Argv{}
 	flag.BoolVar(&this.Minify, "minify", false, "minify output")
 	flag.BoolVar(
@@ -46,7 +46,7 @@ func NewArgv() (*Argv, error) {
 	flag.Parse()
 	this.Entries = flag.Args()
 	if len(this.Entries) == 0 {
-		return nil, errors.New("no entry")
+		return Argv{}, errors.New("no entry")
 	}
-	return &this, nil
+	return this, nil
 }
