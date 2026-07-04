@@ -31,6 +31,7 @@ func New() *Engine {
 			MaxSprites: 2 * 1024 * 1024,
 		}),
 	}
+	this.Layer(gfx.LayerTiles).Shader = vgfx.ShaderTiles
 	this.Layer(gfx.LayerUI).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerCursor).CamMode = vgfx.LayerCamModeFixed
 	this.Atlas = vatlas.DecodeAtlas(assets.AtlasBin)

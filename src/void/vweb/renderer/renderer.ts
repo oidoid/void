@@ -85,8 +85,15 @@ export class Renderer {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
   }
 
-  drawTiles(camX: number, camY: number): void {
+  drawTiles(
+    camX: number,
+    camY: number,
+    noDepth: boolean,
+    clipPhy: {x: number; y: number; w: number; h: number}
+  ): void {
+    const clip = this.#beginLayer(noDepth, clipPhy)
     this.#tiles.draw(camX, camY)
+    this.#endLayer(noDepth, clip)
   }
 
   drawLayer(
@@ -100,6 +107,23 @@ export class Renderer {
     noDepth: boolean,
     clipPhy: {x: number; y: number; w: number; h: number}
   ): void {
+    const clip = this.#beginLayer(noDepth, clipPhy)
+    this.#sprites.draw(
+      buffer,
+      spritePtr,
+      spriteCount,
+      camX,
+      camY,
+      layerScale,
+      renderMode
+    )
+    this.#endLayer(noDepth, clip)
+  }
+
+  #beginLayer(
+    noDepth: boolean,
+    clipPhy: {x: number; y: number; w: number; h: number}
+  ): boolean {
     const clip = clipPhy.w !== 0 && clipPhy.h !== 0
     if (clip) {
       this.#gl.enable(this.#gl.SCISSOR_TEST)
@@ -111,15 +135,10 @@ export class Renderer {
       )
     }
     if (noDepth) this.#gl.disable(this.#gl.DEPTH_TEST)
-    this.#sprites.draw(
-      buffer,
-      spritePtr,
-      spriteCount,
-      camX,
-      camY,
-      layerScale,
-      renderMode
-    )
+    return clip
+  }
+
+  #endLayer(noDepth: boolean, clip: boolean): void {
     if (noDepth) this.#gl.enable(this.#gl.DEPTH_TEST)
     if (clip) this.#gl.disable(this.#gl.SCISSOR_TEST)
   }

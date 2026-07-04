@@ -30,6 +30,8 @@ import {
   layerConfigSpritesPtrOffset,
   layerConfigStride,
   layerCount,
+  shaderSprites,
+  shaderTiles,
   type Shader
 } from './layout.ts'
 import {LoopLoop, type Platform} from './platform.ts'
@@ -112,23 +114,25 @@ export class Engine {
     const camX = this.#wasm.CamX()
     const camY = this.#wasm.CamY()
     this.#renderer.clear()
-    this.#renderer.drawTiles(camX, camY)
     for (let layer = 0; layer < layerCount; layer++) {
       const config = this.#layerConfig(layerConfigView, layerConfigPtr, layer)
-      if (config.spriteCount === 0) continue
       const lx = config.camMode === layerCamModeFixed ? 0 : camX
       const ly = config.camMode === layerCamModeFixed ? 0 : camY
-      this.#renderer.drawLayer(
-        buffer,
-        config.spritesPtr,
-        config.spriteCount,
-        lx,
-        ly,
-        config.scale,
-        config.renderMode,
-        config.noDepth,
-        config.clipPhy
-      )
+      if (config.shader === shaderTiles) {
+        this.#renderer.drawTiles(lx, ly, config.noDepth, config.clipPhy)
+      } else if (config.shader === shaderSprites && config.spriteCount !== 0) {
+        this.#renderer.drawLayer(
+          buffer,
+          config.spritesPtr,
+          config.spriteCount,
+          lx,
+          ly,
+          config.scale,
+          config.renderMode,
+          config.noDepth,
+          config.clipPhy
+        )
+      }
     }
     this.#drawMs = performance.now() - drawStart
   }
