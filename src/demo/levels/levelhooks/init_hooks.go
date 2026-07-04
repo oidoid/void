@@ -6,9 +6,11 @@ import (
 	"github.com/oidoid/void/src/demo/entdata"
 	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/demo/hooks"
+	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/ventdata"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
+	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vhooks"
 )
 
@@ -49,6 +51,31 @@ func InitInit(gam *engine.Engine) {
 	mouseStatuses := ventdata.NewEntVec(hooks.UpdateMouseStatuses)
 	mouseStatuses.Add(entdata.NewMouseStatusEnt())
 	gam.RegisterEntUpdate(mouseStatuses)
+
+	cursors := ventdata.NewEntVec(vhooks.UpdateCursors[*engine.Engine])
+	cursors.Add(ventdata.NewCursorEnt(assets.CursorPointer, 0, 0, gfx.LayerCursor.Z(0)))
+	gam.RegisterEntUpdate(cursors)
+
+	border := newBlueberryNinePatch(gfx.LayerUI.Z(1))
+	gam.RegisterUpdate(func(gam *engine.Engine) vgame.Status {
+		layer := gam.Layer(gfx.LayerUI)
+		clip := layer.Clip
+		border.XY = clip.Min
+		border.WH = vgeo.WH[uint16]{W: uint16(clip.W()), H: uint16(clip.H())}
+		border.Update(&layer.Sprites)
+		return vgame.Pause
+	})
+}
+
+func newBlueberryNinePatch(z vgfx.Z) ventdata.NinePatchEnt {
+	var byDir [9]vatlas.AnimID
+	for i := range byDir {
+		byDir[i] = assets.BackgroundBlueberry
+	}
+	byDir[vgeo.DirCenter] = 0
+	ent := ventdata.NewNinePatchEnt(byDir, vgeo.WH[uint16]{W: 1, H: 1})
+	ent.Z = z
+	return ent
 }
 
 func UpdateInit(gam *engine.Engine) vgame.Status {

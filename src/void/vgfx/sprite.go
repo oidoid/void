@@ -1,6 +1,7 @@
 package vgfx
 
 import (
+	"math"
 	"unsafe"
 
 	"github.com/oidoid/void/src/void/vatlas"
@@ -48,4 +49,22 @@ func (this *Sprite) Hide(hide bool) {
 	} else {
 		this.flags &^= 1
 	}
+}
+
+// snaps xy to half-pixel grid for diagonal movement.
+func DiagonalizeXY(xy vgeo.XY[float32], dir int) vgeo.XY[float32] {
+	const epsilon = float32(1) / 64
+	xy.X = float32(math.Floor(float64(xy.X))) + 0.5
+	if dir > 0 {
+		xy.Y = float32(math.Floor(float64(xy.Y))) + 0.5
+	} else {
+		xy.Y = float32(math.Floor(float64(xy.Y))) + 0.5 - epsilon
+	}
+	return xy
+}
+
+// floor to nearest sprite quantum (1/64).
+func FloorEpsilon(x float32) float32 {
+	const epsilon = float32(1) / 64
+	return float32(math.Floor(float64(x)/float64(epsilon))) * epsilon
 }

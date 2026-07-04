@@ -15,12 +15,15 @@ func (this *SuperballSpawnerEnt) Update(
 	deltaMs float64,
 	rnd func() float32,
 	levelBounds vgeo.Box[float32],
+	radius float32,
 ) vgame.Status {
 	loop := vgame.Pause
 	if in.IsOn(vinput.ButtonA) {
 		if xy := in.Ptr.XY(); xy != nil {
+			spawnX := xy.X - radius
+			spawnY := xy.Y - radius
 			for range min(3000, int(60_000*(deltaMs/1000))) {
-				ball := NewBallEnt(rnd, xy.X, xy.Y)
+				ball := NewBallEnt(rnd, spawnX, spawnY)
 				_ = balls.Add(ball)
 			}
 			loop = vgame.Loop
