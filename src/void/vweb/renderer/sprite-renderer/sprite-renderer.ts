@@ -20,7 +20,10 @@ export class SpriteRenderer {
     const uResolution = gl.getUniformLocation(pgm, 'uResolution')!
     const uCamXY = gl.getUniformLocation(pgm, 'uCamXY')!
     const uLayerScale = gl.getUniformLocation(pgm, 'uLayerScale')!
+    const uLayerOffsetPhy = gl.getUniformLocation(pgm, 'uLayerOffsetPhy')!
+    const uLayerModulo = gl.getUniformLocation(pgm, 'uLayerModulo')!
     const uRenderMode = gl.getUniformLocation(pgm, 'uRenderMode')!
+    const uBlendMode = gl.getUniformLocation(pgm, 'uBlendMode')!
 
     gl.useProgram(pgm)
 
@@ -114,7 +117,10 @@ export class SpriteRenderer {
       uResolution,
       uCamXY,
       uLayerScale,
+      uLayerOffsetPhy,
+      uLayerModulo,
       uRenderMode,
+      uBlendMode,
       vao,
       instanceVBO,
       atlasCelsTex,
@@ -127,7 +133,10 @@ export class SpriteRenderer {
   readonly #uResolution: WebGLUniformLocation
   readonly #uCamXY: WebGLUniformLocation
   readonly #uLayerScale: WebGLUniformLocation
+  readonly #uLayerOffsetPhy: WebGLUniformLocation
+  readonly #uLayerModulo: WebGLUniformLocation
   readonly #uRenderMode: WebGLUniformLocation
+  readonly #uBlendMode: WebGLUniformLocation
   readonly #vao: WebGLVertexArrayObject
   readonly #instanceVBO: WebGLBuffer
   readonly #atlasCelsTex: WebGLTexture
@@ -139,7 +148,10 @@ export class SpriteRenderer {
     uResolution: WebGLUniformLocation,
     uCamXY: WebGLUniformLocation,
     uLayerScale: WebGLUniformLocation,
+    uLayerOffsetPhy: WebGLUniformLocation,
+    uLayerModulo: WebGLUniformLocation,
     uRenderMode: WebGLUniformLocation,
+    uBlendMode: WebGLUniformLocation,
     vao: WebGLVertexArrayObject,
     instanceVBO: WebGLBuffer,
     atlasCelsTex: WebGLTexture,
@@ -150,7 +162,10 @@ export class SpriteRenderer {
     this.#uResolution = uResolution
     this.#uCamXY = uCamXY
     this.#uLayerScale = uLayerScale
+    this.#uLayerOffsetPhy = uLayerOffsetPhy
+    this.#uLayerModulo = uLayerModulo
     this.#uRenderMode = uRenderMode
+    this.#uBlendMode = uBlendMode
     this.#vao = vao
     this.#instanceVBO = instanceVBO
     this.#atlasCelsTex = atlasCelsTex
@@ -173,14 +188,24 @@ export class SpriteRenderer {
     camX: number,
     camY: number,
     layerScale: number,
-    renderMode: number
+    clipPhy: {x: number; y: number; w: number; h: number},
+    layerModulo: number,
+    renderMode: number,
+    blendMode: number
   ): void {
     if (!count) return
     const gl = this.#gl
     gl.useProgram(this.#pgm)
     gl.uniform2f(this.#uCamXY, camX, camY)
     gl.uniform1f(this.#uLayerScale, layerScale)
+    gl.uniform2f(
+      this.#uLayerOffsetPhy,
+      clipPhy.w && clipPhy.h ? clipPhy.x : 0,
+      clipPhy.w && clipPhy.h ? clipPhy.y : 0
+    )
+    gl.uniform1f(this.#uLayerModulo, layerModulo)
     gl.uniform1i(this.#uRenderMode, renderMode)
+    gl.uniform1i(this.#uBlendMode, blendMode)
     gl.uniform2i(
       this.#uResolution,
       gl.drawingBufferWidth,

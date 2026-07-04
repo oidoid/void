@@ -11,6 +11,8 @@ export const layerConfigFlagsOffset: number = 3
 export const layerFlagsNoDepthShift = 0 as const
 export const layerFlagsNoDepthFlag = 1 as const
 export const layerFlagsNoDepthMask = layerFlagsNoDepthFlag
+export const layerFlagsBlendModeShift = 1 as const
+export const layerFlagsBlendModeMask = 0x7f as const
 export const layerConfigClipXPhyOffset: number = 4
 export const layerConfigClipYPhyOffset: number = 6
 export const layerConfigClipWPhyOffset: number = 8
@@ -30,6 +32,11 @@ export type LayerRenderMode =
 export const layerCamModeApply = 0 as const
 export const layerCamModeFixed = 1 as const
 export type LayerCamMode = typeof layerCamModeApply | typeof layerCamModeFixed
+export const layerBlendModeAlpha = 0 as const
+export const layerBlendModeMultiply = 1 as const
+export type LayerBlendMode =
+  | typeof layerBlendModeAlpha
+  | typeof layerBlendModeMultiply
 
 export const shaderTiles = 0 as const
 export const shaderSprites = 1 as const
@@ -42,7 +49,8 @@ export type LayerConfig = {
   scale: number
   modulo: number
   shader: Shader
-  flags: number
+  noDepth: boolean
+  blendMode: LayerBlendMode
   spritesPtr: number
   spriteCount: number
 }

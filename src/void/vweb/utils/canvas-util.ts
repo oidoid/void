@@ -18,10 +18,10 @@ export function initCanvas(
 ): HTMLCanvasElement {
   canvas ??= document.createElement('canvas')
   canvas.width = 0 // guarantee Renderer.#resize().
-  // canvas.style.cursor = 'none'
+  canvas.style.cursor = 'none'
   canvas.style.display = 'block' // no line height spacing.
   canvas.style.outline = 'none' // disable focus outline.
-  // to-do: fix me and also fix the context pixelation setting!
+  // to-do: fix me and also fix the get context pixelation setting!
   canvas.style.imageRendering = mode === 'Int' ? 'pixelated' : 'smooth' // to-do: why doesn't cam mode set this? do we even want this given shader?
   // update on each pointermove *touch* Event like *mouse* Events.
   canvas.style.touchAction = 'none'

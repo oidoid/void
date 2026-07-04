@@ -39,5 +39,7 @@ export const canvasHOffset: number = canvasWOffset + 2
 export const isFullscreenOffset: number = canvasHOffset + 2
 /** byte offset of DrawMs field within Update (3 bytes padding after bool). */
 export const drawMsOffset: number = isFullscreenOffset + 4
+/** byte offset of DrawCount field (number of renderer clears completed). */
+export const drawCountOffset: number = drawMsOffset + 8
 /** total byte size of the Update struct. */
-export const updateByteLen: number = drawMsOffset + 8
+export const updateByteLen: number = drawCountOffset + 4

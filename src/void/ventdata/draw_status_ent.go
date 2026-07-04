@@ -49,7 +49,7 @@ func (this *DrawStatusEnt) Update(
 		this.Next.Frames = 0
 		this.Next.Start = nowMs
 	}
-	text := vtext.Itoa(int(tick.DrawCount)) + "D " +
+	text := vtext.Itoa(int(tick.DrawCount)+1) + "D " +
 		vtext.FmtFloat2(tick.DeltaMs) + "u " +
 		vtext.FmtFloat2(tick.DrawMs) + "d " +
 		vtext.PadInt(this.PrevFPS, 3) + "\vfps" // \v forces consistent kerning.

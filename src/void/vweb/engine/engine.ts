@@ -3,6 +3,7 @@ import {
   canvasHOffset,
   canvasWOffset,
   deltaMsOffset,
+  drawCountOffset,
   drawMsOffset,
   isFullscreenOffset,
   nowMsOffset,
@@ -13,6 +14,7 @@ import {initCanvas} from '../utils/canvas-util.ts'
 import {initBody} from '../utils/dom-util.ts'
 import {isFullscreen} from '../utils/fullscreen-util.ts'
 import {
+  type LayerBlendMode,
   type LayerCamMode,
   type LayerConfig,
   type LayerRenderMode,
@@ -31,6 +33,8 @@ import {
   layerConfigSpritesPtrOffset,
   layerConfigStride,
   layerCount,
+  layerFlagsBlendModeMask,
+  layerFlagsBlendModeShift,
   layerFlagsNoDepthFlag,
   layerFlagsNoDepthMask,
   layerFlagsNoDepthShift,
@@ -44,6 +48,7 @@ import {WASI} from './wasi.ts'
 export class Engine {
   #canvas!: HTMLCanvasElement
   #drawMs: number = 0
+  #drawCount: number = 0
   #frame!: DataView
   #input!: Input
   #lastTime: number = 0
@@ -118,6 +123,7 @@ export class Engine {
     const camX = this.#wasm.CamX()
     const camY = this.#wasm.CamY()
     this.#renderer.clear()
+    this.#drawCount++
     for (let layer = 0; layer < layerCount; layer++) {
       const config = this.#layerConfig(layerConfigView, layerConfigPtr, layer)
       const lx = config.camMode === layerCamModeFixed ? 0 : camX
@@ -127,10 +133,10 @@ export class Engine {
           lx,
           ly,
           config.scale,
+          config.modulo,
           config.renderMode,
-          ((config.flags >>> layerFlagsNoDepthShift) &
-            layerFlagsNoDepthMask) ===
-            layerFlagsNoDepthFlag,
+          config.blendMode,
+          config.noDepth,
           config.clipPhy
         )
       } else if (config.shader === shaderSprites && config.spriteCount !== 0) {
@@ -141,10 +147,10 @@ export class Engine {
           lx,
           ly,
           config.scale,
+          config.modulo,
           config.renderMode,
-          ((config.flags >>> layerFlagsNoDepthShift) &
-            layerFlagsNoDepthMask) ===
-            layerFlagsNoDepthFlag,
+          config.blendMode,
+          config.noDepth,
           config.clipPhy
         )
       }
@@ -154,6 +160,7 @@ export class Engine {
 
   #layerConfig(view: DataView, ptr: number, layer: number): LayerConfig {
     const o = ptr + layer * layerConfigStride
+    const flags = view.getUint8(o + layerConfigFlagsOffset)
     return {
       renderMode: view.getUint8(
         o + layerConfigRenderModeOffset
@@ -168,7 +175,11 @@ export class Engine {
       scale: view.getFloat32(o + layerConfigScaleOffset, true),
       modulo: view.getUint8(o + layerConfigModuloOffset),
       shader: view.getUint8(o + layerConfigShaderOffset) as Shader,
-      flags: view.getUint8(o + layerConfigFlagsOffset),
+      noDepth:
+        ((flags >>> layerFlagsNoDepthShift) & layerFlagsNoDepthMask) ===
+        layerFlagsNoDepthFlag,
+      blendMode: ((flags >>> layerFlagsBlendModeShift) &
+        layerFlagsBlendModeMask) as LayerBlendMode,
       spritesPtr: view.getUint32(o + layerConfigSpritesPtrOffset, true),
       spriteCount: view.getUint32(o + layerConfigSpriteCountOffset, true)
     }
@@ -235,10 +246,11 @@ export class Engine {
     const delta = this.#lastTime === 0 ? 0 : now - this.#lastTime
     this.#frame.setFloat64(deltaMsOffset, delta, true)
     this.#frame.setFloat64(nowMsOffset, performance.timeOrigin + now, true)
-    this.#frame.setUint16(canvasWOffset, this.#renderer.canvasW, true)
-    this.#frame.setUint16(canvasHOffset, this.#renderer.canvasH, true)
+    this.#frame.setUint16(canvasWOffset, this.#renderer.phyW, true)
+    this.#frame.setUint16(canvasHOffset, this.#renderer.phyH, true)
     this.#frame.setUint8(isFullscreenOffset, isFullscreen() ? 1 : 0)
     this.#frame.setFloat64(drawMsOffset, this.#drawMs, true)
+    this.#frame.setInt32(drawCountOffset, this.#drawCount, true)
     this.#input.update(this.#frame)
     this.#input.postupdate() // to-do: move to postupdate()?
     this.#lastTime = now

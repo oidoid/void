@@ -232,7 +232,7 @@ func (this *Engine[Game]) updateLayerConfigExport() {
 			ClipWPhy:    layer.ClipPhy.W(),
 			ClipHPhy:    layer.ClipPhy.H(),
 			Scale:       layer.ScaleOrDefault(),
-			Modulo:      layer.Modulo,
+			Modulo:      uint8(layer.ModuloOrDefault()),
 			SpritesPtr:  spritesPtr,
 			SpriteCount: uint32(len(sprites)),
 		}

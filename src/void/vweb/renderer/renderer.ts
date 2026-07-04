@@ -1,3 +1,5 @@
+const layerBlendModeMultiply = 1
+
 import {SpriteRenderer} from './sprite-renderer/sprite-renderer.ts'
 import {TileRenderer} from './tile-renderer/tile-renderer.ts'
 
@@ -62,13 +64,13 @@ export class Renderer {
     )
   }
 
-  // integral width.
-  get canvasW(): number {
+  // integral width in physical pixels.
+  get phyW(): number {
     return this.#gl.drawingBufferWidth
   }
 
-  // integral height.
-  get canvasH(): number {
+  // integral height in physical pixels.
+  get phyH(): number {
     return this.#gl.drawingBufferHeight
   }
 
@@ -79,7 +81,7 @@ export class Renderer {
 
   clear(): void {
     const gl = this.#gl
-    gl.clearColor(0xe6 / 255, 0xe6 / 255, 0xe6 / 255, 1)
+    gl.clearColor(0, 0, 0, 1)
     // to-do: expose.
     gl.clearDepth(1)
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -89,13 +91,15 @@ export class Renderer {
     camX: number,
     camY: number,
     layerScale: number,
+    layerModulo: number,
     renderMode: number,
+    blendMode: number,
     noDepth: boolean,
     clipPhy: {x: number; y: number; w: number; h: number}
   ): void {
-    const clip = this.#beginLayer(noDepth, clipPhy)
-    this.#tiles.draw(camX, camY, layerScale, renderMode)
-    this.#endLayer(noDepth, clip)
+    const clip = this.#beginLayer(noDepth, blendMode, clipPhy)
+    this.#tiles.draw(camX, camY, layerScale, clipPhy, layerModulo, renderMode)
+    this.#endLayer(noDepth, blendMode, clip)
   }
 
   drawLayer(
@@ -105,11 +109,13 @@ export class Renderer {
     camX: number,
     camY: number,
     layerScale: number,
+    layerModulo: number,
     renderMode: number,
+    blendMode: number,
     noDepth: boolean,
     clipPhy: {x: number; y: number; w: number; h: number}
   ): void {
-    const clip = this.#beginLayer(noDepth, clipPhy)
+    const clip = this.#beginLayer(noDepth, blendMode, clipPhy)
     this.#sprites.draw(
       buffer,
       spritePtr,
@@ -117,13 +123,17 @@ export class Renderer {
       camX,
       camY,
       layerScale,
-      renderMode
+      clipPhy,
+      layerModulo,
+      renderMode,
+      blendMode
     )
-    this.#endLayer(noDepth, clip)
+    this.#endLayer(noDepth, blendMode, clip)
   }
 
   #beginLayer(
     noDepth: boolean,
+    blendMode: number,
     clipPhy: {x: number; y: number; w: number; h: number}
   ): boolean {
     const clip = clipPhy.w !== 0 && clipPhy.h !== 0
@@ -131,16 +141,20 @@ export class Renderer {
       this.#gl.enable(this.#gl.SCISSOR_TEST)
       this.#gl.scissor(
         clipPhy.x,
-        this.canvasH - clipPhy.y - clipPhy.h,
+        this.phyH - clipPhy.y - clipPhy.h,
         clipPhy.w,
         clipPhy.h
       )
     }
+    if (blendMode === layerBlendModeMultiply)
+      this.#gl.blendFunc(this.#gl.DST_COLOR, this.#gl.ZERO)
     if (noDepth) this.#gl.disable(this.#gl.DEPTH_TEST)
     return clip
   }
 
-  #endLayer(noDepth: boolean, clip: boolean): void {
+  #endLayer(noDepth: boolean, blendMode: number, clip: boolean): void {
+    if (blendMode === layerBlendModeMultiply)
+      this.#gl.blendFunc(this.#gl.SRC_ALPHA, this.#gl.ONE_MINUS_SRC_ALPHA)
     if (noDepth) this.#gl.enable(this.#gl.DEPTH_TEST)
     if (clip) this.#gl.disable(this.#gl.SCISSOR_TEST)
   }
@@ -149,12 +163,19 @@ export class Renderer {
   resize(): void {
     const canvas = this.#gl.canvas as HTMLCanvasElement
     const bounds = canvas.getBoundingClientRect()
-    const displayW = Math.round(bounds.width * devicePixelRatio)
-    const displayH = Math.round(bounds.height * devicePixelRatio)
-    if (canvas.width === displayW && canvas.height === displayH) return
+    const phyW = Math.round(bounds.width * devicePixelRatio)
+    const phyH = Math.round(bounds.height * devicePixelRatio)
+    if (canvas.width !== phyW || canvas.height !== phyH) {
+      console.log('[resize]', {
+        bounds: `${bounds.width}x${bounds.height}`,
+        devicePixelRatio,
+        phys: `${phyW}x${phyH}`
+      })
+    }
+    if (canvas.width === phyW && canvas.height === phyH) return
 
-    canvas.width = displayW
-    canvas.height = displayH
-    this.#gl.viewport(0, 0, this.canvasW, this.canvasH)
+    canvas.width = phyW
+    canvas.height = phyH
+    this.#gl.viewport(0, 0, this.phyW, this.phyH)
   }
 }
