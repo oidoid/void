@@ -2,25 +2,24 @@ package ventdata
 
 import "github.com/oidoid/void/src/void/vgeo"
 
-// computes XY to place a w x h rect relative to box at dir with margin.
-// analogous to HudXY but for entity-relative anchoring rather than HUD
-// pinning.
-func AnchorXY(
-	dir vgeo.Dir,
-	margin vgeo.XY[float32],
-	box vgeo.Box[float32],
-	w, h float32,
-) vgeo.XY[float32] {
+// places content relative to another entity box.
+type AnchorEnt struct {
+	Dir    vgeo.Dir
+	Margin vgeo.XY[float32]
+}
+
+// computes a position for a w x h rect relative to box.
+func (this AnchorEnt) XY(box vgeo.Box[float32], w, h float32) vgeo.XY[float32] {
 	boxW := box.W()
 	boxH := box.H()
 
 	var x, y float32
 
-	switch dir {
+	switch this.Dir {
 	case vgeo.DirW, vgeo.DirSW:
-		x = box.Min.X - w - margin.X
+		x = box.Min.X - w - this.Margin.X
 	case vgeo.DirE, vgeo.DirSE:
-		x = box.Min.X + boxW + margin.X
+		x = box.Min.X + boxW + this.Margin.X
 	case vgeo.DirNE:
 		x = box.Min.X + boxW - w
 	case vgeo.DirNW:
@@ -29,13 +28,13 @@ func AnchorXY(
 		x = box.Min.X + float32(int32(boxW-w)/2)
 	}
 
-	switch dir {
+	switch this.Dir {
 	case vgeo.DirN, vgeo.DirNE, vgeo.DirNW:
-		y = box.Min.Y - h - margin.Y
+		y = box.Min.Y - h - this.Margin.Y
 	case vgeo.DirS:
-		y = box.Min.Y + boxH + margin.Y
+		y = box.Min.Y + boxH + this.Margin.Y
 	case vgeo.DirSE, vgeo.DirSW:
-		y = box.Min.Y + boxH - h - margin.Y
+		y = box.Min.Y + boxH - h - this.Margin.Y
 	case vgeo.DirW, vgeo.DirE, vgeo.DirCenter:
 		y = box.Min.Y + float32(int32(boxH-h)/2)
 	}

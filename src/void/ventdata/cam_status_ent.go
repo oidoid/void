@@ -41,7 +41,7 @@ func (this *CamStatusEnt) Update(
 
 	this.LayoutChars(font)
 	// to-do: if invalid / cam.invalid / return value from LayoutChars().
-	this.XY = HudXY(this.HUDEnt, this.Layout.W, this.Layout.TrimH, canvasPhy)
+	this.TextEnt.XY = this.HUDEnt.XY(this.Layout.W, this.Layout.TrimH, clip)
 
 	this.DrawBackground(sprites)
 
@@ -51,7 +51,7 @@ func (this *CamStatusEnt) Update(
 func (this *CamStatusEnt) DrawBackground(sprites *[]vgfx.Sprite) {
 	const margin = int16(1)
 	*sprites = append(*sprites, vgfx.Sprite{
-		XY:      vgeo.NewXY(float32(this.XY.X-margin), float32(this.XY.Y-margin)),
+		XY:      vgeo.NewXY(float32(this.TextEnt.XY.X-margin), float32(this.TextEnt.XY.Y-margin)),
 		AnimCel: this.BackgroundAnimID.Cel(0),
 		Z:       this.Z - 1,
 		WH: vgeo.WH[uint16]{

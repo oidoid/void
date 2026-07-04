@@ -26,7 +26,6 @@ func NewEntStatusEnt() EntStatusEnt {
 func (this *EntStatusEnt) Update(
 	font *vtext.Font,
 	sprites *[]vgfx.Sprite,
-	canvasPhy vgeo.WH[uint16],
 	count int,
 	spriteCount int,
 	clip vgeo.Box[float32],
@@ -37,10 +36,7 @@ func (this *EntStatusEnt) Update(
 	)
 
 	this.LayoutChars(font)
-	this.XY = ventdata.HudXY(
-		// to-do: canvasPhy is probably incorrect. should be same units of w/h.
-		this.HUDEnt, this.Layout.W, this.Layout.TrimLeadForceH, canvasPhy,
-	)
+	this.TextEnt.XY = this.HUDEnt.XY(this.Layout.W, this.Layout.TrimLeadForceH, clip)
 
 	this.drawBackground(sprites)
 
@@ -51,7 +47,7 @@ func (this *EntStatusEnt) drawBackground(sprites *[]vgfx.Sprite) {
 	const margin = int16(1)
 	*sprites = append(*sprites, vgfx.Sprite{
 		AnimCel: assets.BackgroundKiwi.Cel(0),
-		XY:      vgeo.NewXY(float32(this.XY.X-margin), float32(this.XY.Y-margin)),
+		XY:      vgeo.NewXY(float32(this.TextEnt.XY.X-margin), float32(this.TextEnt.XY.Y-margin)),
 		Z:       this.Z - 1,
 		WH: vgeo.WH[uint16]{
 			W: uint16(this.Layout.W + margin*2),

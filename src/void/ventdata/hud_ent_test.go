@@ -6,7 +6,7 @@ import (
 	"github.com/oidoid/void/src/void/vgeo"
 )
 
-func TestHudXY(t *testing.T) {
+func TestHUDEntXY(t *testing.T) {
 	cases := []struct {
 		name   string
 		anchor vgeo.Dir
@@ -30,7 +30,7 @@ func TestHudXY(t *testing.T) {
 		{"SE no margin", vgeo.DirSE, 0, 10, 8, 90, 52},
 	}
 
-	var canvas = vgeo.WH[uint16]{W: 100, H: 60}
+	clip := vgeo.NewBox[float32](0, 0, 100, 60)
 	for _, test := range cases {
 		t.Run(test.name, func(t *testing.T) {
 			hud := HUDEnt{
@@ -39,10 +39,10 @@ func TestHudXY(t *testing.T) {
 					N: test.margin, E: test.margin, S: test.margin, W: test.margin,
 				},
 			}
-			got := HudXY(hud, test.w, test.h, canvas)
+			got := hud.XY(test.w, test.h, clip)
 			if got.X != test.wantX || got.Y != test.wantY {
 				t.Fatalf(
-					"hudXY(%s) = (%d, %d), want (%d, %d)",
+					"HUDEnt.XY(%s) = (%d, %d), want (%d, %d)",
 					test.name,
 					got.X,
 					got.Y,
@@ -51,5 +51,18 @@ func TestHudXY(t *testing.T) {
 				)
 			}
 		})
+	}
+}
+
+func TestHUDEntXYOffsetLayerClip(t *testing.T) {
+	hud := HUDEnt{
+		Anchor: vgeo.DirSE,
+		Margin: vgeo.Border[int16]{E: 2, S: 3},
+	}
+	clip := vgeo.NewBox[float32](10, 20, 110, 80)
+
+	got := hud.XY(10, 8, clip)
+	if got != vgeo.NewXY[int16](98, 69) {
+		t.Fatalf("HUDEnt.XY offset = (%d, %d), want (98, 69)", got.X, got.Y)
 	}
 }

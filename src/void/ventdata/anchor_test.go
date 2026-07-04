@@ -6,7 +6,7 @@ import (
 	"github.com/oidoid/void/src/void/vgeo"
 )
 
-func TestAnchorXY(t *testing.T) {
+func TestAnchorEntXY(t *testing.T) {
 	box := vgeo.XYWH[float32](10, 20, 8, 8)
 	noMargin := vgeo.XY[float32]{}
 
@@ -32,7 +32,8 @@ func TestAnchorXY(t *testing.T) {
 
 	for _, test := range cases {
 		t.Run(test.name, func(t *testing.T) {
-			got := AnchorXY(test.dir, test.margin, box, 4, 4)
+			anchor := AnchorEnt{Dir: test.dir, Margin: test.margin}
+			got := anchor.XY(box, 4, 4)
 			if got.X != test.wantX || got.Y != test.wantY {
 				t.Fatalf(
 					"got (%v,%v), want (%v,%v)", got.X, got.Y, test.wantX, test.wantY,

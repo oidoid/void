@@ -16,7 +16,6 @@ type Sprite struct {
 	flags uint32
 }
 
-const MaxSpriteSize = float32(16) // to-do: move to demo.
 const SpriteStride = int(unsafe.Sizeof(Sprite{}))
 
 func (this *Sprite) Anim() vatlas.AnimID {

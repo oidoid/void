@@ -12,13 +12,14 @@ func UpdateMouseStatuses(
 	ents *vvec.Vec[entdata.MouseStatusEnt],
 	gam *engine.Engine,
 ) vgame.Status {
-	sprites := &gam.Layer(gfx.LayerUI).Sprites
+	layer := gam.Layer(gfx.LayerUI)
+	sprites := &layer.Sprites
+	clip := layer.Clip
 	in := gam.In()
-	canvasPhy := *gam.CanvasPhy()
 	vals := ents.Vals()
 	loop := vgame.Pause
 	for i := range vals {
-		loop |= vals[i].Update(sprites, in, canvasPhy)
+		loop |= vals[i].Update(sprites, in, clip)
 	}
 	return loop
 }

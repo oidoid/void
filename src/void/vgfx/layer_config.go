@@ -40,8 +40,7 @@ type LayerConfig struct {
 	// scissorbox. to-do: this isn't great because Clip is derived and testing
 	// ClipPhy at 0,0,0,0 should be valid.
 	ClipPhy vgeo.Box[uint16]
-	// clipbox in this layer's coordinate system derived from `ClipPhy`. used to
-	// test whether sprites are culled CPU side.
+	// clipbox in this layer's coordinate system derived from `ClipPhy`.
 	Clip vgeo.Box[float32]
 	// effective camera for this layer after mode is applied. updated by vengine.
 	Cam              vgeo.XY[float32]
@@ -103,16 +102,16 @@ func (this *LayerConfig) UpdateScale(clip vgeo.WH[float32]) {
 	if this.ScaleMode == LayerScaleModeManual {
 		return
 	}
-	min := this.AutoscaleMinClip
-	if min.W == 0 && min.H == 0 {
+	auto := this.AutoscaleMinClip
+	if auto.W == 0 && auto.H == 0 {
 		return
 	}
 	scale := float32(0)
-	if min.W != 0 {
-		scale = clip.W / float32(min.W)
+	if auto.W != 0 {
+		scale = clip.W / float32(auto.W)
 	}
-	if min.H != 0 {
-		hScale := clip.H / float32(min.H)
+	if auto.H != 0 {
+		hScale := clip.H / float32(auto.H)
 		if scale == 0 || hScale < scale {
 			scale = hScale
 		}

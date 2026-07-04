@@ -16,7 +16,7 @@ type MouseStatusEnt struct {
 	visible bool
 }
 
-const mouseStatusSize = float32(16)
+const mouseStatusSize = int16(16)
 
 func NewMouseStatusEnt() MouseStatusEnt {
 	this := MouseStatusEnt{}
@@ -28,15 +28,15 @@ func NewMouseStatusEnt() MouseStatusEnt {
 func (this *MouseStatusEnt) Update(
 	sprites *[]vgfx.Sprite,
 	in *vinput.In,
-	canvasPhy vgeo.WH[uint16],
+	clip vgeo.Box[float32],
 ) vgame.Status {
 	this.visible = this.visible || in.Ptr.Device() == vinput.PointerDeviceMouse
 	if !this.visible {
 		return vgame.Pause
 	}
 
-	// to-do: canvasPhy is probably incorrect. should be same units of w/h.
-	xy := ventdata.HudXY(this.HUDEnt, mouseStatusSize, mouseStatusSize, canvasPhy)
+	hudXY := this.HUDEnt.XY(mouseStatusSize, mouseStatusSize, clip)
+	xy := vgeo.NewXY(float32(hudXY.X), float32(hudXY.Y))
 	*sprites = append(
 		*sprites,
 		vgfx.Sprite{XY: xy, AnimCel: assets.MouseStatusBase.Cel(0), Z: gfx.LayerUI.Z(0)},

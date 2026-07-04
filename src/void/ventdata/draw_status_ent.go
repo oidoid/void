@@ -41,7 +41,6 @@ func (this *DrawStatusEnt) Update(
 	sprites *[]vgfx.Sprite,
 	nowMs float64,
 	tick *vgame.Tick,
-	canvasPhy vgeo.WH[uint16],
 	clip vgeo.Box[float32],
 ) vgame.Status {
 	this.Next.Frames++
@@ -57,10 +56,7 @@ func (this *DrawStatusEnt) Update(
 	this.SetText(text)
 
 	this.LayoutChars(font)
-	this.XY = HudXY(
-		// to-do: canvasPhy is probably incorrect. should be same units of w/h.
-		this.HUDEnt, this.Layout.W, this.Layout.TrimLeadForceH, canvasPhy,
-	)
+	this.TextEnt.XY = this.HUDEnt.XY(this.Layout.W, this.Layout.TrimLeadForceH, clip)
 
 	this.DrawBackground(sprites)
 
@@ -70,7 +66,7 @@ func (this *DrawStatusEnt) Update(
 func (this *DrawStatusEnt) DrawBackground(sprites *[]vgfx.Sprite) {
 	const margin = int16(1)
 	*sprites = append(*sprites, vgfx.Sprite{
-		XY:      vgeo.NewXY(float32(this.XY.X-margin), float32(this.XY.Y-margin)),
+		XY:      vgeo.NewXY(float32(this.TextEnt.XY.X-margin), float32(this.TextEnt.XY.Y-margin)),
 		AnimCel: this.BgAnimID.Cel(0),
 		Z:       this.Z - 1,
 		WH: vgeo.WH[uint16]{

@@ -205,15 +205,9 @@ func (this *Engine[Game]) updateLayerClips() {
 			clipH = float32(this.frame.CanvasPhy.H)
 		}
 		config.UpdateScale(vgeo.WH[float32]{W: clipW, H: clipH})
-		min := config.PhyToLayer(vgeo.NewXY(clipX, clipY))
-		max := config.PhyToLayer(vgeo.NewXY(clipX+clipW, clipY+clipH))
-		size := vgfx.MaxSpriteSize
-		config.Clip = vgeo.NewBox(
-			min.X-size,
-			min.Y-size,
-			max.X+size,
-			max.Y+size,
-		)
+		minXY := config.PhyToLayer(vgeo.NewXY(clipX, clipY))
+		maxXY := config.PhyToLayer(vgeo.NewXY(clipX+clipW, clipY+clipH))
+		config.Clip = vgeo.NewBox(minXY.X, minXY.Y, maxXY.X, maxXY.Y)
 	}
 }
 
