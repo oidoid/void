@@ -15,12 +15,6 @@ import (
 )
 
 func InitInit(gam *engine.Engine) {
-	text := ventdata.TextEnt{
-		Text: "an ancient pond / a frog jumps in / the splash of water",
-		XY:   vgeo.XY[int16]{X: 100, Y: 100},
-	}
-	gam.Texts.Add(text)
-
 	gam.RegisterPreupdate(hooks.UpdateCam)
 
 	spawners := ventdata.NewEntVec(hooks.UpdateSuperballSpawners)
