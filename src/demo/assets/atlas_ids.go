@@ -7,13 +7,11 @@ const (
 	VoidNil vatlas.AnimID = iota
 	BackgroundOrangeCheckerboard
 	BackgroundGreyCheckerboard
-	BackgroundBlackCheckerboard
 	BackgroundKiwi
 	BackgroundStrawberry
 	BackgroundGrape
 	BackgroundBlueberry
 	BackgroundBubblegum
-	BackgroundTransparent
 	BackgroundBlack
 	BackpackerWalkRight
 	BackpackerWalkDown

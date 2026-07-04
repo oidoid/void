@@ -16,7 +16,7 @@ func UpdateSuperballs(
 	anim := gam.Atlas.Anims[int(assets.SuperballDefault)]
 	radius := float32(anim.W) / 2
 	diameter := radius * 2
-	layer := gam.Layer(gfx.LayerBg)
+	layer := gam.Layer(gfx.LayerSuperballs)
 	sprites := &layer.Sprites
 	clip := layer.Clip
 	clip.Min.X -= diameter
