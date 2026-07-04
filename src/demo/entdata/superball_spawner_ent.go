@@ -15,19 +15,15 @@ func (this *SuperballSpawnerEnt) Update(
 	deltaMs float64,
 	rnd func() float32,
 	levelBounds vgeo.Box[float32],
-	radius float32,
+	spawnXY *vgeo.XY[float32],
 ) vgame.Status {
 	loop := vgame.Pause
-	if in.IsOn(vinput.ButtonA) {
-		if xy := in.Ptr.XY(); xy != nil {
-			spawnX := xy.X - radius
-			spawnY := xy.Y - radius
-			for range min(3000, int(60_000*(deltaMs/1000))) {
-				ball := NewBallEnt(rnd, spawnX, spawnY)
-				_ = balls.Add(ball)
-			}
-			loop = vgame.Loop
+	if in.IsOn(vinput.ButtonA) && spawnXY != nil {
+		for range min(3000, int(60_000*(deltaMs/1000))) {
+			ball := NewBallEnt(rnd, spawnXY.X, spawnXY.Y)
+			_ = balls.Add(ball)
 		}
+		loop = vgame.Loop
 	}
 	if in.IsOnStart(vinput.ButtonMenu) {
 		toSpawn := int(2.5*1024*1024 - float32(balls.Len()))

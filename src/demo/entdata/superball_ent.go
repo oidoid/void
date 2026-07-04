@@ -3,6 +3,7 @@ package entdata
 
 import (
 	"github.com/oidoid/void/src/demo/assets"
+	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
@@ -46,7 +47,9 @@ func (this *BallEnt) Update(
 	if clip.HitsXY(this.XY) {
 		*sprites = append(
 			*sprites,
-			vgfx.Sprite{AnimCel: assets.SuperballDefault.Cel(0), XY: this.XY},
+			vgfx.Sprite{
+				AnimCel: assets.SuperballDefault.Cel(0), XY: this.XY, Z: gfx.ZSuperball,
+			},
 		)
 	}
 	return vgame.Loop

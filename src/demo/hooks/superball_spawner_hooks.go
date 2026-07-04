@@ -4,7 +4,9 @@ import (
 	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/demo/engine"
 	"github.com/oidoid/void/src/demo/entdata"
+	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/vgame"
+	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
@@ -17,12 +19,18 @@ func UpdateSuperballSpawners(
 	rnd := gam.Random
 	levelBounds := gam.LevelBounds
 	balls := &gam.Balls.Vec
-	anim := gam.Atlas.Anims[int(assets.SuperballDefault)]
-	radius := float32(anim.W) / 2
+	radius := float32(gam.Atlas.Anims[int(assets.SuperballDefault)].W) / 2
+	var spawnXY *vgeo.XY[float32]
+	if phy := in.Ptr.Phy(); phy != nil {
+		xy := gam.Layer(gfx.LayerTiles).PhyToLayer(phy.Min)
+		xy.X -= radius
+		xy.Y -= radius
+		spawnXY = &xy
+	}
 	vals := ents.Vals()
 	loop := vgame.Pause
 	for i := range vals {
-		loop |= vals[i].Update(balls, in, deltaMs, rnd, levelBounds, radius)
+		loop |= vals[i].Update(balls, in, deltaMs, rnd, levelBounds, spawnXY)
 	}
 	return loop
 }

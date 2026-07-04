@@ -32,6 +32,7 @@ func New() *Engine {
 		}),
 	}
 	this.Layer(gfx.LayerTiles).Shader = vgfx.ShaderTiles
+	this.Layer(gfx.LayerSuperballs).NoDepth = true
 	this.Layer(gfx.LayerUI).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerCursor).CamMode = vgfx.LayerCamModeFixed
 	this.Atlas = vatlas.DecodeAtlas(assets.AtlasBin)
