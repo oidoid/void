@@ -88,11 +88,13 @@ export class Renderer {
   drawTiles(
     camX: number,
     camY: number,
+    layerScale: number,
+    renderMode: number,
     noDepth: boolean,
     clipPhy: {x: number; y: number; w: number; h: number}
   ): void {
     const clip = this.#beginLayer(noDepth, clipPhy)
-    this.#tiles.draw(camX, camY)
+    this.#tiles.draw(camX, camY, layerScale, renderMode)
     this.#endLayer(noDepth, clip)
   }
 

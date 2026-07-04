@@ -16,6 +16,8 @@ export class TileRenderer {
     const pgm = buildProgram(gl, tileVert, tileFrag)
     const uResolution = gl.getUniformLocation(pgm, 'uResolution')!
     const uCamXY = gl.getUniformLocation(pgm, 'uCamXY')!
+    const uLayerScale = gl.getUniformLocation(pgm, 'uLayerScale')!
+    const uRenderMode = gl.getUniformLocation(pgm, 'uRenderMode')!
     const uLevel = gl.getUniformLocation(pgm, 'uLevel')!
     const uTileWH = gl.getUniformLocation(pgm, 'uTileWH')!
 
@@ -48,13 +50,24 @@ export class TileRenderer {
     gl.uniform4f(uLevel, levelX, levelY, levelW, levelH)
     gl.uniform2f(uTileWH, tileW, tileH)
 
-    return new TileRenderer(gl, pgm, uResolution, uCamXY, vao, texture)
+    return new TileRenderer(
+      gl,
+      pgm,
+      uResolution,
+      uCamXY,
+      uLayerScale,
+      uRenderMode,
+      vao,
+      texture
+    )
   }
 
   readonly #gl: WebGL2RenderingContext
   readonly #pgm: WebGLProgram
   readonly #uResolution: WebGLUniformLocation
   readonly #uCamXY: WebGLUniformLocation
+  readonly #uLayerScale: WebGLUniformLocation
+  readonly #uRenderMode: WebGLUniformLocation
   readonly #vao: WebGLVertexArrayObject
   readonly #texture: WebGLTexture
 
@@ -63,6 +76,8 @@ export class TileRenderer {
     pgm: WebGLProgram,
     uResolution: WebGLUniformLocation,
     uCamXY: WebGLUniformLocation,
+    uLayerScale: WebGLUniformLocation,
+    uRenderMode: WebGLUniformLocation,
     vao: WebGLVertexArrayObject,
     texture: WebGLTexture
   ) {
@@ -70,6 +85,8 @@ export class TileRenderer {
     this.#pgm = pgm
     this.#uResolution = uResolution
     this.#uCamXY = uCamXY
+    this.#uLayerScale = uLayerScale
+    this.#uRenderMode = uRenderMode
     this.#vao = vao
     this.#texture = texture
   }
@@ -81,10 +98,17 @@ export class TileRenderer {
     gl.deleteTexture(this.#texture)
   }
 
-  draw(camX: number, camY: number): void {
+  draw(
+    camX: number,
+    camY: number,
+    layerScale: number,
+    renderMode: number
+  ): void {
     const gl = this.#gl
     gl.useProgram(this.#pgm)
     gl.uniform2f(this.#uCamXY, camX, camY)
+    gl.uniform1f(this.#uLayerScale, layerScale)
+    gl.uniform1i(this.#uRenderMode, renderMode)
     gl.uniform2i(
       this.#uResolution,
       gl.drawingBufferWidth,

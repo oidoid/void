@@ -30,9 +30,9 @@ import {
   layerConfigSpritesPtrOffset,
   layerConfigStride,
   layerCount,
+  type Shader,
   shaderSprites,
-  shaderTiles,
-  type Shader
+  shaderTiles
 } from './layout.ts'
 import {LoopLoop, type Platform} from './platform.ts'
 import {WASI} from './wasi.ts'
@@ -119,7 +119,14 @@ export class Engine {
       const lx = config.camMode === layerCamModeFixed ? 0 : camX
       const ly = config.camMode === layerCamModeFixed ? 0 : camY
       if (config.shader === shaderTiles) {
-        this.#renderer.drawTiles(lx, ly, config.noDepth, config.clipPhy)
+        this.#renderer.drawTiles(
+          lx,
+          ly,
+          config.scale,
+          config.renderMode,
+          config.noDepth,
+          config.clipPhy
+        )
       } else if (config.shader === shaderSprites && config.spriteCount !== 0) {
         this.#renderer.drawLayer(
           buffer,
