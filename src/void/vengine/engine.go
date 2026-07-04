@@ -123,11 +123,6 @@ func (this *Engine[Game]) Layer(layer vgfx.Layer) *vgfx.LayerConfig {
 	return &this.layers[layer]
 }
 
-// to-do: consolidate with Layer?
-func (this *Engine[Game]) Sprites(layer vgfx.Layer) *[]vgfx.Sprite {
-	return &this.layers[layer].Sprites
-}
-
 func (this *Engine[Game]) Viewport() vgeo.Box[float32] {
 	return this.viewport
 }
@@ -217,6 +212,7 @@ func (this *Engine[Game]) updateLayerClips() {
 			clipW = float32(this.frame.CanvasPhy.W)
 			clipH = float32(this.frame.CanvasPhy.H)
 		}
+		config.UpdateScale(vgeo.WH[float32]{W: clipW, H: clipH})
 		min := config.PhyToLayer(vgeo.NewXY(clipX, clipY))
 		max := config.PhyToLayer(vgeo.NewXY(clipX+clipW, clipY+clipH))
 		size := vgfx.MaxSpriteSize

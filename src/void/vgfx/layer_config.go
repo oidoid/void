@@ -20,6 +20,15 @@ const (
 	LayerCamModeFixed
 )
 
+// how a layer scale is resolved each frame.
+type LayerScaleMode uint8
+
+const (
+	LayerScaleModeManual LayerScaleMode = iota
+	LayerScaleModeAutoFloat
+	LayerScaleModeAutoInt
+)
+
 // per-layer render config and state.
 type LayerConfig struct {
 	// described in this layer's coord system.
@@ -34,11 +43,13 @@ type LayerConfig struct {
 	// test whether sprites are culled CPU side.
 	Clip vgeo.Box[float32]
 	// effective camera for this layer after mode is applied. updated by vengine.
-	Cam     vgeo.XY[float32]
-	CamMode LayerCamMode
-	Scale   float32
-	Shader  Shader
-	NoDepth bool
+	Cam              vgeo.XY[float32]
+	CamMode          LayerCamMode
+	Scale            float32
+	ScaleMode        LayerScaleMode
+	AutoscaleMinClip vgeo.WH[uint16]
+	Shader           Shader
+	NoDepth          bool
 }
 
 // packed layer config.
@@ -85,6 +96,36 @@ func (this *LayerConfig) ScaleOrDefault() float32 {
 		return 1
 	}
 	return this.Scale
+}
+
+func (this *LayerConfig) UpdateScale(clip vgeo.WH[float32]) {
+	if this.ScaleMode == LayerScaleModeManual {
+		return
+	}
+	min := this.AutoscaleMinClip
+	if min.W == 0 && min.H == 0 {
+		return
+	}
+	scale := float32(0)
+	if min.W != 0 {
+		scale = clip.W / float32(min.W)
+	}
+	if min.H != 0 {
+		hScale := clip.H / float32(min.H)
+		if scale == 0 || hScale < scale {
+			scale = hScale
+		}
+	}
+	if scale == 0 {
+		return
+	}
+	if this.ScaleMode == LayerScaleModeAutoInt {
+		scale = float32(int(scale))
+		if scale < 1 {
+			scale = 1
+		}
+	}
+	this.Scale = scale
 }
 
 func (this *LayerConfig) UpdateCam(cam vgeo.XY[float32]) {

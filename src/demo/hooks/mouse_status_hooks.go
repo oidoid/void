@@ -12,7 +12,7 @@ func UpdateMouseStatuses(
 	ents *vvec.Vec[entdata.MouseStatusEnt],
 	gam *engine.Engine,
 ) vgame.Status {
-	sprites := gam.Sprites(gfx.LayerUI)
+	sprites := &gam.Layer(gfx.LayerUI).Sprites
 	in := gam.In()
 	canvasPhy := *gam.CanvasPhy()
 	vals := ents.Vals()

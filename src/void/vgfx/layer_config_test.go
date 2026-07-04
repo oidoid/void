@@ -40,6 +40,84 @@ func TestLayerConfigCoordTransformsFixed(t *testing.T) {
 	}
 }
 
+func TestLayerConfigAutoscaleFloat(t *testing.T) {
+	config := LayerConfig{
+		Scale:            3,
+		ScaleMode:        LayerScaleModeAutoFloat,
+		AutoscaleMinClip: vgeo.WH[uint16]{W: 320, H: 180},
+	}
+
+	config.UpdateScale(vgeo.WH[float32]{W: 960, H: 405})
+	if config.Scale != 2.25 {
+		t.Fatalf("Scale mismatch: got %v", config.Scale)
+	}
+}
+
+func TestLayerConfigAutoscaleFloatHeightOnly(t *testing.T) {
+	config := LayerConfig{
+		ScaleMode:        LayerScaleModeAutoFloat,
+		AutoscaleMinClip: vgeo.WH[uint16]{H: 180},
+	}
+
+	config.UpdateScale(vgeo.WH[float32]{W: 960, H: 405})
+	if config.Scale != 2.25 {
+		t.Fatalf("Scale mismatch: got %v", config.Scale)
+	}
+}
+
+func TestLayerConfigAutoscaleFloatWidthOnly(t *testing.T) {
+	config := LayerConfig{
+		ScaleMode:        LayerScaleModeAutoFloat,
+		AutoscaleMinClip: vgeo.WH[uint16]{W: 320},
+	}
+
+	config.UpdateScale(vgeo.WH[float32]{W: 960, H: 405})
+	if config.Scale != 3 {
+		t.Fatalf("Scale mismatch: got %v", config.Scale)
+	}
+}
+
+func TestLayerConfigAutoscaleInt(t *testing.T) {
+	config := LayerConfig{
+		ScaleMode:        LayerScaleModeAutoInt,
+		AutoscaleMinClip: vgeo.WH[uint16]{W: 320, H: 180},
+	}
+
+	config.UpdateScale(vgeo.WH[float32]{W: 960, H: 405})
+	if config.Scale != 2 {
+		t.Fatalf("Scale mismatch: got %v", config.Scale)
+	}
+
+	config.UpdateScale(vgeo.WH[float32]{W: 160, H: 90})
+	if config.Scale != 1 {
+		t.Fatalf("Scale clamp mismatch: got %v", config.Scale)
+	}
+}
+
+func TestLayerConfigAutoscaleUnset(t *testing.T) {
+	config := LayerConfig{
+		Scale:     3,
+		ScaleMode: LayerScaleModeAutoFloat,
+	}
+
+	config.UpdateScale(vgeo.WH[float32]{W: 960, H: 405})
+	if config.Scale != 3 {
+		t.Fatalf("Scale mismatch: got %v", config.Scale)
+	}
+}
+
+func TestLayerConfigAutoscaleManual(t *testing.T) {
+	config := LayerConfig{
+		Scale:            3,
+		AutoscaleMinClip: vgeo.WH[uint16]{W: 320, H: 180},
+	}
+
+	config.UpdateScale(vgeo.WH[float32]{W: 960, H: 405})
+	if config.Scale != 3 {
+		t.Fatalf("Scale mismatch: got %v", config.Scale)
+	}
+}
+
 func TestLayerConfigScaleDefault(t *testing.T) {
 	config := LayerConfig{}
 	cam := vgeo.NewXY[float32](10, 20)
