@@ -17,8 +17,9 @@ func UpdateDrawStatuses[Game vgame.Game](
 	vals := ents.Vals()
 	loop := vgame.Pause
 	for i := range vals {
-		sprites := &gam.Layer(vals[i].Z.Layer()).Sprites
-		loop |= vals[i].Update(font, sprites, nowMs, tick, canvasPhy)
+		layer := gam.Layer(vals[i].Z.Layer())
+		sprites := &layer.Sprites
+		loop |= vals[i].Update(font, sprites, nowMs, tick, canvasPhy, layer.Clip)
 	}
 	return loop
 }

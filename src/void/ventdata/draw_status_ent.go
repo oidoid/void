@@ -33,7 +33,6 @@ func NewDrawStatusEnt(
 	this.Anchor = anchor
 	this.Margin = margin
 	this.Z = z
-	this.Fixed = true
 	return this
 }
 
@@ -43,6 +42,7 @@ func (this *DrawStatusEnt) Update(
 	nowMs float64,
 	tick *vgame.Tick,
 	canvasPhy vgeo.WH[uint16],
+	clip vgeo.Box[float32],
 ) vgame.Status {
 	this.Next.Frames++
 	if nowMs-this.Next.Start >= 1000 {
@@ -64,7 +64,7 @@ func (this *DrawStatusEnt) Update(
 
 	this.DrawBackground(sprites)
 
-	return this.TextEnt.Update(font, sprites, vgeo.Box[float32]{})
+	return this.TextEnt.Update(font, sprites, clip)
 }
 
 func (this *DrawStatusEnt) DrawBackground(sprites *[]vgfx.Sprite) {

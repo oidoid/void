@@ -20,7 +20,6 @@ func NewEntStatusEnt() EntStatusEnt {
 	this.Anchor = vgeo.DirSW
 	this.Margin = vgeo.Border[int16]{N: 4, E: 4, S: 4, W: 4}
 	this.Z = gfx.LayerUI.Z(0)
-	this.Fixed = true
 	return this
 }
 
@@ -30,6 +29,7 @@ func (this *EntStatusEnt) Update(
 	canvasPhy vgeo.WH[uint16],
 	count int,
 	spriteCount int,
+	clip vgeo.Box[float32],
 ) vgame.Status {
 	this.SetText(
 		vtext.PadInt(count, 7) + " superballs\n" +
@@ -44,7 +44,7 @@ func (this *EntStatusEnt) Update(
 
 	this.drawBackground(sprites)
 
-	return this.TextEnt.Update(font, sprites, vgeo.Box[float32]{})
+	return this.TextEnt.Update(font, sprites, clip)
 }
 
 func (this *EntStatusEnt) drawBackground(sprites *[]vgfx.Sprite) {

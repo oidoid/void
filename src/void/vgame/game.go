@@ -16,6 +16,5 @@ type Game interface {
 	NowMs() float64
 	Tick() *Tick
 	Layer(vgfx.Layer) *vgfx.LayerConfig
-	Viewport() vgeo.Box[float32]
 	Random() float32
 }

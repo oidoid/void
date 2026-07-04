@@ -13,15 +13,13 @@ type TextEnt struct {
 	Layout vtext.TextLayout // nil `Layout.Chars` to force relayout.
 	XY     vgeo.XY[int16]
 	Z      vgfx.Z
-	// to-do: move to layer detail from vengine.
-	Fixed bool // when true, skips viewport culling (screen-space layers).
-	Trim  vtext.Trim
+	Trim   vtext.Trim
 }
 
 var zeroChar = vgeo.Box[int16]{}
 
 func (this *TextEnt) Update(
-	font *vtext.Font, sprites *[]vgfx.Sprite, viewport vgeo.Box[float32],
+	font *vtext.Font, sprites *[]vgfx.Sprite, clip vgeo.Box[float32],
 ) vgame.Status {
 	loop := vgame.Pause
 	if this.Layout.Chars == nil {
@@ -37,13 +35,11 @@ func (this *TextEnt) Update(
 		xy := vgeo.NewXY(
 			float32(chBox.Min.X+this.XY.X), float32(chBox.Min.Y+this.XY.Y),
 		)
-		if !this.Fixed {
-			if xy.Y > viewport.Max.Y {
-				break
-			}
-			if !viewport.HitsXY(xy) {
-				continue
-			}
+		if xy.Y > clip.Max.Y {
+			break
+		}
+		if !clip.HitsXY(xy) {
+			continue
 		}
 		*sprites = append(
 			*sprites,

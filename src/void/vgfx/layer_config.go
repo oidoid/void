@@ -16,6 +16,7 @@ const (
 type LayerCamMode uint8
 
 const (
+	// to-do: rename
 	LayerCamModeApply LayerCamMode = iota
 	LayerCamModeFixed
 )

@@ -20,7 +20,6 @@ func NewCamStatusEnt(backgroundAnimID vatlas.AnimID, z vgfx.Z) CamStatusEnt {
 	this.Margin = vgeo.Border[int16]{N: 4, E: 4, S: 4, W: 4}
 	this.Trim = vtext.TrimLead
 	this.Z = z
-	this.Fixed = true
 	return this
 }
 
@@ -30,6 +29,7 @@ func (this *CamStatusEnt) Update(
 	canvasPhy vgeo.WH[uint16],
 	camX, camY float32,
 	fullscreen bool,
+	clip vgeo.Box[float32],
 ) vgame.Status {
 	text := "(" + vtext.FmtFloat(camX) + ", " + vtext.FmtFloat(camY) + ") " +
 		vtext.Itoa(int(canvasPhy.W)) + "x" + vtext.Itoa(int(canvasPhy.H))
@@ -45,7 +45,7 @@ func (this *CamStatusEnt) Update(
 
 	this.DrawBackground(sprites)
 
-	return this.TextEnt.Update(font, sprites, vgeo.Box[float32]{})
+	return this.TextEnt.Update(font, sprites, clip)
 }
 
 func (this *CamStatusEnt) DrawBackground(sprites *[]vgfx.Sprite) {

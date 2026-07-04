@@ -19,8 +19,9 @@ func UpdateEntStatuses(
 	vals := ents.Vals()
 	loop := vgame.Pause
 	for i := range vals {
-		sprites := &gam.Layer(vals[i].Z.Layer()).Sprites
-		loop |= vals[i].Update(font, sprites, canvasPhy, count, spriteCount)
+		layer := gam.Layer(vals[i].Z.Layer())
+		sprites := &layer.Sprites
+		loop |= vals[i].Update(font, sprites, canvasPhy, count, spriteCount, layer.Clip)
 	}
 	return loop
 }

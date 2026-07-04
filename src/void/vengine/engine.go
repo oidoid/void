@@ -18,18 +18,16 @@ import (
 )
 
 type Engine[Game vgame.Game] struct {
-	Level       *vlevels.Level
-	Router      vlevels.Router[Game]
-	Atlas       vatlas.Atlas
-	Texts       ventdata.EntVec[Game, ventdata.TextEnt]
-	font        *vtext.Font
-	frame       vgame.Poll
-	in          *vinput.In
-	cam         vgeo.XY[float32] // to-do: cam always moves in physical space.
-	preupdaters ventdata.Zoo[Game]
-	updaters    ventdata.Zoo[Game]
-	// not true viewport size. adjusted by max sprite size. to-do: call canvas? drop?
-	viewport          vgeo.Box[float32]
+	Level             *vlevels.Level
+	Router            vlevels.Router[Game]
+	Atlas             vatlas.Atlas
+	Texts             ventdata.EntVec[Game, ventdata.TextEnt]
+	font              *vtext.Font
+	frame             vgame.Poll
+	in                *vinput.In
+	cam               vgeo.XY[float32] // to-do: cam always moves in physical space.
+	preupdaters       ventdata.Zoo[Game]
+	updaters          ventdata.Zoo[Game]
 	LevelBounds       vgeo.Box[float32] // to-do: can this be in vlevels.Level?
 	rnd               *rand.Rand
 	layers            [vgfx.LayerCount]vgfx.LayerConfig
@@ -103,7 +101,6 @@ func (this *Engine[Game]) Cam() *vgeo.XY[float32] { return &this.cam }
 func (this *Engine[Game]) CamX() float32          { return this.cam.X }
 func (this *Engine[Game]) CamY() float32          { return this.cam.Y }
 
-// to-do: add ViewportPhy?
 func (this *Engine[Game]) CanvasPhy() *vgeo.WH[uint16] {
 	return &this.frame.CanvasPhy
 }
@@ -121,10 +118,6 @@ func (this *Engine[Game]) LayerConfigsPointer() uintptr {
 }
 func (this *Engine[Game]) Layer(layer vgfx.Layer) *vgfx.LayerConfig {
 	return &this.layers[layer]
-}
-
-func (this *Engine[Game]) Viewport() vgeo.Box[float32] {
-	return this.viewport
 }
 
 func (this *Engine[Game]) TilePointer() uintptr {
@@ -152,7 +145,6 @@ func (this *Engine[Game]) Preupdate(gam Game) vgame.Status {
 
 func (this *Engine[Game]) UpdateLayerState() {
 	this.updateLayerClips()
-	this.updateViewport()
 }
 
 func (this *Engine[Game]) Ents() *ventdata.Zoo[Game] {
@@ -251,17 +243,4 @@ func (this *Engine[Game]) updateLayerConfigExport() {
 			SpriteCount: uint32(len(sprites)),
 		}
 	}
-}
-
-func (this *Engine[Game]) updateViewport() {
-	w := float32(this.frame.CanvasPhy.W)
-	h := float32(this.frame.CanvasPhy.H)
-	r := vgfx.MaxSpriteSize
-	// to-do: this is all in physical pixels which is probably incorrect. how to get offset to origin? how to get level pixels?
-	this.viewport = vgeo.NewBox(
-		this.cam.X-r,
-		this.cam.Y-r,
-		this.cam.X+w+r,
-		this.cam.Y+h+r,
-	)
 }
