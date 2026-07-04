@@ -6,8 +6,8 @@ package vgfx
 type Layer uint8
 
 const LayerCount = 8
-const layerShift = 4
+const LayerShift = 4
 
 func (this Layer) Z(sub Sublayer) Z {
-	return Z(uint8(this)<<layerShift | uint8(sub))
+	return Z(uint8(this)<<LayerShift | uint8(sub))
 }

@@ -21,7 +21,15 @@ const (
 	LayerCamModeFixed
 )
 
-// how a layer scale is resolved each frame.
+// how a layer's sprites are composited onto the framebuffer.
+type LayerBlendMode uint8
+
+const (
+	LayerBlendModeAlpha LayerBlendMode = iota // transparent blending.
+	// multiply destination by source RGB; use for translucent overlays.
+	LayerBlendModeMultiply
+)
+
 type LayerScaleMode uint8
 
 const (
@@ -43,12 +51,16 @@ type LayerConfig struct {
 	// clipbox in this layer's coordinate system derived from `ClipPhy`.
 	Clip vgeo.Box[float32]
 	// effective camera for this layer after mode is applied. updated by vengine.
-	Cam              vgeo.XY[float32]
-	CamMode          LayerCamMode
-	Scale            float32
+	Cam     vgeo.XY[float32]
+	CamMode LayerCamMode
+	Scale   float32
+	// pixel-snapping quantum: sprite and cam coords are floor-snapped to the
+	// nearest multiple before rasterisation.
+	Modulo           uint8
 	ScaleMode        LayerScaleMode
 	AutoscaleMinClip vgeo.WH[uint16]
 	Shader           Shader
+	BlendMode        LayerBlendMode
 	NoDepth          bool
 }
 
@@ -63,6 +75,7 @@ type LayerConfigExport struct {
 	ClipWPhy    uint16
 	ClipHPhy    uint16
 	Scale       float32
+	Modulo      uint8
 	SpritesPtr  uint32
 	SpriteCount uint32
 }
@@ -78,17 +91,24 @@ func NewLayerConfig(capacity int) LayerConfig {
 func (this *LayerConfig) LayerToPhy(xy vgeo.XY[float32]) vgeo.XY[float32] {
 	scale := this.ScaleOrDefault()
 	return vgeo.XY[float32]{
-		X: xy.X*scale - this.Cam.X,
-		Y: xy.Y*scale - this.Cam.Y,
+		X: xy.X*scale + this.offsetPhy().X - this.Cam.X,
+		Y: xy.Y*scale + this.offsetPhy().Y - this.Cam.Y,
 	}
 }
 
 func (this *LayerConfig) PhyToLayer(xy vgeo.XY[float32]) vgeo.XY[float32] {
 	scale := this.ScaleOrDefault()
 	return vgeo.XY[float32]{
-		X: (xy.X + this.Cam.X) / scale,
-		Y: (xy.Y + this.Cam.Y) / scale,
+		X: (xy.X - this.offsetPhy().X + this.Cam.X) / scale,
+		Y: (xy.Y - this.offsetPhy().Y + this.Cam.Y) / scale,
 	}
+}
+
+func (this *LayerConfig) ModuloOrDefault() float32 {
+	if this.Modulo == 0 {
+		return 1
+	}
+	return float32(this.Modulo)
 }
 
 func (this *LayerConfig) ScaleOrDefault() float32 {
@@ -134,4 +154,11 @@ func (this *LayerConfig) UpdateCam(cam vgeo.XY[float32]) {
 		return
 	}
 	this.Cam = cam
+}
+
+func (this *LayerConfig) offsetPhy() vgeo.XY[float32] {
+	if this.ClipPhy.W() == 0 || this.ClipPhy.H() == 0 {
+		return vgeo.XY[float32]{} // clip is viewport.
+	}
+	return vgeo.NewXY(float32(this.ClipPhy.Min.X), float32(this.ClipPhy.Min.Y))
 }
