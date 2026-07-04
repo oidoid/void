@@ -205,7 +205,7 @@ func (this *Engine[Game]) BeginTick() vgame.Status {
 func (this *Engine[Game]) updateLayerClips() {
 	for i := range this.layers {
 		config := &this.layers[i]
-		scale := config.ScaleOrDefault()
+		config.UpdateCam(this.cam)
 		clip := config.ClipPhy
 		clipX := float32(clip.Min.X)
 		clipY := float32(clip.Min.Y)
@@ -217,16 +217,14 @@ func (this *Engine[Game]) updateLayerClips() {
 			clipW = float32(this.frame.CanvasPhy.W)
 			clipH = float32(this.frame.CanvasPhy.H)
 		}
-		if config.CamMode == vgfx.LayerCamModeApply {
-			clipX += this.cam.X
-			clipY += this.cam.Y
-		}
+		min := config.PhyToLayer(vgeo.NewXY(clipX, clipY))
+		max := config.PhyToLayer(vgeo.NewXY(clipX+clipW, clipY+clipH))
 		size := vgfx.MaxSpriteSize
 		config.Clip = vgeo.NewBox(
-			clipX/scale-size,
-			clipY/scale-size,
-			(clipX+clipW)/scale+size,
-			(clipY+clipH)/scale+size,
+			min.X-size,
+			min.Y-size,
+			max.X+size,
+			max.Y+size,
 		)
 	}
 }

@@ -32,7 +32,9 @@ type LayerConfig struct {
 	ClipPhy vgeo.Box[uint16]
 	// clipbox in this layer's coordinate system derived from `ClipPhy`. used to
 	// test whether sprites are culled CPU side.
-	Clip    vgeo.Box[float32]
+	Clip vgeo.Box[float32]
+	// effective camera for this layer after mode is applied. updated by vengine.
+	Cam     vgeo.XY[float32]
 	CamMode LayerCamMode
 	Scale   float32
 	Shader  Shader
@@ -62,9 +64,33 @@ func NewLayerConfig(capacity int) LayerConfig {
 	}
 }
 
+func (this *LayerConfig) LayerToPhy(xy vgeo.XY[float32]) vgeo.XY[float32] {
+	scale := this.ScaleOrDefault()
+	return vgeo.XY[float32]{
+		X: xy.X*scale - this.Cam.X,
+		Y: xy.Y*scale - this.Cam.Y,
+	}
+}
+
+func (this *LayerConfig) PhyToLayer(xy vgeo.XY[float32]) vgeo.XY[float32] {
+	scale := this.ScaleOrDefault()
+	return vgeo.XY[float32]{
+		X: (xy.X + this.Cam.X) / scale,
+		Y: (xy.Y + this.Cam.Y) / scale,
+	}
+}
+
 func (this *LayerConfig) ScaleOrDefault() float32 {
 	if this.Scale == 0 {
 		return 1
 	}
 	return this.Scale
+}
+
+func (this *LayerConfig) UpdateCam(cam vgeo.XY[float32]) {
+	if this.CamMode == LayerCamModeFixed {
+		this.Cam = vgeo.XY[float32]{}
+		return
+	}
+	this.Cam = cam
 }
