@@ -49,8 +49,8 @@ export class WASI {
     let text = ''
     let written = 0
     for (let i = 0; i < iovsLen; i++) {
-      const ptr = u32[(iovs >> 2) + i * 2]!
-      const len = u32[(iovs >> 2) + i * 2 + 1]!
+      const ptr = u32[(iovs >>> 2) + i * 2]!
+      const len = u32[(iovs >>> 2) + i * 2 + 1]!
       text += this.#decoder.decode(u8.subarray(ptr, ptr + len), {
         stream: true
       })
@@ -58,7 +58,7 @@ export class WASI {
     }
     text += this.#decoder.decode()
     ;(fd === 2 ? console.error : console.log)(text)
-    u32[nwritten >> 2] = written
+    u32[nwritten >>> 2] = written
     return 0
   }
 

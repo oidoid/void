@@ -15,9 +15,12 @@ func UpdateSuperballs(
 ) vgame.Status {
 	anim := gam.Atlas.Anims[int(assets.SuperballDefault)]
 	radius := float32(anim.W) / 2
+	diameter := radius * 2
 	layer := gam.Layer(gfx.LayerBg)
 	sprites := &layer.Sprites
 	clip := layer.Clip
+	clip.Min.X -= diameter
+	clip.Min.Y -= diameter
 	lvl := gam.LevelBounds
 	vals := ents.Vals()
 	loop := vgame.Pause

@@ -30,6 +30,15 @@ const (
 	LayerBlendModeMultiply
 )
 
+// bit positions within the packed flags byte in LayerConfigExport.Flags.
+const (
+	LayerFlagsNoDepthShift   = uint8(0)
+	LayerFlagsNoDepthFlag    = uint8(0x1)
+	LayerFlagsNoDepthMask    = uint8(0x1)
+	LayerFlagsBlendModeShift = uint8(1)
+	LayerFlagsBlendModeMask  = uint8(0x7f)
+)
+
 type LayerScaleMode uint8
 
 const (
@@ -69,7 +78,7 @@ type LayerConfigExport struct {
 	RenderMode  LayerRenderMode
 	CamMode     LayerCamMode
 	Shader      Shader
-	NoDepth     uint8
+	Flags       uint8
 	ClipXPhy    uint16
 	ClipYPhy    uint16
 	ClipWPhy    uint16

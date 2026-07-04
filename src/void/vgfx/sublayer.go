@@ -4,6 +4,7 @@ package vgfx
 type Sublayer uint8
 
 const SublayerCount = 16
+const SublayerShift Sublayer = 0
 const SublayerMask Sublayer = 0xf
 
 func (this Z) Sublayer() Sublayer { return Sublayer(this) & SublayerMask }

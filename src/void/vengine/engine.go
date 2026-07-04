@@ -140,11 +140,9 @@ func (this *Engine[Game]) EndTick() {
 }
 
 func (this *Engine[Game]) Preupdate(gam Game) vgame.Status {
-	return this.preupdaters.Update(gam)
-}
-
-func (this *Engine[Game]) UpdateLayerState() {
+	stat := this.preupdaters.Update(gam)
 	this.updateLayerClips()
+	return stat
 }
 
 func (this *Engine[Game]) Ents() *ventdata.Zoo[Game] {
@@ -177,6 +175,7 @@ func (this *Engine[Game]) BeginTick() vgame.Status {
 		vgeo.Box[float32]{Min: this.cam}, // to-do: actual cam box.
 	)
 	this.tick.DrawMs = this.frame.DrawMs
+	this.tick.DrawCount = this.frame.DrawCount
 	for i := range this.layers {
 		this.layers[i].Sprites = this.layers[i].Sprites[:0]
 	}
@@ -219,20 +218,21 @@ func (this *Engine[Game]) updateLayerConfigExport() {
 		if len(sprites) != 0 {
 			spritesPtr = uint32(uintptr(unsafe.Pointer(unsafe.SliceData(sprites))))
 		}
-		noDepth := uint8(0)
+		flags := uint8(layer.BlendMode) << vgfx.LayerFlagsBlendModeShift
 		if layer.NoDepth {
-			noDepth = 1
+			flags |= vgfx.LayerFlagsNoDepthFlag << vgfx.LayerFlagsNoDepthShift
 		}
 		this.layerConfigExport[i] = vgfx.LayerConfigExport{
 			RenderMode:  layer.RenderMode,
 			CamMode:     layer.CamMode,
 			Shader:      layer.Shader,
-			NoDepth:     noDepth,
+			Flags:       flags,
 			ClipXPhy:    layer.ClipPhy.Min.X,
 			ClipYPhy:    layer.ClipPhy.Min.Y,
 			ClipWPhy:    layer.ClipPhy.W(),
 			ClipHPhy:    layer.ClipPhy.H(),
 			Scale:       layer.ScaleOrDefault(),
+			Modulo:      layer.Modulo,
 			SpritesPtr:  spritesPtr,
 			SpriteCount: uint32(len(sprites)),
 		}

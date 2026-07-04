@@ -22,7 +22,8 @@ import {
   layerConfigClipWPhyOffset,
   layerConfigClipXPhyOffset,
   layerConfigClipYPhyOffset,
-  layerConfigNoDepthOffset,
+  layerConfigFlagsOffset,
+  layerConfigModuloOffset,
   layerConfigRenderModeOffset,
   layerConfigScaleOffset,
   layerConfigShaderOffset,
@@ -30,6 +31,9 @@ import {
   layerConfigSpritesPtrOffset,
   layerConfigStride,
   layerCount,
+  layerFlagsNoDepthFlag,
+  layerFlagsNoDepthMask,
+  layerFlagsNoDepthShift,
   type Shader,
   shaderSprites,
   shaderTiles
@@ -124,7 +128,9 @@ export class Engine {
           ly,
           config.scale,
           config.renderMode,
-          config.noDepth,
+          ((config.flags >>> layerFlagsNoDepthShift) &
+            layerFlagsNoDepthMask) ===
+            layerFlagsNoDepthFlag,
           config.clipPhy
         )
       } else if (config.shader === shaderSprites && config.spriteCount !== 0) {
@@ -136,7 +142,9 @@ export class Engine {
           ly,
           config.scale,
           config.renderMode,
-          config.noDepth,
+          ((config.flags >>> layerFlagsNoDepthShift) &
+            layerFlagsNoDepthMask) ===
+            layerFlagsNoDepthFlag,
           config.clipPhy
         )
       }
@@ -158,8 +166,9 @@ export class Engine {
       },
       camMode: view.getUint8(o + layerConfigCamModeOffset) as LayerCamMode,
       scale: view.getFloat32(o + layerConfigScaleOffset, true),
+      modulo: view.getUint8(o + layerConfigModuloOffset),
       shader: view.getUint8(o + layerConfigShaderOffset) as Shader,
-      noDepth: view.getUint8(o + layerConfigNoDepthOffset) !== 0,
+      flags: view.getUint8(o + layerConfigFlagsOffset),
       spritesPtr: view.getUint32(o + layerConfigSpritesPtrOffset, true),
       spriteCount: view.getUint32(o + layerConfigSpriteCountOffset, true)
     }

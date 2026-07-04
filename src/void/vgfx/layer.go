@@ -7,6 +7,7 @@ type Layer uint8
 
 const LayerCount = 8
 const LayerShift = 4
+const LayerMask = uint8(0xf) // mask covering all Layer bits (union of 0–15).
 
 func (this Layer) Z(sub Sublayer) Z {
 	return Z(uint8(this)<<LayerShift | uint8(sub))

@@ -42,7 +42,6 @@ func New() *Engine {
 func (this *Engine) Update() vgame.Status {
 	stat := this.Engine.BeginTick()
 	stat |= this.Engine.Preupdate(this)
-	this.Engine.UpdateLayerState()
 	stat |= this.Router.Update(this)
 	this.Engine.EndTick()
 	return stat
