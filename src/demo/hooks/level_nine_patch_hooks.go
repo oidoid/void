@@ -18,7 +18,7 @@ func UpdateLevelNinePatches(
 	levelClipPhy := level.ClipPhy
 	uiScale := ui.ScaleOrDefault()
 	minPhy := vgeo.NewXY(float32(levelClipPhy.Min.X), float32(levelClipPhy.Min.Y))
-	min := ui.PhyToLayer(minPhy)
+	minXY := ui.PhyToLayer(minPhy)
 	const borderW, borderH = float32(1), float32(1)
 	boxW := uint16(float32(levelClipPhy.W())/uiScale + borderW*2 + 0.5)
 	boxH := uint16(float32(levelClipPhy.H())/uiScale + borderH*2 + 0.5)
@@ -26,7 +26,7 @@ func UpdateLevelNinePatches(
 	vals := ents.Vals()
 	for i := range vals {
 		ent := &vals[i]
-		ent.XY = vgeo.NewXY(min.X-borderW, min.Y-borderH)
+		ent.XY = vgeo.NewXY(minXY.X-borderW, minXY.Y-borderH)
 		ent.WH = vgeo.WH[uint16]{W: boxW, H: boxH}
 		ent.Update(&ui.Sprites)
 	}

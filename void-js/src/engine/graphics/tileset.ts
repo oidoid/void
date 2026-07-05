@@ -1,4 +1,4 @@
-import type {WH, XY} from '../types/geo.ts'
+// to-do: smoothing sync step for superballs
 
 export type Tileset = {
   /** tile by ID. 0 is always `void--Nil`. */
