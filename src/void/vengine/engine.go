@@ -206,7 +206,7 @@ func (this *Engine[Game]) updateLayerClips() {
 		config.UpdateScale(vgeo.WH[float32]{W: clipW, H: clipH})
 		minXY := config.PhyToLayer(vgeo.NewXY(clipX, clipY))
 		maxXY := config.PhyToLayer(vgeo.NewXY(clipX+clipW, clipY+clipH))
-		config.Clip = vgeo.NewBox(minXY.X, minXY.Y, maxXY.X, maxXY.Y)
+		config.Clip = vgeo.Box[float32]{Min: minXY, Max: maxXY}
 	}
 }
 

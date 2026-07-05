@@ -20,7 +20,7 @@ func (this *SuperballSpawnerEnt) Update(
 	loop := vgame.Pause
 	if in.IsOn(vinput.ButtonA) && spawnXY != nil {
 		for range min(3000, int(60_000*(deltaMs/1000))) {
-			ball := NewBallEnt(rnd, spawnXY.X, spawnXY.Y)
+			ball := NewBallEnt(rnd, *spawnXY)
 			_ = balls.Add(ball)
 		}
 		loop = vgame.Loop
@@ -34,7 +34,7 @@ func (this *SuperballSpawnerEnt) Update(
 			for range toSpawn {
 				x := levelBounds.Min.X + rnd()*(levelBounds.W())
 				y := levelBounds.Min.Y + rnd()*(levelBounds.H())
-				ball := NewBallEnt(rnd, x, y)
+				ball := NewBallEnt(rnd, vgeo.NewXY(x, y))
 				_ = balls.Add(ball)
 			}
 		}

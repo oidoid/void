@@ -9,10 +9,10 @@ import (
 )
 
 type Sprite struct {
-	vgeo.XY[float32] // to-do: drop XY/WH?
-	AnimCel          vatlas.AnimCel
-	Z                Z
-	_                [1]byte
+	vgeo.XY[float32]
+	AnimCel vatlas.AnimCel
+	Z       Z
+	_       [1]byte
 	vgeo.WH[uint16]
 	flags uint32
 }

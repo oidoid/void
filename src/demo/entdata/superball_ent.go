@@ -14,9 +14,9 @@ type BallEnt struct {
 	D vgeo.XY[float32]
 }
 
-func NewBallEnt(rnd func() float32, x, y float32) BallEnt {
+func NewBallEnt(rnd func() float32, xy vgeo.XY[float32]) BallEnt {
 	return BallEnt{
-		XY: vgeo.NewXY(x, y),
+		XY: xy,
 		D:  vgeo.NewXY(rnd()*4-2, rnd()*4-2),
 	}
 }

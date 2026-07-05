@@ -16,38 +16,37 @@ func UpdateCam(gam *engine.Engine) vgame.Status {
 	if in.IsOn(vinput.ButtonC) {
 		dx *= 10
 	}
-	var camX, camY float32
+	var delta vgeo.XY[float32]
 	if in.IsOn(vinput.ButtonL) {
-		camX -= dx
+		delta.X -= dx
 	}
 	if in.IsOn(vinput.ButtonR) {
-		camX += dx
+		delta.X += dx
 	}
 	if in.IsOn(vinput.ButtonU) {
-		camY -= dx
+		delta.Y -= dx
 	}
 	if in.IsOn(vinput.ButtonD) {
-		camY += dx
+		delta.Y += dx
 	}
 	const edgeZone = float32(64)
 	if in.Ptr.Clicks() != 0 {
 		xy := in.Ptr.Phy()
 		if xy.Min.X < edgeZone {
-			camX -= dx
+			delta.X -= dx
 		} else if xy.Min.X > float32(gam.CanvasPhy().W)-edgeZone {
-			camX += dx
+			delta.X += dx
 		}
 		if xy.Min.Y < edgeZone {
-			camY -= dx
+			delta.Y -= dx
 		} else if xy.Min.Y > float32(gam.CanvasPhy().H)-edgeZone {
-			camY += dx
+			delta.Y += dx
 		}
 	}
-	if camX == 0 && camY == 0 {
+	if delta == (vgeo.XY[float32]{}) {
 		return vgame.Pause
 	}
-	gam.Cam().X += camX
-	gam.Cam().Y += camY
+	gam.Cam().AddTo(delta)
 	return vgame.Loop
 }
 

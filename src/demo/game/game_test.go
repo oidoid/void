@@ -6,6 +6,7 @@ import (
 	"github.com/oidoid/void/src/demo/engine"
 	"github.com/oidoid/void/src/demo/entdata"
 	"github.com/oidoid/void/src/demo/game"
+	"github.com/oidoid/void/src/void/vgeo"
 )
 
 const (
@@ -42,8 +43,7 @@ func newGame(camX, camY float32) *engine.Engine {
 	for i := range superballCount {
 		ball := entdata.NewBallEnt(
 			gam.Random,
-			float32(i%benchCanvasSize),
-			float32(i/benchCanvasSize),
+			vgeo.NewXY(float32(i%benchCanvasSize), float32(i/benchCanvasSize)),
 		)
 		gam.Balls.Add(ball)
 	}
