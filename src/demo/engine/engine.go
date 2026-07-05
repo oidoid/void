@@ -46,7 +46,7 @@ func New() *Engine {
 	this.Layer(gfx.LayerUI).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerUI).Depth = true
 	this.Layer(gfx.LayerUI).ScaleMode = vgfx.LayerScaleModeAutoInt
-	this.Layer(gfx.LayerUI).AutoscaleMinClip = vgeo.WH[uint16]{W: 140, H: 88}
+	this.Layer(gfx.LayerUI).AutoscaleMinClip = vgeo.WH[uint16]{W: 192, H: 88}
 	this.Layer(gfx.LayerUI).AutoscaleMaxScale = 6
 	// to-do: experiment with glow.
 	this.Layer(gfx.LayerOverlay).CamMode = vgfx.LayerCamModeFixed
