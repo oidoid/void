@@ -53,16 +53,7 @@ func UpdateCam(gam *engine.Engine) vgame.Status {
 
 func UpdateLayers(gam *engine.Engine) vgame.Status {
 	canvas := gam.CanvasPhy()
-	scale := uint16(1)
-	if canvas.W != 0 && canvas.H != 0 {
-		scale = canvas.W / gfx.LevelClipWPhy
-		if hScale := canvas.H / gfx.LevelClipHPhy; hScale < scale {
-			scale = hScale
-		}
-		if scale == 0 {
-			scale = 1
-		}
-	} // to-do: move to vgfx?
+	scale := levelScale(canvas)
 	clipW := gfx.LevelClipWPhy * scale
 	clipH := gfx.LevelClipHPhy * scale
 	clipPhy := vgeo.XYWH(
@@ -84,4 +75,20 @@ func centerClipOffset(canvas, clip uint16) uint16 {
 		return 0
 	}
 	return (canvas - clip) / 2
+}
+
+// to-do: move to vgfx?
+// to-do: more consistency in phy vs layer coords.
+func levelScale(canvas *vgeo.WH[uint16]) uint16 {
+	if canvas.W == 0 || canvas.H == 0 {
+		return 1
+	}
+	scale := canvas.W / gfx.LevelClipWPhy
+	if hScale := canvas.H / gfx.LevelClipHPhy; hScale < scale {
+		scale = hScale
+	}
+	if scale == 0 {
+		return 1
+	}
+	return scale
 }
