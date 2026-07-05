@@ -39,7 +39,7 @@ func (this *MouseStatusEnt) Update(
 	xy := vgeo.NewXY(float32(hudXY.X), float32(hudXY.Y))
 	*sprites = append(
 		*sprites,
-		vgfx.Sprite{XY: xy, AnimCel: assets.MouseStatusBase.Cel(0), Z: gfx.LayerUI.Z(0)},
+		vgfx.Sprite{XY: xy, AnimCel: assets.MouseStatusBase.Cel(0), Z: gfx.ZUIStatus},
 	)
 	clicks := in.Ptr.Clicks()
 	this.addOverlay(sprites, assets.MouseStatusPrimary, xy, clicks&1 != 0)
@@ -61,6 +61,6 @@ func (this *MouseStatusEnt) addOverlay(
 		return
 	}
 	*sprites = append(
-		*sprites, vgfx.Sprite{XY: xy, AnimCel: animID.Cel(0), Z: gfx.LayerUI.Z(0)},
+		*sprites, vgfx.Sprite{XY: xy, AnimCel: animID.Cel(0), Z: gfx.ZUIStatus},
 	)
 }

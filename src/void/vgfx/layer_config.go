@@ -32,9 +32,9 @@ const (
 
 // bit positions within the packed flags byte in LayerConfigExport.Flags.
 const (
-	LayerFlagsNoDepthShift   = uint8(0)
-	LayerFlagsNoDepthFlag    = uint8(0x1)
-	LayerFlagsNoDepthMask    = uint8(0x1)
+	LayerFlagsDepthShift     = uint8(0)
+	LayerFlagsDepthFlag      = uint8(0x1)
+	LayerFlagsDepthMask      = uint8(0x1)
 	LayerFlagsBlendModeShift = uint8(1)
 	LayerFlagsBlendModeMask  = uint8(0x7f)
 )
@@ -57,7 +57,8 @@ type LayerConfig struct {
 	// scissorbox. to-do: this isn't great because Clip is derived and testing
 	// ClipPhy at 0,0,0,0 should be valid.
 	ClipPhy vgeo.Box[uint16]
-	// clipbox in this layer's coordinate system derived from `ClipPhy`.
+	// clipbox in this layer's coordinate system derived from `ClipPhy`. always
+	// prefer phy values to converting layer clip to avoid rounding errors.
 	Clip vgeo.Box[float32]
 	// effective camera for this layer after mode is applied. updated by vengine.
 	Cam     vgeo.XY[float32]
@@ -65,12 +66,13 @@ type LayerConfig struct {
 	Scale   float32
 	// pixel-snapping quantum: sprite and cam coords are floor-snapped to the
 	// nearest multiple before rasterisation.
-	Modulo           uint8
-	ScaleMode        LayerScaleMode
-	AutoscaleMinClip vgeo.WH[uint16]
-	Shader           Shader
-	BlendMode        LayerBlendMode
-	NoDepth          bool
+	Modulo            uint8
+	ScaleMode         LayerScaleMode
+	AutoscaleMinClip  vgeo.WH[uint16]
+	AutoscaleMaxScale uint8 // caps computed scale; 0 = uncapped.
+	Shader            Shader
+	BlendMode         LayerBlendMode
+	Depth             bool
 }
 
 // packed layer config.
@@ -97,6 +99,7 @@ func NewLayerConfig(capacity int) LayerConfig {
 	}
 }
 
+// always prefer original phy values to avoid rounding errors.
 func (this *LayerConfig) LayerToPhy(xy vgeo.XY[float32]) vgeo.XY[float32] {
 	scale := this.ScaleOrDefault()
 	return vgeo.XY[float32]{
@@ -152,6 +155,9 @@ func (this *LayerConfig) UpdateScale(clip vgeo.WH[float32]) {
 		scale = float32(int(scale))
 		if scale < 1 {
 			scale = 1
+		}
+		if this.AutoscaleMaxScale != 0 && scale > float32(this.AutoscaleMaxScale) {
+			scale = float32(this.AutoscaleMaxScale)
 		}
 	}
 	this.Scale = scale

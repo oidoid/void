@@ -8,9 +8,9 @@ export const layerConfigRenderModeOffset: number = 0
 export const layerConfigCamModeOffset: number = 1
 export const layerConfigShaderOffset: number = 2
 export const layerConfigFlagsOffset: number = 3
-export const layerFlagsNoDepthShift = 0 as const
-export const layerFlagsNoDepthFlag = 1 as const
-export const layerFlagsNoDepthMask = layerFlagsNoDepthFlag
+export const layerFlagsDepthShift = 0 as const
+export const layerFlagsDepthFlag = 1 as const
+export const layerFlagsDepthMask = layerFlagsDepthFlag
 export const layerFlagsBlendModeShift = 1 as const
 export const layerFlagsBlendModeMask = 0x7f as const
 export const layerConfigClipXPhyOffset: number = 4
@@ -49,7 +49,7 @@ export type LayerConfig = {
   scale: number
   modulo: number
   shader: Shader
-  noDepth: boolean
+  depth: boolean
   blendMode: LayerBlendMode
   spritesPtr: number
   spriteCount: number

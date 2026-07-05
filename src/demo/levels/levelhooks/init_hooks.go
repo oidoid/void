@@ -15,7 +15,10 @@ import (
 )
 
 func InitInit(gam *engine.Engine) {
+	gam.RegisterPreupdate(hooks.UpdateLayers)
 	gam.RegisterPreupdate(hooks.UpdateCam)
+
+	gam.RegisterUpdate(hooks.UpdateCheckerboard)
 
 	spawners := ventdata.NewEntVec(hooks.UpdateSuperballSpawners)
 	spawners.Add(entdata.SuperballSpawnerEnt{})
@@ -26,7 +29,7 @@ func InitInit(gam *engine.Engine) {
 		assets.BackgroundKiwi,
 		vgeo.DirSE,
 		vgeo.Border[int16]{N: 4, E: 4, S: 4, W: 4},
-		gfx.LayerUI.Z(0),
+		gfx.ZUIStatus,
 	))
 	gam.RegisterEntUpdate(drawStatuses)
 
@@ -39,26 +42,30 @@ func InitInit(gam *engine.Engine) {
 	)
 
 	camStatuses := ventdata.NewEntVec(vhooks.UpdateCamStatuses[*engine.Engine])
-	camStatuses.Add(ventdata.NewCamStatusEnt(assets.BackgroundBubblegum, gfx.LayerUI.Z(0)))
+	camStatuses.Add(ventdata.NewCamStatusEnt(assets.BackgroundBubblegum, gfx.ZUIStatus))
 	gam.RegisterEntUpdate(camStatuses)
 
 	mouseStatuses := ventdata.NewEntVec(hooks.UpdateMouseStatuses)
 	mouseStatuses.Add(entdata.NewMouseStatusEnt())
 	gam.RegisterEntUpdate(mouseStatuses)
 
-	cursors := ventdata.NewEntVec(vhooks.UpdateCursors[*engine.Engine])
-	cursors.Add(ventdata.NewCursorEnt(assets.CursorPointer, 0, 0, gfx.LayerCursor.Z(0)))
-	gam.RegisterEntUpdate(cursors)
+	cursor := ventdata.NewCursorEnt(assets.CursorPointer, 0, 0, gfx.ZCursor)
+	cursors := ventdata.NewEntVec(hooks.UpdateCursors)
+	cursors.Add(cursor)
 
-	border := newBlueberryNinePatch(gfx.LayerUI.Z(1))
-	gam.RegisterUpdate(func(gam *engine.Engine) vgame.Status {
-		layer := gam.Layer(gfx.LayerUI)
-		clip := layer.Clip
-		border.XY = clip.Min
-		border.WH = vgeo.WH[uint16]{W: uint16(clip.W()), H: uint16(clip.H())}
-		border.Update(&layer.Sprites)
-		return vgame.Pause
-	})
+	borders := ventdata.NewEntVec(hooks.UpdateLevelNinePatches)
+	borders.Add(newBlueberryNinePatch(gfx.ZLevelBorder))
+	gam.RegisterEntUpdate(borders)
+
+	screenEdge := ventdata.NewEntVec(hooks.UpdateClipNinePatches)
+	screenEdge.Add(newBlueberryNinePatch(gfx.ZOutline))
+	gam.RegisterEntUpdate(screenEdge)
+
+	gam.RegisterEntUpdate(cursors)
+}
+
+func UpdateInit(gam *engine.Engine) vgame.Status {
+	return gam.Ents().Update(gam)
 }
 
 func newBlueberryNinePatch(z vgfx.Z) ventdata.NinePatchEnt {
@@ -70,8 +77,4 @@ func newBlueberryNinePatch(z vgfx.Z) ventdata.NinePatchEnt {
 	ent := ventdata.NewNinePatchEnt(byDir, vgeo.WH[uint16]{W: 1, H: 1})
 	ent.Z = z
 	return ent
-}
-
-func UpdateInit(gam *engine.Engine) vgame.Status {
-	return gam.Ents().Update(gam)
 }

@@ -8,13 +8,19 @@ const (
 	LayerUI
 	LayerOutline
 	LayerCursor
-	LayerCheckerboard
+	LayerOverlay
 )
 
 const (
-	ZSuperball    vgfx.Z = vgfx.Z(uint8(LayerSuperballs) << vgfx.LayerShift)
-	ZLevelBorder  vgfx.Z = vgfx.Z(uint8(LayerUI)<<vgfx.LayerShift | 1)
-	ZOutline      vgfx.Z = vgfx.Z(uint8(LayerOutline) << vgfx.LayerShift)
-	ZCursor       vgfx.Z = vgfx.Z(uint8(LayerCursor) << vgfx.LayerShift)
-	ZCheckerboard vgfx.Z = vgfx.Z(uint8(LayerCheckerboard) << vgfx.LayerShift)
+	ZSuperball   vgfx.Z = vgfx.Z(uint8(LayerSuperballs) << vgfx.LayerShift)
+	ZLevelBorder vgfx.Z = vgfx.Z(uint8(LayerUI)<<vgfx.LayerShift | 1)
+	ZUIStatus    vgfx.Z = vgfx.Z(uint8(LayerUI)<<vgfx.LayerShift | 3)
+	ZOutline     vgfx.Z = vgfx.Z(uint8(LayerOutline) << vgfx.LayerShift)
+	ZCursor      vgfx.Z = vgfx.Z(uint8(LayerCursor) << vgfx.LayerShift)
+	ZOverlay     vgfx.Z = vgfx.Z(uint8(LayerOverlay) << vgfx.LayerShift)
+)
+
+const (
+	LevelClipWPhy = uint16(512)
+	LevelClipHPhy = uint16(320)
 )

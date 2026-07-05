@@ -219,8 +219,8 @@ func (this *Engine[Game]) updateLayerConfigExport() {
 			spritesPtr = uint32(uintptr(unsafe.Pointer(unsafe.SliceData(sprites))))
 		}
 		flags := uint8(layer.BlendMode) << vgfx.LayerFlagsBlendModeShift
-		if layer.NoDepth {
-			flags |= vgfx.LayerFlagsNoDepthFlag << vgfx.LayerFlagsNoDepthShift
+		if layer.Depth {
+			flags |= vgfx.LayerFlagsDepthFlag << vgfx.LayerFlagsDepthShift
 		}
 		this.layerConfigExport[i] = vgfx.LayerConfigExport{
 			RenderMode:  layer.RenderMode,

@@ -94,12 +94,12 @@ export class Renderer {
     layerModulo: number,
     renderMode: number,
     blendMode: number,
-    noDepth: boolean,
+    depth: boolean,
     clipPhy: {x: number; y: number; w: number; h: number}
   ): void {
-    const clip = this.#beginLayer(noDepth, blendMode, clipPhy)
+    const clip = this.#beginLayer(depth, blendMode, clipPhy)
     this.#tiles.draw(camX, camY, layerScale, clipPhy, layerModulo, renderMode)
-    this.#endLayer(noDepth, blendMode, clip)
+    this.#endLayer(depth, blendMode, clip)
   }
 
   drawLayer(
@@ -112,10 +112,10 @@ export class Renderer {
     layerModulo: number,
     renderMode: number,
     blendMode: number,
-    noDepth: boolean,
+    depth: boolean,
     clipPhy: {x: number; y: number; w: number; h: number}
   ): void {
-    const clip = this.#beginLayer(noDepth, blendMode, clipPhy)
+    const clip = this.#beginLayer(depth, blendMode, clipPhy)
     this.#sprites.draw(
       buffer,
       spritePtr,
@@ -128,11 +128,11 @@ export class Renderer {
       renderMode,
       blendMode
     )
-    this.#endLayer(noDepth, blendMode, clip)
+    this.#endLayer(depth, blendMode, clip)
   }
 
   #beginLayer(
-    noDepth: boolean,
+    depth: boolean,
     blendMode: number,
     clipPhy: {x: number; y: number; w: number; h: number}
   ): boolean {
@@ -148,14 +148,14 @@ export class Renderer {
     }
     if (blendMode === layerBlendModeMultiply)
       this.#gl.blendFunc(this.#gl.DST_COLOR, this.#gl.ZERO)
-    if (noDepth) this.#gl.disable(this.#gl.DEPTH_TEST)
+    if (!depth) this.#gl.disable(this.#gl.DEPTH_TEST)
     return clip
   }
 
-  #endLayer(noDepth: boolean, blendMode: number, clip: boolean): void {
+  #endLayer(depth: boolean, blendMode: number, clip: boolean): void {
     if (blendMode === layerBlendModeMultiply)
       this.#gl.blendFunc(this.#gl.SRC_ALPHA, this.#gl.ONE_MINUS_SRC_ALPHA)
-    if (noDepth) this.#gl.enable(this.#gl.DEPTH_TEST)
+    if (!depth) this.#gl.enable(this.#gl.DEPTH_TEST)
     if (clip) this.#gl.disable(this.#gl.SCISSOR_TEST)
   }
 

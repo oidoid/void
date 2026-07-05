@@ -56,7 +56,9 @@ func (this *DrawStatusEnt) Update(
 	this.SetText(text)
 
 	this.LayoutChars(font)
-	this.TextEnt.XY = this.HUDEnt.XY(this.Layout.W, this.Layout.TrimLeadForceH, clip)
+	this.TextEnt.XY = this.HUDEnt.XY(
+		this.Layout.W, this.Layout.TrimLeadForceH, clip,
+	)
 
 	this.DrawBackground(sprites)
 
@@ -66,7 +68,9 @@ func (this *DrawStatusEnt) Update(
 func (this *DrawStatusEnt) DrawBackground(sprites *[]vgfx.Sprite) {
 	const margin = int16(1)
 	*sprites = append(*sprites, vgfx.Sprite{
-		XY:      vgeo.NewXY(float32(this.TextEnt.XY.X-margin), float32(this.TextEnt.XY.Y-margin)),
+		XY: vgeo.NewXY(
+			float32(this.TextEnt.XY.X-margin), float32(this.TextEnt.XY.Y-margin),
+		),
 		AnimCel: this.BgAnimID.Cel(0),
 		Z:       this.Z - 1,
 		WH: vgeo.WH[uint16]{

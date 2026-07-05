@@ -35,9 +35,9 @@ import {
   layerCount,
   layerFlagsBlendModeMask,
   layerFlagsBlendModeShift,
-  layerFlagsNoDepthFlag,
-  layerFlagsNoDepthMask,
-  layerFlagsNoDepthShift,
+  layerFlagsDepthFlag,
+  layerFlagsDepthMask,
+  layerFlagsDepthShift,
   type Shader,
   shaderSprites,
   shaderTiles
@@ -136,7 +136,7 @@ export class Engine {
           config.modulo,
           config.renderMode,
           config.blendMode,
-          config.noDepth,
+          config.depth,
           config.clipPhy
         )
       } else if (config.shader === shaderSprites && config.spriteCount !== 0) {
@@ -150,7 +150,7 @@ export class Engine {
           config.modulo,
           config.renderMode,
           config.blendMode,
-          config.noDepth,
+          config.depth,
           config.clipPhy
         )
       }
@@ -175,9 +175,9 @@ export class Engine {
       scale: view.getFloat32(o + layerConfigScaleOffset, true),
       modulo: view.getUint8(o + layerConfigModuloOffset),
       shader: view.getUint8(o + layerConfigShaderOffset) as Shader,
-      noDepth:
-        ((flags >>> layerFlagsNoDepthShift) & layerFlagsNoDepthMask) ===
-        layerFlagsNoDepthFlag,
+      depth:
+        ((flags >>> layerFlagsDepthShift) & layerFlagsDepthMask) ===
+        layerFlagsDepthFlag,
       blendMode: ((flags >>> layerFlagsBlendModeShift) &
         layerFlagsBlendModeMask) as LayerBlendMode,
       spritesPtr: view.getUint32(o + layerConfigSpritesPtrOffset, true),

@@ -10,6 +10,8 @@ import (
 	"github.com/oidoid/void/src/void/vtext"
 )
 
+// to-do: do i want state for composable ents? do i want to end in ent? do i
+// want to do all behavior in hook?
 type EntStatusEnt struct {
 	ventdata.HUDEnt
 	ventdata.TextEnt
@@ -19,7 +21,7 @@ func NewEntStatusEnt() EntStatusEnt {
 	this := EntStatusEnt{}
 	this.Anchor = vgeo.DirSW
 	this.Margin = vgeo.Border[int16]{N: 4, E: 4, S: 4, W: 4}
-	this.Z = gfx.LayerUI.Z(0)
+	this.Z = gfx.ZUIStatus
 	return this
 }
 
@@ -31,8 +33,9 @@ func (this *EntStatusEnt) Update(
 	clip vgeo.Box[float32],
 ) vgame.Status {
 	this.SetText(
+		// to-do: Ls and ct and st should have zero kern? do i want to join letters? ask AI to analyze existing.
 		vtext.PadInt(count, 7) + " superballs\n" +
-			vtext.PadInt(spriteCount, 7) + " sprites",
+			vtext.PadInt(spriteCount, 7) + " sprites", // to-do: aggregate sprites from prior frame.
 	)
 
 	this.LayoutChars(font)
