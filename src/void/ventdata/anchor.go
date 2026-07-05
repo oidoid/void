@@ -1,6 +1,9 @@
 package ventdata
 
-import "github.com/oidoid/void/src/void/vgeo"
+import (
+	"github.com/oidoid/void/src/void/vgeo"
+	"github.com/oidoid/void/src/void/vmath"
+)
 
 // places content relative to another entity box.
 type AnchorEnt struct {
@@ -25,7 +28,7 @@ func (this AnchorEnt) XY(box vgeo.Box[float32], w, h float32) vgeo.XY[float32] {
 	case vgeo.DirNW:
 		x = box.Min.X
 	case vgeo.DirN, vgeo.DirS, vgeo.DirCenter:
-		x = box.Min.X + float32(int32(boxW-w)/2)
+		x = box.Min.X + vmath.Floor((boxW-w)/2)
 	}
 
 	switch this.Dir {
@@ -36,7 +39,7 @@ func (this AnchorEnt) XY(box vgeo.Box[float32], w, h float32) vgeo.XY[float32] {
 	case vgeo.DirSE, vgeo.DirSW:
 		y = box.Min.Y + boxH - h - this.Margin.Y
 	case vgeo.DirW, vgeo.DirE, vgeo.DirCenter:
-		y = box.Min.Y + float32(int32(boxH-h)/2)
+		y = box.Min.Y + vmath.Floor((boxH-h)/2)
 	}
 
 	return vgeo.XY[float32]{X: x, Y: y}
