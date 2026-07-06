@@ -175,20 +175,9 @@ export class Renderer {
   }
 
   // https://webgl2fundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html
-  resize(): void {
+  resize(phyW: number, phyH: number): void {
     const canvas = this.#gl.canvas as HTMLCanvasElement
-    const bounds = canvas.getBoundingClientRect()
-    const phyW = Math.round(bounds.width * devicePixelRatio)
-    const phyH = Math.round(bounds.height * devicePixelRatio)
-    if (canvas.width !== phyW || canvas.height !== phyH) {
-      console.log('[resize]', {
-        bounds: `${bounds.width}x${bounds.height}`,
-        devicePixelRatio,
-        phys: `${phyW}x${phyH}`
-      })
-    }
     if (canvas.width === phyW && canvas.height === phyH) return
-
     canvas.width = phyW
     canvas.height = phyH
     this.#gl.viewport(0, 0, this.phyW, this.phyH)

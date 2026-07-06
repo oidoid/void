@@ -35,12 +35,14 @@ never run:
 - avoid single-letter names except `k` for key, `v` for value, `w`/`h` for width and height, `x`/`y` for coords.
 - prefer tabular unit tests for cases varying only input and output pairings.
 - prefer `err` for errors.
+- prefer `i` for loop indices but not items.
 
 ### Go
 
 - format: `make fmt-go fmt-mod`.
 - name the receiver `this`.
 - when using a local for the subject of a constructor, name it `this`.
+- name `In` vars `in`.
 - assume tab width is two.
 - wrap to 80 chars and pack cols to minimize lines.
 - comments must not restate the subject name.

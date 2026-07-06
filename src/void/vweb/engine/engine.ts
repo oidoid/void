@@ -55,9 +55,14 @@ export class Engine {
   #frame!: DataView
   #input!: Input
   #lastTime: number = 0
+  #phyW: number = 0 // don't care if these init later.
+  #phyH: number = 0
   #rafId: number = 0
   #registered: boolean = false
   #renderer!: Renderer
+  readonly #resizeObserver: ResizeObserver = new ResizeObserver(
+    this.#onResize.bind(this)
+  )
   #wasm!: Platform
 
   // to-do: use Wasm import.
@@ -95,6 +100,9 @@ export class Engine {
     this.#input.register('add')
     addEventListener('blur', this.#onReset) // to-do: requestUpdate()?
     addEventListener('visibilitychange', this.#onReset) // to-do: requestUpdate()?
+    this.#resizeObserver.observe(this.#canvas.parentElement!, {
+      box: 'device-pixel-content-box'
+    })
     this.#registered = true
     this.update()
   }
@@ -112,7 +120,7 @@ export class Engine {
   #update(): void {
     this.#rafId = 0
     this.#requestUpdate()
-    this.#renderer.resize()
+    this.#renderer.resize(this.#phyW, this.#phyH)
     this.#writeUpdate()
     const updateStart = performance.now()
     if (this.#wasm.Update() !== LoopLoop) {
@@ -200,6 +208,16 @@ export class Engine {
     if (this.#rafId) return
     this.#rafId = requestAnimationFrame(() => this.update())
     this.#lastTime ||= performance.now()
+  }
+
+  #onResize(entries: readonly Readonly<ResizeObserverEntry>[]): void {
+    for (const entry of entries) {
+      const [size] = entry.devicePixelContentBoxSize
+      if (!size) continue
+      this.#phyW = size.inlineSize
+      this.#phyH = size.blockSize
+    }
+    this.#requestUpdate()
   }
 
   #onContextLost = (ev: Event): void => {

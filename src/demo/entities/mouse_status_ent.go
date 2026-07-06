@@ -42,9 +42,9 @@ func (this *MouseStatusEnt) Update(
 		vgfx.Sprite{XY: xy, AnimCel: assets.MouseStatusBase.Cel(0), Z: gfx.ZUIStatus},
 	)
 	clicks := in.Ptr.Clicks()
-	this.addOverlay(sprites, assets.MouseStatusPrimary, xy, clicks&1 != 0)
-	this.addOverlay(sprites, assets.MouseStatusSecondary, xy, clicks&2 != 0)
-	this.addOverlay(sprites, assets.MouseStatusTertiary, xy, clicks&4 != 0)
+	this.addOverlay(sprites, assets.MouseStatusPrimary, xy, clicks&vinput.ClickPrimary != 0)
+	this.addOverlay(sprites, assets.MouseStatusSecondary, xy, clicks&vinput.ClickSecondary != 0)
+	this.addOverlay(sprites, assets.MouseStatusTertiary, xy, clicks&vinput.ClickAuxiliary != 0)
 	if in.Dirty {
 		return vgame.Loop
 	}
