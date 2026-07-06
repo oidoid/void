@@ -34,9 +34,11 @@ export const layerCamModeFixed = 1 as const
 export type LayerCamMode = typeof layerCamModeApply | typeof layerCamModeFixed
 export const layerBlendModeAlpha = 0 as const
 export const layerBlendModeMultiply = 1 as const
+export const layerBlendModeReplace = 2 as const
 export type LayerBlendMode =
   | typeof layerBlendModeAlpha
   | typeof layerBlendModeMultiply
+  | typeof layerBlendModeReplace
 
 export const shaderTiles = 0 as const
 export const shaderSprites = 1 as const

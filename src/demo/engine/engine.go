@@ -54,7 +54,7 @@ func New() *Engine {
 	this.Layer(gfx.LayerUI).AutoscaleMaxScale = 6
 	this.Layer(gfx.LayerOverlay).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerOverlay).Shader = vgfx.ShaderOverlay
-	this.Layer(gfx.LayerOverlay).BlendMode = vgfx.LayerBlendModeMultiply
+	this.Layer(gfx.LayerOverlay).BlendMode = vgfx.LayerBlendModeReplace
 	this.Layer(gfx.LayerOverlay).Scale = 3
 	this.Layer(gfx.LayerOutline).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerCursor).CamMode = vgfx.LayerCamModeFixed

@@ -1,4 +1,5 @@
 const layerBlendModeMultiply = 1
+const layerBlendModeReplace = 2
 
 import {OverlayRenderer} from './overlay-renderer/overlay-renderer.ts'
 import {SpriteRenderer} from './sprite-renderer/sprite-renderer.ts'
@@ -91,14 +92,10 @@ export class Renderer {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
   }
 
-  drawOverlay(
-    blendMode: number,
-    cellSize: number,
-    levelClipPhy: {x: number; y: number; w: number; h: number}
-  ): void {
+  drawOverlay(blendMode: number): void {
     // no scissor: overlay applies full-screen.
     const clip = this.#beginLayer(false, blendMode, {x: 0, y: 0, w: 0, h: 0})
-    this.#overlay.draw(cellSize, levelClipPhy)
+    this.#overlay.draw()
     this.#endLayer(false, blendMode, clip)
   }
 
@@ -163,12 +160,17 @@ export class Renderer {
     }
     if (blendMode === layerBlendModeMultiply)
       this.#gl.blendFunc(this.#gl.DST_COLOR, this.#gl.ZERO)
+    else if (blendMode === layerBlendModeReplace)
+      this.#gl.blendFunc(this.#gl.ONE, this.#gl.ZERO)
     if (!depth) this.#gl.disable(this.#gl.DEPTH_TEST)
     return clip
   }
 
   #endLayer(depth: boolean, blendMode: number, clip: boolean): void {
-    if (blendMode === layerBlendModeMultiply)
+    if (
+      blendMode === layerBlendModeMultiply ||
+      blendMode === layerBlendModeReplace
+    )
       this.#gl.blendFunc(this.#gl.SRC_ALPHA, this.#gl.ONE_MINUS_SRC_ALPHA)
     if (!depth) this.#gl.enable(this.#gl.DEPTH_TEST)
     if (clip) this.#gl.disable(this.#gl.SCISSOR_TEST)

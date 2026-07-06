@@ -8,8 +8,8 @@ const (
 	LayerUI
 	LayerOutline
 	LayerCursor
-	LayerGrid
 	LayerOverlay
+	LayerGrid
 )
 
 const (

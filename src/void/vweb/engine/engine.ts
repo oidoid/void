@@ -167,11 +167,7 @@ export class Engine {
           config.clipPhy
         )
       } else if (config.shader === shaderOverlay) {
-        this.#renderer.drawOverlay(
-          config.blendMode,
-          config.scale,
-          config.clipPhy
-        )
+        this.#renderer.drawOverlay(config.blendMode)
       }
     }
     this.#drawMs = performance.now() - drawStart

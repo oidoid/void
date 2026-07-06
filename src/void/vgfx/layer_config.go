@@ -28,6 +28,8 @@ const (
 	LayerBlendModeAlpha LayerBlendMode = iota // transparent blending.
 	// multiply destination by source RGB; use for translucent overlays.
 	LayerBlendModeMultiply
+	// replace destination entirely; use for full-screen postprocessing.
+	LayerBlendModeReplace
 )
 
 // bit positions within the packed flags byte in LayerConfigExport.Flags.
