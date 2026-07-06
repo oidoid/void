@@ -1,4 +1,4 @@
-package ventdata
+package ventities
 
 import (
 	"github.com/oidoid/void/src/void/vatlas"
@@ -10,7 +10,7 @@ import (
 )
 
 // update this ent first. always prefer testing against cursor, not input, in
-// other ents. the cursor may be moved by keyboard and has a hitbox.
+// other entities. the cursor may be moved by keyboard and has a hitbox.
 type CursorEnt struct {
 	XY      vgeo.XY[float32]
 	Z       vgfx.Z

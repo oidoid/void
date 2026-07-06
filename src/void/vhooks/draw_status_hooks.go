@@ -1,13 +1,13 @@
 package vhooks
 
 import (
-	"github.com/oidoid/void/src/void/ventdata"
+	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
 func UpdateDrawStatuses[Game vgame.Game](
-	ents *vvec.Vec[ventdata.DrawStatusEnt],
+	ents *vvec.Vec[ventities.DrawStatusEnt],
 	gam Game,
 ) vgame.Status {
 	font := gam.Font()

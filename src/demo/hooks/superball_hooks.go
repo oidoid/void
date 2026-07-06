@@ -3,7 +3,7 @@ package hooks
 import (
 	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/demo/engine"
-	"github.com/oidoid/void/src/demo/entdata"
+	"github.com/oidoid/void/src/demo/entities"
 	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
@@ -11,7 +11,7 @@ import (
 )
 
 func UpdateSuperballs(
-	ents *vvec.Vec[entdata.BallEnt],
+	ents *vvec.Vec[entities.BallEnt],
 	gam *engine.Engine,
 ) vgame.Status {
 	anim := gam.Atlas.Anims[int(assets.SuperballDefault)]

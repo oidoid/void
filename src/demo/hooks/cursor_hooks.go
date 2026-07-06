@@ -2,13 +2,13 @@ package hooks
 
 import (
 	"github.com/oidoid/void/src/demo/engine"
-	"github.com/oidoid/void/src/void/ventdata"
+	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
 func UpdateCursors(
-	ents *vvec.Vec[ventdata.CursorEnt],
+	ents *vvec.Vec[ventities.CursorEnt],
 	gam *engine.Engine,
 ) vgame.Status {
 	input := gam.In()

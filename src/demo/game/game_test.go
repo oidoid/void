@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/oidoid/void/src/demo/engine"
-	"github.com/oidoid/void/src/demo/entdata"
+	"github.com/oidoid/void/src/demo/entities"
 	"github.com/oidoid/void/src/demo/game"
 	"github.com/oidoid/void/src/void/vgeo"
 )
@@ -41,7 +41,7 @@ func newGame(camX, camY float32) *engine.Engine {
 	gam.Cam().Y = camY
 	gam.Frame().DeltaMs = 1000. / fps
 	for i := range superballCount {
-		ball := entdata.NewBallEnt(
+		ball := entities.NewBallEnt(
 			gam.Random,
 			vgeo.NewXY(float32(i%benchCanvasSize), float32(i/benchCanvasSize)),
 		)

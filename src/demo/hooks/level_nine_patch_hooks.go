@@ -3,14 +3,14 @@ package hooks
 import (
 	"github.com/oidoid/void/src/demo/engine"
 	"github.com/oidoid/void/src/demo/gfx"
-	"github.com/oidoid/void/src/void/ventdata"
+	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
 func UpdateLevelNinePatches(
-	ents *vvec.Vec[ventdata.NinePatchEnt],
+	ents *vvec.Vec[ventities.NinePatchEnt],
 	gam *engine.Engine,
 ) vgame.Status {
 	ui := gam.Layer(gfx.LayerUI)

@@ -8,7 +8,7 @@ import (
 	"math/rand/v2"
 
 	"github.com/oidoid/void/src/void/vatlas"
-	"github.com/oidoid/void/src/void/ventdata"
+	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
@@ -21,13 +21,13 @@ type Engine[Game vgame.Game] struct {
 	Level             *vlevels.Level
 	Router            vlevels.Router[Game]
 	Atlas             vatlas.Atlas
-	Texts             ventdata.EntVec[Game, ventdata.TextEnt]
+	Texts             ventities.EntVec[Game, ventities.TextEnt]
 	font              *vtext.Font
 	frame             vgame.Poll
 	in                *vinput.In
 	cam               vgeo.XY[float32] // to-do: cam always moves in physical space.
-	preupdaters       ventdata.Zoo[Game]
-	updaters          ventdata.Zoo[Game]
+	preupdaters       ventities.Zoo[Game]
+	updaters          ventities.Zoo[Game]
 	LevelBounds       vgeo.Box[float32] // to-do: can this be in vlevels.Level?
 	rnd               *rand.Rand
 	layers            [vgfx.LayerCount]vgfx.LayerConfig
@@ -146,7 +146,7 @@ func (this *Engine[Game]) Preupdate(gam Game) vgame.Status {
 	return stat
 }
 
-func (this *Engine[Game]) Ents() *ventdata.Zoo[Game] {
+func (this *Engine[Game]) Ents() *ventities.Zoo[Game] {
 	return &this.updaters
 }
 

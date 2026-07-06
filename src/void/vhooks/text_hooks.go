@@ -1,13 +1,13 @@
 package vhooks
 
 import (
-	"github.com/oidoid/void/src/void/ventdata"
+	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
 func UpdateTexts[Game vgame.Game](
-	ents *vvec.Vec[ventdata.TextEnt],
+	ents *vvec.Vec[ventities.TextEnt],
 	gam Game,
 ) vgame.Status {
 	// to-do: move _Layer_ not Z to Vec?

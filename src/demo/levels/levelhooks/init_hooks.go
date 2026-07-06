@@ -3,11 +3,11 @@ package levelhooks
 import (
 	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/demo/engine"
-	"github.com/oidoid/void/src/demo/entdata"
+	"github.com/oidoid/void/src/demo/entities"
 	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/demo/hooks"
 	"github.com/oidoid/void/src/void/vatlas"
-	"github.com/oidoid/void/src/void/ventdata"
+	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
@@ -18,12 +18,12 @@ func InitInit(gam *engine.Engine) {
 	gam.RegisterPreupdate(hooks.UpdateLayers)
 	gam.RegisterPreupdate(hooks.UpdateCam)
 
-	spawners := ventdata.NewEntVec(hooks.UpdateSuperballSpawners)
-	spawners.Add(entdata.SuperballSpawnerEnt{})
+	spawners := ventities.NewEntVec(hooks.UpdateSuperballSpawners)
+	spawners.Add(entities.SuperballSpawnerEnt{})
 	gam.RegisterEntUpdate(spawners)
 
-	drawStatuses := ventdata.NewEntVec(vhooks.UpdateDrawStatuses[*engine.Engine])
-	drawStatuses.Add(ventdata.NewDrawStatusEnt(
+	drawStatuses := ventities.NewEntVec(vhooks.UpdateDrawStatuses[*engine.Engine])
+	drawStatuses.Add(ventities.NewDrawStatusEnt(
 		assets.BackgroundKiwi,
 		vgeo.DirSE,
 		vgeo.Border[int16]{N: 4, E: 4, S: 4, W: 4},
@@ -31,31 +31,31 @@ func InitInit(gam *engine.Engine) {
 	))
 	gam.RegisterEntUpdate(drawStatuses)
 
-	entStatuses := ventdata.NewEntVec(hooks.UpdateEntStatuses)
-	entStatuses.Add(entdata.NewEntStatusEnt())
+	entStatuses := ventities.NewEntVec(hooks.UpdateEntStatuses)
+	entStatuses.Add(entities.NewEntStatusEnt())
 	gam.RegisterEntUpdate(entStatuses)
 
 	gam.RegisterEntUpdate(
-		ventdata.NewEntVec(vhooks.UpdateButtons[*engine.Engine]),
+		ventities.NewEntVec(vhooks.UpdateButtons[*engine.Engine]),
 	)
 
-	camStatuses := ventdata.NewEntVec(vhooks.UpdateCamStatuses[*engine.Engine])
-	camStatuses.Add(ventdata.NewCamStatusEnt(assets.BackgroundBubblegum, gfx.ZUIStatus))
+	camStatuses := ventities.NewEntVec(vhooks.UpdateCamStatuses[*engine.Engine])
+	camStatuses.Add(ventities.NewCamStatusEnt(assets.BackgroundBubblegum, gfx.ZUIStatus))
 	gam.RegisterEntUpdate(camStatuses)
 
-	mouseStatuses := ventdata.NewEntVec(hooks.UpdateMouseStatuses)
-	mouseStatuses.Add(entdata.NewMouseStatusEnt())
+	mouseStatuses := ventities.NewEntVec(hooks.UpdateMouseStatuses)
+	mouseStatuses.Add(entities.NewMouseStatusEnt())
 	gam.RegisterEntUpdate(mouseStatuses)
 
-	cursor := ventdata.NewCursorEnt(assets.CursorPointer, 0, 0, gfx.ZCursor)
-	cursors := ventdata.NewEntVec(hooks.UpdateCursors)
+	cursor := ventities.NewCursorEnt(assets.CursorPointer, 0, 0, gfx.ZCursor)
+	cursors := ventities.NewEntVec(hooks.UpdateCursors)
 	cursors.Add(cursor)
 
-	borders := ventdata.NewEntVec(hooks.UpdateLevelNinePatches)
+	borders := ventities.NewEntVec(hooks.UpdateLevelNinePatches)
 	borders.Add(newBlueberryNinePatch(gfx.ZLevelBorder))
 	gam.RegisterEntUpdate(borders)
 
-	screenEdge := ventdata.NewEntVec(hooks.UpdateClipNinePatches)
+	screenEdge := ventities.NewEntVec(hooks.UpdateClipNinePatches)
 	screenEdge.Add(newBlueberryNinePatch(gfx.ZOutline))
 	gam.RegisterEntUpdate(screenEdge)
 
@@ -66,13 +66,13 @@ func UpdateInit(gam *engine.Engine) vgame.Status {
 	return gam.Ents().Update(gam)
 }
 
-func newBlueberryNinePatch(z vgfx.Z) ventdata.NinePatchEnt {
+func newBlueberryNinePatch(z vgfx.Z) ventities.NinePatchEnt {
 	var byDir [9]vatlas.AnimID
 	for i := range byDir {
 		byDir[i] = assets.BackgroundBlueberry
 	}
 	byDir[vgeo.DirCenter] = 0
-	ent := ventdata.NewNinePatchEnt(byDir, vgeo.WH[uint16]{W: 1, H: 1})
+	ent := ventities.NewNinePatchEnt(byDir, vgeo.WH[uint16]{W: 1, H: 1})
 	ent.Z = z
 	return ent
 }

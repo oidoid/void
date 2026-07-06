@@ -1,10 +1,10 @@
-package entdata
+package entities
 
 import (
 	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/vatlas"
-	"github.com/oidoid/void/src/void/ventdata"
+	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
@@ -12,7 +12,7 @@ import (
 )
 
 type MouseStatusEnt struct {
-	ventdata.HUDEnt
+	ventities.HUDEnt
 	visible bool
 }
 

@@ -1,4 +1,4 @@
-package entdata
+package entities
 
 import (
 	"github.com/oidoid/void/src/void/vgame"

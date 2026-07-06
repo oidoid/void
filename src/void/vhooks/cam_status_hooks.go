@@ -1,14 +1,14 @@
 package vhooks
 
 import (
-	"github.com/oidoid/void/src/void/ventdata"
+	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
 func UpdateCamStatuses[Game vgame.Game](
-	ents *vvec.Vec[ventdata.CamStatusEnt],
+	ents *vvec.Vec[ventities.CamStatusEnt],
 	gam Game,
 ) vgame.Status {
 	font := gam.Font()

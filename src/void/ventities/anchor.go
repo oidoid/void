@@ -1,4 +1,4 @@
-package ventdata
+package ventities
 
 import (
 	"github.com/oidoid/void/src/void/vgeo"

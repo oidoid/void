@@ -1,5 +1,5 @@
 // to-do: can we rename package?
-package entdata
+package entities
 
 import (
 	"github.com/oidoid/void/src/demo/assets"

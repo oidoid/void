@@ -1,9 +1,9 @@
-package entdata
+package entities
 
 import (
 	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/demo/gfx"
-	"github.com/oidoid/void/src/void/ventdata"
+	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
@@ -13,8 +13,8 @@ import (
 // to-do: do i want state for composable ents? do i want to end in ent? do i
 // want to do all behavior in hook?
 type EntStatusEnt struct {
-	ventdata.HUDEnt
-	ventdata.TextEnt
+	ventities.HUDEnt
+	ventities.TextEnt
 }
 
 func NewEntStatusEnt() EntStatusEnt {

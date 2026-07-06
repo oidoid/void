@@ -2,14 +2,14 @@ package hooks
 
 import (
 	"github.com/oidoid/void/src/demo/engine"
-	"github.com/oidoid/void/src/demo/entdata"
+	"github.com/oidoid/void/src/demo/entities"
 	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
 func UpdateMouseStatuses(
-	ents *vvec.Vec[entdata.MouseStatusEnt],
+	ents *vvec.Vec[entities.MouseStatusEnt],
 	gam *engine.Engine,
 ) vgame.Status {
 	layer := gam.Layer(gfx.LayerUI)

@@ -1,13 +1,13 @@
 package vhooks
 
 import (
-	"github.com/oidoid/void/src/void/ventdata"
+	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
 func UpdateCursors[Game vgame.Game](
-	ents *vvec.Vec[ventdata.CursorEnt],
+	ents *vvec.Vec[ventities.CursorEnt],
 	gam Game,
 ) vgame.Status {
 	in := gam.In()

@@ -2,12 +2,12 @@ package engine
 
 import (
 	"github.com/oidoid/void/src/demo/assets"
-	"github.com/oidoid/void/src/demo/entdata"
+	"github.com/oidoid/void/src/demo/entities"
 	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/demo/levels"
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vengine"
-	"github.com/oidoid/void/src/void/ventdata"
+	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
@@ -16,7 +16,7 @@ import (
 
 type Engine struct {
 	*vengine.Engine[*Engine]
-	Balls ventdata.EntVec[*Engine, entdata.BallEnt]
+	Balls ventities.EntVec[*Engine, entities.BallEnt]
 }
 
 var Version string
