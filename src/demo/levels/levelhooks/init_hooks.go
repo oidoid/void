@@ -51,13 +51,14 @@ func InitInit(gam *engine.Engine) {
 	cursors := ventities.NewEntVec(hooks.UpdateCursors)
 	cursors.Add(cursor)
 
-	borders := ventities.NewEntVec(hooks.UpdateLevelNinePatches)
-	borders.Add(newBlueberryNinePatch(gfx.ZLevelBorder))
-	gam.RegisterEntUpdate(borders)
+	levelClips := ventities.NewEntVec(hooks.UpdateLevelClipNinePatches)
+	levelClips.Add(newBorderEnt(gfx.ZLevelBorder))
+	gam.RegisterEntUpdate(levelClips)
 
-	screenEdge := ventities.NewEntVec(hooks.UpdateClipNinePatches)
-	screenEdge.Add(newBlueberryNinePatch(gfx.ZOutline))
-	gam.RegisterEntUpdate(screenEdge)
+	clipFills := ventities.NewEntVec(hooks.UpdateClipFillNinePatches)
+	clipFills.Add(newBorderEnt(gfx.ZOutline))
+	clipFills.Add(newFillEnt(gfx.ZGrid))
+	gam.RegisterEntUpdate(clipFills)
 
 	gam.RegisterEntUpdate(cursors)
 }
@@ -66,13 +67,21 @@ func UpdateInit(gam *engine.Engine) vgame.Status {
 	return gam.Ents().Update(gam)
 }
 
-func newBlueberryNinePatch(z vgfx.Z) ventities.NinePatchEnt {
+func newBorderEnt(z vgfx.Z) ventities.NinePatchEnt {
 	var byDir [9]vatlas.AnimID
 	for i := range byDir {
 		byDir[i] = assets.BackgroundBlueberry
 	}
 	byDir[vgeo.DirCenter] = 0
 	ent := ventities.NewNinePatchEnt(byDir, vgeo.WH[uint16]{W: 1, H: 1})
+	ent.Z = z
+	return ent
+}
+
+func newFillEnt(z vgfx.Z) ventities.NinePatchEnt {
+	var byDir [9]vatlas.AnimID
+	byDir[vgeo.DirCenter] = assets.GridCell
+	ent := ventities.NewNinePatchEnt(byDir, vgeo.WH[uint16]{})
 	ent.Z = z
 	return ent
 }

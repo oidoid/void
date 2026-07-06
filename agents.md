@@ -1,5 +1,7 @@
 # Agent Instructions
 
+if you change or add any pattern, update agent rules and skills as appropriate.
+
 ## Before Starting Any Task
 
 - check `.agents/skills/` for a relevant skill and follow it if one matches. never skip this step.
@@ -19,8 +21,6 @@ never run:
 - optimize execution performance.
 - tune dx. keep it practical and idiomatic. consider usage patterns and lines of code cost at definition and call sites. suggest applying new patterns broadly.
 - prefer Go to TS.
-- sentences end with periods.
-- don't capitalize the first word of sentences for only that reason.
 - `src/void` packages start with "v", such as `ventities`. demo packages often mirror void structure but without the "v", such as `entities`.
 
 ### Pitfalls
@@ -36,6 +36,9 @@ never run:
 - prefer tabular unit tests for cases varying only input and output pairings.
 - prefer `err` for errors.
 - prefer `i` for loop indices but not items.
+- sentences end with periods.
+- don't capitalize the first word of sentences for only that reason.
+- in English, prefer backticks around code snippets.
 
 ### Go
 

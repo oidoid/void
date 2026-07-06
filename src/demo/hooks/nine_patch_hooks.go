@@ -9,7 +9,23 @@ import (
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
-func UpdateLevelNinePatches(
+func UpdateClipFillNinePatches(
+	ents *vvec.Vec[ventities.NinePatchEnt],
+	gam *engine.Engine,
+) vgame.Status {
+	vals := ents.Vals()
+	for i := range vals {
+		ent := &vals[i]
+		layer := gam.Layer(ent.Z.Layer())
+		clip := layer.Clip
+		ent.XY = clip.Min
+		ent.WH = vgeo.WH[uint16]{W: uint16(clip.W()), H: uint16(clip.H())}
+		ent.Update(&layer.Sprites)
+	}
+	return vgame.Pause
+}
+
+func UpdateLevelClipNinePatches(
 	ents *vvec.Vec[ventities.NinePatchEnt],
 	gam *engine.Engine,
 ) vgame.Status {

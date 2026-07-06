@@ -8,6 +8,7 @@ const (
 	LayerUI
 	LayerOutline
 	LayerCursor
+	LayerGrid
 	LayerOverlay
 )
 
@@ -17,6 +18,7 @@ const (
 	ZUIStatus    vgfx.Z = vgfx.Z(uint8(LayerUI)<<vgfx.LayerShift | 3)
 	ZOutline     vgfx.Z = vgfx.Z(uint8(LayerOutline) << vgfx.LayerShift)
 	ZCursor      vgfx.Z = vgfx.Z(uint8(LayerCursor) << vgfx.LayerShift)
+	ZGrid        vgfx.Z = vgfx.Z(uint8(LayerGrid) << vgfx.LayerShift)
 	ZOverlay     vgfx.Z = vgfx.Z(uint8(LayerOverlay) << vgfx.LayerShift)
 )
 

@@ -42,10 +42,11 @@ func New() *Engine {
 		W: gfx.LevelClipWPhy, H: gfx.LevelClipHPhy,
 	}
 	// to-do: use DPI to approximate physical sizes instead of guessing at phy
-	// box multiples. on phone, the DPI is so high it should literally 2x the max
-	// sizes and overlay scale. once DPI is a factor, need to tweak every frame.
-	// UI should be sized by physical size and physical size available. it doesn't
-	// care about field proportions.
+	// box multiples. on phone, the DPI is so high it should literally at least 2x
+	// the max sizes and overlay and grid scale. once DPI is a factor, need to
+	// tweak every frame. UI should be sized by physical size and physical size
+	// available. it doesn't care about field proportions. these are all currently
+	// DPI 1x values.
 	this.Layer(gfx.LayerUI).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerUI).Depth = true
 	this.Layer(gfx.LayerUI).ScaleMode = vgfx.LayerScaleModeAutoInt
@@ -56,13 +57,12 @@ func New() *Engine {
 	this.Layer(gfx.LayerOverlay).BlendMode = vgfx.LayerBlendModeMultiply
 	this.Layer(gfx.LayerOverlay).Scale = 3
 	this.Layer(gfx.LayerOutline).CamMode = vgfx.LayerCamModeFixed
-	this.Layer(gfx.LayerOutline).ScaleMode = vgfx.LayerScaleModeManual
-	this.Layer(gfx.LayerOutline).Scale = 1
-	this.Layer(gfx.LayerOutline).Modulo = 1
 	this.Layer(gfx.LayerCursor).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerCursor).ScaleMode = vgfx.LayerScaleModeAutoInt
 	this.Layer(gfx.LayerCursor).AutoscaleMinClip = vgeo.WH[uint16]{W: 420, H: 320}
 	this.Layer(gfx.LayerCursor).AutoscaleMaxScale = 4
+	this.Layer(gfx.LayerGrid).CamMode = vgfx.LayerCamModeFixed
+	this.Layer(gfx.LayerGrid).BlendMode = vgfx.LayerBlendModeMultiply
 	this.Atlas = vatlas.DecodeAtlas(assets.AtlasBin)
 	return this
 }

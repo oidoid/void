@@ -12,6 +12,7 @@ const (
 	BackpackerWalkDown
 	BackpackerWalkUp
 	CursorPointer
+	GridCell
 	MemProp5x600
 	MemProp5x601
 	MemProp5x602

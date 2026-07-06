@@ -7,7 +7,7 @@ uniform highp float uCellSize; // cell size in physical pixels including border.
 out highp vec4 fragColor;
 
 void main() {
-  if (uCellSize < 2.) { fragColor = vec4(1.); return; }
+  if (uCellSize < 200.) { fragColor = vec4(1.); return; }
 
   highp vec2 pos = vec2(gl_FragCoord.x, float(uResolution.y) - gl_FragCoord.y);
 
