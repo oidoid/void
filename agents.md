@@ -1,6 +1,9 @@
 # Agent Instructions
 
-- read the readme.
+## Before Starting Any Task
+
+- check `.agents/skills/` for a relevant skill and follow it if one matches. never skip this step.
+- read `readme.md` for project conventions, layout, and key concepts.
 
 ## Forbidden
 
@@ -16,14 +19,16 @@ never run:
 - optimize execution performance.
 - tune dx. keep it practical and idiomatic. consider usage patterns and lines of code cost at definition and call sites. suggest applying new patterns broadly.
 - prefer Go to TS.
+- sentences end with periods.
+- don't capitalize the first word of sentences for only that reason.
 
-### pitfalls
+### Pitfalls
 
 - be deliberate when dereferencing in loops. they can be surprisingly slow.
 - Go imports must be TinyGo compatible.
 - http://localhost:1234 pauses when backgrounded.
 
-## style
+## Style
 
 - avoid single-letter names except `k` for key, `v` for value, `w`/`h` for width and height, `x`/`y` for coords.
 - prefer tabular unit tests for cases varying only input and output pairings.
@@ -47,7 +52,7 @@ never run:
 
 - format: `make fmt-web`.
 
-## fractional values
+## Fractional Values
 
 supporting both modern and pixel games is important. be very sensitive to rounding errors.
 
@@ -55,12 +60,12 @@ supporting both modern and pixel games is important. be very sensitive to roundi
 - prefer ceiling integral sizes. avoid truncation that causes sizes to be unexpectedly short.
 - prefer source data over inverted transforms to avoid accumulation errors.
 
-## verification
+## Verification
 
 - typecheck Go: `go build ./...`
 - typecheck TS: `make typecheck-web`
 - test filesize: `make build && make fat-check`. the bottom line is `dist/demo/index.html` uncompressed size (first numerical column). `make build` takes ~10s; run only when worthwhile. if size drops 50+ KiB unexpectedly, ask the user if `make watch` is running.
 
-## development
+## Development
 
 - you can interact with the demo on http://localhost:1234 if the user is running `make`. try the URL or ask the user if you want to use it.
