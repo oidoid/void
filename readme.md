@@ -1,8 +1,6 @@
 # void
 
-## Development
-
-JS depends on Go.
+void is a 2D game and app engine for web browsers.
 
 ### Make
 

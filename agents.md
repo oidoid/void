@@ -1,0 +1,66 @@
+# Agent Instructions
+
+- read the readme.
+
+## Forbidden
+
+never run:
+
+- `make` (default target) or `make watch` but you can ask the user to run.
+- `make fat-save` or `make slow-save`. do not edit `.fat` or `.slow`.
+- `make slow-check` or any performance test. these cannot run consistently without superuser permissions.
+
+## `src/void` and `src/demo`
+
+- minimize compile size. this is important.
+- optimize execution performance.
+- tune dx. keep it practical and idiomatic. consider usage patterns and lines of code cost at definition and call sites. suggest applying new patterns broadly.
+- prefer Go to TS.
+
+### pitfalls
+
+- be deliberate when dereferencing in loops. they can be surprisingly slow.
+- Go imports must be TinyGo compatible.
+- http://localhost:1234 pauses when backgrounded.
+
+## style
+
+- avoid single-letter names except `k` for key, `v` for value, `w`/`h` for width and height, `x`/`y` for coords.
+- prefer tabular unit tests for cases varying only input and output pairings.
+- prefer `err` for errors.
+
+### Go
+
+- format: `make fmt-go fmt-mod`.
+- name the receiver `this`.
+- when using a local for the subject of a constructor, name it `this`.
+- assume tab width is two.
+- wrap to 80 chars and pack cols to minimize lines.
+- comments must not restate the subject name.
+    ```go
+    // ng: PadInt pads a non-negative integer to at least width digits with spaces.
+    // ok: pads a non-negative integer to at least width digits with spaces.
+    func PadInt(n, w int) string {
+    ```
+
+### TS
+
+- format: `make fmt-web`.
+
+## fractional values
+
+supporting both modern and pixel games is important. be very sensitive to rounding errors.
+
+- prefer flooring integral coords. avoid truncation that causes the range (-1, 1) to snap to 0.
+- prefer ceiling integral sizes. avoid truncation that causes sizes to be unexpectedly short.
+- prefer source data over inverted transforms to avoid accumulation errors.
+
+## verification
+
+- typecheck Go: `go build ./...`
+- typecheck TS: `make typecheck-web`
+- test filesize: `make build && make fat-check`. the bottom line is `dist/demo/index.html` uncompressed size (first numerical column). `make build` takes ~10s; run only when worthwhile. if size drops 50+ KiB unexpectedly, ask the user if `make watch` is running.
+
+## development
+
+- you can interact with the demo on http://localhost:1234 if the user is running `make`. try the URL or ask the user if you want to use it.
