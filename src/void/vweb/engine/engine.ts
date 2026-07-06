@@ -40,6 +40,7 @@ import {
   layerFlagsDepthMask,
   layerFlagsDepthShift,
   type Shader,
+  shaderOverlay,
   shaderSprites,
   shaderTiles
 } from './layout.ts'
@@ -155,6 +156,12 @@ export class Engine {
           config.renderMode,
           config.blendMode,
           config.depth,
+          config.clipPhy
+        )
+      } else if (config.shader === shaderOverlay) {
+        this.#renderer.drawOverlay(
+          config.blendMode,
+          config.scale,
           config.clipPhy
         )
       }

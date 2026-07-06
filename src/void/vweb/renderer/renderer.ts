@@ -1,10 +1,12 @@
 const layerBlendModeMultiply = 1
 
+import {OverlayRenderer} from './overlay-renderer/overlay-renderer.ts'
 import {SpriteRenderer} from './sprite-renderer/sprite-renderer.ts'
 import {TileRenderer} from './tile-renderer/tile-renderer.ts'
 
 export class Renderer {
   readonly #gl: WebGL2RenderingContext
+  readonly #overlay: OverlayRenderer
   readonly #sprites: SpriteRenderer
   readonly #tiles: TileRenderer
 
@@ -45,6 +47,7 @@ export class Renderer {
 
     const tiles = new Uint16Array(buffer, tilePtr, tileCount)
     this.#gl = gl
+    this.#overlay = OverlayRenderer.new(gl)
     this.#sprites = SpriteRenderer.new(
       gl,
       atlasCels,
@@ -75,6 +78,7 @@ export class Renderer {
   }
 
   dispose(): void {
+    this.#overlay.dispose()
     this.#sprites.dispose()
     this.#tiles.dispose()
   }
@@ -85,6 +89,17 @@ export class Renderer {
     // to-do: expose.
     gl.clearDepth(1)
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+  }
+
+  drawOverlay(
+    blendMode: number,
+    cellSize: number,
+    levelClipPhy: {x: number; y: number; w: number; h: number}
+  ): void {
+    // no scissor: overlay applies full-screen.
+    const clip = this.#beginLayer(false, blendMode, {x: 0, y: 0, w: 0, h: 0})
+    this.#overlay.draw(cellSize, levelClipPhy)
+    this.#endLayer(false, blendMode, clip)
   }
 
   drawTiles(

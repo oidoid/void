@@ -8,7 +8,6 @@ uniform highp float uLayerModulo;
 uniform highp int uRenderMode;
 uniform highp vec4 uLevel; // xywh.
 
-
 out highp vec2 vPx; // world px relative to level origin.
 
 // [0, 1]² unit quad.

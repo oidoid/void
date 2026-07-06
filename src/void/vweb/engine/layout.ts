@@ -40,7 +40,11 @@ export type LayerBlendMode =
 
 export const shaderTiles = 0 as const
 export const shaderSprites = 1 as const
-export type Shader = typeof shaderTiles | typeof shaderSprites
+export const shaderOverlay = 2 as const
+export type Shader =
+  | typeof shaderTiles
+  | typeof shaderSprites
+  | typeof shaderOverlay
 
 export type LayerConfig = {
   renderMode: LayerRenderMode

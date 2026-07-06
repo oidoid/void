@@ -42,18 +42,19 @@ func New() *Engine {
 		W: gfx.LevelClipWPhy, H: gfx.LevelClipHPhy,
 	}
 	// to-do: use DPI to approximate physical sizes instead of guessing at phy
-	// box multiples.
+	// box multiples. on phone, the DPI is so high it should literally 2x the max
+	// sizes and overlay scale. once DPI is a factor, need to tweak every frame.
+	// UI should be sized by physical size and physical size available. it doesn't
+	// care about field proportions.
 	this.Layer(gfx.LayerUI).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerUI).Depth = true
 	this.Layer(gfx.LayerUI).ScaleMode = vgfx.LayerScaleModeAutoInt
 	this.Layer(gfx.LayerUI).AutoscaleMinClip = vgeo.WH[uint16]{W: 192, H: 88}
 	this.Layer(gfx.LayerUI).AutoscaleMaxScale = 6
-	// to-do: experiment with glow.
 	this.Layer(gfx.LayerOverlay).CamMode = vgfx.LayerCamModeFixed
-	this.Layer(gfx.LayerOverlay).ScaleMode = vgfx.LayerScaleModeAutoInt
-	this.Layer(gfx.LayerOverlay).AutoscaleMinClip = vgeo.WH[uint16]{W: 1024, H: 768}
-	this.Layer(gfx.LayerOverlay).AutoscaleMaxScale = 2
+	this.Layer(gfx.LayerOverlay).Shader = vgfx.ShaderOverlay
 	this.Layer(gfx.LayerOverlay).BlendMode = vgfx.LayerBlendModeMultiply
+	this.Layer(gfx.LayerOverlay).Scale = 3
 	this.Layer(gfx.LayerOutline).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerOutline).ScaleMode = vgfx.LayerScaleModeManual
 	this.Layer(gfx.LayerOutline).Scale = 1

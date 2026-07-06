@@ -120,11 +120,7 @@ export class TileRenderer {
     gl.useProgram(this.#pgm)
     gl.uniform2f(this.#uCamXY, camX, camY)
     gl.uniform1f(this.#uLayerScale, layerScale)
-    gl.uniform2f(
-      this.#uLayerOffsetPhy,
-      clipPhy.w && clipPhy.h ? clipPhy.x : 0,
-      clipPhy.w && clipPhy.h ? clipPhy.y : 0
-    )
+    gl.uniform2f(this.#uLayerOffsetPhy, clipPhy.x, clipPhy.y)
     gl.uniform1f(this.#uLayerModulo, layerModulo)
     gl.uniform1i(this.#uRenderMode, renderMode)
     gl.uniform2i(
