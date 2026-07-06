@@ -15,10 +15,7 @@ type BallEnt struct {
 }
 
 func NewBallEnt(rnd func() float32, xy vgeo.XY[float32]) BallEnt {
-	return BallEnt{
-		XY: xy,
-		D:  vgeo.NewXY(rnd()*4-2, rnd()*4-2),
-	}
+	return BallEnt{XY: xy, D:  vgeo.NewXY(rnd()*4-2, rnd()*4-2)}
 }
 
 func (this *BallEnt) Update(
