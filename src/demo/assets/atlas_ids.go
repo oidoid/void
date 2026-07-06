@@ -5,14 +5,9 @@ import "github.com/oidoid/void/src/void/vatlas"
 
 const (
 	VoidNil vatlas.AnimID = iota
-	BackgroundOrangeCheckerboard
-	BackgroundGreyCheckerboard
 	BackgroundKiwi
-	BackgroundStrawberry
-	BackgroundGrape
 	BackgroundBlueberry
 	BackgroundBubblegum
-	BackgroundBlack
 	BackpackerWalkRight
 	BackpackerWalkDown
 	BackpackerWalkUp
