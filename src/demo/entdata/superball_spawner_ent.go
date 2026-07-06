@@ -26,7 +26,7 @@ func (this *SuperballSpawnerEnt) Update(
 		loop = vgame.Loop
 	}
 	if in.IsOnStart(vinput.ButtonMenu) {
-		toSpawn := int(2.5*1024*1024 - float32(balls.Len()))
+		toSpawn := int(3*1024*1024 - float32(balls.Len()))
 		loop = vgame.Loop
 		if toSpawn <= 0 {
 			balls.Clear()
