@@ -12,7 +12,7 @@ func UpdateCursors(
 	gam *engine.Engine,
 ) vgame.Status {
 	input := gam.In()
-	deltaMs := gam.Tick().DeltaMs
+	deltaMs := gam.DeltaMs()
 	vals := ents.Vals()
 	loop := vgame.Pause
 	for i := range vals {

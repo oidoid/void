@@ -91,6 +91,7 @@ func (this *Engine[Game]) Font() *vtext.Font {
 func (this *Engine[Game]) Frame() *vgame.Poll { return &this.frame }
 func (this *Engine[Game]) Fullscreen() bool   { return this.frame.Fullscreen }
 func (this *Engine[Game]) NowMs() float64     { return this.frame.NowMs }
+func (this *Engine[Game]) DeltaMs() float64   { return this.frame.DeltaMs }
 func (this *Engine[Game]) Tick() *vgame.Tick  { return &this.tick }
 
 func (this *Engine[Game]) FramePointer() uintptr {
@@ -133,7 +134,7 @@ func (this *Engine[Game]) LevelTileW() uint8 { return this.Level.Tile.W }
 func (this *Engine[Game]) LevelTileH() uint8 { return this.Level.Tile.H }
 
 func (this *Engine[Game]) EndTick() {
-	this.tick.DeltaMs = this.frame.DeltaMs
+	this.tick.UpdateMs = this.frame.UpdateMs
 	// to-do: make frame finalization explicit instead of hanging this off
 	// EndTick.
 	this.updateLayerConfigExport()

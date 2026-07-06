@@ -53,9 +53,9 @@ func FmtFloat2[T vtypes.Number](num T) string {
 }
 
 // pads a non-negative integer to at least width digits with spaces.
-func PadInt(n, width int) string {
+func PadInt(n, w int) string {
 	str := Itoa(n)
-	for len(str) < width {
+	for len(str) < w {
 		str = " " + str
 	}
 	return str

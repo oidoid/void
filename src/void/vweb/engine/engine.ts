@@ -7,7 +7,8 @@ import {
   drawMsOffset,
   isFullscreenOffset,
   nowMsOffset,
-  updateByteLen
+  updateByteLen,
+  updateMsOffset
 } from '../input/layout.ts'
 import {Renderer} from '../renderer/renderer.ts'
 import {initCanvas} from '../utils/canvas-util.ts'
@@ -49,6 +50,7 @@ export class Engine {
   #canvas!: HTMLCanvasElement
   #drawMs: number = 0
   #drawCount: number = 0
+  #updateMs: number = 0
   #frame!: DataView
   #input!: Input
   #lastTime: number = 0
@@ -111,11 +113,13 @@ export class Engine {
     this.#requestUpdate()
     this.#renderer.resize()
     this.#writeUpdate()
+    const updateStart = performance.now()
     if (this.#wasm.Update() !== LoopLoop) {
       cancelAnimationFrame(this.#rafId)
       this.#rafId = 0
       this.#lastTime = 0
     }
+    this.#updateMs = performance.now() - updateStart
     const drawStart = performance.now()
     const buffer = this.#wasm.memory.buffer
     const layerConfigPtr = this.#wasm.LayerConfigsPointer()
@@ -196,6 +200,7 @@ export class Engine {
     cancelAnimationFrame(this.#rafId)
     this.#rafId = 0
     this.#lastTime = 0
+    this.#updateMs = 0
   }
 
   #onContextRestored = (): void => {
@@ -251,6 +256,7 @@ export class Engine {
     this.#frame.setUint8(isFullscreenOffset, isFullscreen() ? 1 : 0)
     this.#frame.setFloat64(drawMsOffset, this.#drawMs, true)
     this.#frame.setInt32(drawCountOffset, this.#drawCount, true)
+    this.#frame.setFloat64(updateMsOffset, this.#updateMs, true)
     this.#input.update(this.#frame)
     this.#input.postupdate() // to-do: move to postupdate()?
     this.#lastTime = now

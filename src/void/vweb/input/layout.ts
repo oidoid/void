@@ -41,5 +41,7 @@ export const isFullscreenOffset: number = canvasHOffset + 2
 export const drawMsOffset: number = isFullscreenOffset + 4
 /** byte offset of DrawCount field (number of renderer clears completed). */
 export const drawCountOffset: number = drawMsOffset + 8
+/** byte offset of UpdateMs field (duration of the previous Go update call, milliseconds). */
+export const updateMsOffset: number = drawCountOffset + 8
 /** total byte size of the Update struct. */
-export const updateByteLen: number = drawCountOffset + 4
+export const updateByteLen: number = updateMsOffset + 8

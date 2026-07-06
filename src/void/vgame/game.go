@@ -10,6 +10,7 @@ import (
 type Game interface {
 	Platform
 	CanvasPhy() *vgeo.WH[uint16]
+	DeltaMs() float64
 	Font() *vtext.Font
 	Fullscreen() bool
 	In() *vinput.In
