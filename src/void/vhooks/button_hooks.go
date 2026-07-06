@@ -7,7 +7,7 @@ import (
 )
 
 func UpdateButtons[Game vgame.Game](
-	ents *vvec.Vec[ventities.ButtonEnt],
+	vec *vvec.Vec[ventities.ButtonEnt],
 	gam Game,
 ) vgame.Status {
 	return vgame.Pause

@@ -8,19 +8,19 @@ import (
 )
 
 func UpdateCamStatuses[Game vgame.Game](
-	ents *vvec.Vec[ventities.CamStatusEnt],
+	vec *vvec.Vec[ventities.CamStatusEnt],
 	gam Game,
 ) vgame.Status {
 	font := gam.Font()
 	canvasPhy := *gam.CanvasPhy()
 	cam := vgeo.NewXY(gam.CamX(), gam.CamY())
 	fullscreen := gam.Fullscreen()
-	vals := ents.Vals()
+	ents := vec.Vals()
 	loop := vgame.Pause
-	for i := range vals {
-		layer := gam.Layer(vals[i].Z.Layer())
+	for i := range ents {
+		layer := gam.Layer(ents[i].Z.Layer())
 		sprites := &layer.Sprites
-		loop |= vals[i].Update(
+		loop |= ents[i].Update(
 			font, sprites, canvasPhy, cam, fullscreen, layer.Clip,
 		)
 	}

@@ -11,7 +11,7 @@ import (
 )
 
 func UpdateSuperballSpawners(
-	ents *vvec.Vec[entities.SuperballSpawnerEnt],
+	vec *vvec.Vec[entities.SuperballSpawnerEnt],
 	gam *engine.Engine,
 ) vgame.Status {
 	deltaMs := gam.Frame().DeltaMs
@@ -27,10 +27,10 @@ func UpdateSuperballSpawners(
 		xy.Y -= radius
 		spawnXY = &xy
 	}
-	vals := ents.Vals()
+	ents := vec.Vals()
 	loop := vgame.Pause
-	for i := range vals {
-		loop |= vals[i].Update(balls, in, deltaMs, rnd, levelBounds, spawnXY)
+	for i := range ents {
+		loop |= ents[i].Update(balls, in, deltaMs, rnd, levelBounds, spawnXY)
 	}
 	return loop
 }

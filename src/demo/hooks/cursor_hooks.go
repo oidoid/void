@@ -8,15 +8,15 @@ import (
 )
 
 func UpdateCursors(
-	ents *vvec.Vec[ventities.CursorEnt],
+	vec *vvec.Vec[ventities.CursorEnt],
 	gam *engine.Engine,
 ) vgame.Status {
 	input := gam.In()
 	deltaMs := gam.DeltaMs()
-	vals := ents.Vals()
+	ents := vec.Vals()
 	loop := vgame.Pause
-	for i := range vals {
-		ent := &vals[i]
+	for i := range ents {
+		ent := &ents[i]
 		layer := gam.Layer(ent.Z.Layer())
 		loop |= ent.Update(input, &layer.Sprites, deltaMs, layer)
 	}

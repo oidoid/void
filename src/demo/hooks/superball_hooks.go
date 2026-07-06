@@ -11,7 +11,7 @@ import (
 )
 
 func UpdateSuperballs(
-	ents *vvec.Vec[entities.BallEnt],
+	vec *vvec.Vec[entities.BallEnt],
 	gam *engine.Engine,
 ) vgame.Status {
 	anim := gam.Atlas.Anims[int(assets.SuperballDefault)]
@@ -29,10 +29,10 @@ func UpdateSuperballs(
 	lvl := vgeo.NewBox(
 		lb.Min.X+tileW, lb.Min.Y+tileH, lb.Max.X-tileW, lb.Max.Y-tileH,
 	)
-	vals := ents.Vals()
+	ents := vec.Vals()
 	loop := vgame.Pause
-	for i := range vals {
-		loop |= vals[i].Update(sprites, clip, lvl, radius)
+	for i := range ents {
+		loop |= ents[i].Update(sprites, clip, lvl, radius)
 	}
 
 	if len(*sprites) > 0 {

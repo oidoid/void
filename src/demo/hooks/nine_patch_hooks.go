@@ -10,12 +10,12 @@ import (
 )
 
 func UpdateClipFillNinePatches(
-	ents *vvec.Vec[ventities.NinePatchEnt],
+	vec *vvec.Vec[ventities.NinePatchEnt],
 	gam *engine.Engine,
 ) vgame.Status {
-	vals := ents.Vals()
-	for i := range vals {
-		ent := &vals[i]
+	ents := vec.Vals()
+	for i := range ents {
+		ent := &ents[i]
 		layer := gam.Layer(ent.Z.Layer())
 		clip := layer.Clip
 		ent.XY = clip.Min
@@ -26,7 +26,7 @@ func UpdateClipFillNinePatches(
 }
 
 func UpdateLevelClipNinePatches(
-	ents *vvec.Vec[ventities.NinePatchEnt],
+	vec *vvec.Vec[ventities.NinePatchEnt],
 	gam *engine.Engine,
 ) vgame.Status {
 	ui := gam.Layer(gfx.LayerUI)
@@ -39,9 +39,9 @@ func UpdateLevelClipNinePatches(
 	boxW := uint16(float32(levelClipPhy.W())/uiScale + borderW*2 + 0.5)
 	boxH := uint16(float32(levelClipPhy.H())/uiScale + borderH*2 + 0.5)
 
-	vals := ents.Vals()
-	for i := range vals {
-		ent := &vals[i]
+	ents := vec.Vals()
+	for i := range ents {
+		ent := &ents[i]
 		ent.XY = vgeo.NewXY(minXY.X-borderW, minXY.Y-borderH)
 		ent.WH = vgeo.WH[uint16]{W: boxW, H: boxH}
 		ent.Update(&ui.Sprites)

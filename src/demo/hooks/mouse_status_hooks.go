@@ -9,17 +9,17 @@ import (
 )
 
 func UpdateMouseStatuses(
-	ents *vvec.Vec[entities.MouseStatusEnt],
+	vec *vvec.Vec[entities.MouseStatusEnt],
 	gam *engine.Engine,
 ) vgame.Status {
 	layer := gam.Layer(gfx.LayerUI)
 	sprites := &layer.Sprites
 	clip := layer.Clip
 	in := gam.In()
-	vals := ents.Vals()
+	ents := vec.Vals()
 	loop := vgame.Pause
-	for i := range vals {
-		loop |= vals[i].Update(sprites, in, clip)
+	for i := range ents {
+		loop |= ents[i].Update(sprites, in, clip)
 	}
 	return loop
 }

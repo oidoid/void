@@ -9,18 +9,18 @@ import (
 )
 
 func UpdateEntStatuses(
-	ents *vvec.Vec[entities.EntStatusEnt],
+	vec *vvec.Vec[entities.EntStatusEnt],
 	gam *engine.Engine,
 ) vgame.Status {
 	font := gam.Font()
 	count := gam.Balls.Len()
 	spriteCount := len(gam.Layer(gfx.LayerSuperballs).Sprites) // to-do: prior frame aggregate count.
-	vals := ents.Vals()
+	ents := vec.Vals()
 	loop := vgame.Pause
-	for i := range vals {
-		layer := gam.Layer(vals[i].Z.Layer())
+	for i := range ents {
+		layer := gam.Layer(ents[i].Z.Layer())
 		sprites := &layer.Sprites
-		loop |= vals[i].Update(font, sprites, count, spriteCount, layer.Clip)
+		loop |= ents[i].Update(font, sprites, count, spriteCount, layer.Clip)
 	}
 	return loop
 }

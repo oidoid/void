@@ -7,12 +7,12 @@ import (
 )
 
 func UpdateNinePatches[Game vgame.Game](
-	ents *vvec.Vec[ventities.NinePatchEnt],
+	vec *vvec.Vec[ventities.NinePatchEnt],
 	gam Game,
 ) vgame.Status {
-	vals := ents.Vals()
-	for i := range vals {
-		ent := &vals[i]
+	ents := vec.Vals()
+	for i := range ents {
+		ent := &ents[i]
 		layer := gam.Layer(ent.Z.Layer())
 		ent.Update(&layer.Sprites)
 	}
