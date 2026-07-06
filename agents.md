@@ -21,12 +21,14 @@ never run:
 - prefer Go to TS.
 - sentences end with periods.
 - don't capitalize the first word of sentences for only that reason.
+- `src/void` packages start with "v", such as `ventities`. demo packages often mirror void structure but without the "v", such as `entities`.
 
 ### Pitfalls
 
 - be deliberate when dereferencing in loops. they can be surprisingly slow.
 - Go imports must be TinyGo compatible.
 - http://localhost:1234 pauses when backgrounded.
+- to force no kern, use `'\v'` between chars. to force a 1px kern, use `\t`.
 
 ## Style
 
