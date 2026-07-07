@@ -5,7 +5,7 @@ import (
 	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
-	"github.com/oidoid/void/src/void/vinput"
+	"github.com/oidoid/void/src/void/vin"
 )
 
 func UpdateCam(gam *engine.Engine) vgame.Status {
@@ -13,20 +13,20 @@ func UpdateCam(gam *engine.Engine) vgame.Status {
 	in := gam.In()
 	const camSpeed = .1 // px/ms = 10 px/s
 	dx := camSpeed * float32(frame.DeltaMs)
-	if in.IsOn(vinput.ButtonC) {
+	if in.IsOn(vin.ButtonC) {
 		dx *= 10
 	}
 	var delta vgeo.XY[float32]
-	if in.IsOn(vinput.ButtonL) {
+	if in.IsOn(vin.ButtonL) {
 		delta.X -= dx
 	}
-	if in.IsOn(vinput.ButtonR) {
+	if in.IsOn(vin.ButtonR) {
 		delta.X += dx
 	}
-	if in.IsOn(vinput.ButtonU) {
+	if in.IsOn(vin.ButtonU) {
 		delta.Y -= dx
 	}
-	if in.IsOn(vinput.ButtonD) {
+	if in.IsOn(vin.ButtonD) {
 		delta.Y += dx
 	}
 	const edgeZone = float32(64)

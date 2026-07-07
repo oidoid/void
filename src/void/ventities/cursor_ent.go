@@ -5,7 +5,7 @@ import (
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
-	"github.com/oidoid/void/src/void/vinput"
+	"github.com/oidoid/void/src/void/vin"
 	"github.com/oidoid/void/src/void/vmath"
 )
 
@@ -38,7 +38,7 @@ func NewCursorEnt(
 }
 
 func (this *CursorEnt) Update(
-	in *vinput.In,
+	in *vin.In,
 	sprites *[]vgfx.Sprite,
 	deltaMs float64,
 	layer *vgfx.LayerConfig,
@@ -50,14 +50,14 @@ func (this *CursorEnt) Update(
 	dirX := int(in.Dir.X)
 	dirY := int(in.Dir.Y)
 	if in.Ptr == nil && this.Keyboard > 0 &&
-		(dirX != 0 || dirY != 0 || in.IsAnyOnStart(vinput.ButtonA)) {
+		(dirX != 0 || dirY != 0 || in.IsAnyOnStart(vin.ButtonA)) {
 		this.onCursorKey(dirX, dirY, deltaMs, layer.Clip)
 	}
 
 	if this.PickAnimID != 0 {
 		// to-do: this is the one ent that doesn't want to set the mask. it breaks
 		// input.
-		if in.IsOn(vinput.ButtonA) {
+		if in.IsOn(vin.ButtonA) {
 			this.AnimID = this.PickAnimID
 		} else {
 			this.AnimID = this.PointAnimID
@@ -75,10 +75,10 @@ func (this *CursorEnt) Update(
 }
 
 func (this *CursorEnt) onCursorPoint(
-	phy vgeo.Box[float32], dev vinput.PointerDevice, layer *vgfx.LayerConfig,
+	phy vgeo.Box[float32], dev vin.PointerDevice, layer *vgfx.LayerConfig,
 ) {
 	this.XY = layer.PhyToLayer(phy.Min)
-	this.Visible = dev == vinput.PointerDeviceMouse
+	this.Visible = dev == vin.PointerDeviceMouse
 }
 
 func (this *CursorEnt) onCursorKey(

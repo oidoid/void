@@ -2,11 +2,11 @@ package vgame
 
 import (
 	"github.com/oidoid/void/src/void/vgeo"
-	"github.com/oidoid/void/src/void/vinput"
+	"github.com/oidoid/void/src/void/vin"
 )
 
 type Poll struct {
-	InputPoll vinput.InputPoll
+	InputPoll vin.InputPoll
 	// time since the last frame was _requested_ in milliseconds.
 	DeltaMs float64
 	// time in milliseconds since page load (performance.now()).

@@ -3,13 +3,13 @@ import {
   canvasHOffset,
   canvasWOffset,
   deltaMsOffset,
+  devicePixelRatioOffset,
   drawCountOffset,
   drawMsOffset,
   isFullscreenOffset,
   nowMsOffset,
   updateByteLen,
-  updateMsOffset,
-  devicePixelRatioOffset
+  updateMsOffset
 } from '../input/layout.ts'
 import {Renderer} from '../renderer/renderer.ts'
 import {initCanvas} from '../utils/canvas-util.ts'

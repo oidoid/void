@@ -8,7 +8,7 @@ import (
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
-	"github.com/oidoid/void/src/void/vinput"
+	"github.com/oidoid/void/src/void/vin"
 )
 
 type MouseStatusEnt struct {
@@ -27,10 +27,10 @@ func NewMouseStatusEnt() MouseStatusEnt {
 
 func (this *MouseStatusEnt) Update(
 	sprites *[]vgfx.Sprite,
-	in *vinput.In,
+	in *vin.In,
 	clip vgeo.Box[float32],
 ) vgame.Status {
-	this.visible = this.visible || in.Ptr.Device() == vinput.PointerDeviceMouse
+	this.visible = this.visible || in.Ptr.Device() == vin.PointerDeviceMouse
 	if !this.visible {
 		return vgame.Pause
 	}
@@ -42,9 +42,9 @@ func (this *MouseStatusEnt) Update(
 		vgfx.Sprite{XY: xy, AnimCel: assets.MouseStatusBase.Cel(0), Z: gfx.ZUIStatus},
 	)
 	clicks := in.Ptr.Clicks()
-	this.addOverlay(sprites, assets.MouseStatusPrimary, xy, clicks&vinput.ClickPrimary != 0)
-	this.addOverlay(sprites, assets.MouseStatusSecondary, xy, clicks&vinput.ClickSecondary != 0)
-	this.addOverlay(sprites, assets.MouseStatusTertiary, xy, clicks&vinput.ClickAuxiliary != 0)
+	this.addOverlay(sprites, assets.MouseStatusPrimary, xy, clicks&vin.ClickPrimary != 0)
+	this.addOverlay(sprites, assets.MouseStatusSecondary, xy, clicks&vin.ClickSecondary != 0)
+	this.addOverlay(sprites, assets.MouseStatusAux, xy, clicks&vin.ClickAux != 0)
 	if in.Dirty {
 		return vgame.Loop
 	}

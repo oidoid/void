@@ -6,7 +6,7 @@ import (
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
-	"github.com/oidoid/void/src/void/vinput"
+	"github.com/oidoid/void/src/void/vin"
 )
 
 func testCursorEnt(keyboard float32) CursorEnt {
@@ -20,7 +20,7 @@ func TestOnCursorPoint_SetsPosition(t *testing.T) {
 	layer := vgfx.NewLayerConfig(0)
 	ent.onCursorPoint(
 		vgeo.NewBox[float32](100, 200, 108, 208),
-		vinput.PointerDeviceMouse,
+		vin.PointerDeviceMouse,
 		&layer,
 	)
 	if ent.XY.X != 100 || ent.XY.Y != 200 {
@@ -31,7 +31,7 @@ func TestOnCursorPoint_SetsPosition(t *testing.T) {
 func TestOnCursorPoint_VisibleForMouse(t *testing.T) {
 	ent := testCursorEnt(0)
 	layer := vgfx.NewLayerConfig(0)
-	ent.onCursorPoint(vgeo.Box[float32]{}, vinput.PointerDeviceMouse, &layer)
+	ent.onCursorPoint(vgeo.Box[float32]{}, vin.PointerDeviceMouse, &layer)
 	if !ent.Visible {
 		t.Fatal("want visible for Mouse, got hidden")
 	}
@@ -40,7 +40,7 @@ func TestOnCursorPoint_VisibleForMouse(t *testing.T) {
 func TestOnCursorPoint_HiddenForTouch(t *testing.T) {
 	ent := testCursorEnt(0)
 	layer := vgfx.NewLayerConfig(0)
-	ent.onCursorPoint(vgeo.Box[float32]{}, vinput.PointerDeviceTouch, &layer)
+	ent.onCursorPoint(vgeo.Box[float32]{}, vin.PointerDeviceTouch, &layer)
 	if ent.Visible {
 		t.Fatal("want hidden for Touch, got visible")
 	}

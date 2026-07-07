@@ -1,4 +1,4 @@
-package vinput
+package vin
 
 const maxAxes = 4 // leftX, leftY, rightX, rightY.
 

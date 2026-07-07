@@ -3,7 +3,7 @@ package entities
 import (
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
-	"github.com/oidoid/void/src/void/vinput"
+	"github.com/oidoid/void/src/void/vin"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
@@ -11,21 +11,21 @@ type SuperballSpawnerEnt struct{}
 
 func (this *SuperballSpawnerEnt) Update(
 	balls *vvec.Vec[BallEnt],
-	in *vinput.In,
+	in *vin.In,
 	deltaMs float64,
 	rnd func() float32,
 	levelBounds vgeo.Box[float32],
 	spawnXY *vgeo.XY[float32],
 ) vgame.Status {
 	loop := vgame.Pause
-	if in.IsOn(vinput.ButtonA) && spawnXY != nil {
+	if in.IsOn(vin.ButtonA) && spawnXY != nil {
 		for range min(3000, int(60_000*(deltaMs/1000))) {
 			ball := NewBallEnt(rnd, *spawnXY)
 			_ = balls.Add(ball)
 		}
 		loop = vgame.Loop
 	}
-	if in.IsOnStart(vinput.ButtonMenu) {
+	if in.IsOnStart(vin.ButtonMenu) {
 		toSpawn := int(3*1024*1024 - float32(balls.Len()))
 		loop = vgame.Loop
 		if toSpawn <= 0 {

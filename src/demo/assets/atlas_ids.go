@@ -144,7 +144,7 @@ const (
 	MouseStatusBase
 	MouseStatusPrimary
 	MouseStatusSecondary
-	MouseStatusTertiary
+	MouseStatusAux
 	MouseStatusLocked
 	OidoidDefault
 	PolyTriangle

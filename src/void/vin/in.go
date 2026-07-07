@@ -1,4 +1,4 @@
-package vinput // to-do: rename vin.
+package vin
 
 import "github.com/oidoid/void/src/void/vgeo"
 
@@ -214,7 +214,7 @@ func (this *In) MapDefaultKeyboard() {
 func (this *In) MapDefaultPointer() {
 	this.MapClick(ClickPrimary, ButtonA)
 	this.MapClick(ClickSecondary, ButtonB)
-	this.MapClick(ClickAuxiliary, ButtonC)
+	this.MapClick(ClickAux, ButtonC)
 	this.MapClick(ClickBack, ButtonBack)
 }
 

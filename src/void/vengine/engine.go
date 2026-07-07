@@ -12,7 +12,7 @@ import (
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
-	"github.com/oidoid/void/src/void/vinput"
+	"github.com/oidoid/void/src/void/vin"
 	"github.com/oidoid/void/src/void/vlevels"
 	"github.com/oidoid/void/src/void/vtext"
 )
@@ -24,7 +24,7 @@ type Engine[Game vgame.Game] struct {
 	Texts             ventities.EntVec[Game, ventities.TextEnt]
 	font              *vtext.Font
 	frame             vgame.Poll
-	in                *vinput.In
+	in                *vin.In
 	cam               vgeo.XY[float32] // to-do: cam always moves in physical space.
 	preupdaters       ventities.Zoo[Game]
 	updaters          ventities.Zoo[Game]
@@ -59,7 +59,7 @@ func New[Game vgame.Game](opts *EngineOpts) *Engine[Game] {
 	this := &Engine[Game]{
 		font:  opts.Font,
 		Level: opts.Level,
-		in:    vinput.NewIn(),
+		in:    vin.NewIn(),
 		rnd:   rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
 	}
 	for i := range this.layers {
@@ -105,7 +105,7 @@ func (this *Engine[Game]) CamY() float32          { return this.cam.Y }
 func (this *Engine[Game]) CanvasPhy() *vgeo.WH[uint16] {
 	return &this.frame.CanvasPhy
 }
-func (this *Engine[Game]) In() *vinput.In {
+func (this *Engine[Game]) In() *vin.In {
 	return this.in
 }
 

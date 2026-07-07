@@ -1,4 +1,4 @@
-package vinput
+package vin
 
 import "github.com/oidoid/void/src/void/vgeo"
 

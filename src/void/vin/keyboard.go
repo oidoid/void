@@ -1,4 +1,4 @@
-package vinput
+package vin
 
 type Key uint16
 

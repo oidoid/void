@@ -1,4 +1,4 @@
-package vinput
+package vin
 
 import "github.com/oidoid/void/src/void/vgeo"
 
@@ -7,7 +7,7 @@ type Click = uint8
 const (
 	ClickPrimary   Click = 1 << iota // left.
 	ClickSecondary                   // right.
-	ClickAuxiliary                   // middle.
+	ClickAux                         // middle.
 	ClickBack
 	ClickForward
 
