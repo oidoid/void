@@ -43,5 +43,7 @@ export const drawMsOffset: number = isFullscreenOffset + 4
 export const drawCountOffset: number = drawMsOffset + 8
 /** byte offset of UpdateMs field (duration of the previous Go update call, milliseconds). */
 export const updateMsOffset: number = drawCountOffset + 8
+/** byte offset of DevicePixelRatio field within Update. */
+export const devicePixelRatioOffset: number = updateMsOffset + 8
 /** total byte size of the Update struct. */
-export const updateByteLen: number = updateMsOffset + 8
+export const updateByteLen: number = devicePixelRatioOffset + 8

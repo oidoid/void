@@ -8,11 +8,12 @@ import {
   isFullscreenOffset,
   nowMsOffset,
   updateByteLen,
-  updateMsOffset
+  updateMsOffset,
+  devicePixelRatioOffset
 } from '../input/layout.ts'
 import {Renderer} from '../renderer/renderer.ts'
 import {initCanvas} from '../utils/canvas-util.ts'
-import {initBody} from '../utils/dom-util.ts'
+import {initBody, initMetaViewport} from '../utils/dom-util.ts'
 import {isFullscreen} from '../utils/fullscreen-util.ts'
 import {
   type LayerBlendMode,
@@ -86,6 +87,7 @@ export class Engine {
       updateByteLen
     )
 
+    initMetaViewport(undefined) // to-do: pass description.
     initBody()
 
     this.#canvas = canvas
@@ -278,6 +280,7 @@ export class Engine {
     this.#frame.setFloat64(drawMsOffset, this.#drawMs, true)
     this.#frame.setInt32(drawCountOffset, this.#drawCount, true)
     this.#frame.setFloat64(updateMsOffset, this.#updateMs, true)
+    this.#frame.setFloat64(devicePixelRatioOffset, devicePixelRatio, true)
     this.#input.update(this.#frame)
     this.#input.postupdate() // to-do: move to postupdate()?
     this.#lastTime = now

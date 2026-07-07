@@ -19,5 +19,6 @@ type Poll struct {
 	DrawCount int32
 	_         [4]byte
 	// duration of the previous Go update call in milliseconds.
-	UpdateMs float64
+	UpdateMs         float64
+	DevicePixelRatio float64
 }

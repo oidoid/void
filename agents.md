@@ -1,6 +1,6 @@
 # Agent Instructions
 
-if you change or add any pattern, update agent rules and skills as appropriate.
+if you change or add any pattern, or when you are corrected, update agent rules and skills as appropriate.
 
 ## Before Starting Any Task
 

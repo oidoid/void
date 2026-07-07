@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	superballCount  = 2*1024*1024 - 100 // - 100 for misc non-superballs.
+	superballCount  = 2 * 1024 * 1024
 	benchCanvasSize = 4096
 	fps             = 120
 )
