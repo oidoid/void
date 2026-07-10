@@ -21,7 +21,7 @@ func NewEntStatusEnt() EntStatusEnt {
 	this := EntStatusEnt{}
 	this.Anchor = vgeo.DirSW
 	this.Margin = vgeo.Border[int16]{N: 4, E: 4, S: 4, W: 4}
-	this.Z = gfx.ZUIStatus
+	this.Z = gfx.ZUIWidget
 	return this
 }
 
@@ -33,9 +33,10 @@ func (this *EntStatusEnt) Update(
 	clip vgeo.Box[float32],
 ) vgame.Status {
 	this.SetText(
+		// to-do: right align.
 		// to-do: Ls and ct and st should have zero kern? do i want to join letters? ask AI to analyze existing.
-		vtext.PadInt(count, 7) + " superballs\n" +
-			vtext.PadInt(spriteCount, 7) + " sprites", // to-do: aggregate sprites from prior frame.
+		vtext.Itoa(count) + " superballs\n" +
+			vtext.Itoa(spriteCount) + " sprites", // to-do: aggregate sprites from prior frame.
 	)
 
 	this.LayoutChars(font)

@@ -17,7 +17,7 @@ const (
 type Pointer struct {
 	poll      PointerPoll
 	xy        vgeo.XY[float32] // cam XY.
-	center    vgeo.XY[float32]
+	center    vgeo.XY[float32] // to-do: is this even useful? i need layer offset.
 	centerPhy vgeo.XY[float32]
 }
 
@@ -84,6 +84,7 @@ func (this *Pointer) Device() PointerDevice {
 	return this.poll.Device
 }
 
+// to-do: why is this a box? where is the point inside the box?
 // to-do: rename CamX, CamY, UIX, UIY / HUDX, HUDY?
 func (this *Pointer) Phy() *vgeo.Box[float32] {
 	if this == nil {

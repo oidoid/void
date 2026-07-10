@@ -65,6 +65,7 @@ func (this *Engine) Update() vgame.Status {
 	this.Layer(gfx.LayerUI).AutoscaleMaxScale = uint8(math.Round(3 * dpr))
 	this.Layer(gfx.LayerOverlay).Scale = float32(math.Round(3 * dpr))
 	this.Layer(gfx.LayerCursor).Scale = float32(math.Round(2 * dpr))
+	this.Layer(gfx.LayerGrid).Scale = float32(math.Floor(dpr))
 	stat |= this.Engine.Preupdate(this)
 	stat |= this.Router.Update(this)
 	this.Engine.EndTick()

@@ -8,7 +8,6 @@ import type {
   ScreenshotButton,
   SoundToggle,
   Superball,
-  SuperballButton,
   Tally
 } from '../ents/ent.ts'
 import type {SuperballEnt} from '../ents/superball.ts'
@@ -20,7 +19,6 @@ import type {
   RotateSchema,
   ScreenshotButtonSchema,
   SoundToggleSchema,
-  SuperballButtonSchema,
   SuperballSchema,
   TallySchema
 } from '../level/level-schema.ts'
@@ -43,7 +41,6 @@ declare module '../../engine/index.ts' {
     soundToggle?: SoundToggle
     tally?: Tally
     superball?: Superball
-    superballButton?: SuperballButton
   }
 
   interface EntSchema {
@@ -56,7 +53,6 @@ declare module '../../engine/index.ts' {
     soundToggle?: SoundToggleSchema
     tally?: TallySchema
     superball?: SuperballSchema
-    superballButton?: SuperballButtonSchema
   }
 
   interface Loader {

@@ -8,7 +8,6 @@ import {RotateHook} from '../ents/rotate.ts'
 import {ScreenshotButtonHook} from '../ents/screenshot-button.ts'
 import {SoundToggleHook} from '../ents/sound-toggle.ts'
 import {type SuperballEnt, SuperballHook} from '../ents/superball.ts'
-import {SuperballButtonHook} from '../ents/superball-button.ts'
 import {TallyHook} from '../ents/tally.ts'
 import {parseEntProp} from './level-parser.ts'
 
@@ -19,7 +18,6 @@ export class Loader implements V.Loader {
   #lvl: 'Init' | undefined
   readonly #hooks = {
     anchor: new V.AnchorHook(),
-    button: new V.ButtonHook(),
     camStatus: new V.CamStatusHook(),
     clock: new ClockHook(),
     collideToggle: new CollideToggleHook(),
@@ -38,7 +36,6 @@ export class Loader implements V.Loader {
     soundToggle: new SoundToggleHook(),
     sprite: new V.SpriteHook(),
     superball: new SuperballHook(),
-    superballButton: new SuperballButtonHook(),
     tally: new TallyHook(),
     textWH: new V.TextWHHook(),
     textXY: new V.TextXYHook(),

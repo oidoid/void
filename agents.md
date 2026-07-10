@@ -33,7 +33,7 @@ never run:
 
 ## Style
 
-- avoid single-letter names except `k` for key, `v` for value, `w`/`h` for width and height, `x`/`y` for coords.
+- avoid single-letter names except `k` for key, `v` for value, `w`/`h` for width and height, `x`/`y`/`z` for coords.
 - prefer tabular unit tests for cases varying only input and output pairings.
 - prefer `err` for errors.
 - prefer `i` for loop indices but not items.
@@ -48,7 +48,7 @@ never run:
 - when using a local for the subject of a constructor, name it `this`.
 - name `In` vars `in`.
 - assume tab width is two.
-- wrap to 80 chars and pack cols to minimize lines.
+- wrap to 80 chars and pack cols to minimize lines. if all args / props can't fit on one line, do one type per line.
 - comments must not restate the subject name.
     ```go
     // ng: PadInt pads a non-negative integer to at least width digits with spaces.

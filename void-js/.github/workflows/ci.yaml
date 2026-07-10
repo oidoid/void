@@ -12,6 +12,7 @@ permissions:
   pages: write
   id-token: write
 
+# to-do: parallel steps.
 jobs:
   test:
     runs-on: ubuntu-latest

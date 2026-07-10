@@ -18,16 +18,16 @@ func InitInit(gam *engine.Engine) {
 	gam.RegisterPreupdate(hooks.UpdateLayers)
 	gam.RegisterPreupdate(hooks.UpdateCam)
 
-	spawners := ventities.NewEntVec(hooks.UpdateSuperballSpawners)
-	spawners.Add(entities.SuperballSpawnerEnt{})
-	gam.RegisterEntUpdate(spawners)
+	superballButtons := ventities.NewEntVec(hooks.UpdateSuperballButtons)
+	superballButtons.Add(entities.NewSuperballButtonEnt())
+	gam.RegisterEntUpdate(superballButtons)
 
 	drawStatuses := ventities.NewEntVec(vhooks.UpdateDrawStatuses[*engine.Engine])
 	drawStatuses.Add(ventities.NewDrawStatusEnt(
 		assets.BackgroundKiwi,
 		vgeo.DirSE,
 		vgeo.Border[int16]{N: 4, E: 4, S: 4, W: 4},
-		gfx.ZUIStatus,
+		gfx.ZUIWidget,
 	))
 	gam.RegisterEntUpdate(drawStatuses)
 
@@ -40,7 +40,7 @@ func InitInit(gam *engine.Engine) {
 	)
 
 	camStatuses := ventities.NewEntVec(vhooks.UpdateCamStatuses[*engine.Engine])
-	camStatuses.Add(ventities.NewCamStatusEnt(assets.BackgroundBubblegum, gfx.ZUIStatus))
+	camStatuses.Add(ventities.NewCamStatusEnt(assets.BackgroundBubblegum, gfx.ZUIWidget))
 	gam.RegisterEntUpdate(camStatuses)
 
 	mouseStatuses := ventities.NewEntVec(hooks.UpdateMouseStatuses)
@@ -52,7 +52,7 @@ func InitInit(gam *engine.Engine) {
 	cursors.Add(cursor)
 
 	levelClips := ventities.NewEntVec(hooks.UpdateLevelClipNinePatches)
-	levelClips.Add(newBorderEnt(gfx.ZLevelBorder))
+	levelClips.Add(newBorderEnt(gfx.ZUILevelBorder))
 	gam.RegisterEntUpdate(levelClips)
 
 	clipFills := ventities.NewEntVec(hooks.UpdateClipFillNinePatches)
