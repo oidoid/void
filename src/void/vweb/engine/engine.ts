@@ -50,6 +50,7 @@ import {WASI} from './wasi.ts'
 
 export class Engine {
   #canvas!: HTMLCanvasElement
+  #clearColor: [number, number, number, number] = [0, 0, 0, 1]
   #drawMs: number = 0
   #drawCount: number = 0
   #updateMs: number = 0
@@ -69,8 +70,17 @@ export class Engine {
   // to-do: use Wasm import.
   async load(
     canvas: HTMLCanvasElement | undefined | null,
-    wasmURL: string
+    wasmURL: string,
+    clearColor?: number
   ): Promise<void> {
+    if (clearColor != null) {
+      this.#clearColor = [
+        ((clearColor >>> 24) & 0xff) / 255,
+        ((clearColor >>> 16) & 0xff) / 255,
+        ((clearColor >>> 8) & 0xff) / 255,
+        (clearColor & 0xff) / 255
+      ]
+    }
     canvas = initCanvas(canvas, 'Float') // to-do: pass render mode.
 
     this.#input = new Input(canvas)
@@ -137,7 +147,7 @@ export class Engine {
     const layerConfigView = new DataView(buffer)
     const camX = this.#wasm.CamX()
     const camY = this.#wasm.CamY()
-    this.#renderer.clear()
+    this.#renderer.clear(...this.#clearColor)
     this.#drawCount++
     for (let layer = 0; layer < layerCount; layer++) {
       const config = this.#layerConfig(layerConfigView, layerConfigPtr, layer)

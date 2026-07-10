@@ -84,10 +84,9 @@ export class Renderer {
     this.#tiles.dispose()
   }
 
-  clear(): void {
+  clear(r: number, g: number, b: number, a: number): void {
     const gl = this.#gl
-    gl.clearColor(0, 0, 0, 1)
-    // to-do: expose.
+    gl.clearColor(r, g, b, a)
     gl.clearDepth(1)
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
   }
