@@ -53,7 +53,12 @@ func (this *EntStatusEnt) Update(
 	)
 
 	this.LayoutChars(font)
-	this.TextEnt.XY = this.HUDEnt.XY(this.Layout.W, this.Layout.TrimLeadForceH, clip)
+	// to-do: move to HUDEnt.Update()?
+	const bgMargin = int16(2)
+	bgXY := this.HUDEnt.XY(
+		this.Layout.W+bgMargin*2, this.Layout.TrimAllForceH+bgMargin*2, clip,
+	)
+	this.TextEnt.XY = vgeo.XY[int16]{X: bgXY.X + bgMargin, Y: bgXY.Y + bgMargin}
 
 	this.drawBackground(sprites)
 
@@ -69,7 +74,7 @@ func (this *EntStatusEnt) drawBackground(sprites *[]vgfx.Sprite) {
 	)
 	this.Bg.WH = vgeo.WH[uint16]{
 		W: uint16(this.Layout.W + margin*2),
-		H: uint16(this.Layout.TrimLeadForceH + margin*2),
+		H: uint16(this.Layout.TrimAllForceH + margin*2),
 	}
 	this.Bg.Update(sprites)
 }
