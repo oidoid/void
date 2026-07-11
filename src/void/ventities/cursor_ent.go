@@ -45,6 +45,8 @@ func (this *CursorEnt) Update(
 ) vgame.Status {
 	if phy := in.Ptr.Phy(); phy != nil {
 		this.onCursorPoint(*phy, in.Ptr.Device(), layer)
+	} else if this.Keyboard == 0 {
+		this.Visible = false
 	}
 
 	dirX := int(in.Dir.X)
