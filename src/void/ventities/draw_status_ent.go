@@ -40,7 +40,7 @@ func NewDrawStatusEnt(
 		},
 		vgeo.WH[uint16]{W: 1, H: 1},
 	)
-	this.Bg.Z = gfx.ZUIWidgetBackground
+	this.Bg.Z = gfx.ZUIWidget - 1
 	this.Anchor = anchor
 	this.Margin = margin
 	this.Z = gfx.ZUIWidget

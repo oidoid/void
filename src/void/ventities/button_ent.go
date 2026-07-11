@@ -61,3 +61,7 @@ func (this *ButtonEnt) Update(
 	}
 	return vgame.Pause
 }
+
+func (this *ButtonEnt) OnStart() bool {
+	return this.On && this.Start
+}
