@@ -62,7 +62,7 @@ never run:
 
 ## Fractional Values
 
-supporting both modern and pixel games is important. be very sensitive to rounding errors.
+supporting both modern and pixel games is critical. be very sensitive to rounding errors.
 
 - prefer flooring integral coords. avoid truncation that causes the range (-1, 1) to snap to 0.
 - prefer ceiling integral sizes. avoid truncation that causes sizes to be unexpectedly short.

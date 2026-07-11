@@ -46,7 +46,7 @@ func New() *Engine {
 	this.Layer(gfx.LayerUI).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerUI).Depth = true
 	this.Layer(gfx.LayerUI).ScaleMode = vgfx.LayerScaleModeAutoInt
-	this.Layer(gfx.LayerUI).AutoscaleMinClip = vgeo.WH[uint16]{W: 192, H: 88}
+	this.Layer(gfx.LayerUI).AutoscaleMinClip = vgeo.WH[uint16]{W: 192, H: 48}
 	this.Layer(gfx.LayerOverlay).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerOverlay).Shader = vgfx.ShaderOverlay
 	this.Layer(gfx.LayerOverlay).BlendMode = vgfx.LayerBlendModeReplace
