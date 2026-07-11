@@ -1,6 +1,7 @@
 package ventities
 
 import (
+	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
@@ -12,8 +13,8 @@ import (
 type DrawStatusEnt struct {
 	HUDEnt
 	TextEnt
-	BgAnimID vatlas.AnimID
-	Next     struct {
+	Bg   NinePatchEnt
+	Next struct {
 		// start of the current one-second FPS counting window in milliseconds.
 		Start float64
 		// frames counted in the current window.
@@ -27,12 +28,22 @@ func NewDrawStatusEnt(
 	bgAnimID vatlas.AnimID,
 	anchor vgeo.Dir,
 	margin vgeo.Border[int16],
-	z vgfx.Z,
 ) DrawStatusEnt {
-	this := DrawStatusEnt{BgAnimID: bgAnimID}
+	this := DrawStatusEnt{}
+	this.Bg = NewNinePatchEnt(
+		[9]vatlas.AnimID{
+			vgeo.DirN:      bgAnimID,
+			vgeo.DirE:      bgAnimID,
+			vgeo.DirS:      bgAnimID,
+			vgeo.DirW:      bgAnimID,
+			vgeo.DirCenter: bgAnimID,
+		},
+		vgeo.WH[uint16]{W: 1, H: 1},
+	)
+	this.Bg.Z = gfx.ZUIWidgetBackground
 	this.Anchor = anchor
 	this.Margin = margin
-	this.Z = z
+	this.Z = gfx.ZUIWidget
 	return this
 }
 
@@ -66,16 +77,13 @@ func (this *DrawStatusEnt) Update(
 }
 
 func (this *DrawStatusEnt) DrawBackground(sprites *[]vgfx.Sprite) {
-	const margin = int16(1)
-	*sprites = append(*sprites, vgfx.Sprite{
-		XY: vgeo.NewXY(
-			float32(this.TextEnt.XY.X-margin), float32(this.TextEnt.XY.Y-margin),
-		),
-		AnimCel: this.BgAnimID.Cel(0),
-		Z:       this.Z - 1,
-		WH: vgeo.WH[uint16]{
-			W: uint16(this.Layout.W + margin*2),
-			H: uint16(this.Layout.TrimLeadForceH + margin*2),
-		},
-	})
+	const margin = int16(2)
+	this.Bg.XY = vgeo.NewXY(
+		float32(this.TextEnt.XY.X-margin), float32(this.TextEnt.XY.Y-margin),
+	)
+	this.Bg.WH = vgeo.WH[uint16]{
+		W: uint16(this.Layout.W + margin*2),
+		H: uint16(this.Layout.TrimLeadForceH + margin*2),
+	}
+	this.Bg.Update(sprites)
 }

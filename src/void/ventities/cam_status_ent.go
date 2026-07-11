@@ -11,11 +11,22 @@ import (
 type CamStatusEnt struct {
 	HUDEnt
 	TextEnt
-	BackgroundAnimID vatlas.AnimID
+	Bg NinePatchEnt
 }
 
-func NewCamStatusEnt(backgroundAnimID vatlas.AnimID, z vgfx.Z) CamStatusEnt {
-	this := CamStatusEnt{BackgroundAnimID: backgroundAnimID}
+func NewCamStatusEnt(bgAnimID vatlas.AnimID, z vgfx.Z) CamStatusEnt {
+	this := CamStatusEnt{}
+	this.Bg = NewNinePatchEnt(
+		[9]vatlas.AnimID{
+			vgeo.DirN:      bgAnimID,
+			vgeo.DirE:      bgAnimID,
+			vgeo.DirS:      bgAnimID,
+			vgeo.DirW:      bgAnimID,
+			vgeo.DirCenter: bgAnimID,
+		},
+		vgeo.WH[uint16]{W: 1, H: 1},
+	)
+	this.Bg.Z = z - 1
 	this.Anchor = vgeo.DirNE
 	this.Margin = vgeo.Border[int16]{N: 4, E: 4, S: 4, W: 4}
 	this.Trim = vtext.TrimLead
@@ -49,14 +60,13 @@ func (this *CamStatusEnt) Update(
 }
 
 func (this *CamStatusEnt) DrawBackground(sprites *[]vgfx.Sprite) {
-	const margin = int16(1)
-	*sprites = append(*sprites, vgfx.Sprite{
-		XY:      vgeo.NewXY(float32(this.TextEnt.XY.X-margin), float32(this.TextEnt.XY.Y-margin)),
-		AnimCel: this.BackgroundAnimID.Cel(0),
-		Z:       this.Z - 1,
-		WH: vgeo.WH[uint16]{
-			W: uint16(this.Layout.W + margin*2),
-			H: uint16(this.Layout.TrimH + margin*2),
-		},
-	})
+	const margin = int16(2)
+	this.Bg.XY = vgeo.NewXY(
+		float32(this.TextEnt.XY.X-margin), float32(this.TextEnt.XY.Y-margin),
+	)
+	this.Bg.WH = vgeo.WH[uint16]{
+		W: uint16(this.Layout.W + margin*2),
+		H: uint16(this.Layout.TrimH + margin*2),
+	}
+	this.Bg.Update(sprites)
 }
