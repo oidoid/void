@@ -5,48 +5,44 @@ import (
 	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
+	"github.com/oidoid/void/src/void/vgfx"
+
 	"github.com/oidoid/void/src/void/vin"
 )
 
 func UpdateCam(gam *engine.Engine) vgame.Status {
 	frame := gam.Frame()
 	in := gam.In()
-	const camSpeed = .1 // px/ms = 10 px/s
-	dx := camSpeed * float32(frame.DeltaMs)
+	d := .1 * float32(frame.DeltaMs) // phy px/ms = 100 px/s
 	if in.IsOn(vin.ButtonC) {
-		dx *= 10
+		d *= 10
 	}
-	var delta vgeo.XY[float32]
-	if in.IsOn(vin.ButtonL) {
-		delta.X -= dx
-	}
-	if in.IsOn(vin.ButtonR) {
-		delta.X += dx
-	}
-	if in.IsOn(vin.ButtonU) {
-		delta.Y -= dx
-	}
-	if in.IsOn(vin.ButtonD) {
-		delta.Y += dx
-	}
+	by := vgeo.XY[float32]{X: float32(in.Dir.X) * d, Y: float32(in.Dir.Y) * d}
 	const edgeZone = float32(64)
 	if in.Ptr.Clicks() != 0 {
 		xy := in.Ptr.Phy()
 		if xy.Min.X < edgeZone {
-			delta.X -= dx
+			by.X -= d
 		} else if xy.Min.X > float32(gam.CanvasPhy().W)-edgeZone {
-			delta.X += dx
+			by.X += d
 		}
 		if xy.Min.Y < edgeZone {
-			delta.Y -= dx
+			by.Y -= d
 		} else if xy.Min.Y > float32(gam.CanvasPhy().H)-edgeZone {
-			delta.Y += dx
+			by.Y += d
 		}
 	}
-	if delta == (vgeo.XY[float32]{}) {
+	if by == (vgeo.XY[float32]{}) {
 		return vgame.Pause
 	}
-	gam.Cam().AddTo(delta)
+	cam := gam.Cam()
+	if in.IsAnyStart(vin.ButtonL | vin.ButtonR | vin.ButtonU | vin.ButtonD) {
+		tiles := gam.Layer(gfx.LayerTiles)
+		xy := tiles.PhyToLayerScale(*cam)
+		xy = vgfx.DiagonalizeXY(xy, by)
+		*cam = tiles.LayerToPhyScale(xy)
+	}
+	cam.AddTo(by)
 	return vgame.Loop
 }
 
@@ -55,9 +51,12 @@ func UpdateLayers(gam *engine.Engine) vgame.Status {
 	scale := levelScale(canvas)
 	clipW := gfx.LevelClipWPhy * scale
 	clipH := gfx.LevelClipHPhy * scale
+	// snap offset to UI scale multiples so the level border and hud widgets
+	// move in the same increments and never drift apart by a physical pixel.
+	uiScale := uint16(gam.Layer(gfx.LayerUI).ScaleOrDefault())
 	clipPhy := vgeo.XYWH(
-		centerClipOffset(canvas.W, clipW),
-		centerClipOffset(canvas.H, clipH),
+		snapOffset(centerClipOffset(canvas.W, clipW), uiScale),
+		snapOffset(centerClipOffset(canvas.H, clipH), uiScale),
 		clipW,
 		clipH,
 	)
@@ -74,6 +73,13 @@ func centerClipOffset(canvas, clip uint16) uint16 {
 		return 0
 	}
 	return (canvas - clip) / 2
+}
+
+func snapOffset(offset, scale uint16) uint16 {
+	if scale == 0 {
+		return offset
+	}
+	return (offset / scale) * scale
 }
 
 // to-do: move to vgfx?

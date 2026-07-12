@@ -148,3 +148,53 @@ func TestLayerConfigScaleDefault(t *testing.T) {
 		t.Fatalf("LayerToPhy mismatch: got %v", phy)
 	}
 }
+
+func TestLayerConfigPhyToLayerWH(t *testing.T) {
+	config := LayerConfig{Scale: 2}
+
+	got := config.PhyToLayerWHInt(vgeo.WH[uint16]{W: 101, H: 51})
+	want := vgeo.WH[uint16]{W: 51, H: 26}
+	if got != want {
+		t.Fatalf("PhyToLayerWHInt mismatch: got %v want %v", got, want)
+	}
+}
+
+func TestLayerConfigScaleTransforms(t *testing.T) {
+	tests := []struct {
+		name   string
+		config LayerConfig
+		phy    vgeo.XY[float32]
+		layer  vgeo.XY[float32]
+	}{
+		{
+			name:   "default scale",
+			config: LayerConfig{},
+			phy:    vgeo.NewXY[float32](10, 20),
+			layer:  vgeo.NewXY[float32](10, 20),
+		},
+		{
+			name:   "configured scale",
+			config: LayerConfig{Scale: 2},
+			phy:    vgeo.NewXY[float32](10, 20),
+			layer:  vgeo.NewXY[float32](5, 10),
+		},
+		{
+			name:   "fractional scale",
+			config: LayerConfig{Scale: 2.5},
+			phy:    vgeo.NewXY[float32](10, 20),
+			layer:  vgeo.NewXY[float32](4, 8),
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if got := test.config.PhyToLayerScale(test.phy); got != test.layer {
+				t.Fatalf("PhyToLayerScale mismatch: got %v", got)
+			}
+
+			if got := test.config.LayerToPhyScale(test.layer); got != test.phy {
+				t.Fatalf("LayerToPhyScale mismatch: got %v", got)
+			}
+		})
+	}
+}

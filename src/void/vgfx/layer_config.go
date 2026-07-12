@@ -101,7 +101,37 @@ func NewLayerConfig(capacity int) LayerConfig {
 	}
 }
 
-// always prefer original phy values to avoid rounding errors.
+// converts a layer delta to a physical delta.
+func (this *LayerConfig) LayerToPhyScale(xy vgeo.XY[float32]) vgeo.XY[float32] {
+	scale := this.ScaleOrDefault()
+	return vgeo.XY[float32]{X: xy.X * scale, Y: xy.Y * scale}
+}
+
+// converts a physical delta to a layer delta.
+func (this *LayerConfig) PhyToLayerScale(xy vgeo.XY[float32]) vgeo.XY[float32] {
+	scale := this.ScaleOrDefault()
+	return vgeo.XY[float32]{X: xy.X / scale, Y: xy.Y / scale}
+}
+
+// converts physical pixels to layer coords, applying cam and clip.
+func (this *LayerConfig) PhyToLayer(xy vgeo.XY[float32]) vgeo.XY[float32] {
+	scale := this.ScaleOrDefault()
+	return vgeo.XY[float32]{
+		X: (xy.X - this.offsetPhy().X + this.Cam.X) / scale,
+		Y: (xy.Y - this.offsetPhy().Y + this.Cam.Y) / scale,
+	}
+}
+
+// converts a physical origin to a snap-safe layer origin.
+func (this *LayerConfig) PhyToLayerInt(xy vgeo.XY[float32]) vgeo.XY[float32] {
+	scale := this.ScaleOrDefault()
+	return vgeo.XY[float32]{
+		X: (xy.X - this.offsetPhy().X + this.Cam.X + 0.5) / scale,
+		Y: (xy.Y - this.offsetPhy().Y + this.Cam.Y + 0.5) / scale,
+	}
+}
+
+// converts a layer coord to physical pixels, applying cam and clip.
 func (this *LayerConfig) LayerToPhy(xy vgeo.XY[float32]) vgeo.XY[float32] {
 	scale := this.ScaleOrDefault()
 	return vgeo.XY[float32]{
@@ -110,11 +140,12 @@ func (this *LayerConfig) LayerToPhy(xy vgeo.XY[float32]) vgeo.XY[float32] {
 	}
 }
 
-func (this *LayerConfig) PhyToLayer(xy vgeo.XY[float32]) vgeo.XY[float32] {
+// converts a physical size to a rounded layer size.
+func (this *LayerConfig) PhyToLayerWHInt(wh vgeo.WH[uint16]) vgeo.WH[uint16] {
 	scale := this.ScaleOrDefault()
-	return vgeo.XY[float32]{
-		X: (xy.X - this.offsetPhy().X + this.Cam.X) / scale,
-		Y: (xy.Y - this.offsetPhy().Y + this.Cam.Y) / scale,
+	return vgeo.WH[uint16]{
+		W: uint16(float32(wh.W)/scale + 0.5),
+		H: uint16(float32(wh.H)/scale + 0.5),
 	}
 }
 

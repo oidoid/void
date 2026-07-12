@@ -53,17 +53,13 @@ func (this *CursorEnt) Update(
 	dirY := int(in.Dir.Y)
 	if in.Ptr == nil && this.Keyboard > 0 &&
 		(dirX != 0 || dirY != 0 || in.IsAnyOnStart(vin.ButtonA)) {
-		this.onCursorKey(dirX, dirY, deltaMs, layer.Clip)
+		this.onCursorKey(in, dirX, dirY, deltaMs, layer.Clip)
 	}
 
-	if this.PickAnimID != 0 {
-		// to-do: this is the one ent that doesn't want to set the mask. it breaks
-		// input.
-		if in.IsOn(vin.ButtonA) {
-			this.AnimID = this.PickAnimID
-		} else {
-			this.AnimID = this.PointAnimID
-		}
+	if this.PickAnimID != 0 && in.IsOn(vin.ButtonA) {
+		this.AnimID = this.PickAnimID
+	} else {
+		this.AnimID = this.PointAnimID
 	}
 
 	if this.Visible {
@@ -84,23 +80,15 @@ func (this *CursorEnt) onCursorPoint(
 }
 
 func (this *CursorEnt) onCursorKey(
-	dirX, dirY int, deltaMs float64, clip vgeo.Box[float32],
+	in *vin.In, dirX, dirY int, deltaMs float64, clip vgeo.Box[float32],
 ) {
 	spd := vgfx.FloorEpsilon(this.Keyboard * float32(deltaMs) / 1000)
 
-	if dirX != 0 && dirY != 0 {
-		this.XY = vgfx.DiagonalizeXY(this.XY, dirX*dirY)
+	if in.IsAnyOnStart(vin.ButtonL | vin.ButtonR | vin.ButtonU | vin.ButtonD) {
+		this.XY = vgfx.DiagonalizeXY(this.XY, vgeo.XY[int]{X: dirX, Y: dirY})
 	}
 
-	this.XY.X = vmath.Clamp(
-		clip.Min.X,
-		clip.Max.X,
-		this.XY.X+float32(dirX)*spd,
-	)
-	this.XY.Y = vmath.Clamp(
-		clip.Min.Y,
-		clip.Max.Y,
-		this.XY.Y+float32(dirY)*spd,
-	)
+	this.XY.X = vmath.Clamp(clip.Min.X, clip.Max.X, this.XY.X+float32(dirX)*spd)
+	this.XY.Y = vmath.Clamp(clip.Min.Y, clip.Max.Y, this.XY.Y+float32(dirY)*spd)
 	this.Visible = true
 }

@@ -14,7 +14,8 @@ const (
 
 var (
 	ZSuperball     vgfx.Z = LayerSuperballs.Z(0)
-	ZUILevelBorder vgfx.Z = LayerUI.Z(1)
+	ZUILevelBorder vgfx.Z = LayerUI.Z(0)
+	ZUIBackground  vgfx.Z = LayerUI.Z(1)
 	ZUIWidget      vgfx.Z = LayerUI.Z(2)
 	ZUIText        vgfx.Z = LayerUI.Z(3)
 	ZOutline       vgfx.Z = LayerOutline.Z(0)

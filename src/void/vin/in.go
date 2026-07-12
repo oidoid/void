@@ -23,7 +23,7 @@ type In struct {
 	Dirty bool
 
 	// bitmask of buttons consumed this frame. all button test methods return
-	// false for mask buttons. reset by `Update()`.
+	// false for masked buttons. reset by `Update()`.
 	Mask Button
 
 	MinHeldMillis float64
@@ -50,96 +50,106 @@ func (this *In) IsHeld() bool {
 	return this.now-this.onChangedAt >= this.MinHeldMillis
 }
 
-// true if all buttons are off inclusively. eg, `IsOff(ButtonU)` is true when up
-// is released or when up and down are released. updates mask if true.
+// true if all unmasked buttons are off inclusively. eg, `IsOff(ButtonU)` is
+// true when up is released or when up and down are released. masks if true.
 func (this *In) IsOff(btns Button) bool {
-	ok := this.On&^this.Mask&btns == 0
-	if ok {
+	if this.On&^this.Mask&btns == 0 {
 		this.Mask |= btns
+		return true
 	}
-	return ok
+	return false
 }
 
-// true if all buttons are off inclusively and at least one of those buttons
-// just turned off. eg, `IsOffStart(ButtonU)` is true when up is just released
-// or when up is just released and down is released. updates mask if true.
+// true if all unmasked buttons are off inclusively and at least one of those
+// buttons just turned off. eg, `IsOffStart(ButtonU)` is true when up is just
+// released or when up is just released and down is released. masks if true.
 func (this *In) IsOffStart(btns Button) bool {
-	ok := this.On&^this.Mask&btns == 0 && this.PrevOn&btns != 0
-	if ok {
+	if this.On&^this.Mask&btns == 0 && this.PrevOn&btns != 0 {
 		this.Mask |= btns
+		return true
 	}
-	return ok
+	return false
 }
 
-// true if all buttons just became on from a fully off state. updates mask if true.
+// true if all unmasked buttons just became on from a fully off state. masks if
+// true.
 func (this *In) IsOffEnd(btns Button) bool {
-	ok := this.On&^this.Mask&btns == btns && this.PrevOn&btns == 0
-	if ok {
+	if this.On&^this.Mask&btns == btns && this.PrevOn&btns == 0 {
 		this.Mask |= btns
+		return true
 	}
-	return ok
+	return false
 }
 
-// true if all buttons are on inclusively. eg, `IsOn(ButtonU)` is true when up
-// is pressed or when up and down are pressed. updates mask if true.
+// true if all unmasked buttons are on inclusively. eg, `IsOn(ButtonU)` is true
+// when up is pressed or when up and down are pressed.  masks if true.
 func (this *In) IsOn(btns Button) bool {
-	ok := this.On&^this.Mask&btns == btns
-	if ok {
+	if this.On&^this.Mask&btns == btns {
 		this.Mask |= btns
+		return true
 	}
-	return ok
+	return false
 }
 
-// true if all buttons are on inclusively and at least one of those buttons
-// just turned on. eg, `IsOnStart(ButtonU)` is true when up is just pressed or
-// when up is just pressed and down is pressed. updates mask if true.
+// true if all unmasked buttons are on inclusively and at least one of those
+// buttons just turned on. eg, `IsOnStart(ButtonU)` is true when up is just
+// pressed or when up is just pressed and down is pressed. masks if true.
 func (this *In) IsOnStart(btns Button) bool {
-	ok := this.On&^this.Mask&btns == btns && this.PrevOn&btns != btns
-	if ok {
+	if this.On&^this.Mask&btns == btns && this.PrevOn&btns != btns {
 		this.Mask |= btns
+		return true
 	}
-	return ok
+	return false
 }
 
-// true if all buttons were on inclusively and at least one of those buttons
-// just turned off. eg, `IsOnEnd(ButtonU)` is true when up is just released
-// or when up is just released and down is released. updates mask if true.
+// true if any unmasked button is off and all buttons were previously on
+// inclusively. eg, `IsOnEnd(ButtonU)` is true when up is just released or when
+// up is just released and down is released. masks if true.
 func (this *In) IsOnEnd(btns Button) bool {
-	ok := this.On&^this.Mask&btns != btns && this.PrevOn&btns == btns
-	if ok {
+	if this.On&^this.Mask&btns != btns && this.PrevOn&btns == btns {
 		this.Mask |= btns
+		return true
 	}
-	return ok
+	return false
 }
 
-// true if any button is on inclusively. eg, `IsAnyOn(ButtonU)` is true when up
-// is pressed or when up and down are pressed. updates mask if true.
+// true if any unmasked button is on inclusively. eg, `IsAnyOn(ButtonU)` is true
+// when up is pressed or when up and down are pressed. masks if true.
 func (this *In) IsAnyOn(btns Button) bool {
-	ok := this.On&^this.Mask&btns != 0
-	if ok {
+	if this.On&^this.Mask&btns != 0 {
 		this.Mask |= btns
+		return true
 	}
-	return ok
+	return false
 }
 
-// true if any button is on inclusively and at least one of those buttons just
-// turned on. eg, `IsAnyOnStart(ButtonU)` is true when up is just pressed or
-// when up is just pressed and down is pressed. updates mask if true.
+// true if any unmasked button is on inclusively and at least one of those
+// buttons just turned on. eg, `IsAnyOnStart(ButtonU)` is true when up is just
+// pressed or when up is just pressed and down is pressed. masks if true.
 func (this *In) IsAnyOnStart(btns Button) bool {
-	ok := this.On&^this.Mask&^this.PrevOn&btns != 0
-	if ok {
+	if this.On&^this.Mask&^this.PrevOn&btns != 0 {
 		this.Mask |= btns
+		return true
 	}
-	return ok
+	return false
 }
 
-// true if any button just turned off this frame. updates mask if true.
+// true if any button just turned off this frame. masks if true.
 func (this *In) IsAnyOnEnd(btns Button) bool {
-	ok := this.PrevOn&^this.On&btns != 0
-	if ok {
+	if this.PrevOn&^this.On&btns != 0 {
 		this.Mask |= btns
+		return true
 	}
-	return ok
+	return false
+}
+
+// true if any unmasked button just changed. masks if true.
+func (this *In) IsAnyStart(btns Button) bool {
+	if (this.On^this.PrevOn)&^this.Mask&btns != 0 {
+		this.Mask |= btns
+		return true
+	}
+	return false
 }
 
 // map each keyboard key to all buttons.

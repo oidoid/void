@@ -1,5 +1,6 @@
 import {
   spriteAnimCelOffset,
+  spriteFlagsOffset,
   spriteStride,
   spriteWHOffset,
   spriteZOffset
@@ -108,6 +109,17 @@ export class SpriteRenderer {
       spriteWHOffset
     )
     gl.vertexAttribDivisor(3, 1)
+
+    // aFlags as uint32.
+    gl.enableVertexAttribArray(4)
+    gl.vertexAttribIPointer(
+      4,
+      1,
+      gl.UNSIGNED_INT,
+      spriteStride,
+      spriteFlagsOffset
+    )
+    gl.vertexAttribDivisor(4, 1)
 
     gl.bindVertexArray(null)
 

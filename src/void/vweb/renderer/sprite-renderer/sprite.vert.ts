@@ -14,9 +14,11 @@ layout(location=0) in highp vec2 aXY; // sprite origin.
 layout(location=1) in highp uint aAnimCel; // hi 12 bits = AnimID, lo 4 bits = Cel.
 layout(location=2) in highp uint aZ;
 layout(location=3) in highp uvec2 aWH; // when nonzero, stretch sprite to this size.
+layout(location=4) in highp uint aFlags; // bit 0 = Hidden, bit 1 = FlipX, bit 2 = FlipY.
 
 out highp vec2 vTexUV; // local pixel position within destination box.
 flat out highp vec4 vCelXYWH; // in atlas pixels.
+flat out highp uint vFlags;
 
 // (0,0) to (1,1) unit quad.
 const highp vec2 corners[6] = vec2[6](
@@ -30,7 +32,8 @@ const highp vec2 corners[6] = vec2[6](
 
 void main() {
   highp uint animID = aAnimCel >> 4u;
-  if (animID == 0u) { gl_Position = vec4(2., 0., 0., 1.); return; }
+  bool hidden = (aFlags & 0x1u) == 0x1u;
+  if (animID == 0u || hidden) { gl_Position = vec4(2., 0., 0., 1.); return; }
 
   highp uint celI = aAnimCel & 0xfu;
   highp uvec4 cel = texelFetch(uAtlasCels, ivec2(int(celI), int(animID)), 0);
@@ -52,5 +55,6 @@ void main() {
 
   vTexUV = corner * wh;
   vCelXYWH = vec4(celMin, celWH);
+  vFlags = aFlags;
 }
 `

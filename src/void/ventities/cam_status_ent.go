@@ -16,17 +16,17 @@ type CamStatusEnt struct {
 
 func NewCamStatusEnt(bgAnimID vatlas.AnimID, z vgfx.Z) CamStatusEnt {
 	this := CamStatusEnt{}
-	this.Bg = NewNinePatchEnt(
-		[9]vatlas.AnimID{
-			vgeo.DirN:      bgAnimID,
-			vgeo.DirE:      bgAnimID,
-			vgeo.DirS:      bgAnimID,
-			vgeo.DirW:      bgAnimID,
-			vgeo.DirCenter: bgAnimID,
+	this.Bg = NinePatchEnt{
+		PatchByDir: [9]vgfx.Sprite{
+			vgeo.DirN:      {AnimCel: bgAnimID.Cel(0)},
+			vgeo.DirE:      {AnimCel: bgAnimID.Cel(0)},
+			vgeo.DirS:      {AnimCel: bgAnimID.Cel(0)},
+			vgeo.DirW:      {AnimCel: bgAnimID.Cel(0)},
+			vgeo.DirCenter: {AnimCel: bgAnimID.Cel(0)},
 		},
-		vgeo.WH[uint16]{W: 1, H: 1},
-	)
-	this.Bg.Z = z - 1
+		CornerWH: vgeo.WH[uint16]{W: 1, H: 1},
+	}
+	this.Bg.SetZ(z - 1)
 	this.Anchor = vgeo.DirNE
 	this.Margin = vgeo.Border[int16]{N: 4, E: 4, S: 4, W: 4}
 	this.Trim = vtext.TrimLead

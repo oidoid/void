@@ -141,6 +141,7 @@ func (this *Engine[Game]) EndTick() {
 }
 
 func (this *Engine[Game]) Preupdate(gam Game) vgame.Status {
+	this.updateLayerScales()
 	stat := this.preupdaters.Update(gam)
 	this.updateLayerClips()
 	return stat
@@ -187,6 +188,20 @@ func (this *Engine[Game]) BeginTick() vgame.Status {
 		float32(this.Level.Max.Y),
 	)
 	return vgame.Pause
+}
+
+func (this *Engine[Game]) updateLayerScales() {
+	for i := range this.layers {
+		config := &this.layers[i]
+		clip := config.ClipPhy
+		clipW := float32(clip.W())
+		clipH := float32(clip.H())
+		if clipW == 0 || clipH == 0 {
+			clipW = float32(this.frame.CanvasPhy.W)
+			clipH = float32(this.frame.CanvasPhy.H)
+		}
+		config.UpdateScale(vgeo.WH[float32]{W: clipW, H: clipH})
+	}
 }
 
 func (this *Engine[Game]) updateLayerClips() {

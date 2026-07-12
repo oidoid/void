@@ -244,6 +244,42 @@ func TestIsAnyOnEnd(t *testing.T) {
 	}
 }
 
+func TestIsAnyStart(t *testing.T) {
+	in := NewIn()
+	in.MapKey(KeyA, ButtonA)
+	in.MapKey(KeyB, ButtonB)
+	in.Update(0, &InputPoll{}, zeroCam)
+	if in.IsAnyStart(ButtonA | ButtonB) {
+		t.Error("IsAnyStart should be false while all buttons are unchanged")
+	}
+
+	in.Update(1, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	if !in.IsAnyStart(ButtonA | ButtonB) {
+		t.Error("IsAnyStart should be true when any button turns on")
+	}
+
+	in.Update(2, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	if in.IsAnyStart(ButtonA | ButtonB) {
+		t.Error("IsAnyStart should not repeat while buttons remain unchanged")
+	}
+
+	in.Update(3, &InputPoll{}, zeroCam)
+	if !in.IsAnyStart(ButtonA | ButtonB) {
+		t.Error("IsAnyStart should be true when any button turns off")
+	}
+}
+
+func TestIsAnyStartRespectsMask(t *testing.T) {
+	in := NewIn()
+	in.MapKey(KeyA, ButtonA)
+	in.Update(0, &InputPoll{}, zeroCam)
+	in.Update(1, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Mask |= ButtonA
+	if in.IsAnyStart(ButtonA) {
+		t.Error("IsAnyStart should ignore masked changed buttons")
+	}
+}
+
 func TestMapKey(t *testing.T) {
 	in := NewIn()
 	in.MapKey(KeyA, ButtonA)
@@ -342,6 +378,7 @@ func TestMaskBlocksOn(t *testing.T) {
 	if !in.IsOn(ButtonA) {
 		t.Error("Initial button should be on")
 	}
+	in.Mask |= ButtonA
 	if in.IsOn(ButtonA) {
 		t.Error("Mask button should return false for IsOn")
 	}
@@ -357,6 +394,7 @@ func TestMaskResetsOnUpdate(t *testing.T) {
 	if !in.IsOn(ButtonA) {
 		t.Error("Initial button should be on")
 	}
+	in.Mask |= ButtonA
 	if in.IsOn(ButtonA) {
 		t.Error("Mask button should return false for IsOn")
 	}

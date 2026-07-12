@@ -54,6 +54,7 @@ export class Pointer {
     for (const ev of [
       'pointercancel',
       'pointerdown',
+      'pointerleave',
       'pointermove',
       'pointerup'
     ])
@@ -65,7 +66,7 @@ export class Pointer {
   }
 
   #onPointer = (ev: PointerEvent): void => {
-    if (ev.type === 'pointercancel' || ev.type === 'pointerup')
+    if (ev.type === 'pointercancel' || ev.type === 'pointerleave')
       delete this.polls[ev.pointerId]
     else {
       if (ev.type === 'pointerdown')

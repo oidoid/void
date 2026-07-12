@@ -6,6 +6,7 @@ import (
 	"github.com/oidoid/void/src/demo/entities"
 	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/vgame"
+	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
@@ -16,23 +17,43 @@ func UpdateSuperballButtons(
 	layer := gam.Layer(gfx.LayerUI)
 	in := gam.In()
 	font := gam.Font()
-	cam := *gam.Cam()
+	ballsClip := gam.Layer(gfx.LayerSuperballs).Clip
+	spawnCenter := vgeo.NewXY(
+		(ballsClip.Min.X+ballsClip.Max.X)/2,
+		(ballsClip.Min.Y+ballsClip.Max.Y)/2,
+	)
 	deltaMs := gam.DeltaMs()
+	tileW := float32(gam.LevelTileW())
+	tileH := float32(gam.LevelTileH())
+	bounds := gam.LevelBounds
+	lvl := vgeo.NewBox(
+		bounds.Min.X+tileW,
+		bounds.Min.Y+tileH,
+		bounds.Max.X-tileW,
+		bounds.Max.Y-tileH,
+	)
 	rnd := gam.Random
 	ballRadius := float32(gam.Atlas.Anims[int(assets.SuperballDefault)].W) / 2
 	ents := vec.Vals()
+	var refBox vgeo.Box[float32]
 	loop := vgame.Pause
 	for i := range ents {
+		ents[i].ButtonEnt.Layout(font, refBox, layer.Clip)
 		loop |= ents[i].Update(
-			&layer.Sprites,
 			in,
-			font,
+			&layer.Sprites,
 			layer,
+			font,
 			&gam.Balls.Vec,
-			cam,
+			spawnCenter,
 			deltaMs,
+			lvl,
 			rnd,
 			ballRadius,
+		)
+		// to-do: lot of places we actually want an XYWH.
+		refBox = vgeo.XYWH(
+			ents[i].XY.X, ents[i].XY.Y, float32(ents[i].WH.W), float32(ents[i].WH.H),
 		)
 	}
 	return loop

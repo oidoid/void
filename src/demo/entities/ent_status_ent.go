@@ -3,7 +3,6 @@ package entities
 import (
 	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/demo/gfx"
-	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
@@ -21,17 +20,17 @@ type EntStatusEnt struct {
 
 func NewEntStatusEnt() EntStatusEnt {
 	this := EntStatusEnt{}
-	this.Bg = ventities.NewNinePatchEnt(
-		[9]vatlas.AnimID{
-			vgeo.DirN:      assets.BackgroundKiwi,
-			vgeo.DirE:      assets.BackgroundKiwi,
-			vgeo.DirS:      assets.BackgroundKiwi,
-			vgeo.DirW:      assets.BackgroundKiwi,
-			vgeo.DirCenter: assets.BackgroundKiwi,
+	this.Bg = ventities.NinePatchEnt{
+		PatchByDir: [9]vgfx.Sprite{
+			vgeo.DirN:      {AnimCel: assets.PaletteBlue.Cel(0)},
+			vgeo.DirE:      {AnimCel: assets.PaletteBlue.Cel(0)},
+			vgeo.DirS:      {AnimCel: assets.PaletteBlue.Cel(0)},
+			vgeo.DirW:      {AnimCel: assets.PaletteBlue.Cel(0)},
+			vgeo.DirCenter: {AnimCel: assets.PaletteBlue.Cel(0)},
 		},
-		vgeo.WH[uint16]{W: 1, H: 1},
-	)
-	this.Bg.Z = gfx.ZUIWidget - 1
+		CornerWH: vgeo.WH[uint16]{W: 1, H: 1},
+	}
+	this.Bg.SetZ(gfx.ZUIWidget - 1)
 	this.Anchor = vgeo.DirSW
 	this.Margin = vgeo.Border[int16]{N: 4, E: 4, S: 4, W: 4}
 	this.Z = gfx.ZUIWidget

@@ -30,17 +30,17 @@ func NewDrawStatusEnt(
 	margin vgeo.Border[int16],
 ) DrawStatusEnt {
 	this := DrawStatusEnt{}
-	this.Bg = NewNinePatchEnt(
-		[9]vatlas.AnimID{
-			vgeo.DirN:      bgAnimID,
-			vgeo.DirE:      bgAnimID,
-			vgeo.DirS:      bgAnimID,
-			vgeo.DirW:      bgAnimID,
-			vgeo.DirCenter: bgAnimID,
+	this.Bg = NinePatchEnt{
+		PatchByDir: [9]vgfx.Sprite{
+			vgeo.DirN:      {AnimCel: bgAnimID.Cel(0)},
+			vgeo.DirE:      {AnimCel: bgAnimID.Cel(0)},
+			vgeo.DirS:      {AnimCel: bgAnimID.Cel(0)},
+			vgeo.DirW:      {AnimCel: bgAnimID.Cel(0)},
+			vgeo.DirCenter: {AnimCel: bgAnimID.Cel(0)},
 		},
-		vgeo.WH[uint16]{W: 1, H: 1},
-	)
-	this.Bg.Z = gfx.ZUIWidget - 1
+		CornerWH: vgeo.WH[uint16]{W: 1, H: 1},
+	}
+	this.Bg.SetZ(gfx.ZUIBackground)
 	this.Anchor = anchor
 	this.Margin = margin
 	this.Z = gfx.ZUIWidget

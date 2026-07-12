@@ -5,9 +5,6 @@ import "github.com/oidoid/void/src/void/vatlas"
 
 const (
 	VoidNil vatlas.AnimID = iota
-	BackgroundKiwi
-	BackgroundBlueberry
-	BackgroundBubblegum
 	BackpackerWalkRight
 	BackpackerWalkDown
 	BackpackerWalkUp
@@ -147,6 +144,12 @@ const (
 	MouseStatusAux
 	MouseStatusLocked
 	OidoidDefault
+	OutlineTopLeft
+	OutlineTop
+	OutlineLeft
+	PaletteBlue
+	PaletteBlack
+	PaletteBubblegum
 	PolyTriangle
 	PolySquare
 	SuperballDefault

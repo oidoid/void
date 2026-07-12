@@ -15,8 +15,8 @@ func UpdateButtons[Game vgame.Game](
 	loop := vgame.Pause
 	for i := range ents {
 		ent := &ents[i]
-		layer := gam.Layer(ent.Z.Layer())
-		loop |= ent.Update(in, &layer.Sprites, layer)
+		layer := gam.Layer(ent.Z().Layer())
+		loop |= ent.Update(in, &layer.Sprites, layer, gam.Font())
 	}
 	return loop
 }
