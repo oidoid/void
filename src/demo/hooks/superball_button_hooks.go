@@ -11,7 +11,7 @@ import (
 )
 
 func UpdateSuperballButtons(
-	vec *vvec.Vec[entities.SuperballButtonEnt],
+	vec *vvec.Vec[*entities.SuperballButtonEnt],
 	gam *engine.Engine,
 ) vgame.Status {
 	layer := gam.Layer(gfx.LayerUI)
@@ -35,10 +35,9 @@ func UpdateSuperballButtons(
 	rnd := gam.Random
 	ballRadius := float32(gam.Atlas.Anims[int(assets.SuperballDefault)].W) / 2
 	ents := vec.Vals()
-	var refBox vgeo.Box[float32]
 	loop := vgame.Pause
+	// to-do: lot of places we actually want an XYWH not a min-max Box.
 	for i := range ents {
-		ents[i].ButtonEnt.Layout(font, refBox, layer.Clip)
 		loop |= ents[i].Update(
 			in,
 			&layer.Sprites,
@@ -50,10 +49,6 @@ func UpdateSuperballButtons(
 			lvl,
 			rnd,
 			ballRadius,
-		)
-		// to-do: lot of places we actually want an XYWH.
-		refBox = vgeo.XYWH(
-			ents[i].XY.X, ents[i].XY.Y, float32(ents[i].WH.W), float32(ents[i].WH.H),
 		)
 	}
 	return loop

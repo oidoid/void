@@ -14,6 +14,7 @@ never run:
 - `make` (default target) or `make watch` but you can ask the user to run.
 - `make fat-save` or `make slow-save`. do not edit `.fat` or `.slow`.
 - `make slow-check` or any performance test. these cannot run consistently without superuser permissions.
+- never modify Git state in the current checkout unless explicitly requested. this includes changing the working tree, index, stash, branches, or references. eg, `git add`, `git rm`, `git stash`, `git restore`, `git reset`, `git checkout`, and `git clean` are all forbidden.
 
 ## `src/void` and `src/demo`
 
@@ -28,6 +29,7 @@ never run:
 
 - be deliberate when dereferencing in loops. they can be surprisingly slow.
 - Go imports must be TinyGo compatible.
+- never import `syscall/js`; pass state via Wasm exports and imports.
 - http://localhost:1234 pauses when backgrounded.
 - to force no kern, use `'\v'` between chars. to force a 1px kern, use `\t`.
 
@@ -48,7 +50,7 @@ never run:
 - when using a local for the subject of a constructor, name it `this`.
 - name `In` vars `in`.
 - assume tab width is two.
-- wrap to 80 chars and pack cols to minimize lines. if all args / props can't fit on one line, do one arg / group per line.
+- wrap to 80 chars and pack cols to minimize lines. if all args / props can't fit on one line, do one arg / group per line. don't chop long strings.
 - comments must not restate the subject name.
     ```go
     // ng: PadInt pads a non-negative integer to at least width digits with spaces.
@@ -67,12 +69,13 @@ supporting both modern and pixel games is critical. be very sensitive to roundin
 - prefer flooring integral coords. avoid truncation that causes the range (-1, 1) to snap to 0.
 - prefer ceiling integral sizes. avoid truncation that causes sizes to be unexpectedly short.
 - prefer source data over inverted transforms to avoid accumulation errors.
+- use `vgfx.DiagonalizeXY()` as needed to sync triggered movements.
 
 ## Verification
 
 - typecheck Go: `go build ./...`
 - typecheck TS: `make typecheck-web`
-- test filesize: `make build && make fat-check`. the bottom line is `dist/demo/index.html` uncompressed size (first numerical column). `make build` takes ~10s; run only when worthwhile. if size drops 50+ KiB unexpectedly, ask the user if `make watch` is running.
+- test filesize: `make build && make fat-check`. the bottom line is `dist/demo/index.html` uncompressed size (first numerical column). `make build` takes ~10s; run only when worthwhile. if size drops 50+ KiB unexpectedly, ask the user if `make watch` is running. analyze filesize with `make fat-analyze`.
 
 ## Development
 

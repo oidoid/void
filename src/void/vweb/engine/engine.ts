@@ -4,6 +4,7 @@ import {
   canvasWOffset,
   deltaMsOffset,
   devicePixelRatioOffset,
+  drawAlwaysOffset,
   drawCountOffset,
   drawMsOffset,
   isFullscreenOffset,
@@ -12,9 +13,13 @@ import {
   updateMsOffset
 } from '../input/layout.ts'
 import {Renderer} from '../renderer/renderer.ts'
-import {initCanvas} from '../utils/canvas-util.ts'
+import {downloadScreenshot, initCanvas} from '../utils/canvas-util.ts'
 import {initBody, initMetaViewport} from '../utils/dom-util.ts'
-import {isFullscreen} from '../utils/fullscreen-util.ts'
+import {
+  exitFullscreen,
+  isFullscreen,
+  requestFullscreen
+} from '../utils/fullscreen-util.ts'
 import {
   type LayerBlendMode,
   type LayerCamMode,
@@ -53,6 +58,7 @@ export class Engine {
   #clearColor: [number, number, number, number] = [0, 0, 0, 1]
   #drawMs: number = 0
   #drawCount: number = 0
+  #drawAlways: boolean = false
   #updateMs: number = 0
   #frame!: DataView
   #input!: Input
@@ -91,6 +97,7 @@ export class Engine {
     this.#wasm = result.instance.exports as Platform
     wasi.link(this.#wasm.memory)
     this.#wasm._start()
+    this.#drawAlways = debugDrawOn()
     this.#frame = new DataView(
       this.#wasm.memory.buffer,
       this.#wasm.FramePointer(),
@@ -135,7 +142,10 @@ export class Engine {
     this.#renderer.resize(this.#phyW, this.#phyH)
     this.#writeUpdate()
     const updateStart = performance.now()
-    if (this.#wasm.Update() !== LoopLoop) {
+    const loop = this.#wasm.Update()
+    this.#applyFullscreenRequest()
+    this.#applyDrawAlwaysParam()
+    if (loop !== LoopLoop) {
       cancelAnimationFrame(this.#rafId)
       this.#rafId = 0
       this.#lastTime = 0
@@ -182,6 +192,7 @@ export class Engine {
         this.#renderer.drawOverlay(config.blendMode)
       }
     }
+    this.#applyPostDrawRequests()
     this.#drawMs = performance.now() - drawStart
   }
 
@@ -273,6 +284,31 @@ export class Engine {
     this.#input.reset()
   }
 
+  #applyFullscreenRequest(): void {
+    const request = this.#wasm.FullscreenRequest()
+    if (request === 1) {
+      // to-do: enum.
+      void requestFullscreen({canvas: this.#canvas}, 'NoLock').then(() =>
+        this.#requestUpdate()
+      )
+    } else if (request === 2) {
+      void exitFullscreen().then(() => this.#requestUpdate())
+    }
+  }
+
+  #applyPostDrawRequests(): void {
+    if (this.#wasm.ScreenshotRequest())
+      void downloadScreenshot(this.#canvas, 'void')
+    if (this.#wasm.ContextLossRequest()) this.#renderer.loseContext()
+  }
+
+  #applyDrawAlwaysParam(): void {
+    const drawAlways = this.#wasm.DrawAlways() !== 0
+    if (drawAlways === this.#drawAlways) return
+    this.#drawAlways = drawAlways
+    setDrawOnParam(drawAlways)
+  }
+
   #writeUpdate(): void {
     if (this.#frame.buffer !== this.#wasm.memory.buffer)
       this.#frame = new DataView(
@@ -287,6 +323,7 @@ export class Engine {
     this.#frame.setUint16(canvasWOffset, this.#renderer.phyW, true)
     this.#frame.setUint16(canvasHOffset, this.#renderer.phyH, true)
     this.#frame.setUint8(isFullscreenOffset, isFullscreen() ? 1 : 0)
+    this.#frame.setUint8(drawAlwaysOffset, this.#drawAlways ? 1 : 0)
     this.#frame.setFloat64(drawMsOffset, this.#drawMs, true)
     this.#frame.setInt32(drawCountOffset, this.#drawCount, true)
     this.#frame.setFloat64(updateMsOffset, this.#updateMs, true)
@@ -295,4 +332,41 @@ export class Engine {
     this.#input.postupdate() // to-do: move to postupdate()?
     this.#lastTime = now
   }
+}
+
+function debugDrawOn(): boolean {
+  return (
+    findDebugParam(location.href)
+      ?.split(',')
+      .some(str => str === 'draw=on') ?? false
+  )
+}
+
+// to-do: decide on web vs Go split.
+function setDrawOnParam(always: boolean): void {
+  const csv =
+    findDebugParam(location.href)
+      ?.split(',')
+      .filter(str => str && str !== 'draw=on') ?? []
+  if (always) csv.push('draw=on') // to-do: use sette API? i think it handles all this.
+
+  const oldURL = new URL(location.href)
+  oldURL.searchParams.delete('debug')
+  const params = []
+  if (oldURL.searchParams.size) params.push(`${oldURL.searchParams}`)
+  if (csv.length) params.push(`debug=${csv.join(',')}`)
+
+  const newURL =
+    oldURL.origin +
+    oldURL.pathname +
+    (params.length ? `?${params.join('&')}` : '') +
+    oldURL.hash
+
+  history.replaceState(history.state, '', newURL)
+}
+
+function findDebugParam(url: string): string | undefined {
+  return [...new URL(url).searchParams].find(
+    ([k]) => k.toLowerCase() === 'debug'
+  )?.[1]
 }

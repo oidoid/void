@@ -9,6 +9,11 @@ import (
 
 type Game interface {
 	Platform
+	DrawAlways() bool
+	RequestContextLoss()
+	RequestFullscreen(bool)
+	RequestScreenshot()
+	SetDrawAlways(bool)
 	CanvasPhy() *vgeo.WH[uint16]
 	DeltaMs() float64
 	Font() *vtext.Font

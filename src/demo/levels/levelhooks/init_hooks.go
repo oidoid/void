@@ -17,11 +17,42 @@ func InitInit(gam *engine.Engine) {
 	gam.RegisterPreupdate(hooks.UpdateLayers)
 	gam.RegisterPreupdate(hooks.UpdateCam)
 
-	superballButtons := ventities.NewEntVec(hooks.UpdateSuperballButtons)
-	superballButtons.Add(entities.NewZeroSuperballButtonEnt())
-	superballButtons.Add(entities.NewAddSomeSuperballButtonEnt())
-	superballButtons.Add(entities.NewAddManySuperballButtonEnt())
+	buttons := ventities.NewEntVec(vhooks.UpdateButtons[*engine.Engine], 4)
+
+	drawBtn := entities.NewDrawToggleButton(gam)
+	buttons.Add(drawBtn)
+	contextLossBtn := entities.NewContextLossButton(gam)
+	contextLossBtn.Anchor.Ref = drawBtn
+	buttons.Add(contextLossBtn)
+	screenshotBtn := entities.NewScreenshotButton(gam)
+	screenshotBtn.Anchor.Ref = contextLossBtn
+	buttons.Add(screenshotBtn)
+	fullscreenToggle := entities.NewFullscreenToggle(gam)
+	fullscreenToggle.Anchor.Ref = screenshotBtn
+	buttons.Add(fullscreenToggle)
+	gam.RegisterEntUpdate(buttons)
+
+	superballButtons := ventities.NewEntVec(hooks.UpdateSuperballButtons, 3)
+	addManyBtn := entities.NewAddManySuperballButtonEnt()
+	addManyBtn.Anchor.Ref = fullscreenToggle
+	superballButtons.Add(addManyBtn)
+	addSomeBtn := entities.NewAddSomeSuperballButtonEnt()
+	addSomeBtn.Anchor.Ref = addManyBtn
+	superballButtons.Add(addSomeBtn)
+	zeroBtn := entities.NewZeroSuperballButtonEnt()
+	zeroBtn.Anchor.Ref = addSomeBtn
+	superballButtons.Add(zeroBtn)
 	gam.RegisterEntUpdate(superballButtons)
+
+	camStatuses := ventities.NewEntVec(vhooks.UpdateCamStatuses[*engine.Engine], 1)
+	camStatus := ventities.NewCamStatusEnt(assets.PaletteBlue, gfx.ZUIWidget)
+	camStatus.Anchor = ventities.AnchorEnt{
+		Dir:    vgeo.DirW,
+		Margin: vgeo.NewXY[float32](4, 0),
+		Ref:    zeroBtn,
+	}
+	camStatuses.Add(camStatus)
+	gam.RegisterEntUpdate(camStatuses)
 
 	drawStatuses := ventities.NewEntVec(vhooks.UpdateDrawStatuses[*engine.Engine])
 	drawStatuses.Add(ventities.NewDrawStatusEnt(
@@ -34,14 +65,6 @@ func InitInit(gam *engine.Engine) {
 	entStatuses := ventities.NewEntVec(hooks.UpdateEntStatuses)
 	entStatuses.Add(entities.NewEntStatusEnt())
 	gam.RegisterEntUpdate(entStatuses)
-
-	gam.RegisterEntUpdate(
-		ventities.NewEntVec(vhooks.UpdateButtons[*engine.Engine]),
-	)
-
-	camStatuses := ventities.NewEntVec(vhooks.UpdateCamStatuses[*engine.Engine])
-	camStatuses.Add(ventities.NewCamStatusEnt(assets.PaletteBlue, gfx.ZUIWidget))
-	gam.RegisterEntUpdate(camStatuses)
 
 	mouseStatuses := ventities.NewEntVec(hooks.UpdateMouseStatuses)
 	mouseStatuses.Add(entities.NewMouseStatusEnt())

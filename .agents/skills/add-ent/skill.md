@@ -21,3 +21,4 @@ read the referenced example files before writing any code.
 - `src/demo/` and [`src/demo/game/game_test.go`](../../../src/demo/game/game_test.go) are example dx and execution. `src/void/` is the generic engine.
 - UI and forms are constructed with ents.
 - ent update logic belongs in the ent's `Update()` method, not the update all hook.
+- avoid inline closures for `EntVec` updates.

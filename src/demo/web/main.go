@@ -18,6 +18,26 @@ func FramePointer() uintptr {
 	return gam.FramePointer()
 }
 
+//export FullscreenRequest
+func FullscreenRequest() int32 {
+	return gam.FullscreenRequest()
+}
+
+//export ScreenshotRequest
+func ScreenshotRequest() int32 {
+	return gam.ScreenshotRequest()
+}
+
+//export ContextLossRequest
+func ContextLossRequest() int32 {
+	return gam.ContextLossRequest()
+}
+
+//export DrawAlways
+func DrawAlways() int32 {
+	return gam.DrawAlwaysFlag()
+}
+
 //export LayerConfigsPointer
 func LayerConfigsPointer() uintptr { return gam.LayerConfigsPointer() }
 

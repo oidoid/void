@@ -13,7 +13,8 @@ type Poll struct {
 	NowMs      float64
 	CanvasPhy  vgeo.WH[uint16]
 	Fullscreen bool
-	_          [3]byte
+	DrawAlways bool
+	_          [2]byte
 	DrawMs     float64
 	// number of renderer clears completed.
 	DrawCount int32

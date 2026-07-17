@@ -8,10 +8,11 @@ import (
 	"github.com/oidoid/void/src/void/vtext"
 )
 
+// to-do: move to demo.
 type CamStatusEnt struct {
-	HUDEnt
 	TextEnt
-	Bg NinePatchEnt
+	Bg     NinePatchEnt
+	Anchor AnchorEnt
 }
 
 func NewCamStatusEnt(bgAnimID vatlas.AnimID, z vgfx.Z) CamStatusEnt {
@@ -27,8 +28,10 @@ func NewCamStatusEnt(bgAnimID vatlas.AnimID, z vgfx.Z) CamStatusEnt {
 		CornerWH: vgeo.WH[uint16]{W: 1, H: 1},
 	}
 	this.Bg.SetZ(z - 1)
-	this.Anchor = vgeo.DirNE
-	this.Margin = vgeo.Border[int16]{N: 4, E: 4, S: 4, W: 4}
+	this.Anchor = AnchorEnt{
+		Dir:    vgeo.DirSE,
+		Margin: vgeo.NewXY[float32](4, 0),
+	}
 	this.Trim = vtext.TrimLead
 	this.Z = z
 	return this
@@ -53,10 +56,16 @@ func (this *CamStatusEnt) Update(
 	this.LayoutChars(font)
 	// to-do: if invalid / cam.invalid / return value from LayoutChars().
 	const bgMargin = int16(2)
-	bgXY := this.HUDEnt.XY(
-		this.Layout.W+bgMargin*2, this.Layout.TrimAllForceH+bgMargin*2, clip,
-	)
-	this.TextEnt.XY = vgeo.XY[int16]{X: bgXY.X + bgMargin, Y: bgXY.Y + bgMargin}
+	w := this.Layout.W + bgMargin*2
+	h := this.Layout.TrimAllForceH + bgMargin*2
+	anchor := this.Anchor
+	if anchor.Ref == nil {
+		anchor.Ref = BoxAnchorRef{Box: clip}
+	}
+	xy := anchor.XY(float32(w), float32(h))
+	this.TextEnt.XY = vgeo.XY[int16]{
+		X: int16(xy.X) + bgMargin, Y: int16(xy.Y) + bgMargin,
+	}
 
 	this.DrawBackground(sprites)
 

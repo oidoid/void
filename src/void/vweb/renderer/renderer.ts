@@ -7,6 +7,7 @@ import {TileRenderer} from './tile-renderer/tile-renderer.ts'
 
 export class Renderer {
   readonly #gl: WebGL2RenderingContext
+  readonly #loseContext: WEBGL_lose_context | null
   readonly #overlay: OverlayRenderer
   readonly #sprites: SpriteRenderer
   readonly #tiles: TileRenderer
@@ -47,6 +48,7 @@ export class Renderer {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
     const tiles = new Uint16Array(buffer, tilePtr, tileCount)
+    this.#loseContext = gl.getExtension('WEBGL_lose_context')
     this.#gl = gl
     this.#overlay = OverlayRenderer.new(gl)
     this.#sprites = SpriteRenderer.new(
@@ -82,6 +84,15 @@ export class Renderer {
     this.#overlay.dispose()
     this.#sprites.dispose()
     this.#tiles.dispose()
+  }
+
+  loseContext(): void {
+    if (!this.#loseContext) return
+    this.#loseContext.loseContext()
+    setTimeout(
+      () => this.#loseContext?.restoreContext(),
+      1000 + Math.random() * 2000
+    )
   }
 
   clear(r: number, g: number, b: number, a: number): void {

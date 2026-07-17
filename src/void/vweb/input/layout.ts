@@ -37,6 +37,8 @@ export const canvasWOffset: number = nowMsOffset + 8
 export const canvasHOffset: number = canvasWOffset + 2
 /** byte offset of Fullscreen field within Update. */
 export const isFullscreenOffset: number = canvasHOffset + 2
+/** byte offset of DrawAlways field within Update. */
+export const drawAlwaysOffset: number = isFullscreenOffset + 1
 /** byte offset of DrawMs field within Update (3 bytes padding after bool). */
 export const drawMsOffset: number = isFullscreenOffset + 4
 /** byte offset of DrawCount field (number of renderer clears completed). */

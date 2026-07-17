@@ -68,6 +68,5 @@ func (this *Engine) Update() vgame.Status {
 	this.Layer(gfx.LayerGrid).Scale = float32(math.Floor(dpr))
 	stat |= this.Engine.Preupdate(this)
 	stat |= this.Router.Update(this)
-	this.Engine.EndTick()
-	return stat
+	return this.Engine.EndTick(stat)
 }

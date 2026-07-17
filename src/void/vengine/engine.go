@@ -17,22 +17,34 @@ import (
 	"github.com/oidoid/void/src/void/vtext"
 )
 
+type FullscreenRequest uint8
+
+const (
+	FullscreenRequestNone FullscreenRequest = iota
+	FullscreenRequestEnter
+	FullscreenRequestExit
+)
+
 type Engine[Game vgame.Game] struct {
-	Level             *vlevels.Level
-	Router            vlevels.Router[Game]
-	Atlas             vatlas.Atlas
-	Texts             ventities.EntVec[Game, ventities.TextEnt]
-	font              *vtext.Font
-	frame             vgame.Poll
-	in                *vin.In
-	cam               vgeo.XY[float32] // to-do: cam always moves in physical space.
-	preupdaters       ventities.Zoo[Game]
-	updaters          ventities.Zoo[Game]
-	LevelBounds       vgeo.Box[float32] // to-do: can this be in vlevels.Level?
-	rnd               *rand.Rand
-	layers            [vgfx.LayerCount]vgfx.LayerConfig
-	layerConfigExport [vgfx.LayerCount]vgfx.LayerConfigExport
-	tick              vgame.Tick
+	Level              *vlevels.Level
+	Router             vlevels.Router[Game]
+	Atlas              vatlas.Atlas
+	Texts              ventities.EntVec[Game, ventities.TextEnt]
+	font               *vtext.Font
+	frame              vgame.Poll
+	in                 *vin.In
+	cam                vgeo.XY[float32] // to-do: cam always moves in physical space.
+	preupdaters        ventities.Zoo[Game]
+	updaters           ventities.Zoo[Game]
+	LevelBounds        vgeo.Box[float32] // to-do: can this be in vlevels.Level?
+	rnd                *rand.Rand
+	layers             [vgfx.LayerCount]vgfx.LayerConfig
+	layerConfigExport  [vgfx.LayerCount]vgfx.LayerConfigExport
+	fullscreenRequest  FullscreenRequest
+	screenshotRequest  bool
+	contextLossRequest bool
+	drawAlways         bool
+	tick               vgame.Tick
 }
 
 type EngineOpts struct {
@@ -94,6 +106,58 @@ func (this *Engine[Game]) NowMs() float64     { return this.frame.NowMs }
 func (this *Engine[Game]) DeltaMs() float64   { return this.frame.DeltaMs }
 func (this *Engine[Game]) Tick() *vgame.Tick  { return &this.tick }
 
+func (this *Engine[Game]) RequestFullscreen(fullscreen bool) {
+	if fullscreen {
+		this.fullscreenRequest = FullscreenRequestEnter
+	} else {
+		this.fullscreenRequest = FullscreenRequestExit
+	}
+}
+
+func (this *Engine[Game]) FullscreenRequest() int32 {
+	request := this.fullscreenRequest
+	this.fullscreenRequest = FullscreenRequestNone
+	return int32(request)
+}
+
+func (this *Engine[Game]) RequestScreenshot() {
+	this.screenshotRequest = true
+}
+
+// to-do: just a big flag API?
+func (this *Engine[Game]) ScreenshotRequest() int32 {
+	if !this.screenshotRequest {
+		return 0
+	}
+	this.screenshotRequest = false
+	return 1
+}
+
+func (this *Engine[Game]) RequestContextLoss() {
+	this.contextLossRequest = true
+}
+
+func (this *Engine[Game]) ContextLossRequest() int32 {
+	if !this.contextLossRequest {
+		return 0
+	}
+	this.contextLossRequest = false
+	return 1
+}
+
+func (this *Engine[Game]) SetDrawAlways(always bool) {
+	this.drawAlways = always
+}
+
+func (this *Engine[Game]) DrawAlways() bool { return this.drawAlways }
+
+func (this *Engine[Game]) DrawAlwaysFlag() int32 {
+	if this.drawAlways {
+		return 1
+	}
+	return 0
+}
+
 func (this *Engine[Game]) FramePointer() uintptr {
 	return uintptr(unsafe.Pointer(&this.frame))
 }
@@ -133,11 +197,15 @@ func (this *Engine[Game]) TileCount() uint32 {
 func (this *Engine[Game]) LevelTileW() uint8 { return this.Level.Tile.W }
 func (this *Engine[Game]) LevelTileH() uint8 { return this.Level.Tile.H }
 
-func (this *Engine[Game]) EndTick() {
+func (this *Engine[Game]) EndTick(stat vgame.Status) vgame.Status {
+	if this.drawAlways {
+		stat |= vgame.Loop
+	}
 	this.tick.UpdateMs = this.frame.UpdateMs
 	// to-do: make frame finalization explicit instead of hanging this off
 	// EndTick.
 	this.updateLayerConfigExport()
+	return stat
 }
 
 func (this *Engine[Game]) Preupdate(gam Game) vgame.Status {
@@ -178,6 +246,7 @@ func (this *Engine[Game]) BeginTick() vgame.Status {
 	)
 	this.tick.DrawMs = this.frame.DrawMs
 	this.tick.DrawCount = this.frame.DrawCount
+	this.drawAlways = this.frame.DrawAlways
 	for i := range this.layers {
 		this.layers[i].Sprites = this.layers[i].Sprites[:0]
 	}

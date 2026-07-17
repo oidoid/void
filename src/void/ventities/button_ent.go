@@ -30,6 +30,8 @@ type ButtonEnt struct {
 	NinePatchEnt    // border is overwritten.
 	UnfocusedBorder vatlas.AnimID
 	FocusedBorder   vatlas.AnimID
+	Fill            vatlas.AnimID
+	SelectedFill    vatlas.AnimID
 	Text            TextEnt
 	// to-do: rename HUDAnchorEnt?
 	ClipAnchor HUDEnt // clip-relative positioning; takes priority over Anchor.
@@ -40,10 +42,12 @@ type ButtonEnt struct {
 	On         bool
 	Start      bool
 	Focused    bool
+	OnUpdate   func(*ButtonEnt)
+	OnClick    func(*ButtonEnt)
 }
 
 func (this *ButtonEnt) Layout(
-	font *vtext.Font, refBox vgeo.Box[float32], clip vgeo.Box[float32],
+	font *vtext.Font, clip vgeo.Box[float32],
 ) {
 	if this.Text.Text != "" {
 		this.Text.LayoutChars(font)
@@ -68,8 +72,14 @@ func (this *ButtonEnt) Layout(
 		xy := this.ClipAnchor.XY(int16(this.WH.W), int16(this.WH.H), clip)
 		this.XY = vgeo.NewXY(float32(xy.X), float32(xy.Y))
 	case ButtonAnchorRelative:
-		this.XY = this.Anchor.XY(refBox, float32(this.WH.W), float32(this.WH.H))
+		this.XY = this.Anchor.XY(float32(this.WH.W), float32(this.WH.H))
 	}
+}
+
+func (this *ButtonEnt) AnchorBox() vgeo.Box[float32] {
+	return vgeo.XYWH(
+		this.XY.X, this.XY.Y, float32(this.WH.W), float32(this.WH.H),
+	)
 }
 
 func (this *ButtonEnt) Update(
@@ -78,7 +88,11 @@ func (this *ButtonEnt) Update(
 	layer *vgfx.LayerConfig,
 	font *vtext.Font,
 ) vgame.Status {
+	this.Layout(font, layer.Clip)
 	this.Start = false
+	if this.OnUpdate != nil {
+		this.OnUpdate(this)
+	}
 	if phy := in.Ptr.CenterPhy(); phy != nil {
 		xy := layer.PhyToLayer(*phy) // to-do: can input expose a layer XY?
 		bounds := vgeo.XYWH(
@@ -107,6 +121,15 @@ func (this *ButtonEnt) Update(
 	if this.Focused {
 		border = this.FocusedBorder
 	}
+	if this.Fill != 0 || this.SelectedFill != 0 {
+		fill := this.Fill
+		if this.On {
+			fill = this.SelectedFill
+		}
+		if fill != 0 {
+			this.PatchByDir[vgeo.DirCenter].SetAnim(fill)
+		}
+	}
 	this.PatchByDir[vgeo.DirN].SetAnim(border) // to-do: palette swap.
 	this.PatchByDir[vgeo.DirE].SetAnim(border)
 	this.PatchByDir[vgeo.DirS].SetAnim(border)
@@ -121,16 +144,26 @@ func (this *ButtonEnt) Update(
 		this.Text.Update(font, sprites, layer.Clip)
 	}
 
+	if this.Clicked() && this.OnClick != nil {
+		this.OnClick(this)
+	}
 	if this.Start {
 		return vgame.Loop
 	}
 	return vgame.Pause
 }
 
+func (this *ButtonEnt) Clicked() bool {
+	if this.Type == ButtonTypeToggle {
+		return this.Start
+	}
+	return this.IsOffStart()
+}
+
 func (this *ButtonEnt) OnStart() bool {
 	return this.On && this.Start
 }
 
-func (this *ButtonEnt) OffStart() bool {
+func (this *ButtonEnt) IsOffStart() bool {
 	return !this.On && this.Start && this.Focused
 }

@@ -20,9 +20,7 @@ func UpdateCamStatuses[Game vgame.Game](
 	for i := range ents {
 		layer := gam.Layer(ents[i].Z.Layer())
 		sprites := &layer.Sprites
-		loop |= ents[i].Update(
-			font, sprites, canvasPhy, cam, fullscreen, layer.Clip,
-		)
+		loop |= ents[i].Update(font, sprites, canvasPhy, cam, fullscreen, layer.Clip)
 	}
 	return loop
 }

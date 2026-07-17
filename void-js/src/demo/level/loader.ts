@@ -3,9 +3,7 @@ import levelJSON from '../assets/init.level.jsonc' with {type: 'json'}
 import {ClockHook} from '../ents/clock.ts'
 import {CollideToggleHook} from '../ents/collide-toggle.ts'
 import {MouseStatusHook} from '../ents/mouse-status.ts'
-import {RenderToggleHook} from '../ents/render-toggle.ts'
 import {RotateHook} from '../ents/rotate.ts'
-import {ScreenshotButtonHook} from '../ents/screenshot-button.ts'
 import {SoundToggleHook} from '../ents/sound-toggle.ts'
 import {type SuperballEnt, SuperballHook} from '../ents/superball.ts'
 import {TallyHook} from '../ents/tally.ts'
@@ -23,16 +21,12 @@ export class Loader implements V.Loader {
     collideToggle: new CollideToggleHook(),
     cursor: new V.CursorHook(),
     debugInput: new V.DebutInputHook(),
-    debugLoseContextButton: new V.DebugLoseContextButtonHook(),
     fps: new V.FPSHook(),
-    fullscreenToggle: new V.FullscreenToggleHook(),
     hud: new V.HUDHook(),
     mouseStatus: new MouseStatusHook(),
     ninePatch: new V.NinePatchHook(),
     override: new V.OverrideHook(),
-    renderToggle: new RenderToggleHook(),
     rotate: new RotateHook(),
-    screenshotButton: new ScreenshotButtonHook(),
     soundToggle: new SoundToggleHook(),
     sprite: new V.SpriteHook(),
     superball: new SuperballHook(),

@@ -15,9 +15,9 @@ import (
 type ballAction int8
 
 const (
-	SuperballActionClear   ballAction = iota // "0": clear all balls.
-	SuperballActionAddSome                   // "+": add balls while held.
-	SuperballActionAddMany                   // "++": add one million balls.
+	SuperballActionClear ballAction = iota
+	SuperballActionAddSome
+	SuperballActionAddMany
 )
 
 type SuperballButtonEnt struct {
@@ -25,34 +25,19 @@ type SuperballButtonEnt struct {
 	Action ballAction
 }
 
-func NewZeroSuperballButtonEnt() SuperballButtonEnt {
-	this := newSuperballButtonEnt("0", SuperballActionClear)
-	this.ClipAnchor = ventities.HUDEnt{
-		Anchor: vgeo.DirNW, Margin: vgeo.Border[int16]{N: 4, W: 4},
-	}
-	this.AnchorMode = ventities.ButtonAnchorHUD
-	return this
+func NewZeroSuperballButtonEnt() *SuperballButtonEnt {
+	return newSuperballButtonEnt("0", SuperballActionClear)
 }
 
-func NewAddSomeSuperballButtonEnt() SuperballButtonEnt {
-	this := newSuperballButtonEnt("+", SuperballActionAddSome)
-	this.Anchor = ventities.AnchorEnt{
-		Dir: vgeo.DirE, Margin: vgeo.NewXY[float32](4, 0),
-	}
-	this.AnchorMode = ventities.ButtonAnchorRelative
-	return this
+func NewAddSomeSuperballButtonEnt() *SuperballButtonEnt {
+	return newSuperballButtonEnt("+", SuperballActionAddSome)
 }
 
-func NewAddManySuperballButtonEnt() SuperballButtonEnt {
-	this := newSuperballButtonEnt("++", SuperballActionAddMany)
-	this.Anchor = ventities.AnchorEnt{
-		Dir: vgeo.DirE, Margin: vgeo.NewXY[float32](4, 0),
-	}
-	this.AnchorMode = ventities.ButtonAnchorRelative
-	return this
+func NewAddManySuperballButtonEnt() *SuperballButtonEnt {
+	return newSuperballButtonEnt("++", SuperballActionAddMany)
 }
 
-func newSuperballButtonEnt(label string, action ballAction) SuperballButtonEnt {
+func newSuperballButtonEnt(label string, action ballAction) *SuperballButtonEnt {
 	this := SuperballButtonEnt{
 		ButtonEnt: ventities.ButtonEnt{
 			NinePatchEnt: ventities.NinePatchEnt{
@@ -63,8 +48,11 @@ func newSuperballButtonEnt(label string, action ballAction) SuperballButtonEnt {
 			},
 			UnfocusedBorder: assets.PaletteBlack,
 			FocusedBorder:   assets.PaletteBubblegum,
+			Fill:            assets.PaletteBlue,
+			SelectedFill:    assets.PaletteBubblegum,
 			Anchor: ventities.AnchorEnt{
-				Dir: vgeo.DirE, Margin: vgeo.NewXY[float32](4, 0),
+				Dir:    vgeo.DirW,
+				Margin: vgeo.NewXY(float32(uiButtonGap), 0),
 			},
 			AnchorMode: ventities.ButtonAnchorRelative,
 			MinW:       16,
@@ -74,7 +62,7 @@ func newSuperballButtonEnt(label string, action ballAction) SuperballButtonEnt {
 	this.Text.Text = label
 	this.Text.Z = gfx.ZUIText
 	this.NinePatchEnt.SetZ(gfx.ZUIWidget)
-	return this
+	return &this
 }
 
 func (this *SuperballButtonEnt) Update(
@@ -99,7 +87,7 @@ func (this *SuperballButtonEnt) Update(
 		}
 	}
 
-	if this.OffStart() {
+	if this.IsOffStart() {
 		switch this.Action {
 		case SuperballActionClear:
 			balls.Clear()

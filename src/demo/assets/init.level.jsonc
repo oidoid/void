@@ -82,7 +82,7 @@
       {
         "id": "debug-lose-context",
         "name": "DebugLoseContext",
-        "text": "!GL",
+        "text": "!gl",
         "sprite": {"z": "UID"},
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
         "anchor": {"id": "render-toggle", "dir": "W", "margin": 2},

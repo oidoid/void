@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "test:unit": "sh -c 'node --test ${@:-$(find src/ -name \\*.test.ts -printf %p\\ )}' --",
+    "test:unit": "node --test ${@:-'src/**/*.test.ts'}",
     "typecheck": "tsc --build"
   },
   "type": "module",

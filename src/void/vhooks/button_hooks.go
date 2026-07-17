@@ -7,14 +7,14 @@ import (
 )
 
 func UpdateButtons[Game vgame.Game](
-	vec *vvec.Vec[ventities.ButtonEnt],
+	vec *vvec.Vec[*ventities.ButtonEnt],
 	gam Game,
 ) vgame.Status {
 	in := gam.In()
 	ents := vec.Vals()
 	loop := vgame.Pause
 	for i := range ents {
-		ent := &ents[i]
+		ent := ents[i]
 		layer := gam.Layer(ent.Z().Layer())
 		loop |= ent.Update(in, &layer.Sprites, layer, gam.Font())
 	}

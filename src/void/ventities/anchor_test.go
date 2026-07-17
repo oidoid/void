@@ -6,6 +6,12 @@ import (
 	"github.com/oidoid/void/src/void/vgeo"
 )
 
+type anchorBoxRef struct {
+	box vgeo.Box[float32]
+}
+
+func (this anchorBoxRef) AnchorBox() vgeo.Box[float32] { return this.box }
+
 func TestAnchorEntXY(t *testing.T) {
 	box := vgeo.XYWH[float32](10, 20, 8, 8)
 	noMargin := vgeo.XY[float32]{}
@@ -32,8 +38,8 @@ func TestAnchorEntXY(t *testing.T) {
 
 	for _, test := range cases {
 		t.Run(test.name, func(t *testing.T) {
-			anchor := AnchorEnt{Dir: test.dir, Margin: test.margin}
-			got := anchor.XY(box, 4, 4)
+			anchor := AnchorEnt{Dir: test.dir, Margin: test.margin, Ref: anchorBoxRef{box}}
+			got := anchor.XY(4, 4)
 			if got.X != test.wantX || got.Y != test.wantY {
 				t.Fatalf(
 					"got (%v,%v), want (%v,%v)", got.X, got.Y, test.wantX, test.wantY,
