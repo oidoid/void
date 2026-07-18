@@ -6,8 +6,9 @@
 # variable usage.
 GNUMAKEFLAGS += --jobs --no-builtin-rules --no-builtin-variables $(if $(value V),,--quiet) --warn-undefined-variables
 
-# execute each recipe in one shell and fail on first error, undefined variable
-# usage, or any nonzero status in the pipeline. assume bash-ish.
+# execute each recipe in one Bash shell and fail on first error, undefined
+# variable usage, or any nonzero status in a pipeline.
+SHELL := bash
 .ONESHELL:
 .SHELLFLAGS := -euo pipefail -c
 
