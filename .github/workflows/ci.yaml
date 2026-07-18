@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.0
+
+      - parallel:
+          - name: Set Up Go
+            uses: actions/setup-go@v7.0.0
+            with:
+              go-version-file: go.mod
+              cache-dependency-path: go.sum
+          - name: Set Up Node.js
+            uses: actions/setup-node@v7.0.0
+            with:
+              node-version-file: .nvmrc
+              cache: npm
+
+      - parallel:
+          - name: Install Go Dependencies
+            run: go mod download
+          - name: Install Node.js Dependencies
+            run: npm ci --no-fund
+
+      - parallel:
+          - name: Test Go Format
+            run: make test-fmt-go
+          - name: Test Module Format
+            run: make test-fmt-mod
+          - name: Lint Critic
+            run: make lint-critic
+          - name: Lint Static
+            run: make lint-static
+          - name: Lint Vet
+            run: make lint-vet
+          - name: Lint Web
+            run: make lint-web
+          - name: Test Go
+            run: make test-go
+          - name: Test Web
+            run: make test-web
+          - name: Typecheck Web
+            run: make typecheck-web
+          - name: Build Go Commands
+            run: make build-cmd
