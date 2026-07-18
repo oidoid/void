@@ -7,6 +7,7 @@ import (
 	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
+	"github.com/oidoid/void/src/void/vgrid"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
@@ -30,14 +31,38 @@ func UpdateSuperballs(
 		lb.Min.X+tileW, lb.Min.Y+tileH, lb.Max.X-tileW, lb.Max.Y-tileH,
 	)
 	ents := vec.Vals()
-	loop := vgame.Pause
-	for i := range ents {
-		loop |= ents[i].Update(sprites, clip, lvl, radius)
+	moveSuperballs(ents, lvl, radius)
+	if gam.HitSuperballs {
+		hitSuperballs(ents, &gam.SuperballGrid, lvl, diameter)
 	}
-
-	if len(*sprites) > 0 {
-		loop |= vgame.Loop
+	loop := vgame.Pause
+	// to-do: always collapse into either move or hit to avoid extra pass?
+	for i := range ents {
+		loop |= ents[i].Draw(sprites, clip)
 	}
 
 	return loop
+}
+
+func hitSuperballs(
+	ents []entities.BallEnt,
+	grid *vgrid.Grid,
+	lvl vgeo.Box[float32],
+	diameter float32,
+) {
+	grid.Clear()
+	for i := range ents {
+		grid.InsertAt(ents[i].XY, int32(i))
+	}
+	grid.ForEach(func(l, r int32) {
+		ents[l].Hit(&ents[r], diameter)
+	})
+}
+
+func moveSuperballs(
+	ents []entities.BallEnt, lvl vgeo.Box[float32], radius float32,
+) {
+	for i := range ents {
+		ents[i].Move(lvl, radius)
+	}
 }

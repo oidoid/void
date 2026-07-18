@@ -13,6 +13,7 @@ import (
 	"github.com/oidoid/void/src/void/vhooks"
 )
 
+// to-do: collapse with engine init?
 func InitInit(gam *engine.Engine) {
 	gam.RegisterPreupdate(hooks.UpdateLayers)
 	gam.RegisterPreupdate(hooks.UpdateCam)
@@ -32,9 +33,13 @@ func InitInit(gam *engine.Engine) {
 	buttons.Add(fullscreenToggle)
 	gam.RegisterEntUpdate(buttons)
 
-	superballButtons := ventities.NewEntVec(hooks.UpdateSuperballButtons, 3)
+	// to-do: collapse with buttons^?
+	superballButtons := ventities.NewEntVec(hooks.UpdateSuperballButtons, 4)
+	hitBtn := entities.NewHitSuperballButtonEnt()
+	hitBtn.Anchor.Ref = fullscreenToggle
+	superballButtons.Add(hitBtn)
 	addManyBtn := entities.NewAddManySuperballButtonEnt()
-	addManyBtn.Anchor.Ref = fullscreenToggle
+	addManyBtn.Anchor.Ref = hitBtn
 	superballButtons.Add(addManyBtn)
 	addSomeBtn := entities.NewAddSomeSuperballButtonEnt()
 	addSomeBtn.Anchor.Ref = addManyBtn

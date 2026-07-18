@@ -1,20 +1,3 @@
-declare global {
-  interface DateConstructor {
-    now(): UTCMillis
-  }
-
-  interface Performance {
-    now(): Millis
-  }
-}
-
-/** duration in milliseconds. */
-export type Millis = (number & {readonly millis: unique symbol}) | 0
-
-/** duration in seconds. */
-export type Secs = (number & {readonly secs: unique symbol}) | 0
-
-export type UTCMillis = number & {readonly utcMillis: unique symbol}
 
 /**
  * returns [0, 59_999].

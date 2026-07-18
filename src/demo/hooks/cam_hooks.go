@@ -10,6 +10,7 @@ import (
 	"github.com/oidoid/void/src/void/vin"
 )
 
+// to-do: update cam last and check click mask state.
 func UpdateCam(gam *engine.Engine) vgame.Status {
 	frame := gam.Frame()
 	in := gam.In()

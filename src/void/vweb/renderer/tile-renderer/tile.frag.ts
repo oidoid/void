@@ -10,7 +10,7 @@ out highp vec4 fragColor;
 
 const highp vec3 palette[8] = vec3[8](
   vec3(0.),
-  vec3(1., .2, .2),
+  vec3(144./255., 8./255., 4./255.),
   vec3(.2, 1., .2),
   vec3(.2, .2, 1.),
   vec3(1., 1., .2),

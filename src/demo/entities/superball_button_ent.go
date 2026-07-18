@@ -18,6 +18,7 @@ const (
 	SuperballActionClear ballAction = iota
 	SuperballActionAddSome
 	SuperballActionAddMany
+	SuperballActionHit
 )
 
 type SuperballButtonEnt struct {
@@ -26,18 +27,32 @@ type SuperballButtonEnt struct {
 }
 
 func NewZeroSuperballButtonEnt() *SuperballButtonEnt {
-	return newSuperballButtonEnt("0", SuperballActionClear)
+	return newSuperballButtonEnt(
+		"0", SuperballActionClear, ventities.ButtonTypeButton,
+	)
 }
 
 func NewAddSomeSuperballButtonEnt() *SuperballButtonEnt {
-	return newSuperballButtonEnt("+", SuperballActionAddSome)
+	return newSuperballButtonEnt(
+		"+", SuperballActionAddSome, ventities.ButtonTypeButton,
+	)
 }
 
 func NewAddManySuperballButtonEnt() *SuperballButtonEnt {
-	return newSuperballButtonEnt("++", SuperballActionAddMany)
+	return newSuperballButtonEnt(
+		"++", SuperballActionAddMany, ventities.ButtonTypeButton,
+	)
 }
 
-func newSuperballButtonEnt(label string, action ballAction) *SuperballButtonEnt {
+func NewHitSuperballButtonEnt() *SuperballButtonEnt {
+	return newSuperballButtonEnt(
+		"hit", SuperballActionHit, ventities.ButtonTypeToggle,
+	)
+}
+
+func newSuperballButtonEnt(
+	label string, action ballAction, buttonType ventities.ButtonType,
+) *SuperballButtonEnt {
 	this := SuperballButtonEnt{
 		ButtonEnt: ventities.ButtonEnt{
 			NinePatchEnt: ventities.NinePatchEnt{
@@ -56,6 +71,7 @@ func newSuperballButtonEnt(label string, action ballAction) *SuperballButtonEnt 
 			},
 			AnchorMode: ventities.ButtonAnchorRelative,
 			MinW:       16,
+			Type:       buttonType,
 		},
 		Action: action,
 	}
@@ -76,15 +92,19 @@ func (this *SuperballButtonEnt) Update(
 	lvl vgeo.Box[float32],
 	rnd func() float32,
 	ballRadius float32,
+	hit *bool,
 ) vgame.Status {
 	loop := this.ButtonEnt.Update(in, sprites, layer, font)
 
 	if this.Action == SuperballActionAddSome && this.On {
 		spawnXY := vgeo.NewXY(spawnCenter.X-ballRadius, spawnCenter.Y-ballRadius)
-		n := min(3000, int(60_000*(deltaMs/1000)))
+		n := min(4096, int(60_000*(deltaMs/1000)))
 		for range n {
 			_ = balls.Add(NewBallEnt(rnd, spawnXY))
 		}
+	}
+	if this.Action == SuperballActionHit {
+		*hit = this.On
 	}
 
 	if this.IsOffStart() {

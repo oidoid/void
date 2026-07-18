@@ -49,6 +49,7 @@ func UpdateSuperballButtons(
 			lvl,
 			rnd,
 			ballRadius,
+			&gam.HitSuperballs,
 		)
 	}
 	return loop

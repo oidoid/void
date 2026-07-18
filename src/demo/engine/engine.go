@@ -13,12 +13,16 @@ import (
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
+	"github.com/oidoid/void/src/void/vgrid"
 	"github.com/oidoid/void/src/void/vtext"
 )
 
 type Engine struct {
 	*vengine.Engine[*Engine]
-	Balls ventities.EntVec[*Engine, entities.BallEnt]
+	// to-do: rename.
+	Balls         ventities.EntVec[*Engine, entities.BallEnt]
+	HitSuperballs bool
+	SuperballGrid vgrid.Grid
 }
 
 var Version string
@@ -55,6 +59,16 @@ func New() *Engine {
 	this.Layer(gfx.LayerGrid).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerGrid).BlendMode = vgfx.LayerBlendModeMultiply
 	this.Atlas = vatlas.DecodeAtlas(assets.AtlasBin)
+	anim := this.Atlas.Anims[int(assets.SuperballDefault)]
+	diameter := float32(anim.Hitbox.Max.X - anim.Hitbox.Min.X)
+	// omit level border.
+	lvl := vgeo.NewBox(
+		float32(this.Level.Min.X+int32(this.Level.Tile.W)),
+		float32(this.Level.Min.Y+int32(this.Level.Tile.H)),
+		float32(this.Level.Max.X-int32(this.Level.Tile.W)),
+		float32(this.Level.Max.Y-int32(this.Level.Tile.H)),
+	)
+	this.SuperballGrid = vgrid.New(lvl, diameter, 2*1024*1024)
 	return this
 }
 

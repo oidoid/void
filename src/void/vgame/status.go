@@ -4,5 +4,5 @@ type Status uint8
 
 const (
 	Pause Status = iota
-	Loop
+	Loop         // to-do: Draw?
 )

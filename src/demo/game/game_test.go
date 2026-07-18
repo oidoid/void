@@ -10,13 +10,14 @@ import (
 )
 
 const (
-	superballCount  = 2 * 1024 * 1024
-	benchCanvasSize = 4096
-	fps             = 120
+	superballDrawCount    = 2 * 1024 * 1024
+	superballHitDrawCount = superballDrawCount / 16
+	benchCanvasSize       = 4096
+	fps                   = 120
 )
 
-func BenchmarkGameUpdate_CullAll(b *testing.B) {
-	gam := newGame(-5000, -5000)
+func BenchmarkGameUpdate_Draw(b *testing.B) {
+	gam := newGame(-5000, -5000, superballDrawCount)
 	for b.Loop() {
 		gam.Frame().NowMs += 1000. / fps
 		gam.Update()
@@ -24,16 +25,17 @@ func BenchmarkGameUpdate_CullAll(b *testing.B) {
 	reportMetrics(b)
 }
 
-func BenchmarkGameUpdate_DrawAll(b *testing.B) {
-	gam := newGame(0, 0)
+func BenchmarkGameUpdate_HitDraw(b *testing.B) {
+	gam := newGame(-5000, -5000, superballHitDrawCount)
 	for b.Loop() {
+		gam.HitSuperballs = true
 		gam.Frame().NowMs += 1000. / fps
 		gam.Update()
 	}
 	reportMetrics(b)
 }
 
-func newGame(camX, camY float32) *engine.Engine {
+func newGame(camX, camY float32, superballCount int) *engine.Engine {
 	gam := game.New()
 	gam.CanvasPhy().W = benchCanvasSize
 	gam.CanvasPhy().H = benchCanvasSize

@@ -21,7 +21,7 @@ never run:
 - minimize compile size. this is important.
 - optimize execution performance.
 - tune dx. keep it practical and idiomatic. consider usage patterns and lines of code cost at definition and call sites. suggest applying new patterns broadly.
-- minimize heap allocations in game loop.
+- minimize heap de/allocations in game loop.
 - prefer Go to TS.
 - `src/void` packages start with "v", such as `ventities`. demo packages often mirror void structure but without the "v", such as `entities`.
 
@@ -51,7 +51,7 @@ never run:
 - name `In` vars `in`.
 - assume tab width is two.
 - wrap to 80 chars and pack cols to minimize lines. if all args / props can't fit on one line, do one arg / group per line. don't chop long strings.
-- comments must not restate the subject name.
+- comments must not restate the subject name, must not start with "is the", and avoid starting with "the".
     ```go
     // ng: PadInt pads a non-negative integer to at least width digits with spaces.
     // ok: pads a non-negative integer to at least width digits with spaces.
