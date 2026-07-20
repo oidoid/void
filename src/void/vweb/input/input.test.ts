@@ -4,6 +4,8 @@ import type {Gamepad} from './gamepad.ts'
 import {writeInputPoll} from './input.ts'
 import type {Keyboard} from './keyboard.ts'
 import {
+  devicePixelRatioOffset,
+  drawCountOffset,
   gamepadPollSize,
   gamepadsLenOffset,
   gamepadsOffset,
@@ -15,10 +17,18 @@ import {
   pollSize,
   pollsOffset,
   updateByteLen,
+  updateMsOffset,
   wheelOffset
 } from './layout.ts'
 import type {Pointer} from './pointer.ts'
 import type {Wheel} from './wheel.ts'
+
+test('Poll ABI layout matches vgame.Poll', () => {
+  assert(drawCountOffset, 4400)
+  assert(updateMsOffset, 4408)
+  assert(devicePixelRatioOffset, 4416)
+  assert(updateByteLen, 4440)
+})
 
 const encoder: TextEncoder = new TextEncoder()
 
