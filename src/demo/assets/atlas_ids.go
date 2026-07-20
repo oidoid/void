@@ -149,9 +149,12 @@ const (
 	OutlineLeft
 	PaletteBlue
 	PaletteBlack
-	PaletteBubblegum
+	PaletteRed
 	PolyTriangle
 	PolySquare
 	SuperballDefault
+	TileStripesGrey
+	TileStripesBlue
+	TileRed
 	UICheckboxChecked
 )

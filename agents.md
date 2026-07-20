@@ -14,7 +14,7 @@ never run:
 - `make` (default target) or `make watch` but you can ask the user to run.
 - `make fat-save` or `make slow-save`. do not edit `.fat` or `.slow`.
 - `make slow-check` or any performance test. these cannot run consistently without superuser permissions.
-- never modify Git state in the current checkout unless explicitly requested. this includes changing the working tree, index, stash, branches, or references. eg, `git add`, `git rm`, `git stash`, `git restore`, `git reset`, `git checkout`, and `git clean` are all forbidden.
+- never modify Git state in the current checkout unless explicitly requested. this includes changing the working tree, index, stash, branches, or references. eg, `git add`, `git rm`, `git stash`, `git restore`, `git reset`, `git checkout`, `git mv`, `git clean`, etc are all forbidden.
 
 ## `src/void` and `src/demo`
 

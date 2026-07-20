@@ -62,9 +62,9 @@ func newSuperballButtonEnt(
 				CornerWH: vgeo.WH[uint16]{W: 1, H: 1},
 			},
 			UnfocusedBorder: assets.PaletteBlack,
-			FocusedBorder:   assets.PaletteBubblegum,
+			FocusedBorder:   assets.PaletteRed,
 			Fill:            assets.PaletteBlue,
-			SelectedFill:    assets.PaletteBubblegum,
+			SelectedFill:    assets.PaletteRed,
 			Anchor: ventities.AnchorEnt{
 				Dir:    vgeo.DirW,
 				Margin: vgeo.NewXY(float32(uiButtonGap), 0),

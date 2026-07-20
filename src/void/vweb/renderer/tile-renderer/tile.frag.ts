@@ -1,23 +1,15 @@
 export const tileFrag: string = `#version 300 es
 
 uniform highp usampler2D uTiles;
+uniform highp usampler2D uAtlasCels;
+uniform highp sampler2D uSpritesheet;
+uniform highp vec2 uAtlasSize;
 uniform highp vec4 uLevel; // xywh.
 uniform highp vec2 uTileWH;
 
 in highp vec2 vPx;
 
 out highp vec4 fragColor;
-
-const highp vec3 palette[8] = vec3[8](
-  vec3(0.),
-  vec3(144./255., 8./255., 4./255.),
-  vec3(.2, 1., .2),
-  vec3(.2, .2, 1.),
-  vec3(1., 1., .2),
-  vec3(.2, 1., 1.),
-  vec3(1., .2, 1.),
-  vec3(1., 1., 1.)
-);
 
 void main() {
   highp ivec2 gridWH = ivec2(uLevel.zw / uTileWH);
@@ -28,6 +20,13 @@ void main() {
   highp uint tile = texelFetch(uTiles, cell, 0).r;
   if (tile == 0u) discard;
 
-  fragColor = vec4(palette[tile % 8u], 1.);
+  highp uvec4 cel = texelFetch(uAtlasCels, ivec2(0, int(tile)), 0);
+  highp vec2 tilePx = floor(mod(vPx, uTileWH)) + .5;
+  highp vec4 tex = texture(
+    uSpritesheet,
+    (vec2(cel.xy) + mod(tilePx, vec2(cel.zw))) / uAtlasSize
+  );
+  if (tex.a == 0.) discard;
+  fragColor = tex;
 }
 `

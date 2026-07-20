@@ -66,7 +66,11 @@ export class Renderer {
       levelX,
       levelY,
       levelW,
-      levelH
+      levelH,
+      atlasCels,
+      atlasAnimCount,
+      atlasCelsPerAnim,
+      atlasImg
     )
   }
 
