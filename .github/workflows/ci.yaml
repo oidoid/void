@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main]
 
+# actions/deploy-pages.
+permissions:
+  pages: write
+  id-token: write
+
 jobs:
   all:
     name: Test All
@@ -53,3 +58,18 @@ jobs:
             run: make typecheck-web
           - name: Build Go Commands
             run: make build-cmd
+
+      - name: Upload schemas/
+        uses: actions/upload-pages-artifact@v5.0.0
+        with:
+          path: schemas/
+
+  deploy:
+    environment:
+      name: github-pages
+    # skip PRs.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: all
+    steps:
+      - uses: actions/deploy-pages@v5.0.0
