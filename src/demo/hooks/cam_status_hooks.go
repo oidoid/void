@@ -1,15 +1,16 @@
-package vhooks
+package hooks
 
 import (
-	"github.com/oidoid/void/src/void/ventities"
+	"github.com/oidoid/void/src/demo/engine"
+	"github.com/oidoid/void/src/demo/entities"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
-func UpdateCamStatuses[Game vgame.Game](
-	vec *vvec.Vec[ventities.CamStatusEnt],
-	gam Game,
+func UpdateCamStatuses(
+	vec *vvec.Vec[entities.CamStatusEnt],
+	gam *engine.Engine,
 ) vgame.Status {
 	font := gam.Font()
 	canvasPhy := *gam.CanvasPhy()

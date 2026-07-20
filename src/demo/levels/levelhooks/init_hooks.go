@@ -49,8 +49,8 @@ func InitInit(gam *engine.Engine) {
 	superballButtons.Add(zeroBtn)
 	gam.RegisterEntUpdate(superballButtons)
 
-	camStatuses := ventities.NewEntVec(vhooks.UpdateCamStatuses[*engine.Engine], 1)
-	camStatus := ventities.NewCamStatusEnt(assets.PaletteBlue, gfx.ZUIWidget)
+	camStatuses := ventities.NewEntVec(hooks.UpdateCamStatuses, 1)
+	camStatus := entities.NewCamStatusEnt(assets.PaletteBlue, gfx.ZUIWidget)
 	camStatus.Anchor = ventities.AnchorEnt{
 		Dir:    vgeo.DirW,
 		Margin: vgeo.NewXY[float32](4, 0),
@@ -59,8 +59,8 @@ func InitInit(gam *engine.Engine) {
 	camStatuses.Add(camStatus)
 	gam.RegisterEntUpdate(camStatuses)
 
-	drawStatuses := ventities.NewEntVec(vhooks.UpdateDrawStatuses[*engine.Engine])
-	drawStatuses.Add(ventities.NewDrawStatusEnt(
+	drawStatuses := ventities.NewEntVec(hooks.UpdateDrawStatuses)
+	drawStatuses.Add(entities.NewDrawStatusEnt(
 		assets.PaletteBlue,
 		vgeo.DirSE,
 		vgeo.Border[int16]{N: 4, E: 4, S: 4, W: 4},

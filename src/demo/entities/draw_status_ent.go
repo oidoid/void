@@ -1,8 +1,9 @@
-package ventities
+package entities
 
 import (
 	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/vatlas"
+	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
@@ -11,9 +12,9 @@ import (
 
 // to-do: make fields private?
 type DrawStatusEnt struct {
-	HUDEnt
-	TextEnt
-	Bg   NinePatchEnt
+	ventities.HUDEnt
+	ventities.TextEnt
+	Bg   ventities.NinePatchEnt
 	Next struct {
 		// start of the current one-second FPS counting window in milliseconds.
 		Start float64
@@ -30,7 +31,7 @@ func NewDrawStatusEnt(
 	margin vgeo.Border[int16],
 ) DrawStatusEnt {
 	this := DrawStatusEnt{}
-	this.Bg = NinePatchEnt{
+	this.Bg = ventities.NinePatchEnt{
 		PatchByDir: [9]vgfx.Sprite{
 			vgeo.DirN:      {AnimCel: bgAnimID.Cel(0)},
 			vgeo.DirE:      {AnimCel: bgAnimID.Cel(0)},
@@ -60,7 +61,7 @@ func (this *DrawStatusEnt) Update(
 		this.Next.Frames = 0
 		this.Next.Start = nowMs
 	}
-	text := vtext.Itoa(int(tick.DrawCount)+1) + "D " +
+	text := vtext.Itoa(int(tick.DrawCount)+1) + "d " +
 		vtext.FmtFloat2(tick.UpdateMs) + "u " +
 		vtext.PadInt(this.PrevFPS, 3, " ") + "\tfps" // \t forces 1px kerning.
 	this.SetText(text)

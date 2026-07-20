@@ -1,23 +1,23 @@
-package ventities
+package entities
 
 import (
 	"github.com/oidoid/void/src/void/vatlas"
+	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vtext"
 )
 
-// to-do: move to demo.
 type CamStatusEnt struct {
-	TextEnt
-	Bg     NinePatchEnt
-	Anchor AnchorEnt
+	ventities.TextEnt
+	Bg     ventities.NinePatchEnt
+	Anchor ventities.AnchorEnt
 }
 
 func NewCamStatusEnt(bgAnimID vatlas.AnimID, z vgfx.Z) CamStatusEnt {
 	this := CamStatusEnt{}
-	this.Bg = NinePatchEnt{
+	this.Bg = ventities.NinePatchEnt{
 		PatchByDir: [9]vgfx.Sprite{
 			vgeo.DirN:      {AnimCel: bgAnimID.Cel(0)},
 			vgeo.DirE:      {AnimCel: bgAnimID.Cel(0)},
@@ -28,7 +28,7 @@ func NewCamStatusEnt(bgAnimID vatlas.AnimID, z vgfx.Z) CamStatusEnt {
 		CornerWH: vgeo.WH[uint16]{W: 1, H: 1},
 	}
 	this.Bg.SetZ(z - 1)
-	this.Anchor = AnchorEnt{
+	this.Anchor = ventities.AnchorEnt{
 		Dir:    vgeo.DirSE,
 		Margin: vgeo.NewXY[float32](4, 0),
 	}
@@ -60,7 +60,7 @@ func (this *CamStatusEnt) Update(
 	h := this.Layout.TrimAllForceH + bgMargin*2
 	anchor := this.Anchor
 	if anchor.Ref == nil {
-		anchor.Ref = BoxAnchorRef{Box: clip}
+		anchor.Ref = ventities.BoxAnchorRef{Box: clip}
 	}
 	xy := anchor.XY(float32(w), float32(h))
 	this.TextEnt.XY = vgeo.XY[int16]{

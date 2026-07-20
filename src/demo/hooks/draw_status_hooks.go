@@ -1,14 +1,15 @@
-package vhooks
+package hooks
 
 import (
-	"github.com/oidoid/void/src/void/ventities"
+	"github.com/oidoid/void/src/demo/engine"
+	"github.com/oidoid/void/src/demo/entities"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
-func UpdateDrawStatuses[Game vgame.Game](
-	vec *vvec.Vec[ventities.DrawStatusEnt],
-	gam Game,
+func UpdateDrawStatuses(
+	vec *vvec.Vec[entities.DrawStatusEnt],
+	gam *engine.Engine,
 ) vgame.Status {
 	font := gam.Font()
 	nowMillis := gam.NowMillis()
