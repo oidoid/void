@@ -3,7 +3,61 @@ package vgame
 import (
 	"testing"
 	"unsafe"
+
+	"github.com/oidoid/void/src/void/vgeo"
+	"github.com/oidoid/void/src/void/vin"
 )
+
+func TestPollSerializationRoundTrip(t *testing.T) {
+	want := Poll{
+		InputPoll: vin.InputPoll{
+			PtrsLen: 1,
+			Ptrs: [vin.MaxPointers]vin.PointerPoll{{
+				ID:       7,
+				Phy:      vgeo.NewBox[float32](10, 20, 13, 24),
+				Pressure: 0.5,
+				Tilt:     vgeo.NewXY[int8](-1, 2),
+				Twist:    30,
+				Device:   vin.PointerDevicePen,
+				Primary:  true,
+				Clicks:   vin.ClickPrimary | vin.ClickAux,
+			}},
+			Wheel: vin.WheelPoll{Delta: vgeo.XYZ[float32]{
+				XY: vgeo.NewXY[float32](1.5, -2.5), Z: 3.5,
+			}},
+			Kbd:     vin.KeyboardPoll{Keys: vin.KeyUp | vin.KeyLeft, TextLen: 11},
+			PadsLen: 1,
+			Pads: [vin.MaxGamepads]vin.GamepadPoll{{
+				Index:     3,
+				Connected: true,
+				Mapping:   vin.GamepadMappingStandard,
+				Buttons:   vin.GamepadButtonA | vin.GamepadButtonX,
+				Axes:      [4]float32{-1, -0.5, 0.5, 1},
+			}},
+		},
+		DeltaMs:          16.5,
+		NowMs:            1_767_000_000_123.5,
+		CanvasPhy:        vgeo.WH[uint16]{W: 640, H: 480},
+		Fullscreen:       true,
+		DrawAlways:       true,
+		DrawMs:           2.5,
+		DrawCount:        3,
+		UpdateMs:         4.5,
+		DevicePixelRatio: 2,
+		TimeFormat: TimeFormat{
+			Year: 2026, Month: 7, Day: 19, Hour: 7, Minute: 52, Second: 20, Millis: 123,
+		},
+	}
+	copy(want.InputPoll.Kbd.Text[:], "hello world")
+
+	serialized := append([]byte(nil), unsafe.Slice((*byte)(unsafe.Pointer(&want)), unsafe.Sizeof(want))...)
+	var got Poll
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&got)), unsafe.Sizeof(got)), serialized)
+
+	if got != want {
+		t.Errorf("deserialized Poll = %#v, want %#v", got, want)
+	}
+}
 
 // verify Go struct offsets match the TS layout constants in
 // `src/void/vweb/input/layout.ts.`

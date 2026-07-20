@@ -4,6 +4,9 @@ import type {Gamepad} from './gamepad.ts'
 import {writeInputPoll} from './input.ts'
 import type {Keyboard} from './keyboard.ts'
 import {
+  gamepadPollSize,
+  gamepadsLenOffset,
+  gamepadsOffset,
   keyboardOffset,
   keyboardTextLenOffset,
   keyboardTextOffset,
@@ -87,6 +90,63 @@ test('writeInputPoll()', async ctx => {
     assert(view.getFloat32(o + 16, true), 24)
     assert(view.getUint8(o + pollSize - 2), 1)
   })
+
+  await ctx.test(
+    'serializes and deserializes the input portion of Go Poll',
+    () => {
+      const view = newView()
+      const want = {
+        pointers: [
+          {
+            id: 7,
+            physX: 10,
+            physY: 20,
+            physW: 3,
+            physH: 4,
+            pressure: 0.5,
+            tiltX: -1,
+            tiltY: 2,
+            twist: 30,
+            device: 2 as const,
+            primary: true,
+            buttons: 0b101
+          }
+        ],
+        wheel: [1.5, -2.5, 3.5],
+        keyboard: {keys: 0b101, text: 'hello world', textOverflow: false},
+        gamepads: [
+          {
+            index: 3,
+            connected: true,
+            mapping: 1 as const,
+            buttons: 0b101,
+            axes: [-1, -0.5, 0.5, 1] as const
+          }
+        ]
+      }
+      const {pointer, wheel, keyboard, gamepad} = newInputs(
+        want.keyboard.text,
+        want.keyboard.keys
+      )
+      pointer.polls = {7: want.pointers[0]!}
+      wheel.deltaX = want.wheel[0]!
+      wheel.deltaY = want.wheel[1]!
+      wheel.deltaZ = want.wheel[2]!
+      gamepad.polls = {3: want.gamepads[0]!}
+
+      writeInputPoll(
+        view,
+        pointer,
+        wheel,
+        keyboard,
+        gamepad,
+        encoder,
+        new Uint8Array(0)
+      )
+
+      assert(readInputPoll(view), want)
+    }
+  )
 
   await ctx.test('short text is written', () => {
     const view = newView()
@@ -195,6 +255,63 @@ test('writeInputPoll()', async ctx => {
     assert(u8a === u8b, false)
   })
 })
+function readInputPoll(view: DataView): object {
+  const pointers = []
+  for (let i = 0; i < view.getUint8(0); i++) {
+    const o = pollsOffset + i * pollSize
+    const physX = view.getFloat32(o + 4, true)
+    const physY = view.getFloat32(o + 8, true)
+    pointers.push({
+      id: view.getInt32(o, true),
+      physX,
+      physY,
+      physW: view.getFloat32(o + 12, true) - physX,
+      physH: view.getFloat32(o + 16, true) - physY,
+      pressure: view.getFloat32(o + 20, true),
+      tiltX: view.getInt8(o + 24),
+      tiltY: view.getInt8(o + 25),
+      twist: view.getUint16(o + 26, true),
+      device: view.getUint8(o + 28),
+      primary: view.getUint8(o + 29) !== 0,
+      buttons: view.getUint8(o + 30)
+    })
+  }
+
+  const textLen = view.getUint16(keyboardTextLenOffset, true)
+  const gamepads = []
+  for (let i = 0; i < view.getUint8(gamepadsLenOffset); i++) {
+    const o = gamepadsOffset + i * gamepadPollSize
+    gamepads.push({
+      index: view.getUint8(o),
+      connected: view.getUint8(o + 1) !== 0,
+      mapping: view.getUint8(o + 2),
+      buttons: view.getUint32(o + 4, true),
+      axes: [
+        view.getFloat32(o + 8, true),
+        view.getFloat32(o + 12, true),
+        view.getFloat32(o + 16, true),
+        view.getFloat32(o + 20, true)
+      ]
+    })
+  }
+
+  return {
+    pointers,
+    wheel: [
+      view.getFloat32(wheelOffset, true),
+      view.getFloat32(wheelOffset + 4, true),
+      view.getFloat32(wheelOffset + 8, true)
+    ],
+    keyboard: {
+      keys: view.getUint16(keyboardOffset, true),
+      text: new TextDecoder().decode(
+        new Uint8Array(view.buffer, keyboardTextOffset, textLen)
+      ),
+      textOverflow: view.getUint8(keyboardTextOverflowOffset) !== 0
+    },
+    gamepads
+  }
+}
 
 function newInputs(
   text: string = '',
