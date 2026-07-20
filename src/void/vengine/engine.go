@@ -259,7 +259,6 @@ func (this *Engine[Game]) BeginTick() vgame.Status {
 		&this.frame.InputPoll,
 		vgeo.Box[float32]{Min: this.cam}, // to-do: actual cam box.
 	)
-	this.tick.DrawMs = this.frame.DrawMs
 	this.tick.DrawCount = this.frame.DrawCount
 	this.drawAlways = this.frame.DrawAlways
 	for i := range this.layers {

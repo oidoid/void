@@ -5,7 +5,6 @@ export type Metrics = {
   cur: {collide: Millis; update: Millis}
   prev: {
     collide: Millis
-    draw: Millis
     /** duration from frame delivery to yield. */
     frame: Millis
     update: Millis

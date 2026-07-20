@@ -15,7 +15,6 @@ type Poll struct {
 	Fullscreen bool
 	DrawAlways bool
 	_          [2]byte
-	DrawMs     float64 // to-do: delete.
 	// number of renderer clears completed.
 	DrawCount int32
 	_         [4]byte

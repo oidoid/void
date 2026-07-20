@@ -39,10 +39,8 @@ export const canvasHOffset: number = canvasWOffset + 2
 export const isFullscreenOffset: number = canvasHOffset + 2
 /** byte offset of DrawAlways field within Update. */
 export const drawAlwaysOffset: number = isFullscreenOffset + 1
-/** byte offset of DrawMs field within Update (3 bytes padding after bool). */
-export const drawMsOffset: number = isFullscreenOffset + 4
 /** byte offset of DrawCount field (number of renderer clears completed). */
-export const drawCountOffset: number = drawMsOffset + 8
+export const drawCountOffset: number = isFullscreenOffset + 4
 /** byte offset of UpdateMs field (duration of the previous Go update call, milliseconds). */
 export const updateMsOffset: number = drawCountOffset + 8
 /** byte offset of DevicePixelRatio field within Update. */

@@ -6,7 +6,6 @@ import {
   devicePixelRatioOffset,
   drawAlwaysOffset,
   drawCountOffset,
-  drawMsOffset,
   isFullscreenOffset,
   localDayOffset,
   localHourOffset,
@@ -63,7 +62,6 @@ import {WASI} from './wasi.ts'
 export class Engine {
   #canvas!: HTMLCanvasElement
   #clearColor: [number, number, number, number] = [0, 0, 0, 1]
-  #drawMs: number = 0
   #drawCount: number = 0
   #drawAlways: boolean = false
   #updateMs: number = 0
@@ -165,7 +163,6 @@ export class Engine {
       this.#requestDelayedUpdate()
     }
     this.#updateMs = performance.now() - updateStart
-    const drawStart = performance.now()
     const buffer = this.#wasm.memory.buffer
     const layerConfigPtr = this.#wasm.LayerConfigsPointer()
     const layerConfigView = new DataView(buffer)
@@ -207,7 +204,6 @@ export class Engine {
       }
     }
     this.#applyPostDrawRequests()
-    this.#drawMs = performance.now() - drawStart
   }
 
   #layerConfig(view: DataView, ptr: number, layer: number): LayerConfig {
@@ -361,7 +357,6 @@ export class Engine {
     this.#frame.setUint16(canvasHOffset, this.#renderer.phyH, true)
     this.#frame.setUint8(isFullscreenOffset, isFullscreen() ? 1 : 0)
     this.#frame.setUint8(drawAlwaysOffset, this.#drawAlways ? 1 : 0)
-    this.#frame.setFloat64(drawMsOffset, this.#drawMs, true)
     this.#frame.setInt32(drawCountOffset, this.#drawCount, true)
     this.#frame.setFloat64(updateMsOffset, this.#updateMs, true)
     this.#frame.setFloat64(devicePixelRatioOffset, devicePixelRatio, true)

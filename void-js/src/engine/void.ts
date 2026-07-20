@@ -51,7 +51,7 @@ export class Void {
   readonly looper: Looper = new Looper()
   readonly metrics: Metrics = {
     cur: {collide: 0, update: 0},
-    prev: {collide: 0, draw: 0, frame: 0, update: 0}
+    prev: {collide: 0, frame: 0, update: 0}
   }
   readonly pool: PoolMap
   readonly random: Random
@@ -208,8 +208,6 @@ export class Void {
     this.#invalid = false
     this.metrics.cur.collide = 0
     this.metrics.cur.update = 0
-    this.metrics.prev.draw = (this.renderer.drawEnd -
-      this.renderer.drawStart) as Millis
     this.loader.update(this)
     this.metrics.prev.collide = this.metrics.cur.collide
     this.metrics.prev.update = this.metrics.cur.update
