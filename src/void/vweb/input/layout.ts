@@ -47,5 +47,19 @@ export const drawCountOffset: number = drawMsOffset + 8
 export const updateMsOffset: number = drawCountOffset + 8
 /** byte offset of DevicePixelRatio field within Update. */
 export const devicePixelRatioOffset: number = updateMsOffset + 8
+/** byte offset of local year field within Update. */
+export const localYearOffset: number = devicePixelRatioOffset + 8
+/** byte offset of local month field within Update. */
+export const localMonthOffset: number = localYearOffset + 2
+/** byte offset of local day field within Update. */
+export const localDayOffset: number = localMonthOffset + 1
+/** byte offset of local hour field within Update. */
+export const localHourOffset: number = localDayOffset + 1
+/** byte offset of local minute field within Update. */
+export const localMinuteOffset: number = localHourOffset + 1
+/** byte offset of local second field within Update. */
+export const localSecondOffset: number = localMinuteOffset + 1
+/** byte offset of local millisecond field within Update. */
+export const localMillisOffset: number = localHourOffset + 4
 /** total byte size of the Update struct. */
-export const updateByteLen: number = devicePixelRatioOffset + 8
+export const updateByteLen: number = localYearOffset + 16

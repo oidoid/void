@@ -33,7 +33,7 @@ func UpdateSuperballs(
 	ents := vec.Vals()
 	moveSuperballs(ents, lvl, radius)
 	if gam.HitSuperballs {
-		hitSuperballs(ents, &gam.SuperballGrid, lvl, diameter)
+		hitSuperballs(ents, &gam.SuperballGrid, diameter)
 	}
 	loop := vgame.Pause
 	// to-do: always collapse into either move or hit to avoid extra pass?
@@ -47,7 +47,6 @@ func UpdateSuperballs(
 func hitSuperballs(
 	ents []entities.BallEnt,
 	grid *vgrid.Grid,
-	lvl vgeo.Box[float32],
 	diameter float32,
 ) {
 	grid.Clear()

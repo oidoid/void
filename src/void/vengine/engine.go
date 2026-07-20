@@ -43,6 +43,7 @@ type Engine[Game vgame.Game] struct {
 	fullscreenRequest  FullscreenRequest
 	screenshotRequest  bool
 	contextLossRequest bool
+	updateAtMillis     float64
 	drawAlways         bool
 	tick               vgame.Tick
 }
@@ -102,9 +103,12 @@ func (this *Engine[Game]) Font() *vtext.Font {
 
 func (this *Engine[Game]) Frame() *vgame.Poll { return &this.frame }
 func (this *Engine[Game]) Fullscreen() bool   { return this.frame.Fullscreen }
-func (this *Engine[Game]) NowMs() float64     { return this.frame.NowMs }
-func (this *Engine[Game]) DeltaMs() float64   { return this.frame.DeltaMs }
-func (this *Engine[Game]) Tick() *vgame.Tick  { return &this.tick }
+func (this *Engine[Game]) NowMillis() float64 { return this.frame.NowMs }
+func (this *Engine[Game]) Time() vgame.TimeFormat {
+	return this.frame.TimeFormat
+}
+func (this *Engine[Game]) DeltaMs() float64  { return this.frame.DeltaMs }
+func (this *Engine[Game]) Tick() *vgame.Tick { return &this.tick }
 
 func (this *Engine[Game]) RequestFullscreen(fullscreen bool) {
 	if fullscreen {
@@ -135,6 +139,17 @@ func (this *Engine[Game]) ScreenshotRequest() int32 {
 
 func (this *Engine[Game]) RequestContextLoss() {
 	this.contextLossRequest = true
+}
+
+// update at millis since the Unix epoch. zero cancels the request.
+func (this *Engine[Game]) RequestUpdateAtMillis(millis float64) {
+	if millis == 0 || this.updateAtMillis == 0 || millis < this.updateAtMillis {
+		this.updateAtMillis = millis
+	}
+}
+
+func (this *Engine[Game]) UpdateAtMillis() float64 {
+	return this.updateAtMillis
 }
 
 func (this *Engine[Game]) ContextLossRequest() int32 {

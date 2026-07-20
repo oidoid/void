@@ -11,14 +11,14 @@ func UpdateDrawStatuses[Game vgame.Game](
 	gam Game,
 ) vgame.Status {
 	font := gam.Font()
-	nowMs := gam.NowMs()
+	nowMillis := gam.NowMillis()
 	tick := gam.Tick()
 	ents := vec.Vals()
 	loop := vgame.Pause
 	for i := range ents {
 		layer := gam.Layer(ents[i].Z.Layer())
 		sprites := &layer.Sprites
-		loop |= ents[i].Update(font, sprites, nowMs, tick, layer.Clip)
+		loop |= ents[i].Update(font, sprites, nowMillis, tick, layer.Clip)
 	}
 	return loop
 }

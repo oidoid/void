@@ -1,6 +1,8 @@
 package entities
 
 import (
+	"strings"
+
 	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/ventities"
@@ -44,11 +46,14 @@ func (this *EntStatusEnt) Update(
 	spriteCount int,
 	clip vgeo.Box[float32],
 ) vgame.Status {
+	countText := vtext.Itoa(count)
+	spriteCountText := vtext.Itoa(spriteCount)
+	w := max(len(countText), len(spriteCountText))
+	// to-do: do we even need PadInt()?
 	this.SetText(
-		// to-do: right align.
 		// to-do: Ls and ct and st should have zero kern? do i want to join letters? ask AI to analyze existing.
-		vtext.Itoa(count) + " superballs\n" +
-			vtext.Itoa(spriteCount) + " sprites", // to-do: aggregate sprites from prior frame.
+		strings.Repeat(" ", w-len(countText)) + countText + " superballs\n" +
+			strings.Repeat(" ", w-len(spriteCountText)) + spriteCountText + " sprites", // to-do: aggregate sprites from prior frame.
 	)
 
 	this.LayoutChars(font)

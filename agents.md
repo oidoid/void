@@ -30,8 +30,10 @@ never run:
 - be deliberate when dereferencing in loops. they can be surprisingly slow.
 - Go imports must be TinyGo compatible.
 - never import `syscall/js`; pass state via Wasm exports and imports.
+- use numeric millis not `time.Time` in Go. time comes from `Poll` via `Engine`; don't call `time.Now()`. `use performance.timeOrigin + performance.now()` in TS.
 - http://localhost:1234 pauses when backgrounded.
 - to force no kern, use `'\v'` between chars. to force a 1px kern, use `\t`.
+- the Biome IDE extension is frequently corrupt.
 
 ## Style
 

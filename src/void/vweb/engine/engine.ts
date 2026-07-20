@@ -8,6 +8,13 @@ import {
   drawCountOffset,
   drawMsOffset,
   isFullscreenOffset,
+  localDayOffset,
+  localHourOffset,
+  localMillisOffset,
+  localMinuteOffset,
+  localMonthOffset,
+  localSecondOffset,
+  localYearOffset,
   nowMsOffset,
   updateByteLen,
   updateMsOffset
@@ -66,6 +73,8 @@ export class Engine {
   #phyW: number = 0 // don't care if these init later.
   #phyH: number = 0
   #rafId: number = 0
+  #updateTimeoutId: number = 0
+  #updateTimeoutAtMillis: number = 0
   #registered: boolean = false
   #renderer!: Renderer
   readonly #resizeObserver: ResizeObserver = new ResizeObserver(
@@ -138,6 +147,10 @@ export class Engine {
 
   #update(): void {
     this.#rafId = 0
+    const updateAtMillis = this.#wasm.UpdateAtMillis()
+    const nowMillis = performance.timeOrigin + performance.now()
+    if (updateAtMillis !== 0 && updateAtMillis <= nowMillis)
+      this.#wasm.RequestUpdateAtMillis(0)
     this.#requestUpdate()
     this.#renderer.resize(this.#phyW, this.#phyH)
     this.#writeUpdate()
@@ -149,6 +162,7 @@ export class Engine {
       cancelAnimationFrame(this.#rafId)
       this.#rafId = 0
       this.#lastTime = 0
+      this.#requestDelayedUpdate()
     }
     this.#updateMs = performance.now() - updateStart
     const drawStart = performance.now()
@@ -229,6 +243,26 @@ export class Engine {
     this.#lastTime ||= performance.now()
   }
 
+  #requestDelayedUpdate(): void {
+    const atMillis = this.#wasm.UpdateAtMillis()
+    if (
+      atMillis === 0 ||
+      (this.#updateTimeoutId !== 0 && this.#updateTimeoutAtMillis === atMillis)
+    )
+      return
+    clearTimeout(this.#updateTimeoutId)
+    this.#updateTimeoutAtMillis = atMillis
+    this.#updateTimeoutId = setTimeout(
+      () => {
+        this.#updateTimeoutId = 0
+        this.#updateTimeoutAtMillis = 0
+        this.#wasm.RequestUpdateAtMillis(0)
+        this.#requestUpdate()
+      },
+      Math.max(0, atMillis - (performance.timeOrigin + performance.now()))
+    )
+  }
+
   #onResize(entries: readonly Readonly<ResizeObserverEntry>[]): void {
     for (const entry of entries) {
       const [size] = entry.devicePixelContentBoxSize
@@ -242,7 +276,11 @@ export class Engine {
   #onContextLost = (ev: Event): void => {
     ev.preventDefault()
     cancelAnimationFrame(this.#rafId)
+    clearTimeout(this.#updateTimeoutId)
     this.#rafId = 0
+    this.#updateTimeoutId = 0
+    this.#updateTimeoutAtMillis = 0
+    this.#wasm.RequestUpdateAtMillis(0)
     this.#lastTime = 0
     this.#updateMs = 0
   }
@@ -319,7 +357,6 @@ export class Engine {
     const now = performance.now()
     const delta = this.#lastTime === 0 ? 0 : now - this.#lastTime
     this.#frame.setFloat64(deltaMsOffset, delta, true)
-    this.#frame.setFloat64(nowMsOffset, performance.timeOrigin + now, true)
     this.#frame.setUint16(canvasWOffset, this.#renderer.phyW, true)
     this.#frame.setUint16(canvasHOffset, this.#renderer.phyH, true)
     this.#frame.setUint8(isFullscreenOffset, isFullscreen() ? 1 : 0)
@@ -328,6 +365,16 @@ export class Engine {
     this.#frame.setInt32(drawCountOffset, this.#drawCount, true)
     this.#frame.setFloat64(updateMsOffset, this.#updateMs, true)
     this.#frame.setFloat64(devicePixelRatioOffset, devicePixelRatio, true)
+    const nowMillis = performance.timeOrigin + now
+    const time = new Date(nowMillis)
+    this.#frame.setFloat64(nowMsOffset, nowMillis, true)
+    this.#frame.setUint16(localYearOffset, time.getFullYear(), true)
+    this.#frame.setUint8(localMonthOffset, time.getMonth() + 1)
+    this.#frame.setUint8(localDayOffset, time.getDate())
+    this.#frame.setUint8(localHourOffset, time.getHours())
+    this.#frame.setUint8(localMinuteOffset, time.getMinutes())
+    this.#frame.setUint8(localSecondOffset, time.getSeconds())
+    this.#frame.setUint16(localMillisOffset, time.getMilliseconds(), true)
     this.#input.update(this.#frame)
     this.#input.postupdate() // to-do: move to postupdate()?
     this.#lastTime = now

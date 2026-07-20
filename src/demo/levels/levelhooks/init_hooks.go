@@ -67,6 +67,10 @@ func InitInit(gam *engine.Engine) {
 	))
 	gam.RegisterEntUpdate(drawStatuses)
 
+	clocks := ventities.NewEntVec(hooks.UpdateClocks, 1)
+	clocks.Add(entities.NewClockEnt())
+	gam.RegisterEntUpdate(clocks)
+
 	entStatuses := ventities.NewEntVec(hooks.UpdateEntStatuses)
 	entStatuses.Add(entities.NewEntStatusEnt())
 	gam.RegisterEntUpdate(entStatuses)

@@ -1,7 +1,7 @@
 import {test} from 'node:test'
 import {assert} from '../test/assert.ts'
 import type {Gamepad} from './gamepad.ts'
-import {writeUpdate} from './input.ts'
+import {writeInputPoll} from './input.ts'
 import type {Keyboard} from './keyboard.ts'
 import {
   keyboardOffset,
@@ -11,18 +11,19 @@ import {
   maxTextLen,
   pollSize,
   pollsOffset,
-  updateByteLen
+  updateByteLen,
+  wheelOffset
 } from './layout.ts'
 import type {Pointer} from './pointer.ts'
 import type {Wheel} from './wheel.ts'
 
 const encoder: TextEncoder = new TextEncoder()
 
-test('writeUpdate()', async ctx => {
+test('writeInputPoll()', async ctx => {
   await ctx.test('empty text', () => {
     const view = newView()
     const {pointer, wheel, keyboard, gamepad} = newInputs('')
-    writeUpdate(
+    writeInputPoll(
       view,
       pointer,
       wheel,
@@ -38,7 +39,7 @@ test('writeUpdate()', async ctx => {
   await ctx.test('keys written', () => {
     const view = newView()
     const {pointer, wheel, keyboard, gamepad} = newInputs('', 0b101)
-    writeUpdate(
+    writeInputPoll(
       view,
       pointer,
       wheel,
@@ -69,7 +70,7 @@ test('writeUpdate()', async ctx => {
         buttons: 1
       }
     }
-    writeUpdate(
+    writeInputPoll(
       view,
       pointer,
       wheel,
@@ -90,7 +91,7 @@ test('writeUpdate()', async ctx => {
   await ctx.test('short text is written', () => {
     const view = newView()
     const {pointer, wheel, keyboard, gamepad} = newInputs('hi')
-    const u8 = writeUpdate(
+    const u8 = writeInputPoll(
       view,
       pointer,
       wheel,
@@ -113,7 +114,7 @@ test('writeUpdate()', async ctx => {
     const {pointer, wheel, keyboard, gamepad} = newInputs(
       'a'.repeat(maxTextLen)
     )
-    writeUpdate(
+    writeInputPoll(
       view,
       pointer,
       wheel,
@@ -131,7 +132,7 @@ test('writeUpdate()', async ctx => {
     const {pointer, wheel, keyboard, gamepad} = newInputs(
       'a'.repeat(maxTextLen + 1)
     )
-    writeUpdate(
+    writeInputPoll(
       view,
       pointer,
       wheel,
@@ -147,7 +148,7 @@ test('writeUpdate()', async ctx => {
   await ctx.test('reuses u8 when buffer unchanged', () => {
     const view = newView()
     const {pointer, wheel, keyboard, gamepad} = newInputs('a')
-    const u8a = writeUpdate(
+    const u8a = writeInputPoll(
       view,
       pointer,
       wheel,
@@ -156,7 +157,7 @@ test('writeUpdate()', async ctx => {
       encoder,
       new Uint8Array(0)
     )
-    const u8b = writeUpdate(
+    const u8b = writeInputPoll(
       view,
       pointer,
       wheel,
@@ -172,7 +173,7 @@ test('writeUpdate()', async ctx => {
     const view1 = newView()
     const view2 = newView()
     const {pointer, wheel, keyboard, gamepad} = newInputs('x')
-    const u8a = writeUpdate(
+    const u8a = writeInputPoll(
       view1,
       pointer,
       wheel,
@@ -181,7 +182,7 @@ test('writeUpdate()', async ctx => {
       encoder,
       new Uint8Array(0)
     )
-    const u8b = writeUpdate(
+    const u8b = writeInputPoll(
       view2,
       pointer,
       wheel,

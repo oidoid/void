@@ -19,7 +19,8 @@ type Game interface {
 	Font() *vtext.Font
 	Fullscreen() bool
 	In() *vin.In
-	NowMs() float64
+	NowMillis() float64
+	Time() TimeFormat
 	Tick() *Tick
 	Layer(vgfx.Layer) *vgfx.LayerConfig
 	Random() float32

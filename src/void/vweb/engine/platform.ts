@@ -11,6 +11,8 @@ export type Platform = {
   ScreenshotRequest(): number
   ContextLossRequest(): number
   DrawAlways(): number
+  UpdateAtMillis(): number
+  RequestUpdateAtMillis(millis: number): void
   LayerConfigsPointer(): number
   Update(): Loop
   // byte offset into `memory` of the first tile.

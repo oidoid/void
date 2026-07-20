@@ -3,6 +3,7 @@ package vin
 const MaxPointers uint8 = 5
 const MaxGamepads uint8 = 4
 
+// to-do: rename in_poll.
 // a snapshot of input for a frame.
 type InputPoll struct {
 	PtrsLen uint8

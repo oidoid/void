@@ -24,5 +24,12 @@ func TestPollLayout(t *testing.T) {
 	check("DrawCount", unsafe.Offsetof(poll.DrawCount), 4408)
 	check("UpdateMs", unsafe.Offsetof(poll.UpdateMs), 4416)
 	check("DevicePixelRatio", unsafe.Offsetof(poll.DevicePixelRatio), 4424)
-	check("sizeof(Poll)", unsafe.Sizeof(poll), 4432)
+	check("Time.Year", unsafe.Offsetof(poll.TimeFormat), 4432)
+	check("Time.Month", unsafe.Offsetof(poll.TimeFormat)+2, 4434)
+	check("Time.Day", unsafe.Offsetof(poll.TimeFormat)+3, 4435)
+	check("Time.Hour", unsafe.Offsetof(poll.TimeFormat)+4, 4436)
+	check("Time.Minute", unsafe.Offsetof(poll.TimeFormat)+5, 4437)
+	check("Time.Second", unsafe.Offsetof(poll.TimeFormat)+6, 4438)
+	check("Time.Millis", unsafe.Offsetof(poll.TimeFormat)+8, 4440)
+	check("sizeof(Poll)", unsafe.Sizeof(poll), 4448)
 }

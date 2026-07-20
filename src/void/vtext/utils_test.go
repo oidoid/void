@@ -41,16 +41,21 @@ func TestPadInt(t *testing.T) {
 	cases := []struct {
 		num   int
 		width int
+		pad   string
 		want  string
 	}{
-		{0, 3, "  0"},
-		{7, 3, "  7"},
-		{123, 3, "123"},
-		{1234, 3, "1234"},
+		{0, 3, " ", "  0"},
+		{7, 3, " ", "  7"},
+		{7, 3, "0", "007"},
+		{123, 3, "0", "123"},
+		{1234, 3, "0", "1234"},
 	}
 	for _, test := range cases {
-		if got := PadInt(test.num, test.width); got != test.want {
-			t.Fatalf("PadInt(%d, %d) = %q, want %q", test.num, test.width, got, test.want)
+		if got := PadInt(test.num, test.width, test.pad); got != test.want {
+			t.Fatalf(
+				"PadInt(%d, %d, %q) = %q, want %q",
+				test.num, test.width, test.pad, got, test.want,
+			)
 		}
 	}
 }

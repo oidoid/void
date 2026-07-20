@@ -68,7 +68,7 @@ export class Input {
 
   update(view: DataView): void {
     this.#gamepad.update()
-    this.#u8 = writeUpdate(
+    this.#u8 = writeInputPoll(
       view,
       this.#pointer,
       this.#wheel,
@@ -81,7 +81,7 @@ export class Input {
 }
 
 /** @internal */
-export function writeUpdate(
+export function writeInputPoll(
   view: DataView,
   pointer: Pointer,
   wheel: Wheel,

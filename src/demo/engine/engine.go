@@ -58,6 +58,7 @@ func New() *Engine {
 	this.Layer(gfx.LayerCursor).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerGrid).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerGrid).BlendMode = vgfx.LayerBlendModeMultiply
+	this.Layer(gfx.LayerClock).CamMode = vgfx.LayerCamModeFixed
 	this.Atlas = vatlas.DecodeAtlas(assets.AtlasBin)
 	anim := this.Atlas.Anims[int(assets.SuperballDefault)]
 	diameter := float32(anim.Hitbox.Max.X - anim.Hitbox.Min.X)
@@ -80,6 +81,7 @@ func (this *Engine) Update() vgame.Status {
 	this.Layer(gfx.LayerOverlay).Scale = float32(math.Round(3 * dpr))
 	this.Layer(gfx.LayerCursor).Scale = float32(math.Round(2 * dpr))
 	this.Layer(gfx.LayerGrid).Scale = float32(math.Floor(dpr))
+	this.Layer(gfx.LayerClock).Scale = float32(8 * dpr)
 	stat |= this.Engine.Preupdate(this)
 	stat |= this.Router.Update(this)
 	return this.Engine.EndTick(stat)
