@@ -7,9 +7,18 @@ export async function downloadScreenshot(
   name: string
 ): Promise<void> {
   using img = await screenshot(canvas)
-  // to-do: ${yyyy}${MM}${dd}${hh}${mm}${ss}
-  const timestamp = 'now'
+  const timestamp = filenameTimestamp(new Date()) // to-do: pass in timestamp.
   download(img.uri, `${name}-screenshot-${timestamp}.webp`)
+}
+
+function filenameTimestamp(time: Date): string {
+  const year = time.getFullYear()
+  const month = (time.getMonth() + 1).toString().padStart(2, '0')
+  const day = time.getDate().toString().padStart(2, '0')
+  const hour = time.getHours().toString().padStart(2, '0')
+  const minute = time.getMinutes().toString().padStart(2, '0')
+  const second = time.getSeconds().toString().padStart(2, '0')
+  return [year, month, day, hour, minute, second].join('')
 }
 
 export function initCanvas(
