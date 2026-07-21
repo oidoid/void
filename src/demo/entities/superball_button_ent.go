@@ -57,14 +57,14 @@ func newSuperballButtonEnt(
 		ButtonEnt: ventities.ButtonEnt{
 			NinePatchEnt: ventities.NinePatchEnt{
 				PatchByDir: [9]vgfx.Sprite{
-					vgeo.DirCenter: {AnimCel: assets.PaletteBlue.Cel(0)},
+					vgeo.DirCenter: {AnimCel: assets.ColorBlue.Cel(0)},
 				},
 				CornerWH: vgeo.WH[uint16]{W: 1, H: 1},
 			},
-			UnfocusedEdge: assets.PaletteBlack,
-			FocusedEdge:   assets.PaletteRed,
-			Fill:          assets.PaletteBlue,
-			SelectedFill:  assets.PaletteRed,
+			UnfocusedEdge: assets.ColorBlack,
+			FocusedEdge:   assets.ColorRed,
+			Fill:          assets.ColorBlue,
+			SelectedFill:  assets.ColorRed,
 			Anchor: ventities.AnchorEnt{
 				Dir:    vgeo.DirW,
 				Margin: vgeo.NewXY(float32(uiButtonGap), 0),

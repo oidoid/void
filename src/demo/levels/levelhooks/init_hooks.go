@@ -50,7 +50,7 @@ func InitInit(gam *engine.Engine) {
 	gam.RegisterEntUpdate(superballButtons)
 
 	camStatuses := ventities.NewEntVec(hooks.UpdateCamStatuses, 1)
-	camStatus := entities.NewCamStatusEnt(assets.PaletteBlue, gfx.ZUIWidget)
+	camStatus := entities.NewCamStatusEnt(assets.ColorBlue, gfx.ZUIWidget)
 	camStatus.Anchor = ventities.AnchorEnt{
 		Dir:    vgeo.DirW,
 		Margin: vgeo.NewXY[float32](4, 0),
@@ -61,7 +61,7 @@ func InitInit(gam *engine.Engine) {
 
 	drawStatuses := ventities.NewEntVec(hooks.UpdateDrawStatuses)
 	drawStatuses.Add(entities.NewDrawStatusEnt(
-		assets.PaletteBlue,
+		assets.ColorBlue,
 		vgeo.DirSE,
 		vgeo.Edge[int16]{N: 4, E: 4, S: 4, W: 4},
 	))
@@ -102,7 +102,7 @@ func UpdateInit(gam *engine.Engine) vgame.Status {
 func newEdgeEnt(z vgfx.Z, w, h uint16) ventities.NinePatchEnt {
 	var patches [9]vgfx.Sprite
 	for i := range patches {
-		patches[i].SetAnim(assets.PaletteBlack)
+		patches[i].SetAnim(assets.ColorBlack)
 	}
 	patches[vgeo.DirCenter] = vgfx.Sprite{}
 	ent := ventities.NinePatchEnt{

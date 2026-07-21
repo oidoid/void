@@ -8,6 +8,9 @@ const (
 	BackpackerWalkRight
 	BackpackerWalkDown
 	BackpackerWalkUp
+	ColorBlue
+	ColorBlack
+	ColorRed
 	CursorPointer
 	GridCell
 	MemProp5x600
@@ -147,9 +150,6 @@ const (
 	OutlineTopLeft
 	OutlineTop
 	OutlineLeft
-	PaletteBlue
-	PaletteBlack
-	PaletteRed
 	PolyTriangle
 	PolySquare
 	SuperballDefault
