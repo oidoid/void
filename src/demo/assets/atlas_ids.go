@@ -154,7 +154,7 @@ const (
 	TileStripesBlue
 	TileRed
 	UICheckboxChecked
-	ViewportEdgeTopLeft
-	ViewportEdgeTop
-	ViewportEdgeLeft
+	ViewportEdgeNW
+	ViewportEdgeN
+	ViewportEdgeW
 )
