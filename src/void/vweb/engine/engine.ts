@@ -360,16 +360,16 @@ export class Engine {
     this.#frame.setInt32(drawCountOffset, this.#drawCount, true)
     this.#frame.setFloat64(updateMsOffset, this.#updateMs, true)
     this.#frame.setFloat64(devicePixelRatioOffset, devicePixelRatio, true)
-    const nowMillis = performance.timeOrigin + now
-    const time = new Date(nowMillis)
-    this.#frame.setFloat64(nowMsOffset, nowMillis, true)
-    this.#frame.setUint16(localYearOffset, time.getFullYear(), true)
-    this.#frame.setUint8(localMonthOffset, time.getMonth() + 1)
-    this.#frame.setUint8(localDayOffset, time.getDate())
-    this.#frame.setUint8(localHourOffset, time.getHours())
-    this.#frame.setUint8(localMinuteOffset, time.getMinutes())
-    this.#frame.setUint8(localSecondOffset, time.getSeconds())
-    this.#frame.setUint16(localMillisOffset, time.getMilliseconds(), true)
+    const time = performance.timeOrigin + now
+    const date = new Date(time)
+    this.#frame.setFloat64(nowMsOffset, time, true)
+    this.#frame.setUint16(localYearOffset, date.getFullYear(), true)
+    this.#frame.setUint8(localMonthOffset, date.getMonth() + 1)
+    this.#frame.setUint8(localDayOffset, date.getDate())
+    this.#frame.setUint8(localHourOffset, date.getHours())
+    this.#frame.setUint8(localMinuteOffset, date.getMinutes())
+    this.#frame.setUint8(localSecondOffset, date.getSeconds())
+    this.#frame.setUint16(localMillisOffset, date.getMilliseconds(), true)
     this.#input.update(this.#frame)
     this.#input.postupdate() // to-do: move to postupdate()?
     this.#lastTime = now
