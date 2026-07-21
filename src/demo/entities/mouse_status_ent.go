@@ -21,7 +21,7 @@ const mouseStatusSize = int16(16)
 func NewMouseStatusEnt() MouseStatusEnt {
 	this := MouseStatusEnt{}
 	this.Anchor = vgeo.DirSE
-	this.Margin = vgeo.Border[int16]{E: 4, S: 14}
+	this.Margin = vgeo.Edge[int16]{E: 4, S: 14}
 	return this
 }
 

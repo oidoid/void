@@ -62,7 +62,7 @@ func New() *Engine {
 	this.Atlas = vatlas.DecodeAtlas(assets.AtlasBin)
 	anim := this.Atlas.Anims[int(assets.SuperballDefault)]
 	diameter := float32(anim.Hitbox.Max.X - anim.Hitbox.Min.X)
-	// omit level border.
+	// omit level edge.
 	lvl := vgeo.NewBox(
 		float32(this.Level.Min.X+int32(this.Level.Tile.W)),
 		float32(this.Level.Min.Y+int32(this.Level.Tile.H)),

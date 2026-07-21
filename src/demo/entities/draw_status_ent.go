@@ -28,7 +28,7 @@ type DrawStatusEnt struct {
 func NewDrawStatusEnt(
 	bgAnimID vatlas.AnimID,
 	anchor vgeo.Dir,
-	margin vgeo.Border[int16],
+	margin vgeo.Edge[int16],
 ) DrawStatusEnt {
 	this := DrawStatusEnt{}
 	this.Bg = ventities.NinePatchEnt{

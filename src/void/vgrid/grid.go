@@ -18,7 +18,7 @@ type node struct {
 // stores int32 values by spatial cell and visits each same-or-neighbor-cell
 // pair exactly once.
 type Grid struct {
-	// first `nodes` index for each cell. padded by an `empty` border so neighbors
+	// first `nodes` index for each cell. padded by an `empty` edge so neighbors
 	// are always valid.
 	heads []int32
 	// all nodes, linked into per-cell chains by `node.next`.

@@ -60,7 +60,7 @@
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
         "hud": {"anchor": "NE", "margin": {"n": 4, "e": 4}},
         "ninePatch": {
-          "border": 1,
+          "edge": 1,
           "pad": 2,
           "patch": {
             "center": "background--Grape",
@@ -87,7 +87,7 @@
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
         "anchor": {"id": "render-toggle", "dir": "W", "margin": 2},
         "ninePatch": {
-          "border": 1,
+          "edge": 1,
           "pad": 2,
           "patch": {
             "center": "background--Strawberry",
@@ -114,7 +114,7 @@
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
         "anchor": {"id": "debug-lose-context", "dir": "W", "margin": 2},
         "ninePatch": {
-          "border": 1,
+          "edge": 1,
           "pad": 2,
           "patch": {
             "center": "background--Kiwi",
@@ -141,7 +141,7 @@
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
         "anchor": {"id": "superball-button", "dir": "W", "margin": 2},
         "ninePatch": {
-          "border": 1,
+          "edge": 1,
           "pad": 2,
           "patch": {
             "center": "background--Grape",
@@ -168,7 +168,7 @@
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
         "anchor": {"id": "fullscreen", "dir": "W", "margin": 2},
         "ninePatch": {
-          "border": 1,
+          "edge": 1,
           "pad": 2,
           "patch": {
             "center": "background--Blueberry",
@@ -195,7 +195,7 @@
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
         "anchor": {"id": "screenshot", "dir": "W", "margin": 2},
         "ninePatch": {
-          "border": 1,
+          "edge": 1,
           "pad": 2,
           "patch": {
             "center": "background--Kiwi",
@@ -222,7 +222,7 @@
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
         "anchor": {"id": "collide", "dir": "W", "margin": 2},
         "ninePatch": {
-          "border": 1,
+          "edge": 1,
           "pad": 2,
           "patch": {
             "center": "background--Kiwi",
@@ -251,7 +251,7 @@
         "textXY": {}
       },
       {
-        "name": "Border",
+        "name": "Edge",
         "sprite": {"z": "UIG"},
         "hud": {"anchor": "NW", "fill": "XY"},
         "ninePatch": {
@@ -265,7 +265,7 @@
             "sw": "background--Black",
             "se": "background--Black"
           },
-          "border": 1
+          "edge": 1
         }
       },
 

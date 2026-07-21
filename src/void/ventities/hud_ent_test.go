@@ -35,7 +35,7 @@ func TestHUDEntXY(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			hud := HUDEnt{
 				Anchor: test.anchor,
-				Margin: vgeo.Border[int16]{
+				Margin: vgeo.Edge[int16]{
 					N: test.margin, E: test.margin, S: test.margin, W: test.margin,
 				},
 			}
@@ -57,7 +57,7 @@ func TestHUDEntXY(t *testing.T) {
 func TestHUDEntXYOffsetLayerClip(t *testing.T) {
 	hud := HUDEnt{
 		Anchor: vgeo.DirSE,
-		Margin: vgeo.Border[int16]{E: 2, S: 3},
+		Margin: vgeo.Edge[int16]{E: 2, S: 3},
 	}
 	clip := vgeo.NewBox[float32](10, 20, 110, 80)
 

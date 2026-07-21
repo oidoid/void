@@ -6,7 +6,7 @@ import "github.com/oidoid/void/src/void/vgeo"
 // HUDEnt pins content to a screen edge following the camera.
 type HUDEnt struct {
 	Anchor vgeo.Dir
-	Margin vgeo.Border[int16]
+	Margin vgeo.Edge[int16]
 }
 
 // computes an anchored position inside clip.

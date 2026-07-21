@@ -63,7 +63,7 @@ func InitInit(gam *engine.Engine) {
 	drawStatuses.Add(entities.NewDrawStatusEnt(
 		assets.PaletteBlue,
 		vgeo.DirSE,
-		vgeo.Border[int16]{N: 4, E: 4, S: 4, W: 4},
+		vgeo.Edge[int16]{N: 4, E: 4, S: 4, W: 4},
 	))
 	gam.RegisterEntUpdate(drawStatuses)
 
@@ -84,11 +84,11 @@ func InitInit(gam *engine.Engine) {
 	cursors.Add(cursor)
 
 	levelClips := ventities.NewEntVec(hooks.UpdateLevelClipNinePatches)
-	levelClips.Add(newBorderEnt(gfx.ZUILevelBorder, 1, 1))
+	levelClips.Add(newEdgeEnt(gfx.ZUILevelEdge, 1, 1))
 	gam.RegisterEntUpdate(levelClips)
 
 	clipFills := ventities.NewEntVec(hooks.UpdateClipFillNinePatches)
-	clipFills.Add(newCornerBorderEnt(gfx.ZOutline))
+	clipFills.Add(newCornerEdgeEnt(gfx.ZOutline))
 	clipFills.Add(newFillEnt(gfx.ZGrid))
 	gam.RegisterEntUpdate(clipFills)
 
@@ -99,7 +99,7 @@ func UpdateInit(gam *engine.Engine) vgame.Status {
 	return gam.Ents().Update(gam)
 }
 
-func newBorderEnt(z vgfx.Z, w, h uint16) ventities.NinePatchEnt {
+func newEdgeEnt(z vgfx.Z, w, h uint16) ventities.NinePatchEnt {
 	var patches [9]vgfx.Sprite
 	for i := range patches {
 		patches[i].SetAnim(assets.PaletteBlack)
@@ -112,9 +112,9 @@ func newBorderEnt(z vgfx.Z, w, h uint16) ventities.NinePatchEnt {
 	return ent
 }
 
-func newCornerBorderEnt(z vgfx.Z) ventities.NinePatchEnt {
+func newCornerEdgeEnt(z vgfx.Z) ventities.NinePatchEnt {
 	const cornerTopLeftWH = 16
-	ent := newBorderEnt(z, cornerTopLeftWH, cornerTopLeftWH)
+	ent := newEdgeEnt(z, cornerTopLeftWH, cornerTopLeftWH)
 	ent.PatchByDir[vgeo.DirN].SetAnim(assets.OutlineTop)
 	ent.PatchByDir[vgeo.DirNE].SetAnim(assets.OutlineTopLeft)
 	ent.PatchByDir[vgeo.DirNE].SetFlipX(true)

@@ -52,7 +52,7 @@ func UpdateLayers(gam *engine.Engine) vgame.Status {
 	scale := levelScale(canvas)
 	clipW := gfx.LevelClipWPhy * scale
 	clipH := gfx.LevelClipHPhy * scale
-	// snap offset to UI scale multiples so the level border and hud widgets
+	// snap offset to UI scale multiples so the level edge and hud widgets
 	// move in the same increments and never drift apart by a physical pixel.
 	uiScale := uint16(gam.Layer(gfx.LayerUI).ScaleOrDefault())
 	clipPhy := vgeo.XYWH(

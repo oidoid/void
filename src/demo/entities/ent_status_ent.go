@@ -34,7 +34,7 @@ func NewEntStatusEnt() EntStatusEnt {
 	}
 	this.Bg.SetZ(gfx.ZUIWidget - 1)
 	this.Anchor = vgeo.DirSW
-	this.Margin = vgeo.Border[int16]{N: 4, E: 4, S: 4, W: 4}
+	this.Margin = vgeo.Edge[int16]{N: 4, E: 4, S: 4, W: 4}
 	this.Z = gfx.ZUIWidget
 	return this
 }

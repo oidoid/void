@@ -27,12 +27,12 @@ const (
 type ButtonEnt struct {
 	// to-do: i don't like the way these ents compose. now we have an XY embed
 	// here and another XY in Text and Anchor is weird too.
-	NinePatchEnt    // border is overwritten.
-	UnfocusedBorder vatlas.AnimID
-	FocusedBorder   vatlas.AnimID
-	Fill            vatlas.AnimID
-	SelectedFill    vatlas.AnimID
-	Text            TextEnt
+	NinePatchEnt  // edge is overwritten.
+	UnfocusedEdge vatlas.AnimID
+	FocusedEdge   vatlas.AnimID
+	Fill          vatlas.AnimID
+	SelectedFill  vatlas.AnimID
+	Text          TextEnt
 	// to-do: rename HUDAnchorEnt?
 	ClipAnchor HUDEnt // clip-relative positioning; takes priority over Anchor.
 	Anchor     AnchorEnt
@@ -51,8 +51,8 @@ func (this *ButtonEnt) Layout(
 ) {
 	if this.Text.Text != "" {
 		this.Text.LayoutChars(font)
-		border := uint16(this.CornerWH.W)
-		pad2 := 2 * (2 + border)
+		edge := uint16(this.CornerWH.W)
+		pad2 := 2 * (2 + edge)
 		this.WH.W = uint16(this.Text.Layout.W) + pad2
 		this.WH.H = uint16(this.Text.Layout.TrimAllForceH) + pad2
 	}
@@ -117,9 +117,9 @@ func (this *ButtonEnt) Update(
 		return vgame.Pause
 	}
 
-	border := this.UnfocusedBorder
+	edge := this.UnfocusedEdge
 	if this.Focused {
-		border = this.FocusedBorder
+		edge = this.FocusedEdge
 	}
 	if this.Fill != 0 || this.SelectedFill != 0 {
 		fill := this.Fill
@@ -130,10 +130,10 @@ func (this *ButtonEnt) Update(
 			this.PatchByDir[vgeo.DirCenter].SetAnim(fill)
 		}
 	}
-	this.PatchByDir[vgeo.DirN].SetAnim(border) // to-do: palette swap.
-	this.PatchByDir[vgeo.DirE].SetAnim(border)
-	this.PatchByDir[vgeo.DirS].SetAnim(border)
-	this.PatchByDir[vgeo.DirW].SetAnim(border)
+	this.PatchByDir[vgeo.DirN].SetAnim(edge) // to-do: palette swap.
+	this.PatchByDir[vgeo.DirE].SetAnim(edge)
+	this.PatchByDir[vgeo.DirS].SetAnim(edge)
+	this.PatchByDir[vgeo.DirW].SetAnim(edge)
 	this.NinePatchEnt.Update(sprites)
 
 	if this.Text.Text != "" {

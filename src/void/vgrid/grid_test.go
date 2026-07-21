@@ -105,8 +105,8 @@ func TestGridNoSpuriousPairs(t *testing.T) {
 			t.Errorf("pair count = %d, want 0", got)
 		}
 	})
-	t.Run("border cells produce no pairs with center", func(t *testing.T) {
-		// A in cell (5, 5). border cells are those at row or col 3 or 7, two
+	t.Run("edge cells produce no pairs with center", func(t *testing.T) {
+		// A in cell (5, 5). edge cells are those at row or col 3 or 7, two
 		// cells away, and should never pair with A.
 		//                            row
 		//      ┌───┬───┬───┬───┬───┐
