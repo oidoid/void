@@ -17,12 +17,12 @@ import (
 type EntStatusEnt struct {
 	ventities.HUDEnt
 	ventities.TextEnt
-	Bg ventities.NinePatchEnt
+	Fill ventities.NinePatchEnt
 }
 
 func NewEntStatusEnt() EntStatusEnt {
 	this := EntStatusEnt{}
-	this.Bg = ventities.NinePatchEnt{
+	this.Fill = ventities.NinePatchEnt{
 		PatchByDir: [9]vgfx.Sprite{
 			vgeo.DirN:      {AnimCel: assets.ColorBlue.Cel(0)},
 			vgeo.DirE:      {AnimCel: assets.ColorBlue.Cel(0)},
@@ -32,7 +32,7 @@ func NewEntStatusEnt() EntStatusEnt {
 		},
 		CornerWH: vgeo.WH[uint16]{W: 1, H: 1},
 	}
-	this.Bg.SetZ(gfx.ZUIWidget - 1)
+	this.Fill.SetZ(gfx.ZUIWidget - 1)
 	this.Anchor = vgeo.DirSW
 	this.Margin = vgeo.Edge[int16]{N: 4, E: 4, S: 4, W: 4}
 	this.Z = gfx.ZUIWidget
@@ -58,27 +58,27 @@ func (this *EntStatusEnt) Update(
 
 	this.LayoutChars(font)
 	// to-do: move to HUDEnt.Update()?
-	const bgMargin = int16(2)
-	bgXY := this.HUDEnt.XY(
-		this.Layout.W+bgMargin*2, this.Layout.TrimAllForceH+bgMargin*2, clip,
+	const fillMargin = int16(2)
+	fillXY := this.HUDEnt.XY(
+		this.Layout.W+fillMargin*2, this.Layout.TrimAllForceH+fillMargin*2, clip,
 	)
-	this.TextEnt.XY = vgeo.XY[int16]{X: bgXY.X + bgMargin, Y: bgXY.Y + bgMargin}
+	this.TextEnt.XY = vgeo.XY[int16]{X: fillXY.X + fillMargin, Y: fillXY.Y + fillMargin}
 
-	this.drawBackground(sprites)
+	this.drawFill(sprites)
 
 	return this.TextEnt.Update(font, sprites, clip)
 }
 
-func (this *EntStatusEnt) drawBackground(sprites *[]vgfx.Sprite) {
+func (this *EntStatusEnt) drawFill(sprites *[]vgfx.Sprite) {
 	const margin = int16(2)
 	// to-do: this isn't great because we keep this fake state. we just want
 	// sprites.
-	this.Bg.XY = vgeo.NewXY(
+	this.Fill.XY = vgeo.NewXY(
 		float32(this.TextEnt.XY.X-margin), float32(this.TextEnt.XY.Y-margin),
 	)
-	this.Bg.WH = vgeo.WH[uint16]{
+	this.Fill.WH = vgeo.WH[uint16]{
 		W: uint16(this.Layout.W + margin*2),
 		H: uint16(this.Layout.TrimAllForceH + margin*2),
 	}
-	this.Bg.Update(sprites)
+	this.Fill.Update(sprites)
 }

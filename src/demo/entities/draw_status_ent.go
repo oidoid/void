@@ -14,7 +14,7 @@ import (
 type DrawStatusEnt struct {
 	ventities.HUDEnt
 	ventities.TextEnt
-	Bg   ventities.NinePatchEnt
+	Fill ventities.NinePatchEnt
 	Next struct {
 		// start of the current one-second FPS counting window in milliseconds.
 		Start float64
@@ -26,22 +26,22 @@ type DrawStatusEnt struct {
 }
 
 func NewDrawStatusEnt(
-	bgAnimID vatlas.AnimID,
+	fillAnimID vatlas.AnimID,
 	anchor vgeo.Dir,
 	margin vgeo.Edge[int16],
 ) DrawStatusEnt {
 	this := DrawStatusEnt{}
-	this.Bg = ventities.NinePatchEnt{
+	this.Fill = ventities.NinePatchEnt{
 		PatchByDir: [9]vgfx.Sprite{
-			vgeo.DirN:      {AnimCel: bgAnimID.Cel(0)},
-			vgeo.DirE:      {AnimCel: bgAnimID.Cel(0)},
-			vgeo.DirS:      {AnimCel: bgAnimID.Cel(0)},
-			vgeo.DirW:      {AnimCel: bgAnimID.Cel(0)},
-			vgeo.DirCenter: {AnimCel: bgAnimID.Cel(0)},
+			vgeo.DirN:      {AnimCel: fillAnimID.Cel(0)},
+			vgeo.DirE:      {AnimCel: fillAnimID.Cel(0)},
+			vgeo.DirS:      {AnimCel: fillAnimID.Cel(0)},
+			vgeo.DirW:      {AnimCel: fillAnimID.Cel(0)},
+			vgeo.DirCenter: {AnimCel: fillAnimID.Cel(0)},
 		},
 		CornerWH: vgeo.WH[uint16]{W: 1, H: 1},
 	}
-	this.Bg.SetZ(gfx.ZUIBackground)
+	this.Fill.SetZ(gfx.ZUIFill)
 	this.Anchor = anchor
 	this.Margin = margin
 	this.Z = gfx.ZUIWidget
@@ -67,25 +67,25 @@ func (this *DrawStatusEnt) Update(
 	this.SetText(text)
 
 	this.LayoutChars(font)
-	const bgMargin = int16(2)
-	bgXY := this.HUDEnt.XY(
-		this.Layout.W+bgMargin*2, this.Layout.TrimAllForceH+bgMargin*2, clip,
+	const fillMargin = int16(2)
+	fillXY := this.HUDEnt.XY(
+		this.Layout.W+fillMargin*2, this.Layout.TrimAllForceH+fillMargin*2, clip,
 	)
-	this.TextEnt.XY = vgeo.XY[int16]{X: bgXY.X + bgMargin, Y: bgXY.Y + bgMargin}
+	this.TextEnt.XY = vgeo.XY[int16]{X: fillXY.X + fillMargin, Y: fillXY.Y + fillMargin}
 
-	this.DrawBackground(sprites)
+	this.DrawFill(sprites)
 
 	return this.TextEnt.Update(font, sprites, clip)
 }
 
-func (this *DrawStatusEnt) DrawBackground(sprites *[]vgfx.Sprite) {
+func (this *DrawStatusEnt) DrawFill(sprites *[]vgfx.Sprite) {
 	const margin = int16(2)
-	this.Bg.XY = vgeo.NewXY(
+	this.Fill.XY = vgeo.NewXY(
 		float32(this.TextEnt.XY.X-margin), float32(this.TextEnt.XY.Y-margin),
 	)
-	this.Bg.WH = vgeo.WH[uint16]{
+	this.Fill.WH = vgeo.WH[uint16]{
 		W: uint16(this.Layout.W + margin*2),
 		H: uint16(this.Layout.TrimAllForceH + margin*2),
 	}
-	this.Bg.Update(sprites)
+	this.Fill.Update(sprites)
 }
