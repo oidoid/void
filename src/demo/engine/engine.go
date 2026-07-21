@@ -54,7 +54,7 @@ func New() *Engine {
 	this.Layer(gfx.LayerOverlay).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerOverlay).Shader = vgfx.ShaderOverlay
 	this.Layer(gfx.LayerOverlay).BlendMode = vgfx.LayerBlendModeReplace
-	this.Layer(gfx.LayerOutline).CamMode = vgfx.LayerCamModeFixed
+	this.Layer(gfx.LayerViewportEdge).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerCursor).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerGrid).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerGrid).BlendMode = vgfx.LayerBlendModeMultiply

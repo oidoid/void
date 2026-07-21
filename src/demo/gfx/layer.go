@@ -7,23 +7,23 @@ const (
 	LayerSuperballs
 	LayerUI
 	LayerClock
-	LayerOutline
+	LayerViewportEdge
 	LayerCursor
 	LayerOverlay
 	LayerGrid
 )
 
 var (
-	ZSuperball   vgfx.Z = LayerSuperballs.Z(0)
-	ZUILevelEdge vgfx.Z = LayerUI.Z(0)
-	ZUIFill      vgfx.Z = LayerUI.Z(1)
-	ZUIWidget    vgfx.Z = LayerUI.Z(2)
-	ZUIText      vgfx.Z = LayerUI.Z(3)
-	ZClock       vgfx.Z = LayerClock.Z(0)
-	ZOutline     vgfx.Z = LayerOutline.Z(0)
-	ZCursor      vgfx.Z = LayerCursor.Z(0)
-	ZOverlay     vgfx.Z = LayerOverlay.Z(0)
-	ZGrid        vgfx.Z = LayerGrid.Z(0)
+	ZSuperball    vgfx.Z = LayerSuperballs.Z(0)
+	ZUILevelEdge  vgfx.Z = LayerUI.Z(0)
+	ZUIFill       vgfx.Z = LayerUI.Z(1)
+	ZUIWidget     vgfx.Z = LayerUI.Z(2)
+	ZUIText       vgfx.Z = LayerUI.Z(3)
+	ZClock        vgfx.Z = LayerClock.Z(0)
+	ZViewportEdge vgfx.Z = LayerViewportEdge.Z(0)
+	ZCursor       vgfx.Z = LayerCursor.Z(0)
+	ZOverlay      vgfx.Z = LayerOverlay.Z(0)
+	ZGrid         vgfx.Z = LayerGrid.Z(0)
 )
 
 const (

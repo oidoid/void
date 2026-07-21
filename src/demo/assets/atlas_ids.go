@@ -147,9 +147,6 @@ const (
 	MouseStatusAux
 	MouseStatusLocked
 	OidoidDefault
-	OutlineTopLeft
-	OutlineTop
-	OutlineLeft
 	PolyTriangle
 	PolySquare
 	SuperballDefault
@@ -157,4 +154,7 @@ const (
 	TileStripesBlue
 	TileRed
 	UICheckboxChecked
+	ViewportEdgeTopLeft
+	ViewportEdgeTop
+	ViewportEdgeLeft
 )

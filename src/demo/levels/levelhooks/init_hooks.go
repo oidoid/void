@@ -88,7 +88,7 @@ func InitInit(gam *engine.Engine) {
 	gam.RegisterEntUpdate(levelClips)
 
 	clipFills := ventities.NewEntVec(hooks.UpdateClipFillNinePatches)
-	clipFills.Add(newCornerEdgeEnt(gfx.ZOutline))
+	clipFills.Add(newCornerEdgeEnt(gfx.ZViewportEdge))
 	clipFills.Add(newFillEnt(gfx.ZGrid))
 	gam.RegisterEntUpdate(clipFills)
 
@@ -115,20 +115,20 @@ func newEdgeEnt(z vgfx.Z, w, h uint16) ventities.NinePatchEnt {
 func newCornerEdgeEnt(z vgfx.Z) ventities.NinePatchEnt {
 	const cornerTopLeftWH = 16
 	ent := newEdgeEnt(z, cornerTopLeftWH, cornerTopLeftWH)
-	ent.PatchByDir[vgeo.DirN].SetAnim(assets.OutlineTop)
-	ent.PatchByDir[vgeo.DirNE].SetAnim(assets.OutlineTopLeft)
+	ent.PatchByDir[vgeo.DirN].SetAnim(assets.ViewportEdgeTop)
+	ent.PatchByDir[vgeo.DirNE].SetAnim(assets.ViewportEdgeTopLeft)
 	ent.PatchByDir[vgeo.DirNE].SetFlipX(true)
-	ent.PatchByDir[vgeo.DirE].SetAnim(assets.OutlineLeft)
+	ent.PatchByDir[vgeo.DirE].SetAnim(assets.ViewportEdgeLeft)
 	ent.PatchByDir[vgeo.DirE].SetFlipX(true)
-	ent.PatchByDir[vgeo.DirSE].SetAnim(assets.OutlineTopLeft)
+	ent.PatchByDir[vgeo.DirSE].SetAnim(assets.ViewportEdgeTopLeft)
 	ent.PatchByDir[vgeo.DirSE].SetFlipX(true)
 	ent.PatchByDir[vgeo.DirSE].SetFlipY(true)
-	ent.PatchByDir[vgeo.DirS].SetAnim(assets.OutlineTop)
+	ent.PatchByDir[vgeo.DirS].SetAnim(assets.ViewportEdgeTop)
 	ent.PatchByDir[vgeo.DirS].SetFlipY(true)
-	ent.PatchByDir[vgeo.DirSW].SetAnim(assets.OutlineTopLeft)
+	ent.PatchByDir[vgeo.DirSW].SetAnim(assets.ViewportEdgeTopLeft)
 	ent.PatchByDir[vgeo.DirSW].SetFlipY(true)
-	ent.PatchByDir[vgeo.DirW].SetAnim(assets.OutlineLeft)
-	ent.PatchByDir[vgeo.DirNW].SetAnim(assets.OutlineTopLeft)
+	ent.PatchByDir[vgeo.DirW].SetAnim(assets.ViewportEdgeLeft)
+	ent.PatchByDir[vgeo.DirNW].SetAnim(assets.ViewportEdgeTopLeft)
 	return ent
 }
 
