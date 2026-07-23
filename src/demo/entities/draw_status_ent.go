@@ -51,15 +51,15 @@ func NewDrawStatusEnt(
 func (this *DrawStatusEnt) Update(
 	font *vtext.Font,
 	sprites *[]vgfx.Sprite,
-	nowMs float64,
+	nowMillis float64,
 	tick *vgame.Tick,
 	clip vgeo.Box[float32],
 ) vgame.Status {
 	this.Next.Frames++
-	if nowMs-this.Next.Start >= 1000 {
+	if nowMillis-this.Next.Start >= 1000 {
 		this.PrevFPS = this.Next.Frames
 		this.Next.Frames = 0
-		this.Next.Start = nowMs
+		this.Next.Start = nowMillis
 	}
 	text := vtext.Itoa(int(tick.DrawCount)+1) + "d " +
 		vtext.FmtFloat2(tick.UpdateMs) + "ms " +

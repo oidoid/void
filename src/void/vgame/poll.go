@@ -8,9 +8,9 @@ import (
 type Poll struct {
 	InputPoll vin.InputPoll
 	// time since the last frame was _requested_ in milliseconds.
-	DeltaMs float64
+	DeltaMillis float64
 	// UTC timestamp from `performance.timeOrigin + performance.now()`.
-	NowMs      float64
+	NowMillis      float64
 	CanvasPhy  vgeo.WH[uint16]
 	Fullscreen bool
 	DrawAlways bool
@@ -19,7 +19,7 @@ type Poll struct {
 	DrawCount int32
 	_         [4]byte
 	// duration of the previous Go update call in milliseconds.
-	UpdateMs         float64
+	UpdateMillis         float64
 	DevicePixelRatio float64
 	// local time for `NowMs`.
 	TimeFormat TimeFormat
@@ -33,6 +33,6 @@ type TimeFormat struct {
 	Minute uint8  // 0-59.
 	Second uint8  // 0-59.
 	_      byte
-	Millis uint16 // 0-999.
+	Milli uint16 // 0-999.
 	_      [2]byte
 }

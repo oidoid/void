@@ -35,16 +35,16 @@ func TestPollSerializationRoundTrip(t *testing.T) {
 				Axes:      [4]float32{-1, -0.5, 0.5, 1},
 			}},
 		},
-		DeltaMs:          16.5,
-		NowMs:            1_767_000_000_123.5,
+		DeltaMillis:          16.5,
+		NowMillis:            1_767_000_000_123.5,
 		CanvasPhy:        vgeo.WH[uint16]{W: 640, H: 480},
 		Fullscreen:       true,
 		DrawAlways:       true,
 		DrawCount:        3,
-		UpdateMs:         4.5,
+		UpdateMillis:         4.5,
 		DevicePixelRatio: 2,
 		TimeFormat: TimeFormat{
-			Year: 2026, Month: 7, Day: 19, Hour: 7, Minute: 52, Second: 20, Millis: 123,
+			Year: 2026, Month: 7, Day: 19, Hour: 7, Minute: 52, Second: 20, Milli: 123,
 		},
 	}
 	copy(want.InputPoll.Kbd.Text[:], "hello world")
@@ -68,13 +68,13 @@ func TestPollLayout(t *testing.T) {
 			t.Errorf("%s: offset %d, want %d", name, got, want)
 		}
 	}
-	check("DeltaMs", unsafe.Offsetof(poll.DeltaMs), 4376)
-	check("NowMs", unsafe.Offsetof(poll.NowMs), 4384)
+	check("DeltaMs", unsafe.Offsetof(poll.DeltaMillis), 4376)
+	check("NowMs", unsafe.Offsetof(poll.NowMillis), 4384)
 	check("CanvasPhy.W", unsafe.Offsetof(poll.CanvasPhy), 4392)
 	check("CanvasPhy.H", unsafe.Offsetof(poll.CanvasPhy)+2, 4394)
 	check("Fullscreen", unsafe.Offsetof(poll.Fullscreen), 4396)
 	check("DrawCount", unsafe.Offsetof(poll.DrawCount), 4400)
-	check("UpdateMs", unsafe.Offsetof(poll.UpdateMs), 4408)
+	check("UpdateMs", unsafe.Offsetof(poll.UpdateMillis), 4408)
 	check("DevicePixelRatio", unsafe.Offsetof(poll.DevicePixelRatio), 4416)
 	check("Time.Year", unsafe.Offsetof(poll.TimeFormat), 4424)
 	check("Time.Month", unsafe.Offsetof(poll.TimeFormat)+2, 4426)

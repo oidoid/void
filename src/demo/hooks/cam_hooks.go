@@ -14,7 +14,7 @@ import (
 func UpdateCam(gam *engine.Engine) vgame.Status {
 	frame := gam.Frame()
 	in := gam.In()
-	d := .1 * float32(frame.DeltaMs) // phy px/ms = 100 px/s
+	d := .1 * float32(frame.DeltaMillis) // phy px/ms = 100 px/s
 	if in.IsOn(vin.ButtonC) {
 		d *= 10
 	}

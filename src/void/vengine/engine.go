@@ -103,11 +103,11 @@ func (this *Engine[Game]) Font() *vtext.Font {
 
 func (this *Engine[Game]) Frame() *vgame.Poll { return &this.frame }
 func (this *Engine[Game]) Fullscreen() bool   { return this.frame.Fullscreen }
-func (this *Engine[Game]) NowMillis() float64 { return this.frame.NowMs }
+func (this *Engine[Game]) NowMillis() float64 { return this.frame.NowMillis }
 func (this *Engine[Game]) Time() vgame.TimeFormat {
 	return this.frame.TimeFormat
 }
-func (this *Engine[Game]) DeltaMs() float64  { return this.frame.DeltaMs }
+func (this *Engine[Game]) DeltaMs() float64  { return this.frame.DeltaMillis }
 func (this *Engine[Game]) Tick() *vgame.Tick { return &this.tick }
 
 func (this *Engine[Game]) RequestFullscreen(fullscreen bool) {
@@ -216,7 +216,7 @@ func (this *Engine[Game]) EndTick(stat vgame.Status) vgame.Status {
 	if this.drawAlways {
 		stat |= vgame.Loop
 	}
-	this.tick.UpdateMs = this.frame.UpdateMs
+	this.tick.UpdateMs = this.frame.UpdateMillis
 	// to-do: make frame finalization explicit instead of hanging this off
 	// EndTick.
 	this.updateLayerConfigExport()
@@ -255,7 +255,7 @@ func (this *Engine[Game]) AtlasCelsCount() uint32 {
 
 func (this *Engine[Game]) BeginTick() vgame.Status {
 	this.in.Update(
-		this.frame.NowMs,
+		this.frame.NowMillis,
 		&this.frame.InputPoll,
 		vgeo.Box[float32]{Min: this.cam}, // to-do: actual cam box.
 	)
