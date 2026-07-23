@@ -43,7 +43,7 @@ type Engine[Game vgame.Game] struct {
 	fullscreenRequest  FullscreenRequest
 	screenshotRequest  bool
 	contextLossRequest bool
-	updateAtMillis     float64
+	updateInMillis     uint64
 	drawAlways         bool
 	tick               vgame.Tick
 }
@@ -104,6 +104,7 @@ func (this *Engine[Game]) Font() *vtext.Font {
 func (this *Engine[Game]) Frame() *vgame.Poll { return &this.frame }
 func (this *Engine[Game]) Fullscreen() bool   { return this.frame.Fullscreen }
 func (this *Engine[Game]) NowMillis() float64 { return this.frame.NowMillis }
+func (this *Engine[Game]) UtcMillis() uint64  { return this.frame.UtcMillis }
 func (this *Engine[Game]) Time() vgame.TimeFormat {
 	return this.frame.TimeFormat
 }
@@ -141,15 +142,17 @@ func (this *Engine[Game]) RequestContextLoss() {
 	this.contextLossRequest = true
 }
 
-// update at millis since the Unix epoch. zero cancels the request.
-func (this *Engine[Game]) RequestUpdateAtMillis(millis float64) {
-	if millis == 0 || this.updateAtMillis == 0 || millis < this.updateAtMillis {
-		this.updateAtMillis = millis
-	}
+// requests an update after millis. zero cancels the pending request. always
+// cleared on next frame. to-do: is this right?
+func (this *Engine[Game]) RequestUpdateInMillis(millis uint64) {
+	this.updateInMillis = millis
 }
 
-func (this *Engine[Game]) UpdateAtMillis() float64 {
-	return this.updateAtMillis
+// returns and clears the pending update delay.
+func (this *Engine[Game]) UpdateInMillisRequest() uint64 {
+	millis := this.updateInMillis
+	this.updateInMillis = 0
+	return millis
 }
 
 func (this *Engine[Game]) ContextLossRequest() int32 {

@@ -16,7 +16,8 @@ import {
   localYearOffset,
   nowMsOffset,
   updateByteLen,
-  updateMsOffset
+  updateMsOffset,
+  utcMsOffset
 } from '../input/layout.ts'
 import {Renderer} from '../renderer/renderer.ts'
 import {downloadScreenshot, initCanvas} from '../utils/canvas-util.ts'
@@ -72,7 +73,6 @@ export class Engine {
   #phyH: number = 0
   #rafId: number = 0
   #updateTimeoutId: number = 0
-  #updateTimeoutAtMillis: number = 0
   #registered: boolean = false
   #renderer!: Renderer
   readonly #resizeObserver: ResizeObserver = new ResizeObserver(
@@ -145,10 +145,8 @@ export class Engine {
 
   #update(): void {
     this.#rafId = 0
-    const updateAtMillis = this.#wasm.UpdateAtMillis()
-    const nowMillis = performance.timeOrigin + performance.now()
-    if (updateAtMillis !== 0 && updateAtMillis <= nowMillis)
-      this.#wasm.RequestUpdateAtMillis(0)
+    clearTimeout(this.#updateTimeoutId)
+    this.#updateTimeoutId = 0
     this.#requestUpdate()
     this.#renderer.resize(this.#phyW, this.#phyH)
     this.#writeUpdate()
@@ -240,23 +238,12 @@ export class Engine {
   }
 
   #requestDelayedUpdate(): void {
-    const atMillis = this.#wasm.UpdateAtMillis()
-    if (
-      atMillis === 0 ||
-      (this.#updateTimeoutId !== 0 && this.#updateTimeoutAtMillis === atMillis)
-    )
-      return
-    clearTimeout(this.#updateTimeoutId)
-    this.#updateTimeoutAtMillis = atMillis
-    this.#updateTimeoutId = setTimeout(
-      () => {
-        this.#updateTimeoutId = 0
-        this.#updateTimeoutAtMillis = 0
-        this.#wasm.RequestUpdateAtMillis(0)
-        this.#requestUpdate()
-      },
-      Math.max(0, atMillis - (performance.timeOrigin + performance.now()))
-    )
+    const millis = Number(this.#wasm.UpdateInMillisRequest())
+    if (millis === 0) return
+    this.#updateTimeoutId = setTimeout(() => {
+      this.#updateTimeoutId = 0
+      this.#requestUpdate()
+    }, millis)
   }
 
   #onResize(entries: readonly Readonly<ResizeObserverEntry>[]): void {
@@ -275,8 +262,6 @@ export class Engine {
     clearTimeout(this.#updateTimeoutId)
     this.#rafId = 0
     this.#updateTimeoutId = 0
-    this.#updateTimeoutAtMillis = 0
-    this.#wasm.RequestUpdateAtMillis(0)
     this.#lastTime = 0
     this.#updateMs = 0
   }
@@ -360,9 +345,10 @@ export class Engine {
     this.#frame.setInt32(drawCountOffset, this.#drawCount, true)
     this.#frame.setFloat64(updateMsOffset, this.#updateMs, true)
     this.#frame.setFloat64(devicePixelRatioOffset, devicePixelRatio, true)
-    const time = performance.timeOrigin + now
+    const time = Date.now()
     const date = new Date(time)
-    this.#frame.setFloat64(nowMsOffset, time, true)
+    this.#frame.setFloat64(nowMsOffset, now, true)
+    this.#frame.setBigUint64(utcMsOffset, BigInt(time), true)
     this.#frame.setUint16(localYearOffset, date.getFullYear(), true)
     this.#frame.setUint8(localMonthOffset, date.getMonth() + 1)
     this.#frame.setUint8(localDayOffset, date.getDate())

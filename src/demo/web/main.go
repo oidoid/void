@@ -38,14 +38,9 @@ func DrawAlways() int32 {
 	return gam.DrawAlwaysFlag()
 }
 
-//export UpdateAtMillis
-func UpdateAtMillis() float64 {
-	return gam.UpdateAtMillis()
-}
-
-//export RequestUpdateAtMillis
-func RequestUpdateAtMillis(millis float64) {
-	gam.RequestUpdateAtMillis(millis)
+//export UpdateInMillisRequest
+func UpdateInMillisRequest() uint64 {
+	return gam.UpdateInMillisRequest()
 }
 
 //export LayerConfigsPointer

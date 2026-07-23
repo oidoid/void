@@ -34,8 +34,8 @@ func TestTimeString(t *testing.T) {
 
 func TestMillisToNextMin(t *testing.T) {
 	for _, test := range []struct {
-		millis float64
-		want   float64
+		millis uint64
+		want   uint64
 	}{
 		{0, 60_000},
 		{1, 59_999},
@@ -44,7 +44,7 @@ func TestMillisToNextMin(t *testing.T) {
 		{123_456_789, 23_211},
 	} {
 		if got := millisToNextMin(test.millis); got != test.want {
-			t.Errorf("millisToNextMin(%f) = %f, want %f", test.millis, got, test.want)
+			t.Errorf("millisToNextMin(%d) = %d, want %d", test.millis, got, test.want)
 		}
 	}
 }

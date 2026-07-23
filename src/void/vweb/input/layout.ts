@@ -31,8 +31,10 @@ export const deltaMsOffset: number =
   gamepadsOffset + maxGamepads * gamepadPollSize
 /** byte offset of NowMs field within Update. */
 export const nowMsOffset: number = deltaMsOffset + 8
+/** byte offset of UTC milliseconds within Update. */
+export const utcMsOffset: number = nowMsOffset + 8
 /** byte offset of CanvasW field within Update (CSS logical px). */
-export const canvasWOffset: number = nowMsOffset + 8
+export const canvasWOffset: number = utcMsOffset + 8
 /** byte offset of CanvasH field within Update (CSS logical px). */
 export const canvasHOffset: number = canvasWOffset + 2
 /** byte offset of Fullscreen field within Update. */

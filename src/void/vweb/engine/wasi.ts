@@ -25,9 +25,7 @@ export class WASI {
     _precision: bigint,
     result: number
   ): number => {
-    const now = BigInt(
-      Math.floor((performance.timeOrigin + performance.now()) * 1e6)
-    )
+    const now = BigInt(Date.now() * 1e6)
     new DataView(this.#mem.buffer).setBigUint64(result, now, true)
     return 0
   }

@@ -16,12 +16,12 @@ func UpdateClocks(
 	font := gam.Font()
 	ents := vec.Vals()
 	loop := vgame.Pause
-	nowMillis := gam.NowMillis()
+	utcMillis := gam.UtcMillis()
 	time := gam.Time()
-	requestUpdateAtMillis := gam.RequestUpdateAtMillis
+	requestUpdateInMillis := gam.RequestUpdateInMillis
 	for i := range ents {
 		loop |= ents[i].Update(
-			font, &layer.Sprites, nowMillis, time, layer.Clip, requestUpdateAtMillis,
+			font, &layer.Sprites, utcMillis, time, layer.Clip, requestUpdateInMillis,
 		)
 	}
 	return loop

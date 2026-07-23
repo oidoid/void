@@ -1,8 +1,6 @@
 package entities
 
 import (
-	"math"
-
 	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgame"
@@ -28,10 +26,10 @@ func NewClockEnt() ClockEnt {
 func (this *ClockEnt) Update(
 	font *vtext.Font,
 	sprites *[]vgfx.Sprite,
-	nowMillis float64,
+	utcMillis uint64,
 	time vgame.TimeFormat,
 	clip vgeo.Box[float32],
-	requestUpdateAtMillis func(float64),
+	requestUpdateInMillis func(uint64),
 ) vgame.Status {
 	this.SetText(timeString(time))
 	this.LayoutChars(font)
@@ -39,12 +37,12 @@ func (this *ClockEnt) Update(
 		this.Layout.W, this.Layout.TrimLeadForceH, clip,
 	)
 	this.TextEnt.Update(font, sprites, clip)
-	requestUpdateAtMillis(nowMillis + millisToNextMin(nowMillis))
+	requestUpdateInMillis(millisToNextMin(utcMillis))
 	return vgame.Pause
 }
 
-func millisToNextMin(millis float64) float64 {
-	return 60_000 - math.Mod(millis, 60_000)
+func millisToNextMin(millis uint64) uint64 {
+	return 60_000 - millis%60_000
 }
 
 func timeString(time vgame.TimeFormat) string {
