@@ -9,11 +9,12 @@ import (
 
 // to-do: hide text?
 type TextEnt struct {
-	Text   string
-	Layout vtext.TextLayout // nil `Layout.Chars` to force relayout.
-	XY     vgeo.XY[int16]
-	Z      vgfx.Z
-	Trim   vtext.Trim
+	Text      string
+	Layout    vtext.TextLayout // nil `Layout.Chars` to force relayout.
+	XY        vgeo.XY[int16]
+	Z         vgfx.Z
+	Trim      vtext.Trim
+	textScale uint8
 }
 
 var zeroChar = vgeo.Box[int16]{}
@@ -41,10 +42,14 @@ func (this *TextEnt) Update(
 		if !clip.HitsXY(xy) {
 			continue
 		}
-		*sprites = append(
-			*sprites,
-			vgfx.Sprite{AnimCel: font.AnimID(ch).Cel(0), XY: xy, Z: this.Z},
-		)
+		sprite := vgfx.Sprite{AnimCel: font.AnimID(ch).Cel(0), XY: xy, Z: this.Z}
+		scale := this.scale()
+		sprite.WH = vgeo.WH[uint16]{
+			W: uint16(font.CellW) * uint16(scale),
+			H: uint16(font.CellH) * uint16(scale),
+		}
+		sprite.SetStretch(true)
+		*sprites = append(*sprites, sprite)
 	}
 	return loop
 }
@@ -58,13 +63,28 @@ func (this *TextEnt) SetText(text string) {
 	this.Layout.Chars = nil
 }
 
+func (this *TextEnt) SetScale(scale uint8) {
+	if this.textScale == scale {
+		return
+	}
+	this.textScale = scale
+	this.Layout.Chars = nil
+}
+
 func (this *TextEnt) LayoutChars(font *vtext.Font) {
 	if this.Layout.Chars != nil {
 		return
 	}
 	this.Layout = vtext.LayoutText(vtext.TextLayoutOpts{
 		Font:  font,
-		Scale: 1,
+		Scale: this.scale(),
 		Text:  this.Text,
 	})
+}
+
+func (this *TextEnt) scale() uint8 {
+	if this.textScale == 0 {
+		return 1
+	}
+	return this.textScale
 }

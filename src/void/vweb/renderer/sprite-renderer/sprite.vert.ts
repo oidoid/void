@@ -13,10 +13,11 @@ uniform highp vec2 uAtlasSize;
 layout(location=0) in highp vec2 aXY; // sprite origin.
 layout(location=1) in highp uint aAnimCel; // hi 12 bits = AnimID, lo 4 bits = Cel.
 layout(location=2) in highp uint aZ;
-layout(location=3) in highp uvec2 aWH; // when nonzero, stretch sprite to this size.
-layout(location=4) in highp uint aFlags; // bit 0 = Hidden, bit 1 = FlipX, bit 2 = FlipY.
+layout(location=3) in highp uvec2 aWH; // destination size; zero uses source cel size.
+layout(location=4) in highp uint aFlags; // bit 0 = Hidden, bit 1 = FlipX, bit 2 = FlipY, bit 3 = Stretch.
 
 out highp vec2 vTexUV; // local pixel position within destination box.
+flat out highp vec2 vDstWH;
 flat out highp vec4 vCelXYWH; // in atlas pixels.
 flat out highp uint vFlags;
 
@@ -54,6 +55,7 @@ void main() {
   gl_Position = vec4(ndc, z, 1.);
 
   vTexUV = corner * wh;
+  vDstWH = wh;
   vCelXYWH = vec4(celMin, celWH);
   vFlags = aFlags;
 }

@@ -62,8 +62,8 @@ func (this *DrawStatusEnt) Update(
 		this.Next.Start = nowMs
 	}
 	text := vtext.Itoa(int(tick.DrawCount)+1) + "d " +
-		vtext.FmtFloat(tick.UpdateMs) + "u " +
-		vtext.Itoa(this.PrevFPS) + "\tfps" // \t forces 1px kerning.
+		vtext.FmtFloat2(tick.UpdateMs) + "ms " +
+		vtext.PadInt(this.PrevFPS, 3, " ") + "\tfps" // \t forces 1px kerning.
 	this.SetText(text)
 
 	this.LayoutChars(font)

@@ -43,6 +43,15 @@ func FmtFloat[T vtypes.Number](num T) string {
 	return Itoa(i) + "." + Itoa(frac)
 }
 
+// `FmtFloat()` but pad the integer part to at least two digits.
+func FmtFloat2[T vtypes.Number](num T) string {
+	s := FmtFloat(num)
+	if len(s) < 4 { // e.g. "1.6" → " 1.6"
+		return " " + s
+	}
+	return s
+}
+
 // pads a non-negative integer to at least width digits with pad.
 func PadInt(n, w int, pad string) string {
 	str := Itoa(n)

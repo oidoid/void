@@ -19,8 +19,9 @@ type ClockEnt struct {
 func NewClockEnt() ClockEnt {
 	this := ClockEnt{}
 	this.Anchor = vgeo.DirS
-	this.Margin = vgeo.Edge[int16]{S: 1}
-	this.Z = gfx.ZClock
+	this.Margin = vgeo.Edge[int16]{S: 2}
+	this.Z = gfx.ZUIText
+	this.SetScale(2)
 	return this
 }
 

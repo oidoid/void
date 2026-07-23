@@ -99,7 +99,7 @@ export class SpriteRenderer {
     gl.vertexAttribIPointer(2, 1, gl.UNSIGNED_BYTE, spriteStride, spriteZOffset)
     gl.vertexAttribDivisor(2, 1)
 
-    // aWH (uvec2 of uint16).
+    // aWH (uvec2 of uint16): destination size; zero uses source cel size.
     gl.enableVertexAttribArray(3)
     gl.vertexAttribIPointer(
       3,

@@ -19,9 +19,10 @@ type Sprite struct {
 const SpriteStride = int(unsafe.Sizeof(Sprite{}))
 
 const (
-	SpriteHiddenFlag uint32 = 1
-	SpriteFlipXFlag  uint32 = 2
-	SpriteFlipYFlag  uint32 = 4
+	SpriteHiddenFlag  uint32 = 1
+	SpriteFlipXFlag   uint32 = 2
+	SpriteFlipYFlag   uint32 = 4
+	SpriteStretchFlag uint32 = 8
 
 	// to-do: bit pattern elsewehre with shift and mask.
 	// flip flag bits for FlipByDir and SetFlipX/SetFlipY.
@@ -76,5 +77,16 @@ func (this *Sprite) SetFlipY(flip bool) {
 		this.flags |= SpriteFlipYFlag
 	} else {
 		this.flags &^= SpriteFlipYFlag
+	}
+}
+
+func (this *Sprite) Stretch() bool { return this.flags&SpriteStretchFlag != 0 }
+
+// true to stretch, false to repeat.
+func (this *Sprite) SetStretch(stretch bool) {
+	if stretch {
+		this.flags |= SpriteStretchFlag
+	} else {
+		this.flags &^= SpriteStretchFlag
 	}
 }

@@ -6,7 +6,6 @@ const (
 	LayerTiles vgfx.Layer = iota
 	LayerSuperballs
 	LayerUI
-	LayerClock
 	LayerViewportEdge
 	LayerCursor
 	LayerOverlay
@@ -19,7 +18,6 @@ var (
 	ZUIFill       vgfx.Z = LayerUI.Z(1)
 	ZUIWidget     vgfx.Z = LayerUI.Z(2)
 	ZUIText       vgfx.Z = LayerUI.Z(3)
-	ZClock        vgfx.Z = LayerClock.Z(0)
 	ZViewportEdge vgfx.Z = LayerViewportEdge.Z(0)
 	ZCursor       vgfx.Z = LayerCursor.Z(0)
 	ZOverlay      vgfx.Z = LayerOverlay.Z(0)

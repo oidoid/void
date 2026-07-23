@@ -12,7 +12,7 @@ func UpdateClocks(
 	vec *vvec.Vec[entities.ClockEnt],
 	gam *engine.Engine,
 ) vgame.Status {
-	layer := gam.Layer(gfx.LayerClock)
+	layer := gam.Layer(gfx.LayerUI)
 	font := gam.Font()
 	ents := vec.Vals()
 	loop := vgame.Pause
