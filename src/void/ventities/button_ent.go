@@ -31,7 +31,7 @@ type ButtonEnt struct {
 	UnfocusedEdge vatlas.AnimID
 	FocusedEdge   vatlas.AnimID
 	Fill          vatlas.AnimID
-	SelectedFill  vatlas.AnimID
+	FocusedFill   vatlas.AnimID
 	Text          TextEnt
 	// to-do: rename HUDAnchorEnt?
 	ClipAnchor HUDEnt // clip-relative positioning; takes priority over Anchor.
@@ -102,7 +102,7 @@ func (this *ButtonEnt) Update(
 	}
 	wasOn := this.On
 	if this.Type == ButtonTypeToggle {
-		if this.Focused && in.IsOnStart(vin.ButtonA) {
+		if this.Focused && in.IsOnEnd(vin.ButtonA) {
 			this.On = !this.On
 		}
 	} else {
@@ -121,10 +121,14 @@ func (this *ButtonEnt) Update(
 	if this.Focused {
 		edge = this.FocusedEdge
 	}
-	if this.Fill != 0 || this.SelectedFill != 0 {
+	if this.Fill != 0 || this.FocusedFill != 0 {
 		fill := this.Fill
-		if this.On {
-			fill = this.SelectedFill
+		// to-do: don't do automasking. it makes it really confusing to have state
+		// mutate on access.
+		if this.Type == ButtonTypeButton && this.On && this.Focused ||
+			this.Type == ButtonTypeToggle && !this.On && this.Focused && in.IsOn(vin.ButtonA) ||
+			this.Type == ButtonTypeToggle && this.On && !in.IsOn(vin.ButtonA) {
+			fill = this.FocusedFill
 		}
 		if fill != 0 {
 			this.PatchByDir[vgeo.DirCenter].SetAnim(fill)
