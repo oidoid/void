@@ -93,17 +93,6 @@ export class Sprite implements Block, Box {
     this.#pool.view.setUint16(this.i + 13, (r4_a12 & ~0xfff) | bits, true)
   }
 
-  get cel(): number {
-    const iiic_cccc = this.#pool.view.getUint8(this.i + 10)
-    return iiic_cccc & 0x1f
-  }
-
-  /** [0, 31]. rendered cel offset. call reset() to play animation from start. */
-  set cel(cel: number) {
-    const iiic_cccc = this.#pool.view.getUint8(this.i + 10)
-    this.#pool.view.setUint8(this.i + 10, (iiic_cccc & ~0x1f) | (cel & 0x1f))
-  }
-
   /** test if render area overlaps box or sprite render area. */
   clips(box: Readonly<XY & Partial<WH>>): boolean {
     return boxHits(this, box)
@@ -121,61 +110,6 @@ export class Sprite implements Block, Box {
     return boxHits(this, clipbox)
   }
 
-  diagonalize(dir: Readonly<XY>): void {
-    diagonalize(this, dir.x * dir.y)
-  }
-
-  get flipX(): boolean {
-    const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
-    return !!(sxyz_llll & 0x40)
-  }
-
-  set flipX(flip: boolean) {
-    const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
-    this.#pool.view.setUint8(this.i + 6, (sxyz_llll & ~0x40) | (-flip & 0x40))
-  }
-
-  get flipY(): boolean {
-    const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
-    return !!(sxyz_llll & 0x20)
-  }
-
-  set flipY(flip: boolean) {
-    const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
-    this.#pool.view.setUint8(this.i + 6, (sxyz_llll & ~0x20) | (-flip & 0x20))
-  }
-
-  free(): void {
-    this.#pool.free(this)
-  }
-
-  get h(): number {
-    const h12_wwww = this.#pool.view.getUint16(this.i + 8, true)
-    return h12_wwww >>> 4
-  }
-
-  /** [0, 4095]. */
-  set h(h: number) {
-    const h12_wwww = this.#pool.view.getUint16(this.i + 8, true)
-    this.#pool.view.setUint16(
-      this.i + 8,
-      (h12_wwww & ~(0xfff << 4)) | ((h & 0xfff) << 4),
-      true
-    )
-  }
-
-  get hidden(): boolean {
-    const rrrr_rrrh = this.#pool.view.getUint8(this.i + 12)
-    return (rrrr_rrrh & 0x1) === 0x1
-  }
-
-  set hidden(hidden: boolean) {
-    const rrrr_rrrh = this.#pool.view.getUint8(this.i + 12)
-    this.#pool.view.setUint8(
-      this.i + 12,
-      (rrrr_rrrh & ~0x1) | (hidden ? 0x1 : 0x0)
-    )
-  }
 
   hit(box: Readonly<Box>): Box {
     return boxIntersect(
@@ -228,45 +162,6 @@ export class Sprite implements Block, Box {
     }
   }
 
-  get id(): number {
-    const i11_c5 = this.#pool.view.getUint16(this.i + 10, true)
-    return (i11_c5 >>> 5) & 0x7ff
-  }
-
-  /** [0, 2047]. */
-  set id(id: number) {
-    const i11_c5 = this.#pool.view.getUint16(this.i + 10, true)
-    this.#pool.view.setUint16(
-      this.i + 10,
-      (i11_c5 & ~(0x7ff << 5)) | ((id & 0x7ff) << 5),
-      true
-    )
-    this.#tag = this.#atlas.tags[id]!
-    this.anim = this.#atlas.anim[this.#tag]!
-    this.w = this.anim.w
-    this.h = this.anim.h
-    this.rewind()
-  }
-
-  /**
-   * reset most values that wouldn't be configured when setting the tag. used
-   * for reinitialization on pool allocation.
-   */
-  init(): void {
-    this.id = 0
-    this.angle = 0
-    this.cel = 0
-    this.flipX = false
-    this.flipY = false
-    this.stretch = false
-    this.hidden = false
-    this.x = 0
-    this.y = 0
-    this.z = Layer.Bottom
-    this.zend = false
-    this.rewind()
-  }
-
   /** true if animation has played once. */
   get looped(): boolean {
     // this comparison resets after the second loop since cel can only count to
@@ -299,93 +194,6 @@ export class Sprite implements Block, Box {
     this.cel = this.looperCel // setter truncates.
   }
 
-  get stretch(): boolean {
-    const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
-    return !!(sxyz_llll & 0x80)
-  }
-
-  /** wrap texture (default) or stretch to width and height. */
-  set stretch(stretch: boolean) {
-    const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
-    this.#pool.view.setUint8(
-      this.i + 6,
-      (sxyz_llll & ~0x80) | (-stretch & 0x80)
-    )
-  }
-
-  get tag(): Tag {
-    return this.#tag
-  }
-
-  /** sets animation, rewinds cel, dimensions, hitbox, and hurtbox. */
-  set tag(tag: Tag) {
-    this.id = this.#atlas.anim[tag]!.id
-  }
-
-  toString(): string {
-    return `Sprite{${this.#tag} (${this.x} ${this.y} ${this.z}) ${this.w}×${this.h}}`
-  }
-
-  get ui(): boolean {
-    return isUILayer(this.z)
-  }
-
-  get w(): number {
-    const hhhh_w12 = this.#pool.view.getUint16(this.i + 7, true)
-    return hhhh_w12 & 0xfff
-  }
-
-  /** [0, 4095]. */
-  set w(w: number) {
-    const hhhh_w12 = this.#pool.view.getUint16(this.i + 7, true)
-    this.#pool.view.setUint16(
-      this.i + 7,
-      (hhhh_w12 & ~0xfff) | (w & 0xfff),
-      true
-    )
-  }
-
-  get x(): number {
-    const y8_x24 = this.#pool.view.getUint32(this.i + 0, true)
-    return ((y8_x24 << 8) >> 8) / 64 // signed shift.
-  }
-
-  /** [-131072, 131071.984375] with 1/64th (0.015625) granularity. */
-  set x(x: number) {
-    x = (x * 64) & 0xff_ffff
-    // if (this.x === x) return
-    const y8_x24 = this.#pool.view.getUint32(this.i + 0, true)
-    this.#pool.view.setUint32(this.i + 0, (y8_x24 & ~0xff_ffff) | x, true)
-  }
-
-  get y(): number {
-    const sxyz_llll_y24 = this.#pool.view.getUint32(this.i + 3, true)
-    return ((sxyz_llll_y24 << 8) >> 8) / 64 // signed shift.
-  }
-
-  /** [-131072, 131071.984375] with 1/64th (0.015625) granularity. */
-  set y(y: number) {
-    y = (y * 64) & 0xff_ffff
-    // if (this.y === y) return
-    const sxyz_llll_y24 = this.#pool.view.getUint32(this.i + 3, true)
-    this.#pool.view.setUint32(
-      this.i + 3,
-      (sxyz_llll_y24 & ~0xff_ffff) | y,
-      true
-    )
-  }
-
-  get z(): Layer {
-    const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
-    return (sxyz_llll & 0xf) as Layer
-  }
-
-  /** layer [0 (bottom), 15 (top)]. */
-  set z(z: Layer) {
-    const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
-    this.#pool.view.setUint8(this.i + 6, (sxyz_llll & ~0xf) | (z & 0xf))
-  }
-
   get zend(): boolean {
     const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
     return !!(sxyz_llll & 0x10)
@@ -396,20 +204,4 @@ export class Sprite implements Block, Box {
     const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
     this.#pool.view.setUint8(this.i + 6, (sxyz_llll & ~0x10) | (-end & 0x10))
   }
-}
-
-/**
- * center component fractions for synchronized 45 degree diagonal movement.
- * @arg dir positive if x and y are both increasing or decreasing, negative if
- *          opposing, zero if either are static.
- */
-export function diagonalize(xy: XY, dir: number): void {
-  if (!dir) return
-  xy.x = Math.floor(xy.x) + 0.5
-  xy.y = Math.floor(xy.y) + 0.5 - (dir > 0 ? 0 : spriteEpsilon)
-}
-
-/** floor to nearest sprite quantum. */
-export function floorSpriteEpsilon(x: number): number {
-  return Math.floor(x / spriteEpsilon) * spriteEpsilon
 }

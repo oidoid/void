@@ -39,7 +39,7 @@ never run:
 
 - avoid single-letter names except `k` for key, `v` for value, `w`/`h` for width and height, `x`/`y`/`z` for coords.
 - prefer tabular unit tests for cases varying only input and output pairings.
-- prefer `err` for errors.
+- prefer `err` for errors. never use `e`.
 - prefer `i` for loop indices but not items.
 - sentences end with periods.
 - capitalize but skip sentence capitalization.

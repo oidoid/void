@@ -10,8 +10,9 @@ import (
 type Sprite struct {
 	vgeo.XY[float32]
 	AnimCel vatlas.AnimCel
-	Z       Z
-	_       [1]byte
+	Z       Z // to-do: bake into flags and expose setter?
+	// to-do: add zend.
+	_ [1]byte
 	vgeo.WH[uint16]
 	flags uint32
 }
