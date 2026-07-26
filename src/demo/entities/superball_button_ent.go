@@ -64,7 +64,7 @@ func newSuperballButtonEnt(
 			UnfocusedEdge: assets.ColorBlack,
 			FocusedEdge:   assets.ColorRed,
 			Fill:          assets.ColorBlue,
-			SelectedFill:  assets.ColorRed,
+			FocusedFill:   assets.ColorRed,
 			Anchor: ventities.AnchorEnt{
 				Dir:    vgeo.DirW,
 				Margin: vgeo.NewXY(float32(uiButtonGap), 0),
