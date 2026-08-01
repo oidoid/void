@@ -20,7 +20,7 @@ func UpdateSuperballs(
 	radius := float32(hitbox.Max.X-hitbox.Min.X) / 2
 	diameter := radius * 2
 	layer := gam.Layer(gfx.LayerSuperballs)
-	sprites := &layer.Sprites
+	sprs := &layer.Sprs
 	clip := layer.Clip
 	clip.Min.X -= diameter
 	clip.Min.Y -= diameter
@@ -38,7 +38,7 @@ func UpdateSuperballs(
 	loop := vgame.Pause
 	// to-do: always collapse into either move or hit to avoid extra pass?
 	for i := range ents {
-		loop |= ents[i].Draw(sprites, clip)
+		loop |= ents[i].Draw(sprs, clip)
 	}
 
 	return loop

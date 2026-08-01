@@ -50,6 +50,7 @@ never run:
   - palette: pal
   - pixels: px
   - properties: props
+  - sprite: spr
   - string: str
 - sentences end with periods.
 - capitalize but skip sentence capitalization.

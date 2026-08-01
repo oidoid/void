@@ -43,8 +43,8 @@ import {
   layerConfigRenderModeOffset,
   layerConfigScaleOffset,
   layerConfigShaderOffset,
-  layerConfigSpriteCountOffset,
-  layerConfigSpritesPtrOffset,
+  layerConfigSprCountOffset,
+  layerConfigSprsPtrOffset,
   layerConfigStride,
   layerCount,
   layerFlagsBlendModeMask,
@@ -54,7 +54,7 @@ import {
   layerFlagsDepthShift,
   type Shader,
   shaderOverlay,
-  shaderSprites,
+  shaderSprs,
   shaderTiles
 } from './layout.ts'
 import {LoopLoop, type Platform} from './platform.ts'
@@ -183,11 +183,11 @@ export class Engine {
           config.depth,
           config.clipPhy
         )
-      } else if (config.shader === shaderSprites && config.spriteCount !== 0) {
+      } else if (config.shader === shaderSprs && config.sprCount !== 0) {
         this.#renderer.drawLayer(
           buffer,
-          config.spritesPtr,
-          config.spriteCount,
+          config.sprsPtr,
+          config.sprCount,
           lx,
           ly,
           config.scale,
@@ -226,8 +226,8 @@ export class Engine {
         layerFlagsDepthFlag,
       blendMode: ((flags >>> layerFlagsBlendModeShift) &
         layerFlagsBlendModeMask) as LayerBlendMode,
-      spritesPtr: view.getUint32(o + layerConfigSpritesPtrOffset, true),
-      spriteCount: view.getUint32(o + layerConfigSpriteCountOffset, true)
+      sprsPtr: view.getUint32(o + layerConfigSprsPtrOffset, true),
+      sprCount: view.getUint32(o + layerConfigSprCountOffset, true)
     }
   }
 

@@ -23,7 +23,7 @@ func DiagonalizeXY[T vtypes.Number](xy vgeo.XY[float32], by vgeo.XY[T]) vgeo.XY[
 	return xy
 }
 
-// floor to nearest sprite quantum (1/64).
+// floor to nearest spr quantum (1/64).
 func FloorEpsilon(x float32) float32 {
 	return float32(vmath.Floor(x/Epsilon)) * Epsilon
 }

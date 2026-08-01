@@ -23,7 +23,7 @@ type EntStatusEnt struct {
 func NewEntStatusEnt() EntStatusEnt {
 	this := EntStatusEnt{}
 	this.Fill = ventities.NinePatchEnt{
-		PatchByDir: [9]vgfx.Sprite{
+		PatchByDir: [9]vgfx.Spr{
 			vgeo.DirN:      {AnimCel: assets.ColorBlue.Cel(0)},
 			vgeo.DirE:      {AnimCel: assets.ColorBlue.Cel(0)},
 			vgeo.DirS:      {AnimCel: assets.ColorBlue.Cel(0)},
@@ -41,19 +41,19 @@ func NewEntStatusEnt() EntStatusEnt {
 
 func (this *EntStatusEnt) Update(
 	font *vtext.Font,
-	sprites *[]vgfx.Sprite,
+	sprs *[]vgfx.Spr,
 	count int,
-	spriteCount int,
+	sprCount int,
 	clip vgeo.Box[float32],
 ) vgame.Status {
 	countText := vtext.Itoa(count)
-	spriteCountText := vtext.Itoa(spriteCount)
-	w := max(len(countText), len(spriteCountText))
+	sprCountText := vtext.Itoa(sprCount)
+	w := max(len(countText), len(sprCountText))
 	// to-do: do we even need PadInt()?
 	this.SetText(
 		// to-do: Ls and ct and st should have zero kern? do i want to join letters? ask AI to analyze existing.
 		strings.Repeat(" ", w-len(countText)) + countText + " superballs\n" +
-			strings.Repeat(" ", w-len(spriteCountText)) + spriteCountText + " sprites", // to-do: aggregate sprites from prior frame.
+			strings.Repeat(" ", w-len(sprCountText)) + sprCountText + " sprs", // to-do: aggregate sprs from prior frame.
 	)
 
 	this.LayoutChars(font)
@@ -64,15 +64,15 @@ func (this *EntStatusEnt) Update(
 	)
 	this.TextEnt.XY = vgeo.XY[int16]{X: fillXY.X + fillMargin, Y: fillXY.Y + fillMargin}
 
-	this.drawFill(sprites)
+	this.drawFill(sprs)
 
-	return this.TextEnt.Update(font, sprites, clip)
+	return this.TextEnt.Update(font, sprs, clip)
 }
 
-func (this *EntStatusEnt) drawFill(sprites *[]vgfx.Sprite) {
+func (this *EntStatusEnt) drawFill(sprs *[]vgfx.Spr) {
 	const margin = int16(2)
 	// to-do: this isn't great because we keep this fake state. we just want
-	// sprites.
+	// sprs.
 	this.Fill.XY = vgeo.NewXY(
 		float32(this.TextEnt.XY.X-margin), float32(this.TextEnt.XY.Y-margin),
 	)
@@ -80,5 +80,5 @@ func (this *EntStatusEnt) drawFill(sprites *[]vgfx.Sprite) {
 		W: uint16(this.Layout.W + margin*2),
 		H: uint16(this.Layout.TrimAllForceH + margin*2),
 	}
-	this.Fill.Update(sprites)
+	this.Fill.Update(sprs)
 }

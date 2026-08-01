@@ -1,4 +1,4 @@
-export const spriteVert: string = `#version 300 es
+export const sprVert: string = `#version 300 es
 
 uniform highp ivec2 uResolution;
 uniform highp vec2 uCamXY;
@@ -12,13 +12,13 @@ uniform highp vec2 uAtlasSize;
 const mediump int layerRenderModeInt = 0;
 const highp uint animCelMask = 0xfu;
 const highp uint animCelShift = 4u;
-const highp uint spriteHiddenMask = 1u;
-const highp uint spriteHiddenShift = 0u;
-const highp uint spriteWHSource = 0u;
+const highp uint sprHiddenMask = 1u;
+const highp uint sprHiddenShift = 0u;
+const highp uint sprWHSource = 0u;
 const highp float zRange = 128.;
 
 
-layout(location=0) in highp vec2 aXY; // sprite origin.
+layout(location=0) in highp vec2 aXY; // spr origin.
 layout(location=1) in highp uint aAnimCel; // hi 12 bits = AnimID, lo 4 bits = Cel.
 layout(location=2) in highp uint aZ;
 layout(location=3) in highp uvec2 aWH; // destination size; zero uses source cel size.
@@ -41,14 +41,14 @@ const highp vec2 corners[6] = vec2[6](
 
 void main() {
   highp uint animID = aAnimCel >> animCelShift;
-  bool hidden = (aFlags >> spriteHiddenShift & spriteHiddenMask) != 0u;
+  bool hidden = (aFlags >> sprHiddenShift & sprHiddenMask) != 0u;
   if (animID == 0u || hidden) { gl_Position = vec4(2., 0., 0., 1.); return; }
 
   highp uint celI = aAnimCel & animCelMask;
   highp uvec4 cel = texelFetch(uAtlasCels, ivec2(int(celI), int(animID)), 0);
   highp vec2 celMin = vec2(float(cel.x), float(cel.y));
   highp vec2 celWH = vec2(float(cel.z), float(cel.w));
-  highp vec2 wh = aWH.x != spriteWHSource ? vec2(float(aWH.x), float(aWH.y)) : celWH;
+  highp vec2 wh = aWH.x != sprWHSource ? vec2(float(aWH.x), float(aWH.y)) : celWH;
 
   highp vec2 corner = corners[gl_VertexID];
   highp vec2 originPx = aXY * uLayerScale;

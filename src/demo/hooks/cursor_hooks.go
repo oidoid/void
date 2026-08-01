@@ -18,7 +18,7 @@ func UpdateCursors(
 	for i := range ents {
 		ent := &ents[i]
 		layer := gam.Layer(ent.Z.Layer())
-		loop |= ent.Update(input, &layer.Sprites, deltaMs, layer)
+		loop |= ent.Update(input, &layer.Sprs, deltaMs, layer)
 	}
 	return loop
 }

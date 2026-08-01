@@ -27,9 +27,9 @@ type Grid struct {
 	// cell size must be at least the max w/h.
 	cellSize     float32
 	halfCellSize float32
-	// includes the half-cell offset for sprites on a boundary.
+	// includes the half-cell offset for sprs on a boundary.
 	cols int
-	// includes the half-cell offset for sprites on a boundary.
+	// includes the half-cell offset for sprs on a boundary.
 	rows int
 }
 

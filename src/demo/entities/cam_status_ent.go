@@ -18,7 +18,7 @@ type CamStatusEnt struct {
 func NewCamStatusEnt(fillAnimID vatlas.AnimID, z vgfx.Z) CamStatusEnt {
 	this := CamStatusEnt{}
 	this.Fill = ventities.NinePatchEnt{
-		PatchByDir: [9]vgfx.Sprite{
+		PatchByDir: [9]vgfx.Spr{
 			vgeo.DirN:      {AnimCel: fillAnimID.Cel(0)},
 			vgeo.DirE:      {AnimCel: fillAnimID.Cel(0)},
 			vgeo.DirS:      {AnimCel: fillAnimID.Cel(0)},
@@ -39,7 +39,7 @@ func NewCamStatusEnt(fillAnimID vatlas.AnimID, z vgfx.Z) CamStatusEnt {
 
 func (this *CamStatusEnt) Update(
 	font *vtext.Font,
-	sprites *[]vgfx.Sprite,
+	sprs *[]vgfx.Spr,
 	canvasPhy vgeo.WH[uint16],
 	cam vgeo.XY[float32],
 	fullscreen bool,
@@ -67,12 +67,12 @@ func (this *CamStatusEnt) Update(
 		X: int16(xy.X) + fillMargin, Y: int16(xy.Y) + fillMargin,
 	}
 
-	this.DrawFill(sprites)
+	this.DrawFill(sprs)
 
-	return this.TextEnt.Update(font, sprites, clip)
+	return this.TextEnt.Update(font, sprs, clip)
 }
 
-func (this *CamStatusEnt) DrawFill(sprites *[]vgfx.Sprite) {
+func (this *CamStatusEnt) DrawFill(sprs *[]vgfx.Spr) {
 	const margin = int16(2)
 	this.Fill.XY = vgeo.NewXY(
 		float32(this.TextEnt.XY.X-margin), float32(this.TextEnt.XY.Y-margin),
@@ -81,5 +81,5 @@ func (this *CamStatusEnt) DrawFill(sprites *[]vgfx.Sprite) {
 		W: uint16(this.Layout.W + margin*2),
 		H: uint16(this.Layout.TrimAllForceH + margin*2),
 	}
-	this.Fill.Update(sprites)
+	this.Fill.Update(sprs)
 }

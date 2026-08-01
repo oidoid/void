@@ -12,8 +12,8 @@ func TestLayerConfigExportLayout(t *testing.T) {
 	if got := unsafe.Sizeof(config); got != 28 {
 		t.Fatalf("LayerConfigExport size = %d, want 28", got)
 	}
-	if got := unsafe.Offsetof(config.SpritesPtr); got != 20 {
-		t.Fatalf("SpritesPtr offset = %d, want 20", got)
+	if got := unsafe.Offsetof(config.SprsPtr); got != 20 {
+		t.Fatalf("SprsPtr offset = %d, want 20", got)
 	}
 }
 

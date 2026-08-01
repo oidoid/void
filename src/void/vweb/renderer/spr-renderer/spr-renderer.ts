@@ -1,23 +1,23 @@
 import {
-  spriteAnimCelOffset,
-  spriteFlagsOffset,
-  spriteStride,
-  spriteWHOffset,
-  spriteZOffset
+  sprAnimCelOffset,
+  sprFlagsOffset,
+  sprStride,
+  sprWHOffset,
+  sprZOffset
 } from '../../engine/layout.ts'
 import {buildProgram} from '../gl.ts'
-import {spriteFrag} from './sprite.frag.ts'
-import {spriteVert} from './sprite.vert.ts'
+import {sprFrag} from './spr.frag.glsl.ts'
+import {sprVert} from './spr.vert.glsl.ts'
 
-export class SpriteRenderer {
+export class SprRenderer {
   static new(
     gl: WebGL2RenderingContext,
     atlasCels: Uint16Array,
     atlasAnimCount: number,
     atlasCelsPerAnim: number,
     atlasImg: HTMLImageElement
-  ): SpriteRenderer {
-    const pgm = buildProgram(gl, spriteVert, spriteFrag)
+  ): SprRenderer {
+    const pgm = buildProgram(gl, sprVert, sprFrag)
     const uResolution = gl.getUniformLocation(pgm, 'uResolution')!
     const uCamXY = gl.getUniformLocation(pgm, 'uCamXY')!
     const uLayerScale = gl.getUniformLocation(pgm, 'uLayerScale')!
@@ -29,7 +29,7 @@ export class SpriteRenderer {
     gl.useProgram(pgm)
 
     gl.uniform1i(gl.getUniformLocation(pgm, 'uAtlasCels'), 0)
-    gl.uniform1i(gl.getUniformLocation(pgm, 'uSpritesheet'), 1)
+    gl.uniform1i(gl.getUniformLocation(pgm, 'uSprsheet'), 1)
 
     const atlasCelsTex = gl.createTexture()!
     gl.activeTexture(gl.TEXTURE0)
@@ -50,9 +50,9 @@ export class SpriteRenderer {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
 
-    const spritesheetTex = gl.createTexture()!
+    const sprsheetTex = gl.createTexture()!
     gl.activeTexture(gl.TEXTURE1)
-    gl.bindTexture(gl.TEXTURE_2D, spritesheetTex)
+    gl.bindTexture(gl.TEXTURE_2D, sprsheetTex)
     // pal-swappable source texels store a pal slot in their red byte. sRGB
     // conversion would turn 1/255 into 0.
     gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.NONE)
@@ -83,7 +83,7 @@ export class SpriteRenderer {
 
     // aXY.
     gl.enableVertexAttribArray(0)
-    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, spriteStride, 0)
+    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, sprStride, 0)
     gl.vertexAttribDivisor(0, 1)
 
     // aAnimCel (uint16): hi 12 bits = AnimID, lo 4 bits = Cel.
@@ -92,41 +92,29 @@ export class SpriteRenderer {
       1,
       1,
       gl.UNSIGNED_SHORT,
-      spriteStride,
-      spriteAnimCelOffset
+      sprStride,
+      sprAnimCelOffset
     )
     gl.vertexAttribDivisor(1, 1)
 
     // aZ as uint8.
     gl.enableVertexAttribArray(2)
-    gl.vertexAttribIPointer(2, 1, gl.UNSIGNED_BYTE, spriteStride, spriteZOffset)
+    gl.vertexAttribIPointer(2, 1, gl.UNSIGNED_BYTE, sprStride, sprZOffset)
     gl.vertexAttribDivisor(2, 1)
 
     // aWH (uvec2 of uint16): destination size; zero uses source cel size.
     gl.enableVertexAttribArray(3)
-    gl.vertexAttribIPointer(
-      3,
-      2,
-      gl.UNSIGNED_SHORT,
-      spriteStride,
-      spriteWHOffset
-    )
+    gl.vertexAttribIPointer(3, 2, gl.UNSIGNED_SHORT, sprStride, sprWHOffset)
     gl.vertexAttribDivisor(3, 1)
 
     // aFlags as uint32.
     gl.enableVertexAttribArray(4)
-    gl.vertexAttribIPointer(
-      4,
-      1,
-      gl.UNSIGNED_INT,
-      spriteStride,
-      spriteFlagsOffset
-    )
+    gl.vertexAttribIPointer(4, 1, gl.UNSIGNED_INT, sprStride, sprFlagsOffset)
     gl.vertexAttribDivisor(4, 1)
 
     gl.bindVertexArray(null)
 
-    return new SpriteRenderer(
+    return new SprRenderer(
       gl,
       pgm,
       uResolution,
@@ -139,7 +127,7 @@ export class SpriteRenderer {
       vao,
       instanceVBO,
       atlasCelsTex,
-      spritesheetTex
+      sprsheetTex
     )
   }
 
@@ -155,7 +143,7 @@ export class SpriteRenderer {
   readonly #vao: WebGLVertexArrayObject
   readonly #instanceVBO: WebGLBuffer
   readonly #atlasCelsTex: WebGLTexture
-  readonly #spritesheetTex: WebGLTexture
+  readonly #sprsheetTex: WebGLTexture
 
   private constructor(
     gl: WebGL2RenderingContext,
@@ -170,7 +158,7 @@ export class SpriteRenderer {
     vao: WebGLVertexArrayObject,
     instanceVBO: WebGLBuffer,
     atlasCelsTex: WebGLTexture,
-    spritesheetTex: WebGLTexture
+    sprsheetTex: WebGLTexture
   ) {
     this.#gl = gl
     this.#pgm = pgm
@@ -184,7 +172,7 @@ export class SpriteRenderer {
     this.#vao = vao
     this.#instanceVBO = instanceVBO
     this.#atlasCelsTex = atlasCelsTex
-    this.#spritesheetTex = spritesheetTex
+    this.#sprsheetTex = sprsheetTex
   }
 
   dispose(): void {
@@ -193,12 +181,12 @@ export class SpriteRenderer {
     gl.deleteVertexArray(this.#vao)
     gl.deleteBuffer(this.#instanceVBO)
     gl.deleteTexture(this.#atlasCelsTex)
-    gl.deleteTexture(this.#spritesheetTex)
+    gl.deleteTexture(this.#sprsheetTex)
   }
 
   draw(
     buffer: ArrayBuffer,
-    spritePtr: number,
+    sprPtr: number,
     count: number,
     camX: number,
     camY: number,
@@ -226,9 +214,9 @@ export class SpriteRenderer {
     gl.activeTexture(gl.TEXTURE0)
     gl.bindTexture(gl.TEXTURE_2D, this.#atlasCelsTex)
     gl.activeTexture(gl.TEXTURE1)
-    gl.bindTexture(gl.TEXTURE_2D, this.#spritesheetTex)
+    gl.bindTexture(gl.TEXTURE_2D, this.#sprsheetTex)
 
-    const bytes = new Uint8Array(buffer, spritePtr, count * spriteStride)
+    const bytes = new Uint8Array(buffer, sprPtr, count * sprStride)
     gl.bindBuffer(gl.ARRAY_BUFFER, this.#instanceVBO)
     gl.bufferData(gl.ARRAY_BUFFER, bytes, gl.DYNAMIC_DRAW)
     gl.bindVertexArray(this.#vao)

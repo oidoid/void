@@ -291,7 +291,7 @@ func TestReadAsepriteFontPaletteData(t *testing.T) {
 	t.Fatal("no opaque font pixels")
 }
 
-func TestReadAsepriteSpriteData(t *testing.T) {
+func TestReadAsepriteSprData(t *testing.T) {
 	file, err := readAsset("../../demo/assets/atlas/widget.aseprite")
 	if err != nil {
 		t.Fatal(err)

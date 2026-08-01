@@ -39,7 +39,7 @@ func NewCursorEnt(
 
 func (this *CursorEnt) Update(
 	in *vin.In,
-	sprites *[]vgfx.Sprite,
+	sprs *[]vgfx.Spr,
 	deltaMs float64,
 	layer *vgfx.LayerConfig,
 ) vgame.Status {
@@ -63,7 +63,7 @@ func (this *CursorEnt) Update(
 	}
 
 	if this.Visible {
-		*sprites = append(*sprites, vgfx.Sprite{
+		*sprs = append(*sprs, vgfx.Spr{
 			XY:      this.XY,
 			AnimCel: this.AnimID.Cel(0),
 			Z:       this.Z,

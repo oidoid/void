@@ -22,7 +22,7 @@ type TextEnt struct {
 var zeroChar = vgeo.Box[int16]{}
 
 func (this *TextEnt) Update(
-	font *vtext.Font, sprites *[]vgfx.Sprite, clip vgeo.Box[float32],
+	font *vtext.Font, sprs *[]vgfx.Spr, clip vgeo.Box[float32],
 ) vgame.Status {
 	loop := vgame.Pause
 	if this.Layout.Chars == nil {
@@ -44,15 +44,15 @@ func (this *TextEnt) Update(
 		if !clip.HitsXY(xy) {
 			continue
 		}
-		sprite := vgfx.Sprite{AnimCel: font.AnimID(ch).Cel(0), XY: xy, Z: this.Z}
+		spr := vgfx.Spr{AnimCel: font.AnimID(ch).Cel(0), XY: xy, Z: this.Z}
 		scale := this.scale()
-		sprite.WH = vgeo.WH[uint16]{
+		spr.WH = vgeo.WH[uint16]{
 			W: uint16(font.CellW) * uint16(scale),
 			H: uint16(font.CellH) * uint16(scale),
 		}
-		sprite.SetStretch(true)
-		sprite.SetPal(this.Pal)
-		*sprites = append(*sprites, sprite)
+		spr.SetStretch(true)
+		spr.SetPal(this.Pal)
+		*sprs = append(*sprs, spr)
 	}
 	return loop
 }

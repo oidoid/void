@@ -6,10 +6,10 @@ import (
 )
 
 // to-do: rename ninep?
-// 3x3 sprite panel. all sprites except corners are scaled to fit w/h. corners
+// 3x3 spr panel. all sprs except corners are scaled to fit w/h. corners
 // are assumed to be same size.
 type NinePatchEnt struct {
-	PatchByDir [9]vgfx.Sprite
+	PatchByDir [9]vgfx.Spr
 	XY         vgeo.XY[float32]
 	WH         vgeo.WH[uint16]
 	CornerWH   vgeo.WH[uint16]
@@ -23,7 +23,7 @@ func (this *NinePatchEnt) SetZ(z vgfx.Z) {
 	}
 }
 
-func (this *NinePatchEnt) Update(sprites *[]vgfx.Sprite) {
+func (this *NinePatchEnt) Update(sprs *[]vgfx.Spr) {
 	x, y := this.XY.X, this.XY.Y
 	w, h := float32(this.WH.W), float32(this.WH.H)
 	cornerW, cornerH := float32(this.CornerWH.W), float32(this.CornerWH.H)
@@ -47,7 +47,7 @@ func (this *NinePatchEnt) Update(sprites *[]vgfx.Sprite) {
 	patch[vgeo.DirNW].WH = this.CornerWH
 	patch[vgeo.DirCenter].XY = vgeo.NewXY(x+cornerW, y+cornerH)
 	patch[vgeo.DirCenter].WH = vgeo.WH[uint16]{W: midW, H: midH}
-	*sprites = append(*sprites,
+	*sprs = append(*sprs,
 		patch[vgeo.DirN],
 		patch[vgeo.DirNE],
 		patch[vgeo.DirE],

@@ -2,7 +2,7 @@ export const tileFrag: string = `#version 300 es
 
 uniform highp usampler2D uTiles;
 uniform highp usampler2D uAtlasCels;
-uniform highp sampler2D uSpritesheet;
+uniform highp sampler2D uSprsheet;
 uniform highp vec2 uAtlasSize;
 uniform highp vec4 uLevel; // xywh.
 uniform highp vec2 uTileWH;
@@ -23,7 +23,7 @@ void main() {
   highp uvec4 cel = texelFetch(uAtlasCels, ivec2(0, int(tile)), 0);
   highp vec2 tilePx = floor(mod(vPx, uTileWH)) + .5;
   highp vec4 tex = texture(
-    uSpritesheet,
+    uSprsheet,
     (vec2(cel.xy) + mod(tilePx, vec2(cel.zw))) / uAtlasSize
   );
   if (tex.a == 0.) discard;

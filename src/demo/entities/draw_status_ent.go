@@ -32,7 +32,7 @@ func NewDrawStatusEnt(
 ) DrawStatusEnt {
 	this := DrawStatusEnt{}
 	this.Fill = ventities.NinePatchEnt{
-		PatchByDir: [9]vgfx.Sprite{
+		PatchByDir: [9]vgfx.Spr{
 			vgeo.DirN:      {AnimCel: fillAnimID.Cel(0)},
 			vgeo.DirE:      {AnimCel: fillAnimID.Cel(0)},
 			vgeo.DirS:      {AnimCel: fillAnimID.Cel(0)},
@@ -50,7 +50,7 @@ func NewDrawStatusEnt(
 
 func (this *DrawStatusEnt) Update(
 	font *vtext.Font,
-	sprites *[]vgfx.Sprite,
+	sprs *[]vgfx.Spr,
 	nowMillis float64,
 	tick *vgame.Tick,
 	clip vgeo.Box[float32],
@@ -73,12 +73,12 @@ func (this *DrawStatusEnt) Update(
 	)
 	this.TextEnt.XY = vgeo.XY[int16]{X: fillXY.X + fillMargin, Y: fillXY.Y + fillMargin}
 
-	this.DrawFill(sprites)
+	this.DrawFill(sprs)
 
-	return this.TextEnt.Update(font, sprites, clip)
+	return this.TextEnt.Update(font, sprs, clip)
 }
 
-func (this *DrawStatusEnt) DrawFill(sprites *[]vgfx.Sprite) {
+func (this *DrawStatusEnt) DrawFill(sprs *[]vgfx.Spr) {
 	const margin = int16(2)
 	this.Fill.XY = vgeo.NewXY(
 		float32(this.TextEnt.XY.X-margin), float32(this.TextEnt.XY.Y-margin),
@@ -87,5 +87,5 @@ func (this *DrawStatusEnt) DrawFill(sprites *[]vgfx.Sprite) {
 		W: uint16(this.Layout.W + margin*2),
 		H: uint16(this.Layout.TrimAllForceH + margin*2),
 	}
-	this.Fill.Update(sprites)
+	this.Fill.Update(sprs)
 }

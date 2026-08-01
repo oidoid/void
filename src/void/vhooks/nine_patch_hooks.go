@@ -14,7 +14,7 @@ func UpdateNinePatches[Game vgame.Game](
 	for i := range ents {
 		ent := &ents[i]
 		layer := gam.Layer(ent.Z().Layer())
-		ent.Update(&layer.Sprites)
+		ent.Update(&layer.Sprs)
 	}
 	return vgame.Pause
 }

@@ -50,7 +50,7 @@ type AseHeader struct {
 	Size       uint32 // file size in bytes.
 	Magic      uint16 // xa5e0.
 	FrameCount uint16
-	W, H       uint16 // sprite dimensions in pixels.
+	W, H       uint16 // spr dimensions in pixels.
 	// `8` indexed, `16` grayscale, or `32` RGBA bits per pixel.
 	ColorDepth       AseColorDepth
 	Flags            uint32
@@ -120,7 +120,7 @@ type AseLayerHeader struct {
 
 type AseCelHeader struct {
 	Layer   uint16     // layer index.
-	X, Y    int16      // position in the sprite.
+	X, Y    int16      // position in the spr.
 	Opacity uint8      // cel opacity.
 	Type    AseCelType // raw image, linked cel, compressed image, or tilemap.
 	ZIndex  int16      // relative layer ordering.

@@ -49,19 +49,19 @@ type Engine[Game vgame.Game] struct {
 }
 
 type EngineOpts struct {
-	Font       *vtext.Font
-	Level      *vlevels.Level
-	MaxSprites int
-	Seed1      uint64
-	Seed2      uint64
+	Font    *vtext.Font
+	Level   *vlevels.Level
+	MaxSprs int
+	Seed1   uint64
+	Seed2   uint64
 }
 
 func New[Game vgame.Game](opts *EngineOpts) *Engine[Game] {
 	if opts == nil {
 		opts = &EngineOpts{}
 	}
-	if opts.MaxSprites == 0 {
-		opts.MaxSprites = 16 * 1024
+	if opts.MaxSprs == 0 {
+		opts.MaxSprs = 16 * 1024
 	}
 	if opts.Seed1 == 0 {
 		opts.Seed1 = rand.Uint64()
@@ -76,7 +76,7 @@ func New[Game vgame.Game](opts *EngineOpts) *Engine[Game] {
 		rnd:   rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
 	}
 	for i := range this.layers {
-		this.layers[i] = vgfx.NewLayerConfig(opts.MaxSprites)
+		this.layers[i] = vgfx.NewLayerConfig(opts.MaxSprs)
 	}
 	return this
 }
@@ -265,7 +265,7 @@ func (this *Engine[Game]) BeginTick() vgame.Status {
 	this.tick.DrawCount = this.frame.DrawCount
 	this.drawAlways = this.frame.DrawAlways
 	for i := range this.layers {
-		this.layers[i].Sprites = this.layers[i].Sprites[:0]
+		this.layers[i].Sprs = this.layers[i].Sprs[:0]
 	}
 	this.LevelBounds = vgeo.NewBox(
 		float32(this.Level.Min.X),
@@ -315,28 +315,28 @@ func (this *Engine[Game]) updateLayerClips() {
 func (this *Engine[Game]) updateLayerConfigExport() {
 	for i := range this.layers {
 		layer := &this.layers[i]
-		sprites := layer.Sprites
-		spritesPtr := uint32(0)
-		if len(sprites) != 0 {
-			spritesPtr = uint32(uintptr(unsafe.Pointer(unsafe.SliceData(sprites))))
+		sprs := layer.Sprs
+		sprsPtr := uint32(0)
+		if len(sprs) != 0 {
+			sprsPtr = uint32(uintptr(unsafe.Pointer(unsafe.SliceData(sprs))))
 		}
 		flags := uint8(layer.BlendMode) << vgfx.LayerFlagsBlendModeShift
 		if layer.Depth {
 			flags |= vgfx.LayerFlagsDepthFlag << vgfx.LayerFlagsDepthShift
 		}
 		this.layerConfigExport[i] = vgfx.LayerConfigExport{
-			RenderMode:  layer.RenderMode,
-			CamMode:     layer.CamMode,
-			Shader:      layer.Shader,
-			Flags:       flags,
-			ClipXPhy:    layer.ClipPhy.Min.X,
-			ClipYPhy:    layer.ClipPhy.Min.Y,
-			ClipWPhy:    layer.ClipPhy.W(),
-			ClipHPhy:    layer.ClipPhy.H(),
-			Scale:       layer.ScaleOrDefault(),
-			Modulo:      uint8(layer.ModuloOrDefault()),
-			SpritesPtr:  spritesPtr,
-			SpriteCount: uint32(len(sprites)),
+			RenderMode: layer.RenderMode,
+			CamMode:    layer.CamMode,
+			Shader:     layer.Shader,
+			Flags:      flags,
+			ClipXPhy:   layer.ClipPhy.Min.X,
+			ClipYPhy:   layer.ClipPhy.Min.Y,
+			ClipWPhy:   layer.ClipPhy.W(),
+			ClipHPhy:   layer.ClipPhy.H(),
+			Scale:      layer.ScaleOrDefault(),
+			Modulo:     uint8(layer.ModuloOrDefault()),
+			SprsPtr:    sprsPtr,
+			SprCount:   uint32(len(sprs)),
 		}
 	}
 }

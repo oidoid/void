@@ -17,7 +17,7 @@ func UpdateCursors[Game vgame.Game](
 	for i := range ents {
 		ent := &ents[i]
 		layer := gam.Layer(ent.Z.Layer())
-		loop |= ent.Update(in, &layer.Sprites, deltaMs, layer)
+		loop |= ent.Update(in, &layer.Sprs, deltaMs, layer)
 	}
 	return loop
 }

@@ -25,7 +25,7 @@ func NewClockEnt() ClockEnt {
 
 func (this *ClockEnt) Update(
 	font *vtext.Font,
-	sprites *[]vgfx.Sprite,
+	sprs *[]vgfx.Spr,
 	utcMillis uint64,
 	time vgame.TimeFormat,
 	clip vgeo.Box[float32],
@@ -36,7 +36,7 @@ func (this *ClockEnt) Update(
 	this.TextEnt.XY = this.HUDEnt.XY(
 		this.Layout.W, this.Layout.TrimLeadForceH, clip,
 	)
-	this.TextEnt.Update(font, sprites, clip)
+	this.TextEnt.Update(font, sprs, clip)
 	requestUpdateInMillis(millisToNextMin(utcMillis))
 	return vgame.Pause
 }

@@ -21,7 +21,7 @@ const (
 	LayerCamModeFixed
 )
 
-// how a layer's sprites are composited onto the framebuffer.
+// how a layer's sprs are composited onto the framebuffer.
 type LayerBlendMode uint8
 
 const (
@@ -52,7 +52,7 @@ const (
 // per-layer render config and state.
 type LayerConfig struct {
 	// described in this layer's coord system.
-	Sprites []Sprite
+	Sprs []Spr
 	// to-do: necessary? we only care about int mode in cam and shader modulo.
 	RenderMode LayerRenderMode
 	// physical clipbox. zero width or height means full canvas. used for GPU
@@ -66,7 +66,7 @@ type LayerConfig struct {
 	Cam     vgeo.XY[float32]
 	CamMode LayerCamMode
 	Scale   float32
-	// pixel-snapping quantum: sprite and cam coords are floor-snapped to the
+	// pixel-snapping quantum: spr and cam coords are floor-snapped to the
 	// nearest multiple before rasterisation.
 	Modulo            uint8
 	ScaleMode         LayerScaleMode
@@ -79,25 +79,25 @@ type LayerConfig struct {
 
 // packed layer config.
 type LayerConfigExport struct {
-	RenderMode  LayerRenderMode
-	CamMode     LayerCamMode
-	Shader      Shader
-	Flags       uint8
-	ClipXPhy    uint16
-	ClipYPhy    uint16
-	ClipWPhy    uint16
-	ClipHPhy    uint16
-	Scale       float32
-	Modulo      uint8
-	SpritesPtr  uint32
-	SpriteCount uint32
+	RenderMode LayerRenderMode
+	CamMode    LayerCamMode
+	Shader     Shader
+	Flags      uint8
+	ClipXPhy   uint16
+	ClipYPhy   uint16
+	ClipWPhy   uint16
+	ClipHPhy   uint16
+	Scale      float32
+	Modulo     uint8
+	SprsPtr    uint32
+	SprCount   uint32
 }
 
 func NewLayerConfig(capacity int) LayerConfig {
 	return LayerConfig{
-		Sprites: make([]Sprite, 0, capacity),
+		Sprs:    make([]Spr, 0, capacity),
 		CamMode: LayerCamModeApply,
-		Shader:  ShaderSprites,
+		Shader:  ShaderSprs,
 	}
 }
 

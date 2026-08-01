@@ -40,7 +40,7 @@ func UpdateSuperballButtons(
 	for i := range ents {
 		loop |= ents[i].Update(
 			in,
-			&layer.Sprites,
+			&layer.Sprs,
 			layer,
 			font,
 			&gam.Balls.Vec,

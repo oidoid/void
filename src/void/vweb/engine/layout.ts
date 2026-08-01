@@ -1,8 +1,8 @@
-export const spriteAnimCelOffset: number = 8
-export const spriteZOffset: number = 10
-export const spriteWHOffset: number = 12
-export const spriteFlagsOffset: number = 16
-export const spriteStride: number = 20
+export const sprAnimCelOffset: number = 8
+export const sprZOffset: number = 10
+export const sprWHOffset: number = 12
+export const sprFlagsOffset: number = 16
+export const sprStride: number = 20
 export const layerCount: number = 8
 
 export const layerConfigRenderModeOffset: number = 0
@@ -20,8 +20,8 @@ export const layerConfigClipWPhyOffset: number = 8
 export const layerConfigClipHPhyOffset: number = 10
 export const layerConfigScaleOffset: number = 12
 export const layerConfigModuloOffset: number = 16
-export const layerConfigSpritesPtrOffset: number = 20
-export const layerConfigSpriteCountOffset: number = 24
+export const layerConfigSprsPtrOffset: number = 20
+export const layerConfigSprCountOffset: number = 24
 export const layerConfigStride: number = 28
 
 export const layerRenderModeInt = 0 as const
@@ -42,11 +42,11 @@ export type LayerBlendMode =
   | typeof layerBlendModeReplace
 
 export const shaderTiles = 0 as const
-export const shaderSprites = 1 as const
+export const shaderSprs = 1 as const
 export const shaderOverlay = 2 as const
 export type Shader =
   | typeof shaderTiles
-  | typeof shaderSprites
+  | typeof shaderSprs
   | typeof shaderOverlay
 
 export type LayerConfig = {
@@ -58,6 +58,6 @@ export type LayerConfig = {
   shader: Shader
   depth: boolean
   blendMode: LayerBlendMode
-  spritesPtr: number
-  spriteCount: number
+  sprsPtr: number
+  sprCount: number
 }

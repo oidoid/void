@@ -33,9 +33,9 @@ func New() *Engine {
 	font.FirstAnimID = assets.MemProp5x600
 	this := &Engine{
 		Engine: vengine.New[*Engine](&vengine.EngineOpts{
-			Font:       font,
-			Level:      &levels.InitLevel,
-			MaxSprites: 2 * 1024 * 1024,
+			Font:    font,
+			Level:   &levels.InitLevel,
+			MaxSprs: 2 * 1024 * 1024,
 		}),
 	}
 	this.Layer(gfx.LayerTiles).Shader = vgfx.ShaderTiles

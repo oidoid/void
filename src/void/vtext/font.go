@@ -48,7 +48,7 @@ type Font struct {
 	// characters that descend below the baseline.
 	descends [32]uint8
 	// the first animation ID in the atlas for this font's glyphs. character
-	// sprites are indexed as FirstAnimID + charCode.
+	// sprs are indexed as FirstAnimID + charCode.
 	FirstAnimID vatlas.AnimID
 }
 

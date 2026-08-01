@@ -41,13 +41,13 @@ func (this *BallEnt) Move(lvl vgeo.Box[float32], radius float32) {
 
 // to-do: make all other ents follow Update / Draw / Hit() pattern.
 func (this *BallEnt) Draw(
-	sprites *[]vgfx.Sprite,
+	sprs *[]vgfx.Spr,
 	clip vgeo.Box[float32],
 ) vgame.Status {
 	if clip.HitsXY(this.XY) {
-		*sprites = append(
-			*sprites,
-			vgfx.Sprite{
+		*sprs = append(
+			*sprs,
+			vgfx.Spr{
 				AnimCel: assets.SuperballDefault.Cel(0), XY: this.XY, Z: gfx.ZSuperball,
 			},
 		)

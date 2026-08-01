@@ -2,14 +2,14 @@ const layerBlendModeMultiply = 1
 const layerBlendModeReplace = 2
 
 import {OverlayRenderer} from './overlay-renderer/overlay-renderer.ts'
-import {SpriteRenderer} from './sprite-renderer/sprite-renderer.ts'
+import {SprRenderer} from './spr-renderer/spr-renderer.ts'
 import {TileRenderer} from './tile-renderer/tile-renderer.ts'
 
 export class Renderer {
   readonly #gl: WebGL2RenderingContext
   readonly #loseContext: WEBGL_lose_context | null
   readonly #overlay: OverlayRenderer
-  readonly #sprites: SpriteRenderer
+  readonly #sprs: SprRenderer
   readonly #tiles: TileRenderer
 
   constructor(
@@ -51,7 +51,7 @@ export class Renderer {
     this.#loseContext = gl.getExtension('WEBGL_lose_context')
     this.#gl = gl
     this.#overlay = OverlayRenderer.new(gl)
-    this.#sprites = SpriteRenderer.new(
+    this.#sprs = SprRenderer.new(
       gl,
       atlasCels,
       atlasAnimCount,
@@ -86,7 +86,7 @@ export class Renderer {
 
   dispose(): void {
     this.#overlay.dispose()
-    this.#sprites.dispose()
+    this.#sprs.dispose()
     this.#tiles.dispose()
   }
 
@@ -130,8 +130,8 @@ export class Renderer {
 
   drawLayer(
     buffer: ArrayBuffer,
-    spritePtr: number,
-    spriteCount: number,
+    sprPtr: number,
+    sprCount: number,
     camX: number,
     camY: number,
     layerScale: number,
@@ -142,10 +142,10 @@ export class Renderer {
     clipPhy: {x: number; y: number; w: number; h: number}
   ): void {
     const clip = this.#beginLayer(depth, blendMode, clipPhy)
-    this.#sprites.draw(
+    this.#sprs.draw(
       buffer,
-      spritePtr,
-      spriteCount,
+      sprPtr,
+      sprCount,
       camX,
       camY,
       layerScale,

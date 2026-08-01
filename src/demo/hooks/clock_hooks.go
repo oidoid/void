@@ -21,7 +21,7 @@ func UpdateClocks(
 	requestUpdateInMillis := gam.RequestUpdateInMillis
 	for i := range ents {
 		loop |= ents[i].Update(
-			font, &layer.Sprites, utcMillis, time, layer.Clip, requestUpdateInMillis,
+			font, &layer.Sprs, utcMillis, time, layer.Clip, requestUpdateInMillis,
 		)
 	}
 	return loop

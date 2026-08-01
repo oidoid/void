@@ -147,10 +147,10 @@ func layoutWord(
 			trimH = max(trimH, chH)
 		}
 		// width is not span since, with kerning, that may exceed the actual
-		// width of the character's sprite. eg, if w has the maximal character width
+		// width of the character's spr. eg, if w has the maximal character width
 		// of five pixels and a one pixel kerning for a given pair of characters, it
 		// will have a span of six pixels which is greater than the maximal five
-		// pixel sprite that can be rendered.
+		// pixel spr that can be rendered.
 		chars[n] = vgeo.XYWH(x, y, int16(font.CharW(ch)), int16(font.CellH))
 		n++
 		x += span

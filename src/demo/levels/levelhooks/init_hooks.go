@@ -100,11 +100,11 @@ func UpdateInit(gam *engine.Engine) vgame.Status {
 }
 
 func newEdgeEnt(z vgfx.Z, w, h uint16) ventities.NinePatchEnt {
-	var patches [9]vgfx.Sprite
+	var patches [9]vgfx.Spr
 	for i := range patches {
 		patches[i].SetAnim(assets.ColorBlack)
 	}
-	patches[vgeo.DirCenter] = vgfx.Sprite{}
+	patches[vgeo.DirCenter] = vgfx.Spr{}
 	ent := ventities.NinePatchEnt{
 		PatchByDir: patches, CornerWH: vgeo.WH[uint16]{W: w, H: h},
 	}
@@ -133,7 +133,7 @@ func newCornerEdgeEnt(z vgfx.Z) ventities.NinePatchEnt {
 }
 
 func newFillEnt(z vgfx.Z) ventities.NinePatchEnt {
-	var patches [9]vgfx.Sprite
+	var patches [9]vgfx.Spr
 	patches[vgeo.DirCenter].SetAnim(assets.GridCell)
 	ent := ventities.NinePatchEnt{PatchByDir: patches}
 	ent.SetZ(z)

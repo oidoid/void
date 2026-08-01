@@ -5,11 +5,11 @@
     "default": [
       {"name": "DebugInput", "debugInput": {}},
 
-      {"id": "cursor", "sprite": "cursor--Pointer", "cursor": {}},
+      {"id": "cursor", "spr": "cursor--Pointer", "cursor": {}},
 
       {
         "name": "StatusPanel",
-        "sprite": {"tag": "background--Strawberry", "z": "G", "h": 24},
+        "spr": {"tag": "background--Strawberry", "z": "G", "h": 24},
         "hud": {"anchor": "SW", "fill": "X"}
       },
 
@@ -18,7 +18,7 @@
         "name": "FPS",
         "fps": {},
         "text": "",
-        "sprite": {"z": "UIA"},
+        "spr": {"z": "UIA"},
         "textWH": {"trim": "Leading"},
         "hud": {"anchor": "SE", "margin": {"s": 3, "e": 4}},
         "textXY": {}
@@ -27,7 +27,7 @@
       {
         "id": "logo",
         "name": "Logo",
-        "sprite": {"tag": "oidoid--Default", "z": "UIF"},
+        "spr": {"tag": "oidoid--Default", "z": "UIF"},
         "hud": {"anchor": "SW", "margin": 4},
         "rotate": {"speed": -45}
       },
@@ -36,7 +36,7 @@
         "name": "CamStatus",
         "camStatus": {},
         "text": "",
-        "sprite": {"z": "UIA"},
+        "spr": {"z": "UIA"},
         "textWH": {"trim": "Leading"},
         "anchor": {"id": "logo", "dir": "SE", "margin": {"x": 4}},
         "textXY": {}
@@ -44,7 +44,7 @@
 
       {
         "name": "Overlay",
-        "sprite": {
+        "spr": {
           "pool": "Overlay",
           "tag": "background--GreyCheckerboard",
           "w": 4095,
@@ -56,7 +56,7 @@
         "id": "render-toggle",
         "name": "RenderToggle",
         "text": "render",
-        "sprite": {"z": "UID"},
+        "spr": {"z": "UID"},
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
         "hud": {"anchor": "NE", "margin": {"n": 4, "e": 4}},
         "ninePatch": {
@@ -83,7 +83,7 @@
         "id": "debug-lose-context",
         "name": "DebugLoseContext",
         "text": "!gl",
-        "sprite": {"z": "UID"},
+        "spr": {"z": "UID"},
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
         "anchor": {"id": "render-toggle", "dir": "W", "margin": 2},
         "ninePatch": {
@@ -110,7 +110,7 @@
         "id": "superball-button",
         "name": "Superballs Button",
         "text": "+",
-        "sprite": {"z": "UID"},
+        "spr": {"z": "UID"},
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
         "anchor": {"id": "debug-lose-context", "dir": "W", "margin": 2},
         "ninePatch": {
@@ -137,7 +137,7 @@
         "id": "fullscreen",
         "name": "Fullscreen",
         "text": "full",
-        "sprite": {"z": "UID"},
+        "spr": {"z": "UID"},
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
         "anchor": {"id": "superball-button", "dir": "W", "margin": 2},
         "ninePatch": {
@@ -164,7 +164,7 @@
         "id": "screenshot",
         "name": "Screenshot",
         "text": "pic",
-        "sprite": {"z": "UID"},
+        "spr": {"z": "UID"},
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
         "anchor": {"id": "fullscreen", "dir": "W", "margin": 2},
         "ninePatch": {
@@ -191,7 +191,7 @@
         "id": "collide",
         "name": "Collide",
         "text": "collide",
-        "sprite": {"z": "UID"},
+        "spr": {"z": "UID"},
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
         "anchor": {"id": "screenshot", "dir": "W", "margin": 2},
         "ninePatch": {
@@ -218,7 +218,7 @@
         "id": "sound",
         "name": "Sound",
         "text": "sound",
-        "sprite": {"z": "UID"},
+        "spr": {"z": "UID"},
         "textWH": {"pad": {"x": 6, "y": 2}, "trim": "Leading"},
         "anchor": {"id": "collide", "dir": "W", "margin": 2},
         "ninePatch": {
@@ -244,7 +244,7 @@
       {
         "name": "Clock",
         "text": "",
-        "sprite": {"z": "UIF"},
+        "spr": {"z": "UIF"},
         "clock": {},
         "textWH": {"scale": 2, "trim": "Leading"},
         "hud": {"anchor": "S", "margin": {"y": 5}},
@@ -252,7 +252,7 @@
       },
       {
         "name": "Edge",
-        "sprite": {"z": "UIG"},
+        "spr": {"z": "UIG"},
         "hud": {"anchor": "NW", "fill": "XY"},
         "ninePatch": {
           "patch": {
@@ -271,7 +271,7 @@
 
       {
         "name": "Backpacker",
-        "sprite": {
+        "spr": {
           "tag": "backpacker--WalkRight",
           "x": 7,
           "y": 7,
@@ -283,17 +283,17 @@
 
       {
         "name": "Triangle",
-        "sprite": {"tag": "poly--Triangle", "x": 300, "y": 64, "z": "C"},
+        "spr": {"tag": "poly--Triangle", "x": 300, "y": 64, "z": "C"},
         "rotate": {"speed": 90}
       },
       {
         "name": "Square",
-        "sprite": {"tag": "poly--Square", "x": 300, "y": 64, "z": "C"}
+        "spr": {"tag": "poly--Square", "x": 300, "y": 64, "z": "C"}
       },
 
       {
         "text": "play",
-        "sprite": {"x": 128, "y": 128, "z": "C"},
+        "spr": {"x": 128, "y": 128, "z": "C"},
         "textWH": {"scale": 10, "trim": "Leading"},
         "textXY": {}
       },
@@ -302,7 +302,7 @@
         "id": "tally",
         "name": "Tally",
         "text": "",
-        "sprite": {"z": "UIA"},
+        "spr": {"z": "UIA"},
         "tally": {},
         "textWH": {"trim": "Leading"},
         "anchor": {"id": "fps", "dir": "SW", "margin": {"x": 4}},
@@ -314,7 +314,7 @@
         "id": "zoo-status",
         "name": "ZooStatus",
         "text": "",
-        "sprite": {"z": "UIA"},
+        "spr": {"z": "UIA"},
         "zooStatus": {},
         "textWH": {},
         "anchor": {"id": "fps", "dir": "NE", "margin": {"x": 4}},
@@ -323,7 +323,7 @@
 
       {
         "name": "MouseStatus",
-        "sprite": {"tag": "mouse-status--Base", "z": "UIA"},
+        "spr": {"tag": "mouse-status--Base", "z": "UIA"},
         "anchor": {"id": "zoo-status", "dir": "NE", "margin": 4},
         "mouseStatus": {}
       }
@@ -331,1757 +331,1757 @@
     "coords": [
       {
         "text": "(-24, -24)",
-        "sprite": {"x": -24, "y": -24, "z": "A"},
+        "spr": {"x": -24, "y": -24, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(0, 0)",
-        "sprite": {"x": 0, "y": 0, "z": "A"},
+        "spr": {"x": 0, "y": 0, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(256, 0)",
-        "sprite": {"x": 256, "y": 0, "z": "A"},
+        "spr": {"x": 256, "y": 0, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(512, 0)",
-        "sprite": {"x": 512, "y": 0, "z": "A"},
+        "spr": {"x": 512, "y": 0, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(768, 0)",
-        "sprite": {"x": 768, "y": 0, "z": "A"},
+        "spr": {"x": 768, "y": 0, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1024, 0)",
-        "sprite": {"x": 1024, "y": 0, "z": "A"},
+        "spr": {"x": 1024, "y": 0, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1280, 0)",
-        "sprite": {"x": 1280, "y": 0, "z": "A"},
+        "spr": {"x": 1280, "y": 0, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1536, 0)",
-        "sprite": {"x": 1536, "y": 0, "z": "A"},
+        "spr": {"x": 1536, "y": 0, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1792, 0)",
-        "sprite": {"x": 1792, "y": 0, "z": "A"},
+        "spr": {"x": 1792, "y": 0, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2048, 0)",
-        "sprite": {"x": 2048, "y": 0, "z": "A"},
+        "spr": {"x": 2048, "y": 0, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2304, 0)",
-        "sprite": {"x": 2304, "y": 0, "z": "A"},
+        "spr": {"x": 2304, "y": 0, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2560, 0)",
-        "sprite": {"x": 2560, "y": 0, "z": "A"},
+        "spr": {"x": 2560, "y": 0, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2816, 0)",
-        "sprite": {"x": 2816, "y": 0, "z": "A"},
+        "spr": {"x": 2816, "y": 0, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3072, 0)",
-        "sprite": {"x": 3072, "y": 0, "z": "A"},
+        "spr": {"x": 3072, "y": 0, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3328, 0)",
-        "sprite": {"x": 3328, "y": 0, "z": "A"},
+        "spr": {"x": 3328, "y": 0, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3584, 0)",
-        "sprite": {"x": 3584, "y": 0, "z": "A"},
+        "spr": {"x": 3584, "y": 0, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3840, 0)",
-        "sprite": {"x": 3840, "y": 0, "z": "A"},
+        "spr": {"x": 3840, "y": 0, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(4096, 0)",
-        "sprite": {"x": 4096, "y": 0, "z": "A"},
+        "spr": {"x": 4096, "y": 0, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
 
       {
         "text": "(0, 256)",
-        "sprite": {"x": 0, "y": 256, "z": "A"},
+        "spr": {"x": 0, "y": 256, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(256, 256)",
-        "sprite": {"x": 256, "y": 256, "z": "A"},
+        "spr": {"x": 256, "y": 256, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(512, 256)",
-        "sprite": {"x": 512, "y": 256, "z": "A"},
+        "spr": {"x": 512, "y": 256, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(768, 256)",
-        "sprite": {"x": 768, "y": 256, "z": "A"},
+        "spr": {"x": 768, "y": 256, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1024, 256)",
-        "sprite": {"x": 1024, "y": 256, "z": "A"},
+        "spr": {"x": 1024, "y": 256, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1280, 256)",
-        "sprite": {"x": 1280, "y": 256, "z": "A"},
+        "spr": {"x": 1280, "y": 256, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1536, 256)",
-        "sprite": {"x": 1536, "y": 256, "z": "A"},
+        "spr": {"x": 1536, "y": 256, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1792, 256)",
-        "sprite": {"x": 1792, "y": 256, "z": "A"},
+        "spr": {"x": 1792, "y": 256, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2048, 256)",
-        "sprite": {"x": 2048, "y": 256, "z": "A"},
+        "spr": {"x": 2048, "y": 256, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2304, 256)",
-        "sprite": {"x": 2304, "y": 256, "z": "A"},
+        "spr": {"x": 2304, "y": 256, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2560, 256)",
-        "sprite": {"x": 2560, "y": 256, "z": "A"},
+        "spr": {"x": 2560, "y": 256, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2816, 256)",
-        "sprite": {"x": 2816, "y": 256, "z": "A"},
+        "spr": {"x": 2816, "y": 256, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3072, 256)",
-        "sprite": {"x": 3072, "y": 256, "z": "A"},
+        "spr": {"x": 3072, "y": 256, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3328, 256)",
-        "sprite": {"x": 3328, "y": 256, "z": "A"},
+        "spr": {"x": 3328, "y": 256, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3584, 256)",
-        "sprite": {"x": 3584, "y": 256, "z": "A"},
+        "spr": {"x": 3584, "y": 256, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3840, 256)",
-        "sprite": {"x": 3840, "y": 256, "z": "A"},
+        "spr": {"x": 3840, "y": 256, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(4096, 256)",
-        "sprite": {"x": 4096, "y": 256, "z": "A"},
+        "spr": {"x": 4096, "y": 256, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
 
       {
         "text": "(0, 512)",
-        "sprite": {"x": 0, "y": 512, "z": "A"},
+        "spr": {"x": 0, "y": 512, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(256, 512)",
-        "sprite": {"x": 256, "y": 512, "z": "A"},
+        "spr": {"x": 256, "y": 512, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(512, 512)",
-        "sprite": {"x": 512, "y": 512, "z": "A"},
+        "spr": {"x": 512, "y": 512, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(768, 512)",
-        "sprite": {"x": 768, "y": 512, "z": "A"},
+        "spr": {"x": 768, "y": 512, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1024, 512)",
-        "sprite": {"x": 1024, "y": 512, "z": "A"},
+        "spr": {"x": 1024, "y": 512, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1280, 512)",
-        "sprite": {"x": 1280, "y": 512, "z": "A"},
+        "spr": {"x": 1280, "y": 512, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1536, 512)",
-        "sprite": {"x": 1536, "y": 512, "z": "A"},
+        "spr": {"x": 1536, "y": 512, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1792, 512)",
-        "sprite": {"x": 1792, "y": 512, "z": "A"},
+        "spr": {"x": 1792, "y": 512, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2048, 512)",
-        "sprite": {"x": 2048, "y": 512, "z": "A"},
+        "spr": {"x": 2048, "y": 512, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2304, 512)",
-        "sprite": {"x": 2304, "y": 512, "z": "A"},
+        "spr": {"x": 2304, "y": 512, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2560, 512)",
-        "sprite": {"x": 2560, "y": 512, "z": "A"},
+        "spr": {"x": 2560, "y": 512, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2816, 512)",
-        "sprite": {"x": 2816, "y": 512, "z": "A"},
+        "spr": {"x": 2816, "y": 512, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3072, 512)",
-        "sprite": {"x": 3072, "y": 512, "z": "A"},
+        "spr": {"x": 3072, "y": 512, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3328, 512)",
-        "sprite": {"x": 3328, "y": 512, "z": "A"},
+        "spr": {"x": 3328, "y": 512, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3584, 512)",
-        "sprite": {"x": 3584, "y": 512, "z": "A"},
+        "spr": {"x": 3584, "y": 512, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3840, 512)",
-        "sprite": {"x": 3840, "y": 512, "z": "A"},
+        "spr": {"x": 3840, "y": 512, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(4096, 512)",
-        "sprite": {"x": 4096, "y": 512, "z": "A"},
+        "spr": {"x": 4096, "y": 512, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
 
       {
         "text": "(0, 768)",
-        "sprite": {"x": 0, "y": 768, "z": "A"},
+        "spr": {"x": 0, "y": 768, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(256, 768)",
-        "sprite": {"x": 256, "y": 768, "z": "A"},
+        "spr": {"x": 256, "y": 768, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(512, 768)",
-        "sprite": {"x": 512, "y": 768, "z": "A"},
+        "spr": {"x": 512, "y": 768, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(768, 768)",
-        "sprite": {"x": 768, "y": 768, "z": "A"},
+        "spr": {"x": 768, "y": 768, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1024, 768)",
-        "sprite": {"x": 1024, "y": 768, "z": "A"},
+        "spr": {"x": 1024, "y": 768, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1280, 768)",
-        "sprite": {"x": 1280, "y": 768, "z": "A"},
+        "spr": {"x": 1280, "y": 768, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1536, 768)",
-        "sprite": {"x": 1536, "y": 768, "z": "A"},
+        "spr": {"x": 1536, "y": 768, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1792, 768)",
-        "sprite": {"x": 1792, "y": 768, "z": "A"},
+        "spr": {"x": 1792, "y": 768, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2048, 768)",
-        "sprite": {"x": 2048, "y": 768, "z": "A"},
+        "spr": {"x": 2048, "y": 768, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2304, 768)",
-        "sprite": {"x": 2304, "y": 768, "z": "A"},
+        "spr": {"x": 2304, "y": 768, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2560, 768)",
-        "sprite": {"x": 2560, "y": 768, "z": "A"},
+        "spr": {"x": 2560, "y": 768, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2816, 768)",
-        "sprite": {"x": 2816, "y": 768, "z": "A"},
+        "spr": {"x": 2816, "y": 768, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3072, 768)",
-        "sprite": {"x": 3072, "y": 768, "z": "A"},
+        "spr": {"x": 3072, "y": 768, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3328, 768)",
-        "sprite": {"x": 3328, "y": 768, "z": "A"},
+        "spr": {"x": 3328, "y": 768, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3584, 768)",
-        "sprite": {"x": 3584, "y": 768, "z": "A"},
+        "spr": {"x": 3584, "y": 768, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3840, 768)",
-        "sprite": {"x": 3840, "y": 768, "z": "A"},
+        "spr": {"x": 3840, "y": 768, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(4096, 768)",
-        "sprite": {"x": 4096, "y": 768, "z": "A"},
+        "spr": {"x": 4096, "y": 768, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
 
       {
         "text": "(0, 1024)",
-        "sprite": {"x": 0, "y": 1024, "z": "A"},
+        "spr": {"x": 0, "y": 1024, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(256, 1024)",
-        "sprite": {"x": 256, "y": 1024, "z": "A"},
+        "spr": {"x": 256, "y": 1024, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(512, 1024)",
-        "sprite": {"x": 512, "y": 1024, "z": "A"},
+        "spr": {"x": 512, "y": 1024, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(768, 1024)",
-        "sprite": {"x": 768, "y": 1024, "z": "A"},
+        "spr": {"x": 768, "y": 1024, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1024, 1024)",
-        "sprite": {"x": 1024, "y": 1024, "z": "A"},
+        "spr": {"x": 1024, "y": 1024, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1280, 1024)",
-        "sprite": {"x": 1280, "y": 1024, "z": "A"},
+        "spr": {"x": 1280, "y": 1024, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1536, 1024)",
-        "sprite": {"x": 1536, "y": 1024, "z": "A"},
+        "spr": {"x": 1536, "y": 1024, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1792, 1024)",
-        "sprite": {"x": 1792, "y": 1024, "z": "A"},
+        "spr": {"x": 1792, "y": 1024, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2048, 1024)",
-        "sprite": {"x": 2048, "y": 1024, "z": "A"},
+        "spr": {"x": 2048, "y": 1024, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2304, 1024)",
-        "sprite": {"x": 2304, "y": 1024, "z": "A"},
+        "spr": {"x": 2304, "y": 1024, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2560, 1024)",
-        "sprite": {"x": 2560, "y": 1024, "z": "A"},
+        "spr": {"x": 2560, "y": 1024, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2816, 1024)",
-        "sprite": {"x": 2816, "y": 1024, "z": "A"},
+        "spr": {"x": 2816, "y": 1024, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3072, 1024)",
-        "sprite": {"x": 3072, "y": 1024, "z": "A"},
+        "spr": {"x": 3072, "y": 1024, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3328, 1024)",
-        "sprite": {"x": 3328, "y": 1024, "z": "A"},
+        "spr": {"x": 3328, "y": 1024, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3584, 1024)",
-        "sprite": {"x": 3584, "y": 1024, "z": "A"},
+        "spr": {"x": 3584, "y": 1024, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3840, 1024)",
-        "sprite": {"x": 3840, "y": 1024, "z": "A"},
+        "spr": {"x": 3840, "y": 1024, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(4096, 1024)",
-        "sprite": {"x": 4096, "y": 1024, "z": "A"},
+        "spr": {"x": 4096, "y": 1024, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
 
       {
         "text": "(0, 1280)",
-        "sprite": {"x": 0, "y": 1280, "z": "A"},
+        "spr": {"x": 0, "y": 1280, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(256, 1280)",
-        "sprite": {"x": 256, "y": 1280, "z": "A"},
+        "spr": {"x": 256, "y": 1280, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(512, 1280)",
-        "sprite": {"x": 512, "y": 1280, "z": "A"},
+        "spr": {"x": 512, "y": 1280, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(768, 1280)",
-        "sprite": {"x": 768, "y": 1280, "z": "A"},
+        "spr": {"x": 768, "y": 1280, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1024, 1280)",
-        "sprite": {"x": 1024, "y": 1280, "z": "A"},
+        "spr": {"x": 1024, "y": 1280, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1280, 1280)",
-        "sprite": {"x": 1280, "y": 1280, "z": "A"},
+        "spr": {"x": 1280, "y": 1280, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1536, 1280)",
-        "sprite": {"x": 1536, "y": 1280, "z": "A"},
+        "spr": {"x": 1536, "y": 1280, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1792, 1280)",
-        "sprite": {"x": 1792, "y": 1280, "z": "A"},
+        "spr": {"x": 1792, "y": 1280, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2048, 1280)",
-        "sprite": {"x": 2048, "y": 1280, "z": "A"},
+        "spr": {"x": 2048, "y": 1280, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2304, 1280)",
-        "sprite": {"x": 2304, "y": 1280, "z": "A"},
+        "spr": {"x": 2304, "y": 1280, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2560, 1280)",
-        "sprite": {"x": 2560, "y": 1280, "z": "A"},
+        "spr": {"x": 2560, "y": 1280, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2816, 1280)",
-        "sprite": {"x": 2816, "y": 1280, "z": "A"},
+        "spr": {"x": 2816, "y": 1280, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3072, 1280)",
-        "sprite": {"x": 3072, "y": 1280, "z": "A"},
+        "spr": {"x": 3072, "y": 1280, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3328, 1280)",
-        "sprite": {"x": 3328, "y": 1280, "z": "A"},
+        "spr": {"x": 3328, "y": 1280, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3584, 1280)",
-        "sprite": {"x": 3584, "y": 1280, "z": "A"},
+        "spr": {"x": 3584, "y": 1280, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3840, 1280)",
-        "sprite": {"x": 3840, "y": 1280, "z": "A"},
+        "spr": {"x": 3840, "y": 1280, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(4096, 1280)",
-        "sprite": {"x": 4096, "y": 1280, "z": "A"},
+        "spr": {"x": 4096, "y": 1280, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
 
       {
         "text": "(0, 1536)",
-        "sprite": {"x": 0, "y": 1536, "z": "A"},
+        "spr": {"x": 0, "y": 1536, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(256, 1536)",
-        "sprite": {"x": 256, "y": 1536, "z": "A"},
+        "spr": {"x": 256, "y": 1536, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(512, 1536)",
-        "sprite": {"x": 512, "y": 1536, "z": "A"},
+        "spr": {"x": 512, "y": 1536, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(768, 1536)",
-        "sprite": {"x": 768, "y": 1536, "z": "A"},
+        "spr": {"x": 768, "y": 1536, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1024, 1536)",
-        "sprite": {"x": 1024, "y": 1536, "z": "A"},
+        "spr": {"x": 1024, "y": 1536, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1280, 1536)",
-        "sprite": {"x": 1280, "y": 1536, "z": "A"},
+        "spr": {"x": 1280, "y": 1536, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1536, 1536)",
-        "sprite": {"x": 1536, "y": 1536, "z": "A"},
+        "spr": {"x": 1536, "y": 1536, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1792, 1536)",
-        "sprite": {"x": 1792, "y": 1536, "z": "A"},
+        "spr": {"x": 1792, "y": 1536, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2048, 1536)",
-        "sprite": {"x": 2048, "y": 1536, "z": "A"},
+        "spr": {"x": 2048, "y": 1536, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2304, 1536)",
-        "sprite": {"x": 2304, "y": 1536, "z": "A"},
+        "spr": {"x": 2304, "y": 1536, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2560, 1536)",
-        "sprite": {"x": 2560, "y": 1536, "z": "A"},
+        "spr": {"x": 2560, "y": 1536, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2816, 1536)",
-        "sprite": {"x": 2816, "y": 1536, "z": "A"},
+        "spr": {"x": 2816, "y": 1536, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3072, 1536)",
-        "sprite": {"x": 3072, "y": 1536, "z": "A"},
+        "spr": {"x": 3072, "y": 1536, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3328, 1536)",
-        "sprite": {"x": 3328, "y": 1536, "z": "A"},
+        "spr": {"x": 3328, "y": 1536, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3584, 1536)",
-        "sprite": {"x": 3584, "y": 1536, "z": "A"},
+        "spr": {"x": 3584, "y": 1536, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3840, 1536)",
-        "sprite": {"x": 3840, "y": 1536, "z": "A"},
+        "spr": {"x": 3840, "y": 1536, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(4096, 1536)",
-        "sprite": {"x": 4096, "y": 1536, "z": "A"},
+        "spr": {"x": 4096, "y": 1536, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
 
       {
         "text": "(0, 1792)",
-        "sprite": {"x": 0, "y": 1792, "z": "A"},
+        "spr": {"x": 0, "y": 1792, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(256, 1792)",
-        "sprite": {"x": 256, "y": 1792, "z": "A"},
+        "spr": {"x": 256, "y": 1792, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(512, 1792)",
-        "sprite": {"x": 512, "y": 1792, "z": "A"},
+        "spr": {"x": 512, "y": 1792, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(768, 1792)",
-        "sprite": {"x": 768, "y": 1792, "z": "A"},
+        "spr": {"x": 768, "y": 1792, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1024, 1792)",
-        "sprite": {"x": 1024, "y": 1792, "z": "A"},
+        "spr": {"x": 1024, "y": 1792, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1280, 1792)",
-        "sprite": {"x": 1280, "y": 1792, "z": "A"},
+        "spr": {"x": 1280, "y": 1792, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1536, 1792)",
-        "sprite": {"x": 1536, "y": 1792, "z": "A"},
+        "spr": {"x": 1536, "y": 1792, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1792, 1792)",
-        "sprite": {"x": 1792, "y": 1792, "z": "A"},
+        "spr": {"x": 1792, "y": 1792, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2048, 1792)",
-        "sprite": {"x": 2048, "y": 1792, "z": "A"},
+        "spr": {"x": 2048, "y": 1792, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2304, 1792)",
-        "sprite": {"x": 2304, "y": 1792, "z": "A"},
+        "spr": {"x": 2304, "y": 1792, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2560, 1792)",
-        "sprite": {"x": 2560, "y": 1792, "z": "A"},
+        "spr": {"x": 2560, "y": 1792, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2816, 1792)",
-        "sprite": {"x": 2816, "y": 1792, "z": "A"},
+        "spr": {"x": 2816, "y": 1792, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3072, 1792)",
-        "sprite": {"x": 3072, "y": 1792, "z": "A"},
+        "spr": {"x": 3072, "y": 1792, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3328, 1792)",
-        "sprite": {"x": 3328, "y": 1792, "z": "A"},
+        "spr": {"x": 3328, "y": 1792, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3584, 1792)",
-        "sprite": {"x": 3584, "y": 1792, "z": "A"},
+        "spr": {"x": 3584, "y": 1792, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3840, 1792)",
-        "sprite": {"x": 3840, "y": 1792, "z": "A"},
+        "spr": {"x": 3840, "y": 1792, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(4096, 1792)",
-        "sprite": {"x": 4096, "y": 1792, "z": "A"},
+        "spr": {"x": 4096, "y": 1792, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
 
       {
         "text": "(0, 2048)",
-        "sprite": {"x": 0, "y": 2048, "z": "A"},
+        "spr": {"x": 0, "y": 2048, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(256, 2048)",
-        "sprite": {"x": 256, "y": 2048, "z": "A"},
+        "spr": {"x": 256, "y": 2048, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(512, 2048)",
-        "sprite": {"x": 512, "y": 2048, "z": "A"},
+        "spr": {"x": 512, "y": 2048, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(768, 2048)",
-        "sprite": {"x": 768, "y": 2048, "z": "A"},
+        "spr": {"x": 768, "y": 2048, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1024, 2048)",
-        "sprite": {"x": 1024, "y": 2048, "z": "A"},
+        "spr": {"x": 1024, "y": 2048, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1280, 2048)",
-        "sprite": {"x": 1280, "y": 2048, "z": "A"},
+        "spr": {"x": 1280, "y": 2048, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1536, 2048)",
-        "sprite": {"x": 1536, "y": 2048, "z": "A"},
+        "spr": {"x": 1536, "y": 2048, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1792, 2048)",
-        "sprite": {"x": 1792, "y": 2048, "z": "A"},
+        "spr": {"x": 1792, "y": 2048, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2048, 2048)",
-        "sprite": {"x": 2048, "y": 2048, "z": "A"},
+        "spr": {"x": 2048, "y": 2048, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2304, 2048)",
-        "sprite": {"x": 2304, "y": 2048, "z": "A"},
+        "spr": {"x": 2304, "y": 2048, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2560, 2048)",
-        "sprite": {"x": 2560, "y": 2048, "z": "A"},
+        "spr": {"x": 2560, "y": 2048, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2816, 2048)",
-        "sprite": {"x": 2816, "y": 2048, "z": "A"},
+        "spr": {"x": 2816, "y": 2048, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3072, 2048)",
-        "sprite": {"x": 3072, "y": 2048, "z": "A"},
+        "spr": {"x": 3072, "y": 2048, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3328, 2048)",
-        "sprite": {"x": 3328, "y": 2048, "z": "A"},
+        "spr": {"x": 3328, "y": 2048, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3584, 2048)",
-        "sprite": {"x": 3584, "y": 2048, "z": "A"},
+        "spr": {"x": 3584, "y": 2048, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3840, 2048)",
-        "sprite": {"x": 3840, "y": 2048, "z": "A"},
+        "spr": {"x": 3840, "y": 2048, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(4096, 2048)",
-        "sprite": {"x": 4096, "y": 2048, "z": "A"},
+        "spr": {"x": 4096, "y": 2048, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
 
       {
         "text": "(0, 2304)",
-        "sprite": {"x": 0, "y": 2304, "z": "A"},
+        "spr": {"x": 0, "y": 2304, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(256, 2304)",
-        "sprite": {"x": 256, "y": 2304, "z": "A"},
+        "spr": {"x": 256, "y": 2304, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(512, 2304)",
-        "sprite": {"x": 512, "y": 2304, "z": "A"},
+        "spr": {"x": 512, "y": 2304, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(768, 2304)",
-        "sprite": {"x": 768, "y": 2304, "z": "A"},
+        "spr": {"x": 768, "y": 2304, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1024, 2304)",
-        "sprite": {"x": 1024, "y": 2304, "z": "A"},
+        "spr": {"x": 1024, "y": 2304, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1280, 2304)",
-        "sprite": {"x": 1280, "y": 2304, "z": "A"},
+        "spr": {"x": 1280, "y": 2304, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1536, 2304)",
-        "sprite": {"x": 1536, "y": 2304, "z": "A"},
+        "spr": {"x": 1536, "y": 2304, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1792, 2304)",
-        "sprite": {"x": 1792, "y": 2304, "z": "A"},
+        "spr": {"x": 1792, "y": 2304, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2048, 2304)",
-        "sprite": {"x": 2048, "y": 2304, "z": "A"},
+        "spr": {"x": 2048, "y": 2304, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2304, 2304)",
-        "sprite": {"x": 2304, "y": 2304, "z": "A"},
+        "spr": {"x": 2304, "y": 2304, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2560, 2304)",
-        "sprite": {"x": 2560, "y": 2304, "z": "A"},
+        "spr": {"x": 2560, "y": 2304, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2816, 2304)",
-        "sprite": {"x": 2816, "y": 2304, "z": "A"},
+        "spr": {"x": 2816, "y": 2304, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3072, 2304)",
-        "sprite": {"x": 3072, "y": 2304, "z": "A"},
+        "spr": {"x": 3072, "y": 2304, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3328, 2304)",
-        "sprite": {"x": 3328, "y": 2304, "z": "A"},
+        "spr": {"x": 3328, "y": 2304, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3584, 2304)",
-        "sprite": {"x": 3584, "y": 2304, "z": "A"},
+        "spr": {"x": 3584, "y": 2304, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3840, 2304)",
-        "sprite": {"x": 3840, "y": 2304, "z": "A"},
+        "spr": {"x": 3840, "y": 2304, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(4096, 2304)",
-        "sprite": {"x": 4096, "y": 2304, "z": "A"},
+        "spr": {"x": 4096, "y": 2304, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
 
       {
         "text": "(0, 2560)",
-        "sprite": {"x": 0, "y": 2560, "z": "A"},
+        "spr": {"x": 0, "y": 2560, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(256, 2560)",
-        "sprite": {"x": 256, "y": 2560, "z": "A"},
+        "spr": {"x": 256, "y": 2560, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(512, 2560)",
-        "sprite": {"x": 512, "y": 2560, "z": "A"},
+        "spr": {"x": 512, "y": 2560, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(768, 2560)",
-        "sprite": {"x": 768, "y": 2560, "z": "A"},
+        "spr": {"x": 768, "y": 2560, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1024, 2560)",
-        "sprite": {"x": 1024, "y": 2560, "z": "A"},
+        "spr": {"x": 1024, "y": 2560, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1280, 2560)",
-        "sprite": {"x": 1280, "y": 2560, "z": "A"},
+        "spr": {"x": 1280, "y": 2560, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1536, 2560)",
-        "sprite": {"x": 1536, "y": 2560, "z": "A"},
+        "spr": {"x": 1536, "y": 2560, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1792, 2560)",
-        "sprite": {"x": 1792, "y": 2560, "z": "A"},
+        "spr": {"x": 1792, "y": 2560, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2048, 2560)",
-        "sprite": {"x": 2048, "y": 2560, "z": "A"},
+        "spr": {"x": 2048, "y": 2560, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2304, 2560)",
-        "sprite": {"x": 2304, "y": 2560, "z": "A"},
+        "spr": {"x": 2304, "y": 2560, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2560, 2560)",
-        "sprite": {"x": 2560, "y": 2560, "z": "A"},
+        "spr": {"x": 2560, "y": 2560, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2816, 2560)",
-        "sprite": {"x": 2816, "y": 2560, "z": "A"},
+        "spr": {"x": 2816, "y": 2560, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3072, 2560)",
-        "sprite": {"x": 3072, "y": 2560, "z": "A"},
+        "spr": {"x": 3072, "y": 2560, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3328, 2560)",
-        "sprite": {"x": 3328, "y": 2560, "z": "A"},
+        "spr": {"x": 3328, "y": 2560, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3584, 2560)",
-        "sprite": {"x": 3584, "y": 2560, "z": "A"},
+        "spr": {"x": 3584, "y": 2560, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3840, 2560)",
-        "sprite": {"x": 3840, "y": 2560, "z": "A"},
+        "spr": {"x": 3840, "y": 2560, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(4096, 2560)",
-        "sprite": {"x": 4096, "y": 2560, "z": "A"},
+        "spr": {"x": 4096, "y": 2560, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
 
       {
         "text": "(0, 2816)",
-        "sprite": {"x": 0, "y": 2816, "z": "A"},
+        "spr": {"x": 0, "y": 2816, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(256, 2816)",
-        "sprite": {"x": 256, "y": 2816, "z": "A"},
+        "spr": {"x": 256, "y": 2816, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(512, 2816)",
-        "sprite": {"x": 512, "y": 2816, "z": "A"},
+        "spr": {"x": 512, "y": 2816, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(768, 2816)",
-        "sprite": {"x": 768, "y": 2816, "z": "A"},
+        "spr": {"x": 768, "y": 2816, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1024, 2816)",
-        "sprite": {"x": 1024, "y": 2816, "z": "A"},
+        "spr": {"x": 1024, "y": 2816, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1280, 2816)",
-        "sprite": {"x": 1280, "y": 2816, "z": "A"},
+        "spr": {"x": 1280, "y": 2816, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1536, 2816)",
-        "sprite": {"x": 1536, "y": 2816, "z": "A"},
+        "spr": {"x": 1536, "y": 2816, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1792, 2816)",
-        "sprite": {"x": 1792, "y": 2816, "z": "A"},
+        "spr": {"x": 1792, "y": 2816, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2048, 2816)",
-        "sprite": {"x": 2048, "y": 2816, "z": "A"},
+        "spr": {"x": 2048, "y": 2816, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2304, 2816)",
-        "sprite": {"x": 2304, "y": 2816, "z": "A"},
+        "spr": {"x": 2304, "y": 2816, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2560, 2816)",
-        "sprite": {"x": 2560, "y": 2816, "z": "A"},
+        "spr": {"x": 2560, "y": 2816, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2816, 2816)",
-        "sprite": {"x": 2816, "y": 2816, "z": "A"},
+        "spr": {"x": 2816, "y": 2816, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3072, 2816)",
-        "sprite": {"x": 3072, "y": 2816, "z": "A"},
+        "spr": {"x": 3072, "y": 2816, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3328, 2816)",
-        "sprite": {"x": 3328, "y": 2816, "z": "A"},
+        "spr": {"x": 3328, "y": 2816, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3584, 2816)",
-        "sprite": {"x": 3584, "y": 2816, "z": "A"},
+        "spr": {"x": 3584, "y": 2816, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3840, 2816)",
-        "sprite": {"x": 3840, "y": 2816, "z": "A"},
+        "spr": {"x": 3840, "y": 2816, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(4096, 2816)",
-        "sprite": {"x": 4096, "y": 2816, "z": "A"},
+        "spr": {"x": 4096, "y": 2816, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
 
       {
         "text": "(0, 3072)",
-        "sprite": {"x": 0, "y": 3072, "z": "A"},
+        "spr": {"x": 0, "y": 3072, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(256, 3072)",
-        "sprite": {"x": 256, "y": 3072, "z": "A"},
+        "spr": {"x": 256, "y": 3072, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(512, 3072)",
-        "sprite": {"x": 512, "y": 3072, "z": "A"},
+        "spr": {"x": 512, "y": 3072, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(768, 3072)",
-        "sprite": {"x": 768, "y": 3072, "z": "A"},
+        "spr": {"x": 768, "y": 3072, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1024, 3072)",
-        "sprite": {"x": 1024, "y": 3072, "z": "A"},
+        "spr": {"x": 1024, "y": 3072, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1280, 3072)",
-        "sprite": {"x": 1280, "y": 3072, "z": "A"},
+        "spr": {"x": 1280, "y": 3072, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1536, 3072)",
-        "sprite": {"x": 1536, "y": 3072, "z": "A"},
+        "spr": {"x": 1536, "y": 3072, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1792, 3072)",
-        "sprite": {"x": 1792, "y": 3072, "z": "A"},
+        "spr": {"x": 1792, "y": 3072, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2048, 3072)",
-        "sprite": {"x": 2048, "y": 3072, "z": "A"},
+        "spr": {"x": 2048, "y": 3072, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2304, 3072)",
-        "sprite": {"x": 2304, "y": 3072, "z": "A"},
+        "spr": {"x": 2304, "y": 3072, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2560, 3072)",
-        "sprite": {"x": 2560, "y": 3072, "z": "A"},
+        "spr": {"x": 2560, "y": 3072, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2816, 3072)",
-        "sprite": {"x": 2816, "y": 3072, "z": "A"},
+        "spr": {"x": 2816, "y": 3072, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3072, 3072)",
-        "sprite": {"x": 3072, "y": 3072, "z": "A"},
+        "spr": {"x": 3072, "y": 3072, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3328, 3072)",
-        "sprite": {"x": 3328, "y": 3072, "z": "A"},
+        "spr": {"x": 3328, "y": 3072, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3584, 3072)",
-        "sprite": {"x": 3584, "y": 3072, "z": "A"},
+        "spr": {"x": 3584, "y": 3072, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3840, 3072)",
-        "sprite": {"x": 3840, "y": 3072, "z": "A"},
+        "spr": {"x": 3840, "y": 3072, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(4096, 3072)",
-        "sprite": {"x": 4096, "y": 3072, "z": "A"},
+        "spr": {"x": 4096, "y": 3072, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
 
       {
         "text": "(0, 3328)",
-        "sprite": {"x": 0, "y": 3328, "z": "A"},
+        "spr": {"x": 0, "y": 3328, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(256, 3328)",
-        "sprite": {"x": 256, "y": 3328, "z": "A"},
+        "spr": {"x": 256, "y": 3328, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(512, 3328)",
-        "sprite": {"x": 512, "y": 3328, "z": "A"},
+        "spr": {"x": 512, "y": 3328, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(768, 3328)",
-        "sprite": {"x": 768, "y": 3328, "z": "A"},
+        "spr": {"x": 768, "y": 3328, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1024, 3328)",
-        "sprite": {"x": 1024, "y": 3328, "z": "A"},
+        "spr": {"x": 1024, "y": 3328, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1280, 3328)",
-        "sprite": {"x": 1280, "y": 3328, "z": "A"},
+        "spr": {"x": 1280, "y": 3328, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1536, 3328)",
-        "sprite": {"x": 1536, "y": 3328, "z": "A"},
+        "spr": {"x": 1536, "y": 3328, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1792, 3328)",
-        "sprite": {"x": 1792, "y": 3328, "z": "A"},
+        "spr": {"x": 1792, "y": 3328, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2048, 3328)",
-        "sprite": {"x": 2048, "y": 3328, "z": "A"},
+        "spr": {"x": 2048, "y": 3328, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2304, 3328)",
-        "sprite": {"x": 2304, "y": 3328, "z": "A"},
+        "spr": {"x": 2304, "y": 3328, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2560, 3328)",
-        "sprite": {"x": 2560, "y": 3328, "z": "A"},
+        "spr": {"x": 2560, "y": 3328, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2816, 3328)",
-        "sprite": {"x": 2816, "y": 3328, "z": "A"},
+        "spr": {"x": 2816, "y": 3328, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3072, 3328)",
-        "sprite": {"x": 3072, "y": 3328, "z": "A"},
+        "spr": {"x": 3072, "y": 3328, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3328, 3328)",
-        "sprite": {"x": 3328, "y": 3328, "z": "A"},
+        "spr": {"x": 3328, "y": 3328, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3584, 3328)",
-        "sprite": {"x": 3584, "y": 3328, "z": "A"},
+        "spr": {"x": 3584, "y": 3328, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3840, 3328)",
-        "sprite": {"x": 3840, "y": 3328, "z": "A"},
+        "spr": {"x": 3840, "y": 3328, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(4096, 3328)",
-        "sprite": {"x": 4096, "y": 3328, "z": "A"},
+        "spr": {"x": 4096, "y": 3328, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
 
       {
         "text": "(0, 3584)",
-        "sprite": {"x": 0, "y": 3584, "z": "A"},
+        "spr": {"x": 0, "y": 3584, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(256, 3584)",
-        "sprite": {"x": 256, "y": 3584, "z": "A"},
+        "spr": {"x": 256, "y": 3584, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(512, 3584)",
-        "sprite": {"x": 512, "y": 3584, "z": "A"},
+        "spr": {"x": 512, "y": 3584, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(768, 3584)",
-        "sprite": {"x": 768, "y": 3584, "z": "A"},
+        "spr": {"x": 768, "y": 3584, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1024, 3584)",
-        "sprite": {"x": 1024, "y": 3584, "z": "A"},
+        "spr": {"x": 1024, "y": 3584, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1280, 3584)",
-        "sprite": {"x": 1280, "y": 3584, "z": "A"},
+        "spr": {"x": 1280, "y": 3584, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1536, 3584)",
-        "sprite": {"x": 1536, "y": 3584, "z": "A"},
+        "spr": {"x": 1536, "y": 3584, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1792, 3584)",
-        "sprite": {"x": 1792, "y": 3584, "z": "A"},
+        "spr": {"x": 1792, "y": 3584, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2048, 3584)",
-        "sprite": {"x": 2048, "y": 3584, "z": "A"},
+        "spr": {"x": 2048, "y": 3584, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2304, 3584)",
-        "sprite": {"x": 2304, "y": 3584, "z": "A"},
+        "spr": {"x": 2304, "y": 3584, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2560, 3584)",
-        "sprite": {"x": 2560, "y": 3584, "z": "A"},
+        "spr": {"x": 2560, "y": 3584, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2816, 3584)",
-        "sprite": {"x": 2816, "y": 3584, "z": "A"},
+        "spr": {"x": 2816, "y": 3584, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3072, 3584)",
-        "sprite": {"x": 3072, "y": 3584, "z": "A"},
+        "spr": {"x": 3072, "y": 3584, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3328, 3584)",
-        "sprite": {"x": 3328, "y": 3584, "z": "A"},
+        "spr": {"x": 3328, "y": 3584, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3584, 3584)",
-        "sprite": {"x": 3584, "y": 3584, "z": "A"},
+        "spr": {"x": 3584, "y": 3584, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3840, 3584)",
-        "sprite": {"x": 3840, "y": 3584, "z": "A"},
+        "spr": {"x": 3840, "y": 3584, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(4096, 3584)",
-        "sprite": {"x": 4096, "y": 3584, "z": "A"},
+        "spr": {"x": 4096, "y": 3584, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
 
       {
         "text": "(0, 3840)",
-        "sprite": {"x": 0, "y": 3840, "z": "A"},
+        "spr": {"x": 0, "y": 3840, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(256, 3840)",
-        "sprite": {"x": 256, "y": 3840, "z": "A"},
+        "spr": {"x": 256, "y": 3840, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(512, 3840)",
-        "sprite": {"x": 512, "y": 3840, "z": "A"},
+        "spr": {"x": 512, "y": 3840, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(768, 3840)",
-        "sprite": {"x": 768, "y": 3840, "z": "A"},
+        "spr": {"x": 768, "y": 3840, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1024, 3840)",
-        "sprite": {"x": 1024, "y": 3840, "z": "A"},
+        "spr": {"x": 1024, "y": 3840, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1280, 3840)",
-        "sprite": {"x": 1280, "y": 3840, "z": "A"},
+        "spr": {"x": 1280, "y": 3840, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1536, 3840)",
-        "sprite": {"x": 1536, "y": 3840, "z": "A"},
+        "spr": {"x": 1536, "y": 3840, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1792, 3840)",
-        "sprite": {"x": 1792, "y": 3840, "z": "A"},
+        "spr": {"x": 1792, "y": 3840, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2048, 3840)",
-        "sprite": {"x": 2048, "y": 3840, "z": "A"},
+        "spr": {"x": 2048, "y": 3840, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2304, 3840)",
-        "sprite": {"x": 2304, "y": 3840, "z": "A"},
+        "spr": {"x": 2304, "y": 3840, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2560, 3840)",
-        "sprite": {"x": 2560, "y": 3840, "z": "A"},
+        "spr": {"x": 2560, "y": 3840, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2816, 3840)",
-        "sprite": {"x": 2816, "y": 3840, "z": "A"},
+        "spr": {"x": 2816, "y": 3840, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3072, 3840)",
-        "sprite": {"x": 3072, "y": 3840, "z": "A"},
+        "spr": {"x": 3072, "y": 3840, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3328, 3840)",
-        "sprite": {"x": 3328, "y": 3840, "z": "A"},
+        "spr": {"x": 3328, "y": 3840, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3584, 3840)",
-        "sprite": {"x": 3584, "y": 3840, "z": "A"},
+        "spr": {"x": 3584, "y": 3840, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3840, 3840)",
-        "sprite": {"x": 3840, "y": 3840, "z": "A"},
+        "spr": {"x": 3840, "y": 3840, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(4096, 3840)",
-        "sprite": {"x": 4096, "y": 3840, "z": "A"},
+        "spr": {"x": 4096, "y": 3840, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
 
       {
         "text": "(0, 4096)",
-        "sprite": {"x": 0, "y": 4096, "z": "A"},
+        "spr": {"x": 0, "y": 4096, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(256, 4096)",
-        "sprite": {"x": 256, "y": 4096, "z": "A"},
+        "spr": {"x": 256, "y": 4096, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(512, 4096)",
-        "sprite": {"x": 512, "y": 4096, "z": "A"},
+        "spr": {"x": 512, "y": 4096, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(768, 4096)",
-        "sprite": {"x": 768, "y": 4096, "z": "A"},
+        "spr": {"x": 768, "y": 4096, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1024, 4096)",
-        "sprite": {"x": 1024, "y": 4096, "z": "A"},
+        "spr": {"x": 1024, "y": 4096, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1280, 4096)",
-        "sprite": {"x": 1280, "y": 4096, "z": "A"},
+        "spr": {"x": 1280, "y": 4096, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1536, 4096)",
-        "sprite": {"x": 1536, "y": 4096, "z": "A"},
+        "spr": {"x": 1536, "y": 4096, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(1792, 4096)",
-        "sprite": {"x": 1792, "y": 4096, "z": "A"},
+        "spr": {"x": 1792, "y": 4096, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2048, 4096)",
-        "sprite": {"x": 2048, "y": 4096, "z": "A"},
+        "spr": {"x": 2048, "y": 4096, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2304, 4096)",
-        "sprite": {"x": 2304, "y": 4096, "z": "A"},
+        "spr": {"x": 2304, "y": 4096, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2560, 4096)",
-        "sprite": {"x": 2560, "y": 4096, "z": "A"},
+        "spr": {"x": 2560, "y": 4096, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(2816, 4096)",
-        "sprite": {"x": 2816, "y": 4096, "z": "A"},
+        "spr": {"x": 2816, "y": 4096, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3072, 4096)",
-        "sprite": {"x": 3072, "y": 4096, "z": "A"},
+        "spr": {"x": 3072, "y": 4096, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3328, 4096)",
-        "sprite": {"x": 3328, "y": 4096, "z": "A"},
+        "spr": {"x": 3328, "y": 4096, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3584, 4096)",
-        "sprite": {"x": 3584, "y": 4096, "z": "A"},
+        "spr": {"x": 3584, "y": 4096, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(3840, 4096)",
-        "sprite": {"x": 3840, "y": 4096, "z": "A"},
+        "spr": {"x": 3840, "y": 4096, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       },
       {
         "text": "(4096, 4096)",
-        "sprite": {"x": 4096, "y": 4096, "z": "A"},
+        "spr": {"x": 4096, "y": 4096, "z": "A"},
         "textWH": {"trim": "Leading"},
         "textXY": {}
       }

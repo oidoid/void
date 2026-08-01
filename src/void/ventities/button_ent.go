@@ -89,7 +89,7 @@ func (this *ButtonEnt) AnchorBox() vgeo.Box[float32] {
 
 func (this *ButtonEnt) Update(
 	in *vin.In,
-	sprites *[]vgfx.Sprite,
+	sprs *[]vgfx.Spr,
 	layer *vgfx.LayerConfig,
 	font *vtext.Font,
 ) vgame.Status {
@@ -124,7 +124,7 @@ func (this *ButtonEnt) Update(
 	for i := range this.PatchByDir {
 		this.PatchByDir[i].SetPal(this.pal(this.Pals))
 	}
-	this.NinePatchEnt.Update(sprites)
+	this.NinePatchEnt.Update(sprs)
 
 	if this.Text.Text != "" {
 		this.Text.XY = vgeo.XY[int16]{
@@ -132,7 +132,7 @@ func (this *ButtonEnt) Update(
 			Y: int16(this.XY.Y) + (int16(this.WH.H)-this.Text.Layout.TrimAllForceH)/2,
 		}
 		this.Text.Pal = this.pal(this.TextPals)
-		this.Text.Update(font, sprites, layer.Clip)
+		this.Text.Update(font, sprs, layer.Clip)
 	}
 
 	if this.Clicked() && this.OnClick != nil {

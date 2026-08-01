@@ -20,7 +20,7 @@ func UpdateClipFillNinePatches(
 		clip := layer.Clip
 		ent.XY = clip.Min
 		ent.WH = vgeo.WH[uint16]{W: uint16(clip.W()), H: uint16(clip.H())}
-		ent.Update(&layer.Sprites)
+		ent.Update(&layer.Sprs)
 	}
 	return vgame.Pause
 }
@@ -46,7 +46,7 @@ func UpdateLevelClipNinePatches(
 		ent := &ents[i]
 		ent.XY = xy
 		ent.WH = wh
-		ent.Update(&ui.Sprites)
+		ent.Update(&ui.Sprs)
 	}
 	return vgame.Pause
 }

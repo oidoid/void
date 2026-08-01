@@ -17,8 +17,8 @@ func UpdateTexts[Game vgame.Game](
 	for i := range ents {
 		ent := &ents[i]
 		layer := gam.Layer(ent.Z.Layer())
-		sprites := &layer.Sprites
-		loop |= ent.Update(font, sprites, layer.Clip)
+		sprs := &layer.Sprs
+		loop |= ent.Update(font, sprs, layer.Clip)
 	}
 	return loop
 }

@@ -26,7 +26,7 @@ func NewMouseStatusEnt() MouseStatusEnt {
 }
 
 func (this *MouseStatusEnt) Update(
-	sprites *[]vgfx.Sprite,
+	sprs *[]vgfx.Spr,
 	in *vin.In,
 	clip vgeo.Box[float32],
 ) vgame.Status {
@@ -37,14 +37,14 @@ func (this *MouseStatusEnt) Update(
 
 	hudXY := this.HUDEnt.XY(mouseStatusSize, mouseStatusSize, clip)
 	xy := vgeo.NewXY(float32(hudXY.X), float32(hudXY.Y))
-	*sprites = append(
-		*sprites,
-		vgfx.Sprite{XY: xy, AnimCel: assets.MouseStatusBase.Cel(0), Z: gfx.ZUIWidget},
+	*sprs = append(
+		*sprs,
+		vgfx.Spr{XY: xy, AnimCel: assets.MouseStatusBase.Cel(0), Z: gfx.ZUIWidget},
 	)
 	clicks := in.Ptr.Clicks()
-	this.addOverlay(sprites, assets.MouseStatusPrimary, xy, clicks&vin.ClickPrimary != 0)
-	this.addOverlay(sprites, assets.MouseStatusSecondary, xy, clicks&vin.ClickSecondary != 0)
-	this.addOverlay(sprites, assets.MouseStatusAux, xy, clicks&vin.ClickAux != 0)
+	this.addOverlay(sprs, assets.MouseStatusPrimary, xy, clicks&vin.ClickPrimary != 0)
+	this.addOverlay(sprs, assets.MouseStatusSecondary, xy, clicks&vin.ClickSecondary != 0)
+	this.addOverlay(sprs, assets.MouseStatusAux, xy, clicks&vin.ClickAux != 0)
 	if in.Dirty {
 		return vgame.Loop
 	}
@@ -52,7 +52,7 @@ func (this *MouseStatusEnt) Update(
 }
 
 func (this *MouseStatusEnt) addOverlay(
-	sprites *[]vgfx.Sprite,
+	sprs *[]vgfx.Spr,
 	animID vatlas.AnimID,
 	xy vgeo.XY[float32],
 	on bool,
@@ -60,7 +60,7 @@ func (this *MouseStatusEnt) addOverlay(
 	if !on {
 		return
 	}
-	*sprites = append(
-		*sprites, vgfx.Sprite{XY: xy, AnimCel: animID.Cel(0), Z: gfx.ZUIWidget},
+	*sprs = append(
+		*sprs, vgfx.Spr{XY: xy, AnimCel: animID.Cel(0), Z: gfx.ZUIWidget},
 	)
 }

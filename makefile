@@ -19,23 +19,23 @@ pack_demo = go run ./src/cmd/pack --out=dist/demo/ --tsconfig=src/demo/web/tscon
 # $(1) flags
 packatlas_demo = go run ./src/cmd/packatlas --name=atlas --img-out=dist/demo/ --code-out=src/demo/assets/ $(1) src/demo/assets/atlas/
 
-.PHONY: bench build build-cmd build-demo build-go build-sprites build-web clean dependencies fat-analyze fat-check fat-save fmt fmt-go fmt-mod fmt-web install lint lint-critic lint-static lint-vet lint-web slow-check slow-save test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-sprites watch-web
+.PHONY: bench build build-cmd build-demo build-go build-atlas build-web clean dependencies fat-analyze fat-check fat-save fmt fmt-go fmt-mod fmt-web install lint lint-critic lint-static lint-vet lint-web slow-check slow-save test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-atlas watch-web
 
 watch: export DEBUG := 1
-watch: dependencies build-sprites .WAIT watch-go watch-sprites watch-web
+watch: dependencies build-atlas .WAIT watch-go watch-atlas watch-web
 watch-go:; watchexec --exts=go --quiet --watch=src/ -- $(MAKE) build-go
-watch-sprites:; $(call packatlas_demo,--watch)
+watch-atlas:; $(call packatlas_demo,--watch)
 watch-web:; $(call pack_demo,--watch)
 
 build: build-cmd build-demo build-web
 build-cmd:; go build $(go_tags) -o dist/ ./src/cmd/...
-build-demo: build-sprites .WAIT build-go
+build-demo: build-atlas .WAIT build-go
 build-go:
 	# no concurrency.
 	GOOS=wasip1 GOARCH=wasm tinygo build $(tinygo_flags) -o $(out_demo) ./src/demo/web/
 	$(if $(value DEBUG),,wasm-opt -o $(out_demo) -Oz --strip-debug --strip-producers $(out_demo))
-build-sprites:; $(call packatlas_demo,)
-build-web: build-demo build-sprites; $(call pack_demo,--minify --one-file)
+build-atlas:; $(call packatlas_demo,)
+build-web: build-demo build-atlas; $(call pack_demo,--minify --one-file)
 
 clean:; rm --force --recursive dist/ src/demo/assets/atlas_bin.go src/demo/assets/atlas_ids.go
 

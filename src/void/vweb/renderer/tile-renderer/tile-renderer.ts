@@ -1,6 +1,6 @@
 import {buildProgram} from '../gl.ts'
-import {tileFrag} from './tile.frag.ts'
-import {tileVert} from './tile.vert.ts'
+import {tileFrag} from './tile.frag.glsl.ts'
+import {tileVert} from './tile.vert.glsl.ts'
 
 export class TileRenderer {
   static new(
@@ -72,9 +72,9 @@ export class TileRenderer {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
 
-    const spritesheetTex = gl.createTexture()!
+    const sprsheetTex = gl.createTexture()!
     gl.activeTexture(gl.TEXTURE2)
-    gl.bindTexture(gl.TEXTURE_2D, spritesheetTex)
+    gl.bindTexture(gl.TEXTURE_2D, sprsheetTex)
     gl.texImage2D(
       gl.TEXTURE_2D,
       0,
@@ -94,7 +94,7 @@ export class TileRenderer {
     gl.uniform2f(uTileWH, tileW, tileH)
     gl.uniform1i(gl.getUniformLocation(pgm, 'uTiles')!, 0)
     gl.uniform1i(gl.getUniformLocation(pgm, 'uAtlasCels')!, 1)
-    gl.uniform1i(gl.getUniformLocation(pgm, 'uSpritesheet')!, 2)
+    gl.uniform1i(gl.getUniformLocation(pgm, 'uSprsheet')!, 2)
     gl.uniform2f(uAtlasSize, atlasImg.naturalWidth, atlasImg.naturalHeight)
     gl.useProgram(null)
 
@@ -110,7 +110,7 @@ export class TileRenderer {
       vao,
       tilesTex,
       atlasCelsTex,
-      spritesheetTex
+      sprsheetTex
     )
   }
 
@@ -125,7 +125,7 @@ export class TileRenderer {
   readonly #vao: WebGLVertexArrayObject
   readonly #tilesTex: WebGLTexture
   readonly #atlasCelsTex: WebGLTexture
-  readonly #spritesheetTex: WebGLTexture
+  readonly #sprsheetTex: WebGLTexture
 
   private constructor(
     gl: WebGL2RenderingContext,
@@ -139,7 +139,7 @@ export class TileRenderer {
     vao: WebGLVertexArrayObject,
     tilesTex: WebGLTexture,
     atlasCelsTex: WebGLTexture,
-    spritesheetTex: WebGLTexture
+    sprsheetTex: WebGLTexture
   ) {
     this.#gl = gl
     this.#pgm = pgm
@@ -152,7 +152,7 @@ export class TileRenderer {
     this.#vao = vao
     this.#tilesTex = tilesTex
     this.#atlasCelsTex = atlasCelsTex
-    this.#spritesheetTex = spritesheetTex
+    this.#sprsheetTex = sprsheetTex
   }
 
   dispose(): void {
@@ -161,7 +161,7 @@ export class TileRenderer {
     gl.deleteVertexArray(this.#vao)
     gl.deleteTexture(this.#tilesTex)
     gl.deleteTexture(this.#atlasCelsTex)
-    gl.deleteTexture(this.#spritesheetTex)
+    gl.deleteTexture(this.#sprsheetTex)
   }
 
   draw(
@@ -189,7 +189,7 @@ export class TileRenderer {
     gl.activeTexture(gl.TEXTURE1)
     gl.bindTexture(gl.TEXTURE_2D, this.#atlasCelsTex)
     gl.activeTexture(gl.TEXTURE2)
-    gl.bindTexture(gl.TEXTURE_2D, this.#spritesheetTex)
+    gl.bindTexture(gl.TEXTURE_2D, this.#sprsheetTex)
     gl.bindVertexArray(this.#vao)
     gl.drawArrays(gl.TRIANGLES, 0, 6)
     gl.bindVertexArray(null)

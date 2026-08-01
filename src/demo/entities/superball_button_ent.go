@@ -86,7 +86,7 @@ func newSuperballButtonEnt(
 
 func (this *SuperballButtonEnt) Update(
 	in *vin.In,
-	sprites *[]vgfx.Sprite,
+	sprs *[]vgfx.Spr,
 	layer *vgfx.LayerConfig,
 	font *vtext.Font,
 	balls *vvec.Vec[BallEnt],
@@ -97,7 +97,7 @@ func (this *SuperballButtonEnt) Update(
 	ballRadius float32,
 	hit *bool,
 ) vgame.Status {
-	loop := this.ButtonEnt.Update(in, sprites, layer, font)
+	loop := this.ButtonEnt.Update(in, sprs, layer, font)
 
 	if this.Action == SuperballActionAddSome && this.On {
 		spawnXY := vgeo.NewXY(spawnCenter.X-ballRadius, spawnCenter.Y-ballRadius)
