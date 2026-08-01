@@ -74,7 +74,7 @@ export class Engine {
   #rafId: number = 0
   #updateTimeoutId: number = 0
   #registered: boolean = false
-  #renderer!: Renderer
+  #renderer: Renderer | undefined
   readonly #resizeObserver: ResizeObserver = new ResizeObserver(
     this.#onResize.bind(this)
   )
@@ -115,8 +115,8 @@ export class Engine {
     initBody()
 
     this.#canvas = canvas
-    canvas.addEventListener('webglcontextlost', this.#onContextLost)
-    canvas.addEventListener('webglcontextrestored', this.#onContextRestored)
+    canvas.addEventListener('webglcontextlost', this.#onCtxLost)
+    canvas.addEventListener('webglcontextrestored', this.#onCtxRestored)
     this.#renderer = this.#newRenderer()
   }
 
@@ -147,9 +147,10 @@ export class Engine {
     this.#rafId = 0
     clearTimeout(this.#updateTimeoutId)
     this.#updateTimeoutId = 0
+    if (!this.#renderer || this.#renderer.isContextLost()) return
     this.#requestUpdate()
     this.#renderer.resize(this.#phyW, this.#phyH)
-    this.#writeUpdate()
+    this.#writeUpdate(this.#renderer)
     const updateStart = performance.now()
     const loop = this.#wasm.Update()
     this.#applyFullscreenRequest()
@@ -201,7 +202,7 @@ export class Engine {
         this.#renderer.drawOverlay(config.blendMode)
       }
     }
-    this.#applyPostDrawRequests()
+    this.#applyPostDrawRequests(this.#renderer)
   }
 
   #layerConfig(view: DataView, ptr: number, layer: number): LayerConfig {
@@ -232,7 +233,7 @@ export class Engine {
   }
 
   #requestUpdate(): void {
-    if (this.#rafId) return
+    if (!this.#renderer || this.#renderer.isContextLost() || this.#rafId) return
     this.#rafId = requestAnimationFrame(() => this.update())
     this.#lastTime ||= performance.now()
   }
@@ -256,20 +257,21 @@ export class Engine {
     this.#requestUpdate()
   }
 
-  #onContextLost = (ev: Event): void => {
+  #onCtxLost = (ev: Event): void => {
     ev.preventDefault()
     cancelAnimationFrame(this.#rafId)
     clearTimeout(this.#updateTimeoutId)
+    this.#renderer?.dispose()
+    this.#renderer = undefined
     this.#rafId = 0
     this.#updateTimeoutId = 0
     this.#lastTime = 0
     this.#updateMs = 0
   }
 
-  #onContextRestored = (): void => {
-    this.#renderer.dispose()
+  #onCtxRestored = (): void => {
     this.#renderer = this.#newRenderer()
-    if (this.#registered) this.update()
+    if (this.#registered) this.#requestUpdate()
   }
 
   #newRenderer(): Renderer {
@@ -315,10 +317,10 @@ export class Engine {
     }
   }
 
-  #applyPostDrawRequests(): void {
+  #applyPostDrawRequests(renderer: Renderer): void {
     if (this.#wasm.ScreenshotRequest())
       void downloadScreenshot(this.#canvas, 'void')
-    if (this.#wasm.ContextLossRequest()) this.#renderer.loseContext()
+    if (this.#wasm.ContextLossRequest()) renderer.loseContext()
   }
 
   #applyDrawAlwaysParam(): void {
@@ -328,7 +330,7 @@ export class Engine {
     setDrawOnParam(drawAlways)
   }
 
-  #writeUpdate(): void {
+  #writeUpdate(renderer: Renderer): void {
     if (this.#frame.buffer !== this.#wasm.memory.buffer)
       this.#frame = new DataView(
         this.#wasm.memory.buffer,
@@ -338,8 +340,8 @@ export class Engine {
     const now = performance.now()
     const delta = this.#lastTime === 0 ? 0 : now - this.#lastTime
     this.#frame.setFloat64(deltaMsOffset, delta, true)
-    this.#frame.setUint16(canvasWOffset, this.#renderer.phyW, true)
-    this.#frame.setUint16(canvasHOffset, this.#renderer.phyH, true)
+    this.#frame.setUint16(canvasWOffset, renderer.phyW, true)
+    this.#frame.setUint16(canvasHOffset, renderer.phyH, true)
     this.#frame.setUint8(isFullscreenOffset, isFullscreen() ? 1 : 0)
     this.#frame.setUint8(drawAlwaysOffset, this.#drawAlways ? 1 : 0)
     this.#frame.setInt32(drawCountOffset, this.#drawCount, true)

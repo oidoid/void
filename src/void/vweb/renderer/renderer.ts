@@ -84,7 +84,12 @@ export class Renderer {
     return this.#gl.drawingBufferHeight
   }
 
+  isContextLost(): boolean {
+    return this.#gl.isContextLost()
+  }
+
   dispose(): void {
+    if (this.#gl.isContextLost()) return
     this.#overlay.dispose()
     this.#sprs.dispose()
     this.#tiles.dispose()
