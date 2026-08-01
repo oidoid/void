@@ -43,8 +43,8 @@ func main() {
 	}
 }
 
-func check(reader io.Reader, stdout, stderr io.Writer) error {
-	entries, err := readFat(reader)
+func check(r io.Reader, stdout, stderr io.Writer) error {
+	entries, err := readFat(r)
 	if err != nil {
 		return err
 	}
@@ -113,9 +113,9 @@ func gzipSize(path string) (int64, error) {
 	return count.n, nil
 }
 
-func readFat(reader io.Reader) ([]Line, error) {
+func readFat(r io.Reader) ([]Line, error) {
 	var entries []Line
-	scanner := bufio.NewScanner(reader)
+	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		parts := strings.Fields(scanner.Text())
 		if len(parts) == 0 {
@@ -181,7 +181,7 @@ func runSave(paths []string) error {
 	return err
 }
 
-func save(writer io.Writer, paths []string) error {
+func save(w io.Writer, paths []string) error {
 	for _, path := range paths {
 		stat, err := os.Stat(path)
 		if err != nil {
@@ -191,7 +191,7 @@ func save(writer io.Writer, paths []string) error {
 		if err != nil {
 			return err
 		}
-		_, err = fmt.Fprintf(writer, "%s %d %d\n", path, stat.Size(), gz)
+		_, err = fmt.Fprintf(w, "%s %d %d\n", path, stat.Size(), gz)
 		if err != nil {
 			return err
 		}

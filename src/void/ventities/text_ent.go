@@ -1,6 +1,7 @@
 package ventities
 
 import (
+	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
@@ -13,6 +14,7 @@ type TextEnt struct {
 	Layout    vtext.TextLayout // nil `Layout.Chars` to force relayout.
 	XY        vgeo.XY[int16]
 	Z         vgfx.Z
+	Pal       vatlas.AnimID
 	Trim      vtext.Trim
 	textScale uint8
 }
@@ -49,6 +51,7 @@ func (this *TextEnt) Update(
 			H: uint16(font.CellH) * uint16(scale),
 		}
 		sprite.SetStretch(true)
+		sprite.SetPal(this.Pal)
 		*sprites = append(*sprites, sprite)
 	}
 	return loop

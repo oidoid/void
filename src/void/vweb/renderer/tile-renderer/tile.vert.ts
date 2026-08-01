@@ -5,10 +5,12 @@ uniform highp vec2 uCamXY;
 uniform highp float uLayerScale;
 uniform highp vec2 uLayerOffsetPhy;
 uniform highp float uLayerModulo;
-uniform highp int uRenderMode;
+uniform mediump int uRenderMode;
 uniform highp vec4 uLevel; // xywh.
 
 out highp vec2 vPx; // world px relative to level origin.
+
+const mediump int renderModeInt = 0;
 
 // [0, 1]² unit quad.
 const highp vec2 quad[6] = vec2[6](
@@ -26,7 +28,7 @@ void main() {
   highp vec2 originPx = uLevel.xy * uLayerScale;
   highp vec2 sizePx = uv * uLevel.zw * uLayerScale;
   highp vec2 camPx = floor(uCamXY / uLayerModulo) * uLayerModulo;
-  highp vec2 px = uRenderMode == 0
+  highp vec2 px = uRenderMode == renderModeInt
     ? floor(originPx / uLayerModulo) * uLayerModulo + sizePx + uLayerOffsetPhy - camPx
     : originPx + sizePx + uLayerOffsetPhy - uCamXY;
   highp vec2 ndc = px / vec2(uResolution) * 2. - 1.;

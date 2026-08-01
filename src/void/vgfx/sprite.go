@@ -7,6 +7,8 @@ import (
 	"github.com/oidoid/void/src/void/vgeo"
 )
 
+// to-do: rename Spr or Bmp or Anim. Anim is better aligned to parsing but Spr
+// is a better fit for games.
 type Sprite struct {
 	vgeo.XY[float32]
 	AnimCel vatlas.AnimCel
@@ -20,15 +22,16 @@ type Sprite struct {
 const SpriteStride = int(unsafe.Sizeof(Sprite{}))
 
 const (
-	SpriteHiddenFlag  uint32 = 1
-	SpriteFlipXFlag   uint32 = 2
-	SpriteFlipYFlag   uint32 = 4
-	SpriteStretchFlag uint32 = 8
-
-	// to-do: bit pattern elsewehre with shift and mask.
-	// flip flag bits for FlipByDir and SetFlipX/SetFlipY.
-	FlipX uint8 = 1
-	FlipY uint8 = 2
+	spriteHiddenMask   uint32 = 1
+	spriteHiddenShift         = 0
+	spriteFlipXMask    uint32 = 1
+	spriteFlipXShift          = 1
+	spriteFlipYMask    uint32 = 1
+	spriteFlipYShift          = 2
+	spriteStretchMask  uint32 = 1
+	spriteStretchShift        = 3
+	spritePalAnimMask  uint32 = 0xff
+	spritePalAnimShift        = 4
 )
 
 func (this *Sprite) Anim() vatlas.AnimID {
@@ -37,7 +40,8 @@ func (this *Sprite) Anim() vatlas.AnimID {
 
 func (this *Sprite) SetAnim(id vatlas.AnimID) {
 	this.AnimCel = vatlas.AnimCel(
-		uint16(id)<<vatlas.AnimCelShift | uint16(this.AnimCel)&uint16(vatlas.AnimCelMask),
+		uint16(id)<<vatlas.AnimCelShift |
+			uint16(this.AnimCel)&uint16(vatlas.AnimCelMask),
 	)
 }
 
@@ -47,47 +51,67 @@ func (this *Sprite) Cel() uint8 {
 
 func (this *Sprite) SetCel(cel uint8) {
 	this.AnimCel = vatlas.AnimCel(
-		uint16(this.AnimCel)&^uint16(vatlas.AnimCelMask) | uint16(cel&uint8(vatlas.AnimCelMask)),
+		uint16(this.AnimCel)&^uint16(vatlas.AnimCelMask) |
+			uint16(cel&uint8(vatlas.AnimCelMask)),
 	)
 }
 
-func (this *Sprite) Hidden() bool { return this.flags&SpriteHiddenFlag != 0 }
+func (this *Sprite) Hidden() bool {
+	return this.flags>>spriteHiddenShift&spriteHiddenMask != 0
+}
 
 func (this *Sprite) Hide(hide bool) {
 	if hide {
-		this.flags |= SpriteHiddenFlag
+		this.flags |= spriteHiddenMask << spriteHiddenShift
 	} else {
-		this.flags &^= SpriteHiddenFlag
+		this.flags &^= spriteHiddenMask << spriteHiddenShift
 	}
 }
 
-func (this *Sprite) FlipX() bool { return this.flags&SpriteFlipXFlag != 0 }
+func (this *Sprite) FlipX() bool {
+	return this.flags>>spriteFlipXShift&spriteFlipXMask != 0
+}
 
 func (this *Sprite) SetFlipX(flip bool) {
 	if flip {
-		this.flags |= SpriteFlipXFlag
+		this.flags |= spriteFlipXMask << spriteFlipXShift
 	} else {
-		this.flags &^= SpriteFlipXFlag
+		this.flags &^= spriteFlipXMask << spriteFlipXShift
 	}
 }
 
-func (this *Sprite) FlipY() bool { return this.flags&SpriteFlipYFlag != 0 }
+func (this *Sprite) FlipY() bool {
+	return this.flags>>spriteFlipYShift&spriteFlipYMask != 0
+}
 
 func (this *Sprite) SetFlipY(flip bool) {
 	if flip {
-		this.flags |= SpriteFlipYFlag
+		this.flags |= spriteFlipYMask << spriteFlipYShift
 	} else {
-		this.flags &^= SpriteFlipYFlag
+		this.flags &^= spriteFlipYMask << spriteFlipYShift
 	}
 }
 
-func (this *Sprite) Stretch() bool { return this.flags&SpriteStretchFlag != 0 }
+func (this *Sprite) Stretch() bool {
+	return this.flags>>spriteStretchShift&spriteStretchMask != 0
+}
 
 // true to stretch, false to repeat.
 func (this *Sprite) SetStretch(stretch bool) {
 	if stretch {
-		this.flags |= SpriteStretchFlag
+		this.flags |= spriteStretchMask << spriteStretchShift
 	} else {
-		this.flags &^= SpriteStretchFlag
+		this.flags &^= spriteStretchMask << spriteStretchShift
 	}
+}
+
+func (this *Sprite) Pal() vatlas.AnimID {
+	return vatlas.AnimID(
+		this.flags >> spritePalAnimShift & spritePalAnimMask,
+	)
+}
+
+func (this *Sprite) SetPal(id vatlas.AnimID) {
+	this.flags = this.flags&^(spritePalAnimMask<<spritePalAnimShift) |
+		(uint32(id)&spritePalAnimMask)<<spritePalAnimShift
 }

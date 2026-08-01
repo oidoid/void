@@ -11,7 +11,7 @@ if you change or add any pattern, or when you are corrected, update agent rules 
 
 never run:
 
-- `make` (default target) or `make watch` but you can ask the user to run.
+- `make` (default target), `make watch`, or any daemon / forked / background process but you can ask the user to run.
 - `make fat-save` or `make slow-save`. do not edit `.fat` or `.slow`.
 - `make slow-check` or any performance test. these cannot run consistently without superuser permissions.
 - never modify Git state in the current checkout unless explicitly requested. this includes changing the working tree, index, stash, branches, or references. eg, `git add`, `git rm`, `git stash`, `git restore`, `git reset`, `git checkout`, `git mv`, `git clean`, etc are all forbidden.
@@ -37,13 +37,24 @@ never run:
 
 ## Style
 
-- avoid single-letter names except `k` for key, `v` for value, `w`/`h` for width and height, `x`/`y`/`z` for coords.
+- avoid single-letter names except `k` for key, `v` for value, `w`/`h` for width and height, `x`/`y`/`z` for coords, `r`/`w` for reader / writer.
 - prefer tabular unit tests for cases varying only input and output pairings.
-- prefer `err` for errors. never use `e`.
+- prefer `err` for errors, never `e`.
+- prefer `bin` for byte arrays never `bytes`.
 - prefer `i` for loop indices but not items.
+- use right terms for left:
+  - Aseprite: ase
+  - configuration: config; never cfg
+  - error: err
+  - milliseconds: millis
+  - palette: pal
+  - pixels: px
+  - properties: props
+  - string: str
 - sentences end with periods.
 - capitalize but skip sentence capitalization.
 - in English, prefer backticks around code snippets.
+- represent bit fields with an unshifted mask and a shift.
 
 ### Go
 

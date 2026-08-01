@@ -1,6 +1,8 @@
 package vatlas
 
-// AnimID identifies an animation in an Atlas.
+// to-do: rename to Tag.
+// identifies an animation in an Atlas.
+// 12b.
 type AnimID uint16
 
 func (this AnimID) Cel(cel uint8) AnimCel {

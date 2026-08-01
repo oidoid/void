@@ -1,25 +1,22 @@
 // pack a sprite atlas.
-
+// to-do: rename packatlas.
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"go/format"
+	"image/png"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"unicode"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/oidoid/void/src/cmd/internal/fileutils"
 	"github.com/oidoid/void/src/void/vatlas"
 )
 
-var initialisms = map[string]bool{
-	"UI": true,
-}
+var initialisms = map[string]bool{"UI": true}
 
 func main() {
 	argv, err := NewArgv()
@@ -48,7 +45,11 @@ func watch(argv *Argv) error {
 	if err != nil {
 		return err
 	}
-	defer watcher.Close()
+	defer func() {
+		if closeErr := watcher.Close(); err == nil {
+			err = closeErr
+		}
+	}()
 	for _, entry := range argv.Entries {
 		if err := watcher.Add(entry); err != nil {
 			return err
@@ -79,37 +80,39 @@ func packAtlas(argv *Argv) error {
 	if err != nil {
 		return err
 	}
-	sheet := filepath.Join(argv.ImgOut, argv.Name+".png")
-	args := []string{
-		"--batch",
-		"--color-mode=" + argv.ColorMode,
-		"--filename-format={title}--{tag}--{frame}", // to-do: still relevant?
-		"--list-slices",
-		"--list-tags",
-		"--merge-duplicates",
-		// to-do: "--power-of-two-size",
-		"--sheet=" + sheet,
-		"--sheet-pack",
-		"--tagname-format={title}--{tag}", // to-do: still relevant?
+	assets := make([]*asset, 0, len(ases))
+	for _, path := range ases {
+		asset, err := readAsset(path)
+		if err != nil {
+			return fmt.Errorf("parse: %w", err)
+		}
+		assets = append(assets, asset)
 	}
-	args = append(args, ases...)
-	jsonBytes, err := exec.Command("aseprite", args...).Output()
+	img, atlas, stemTags, err := parseAtlas(assets)
 	if err != nil {
-		return fmt.Errorf("rasterizing: %w", err)
+		return err
+	}
+	if err := os.MkdirAll(argv.ImgOut, 0o755); err != nil {
+		return err
+	}
+	sheet := filepath.Join(argv.ImgOut, argv.Name+".png")
+	f, err := os.Create(sheet)
+	if err != nil {
+		return err
+	}
+	err = png.Encode(f, img)
+	closeErr := f.Close()
+	if err != nil {
+		return err
+	}
+	if closeErr != nil {
+		return closeErr
 	}
 	if err := pngToWebP(
 		sheet,
 		filepath.Join(argv.ImgOut, argv.Name+".webp"),
 	); err != nil {
 		return fmt.Errorf("converting to WebP: %w", err)
-	}
-	var aseData vatlas.AseFile
-	if err := json.Unmarshal(jsonBytes, &aseData); err != nil {
-		return fmt.Errorf("parse aseprite json: %w", err)
-	}
-	atlas, tags, err := parseAtlas(&aseData)
-	if err != nil {
-		return err
 	}
 	atlasBin := vatlas.EncodeAtlas(atlas)
 	dataSrc, err := genData(argv.Pkg, atlasBin)
@@ -123,7 +126,7 @@ func packAtlas(argv *Argv) error {
 	); err != nil {
 		return err
 	}
-	idsSrc, err := genIDs(argv.Pkg, tags)
+	idsSrc, err := genIDs(argv.Pkg, stemTags)
 	if err != nil {
 		return err
 	}
@@ -151,7 +154,7 @@ func genData(pkg string, data []byte) ([]byte, error) {
 	return format.Source([]byte(str.String()))
 }
 
-func genIDs(pkg string, tags []string) ([]byte, error) {
+func genIDs(pkg string, stemTags []stemTag) ([]byte, error) {
 	var str strings.Builder
 	fmt.Fprintf(
 		&str,
@@ -159,35 +162,15 @@ func genIDs(pkg string, tags []string) ([]byte, error) {
 			"import \"github.com/oidoid/void/src/void/vatlas\"\n\nconst (\n",
 		pkg,
 	)
-	for i, tag := range tags {
+	for i, stemTag := range stemTags {
 		if i == 0 {
-			fmt.Fprintf(&str, "\t%s vatlas.AnimID = iota\n", tagToIdent(tag))
+			fmt.Fprintf(&str, "\t%s vatlas.AnimID = iota\n", stemTag.qualifiedTag())
 		} else {
-			fmt.Fprintf(&str, "\t%s\n", tagToIdent(tag))
+			fmt.Fprintf(&str, "\t%s\n", stemTag.qualifiedTag())
 		}
 	}
 	fmt.Fprintf(&str, ")\n")
 	return format.Source([]byte(str.String()))
-}
-
-// converts a tag like "backpacker--Idle" or "mem-prop-5x6--Blink" into a Go
-// identifier like "BackpackerIdle" or "MemProp5x6Blink".
-func tagToIdent(tag string) string {
-	var str strings.Builder
-	for _, seg := range strings.Split(tag, "-") {
-		if seg == "" {
-			continue
-		}
-		upper := strings.ToUpper(seg)
-		if initialisms[upper] {
-			str.WriteString(upper)
-		} else {
-			chars := []rune(seg)
-			str.WriteRune(unicode.ToUpper(chars[0]))
-			str.WriteString(string(chars[1:]))
-		}
-	}
-	return str.String()
 }
 
 func pngToWebP(src, dst string) error {

@@ -1,452 +1,352 @@
 package main
 
 import (
-	"fmt"
+	"bytes"
+	"encoding/binary"
+	"strings"
 	"testing"
 
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vgeo"
 )
 
-func TestParseAtlas_empty(t *testing.T) {
-	atlas, tags, err := parseAtlas(&vatlas.AseFile{
-		Frames: map[string]vatlas.AseFrame{},
-		Meta:   vatlas.AseMeta{},
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	// always has void--Nil sentinel.
-	if len(atlas.Anims) != 1 {
-		t.Fatalf("Anims len: got %d, want 1", len(atlas.Anims))
-	}
-	if len(tags) != 1 || tags[0] != "void--Nil" {
-		t.Fatalf("tags: got %v", tags)
-	}
-	if len(atlas.Cels) != vatlas.CelsPerAnim*4 {
-		t.Fatalf("Cels len: got %d, want %d", len(atlas.Cels), vatlas.CelsPerAnim*4)
-	}
-}
-
-func TestParseAtlas_errorDuplicateTag(t *testing.T) {
-	frame := newAseFrame(vatlas.CelMillis, 0, 0, 1, 1, 1, 1)
-	file := &vatlas.AseFile{
-		Frames: map[string]vatlas.AseFrame{
-			"a--Walk--0": frame,
-		},
-		Meta: vatlas.AseMeta{
-			FrameTags: []vatlas.AseTagSpan{
-				newAseTagSpan("a--Walk", 0, 0, "forward"),
-				newAseTagSpan("a--Walk", 0, 0, "forward"),
-			},
-		},
-	}
-	_, _, err := parseAtlas(file)
-	if err == nil {
-		t.Fatal("got nil, want error for duplicate tag")
-	}
-}
-
-func TestParseAtlas_errorTagMissingDoubleDash(t *testing.T) {
-	frame := newAseFrame(vatlas.CelMillis, 0, 0, 1, 1, 1, 1)
-	file := &vatlas.AseFile{
-		Frames: map[string]vatlas.AseFrame{"aWalk--0": frame},
-		Meta: vatlas.AseMeta{
-			FrameTags: []vatlas.AseTagSpan{newAseTagSpan("aWalk", 0, 0, "forward")},
-		},
-	}
-	_, _, err := parseAtlas(file)
-	if err == nil {
-		t.Fatal("got nil, want error for tag without --")
-	}
-}
-
-func TestParseAtlas_errorHitboxWithNoAnim(t *testing.T) {
-	file := &vatlas.AseFile{
-		Frames: map[string]vatlas.AseFrame{},
-		Meta: vatlas.AseMeta{
-			Slices: []vatlas.AseSlice{
-				newAseSlice("orphan--A", "#ff0000ff", 0, 0, 4, 4),
-			},
-		},
-	}
-	_, _, err := parseAtlas(file)
-	if err == nil {
-		t.Fatal("got nil, want error for hitbox with no animation")
-	}
-}
-
-func TestParseAtlas_singleAnim(t *testing.T) {
-	frame := newAseFrame(vatlas.CelMillis, 10, 20, 8, 8, 8, 8)
-	file := &vatlas.AseFile{
-		Frames: map[string]vatlas.AseFrame{"a--Walk--0": frame},
-		Meta: vatlas.AseMeta{
-			FrameTags: []vatlas.AseTagSpan{newAseTagSpan("a--Walk", 0, 0, "forward")},
-		},
-	}
-	atlas, tags, err := parseAtlas(file)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(atlas.Anims) != 2 {
-		t.Fatalf("Anims len: got %d, want 2", len(atlas.Anims))
-	}
-	if tags[1] != "a--Walk" {
-		t.Fatalf("tag[1]: got %q, want %q", tags[1], "a--Walk")
-	}
-	anim := atlas.Anims[1]
-	if anim.W != 8 || anim.H != 8 || anim.Cels != 1 {
-		t.Fatalf("anim: got %+v", anim)
-	}
-	const idx = vatlas.CelsPerAnim * 4
-	if atlas.Cels[idx] != 10 || atlas.Cels[idx+1] != 20 {
-		t.Fatalf(
-			"Cels[%d:%d]: got %v %v, want 10 20",
-			idx,
-			idx+1,
-			atlas.Cels[idx],
-			atlas.Cels[idx+1],
-		)
-	}
-}
-
-func TestParseAnimFrames_singleCel(t *testing.T) {
-	// a single cel with duration exactly CelMillis plays once.
-	frame := newAseFrame(uint16(vatlas.CelMillis), 0, 0, 1, 1, 1, 1)
-	assertFrameIndices(t,
-		newAseTagSpan("a--Walk", 0, 0, "forward"),
-		[]vatlas.AseFrame{frame},
-		[]int{0},
-		"single cel",
-	)
-}
-
-func TestParseAnimFrames_singleCelLongDuration(t *testing.T) {
-	// a single cel with a very long duration is optimized to just one cel entry.
-	frame := newAseFrame(65535, 0, 0, 1, 1, 1, 1)
-	assertFrameIndices(t,
-		newAseTagSpan("a--Walk", 0, 0, "forward"),
-		[]vatlas.AseFrame{frame},
-		[]int{0},
-		"single cel long duration",
-	)
-}
-
-func TestParseAnimFrames_fullAnimForward(t *testing.T) {
-	// 4 frames each exactly CelMillis: forward order 0, 1, 2, 3.
-	duration := uint16(vatlas.CelMillis)
-	frames := []vatlas.AseFrame{
-		newAseFrame(duration, 0, 0, 1, 1, 1, 1),
-		newAseFrame(duration, 0, 0, 1, 1, 1, 1),
-		newAseFrame(duration, 0, 0, 1, 1, 1, 1),
-		newAseFrame(duration, 0, 0, 1, 1, 1, 1),
-	}
-	assertFrameIndices(t,
-		newAseTagSpan("a--Walk", 0, 3, "forward"),
-		frames,
-		[]int{0, 1, 2, 3},
-		"forward 4 frames",
-	)
-}
-
-func TestParseAnimFrames_fullAnimReverse(t *testing.T) {
-	duration := uint16(vatlas.CelMillis)
-	frames := []vatlas.AseFrame{
-		newAseFrame(duration, 0, 0, 1, 1, 1, 1),
-		newAseFrame(duration, 0, 0, 1, 1, 1, 1),
-		newAseFrame(duration, 0, 0, 1, 1, 1, 1),
-		newAseFrame(duration, 0, 0, 1, 1, 1, 1),
-	}
-	assertFrameIndices(t,
-		newAseTagSpan("a--Walk", 0, 3, "reverse"),
-		frames,
-		[]int{3, 2, 1, 0},
-		"reverse 4 frames",
-	)
-}
-
-func TestParseAnimFrames_fullAnimPingPong(t *testing.T) {
-	// pingpong 3 frames: 0, 1, 2, 1 (peak=2, cycle=4).
-	duration := uint16(vatlas.CelMillis)
-	frames := []vatlas.AseFrame{
-		newAseFrame(duration, 0, 0, 1, 1, 1, 1),
-		newAseFrame(duration, 0, 0, 1, 1, 1, 1),
-		newAseFrame(duration, 0, 0, 1, 1, 1, 1),
-	}
-	assertFrameIndices(t,
-		newAseTagSpan("a--Walk", 0, 2, "pingpong"),
-		frames,
-		[]int{0, 1, 2, 1},
-		"pingpong 3 frames",
-	)
-}
-
-func TestParseAnimFrames_fullAnimPingPongReverse(t *testing.T) {
-	// pingpong_reverse 3 frames: 2, 1, 0, 1 (starts from end)
-	duration := uint16(vatlas.CelMillis)
-	frames := []vatlas.AseFrame{
-		newAseFrame(duration, 0, 0, 1, 1, 1, 1),
-		newAseFrame(duration, 0, 0, 1, 1, 1, 1),
-		newAseFrame(duration, 0, 0, 1, 1, 1, 1),
-	}
-	assertFrameIndices(t,
-		newAseTagSpan("a--Walk", 0, 2, "pingpong_reverse"),
-		frames,
-		[]int{2, 1, 0, 1},
-		"pingpong_reverse 3 frames",
-	)
-}
-
-func TestParseAnimFrames_multiCelDuration(t *testing.T) {
-	// duration of 2*CelMillis means each source frame fills two cel slots.
-	duration := uint16(2 * vatlas.CelMillis)
-	frames := []vatlas.AseFrame{
-		newAseFrame(duration, 0, 0, 1, 1, 1, 1),
-		newAseFrame(duration, 0, 0, 1, 1, 1, 1),
-	}
-	assertFrameIndices(t,
-		newAseTagSpan("a--Walk", 0, 1, "forward"),
-		frames,
-		[]int{0, 0, 1, 1},
-		"2x duration duplicates each cel",
-	)
-}
-
-func TestParseAnimFrames_shortAnimCapped(t *testing.T) {
-	// more frames than AnimCels: capped at AnimCels.
-	duration := uint16(vatlas.CelMillis)
-	frames := make([]vatlas.AseFrame, vatlas.CelsPerAnim+4)
-	expected := make([]int, vatlas.CelsPerAnim)
-	for i := range frames {
-		frames[i] = newAseFrame(duration, 0, 0, 1, 1, 1, 1)
-	}
-	for i := range expected {
-		expected[i] = i
-	}
-	assertFrameIndices(t,
-		newAseTagSpan("a--Walk", 0, uint16(len(frames)-1), "forward"),
-		frames,
-		expected,
-		"capped at AnimCels",
-	)
-}
-
-func TestParseAnimFrames_errorMissingFrame(t *testing.T) {
-	frames := map[string]vatlas.AseFrame{} // empty, no frames
-	_, err := parseAnimFrames(newAseTagSpan("a--Walk", 0, 0, "forward"), frames)
-	if err == nil {
-		t.Fatal("got nil, want error for missing frame")
-	}
-}
-
-func TestParseCel_identity(t *testing.T) {
-	// frame and source sizes equal, no padding.
-	frame := newAseFrame(1, 10, 20, 16, 16, 16, 16)
-	xy := parseCel(frame)
-	if xy.X != 10 || xy.Y != 20 {
-		t.Fatalf("got (%d,%d), want (10,20)", xy.X, xy.Y)
-	}
-}
-
-func TestParseCel_withPadding(t *testing.T) {
-	// 18x18 frame, source is 16x16.
-	frame := newAseFrame(1, 100, 200, 18, 18, 16, 16)
-	xy := parseCel(frame)
-	if xy.X != 101 || xy.Y != 201 {
-		t.Fatalf("got (%d,%d), want (101,201)", xy.X, xy.Y)
-	}
-}
-
-func TestParseHitboxes_hitboxOnly(t *testing.T) {
-	hit, hurt, err := parseHitboxes("tag--A", []vatlas.AseSlice{
-		newAseSlice("tag--A", "#ff0000ff", 1, 2, 3, 4),
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if hit != vgeo.XYWH[uint16](1, 2, 3, 4) {
-		t.Fatalf("got hitbox %v", hit)
-	}
-	var zero vgeo.Box[uint16]
-	if hurt != zero {
-		t.Fatalf("got hurtbox %v, want zero", hurt)
-	}
-}
-
-func TestParseHitboxes_hurtboxOnly(t *testing.T) {
-	hit, hurt, err := parseHitboxes("tag--A", []vatlas.AseSlice{
-		newAseSlice("tag--A", "#00ff00ff", 5, 6, 7, 8),
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	var zero vgeo.Box[uint16]
-	if hit != zero {
-		t.Fatalf("got hitbox %v, want zero", hit)
-	}
-	if hurt != vgeo.XYWH[uint16](5, 6, 7, 8) {
-		t.Fatalf("got hurtbox %v", hurt)
-	}
-}
-
-func TestParseHitboxes_blueIsBoth(t *testing.T) {
-	hit, hurt, err := parseHitboxes("tag--A", []vatlas.AseSlice{
-		newAseSlice("tag--A", "#0000ffff", 1, 2, 3, 4),
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	want := vgeo.XYWH[uint16](1, 2, 3, 4)
-	if hit != want {
-		t.Fatalf("got hitbox %v, want %v", hit, want)
-	}
-	if hurt != want {
-		t.Fatalf("got hurtbox %v, want %v", hurt, want)
-	}
-}
-
-func TestParseHitboxes_hitboxAndHurtboxSeparate(t *testing.T) {
-	hit, hurt, err := parseHitboxes("tag--A", []vatlas.AseSlice{
-		newAseSlice("tag--A", "#ff0000ff", 1, 2, 3, 4),
-		newAseSlice("tag--A", "#00ff00ff", 5, 6, 7, 8),
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if hit != vgeo.XYWH[uint16](1, 2, 3, 4) {
-		t.Fatalf("got hitbox %v", hit)
-	}
-	if hurt != vgeo.XYWH[uint16](5, 6, 7, 8) {
-		t.Fatalf("got hurtbox %v", hurt)
-	}
-}
-
-func TestParseHitboxes_filtersUnrelatedTags(t *testing.T) {
-	hit, hurt, err := parseHitboxes("tag--A", []vatlas.AseSlice{
-		newAseSlice("tag--B", "#ff0000ff", 9, 9, 9, 9),
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	var zero vgeo.Box[uint16]
-	if hit != zero || hurt != zero {
-		t.Fatalf("got %v/%v, want zero/zero for unrelated tag", hit, hurt)
-	}
-}
-
-func TestParseHitboxes_errorVaryingBounds(t *testing.T) {
-	slice := vatlas.AseSlice{
-		Name:  "tag--A",
-		Color: "#ff0000ff",
-		Keys: []vatlas.AseKey{
-			{Bounds: vatlas.AseXYWH{X: 0, Y: 0, W: 4, H: 4}},
-			{Bounds: vatlas.AseXYWH{X: 1, Y: 0, W: 4, H: 4}},
-		},
-	}
-	_, _, err := parseHitboxes("tag--A", []vatlas.AseSlice{slice})
-	if err == nil {
-		t.Fatal("got nil, want error for varying bounds")
-	}
-}
-
-func TestParseHitboxes_errorUnsupportedColor(t *testing.T) {
-	_, _, err := parseHitboxes("tag--A", []vatlas.AseSlice{
-		newAseSlice("tag--A", "#deadbeef", 0, 0, 4, 4),
-	})
-	if err == nil {
-		t.Fatal("got nil, want error for unsupported color")
-	}
-}
-
-func TestParseHitboxes_errorMultipleHitboxes(t *testing.T) {
-	_, _, err := parseHitboxes("tag--A", []vatlas.AseSlice{
-		newAseSlice("tag--A", "#ff0000ff", 0, 0, 4, 4),
-		newAseSlice("tag--A", "#ff0000ff", 1, 0, 4, 4),
-	})
-	if err == nil {
-		t.Fatal("got nil, want error for multiple hitboxes")
-	}
-}
-
-func TestParseHitboxes_errorMultipleHurtboxes(t *testing.T) {
-	_, _, err := parseHitboxes("tag--A", []vatlas.AseSlice{
-		newAseSlice("tag--A", "#00ff00ff", 0, 0, 4, 4),
-		newAseSlice("tag--A", "#00ff00ff", 1, 0, 4, 4),
-	})
-	if err == nil {
-		t.Fatal("got nil, want error for multiple hurtboxes")
-	}
-}
-
-func TestParseHitboxes_zeroForNoSlices(t *testing.T) {
-	hit, hurt, err := parseHitboxes("tag--A", nil)
-	var zero vgeo.Box[uint16]
-	if err != nil || hit != zero || hurt != zero {
-		t.Fatalf("got %v/%v/%v, want zero/zero/nil", err, hit, hurt)
-	}
-}
-
-// checks that `parseAnimFrames()` returns cels whose positions in the map match
-// expected (position in the frames slice passed in).
-func assertFrameIndices(
-	t *testing.T,
-	span vatlas.AseTagSpan,
-	frames []vatlas.AseFrame,
-	expected []int,
-	msg string,
-) {
-	t.Helper()
-	frameMap := map[string]vatlas.AseFrame{}
-	for i, frame := range frames {
-		frameMap[fmt.Sprintf("%s--%d", span.Name, int(span.From)+i)] = frame
-	}
-	got, err := parseAnimFrames(span, frameMap)
-	if err != nil {
-		t.Fatalf("%s: unwant error: %v", msg, err)
-	}
-	if len(got) != len(expected) {
-		t.Fatalf("%s: got %d cels, want %d", msg, len(got), len(expected))
-	}
-	for celIdx, frameIdx := range expected {
-		want := frames[frameIdx]
-		if got[celIdx] != want {
-			t.Fatalf(
-				"%s: cel[%d] got frame[%v], want frame[%d]",
-				msg,
-				celIdx,
-				got[celIdx],
-				frameIdx,
-			)
+func TestAseFixedRecordSizes(t *testing.T) {
+	for _, test := range []struct {
+		name string
+		data any
+		want int
+	}{
+		{"file header", vatlas.AseHeader{}, 128},
+		{"frame header", vatlas.AseFrameHeader{}, 16},
+		{"chunk header", vatlas.AseChunkHeader{}, 6},
+		{"assetLayer header", vatlas.AseLayerHeader{}, 16},
+		{"cel header", vatlas.AseCelHeader{}, 16},
+		{"cel image header", vatlas.AseCelImageHeader{}, 4},
+		{"tags header", vatlas.AseTagsHeader{}, 10},
+		{"tag header", vatlas.AseTagSpanHeader{}, 17},
+		{"palette header", vatlas.AsePalHeader{}, 20},
+		{"palette entry header", vatlas.AsePalEntryHeader{}, 6},
+		{"old palette header", vatlas.AseOldPalHeader{}, 2},
+		{"old palette packet header", vatlas.AseOldPalPacketHeader{}, 2},
+		{"assetSlice header", vatlas.AseSliceHeader{}, 12},
+		{"tilemap cel header", vatlas.AseCelTilemapHeader{}, 32},
+		{"assetSlice key header", vatlas.AseKeyHeader{}, 20},
+		{"user data header", vatlas.AseUserDataHeader{}, 4},
+		{"color", vatlas.AseRGBA{}, 4},
+	} {
+		if got := binary.Size(test.data); got != test.want {
+			t.Errorf("%s is %d bytes, want %d", test.name, got, test.want)
 		}
 	}
 }
 
-func newAseFrame(
-	duration uint16,
-	x, y int32,
-	w, h uint32,
-	sW, sH uint32,
-) vatlas.AseFrame {
-	return vatlas.AseFrame{
-		Duration:         duration,
-		Frame:            vatlas.AseXYWH{X: x, Y: y, W: w, H: h},
-		SpriteSourceSize: vatlas.AseXYWH{W: sW, H: sH},
-		SourceSize:       vatlas.AseWH{W: uint16(sW), H: uint16(sH)},
+func TestNameToIdent(t *testing.T) {
+	for _, test := range []struct {
+		name string
+		want string
+	}{
+		{"widget-edge-light", "WidgetEdgeLight"},
+		{"ui-button", "UIButton"},
+		{"--superball--on-", "SuperballOn"},
+		{"PalTextLight", "PalTextLight"},
+	} {
+		if got := nameToIdent(test.name); got != test.want {
+			t.Errorf("nameToIdent(%q) = %q, want %q",
+				test.name, got, test.want)
+		}
 	}
 }
 
-func newAseSlice(name, color string, x, y int32, w, h uint32) vatlas.AseSlice {
-	return vatlas.AseSlice{
-		Name:  name,
-		Color: color,
-		Keys:  []vatlas.AseKey{{Bounds: vatlas.AseXYWH{X: x, Y: y, W: w, H: h}}},
+func TestTagFrameI(t *testing.T) {
+	for _, test := range []struct {
+		name string
+		dir  vatlas.AseDir
+		want []int
+	}{
+		{"forward", vatlas.AseDirForward, []int{2, 3, 4}},
+		{"reverse", vatlas.AseDirReverse, []int{4, 3, 2}},
+		{"ping pong", vatlas.AseDirPingPong, []int{2, 3, 4, 3}},
+		{
+			"reverse ping pong",
+			vatlas.AseDirPingPongReverse,
+			[]int{4, 3, 2, 3},
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			tag := assetTagSpan{AseTagSpan: vatlas.AseTagSpan{
+				Header: vatlas.AseTagSpanHeader{
+					From:      2,
+					To:        4,
+					Direction: test.dir,
+				},
+			}}
+			if got := framePeriod(tag); got != len(test.want) {
+				t.Errorf("framePeriod(_) = %d, want %d", got, len(test.want))
+			}
+			for i, want := range test.want {
+				if got := frameIndex(tag, i); got != want {
+					t.Errorf("frameIndex(_, %d) = %d, want %d", i, got, want)
+				}
+			}
+		})
 	}
 }
 
-func newAseTagSpan(
-	name string,
-	from, to uint16,
-	dir vatlas.AseDir,
-) vatlas.AseTagSpan {
-	return vatlas.AseTagSpan{Name: name, From: from, To: to, Direction: dir}
+func TestBaseColorSlots(t *testing.T) {
+	red := vatlas.AseRGBA{R: 255, A: 255}
+	green := vatlas.AseRGBA{G: 255, A: 255}
+	base := &asset{
+		W: 2, H: 1, ColorDepth: vatlas.AseColorIndexed,
+		TransparentIndex: 0,
+	}
+	basePal := make([]vatlas.AseRGBA, 6)
+	basePal[3], basePal[5] = red, green
+	slots, err := mapBaseColorSlots(stemTag{tag: "Base"}, base, []rawFrame{{
+		pxs: []byte{3, 5}, pal: basePal,
+	}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	source := &asset{
+		ColorDepth: vatlas.AseColorIndexed, TransparentIndex: 0,
+	}
+	sourcePal := make([]vatlas.AseRGBA, 10)
+	sourcePal[7], sourcePal[9] = green, red
+	frames, err := swapFrames(
+		stemTag{tag: "Source"}, source,
+		[]rawFrame{{pxs: []byte{9, 7, 0}, pal: sourcePal}}, slots,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []byte{0, 0, 0, 255, 1, 0, 0, 255, 0, 0, 0, 0}
+	if !bytes.Equal(frames[0], want) {
+		t.Fatalf("swapped frame = %v, want %v", frames[0], want)
+	}
+	_, err = mapBaseColorSlots(stemTag{tag: "Base"}, base, []rawFrame{{
+		pxs: []byte{3, 5}, pal: []vatlas.AseRGBA{
+			{}, {}, {}, red, {}, red,
+		},
+	}})
+	if err == nil || !strings.Contains(err.Error(), "repeats base color") {
+		t.Fatalf("duplicate base colors error = %v", err)
+	}
+}
+
+func TestPlaceCelsDeduplicates(t *testing.T) {
+	anims := []swappedAnim{
+		{
+			Anim:   vatlas.Anim{Cels: 1, W: 1, H: 1},
+			frames: []swappedFrame{{1, 2, 3, 4}},
+		},
+		{
+			Anim:   vatlas.Anim{Cels: 1, W: 1, H: 1},
+			frames: []swappedFrame{{1, 2, 3, 4}},
+		},
+		{
+			Anim:   vatlas.Anim{Cels: 1, W: 1, H: 1},
+			frames: []swappedFrame{{5, 6, 7, 8}},
+		},
+	}
+	_, got, _, err := placeCels(anims)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []uint16{0, 0, 0, 0, 1, 0}
+	if len(got) != len(want) {
+		t.Fatalf("cel coordinates = %v, want %v", got, want)
+	}
+	for i := range got {
+		if got[i] != want[i] {
+			t.Fatalf("cel coordinates = %v, want %v", got, want)
+		}
+	}
+}
+
+func TestParseHitboxes(t *testing.T) {
+	box := func(x, y int32, w, h uint32) vatlas.AseXYWH {
+		return vatlas.AseXYWH{X: x, Y: y, W: w, H: h}
+	}
+	makeSlice := func(
+		tag string,
+		rgba vatlas.AseRGBA,
+		bounds ...vatlas.AseXYWH,
+	) assetSlice {
+		keys := make([]vatlas.AseKey, len(bounds))
+		for i := range bounds {
+			keys[i].Header.Bounds = bounds[i]
+		}
+		return assetSlice{
+			AseSlice: vatlas.AseSlice{Name: tag, Keys: keys},
+			RGBA:     rgba,
+		}
+	}
+	red := vatlas.AseRGBA{R: 255, A: 255}
+	green := vatlas.AseRGBA{G: 255, A: 255}
+	blue := vatlas.AseRGBA{B: 255, A: 255}
+	for _, test := range []struct {
+		name    string
+		slices  []assetSlice
+		hit     vgeo.Box[uint16]
+		hurt    vgeo.Box[uint16]
+		errText string
+	}{
+		{
+			name: "hit and hurt",
+			slices: []assetSlice{
+				makeSlice("run", red, box(1, 2, 3, 4)),
+				makeSlice("run", green, box(5, 6, 7, 8)),
+			},
+			hit:  vgeo.XYWH[uint16](1, 2, 3, 4),
+			hurt: vgeo.XYWH[uint16](5, 6, 7, 8),
+		},
+		{
+			name:   "shared",
+			slices: []assetSlice{makeSlice("run", blue, box(1, 2, 3, 4))},
+			hit:    vgeo.XYWH[uint16](1, 2, 3, 4),
+			hurt:   vgeo.XYWH[uint16](1, 2, 3, 4),
+		},
+		{
+			name:   "different tag",
+			slices: []assetSlice{makeSlice("idle", red, box(1, 2, 3, 4))},
+		},
+		{
+			name: "bounds vary",
+			slices: []assetSlice{
+				makeSlice("run", red, box(1, 2, 3, 4), box(1, 2, 3, 5)),
+			},
+			errText: "bounds varies",
+		},
+		{
+			name:    "color unsupported",
+			slices:  []assetSlice{makeSlice("run", vatlas.AseRGBA{}, box(1, 2, 3, 4))},
+			errText: "color unsupported",
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			file := &asset{Slices: test.slices}
+			hit, hurt, err := parseHitboxes(file, "run")
+			if test.errText != "" {
+				if err == nil || !strings.Contains(err.Error(), test.errText) {
+					t.Fatalf("error = %v, want %q", err, test.errText)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			if hit != test.hit || hurt != test.hurt {
+				t.Fatalf("hit, hurt = %v, %v; want %v, %v",
+					hit, hurt, test.hit, test.hurt)
+			}
+		})
+	}
+}
+
+func TestReadAsepriteErrorNamesFile(t *testing.T) {
+	path := "../../../go.mod"
+	_, err := readAsset(path)
+	if err == nil || !strings.Contains(err.Error(), path) {
+		t.Fatalf("error = %v, want filename %q", err, path)
+	}
+}
+
+func TestReadAsepriteFontPaletteData(t *testing.T) {
+	font, err := readAsset("../../demo/assets/atlas/mem-prop-5x6.aseprite")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if font.Data == nil || font.Data.Pal != "Text" {
+		t.Fatalf("asset data = %#v, want pal Text", font.Data)
+	}
+	pal, err := readAsset("../../demo/assets/atlas/pal.aseprite")
+	if err != nil {
+		t.Fatal(err)
+	}
+	img, atlas, keys, err := parseAtlas([]*asset{pal, font})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for animI, key := range keys {
+		if key.stem != "mem-prop-5x6" {
+			continue
+		}
+		anim := atlas.Anims[animI]
+		for celI := 0; celI < int(anim.Cels); celI++ {
+			cel := atlas.Cels[(animI*vatlas.CelsPerAnim+celI)*4:]
+			for y := range int(anim.H) {
+				for x := range int(anim.W) {
+					px := img.Pix[(int(cel[1])+y)*img.Stride+(int(cel[0])+x)*4:]
+					if px[3] == 0 {
+						continue
+					}
+					if !bytes.Equal(px[:4], []byte{1, 0, 0, 255}) {
+						t.Fatalf("glyph pixel = %v, want palette slot 1", px[:4])
+					}
+					return
+				}
+			}
+		}
+	}
+	t.Fatal("no opaque font pixels")
+}
+
+func TestReadAsepriteSpriteData(t *testing.T) {
+	file, err := readAsset("../../demo/assets/atlas/widget.aseprite")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if file.Data == nil || file.Data.Pal != "Widget" {
+		t.Fatalf("asset data = %#v, want pal Widget", file.Data)
+	}
+	if len(file.Frames) != 3 || len(file.TagSpans) != 3 {
+		t.Fatalf("got %d frames and %d tags, want 3 each", len(file.Frames), len(file.TagSpans))
+	}
+	if len(file.Frames[0].Pal) == 0 {
+		t.Fatal("missing indexed palette")
+	}
+}
+
+func TestReadAsepritePalettes(t *testing.T) {
+	file, err := readAsset("../../demo/assets/atlas/pal.aseprite")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if file.Data != nil {
+		t.Fatalf("palette data = %#v, want nil", file.Data)
+	}
+	if len(file.TagSpans) == 0 {
+		t.Fatal("missing palette tags")
+	}
+	for _, tag := range file.TagSpans {
+		if tag.Name != "Widget" {
+			continue
+		}
+		frames, err := parseFrames(file, tag)
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Logf("Widget raw: %v", frames[0].pxs)
+	}
+}
+
+func TestParseAtlasSuperballHitbox(t *testing.T) {
+	file, err := readAsset("../../demo/assets/atlas/superball.aseprite")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, atlas, keys, err := parseAtlas([]*asset{file})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i, key := range keys {
+		if key.qualifiedTag() != "SuperballDefault" {
+			continue
+		}
+		if got, want := atlas.Anims[i].Hitbox, vgeo.XYWH[uint16](1, 1, 6, 6); got != want {
+			t.Fatalf("Superball hitbox = %v, want %v", got, want)
+		}
+		return
+	}
+	t.Fatal("missing SuperballDefault")
 }

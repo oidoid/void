@@ -2,9 +2,20 @@ package vgfx
 
 import (
 	"testing"
+	"unsafe"
 
 	"github.com/oidoid/void/src/void/vgeo"
 )
+
+func TestLayerConfigExportLayout(t *testing.T) {
+	var config LayerConfigExport
+	if got := unsafe.Sizeof(config); got != 28 {
+		t.Fatalf("LayerConfigExport size = %d, want 28", got)
+	}
+	if got := unsafe.Offsetof(config.SpritesPtr); got != 20 {
+		t.Fatalf("SpritesPtr offset = %d, want 20", got)
+	}
+}
 
 func TestLayerConfigCoordTransformsApplyCam(t *testing.T) {
 	config := LayerConfig{Scale: 2}

@@ -12,6 +12,13 @@ func Clamp[T vtypes.Number](lo, hi, v T) T {
 	return v
 }
 
+func Abs[T vtypes.Number](v T) T {
+	if v < 0 {
+		return -v
+	}
+	return v
+}
+
 func Floor[T vtypes.Number](v T) T {
 	i := T(int64(v))
 	if v < i {

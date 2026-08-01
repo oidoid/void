@@ -53,6 +53,9 @@ export class SpriteRenderer {
     const spritesheetTex = gl.createTexture()!
     gl.activeTexture(gl.TEXTURE1)
     gl.bindTexture(gl.TEXTURE_2D, spritesheetTex)
+    // pal-swappable source texels store a pal slot in their red byte. sRGB
+    // conversion would turn 1/255 into 0.
+    gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.NONE)
     gl.texImage2D(
       gl.TEXTURE_2D,
       0,

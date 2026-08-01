@@ -30,6 +30,24 @@ func TestClamp(t *testing.T) {
 	}
 }
 
+func TestAbs(t *testing.T) {
+	cases := []struct {
+		name     string
+		in, want int
+	}{
+		{"zero", 0, 0},
+		{"positive", 3, 3},
+		{"negative", -3, 3},
+	}
+	for _, test := range cases {
+		t.Run(test.name, func(t *testing.T) {
+			if got := Abs(test.in); got != test.want {
+				t.Fatalf("Abs(%v) = %v, want %v", test.in, got, test.want)
+			}
+		})
+	}
+}
+
 func TestFloor(t *testing.T) {
 	cases := []struct {
 		name string

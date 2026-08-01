@@ -61,16 +61,20 @@ func newButtonEnt(
 	label string,
 	buttonType ventities.ButtonType,
 ) *ventities.ButtonEnt {
-	fill := assets.ColorBlue
 	this := ventities.ButtonEnt{
-		NinePatchEnt: ventities.NinePatchEnt{
-			PatchByDir: [9]vgfx.Sprite{vgeo.DirCenter: {AnimCel: fill.Cel(0)}},
-			CornerWH:   vgeo.WH[uint16]{W: 1, H: 1},
+		NinePatchEnt: newWidgetNinePatch(),
+		Pals: ventities.ButtonPals{
+			Base:      assets.PalWidget,
+			Focused:   assets.PalWidgetFocused,
+			On:        assets.PalWidgetOn,
+			FocusedOn: assets.PalWidgetFocusedOn,
 		},
-		UnfocusedEdge: assets.ColorBlack,
-		FocusedEdge:   assets.ColorRed,
-		Fill:          fill,
-		FocusedFill:   assets.ColorRed,
+		TextPals: ventities.ButtonPals{
+			Base:      assets.PalText,
+			Focused:   assets.PalText,
+			On:        assets.PalTextLight,
+			FocusedOn: assets.PalTextLight,
+		},
 		Anchor: ventities.AnchorEnt{
 			Dir:    vgeo.DirW,
 			Margin: vgeo.NewXY(float32(uiButtonGap), 0),
@@ -83,4 +87,19 @@ func newButtonEnt(
 	this.Text.Z = gfx.ZUIText
 	this.NinePatchEnt.SetZ(gfx.ZUIWidget)
 	return &this
+}
+
+func newWidgetNinePatch() ventities.NinePatchEnt {
+	edge := vgfx.Sprite{AnimCel: assets.WidgetEdgeLight.Cel(0)}
+	fill := vgfx.Sprite{AnimCel: assets.WidgetFill.Cel(0)}
+	return ventities.NinePatchEnt{
+		PatchByDir: [9]vgfx.Sprite{
+			vgeo.DirN:      edge,
+			vgeo.DirE:      edge,
+			vgeo.DirS:      edge,
+			vgeo.DirW:      edge,
+			vgeo.DirCenter: fill,
+		},
+		CornerWH: vgeo.WH[uint16]{W: 1, H: 1},
+	}
 }

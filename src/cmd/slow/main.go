@@ -70,10 +70,10 @@ func check(baseline, got []Line, stdout, stderr io.Writer) error {
 }
 
 // reads go test benchmark output and returns median per benchmark name.
-func parseBenchOutput(reader io.Reader) ([]Line, error) {
+func parseBenchOutput(r io.Reader) ([]Line, error) {
 	samples := map[string][]float64{}
 	var order []string
-	scanner := bufio.NewScanner(reader)
+	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		matches := reLine.FindStringSubmatch(scanner.Text())
 		if matches == nil {
@@ -101,9 +101,9 @@ func parseBenchOutput(reader io.Reader) ([]Line, error) {
 	return entries, nil
 }
 
-func readSlow(reader io.Reader) ([]Line, error) {
+func readSlow(r io.Reader) ([]Line, error) {
 	var entries []Line
-	scanner := bufio.NewScanner(reader)
+	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		fields := strings.Fields(scanner.Text())
 		if len(fields) != 2 {
@@ -148,10 +148,10 @@ func runSave() error {
 	return writeSlow(file, entries)
 }
 
-func writeSlow(writer io.Writer, entries []Line) error {
+func writeSlow(w io.Writer, entries []Line) error {
 	for _, entry := range entries {
 		if _, err := fmt.Fprintf(
-			writer,
+			w,
 			"%s %.3f\n",
 			entry.Name,
 			entry.OpMillis,

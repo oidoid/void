@@ -5,13 +5,13 @@ import (
 )
 
 const (
-	indexBits  = 24
-	indexMask  = (1 << indexBits) - 1 // xffffff (~16 M).
-	indexShift = 0
+	indexBits         = 24
+	indexMask  uint32 = (1 << indexBits) - 1 // xffffff (~16 M).
+	indexShift        = 0
 
-	genBits  = 8
-	genMask  = (1 << genBits) - 1 // xff.
-	genShift = 24
+	genBits         = 8
+	genMask  uint32 = (1 << genBits) - 1 // xff.
+	genShift        = 24
 )
 
 // fixed contiguous unordered array.

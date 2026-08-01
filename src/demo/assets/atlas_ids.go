@@ -5,6 +5,12 @@ import "github.com/oidoid/void/src/void/vatlas"
 
 const (
 	VoidNil vatlas.AnimID = iota
+	PalWidget
+	PalWidgetFocused
+	PalWidgetOn
+	PalWidgetFocusedOn
+	PalText
+	PalTextLight
 	BackpackerWalkRight
 	BackpackerWalkDown
 	BackpackerWalkUp
@@ -157,4 +163,7 @@ const (
 	ViewportEdgeNW
 	ViewportEdgeN
 	ViewportEdgeW
+	WidgetEdgeLight
+	WidgetEdgeDark
+	WidgetFill
 )

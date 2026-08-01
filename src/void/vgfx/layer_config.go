@@ -34,11 +34,11 @@ const (
 
 // bit positions within the packed flags byte in LayerConfigExport.Flags.
 const (
-	LayerFlagsDepthShift     = uint8(0)
-	LayerFlagsDepthFlag      = uint8(0x1)
-	LayerFlagsDepthMask      = uint8(0x1)
-	LayerFlagsBlendModeShift = uint8(1)
-	LayerFlagsBlendModeMask  = uint8(0x7f)
+	LayerFlagsDepthShift           = uint8(0)
+	LayerFlagsDepthFlag            = uint8(0x1)
+	LayerFlagsDepthMask      uint8 = 0x1
+	LayerFlagsBlendModeShift       = uint8(1)
+	LayerFlagsBlendModeMask  uint8 = 0x7f
 )
 
 type LayerScaleMode uint8

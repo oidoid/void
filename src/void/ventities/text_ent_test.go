@@ -10,7 +10,7 @@ import (
 
 func TestTextEntScale(t *testing.T) {
 	font := vtext.MemProp5x6
-	ent := TextEnt{Text: "1"}
+	ent := TextEnt{Text: "1", Pal: 7}
 	ent.SetScale(2)
 	var sprites []vgfx.Sprite
 	ent.Update(
@@ -33,5 +33,8 @@ func TestTextEntScale(t *testing.T) {
 	}
 	if !sprites[0].Stretch() {
 		t.Error("scaled text sprite is not stretched")
+	}
+	if got := sprites[0].Pal(); got != 7 {
+		t.Errorf("sprite palette = %d, want 7", got)
 	}
 }

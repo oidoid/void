@@ -24,10 +24,10 @@ import type {Pointer} from './pointer.ts'
 import type {Wheel} from './wheel.ts'
 
 test('Poll ABI layout matches vgame.Poll', () => {
-  assert(drawCountOffset, 4400)
-  assert(updateMsOffset, 4408)
-  assert(devicePixelRatioOffset, 4416)
-  assert(updateByteLen, 4440)
+  assert(drawCountOffset, 4408)
+  assert(updateMsOffset, 4416)
+  assert(devicePixelRatioOffset, 4424)
+  assert(updateByteLen, 4448)
 })
 
 const encoder: TextEncoder = new TextEncoder()
