@@ -1,4 +1,4 @@
-// codegen by packsprites.
+// codegen by packatlas.
 package assets
 
 import "github.com/oidoid/void/src/void/vatlas"

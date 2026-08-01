@@ -1,5 +1,4 @@
 // pack a sprite atlas.
-// to-do: rename packatlas.
 package main
 
 import (
@@ -141,7 +140,7 @@ func genData(pkg string, data []byte) ([]byte, error) {
 	var str strings.Builder
 	fmt.Fprintf(
 		&str,
-		"// codegen by packsprites.\npackage %s\n\nvar AtlasBin = []byte{",
+		"// codegen by packatlas.\npackage %s\n\nvar AtlasBin = []byte{",
 		pkg,
 	)
 	for i, v := range data {
@@ -158,7 +157,7 @@ func genIDs(pkg string, stemTags []stemTag) ([]byte, error) {
 	var str strings.Builder
 	fmt.Fprintf(
 		&str,
-		"// codegen by packsprites.\npackage %s\n\n"+
+		"// codegen by packatlas.\npackage %s\n\n"+
 			"import \"github.com/oidoid/void/src/void/vatlas\"\n\nconst (\n",
 		pkg,
 	)

@@ -1,4 +1,4 @@
-// codegen by packsprites.
+// codegen by packatlas.
 package assets
 
 var AtlasBin = []byte{
