@@ -6,12 +6,14 @@ uniform highp float uLayerScale;
 uniform highp vec2 uLayerOffsetPhy;
 uniform highp float uLayerModulo;
 uniform mediump int uRenderMode;
+uniform highp float uNowMillis;
 uniform highp usampler2D uAtlasCels;
 uniform highp vec2 uAtlasSize;
 
 const mediump int layerRenderModeInt = 0;
 const highp uint animCelMask = 0xfu;
 const highp uint animCelShift = 4u;
+const highp float celsPerAnim = 16.;
 const highp uint sprHiddenMask = 1u;
 const highp uint sprHiddenShift = 0u;
 const highp uint sprZTopMask = 1u;
@@ -48,7 +50,8 @@ void main() {
   bool hidden = (aFlags >> sprHiddenShift & sprHiddenMask) != 0u;
   if (animID == 0u || hidden) { gl_Position = vec4(2., 0., 0., 1.); return; }
 
-  highp uint celI = aAnimCel & animCelMask;
+  highp uint celI =
+    (aAnimCel + uint(floor(uNowMillis * celsPerAnim / 1000.))) & animCelMask;
   highp uvec4 cel = texelFetch(uAtlasCels, ivec2(int(celI), int(animID)), 0);
   highp vec2 celMin = vec2(float(cel.x), float(cel.y));
   highp vec2 celWH = vec2(float(cel.z), float(cel.w));

@@ -48,15 +48,22 @@ never run:
   - error: err
   - for example: eg
   - high: hi
+  - hit box: hitbox
+  - hurt box: hurtbox
+  - level: lvl
   - low: lo
   - milliseconds: millis
   - palette: pal
   - physical: phy
   - pixel: px or pxs
   - properties: props
+  - render box: clipbox
+  - render: draw
+  - speed: vel
   - sprite: spr
   - string: str
   - value: v, val, or vals
+  - velocity: vel
 - sentences end with periods.
 - capitalize but skip sentence capitalization.
 - in English, prefer backticks around code snippets.

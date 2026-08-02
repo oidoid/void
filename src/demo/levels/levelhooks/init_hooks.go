@@ -17,6 +17,18 @@ import (
 func InitInit(gam *engine.Engine) {
 	gam.RegisterPreupdate(hooks.UpdateLayers)
 	gam.RegisterPreupdate(hooks.UpdateCam)
+	anim := gam.Atlas.Anims[int(assets.BackpackerWalkRight)]
+	tileW := int32(gam.Level.Tile.W)
+	tileH := int32(gam.Level.Tile.H)
+	p1s := ventities.NewEntVec(hooks.UpdateP1s, 1)
+	p1s.Add(entities.NewP1Ent(
+		vgeo.XY[float32]{
+			X: float32(gam.Level.Min.X + tileW),
+			Y: float32(gam.Level.Min.Y + tileH - int32(anim.Hurtbox.Min.Y)),
+		},
+		anim,
+	))
+	gam.RegisterEntUpdate(p1s)
 
 	buttons := ventities.NewEntVec(vhooks.UpdateButtons[*engine.Engine], 4)
 

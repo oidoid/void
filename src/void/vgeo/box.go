@@ -30,5 +30,3 @@ func (this Box[T]) H() T { return this.Max.Y - this.Min.Y }
 func XYWH[T vtypes.Number](x, y, w, h T) Box[T] {
 	return Box[T]{Min: XY[T]{X: x, Y: y}, Max: XY[T]{X: x + w, Y: y + h}}
 }
-
-// to-do: old intersection code.

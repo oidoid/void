@@ -97,8 +97,6 @@ export class Sprite implements Block, Box {
     return cel % (this.anim.cels * 2)
   }
 
-  // clip, hit, hurt
-
   /** sets cel to animation start. */
   rewind(): void {
     this.cel = this.looperCel // setter truncates.

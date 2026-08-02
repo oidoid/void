@@ -4,6 +4,7 @@ import "github.com/oidoid/void/src/void/vgfx"
 
 const (
 	LayerTiles vgfx.Layer = iota
+	LayerP1
 	LayerSuperballs
 	LayerUI
 	LayerViewportEdge
@@ -13,6 +14,7 @@ const (
 )
 
 var (
+	ZP1           vgfx.Z = LayerP1.Z(0)
 	ZSuperball    vgfx.Z = LayerSuperballs.Z(0)
 	ZUILevelEdge  vgfx.Z = LayerUI.Z(0)
 	ZUIFill       vgfx.Z = LayerUI.Z(1)

@@ -6,6 +6,10 @@ uniform highp sampler2D uSprsheet;
 uniform highp vec2 uAtlasSize;
 uniform highp vec4 uLevel; // xywh.
 uniform highp vec2 uTileWH;
+uniform highp float uNowMillis;
+
+const highp uint animCelMask = 0xfu;
+const highp float celsPerAnim = 16.;
 
 in highp vec2 vPx;
 
@@ -20,7 +24,8 @@ void main() {
   highp uint tile = texelFetch(uTiles, cell, 0).r;
   if (tile == 0u) discard;
 
-  highp uvec4 cel = texelFetch(uAtlasCels, ivec2(0, int(tile)), 0);
+  highp uint celI = uint(floor(uNowMillis * celsPerAnim / 1000.)) & animCelMask;
+  highp uvec4 cel = texelFetch(uAtlasCels, ivec2(int(celI), int(tile)), 0);
   highp vec2 tilePx = floor(mod(vPx, uTileWH)) + .5;
   highp vec4 tex = texture(
     uSprsheet,

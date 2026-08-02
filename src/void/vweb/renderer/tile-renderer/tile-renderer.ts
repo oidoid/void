@@ -24,6 +24,7 @@ export class TileRenderer {
     const uLayerOffsetPhy = gl.getUniformLocation(pgm, 'uLayerOffsetPhy')!
     const uLayerModulo = gl.getUniformLocation(pgm, 'uLayerModulo')!
     const uRenderMode = gl.getUniformLocation(pgm, 'uRenderMode')!
+    const uNowMillis = gl.getUniformLocation(pgm, 'uNowMillis')!
     const uLevel = gl.getUniformLocation(pgm, 'uLevel')!
     const uTileWH = gl.getUniformLocation(pgm, 'uTileWH')!
     const uAtlasSize = gl.getUniformLocation(pgm, 'uAtlasSize')!
@@ -107,6 +108,7 @@ export class TileRenderer {
       uLayerOffsetPhy,
       uLayerModulo,
       uRenderMode,
+      uNowMillis,
       vao,
       tilesTex,
       atlasCelsTex,
@@ -122,6 +124,7 @@ export class TileRenderer {
   readonly #uLayerOffsetPhy: WebGLUniformLocation
   readonly #uLayerModulo: WebGLUniformLocation
   readonly #uRenderMode: WebGLUniformLocation
+  readonly #uNowMillis: WebGLUniformLocation
   readonly #vao: WebGLVertexArrayObject
   readonly #tilesTex: WebGLTexture
   readonly #atlasCelsTex: WebGLTexture
@@ -136,6 +139,7 @@ export class TileRenderer {
     uLayerOffsetPhy: WebGLUniformLocation,
     uLayerModulo: WebGLUniformLocation,
     uRenderMode: WebGLUniformLocation,
+    uNowMillis: WebGLUniformLocation,
     vao: WebGLVertexArrayObject,
     tilesTex: WebGLTexture,
     atlasCelsTex: WebGLTexture,
@@ -149,6 +153,7 @@ export class TileRenderer {
     this.#uLayerOffsetPhy = uLayerOffsetPhy
     this.#uLayerModulo = uLayerModulo
     this.#uRenderMode = uRenderMode
+    this.#uNowMillis = uNowMillis
     this.#vao = vao
     this.#tilesTex = tilesTex
     this.#atlasCelsTex = atlasCelsTex
@@ -165,6 +170,7 @@ export class TileRenderer {
   }
 
   draw(
+    nowMillis: number,
     camX: number,
     camY: number,
     layerScale: number,
@@ -174,6 +180,7 @@ export class TileRenderer {
   ): void {
     const gl = this.#gl
     gl.useProgram(this.#pgm)
+    gl.uniform1f(this.#uNowMillis, nowMillis)
     gl.uniform2f(this.#uCamXY, camX, camY)
     gl.uniform1f(this.#uLayerScale, layerScale)
     gl.uniform2f(this.#uLayerOffsetPhy, clipPhy.x, clipPhy.y)

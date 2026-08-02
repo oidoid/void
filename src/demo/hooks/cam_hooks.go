@@ -63,6 +63,8 @@ func UpdateLayers(gam *engine.Engine) vgame.Status {
 	)
 	gam.Layer(gfx.LayerTiles).ClipPhy = clipPhy
 	gam.Layer(gfx.LayerTiles).Modulo = uint8(scale)
+	gam.Layer(gfx.LayerP1).ClipPhy = clipPhy
+	gam.Layer(gfx.LayerP1).Modulo = uint8(scale)
 	gam.Layer(gfx.LayerSuperballs).ClipPhy = clipPhy
 	gam.Layer(gfx.LayerSuperballs).Modulo = uint8(scale)
 	gam.Layer(gfx.LayerCursor).Modulo = uint8(scale)

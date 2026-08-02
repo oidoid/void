@@ -42,10 +42,17 @@ func New() *Engine {
 	this.Layer(gfx.LayerTiles).AutoscaleMinClip = vgeo.WH[uint16]{
 		W: gfx.LevelClipWPhy, H: gfx.LevelClipHPhy,
 	}
+	this.Layer(gfx.LayerP1).ScaleMode = vgfx.LayerScaleModeAutoInt
+	this.Layer(gfx.LayerP1).AutoscaleMinClip = vgeo.WH[uint16]{
+		W: gfx.LevelClipWPhy, H: gfx.LevelClipHPhy,
+	}
 	this.Layer(gfx.LayerSuperballs).ScaleMode = vgfx.LayerScaleModeAutoInt
 	this.Layer(gfx.LayerSuperballs).AutoscaleMinClip = vgeo.WH[uint16]{
 		W: gfx.LevelClipWPhy, H: gfx.LevelClipHPhy,
 	}
+	*this.Cam() = this.Layer(gfx.LayerSuperballs).LayerToPhyScale(
+		vgeo.NewXY[float32](-96, -96),
+	)
 	this.Layer(gfx.LayerUI).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerUI).Depth = true
 	this.Layer(gfx.LayerUI).ScaleMode = vgfx.LayerScaleModeAutoInt

@@ -123,6 +123,7 @@ export class Renderer {
   }
 
   drawTiles(
+    nowMillis: number,
     camX: number,
     camY: number,
     layerScale: number,
@@ -133,7 +134,15 @@ export class Renderer {
     clipPhy: {x: number; y: number; w: number; h: number}
   ): void {
     const clip = this.#beginLayer(depth, blendMode, clipPhy)
-    this.#tiles.draw(camX, camY, layerScale, clipPhy, layerModulo, renderMode)
+    this.#tiles.draw(
+      nowMillis,
+      camX,
+      camY,
+      layerScale,
+      clipPhy,
+      layerModulo,
+      renderMode
+    )
     this.#endLayer(depth, blendMode, clip)
   }
 
@@ -141,6 +150,7 @@ export class Renderer {
     buffer: ArrayBuffer,
     sprPtr: number,
     sprCount: number,
+    nowMillis: number,
     camX: number,
     camY: number,
     layerScale: number,
@@ -155,6 +165,7 @@ export class Renderer {
       buffer,
       sprPtr,
       sprCount,
+      nowMillis,
       camX,
       camY,
       layerScale,

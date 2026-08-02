@@ -24,6 +24,7 @@ export class SprRenderer {
     const uLayerOffsetPhy = gl.getUniformLocation(pgm, 'uLayerOffsetPhy')!
     const uLayerModulo = gl.getUniformLocation(pgm, 'uLayerModulo')!
     const uRenderMode = gl.getUniformLocation(pgm, 'uRenderMode')!
+    const uNowMillis = gl.getUniformLocation(pgm, 'uNowMillis')!
     const uBlendMode = gl.getUniformLocation(pgm, 'uBlendMode')!
 
     gl.useProgram(pgm)
@@ -123,6 +124,7 @@ export class SprRenderer {
       uLayerOffsetPhy,
       uLayerModulo,
       uRenderMode,
+      uNowMillis,
       uBlendMode,
       vao,
       instanceVBO,
@@ -139,6 +141,7 @@ export class SprRenderer {
   readonly #uLayerOffsetPhy: WebGLUniformLocation
   readonly #uLayerModulo: WebGLUniformLocation
   readonly #uRenderMode: WebGLUniformLocation
+  readonly #uNowMillis: WebGLUniformLocation
   readonly #uBlendMode: WebGLUniformLocation
   readonly #vao: WebGLVertexArrayObject
   readonly #instanceVBO: WebGLBuffer
@@ -154,6 +157,7 @@ export class SprRenderer {
     uLayerOffsetPhy: WebGLUniformLocation,
     uLayerModulo: WebGLUniformLocation,
     uRenderMode: WebGLUniformLocation,
+    uNowMillis: WebGLUniformLocation,
     uBlendMode: WebGLUniformLocation,
     vao: WebGLVertexArrayObject,
     instanceVBO: WebGLBuffer,
@@ -168,6 +172,7 @@ export class SprRenderer {
     this.#uLayerOffsetPhy = uLayerOffsetPhy
     this.#uLayerModulo = uLayerModulo
     this.#uRenderMode = uRenderMode
+    this.#uNowMillis = uNowMillis
     this.#uBlendMode = uBlendMode
     this.#vao = vao
     this.#instanceVBO = instanceVBO
@@ -188,6 +193,7 @@ export class SprRenderer {
     buffer: ArrayBuffer,
     sprPtr: number,
     count: number,
+    nowMillis: number,
     camX: number,
     camY: number,
     layerScale: number,
@@ -199,6 +205,7 @@ export class SprRenderer {
     if (!count) return
     const gl = this.#gl
     gl.useProgram(this.#pgm)
+    gl.uniform1f(this.#uNowMillis, nowMillis)
     gl.uniform2f(this.#uCamXY, camX, camY)
     gl.uniform1f(this.#uLayerScale, layerScale)
     gl.uniform2f(this.#uLayerOffsetPhy, clipPhy.x, clipPhy.y)

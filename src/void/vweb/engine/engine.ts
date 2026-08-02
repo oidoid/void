@@ -151,7 +151,8 @@ export class Engine {
     if (!this.#renderer || this.#renderer.isContextLost()) return
     this.#requestUpdate()
     this.#renderer.resize(this.#phyW, this.#phyH)
-    this.#writeUpdate(this.#renderer)
+    const nowMillis = performance.now()
+    this.#writeUpdate(this.#renderer, nowMillis)
     const updateStart = performance.now()
     const loop = this.#wasm.Update()
     this.#applyFullscreenRequest()
@@ -177,6 +178,7 @@ export class Engine {
       if (config.shader === shaderTiles) {
         this.#renderer.clearDepth()
         this.#renderer.drawTiles(
+          nowMillis,
           lx,
           ly,
           config.scale,
@@ -192,6 +194,7 @@ export class Engine {
           buffer,
           config.sprsPtr,
           config.sprCount,
+          nowMillis,
           lx,
           ly,
           config.scale,
@@ -334,15 +337,14 @@ export class Engine {
     setDrawOnParam(drawAlways)
   }
 
-  #writeUpdate(renderer: Renderer): void {
+  #writeUpdate(renderer: Renderer, nowMillis: number): void {
     if (this.#frame.buffer !== this.#wasm.memory.buffer)
       this.#frame = new DataView(
         this.#wasm.memory.buffer,
         this.#wasm.FramePointer(),
         updateByteLen
       )
-    const now = performance.now()
-    const delta = this.#lastTime === 0 ? 0 : now - this.#lastTime
+    const delta = this.#lastTime === 0 ? 0 : nowMillis - this.#lastTime
     this.#frame.setFloat64(deltaMsOffset, delta, true)
     this.#frame.setUint16(canvasWOffset, renderer.phyW, true)
     this.#frame.setUint16(canvasHOffset, renderer.phyH, true)
@@ -353,7 +355,7 @@ export class Engine {
     this.#frame.setFloat64(devicePixelRatioOffset, devicePixelRatio, true)
     const time = Date.now()
     const date = new Date(time)
-    this.#frame.setFloat64(nowMsOffset, now, true)
+    this.#frame.setFloat64(nowMsOffset, nowMillis, true)
     this.#frame.setBigUint64(utcMsOffset, BigInt(time), true)
     this.#frame.setUint16(localYearOffset, date.getFullYear(), true)
     this.#frame.setUint8(localMonthOffset, date.getMonth() + 1)
@@ -364,7 +366,7 @@ export class Engine {
     this.#frame.setUint16(localMillisOffset, date.getMilliseconds(), true)
     this.#input.update(this.#frame)
     this.#input.postupdate() // to-do: move to postupdate()?
-    this.#lastTime = now
+    this.#lastTime = nowMillis
   }
 }
 

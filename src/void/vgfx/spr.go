@@ -35,6 +35,7 @@ const (
 	sprZTopShift           = 12
 )
 
+// to-do: rename Tag.
 func (this *Spr) Anim() vatlas.AnimID {
 	return vatlas.AnimID(this.AnimCel >> vatlas.AnimCelShift)
 }
