@@ -126,11 +126,12 @@ export class Engine {
     this.#input.register('add')
     addEventListener('blur', this.#onReset) // to-do: requestUpdate()?
     addEventListener('visibilitychange', this.#onReset) // to-do: requestUpdate()?
+    // wait for the observer's initial callback to size the canvas; drawing
+    // before then leaves it 0x0, which the compositor can flash black.
     this.#resizeObserver.observe(this.#canvas.parentElement!, {
       box: 'device-pixel-content-box'
     })
     this.#registered = true
-    this.update()
   }
 
   update(): void {
