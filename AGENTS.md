@@ -44,6 +44,7 @@ never run:
 - prefer `i` for loop indices but not items.
 - use right terms for left:
   - Aseprite: ase
+  - column(s): col, cols
   - configuration: config; never cfg
   - context: ctx
   - error: err
@@ -55,17 +56,17 @@ never run:
   - level: lvl
   - low: lo
   - near box: nearbox
-  - milliseconds: millis
+  - millisecond(s): milli(s)
   - palette: pal
   - physical: phy
-  - pixel: px or pxs
-  - properties: props
+  - pixel(s): px(s)
+  - property / properties: prop(s)
   - render box: clipbox
   - render: draw
   - speed: vel
   - sprite: spr
   - string: str
-  - value: v, val, or vals
+  - value(s): v, val(s)
   - velocity: vel
 - sentences end with periods.
 - capitalize but skip sentence capitalization.

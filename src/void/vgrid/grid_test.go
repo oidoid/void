@@ -69,28 +69,33 @@ func TestGridSameCell(t *testing.T) {
 	}
 }
 
+// a ball is a point at the top-left corner of a box no larger than a cell,
+// so only same, right, down, and down-right neighbors can ever truly
+// overlap; above-right and below-left never can, regardless of exact
+// position within the cell.
 func TestGridAdjacentCells(t *testing.T) {
 	tests := []struct {
 		name string
 		xy   vgeo.XY[float32]
+		want int
 	}{
-		{name: "above-left", xy: xy(-5, -5)},
-		{name: "above", xy: xy(5, -5)},
-		{name: "above-right", xy: xy(15, -5)},
-		{name: "left", xy: xy(-5, 5)},
-		{name: "same", xy: xy(5, 5)},
-		{name: "right", xy: xy(15, 5)},
-		{name: "below-left", xy: xy(-5, 15)},
-		{name: "below", xy: xy(5, 15)},
-		{name: "below-right", xy: xy(15, 15)},
+		{name: "above-left", xy: xy(-5, -5), want: 1},
+		{name: "above", xy: xy(5, -5), want: 1},
+		{name: "above-right", xy: xy(15, -5), want: 0},
+		{name: "left", xy: xy(-5, 5), want: 1},
+		{name: "same", xy: xy(5, 5), want: 1},
+		{name: "right", xy: xy(15, 5), want: 1},
+		{name: "below-left", xy: xy(-5, 15), want: 0},
+		{name: "below", xy: xy(5, 15), want: 1},
+		{name: "below-right", xy: xy(15, 15), want: 1},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			grid := newGrid()
 			grid.InsertAt(xy(5, 5), 0)
 			grid.InsertAt(test.xy, 1)
-			if got := len(pairs(&grid)); got != 1 {
-				t.Errorf("pair count = %d, want 1", got)
+			if got := len(pairs(&grid)); got != test.want {
+				t.Errorf("pair count = %d, want %d", got, test.want)
 			}
 		})
 	}
@@ -144,8 +149,8 @@ func TestGridNoSpuriousPairs(t *testing.T) {
 		grid := newGrid()
 		vals := []vgeo.XY[float32]{
 			xy(5, 5),  // cell (5, 5).
-			xy(14, 5), // cell (5, 6).
-			xy(15, 5), // cell (5, 6).
+			xy(14, 5), // cell (5, 5). same cell: floor((14+45)/10) = 5.
+			xy(15, 5), // cell (6, 5). right neighbor of the first two.
 		}
 		for i, val := range vals {
 			grid.InsertAt(val, int32(i))
@@ -157,18 +162,18 @@ func TestGridNoSpuriousPairs(t *testing.T) {
 			float32(50), float32(50), float32(150), float32(150),
 		), 10, 16)
 		vals := []vgeo.XY[float32]{
-			xy(55, 55), // cell (1, 1).
-			xy(65, 55), // cell (1, 2). adjacent.
-			xy(80, 55), // cell (1, 3). two away from the first.
+			xy(55, 55), // cell (0, 0).
+			xy(65, 55), // cell (1, 0). adjacent, right of the first.
+			xy(80, 55), // cell (3, 0). two away from the second.
 		}
 		for i, val := range vals {
 			grid.InsertAt(val, int32(i))
 		}
-		if got := len(pairs(&grid)); got != 2 {
-			t.Errorf("pair count = %d, want 2", got)
+		if got := len(pairs(&grid)); got != 1 {
+			t.Errorf("pair count = %d, want 1", got)
 		}
 	})
-	t.Run("4 by 4 grid reports 42 unique pairs", func(t *testing.T) {
+	t.Run("4 by 4 grid reports 33 unique pairs", func(t *testing.T) {
 		grid := New(vgeo.NewBox(
 			float32(0), float32(0), float32(40), float32(40),
 		), 10, 16)
@@ -177,23 +182,37 @@ func TestGridNoSpuriousPairs(t *testing.T) {
 		//  4  5  6  7
 		//  8  9  a  b
 		//  c  d  e  f
-		// scenario: when processing cell 5 we check 5 vs 6, 8, 9, a (forward
-		// neighbors). when we later process cell 9 its forward neighbors are a,
-		// c, d, e; not 5. so (5, 9) must appear exactly once.
+		// scenario: when processing cell 5 we check 5 vs 6, 9, a (forward
+		// neighbors: right, down, down-right). when we later process cell 6
+		// its forward neighbors are 7, a, b; not 5. so (5, 6) must appear
+		// exactly once.
 		for i := range 16 {
 			grid.InsertAt(xy(float32(i%4*10), float32(i/4*10)), int32(i))
 		}
-		// 12 right + 12 below + 9 below-right + 9 below-left = 42 total pairs.
-		assertUniquePairs(t, pairs(&grid), 42)
+		// 12 right + 12 down + 9 down-right = 33 total pairs.
+		assertUniquePairs(t, pairs(&grid), 33)
 	})
+}
+
+// balls piling up at (or near) one spot must still report every pair exactly
+// once; this is the case that most stresses a spatial grid.
+func TestGridDenseCell(t *testing.T) {
+	const ballCount = 200
+	grid := newGrid()
+	for i := range ballCount {
+		grid.InsertAt(xy(5, 5), int32(i))
+	}
+	want := ballCount * (ballCount - 1) / 2
+	assertUniquePairs(t, pairs(&grid), want)
 }
 
 func newGrid() Grid { return New(testBounds, 10, 16) }
 
 func pairs(grid *Grid) [][2]int32 {
 	vals := make([][2]int32, 0)
-	grid.ForEach(func(a, b int32) {
+	grid.ForEach(func(a, b int32) bool {
 		vals = append(vals, [2]int32{a, b})
+		return false
 	})
 	return vals
 }
@@ -217,4 +236,42 @@ func assertUniquePairs(t *testing.T, pairs [][2]int32, want int) {
 
 func xy(x, y float32) vgeo.XY[float32] {
 	return vgeo.NewXY(x, y)
+}
+
+// reporting a pair resolved must drop both vals from all later pairs, even
+// ones not yet reached in the same cell's chain.
+func TestGridResolvedPairsAreSkipped(t *testing.T) {
+	grid := newGrid()
+	for i := range 4 {
+		grid.InsertAt(xy(5, 5), int32(i))
+	}
+	var seen [][2]int32
+	grid.ForEach(func(l, r int32) bool {
+		seen = append(seen, [2]int32{l, r})
+		return len(seen) == 1 // resolve only the first pair encountered.
+	})
+	if len(seen) != 2 {
+		t.Fatalf("calls = %d, want 2", len(seen))
+	}
+	resolved := map[int32]bool{seen[0][0]: true, seen[0][1]: true}
+	if resolved[seen[1][0]] || resolved[seen[1][1]] {
+		t.Errorf("pair %v reuses a resolved val from %v", seen[1], seen[0])
+	}
+}
+
+// resolving a same-cell pair must also prevent those vals from reaching
+// cross-cell pairs later in the same pass.
+func TestGridResolvedPairsSkipCrossCellPairs(t *testing.T) {
+	grid := newGrid()
+	grid.InsertAt(xy(5, 5), 0)
+	grid.InsertAt(xy(6, 6), 1)  // same cell as val 0.
+	grid.InsertAt(xy(15, 5), 2) // right neighbor cell.
+	var seen [][2]int32
+	grid.ForEach(func(l, r int32) bool {
+		seen = append(seen, [2]int32{l, r})
+		return true
+	})
+	if len(seen) != 1 {
+		t.Fatalf("calls = %v, want 1 same-cell pair only", seen)
+	}
 }

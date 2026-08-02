@@ -65,16 +65,17 @@ func hitSuperballs(
 	for i := range ents {
 		grid.InsertAt(ents[i].XY, int32(i))
 	}
-	grid.ForEach(func(l, r int32) {
+	grid.ForEach(func(l, r int32) bool {
 		if !beep || !nearbox.HitsXY(ents[l].XY) {
-			ents[l].Hit(&ents[r], diameter)
-			return
+			return ents[l].Hit(&ents[r], diameter)
 		}
 		dx := ents[r].D.X - ents[l].D.X
 		dy := ents[r].D.Y - ents[l].D.Y
-		if ents[l].Hit(&ents[r], diameter) {
-			boing(dx, dy)
+		if !ents[l].Hit(&ents[r], diameter) {
+			return false
 		}
+		boing(dx, dy)
+		return true
 	})
 }
 
