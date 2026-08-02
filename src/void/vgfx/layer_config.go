@@ -101,6 +101,18 @@ func NewLayerConfig(capacity int) LayerConfig {
 	}
 }
 
+func (this *LayerConfig) Nearbox() vgeo.Box[float32] {
+	clipbox := this.Clip
+	w := clipbox.W() / 2
+	h := clipbox.H() / 2
+	return vgeo.NewBox(
+		clipbox.Min.X-w,
+		clipbox.Min.Y-h,
+		clipbox.Max.X+w,
+		clipbox.Max.Y+h,
+	)
+}
+
 // converts a layer delta to a physical delta.
 func (this *LayerConfig) LayerToPhyScale(xy vgeo.XY[float32]) vgeo.XY[float32] {
 	scale := this.ScaleOrDefault()

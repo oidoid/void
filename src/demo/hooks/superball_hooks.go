@@ -22,6 +22,7 @@ func UpdateSuperballs(
 	layer := gam.Layer(gfx.LayerSuperballs)
 	sprs := &layer.Sprs
 	clip := layer.Clip
+	nearbox := layer.Nearbox()
 	clip.Min.X -= diameter
 	clip.Min.Y -= diameter
 	tileW := float32(gam.LevelTileW())
@@ -31,9 +32,17 @@ func UpdateSuperballs(
 		lb.Min.X+tileW, lb.Min.Y+tileH, lb.Max.X-tileW, lb.Max.Y-tileH,
 	)
 	ents := vec.Vals()
-	moveSuperballs(ents, lvl, radius)
+	boing := gam.Boing
+	moveSuperballs(ents, gam.BeepSuperballs, boing, nearbox, lvl, radius)
 	if gam.HitSuperballs {
-		hitSuperballs(ents, &gam.SuperballGrid, diameter)
+		hitSuperballs(
+			ents,
+			&gam.SuperballGrid,
+			gam.BeepSuperballs,
+			boing,
+			nearbox,
+			diameter,
+		)
 	}
 	loop := vgame.Pause
 	// to-do: always collapse into either move or hit to avoid extra pass?
@@ -47,6 +56,9 @@ func UpdateSuperballs(
 func hitSuperballs(
 	ents []entities.BallEnt,
 	grid *vgrid.Grid,
+	beep bool,
+	boing func(float32, float32),
+	nearbox vgeo.Box[float32],
 	diameter float32,
 ) {
 	grid.Clear()
@@ -54,14 +66,35 @@ func hitSuperballs(
 		grid.InsertAt(ents[i].XY, int32(i))
 	}
 	grid.ForEach(func(l, r int32) {
-		ents[l].Hit(&ents[r], diameter)
+		if !beep || !nearbox.HitsXY(ents[l].XY) {
+			ents[l].Hit(&ents[r], diameter)
+			return
+		}
+		dx := ents[r].D.X - ents[l].D.X
+		dy := ents[r].D.Y - ents[l].D.Y
+		if ents[l].Hit(&ents[r], diameter) {
+			boing(dx, dy)
+		}
 	})
 }
 
 func moveSuperballs(
-	ents []entities.BallEnt, lvl vgeo.Box[float32], radius float32,
+	ents []entities.BallEnt,
+	beep bool,
+	boing func(float32, float32),
+	nearbox vgeo.Box[float32],
+	lvl vgeo.Box[float32],
+	radius float32,
 ) {
 	for i := range ents {
+		if !beep || !nearbox.HitsXY(ents[i].XY) {
+			ents[i].Move(lvl, radius)
+			continue
+		}
+		dx, dy := ents[i].D.X, ents[i].D.Y
 		ents[i].Move(lvl, radius)
+		if ents[i].D.X != dx || ents[i].D.Y != dy {
+			boing(dx, dy)
+		}
 	}
 }

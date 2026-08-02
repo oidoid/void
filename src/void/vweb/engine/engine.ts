@@ -20,6 +20,7 @@ import {
   utcMsOffset
 } from '../input/layout.ts'
 import {Renderer} from '../renderer/renderer.ts'
+import {beep, SFX} from '../sfx/sfx.ts'
 import {downloadScreenshot, initCanvas} from '../utils/canvas-util.ts'
 import {initBody, initMetaViewport} from '../utils/dom-util.ts'
 import {
@@ -72,6 +73,7 @@ export class Engine {
   #phyW: number = 0 // don't care if these init later.
   #phyH: number = 0
   #rafId: number = 0
+  #sfx: SFX = SFX()
   #updateTimeoutId: number = 0
   #registered: boolean = false
   #renderer: Renderer | undefined
@@ -155,6 +157,7 @@ export class Engine {
     this.#writeUpdate(this.#renderer, nowMillis)
     const updateStart = performance.now()
     const loop = this.#wasm.Update()
+    this.#playBeeps()
     this.#applyFullscreenRequest()
     this.#applyDrawAlwaysParam()
     if (loop !== LoopLoop) {
@@ -236,6 +239,27 @@ export class Engine {
         layerFlagsBlendModeMask) as LayerBlendMode,
       sprsPtr: view.getUint32(o + layerConfigSprsPtrOffset, true),
       sprCount: view.getUint32(o + layerConfigSprCountOffset, true)
+    }
+  }
+
+  #playBeeps(): void {
+    const count = this.#wasm.BeepCount()
+    if (count === 0) return
+    if (this.#sfx.ctx.state === 'suspended') void this.#sfx.ctx.resume()
+    const view = new DataView(
+      this.#wasm.memory.buffer,
+      this.#wasm.BeepPointer(),
+      count * 16
+    )
+    for (let i = 0; i < count; i++) {
+      const o = i * 16
+      beep(
+        this.#sfx,
+        view.getFloat32(o, true),
+        view.getFloat32(o + 4, true),
+        view.getFloat32(o + 8, true),
+        view.getFloat32(o + 12, true)
+      )
     }
   }
 

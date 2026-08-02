@@ -20,9 +20,11 @@ import (
 type Engine struct {
 	*vengine.Engine[*Engine]
 	// to-do: rename.
-	Balls         ventities.EntVec[*Engine, entities.BallEnt]
-	HitSuperballs bool
-	SuperballGrid vgrid.Grid
+	Balls          ventities.EntVec[*Engine, entities.BallEnt]
+	HitSuperballs  bool
+	BeepSuperballs bool
+	SuperballGrid  vgrid.Grid
+	LastBoingMs    float64
 }
 
 var Version string
@@ -36,6 +38,7 @@ func New() *Engine {
 			Font:  font,
 			Level: &levels.InitLevel,
 		}),
+		LastBoingMs: -math.MaxFloat64,
 	}
 	this.Layer(gfx.LayerTiles).Shader = vgfx.ShaderTiles
 	this.Layer(gfx.LayerTiles).ScaleMode = vgfx.LayerScaleModeAutoInt
@@ -76,6 +79,18 @@ func New() *Engine {
 	)
 	this.SuperballGrid = vgrid.New(lvl, diameter, 2*1024*1024)
 	return this
+}
+
+func (this *Engine) Boing(dx, dy float32) {
+	if !this.BeepSuperballs || this.NowMillis()-this.LastBoingMs < 40 {
+		return
+	}
+	this.LastBoingMs = this.NowMillis()
+	speed := float32(math.Hypot(float64(dx), float64(dy)))
+	hz := 100 * (0.5 + this.Random()) * min(max(speed/80, 2), 5)
+	this.Beep(vgame.Beep{
+		StartHz: hz, EndHz: hz * 0.9, DurationMs: 120,
+	})
 }
 
 // to-do: separate method for resizing cam or whatever.

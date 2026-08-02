@@ -1,6 +1,6 @@
 // ╭>°╮┬┌─╮╭─╮┬┌─╮
 // ╰──╰┴╯─╯╰─╰┴╯─╯
-package vengine
+package vengine // to-do: rename veng
 
 import (
 	"unsafe"
@@ -43,6 +43,8 @@ type Engine[Game vgame.Game] struct {
 	fullscreenRequest  FullscreenRequest
 	screenshotRequest  bool
 	contextLossRequest bool
+	beeps              [16]vgame.Beep
+	beepCount          uint32
 	updateInMillis     uint64
 	drawAlways         bool
 	tick               vgame.Tick
@@ -78,10 +80,19 @@ func New[Game vgame.Game](opts *EngineOpts) *Engine[Game] {
 	for i := range this.layers {
 		this.layers[i] = vgfx.NewLayerConfig(opts.MaxSprs)
 	}
+
 	return this
 }
 
 func (this *Engine[Game]) Random() float32 { return this.rnd.Float32() }
+
+func (this *Engine[Game]) Beep(beep vgame.Beep) {
+	if this.beepCount == uint32(len(this.beeps)) {
+		return
+	}
+	this.beeps[this.beepCount] = beep
+	this.beepCount++
+}
 
 func (this *Engine[Game]) RegisterEntUpdate(
 	vec interface{ Update(Game) vgame.Status },
@@ -180,6 +191,12 @@ func (this *Engine[Game]) FramePointer() uintptr {
 	return uintptr(unsafe.Pointer(&this.frame))
 }
 
+func (this *Engine[Game]) BeepPointer() uintptr {
+	return uintptr(unsafe.Pointer(&this.beeps[0]))
+}
+
+func (this *Engine[Game]) BeepCount() uint32 { return this.beepCount }
+
 func (this *Engine[Game]) Cam() *vgeo.XY[float32] { return &this.cam }
 func (this *Engine[Game]) CamX() float32          { return this.cam.X }
 func (this *Engine[Game]) CamY() float32          { return this.cam.Y }
@@ -257,6 +274,7 @@ func (this *Engine[Game]) AtlasCelsCount() uint32 {
 }
 
 func (this *Engine[Game]) BeginTick() vgame.Status {
+	this.beepCount = 0
 	this.in.Update(
 		this.frame.NowMillis,
 		&this.frame.InputPoll,

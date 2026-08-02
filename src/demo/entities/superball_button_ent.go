@@ -19,6 +19,7 @@ const (
 	SuperballActionAddSome
 	SuperballActionAddMany
 	SuperballActionHit
+	SuperballActionBeep
 )
 
 type SuperballButtonEnt struct {
@@ -47,6 +48,12 @@ func NewAddManySuperballButtonEnt() *SuperballButtonEnt {
 func NewHitSuperballButtonEnt() *SuperballButtonEnt {
 	return newSuperballButtonEnt(
 		"hit", SuperballActionHit, ventities.ButtonTypeToggle,
+	)
+}
+
+func NewBeepSuperballButtonEnt() *SuperballButtonEnt {
+	return newSuperballButtonEnt(
+		"beep", SuperballActionBeep, ventities.ButtonTypeToggle,
 	)
 }
 
@@ -96,6 +103,7 @@ func (this *SuperballButtonEnt) Update(
 	rnd func() float32,
 	ballRadius float32,
 	hit *bool,
+	beep *bool,
 ) vgame.Status {
 	loop := this.ButtonEnt.Update(in, sprs, layer, font)
 
@@ -108,6 +116,8 @@ func (this *SuperballButtonEnt) Update(
 	}
 	if this.Action == SuperballActionHit {
 		*hit = this.On
+	} else if this.Action == SuperballActionBeep {
+		*beep = this.On
 	}
 
 	if this.IsOffStart() {

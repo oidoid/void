@@ -17,6 +17,14 @@ func TestLayerConfigExportLayout(t *testing.T) {
 	}
 }
 
+func TestLayerConfigNearbox(t *testing.T) {
+	config := LayerConfig{Clip: vgeo.NewBox[float32](10, 20, 110, 80)}
+	want := vgeo.NewBox[float32](-40, -10, 160, 110)
+	if got := config.Nearbox(); got != want {
+		t.Fatalf("Nearbox() = %v, want %v", got, want)
+	}
+}
+
 func TestLayerConfigCoordTransformsApplyCam(t *testing.T) {
 	config := LayerConfig{Scale: 2}
 	cam := vgeo.NewXY[float32](10, 20)

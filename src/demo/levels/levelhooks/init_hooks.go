@@ -46,9 +46,12 @@ func InitInit(gam *engine.Engine) {
 	gam.RegisterEntUpdate(buttons)
 
 	// to-do: collapse with buttons^?
-	superballButtons := ventities.NewEntVec(hooks.UpdateSuperballButtons, 4)
+	superballButtons := ventities.NewEntVec(hooks.UpdateSuperballButtons, 5)
+	beepBtn := entities.NewBeepSuperballButtonEnt()
+	beepBtn.Anchor.Ref = fullscreenToggle
+	superballButtons.Add(beepBtn)
 	hitBtn := entities.NewHitSuperballButtonEnt()
-	hitBtn.Anchor.Ref = fullscreenToggle
+	hitBtn.Anchor.Ref = beepBtn
 	superballButtons.Add(hitBtn)
 	addManyBtn := entities.NewAddManySuperballButtonEnt()
 	addManyBtn.Anchor.Ref = hitBtn

@@ -1,6 +1,8 @@
 package vgame
 
 type Platform interface {
+	BeepPointer() uintptr
+	BeepCount() uint32
 	FramePointer() uintptr
 	LayerConfigsPointer() uintptr
 	Update() Status

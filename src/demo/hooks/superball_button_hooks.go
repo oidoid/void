@@ -50,6 +50,7 @@ func UpdateSuperballButtons(
 			rnd,
 			ballRadius,
 			&gam.HitSuperballs,
+			&gam.BeepSuperballs,
 		)
 	}
 	return loop

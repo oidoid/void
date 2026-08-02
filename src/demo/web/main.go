@@ -18,6 +18,12 @@ func FramePointer() uintptr {
 	return gam.FramePointer()
 }
 
+//export BeepPointer
+func BeepPointer() uintptr { return gam.BeepPointer() }
+
+//export BeepCount
+func BeepCount() uint32 { return gam.BeepCount() }
+
 //export FullscreenRequest
 func FullscreenRequest() int32 {
 	return gam.FullscreenRequest()

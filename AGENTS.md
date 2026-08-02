@@ -27,7 +27,7 @@ never run:
 
 ### Pitfalls
 
-- be deliberate when dereferencing in loops. they can be surprisingly slow.
+- be deliberate when dereferencing in loops. they can be surprisingly slow. eg, an `Engine` pointer is convenient but slow in a hotloop.
 - Go imports must be TinyGo compatible.
 - never import `syscall/js`; pass state via Wasm exports and imports.
 - use numeric millis not `time.Time` in Go. time comes from `Poll` via `Engine`; don't call `time.Now()`.
@@ -45,13 +45,16 @@ never run:
 - use right terms for left:
   - Aseprite: ase
   - configuration: config; never cfg
+  - context: ctx
   - error: err
   - for example: eg
   - high: hi
   - hit box: hitbox
   - hurt box: hurtbox
+  - initialize: init
   - level: lvl
   - low: lo
+  - near box: nearbox
   - milliseconds: millis
   - palette: pal
   - physical: phy

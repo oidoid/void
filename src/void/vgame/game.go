@@ -8,6 +8,7 @@ import (
 )
 
 type Game interface {
+	Beep(Beep)
 	Platform
 	DrawAlways() bool
 	RequestContextLoss()
