@@ -1,29 +1,3 @@
-import {
-  type Anim,
-  type Atlas,
-  animCels,
-  celMillis,
-  type Tag
-} from '../graphics/atlas.ts'
-import type {Block} from '../mem/pool.ts'
-import type {SpritePool} from '../mem/sprite-pool.ts'
-import {
-  type Box,
-  boxHits,
-  boxIntersect,
-  type WH,
-  type XY
-} from '../types/geo.ts'
-import type {Millis} from '../types/time.ts'
-import {mod} from '../utils/math.ts'
-import {isUILayer, Layer} from './layer.ts'
-
-/** must be a multiple of 4 (`UNSIGNED_INT`). */
-export const spriteBytes: number = 16
-/** granularity (0.015625) of sprite coords. */
-export const spriteEpsilon: number = 1 / 64
-export const spriteMaxWH: Readonly<WH> = {w: 4095, h: 4095}
-
 /**
  * the box is the drawn region. assume little endian.
  *

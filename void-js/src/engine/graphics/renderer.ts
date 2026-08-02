@@ -20,8 +20,6 @@ function GL2(canvas: HTMLCanvasElement, always: boolean): GL2 | undefined {
       // when canvas is known to draw next frame.
       ...(!debug?.render && {desynchronized: always})
     }) ?? undefined
-  if (!gl) console.debug('[render] no GL context')
-
   return gl
 }
 
