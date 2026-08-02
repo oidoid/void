@@ -169,12 +169,29 @@ func TestLayerConfigScaleDefault(t *testing.T) {
 }
 
 func TestLayerConfigPhyToLayerWH(t *testing.T) {
-	config := LayerConfig{Scale: 2}
-
-	got := config.PhyToLayerWHInt(vgeo.WH[uint16]{W: 101, H: 51})
-	want := vgeo.WH[uint16]{W: 51, H: 26}
-	if got != want {
-		t.Fatalf("PhyToLayerWHInt mismatch: got %v want %v", got, want)
+	tests := []struct {
+		name  string
+		scale float32
+		phy   vgeo.WH[uint16]
+		want  vgeo.WH[uint16]
+	}{
+		{
+			name: "half physical px", scale: 2,
+			phy:  vgeo.WH[uint16]{W: 101, H: 51},
+			want: vgeo.WH[uint16]{W: 51, H: 26},
+		},
+		{
+			name: "one third physical px", scale: 3,
+			phy:  vgeo.WH[uint16]{W: 1024, H: 640},
+			want: vgeo.WH[uint16]{W: 342, H: 214},
+		},
+	}
+	for _, test := range tests {
+		config := LayerConfig{Scale: test.scale}
+		got := config.PhyToLayerWHInt(test.phy)
+		if got != test.want {
+			t.Fatalf("%s: got %v want %v", test.name, got, test.want)
+		}
 	}
 }
 

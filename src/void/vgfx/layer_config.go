@@ -152,12 +152,19 @@ func (this *LayerConfig) LayerToPhy(xy vgeo.XY[float32]) vgeo.XY[float32] {
 	}
 }
 
-// converts a physical size to a rounded layer size.
+// converts a physical size to a ceil layer size.
 func (this *LayerConfig) PhyToLayerWHInt(wh vgeo.WH[uint16]) vgeo.WH[uint16] {
 	scale := this.ScaleOrDefault()
+	w := uint16(float32(wh.W) / scale)
+	h := uint16(float32(wh.H) / scale)
+	if float32(w)*scale < float32(wh.W) {
+		w++
+	}
+	if float32(h)*scale < float32(wh.H) {
+		h++
+	}
 	return vgeo.WH[uint16]{
-		W: uint16(float32(wh.W)/scale + 0.5),
-		H: uint16(float32(wh.H)/scale + 0.5),
+		W: w, H: h,
 	}
 }
 
