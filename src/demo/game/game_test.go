@@ -6,7 +6,9 @@ import (
 	"github.com/oidoid/void/src/demo/engine"
 	"github.com/oidoid/void/src/demo/entities"
 	"github.com/oidoid/void/src/demo/game"
+	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/vgeo"
+	"github.com/oidoid/void/src/void/vgfx"
 )
 
 const (
@@ -37,6 +39,9 @@ func BenchmarkGameUpdate_HitDraw(b *testing.B) {
 
 func newGame(camX, camY float32, superballCount int) *engine.Engine {
 	gam := game.New()
+	// pre-size the superballs sprite buffer so the benchmark measures
+	// steady-state draw performance rather than slice growth.
+	gam.Layer(gfx.LayerSuperballs).Sprs = make([]vgfx.Spr, 0, superballCount)
 	gam.CanvasPhy().W = benchCanvasSize
 	gam.CanvasPhy().H = benchCanvasSize
 	gam.Cam().X = camX

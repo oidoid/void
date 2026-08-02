@@ -13,8 +13,9 @@ bench_test := \
 go_test_filter = \
 	grep --color=always --extended --line-buffered '^--- FAIL: [^ ]+|$$'| \
 	sed --regexp-extended --unbuffered $(if $(value V),'','/^ok |\[no test files\]$$|PASS$$|^goos: |^goarch: |^pkg: |^cpu: /d')
-# `--gc=leaking` can significantly improve boot speed.
-tinygo_flags += $(go_tags) --ldflags="-X github.com/oidoid/void/src/demo/engine.Version=$(shell git describe --dirty)" --scheduler=none $(if $(value DEBUG),,$(tinygo_nodebug) --panic=trap) $(if $(value V),--print-allocs=.,)
+# precise GC lets the collector skip scanning pointer-free heap objects instead
+# of conservatively treating every word as a possible pointer.
+tinygo_flags += $(go_tags) --ldflags="-X github.com/oidoid/void/src/demo/engine.Version=$(shell git describe --dirty)" --scheduler=none --gc=precise $(if $(value DEBUG),,$(tinygo_nodebug) --panic=trap) $(if $(value V),--print-allocs=.,)
 # $(1) flags
 pack_demo = go run ./src/cmd/pack --out=dist/demo/ --tsconfig=src/demo/web/tsconfig.json $(1) src/demo/web/assets/index.html
 # $(1) flags

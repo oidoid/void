@@ -46,6 +46,7 @@ never run:
   - Aseprite: ase
   - configuration: config; never cfg
   - error: err
+  - for example: eg
   - high: hi
   - low: lo
   - milliseconds: millis
