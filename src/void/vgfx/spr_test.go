@@ -48,3 +48,28 @@ func TestSprPal(t *testing.T) {
 		t.Fatalf("Pal() = %d, want 0", got)
 	}
 }
+
+func TestSprZTop(t *testing.T) {
+	spr := Spr{flags: sprHiddenMask<<sprHiddenShift |
+		sprPalAnimMask<<sprPalAnimShift}
+
+	if spr.ZTop() {
+		t.Fatal("ZTop() = true, want false")
+	}
+
+	spr.SetZTop(true)
+	if !spr.ZTop() {
+		t.Fatal("ZTop() = false, want true")
+	}
+	if spr.flags&(sprHiddenMask<<sprHiddenShift|
+		sprPalAnimMask<<sprPalAnimShift) !=
+		sprHiddenMask<<sprHiddenShift|
+			sprPalAnimMask<<sprPalAnimShift {
+		t.Fatalf("SetZTop(true) changed unrelated flags: %b", spr.flags)
+	}
+
+	spr.SetZTop(false)
+	if spr.ZTop() {
+		t.Fatal("ZTop() = true, want false")
+	}
+}

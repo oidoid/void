@@ -69,15 +69,6 @@ export class Sprite implements Block, Box {
     this.#looper = looper
   }
 
-  above(sprite: Readonly<Sprite>): boolean {
-    const compare =
-      this.z === sprite.z
-        ? (this.zend ? this.y + this.h : this.y) -
-          (sprite.zend ? sprite.y + sprite.h : sprite.y)
-        : this.z - sprite.z
-    return compare > 0
-  }
-
   get angle(): number {
     const r4_a12 = this.#pool.view.getUint16(this.i + 13, true)
     return ((r4_a12 & 0xfff) * 360) / 4096
@@ -93,75 +84,6 @@ export class Sprite implements Block, Box {
     this.#pool.view.setUint16(this.i + 13, (r4_a12 & ~0xfff) | bits, true)
   }
 
-  /** test if render area overlaps box or sprite render area. */
-  clips(box: Readonly<XY & Partial<WH>>): boolean {
-    return boxHits(this, box)
-  }
-
-  /** like `clips()` but supports different world and UI layers. expensive. */
-  clipsZ(sprite: Readonly<Sprite>, cam: Readonly<XY>): boolean {
-    if (this.ui === sprite.ui) return this.clips(sprite)
-    const clipbox = {
-      x: sprite.x + (sprite.ui ? 1 : -1) * Math.floor(cam.x),
-      y: sprite.y + (sprite.ui ? 1 : -1) * Math.floor(cam.y),
-      w: sprite.w,
-      h: sprite.h
-    }
-    return boxHits(this, clipbox)
-  }
-
-
-  hit(box: Readonly<Box>): Box {
-    return boxIntersect(
-      this.hitbox ?? this,
-      box instanceof Sprite ? (box.hurtbox ?? box) : box
-    )
-  }
-
-  get hitbox(): Readonly<Box> | undefined {
-    const {hitbox} = this.anim
-    if (!hitbox) return undefined
-    return {
-      x: this.x + (this.flipX ? this.w - hitbox.w - hitbox.x : hitbox.x),
-      y: this.y + (this.flipY ? this.h - hitbox.h - hitbox.y : hitbox.y),
-      w: hitbox.w,
-      h: hitbox.h
-    }
-  }
-
-  /**
-   * use `clips()` to test only clipbox of this and box. hitbox and hurtbox
-   * default to clipbox.
-   */
-  hits(box: Readonly<XY | Box>): boolean {
-    const hurtbox = box instanceof Sprite ? (box.hurtbox ?? box) : box
-    return boxHits(this.hitbox ?? this, hurtbox)
-  }
-
-  /** like `hits()` but supports different world and UI layers. expensive. */
-  hitsZ(sprite: Readonly<Sprite>, cam: Readonly<XY>): boolean {
-    if (this.ui === sprite.ui) return this.hits(sprite)
-    const box = sprite.hurtbox ?? sprite
-    const hurtbox = {
-      x: box.x + (sprite.ui ? 1 : -1) * cam.x,
-      y: box.y + (sprite.ui ? 1 : -1) * cam.y,
-      w: box.w,
-      h: box.h
-    }
-    return boxHits(this.hitbox ?? this, hurtbox)
-  }
-
-  get hurtbox(): Readonly<Box> | undefined {
-    const {hurtbox} = this.anim
-    if (!hurtbox) return undefined
-    return {
-      x: this.x + (this.flipX ? this.w - hurtbox.w - hurtbox.x : hurtbox.x),
-      y: this.y + (this.flipY ? this.h - hurtbox.h - hurtbox.y : hurtbox.y),
-      w: hurtbox.w,
-      h: hurtbox.h
-    }
-  }
-
   /** true if animation has played once. */
   get looped(): boolean {
     // this comparison resets after the second loop since cel can only count to
@@ -175,33 +97,10 @@ export class Sprite implements Block, Box {
     return cel % (this.anim.cels * 2)
   }
 
-  get midClip(): XY {
-    return {x: this.x + this.w / 2, y: this.y + this.h / 2}
-  }
-
-  get midHit(): XY {
-    const box = this.hitbox ?? this
-    return {x: box.x + box.w / 2, y: box.y + box.h / 2}
-  }
-
-  get midHurt(): XY {
-    const box = this.hurtbox ?? this
-    return {x: box.x + box.w / 2, y: box.y + box.h / 2}
-  }
+  // clip, hit, hurt
 
   /** sets cel to animation start. */
   rewind(): void {
     this.cel = this.looperCel // setter truncates.
-  }
-
-  get zend(): boolean {
-    const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
-    return !!(sxyz_llll & 0x10)
-  }
-
-  /** z-order by top (default) or bottom of box. */
-  set zend(end: boolean) {
-    const sxyz_llll = this.#pool.view.getUint8(this.i + 6)
-    this.#pool.view.setUint8(this.i + 6, (sxyz_llll & ~0x10) | (-end & 0x10))
   }
 }

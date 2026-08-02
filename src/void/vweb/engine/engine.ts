@@ -174,6 +174,7 @@ export class Engine {
       const lx = config.camMode === layerCamModeFixed ? 0 : camX
       const ly = config.camMode === layerCamModeFixed ? 0 : camY
       if (config.shader === shaderTiles) {
+        this.#renderer.clearDepth()
         this.#renderer.drawTiles(
           lx,
           ly,
@@ -185,6 +186,7 @@ export class Engine {
           config.clipPhy
         )
       } else if (config.shader === shaderSprs && config.sprCount !== 0) {
+        this.#renderer.clearDepth()
         this.#renderer.drawLayer(
           buffer,
           config.sprsPtr,
@@ -199,6 +201,7 @@ export class Engine {
           config.clipPhy
         )
       } else if (config.shader === shaderOverlay) {
+        this.#renderer.clearDepth()
         this.#renderer.drawOverlay(config.blendMode)
       }
     }

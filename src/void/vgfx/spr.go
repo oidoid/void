@@ -13,8 +13,7 @@ type Spr struct {
 	vgeo.XY[float32]
 	AnimCel vatlas.AnimCel
 	Z       Z // to-do: bake into flags and expose setter?
-	// to-do: add zend.
-	_ [1]byte
+	_       [1]byte
 	vgeo.WH[uint16]
 	flags uint32
 }
@@ -32,6 +31,8 @@ const (
 	sprStretchShift        = 3
 	sprPalAnimMask  uint32 = 0xff
 	sprPalAnimShift        = 4
+	sprZTopMask     uint32 = 1
+	sprZTopShift           = 12
 )
 
 func (this *Spr) Anim() vatlas.AnimID {
@@ -114,4 +115,19 @@ func (this *Spr) Pal() vatlas.AnimID {
 func (this *Spr) SetPal(id vatlas.AnimID) {
 	this.flags = this.flags&^(sprPalAnimMask<<sprPalAnimShift) |
 		(uint32(id)&sprPalAnimMask)<<sprPalAnimShift
+}
+
+// whether depth order is anchored at the top of the spr clipbox or the
+// bottom (default). when off, sprs lower on the same layer are drawn in front.
+// requires layer to enable depth.
+func (this *Spr) ZTop() bool {
+	return this.flags>>sprZTopShift&sprZTopMask != 0
+}
+
+func (this *Spr) SetZTop(zTop bool) {
+	if zTop {
+		this.flags |= sprZTopMask << sprZTopShift
+	} else {
+		this.flags &^= sprZTopMask << sprZTopShift
+	}
 }

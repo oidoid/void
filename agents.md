@@ -37,7 +37,7 @@ never run:
 
 ## Style
 
-- avoid single-letter names except `k` for key, `v` for value, `w`/`h` for width and height, `x`/`y`/`z` for coords, `r`/`w` for reader / writer.
+- avoid single-letter names except `k` for key, `v` for value, `w`/`h` for width and height, `x`/`y`/`z` for coords, `r`/`w` for reader / writer, `r`/`l` for right/left.
 - prefer tabular unit tests for cases varying only input and output pairings.
 - prefer `err` for errors, never `e`.
 - prefer `bin` for byte arrays never `bytes`.
@@ -46,12 +46,16 @@ never run:
   - Aseprite: ase
   - configuration: config; never cfg
   - error: err
+  - high: hi
+  - low: lo
   - milliseconds: millis
   - palette: pal
-  - pixels: px
+  - physical: phy
+  - pixel: px or pxs
   - properties: props
   - sprite: spr
   - string: str
+  - value: v, val, or vals
 - sentences end with periods.
 - capitalize but skip sentence capitalization.
 - in English, prefer backticks around code snippets.

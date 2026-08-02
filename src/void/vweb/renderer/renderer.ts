@@ -105,10 +105,14 @@ export class Renderer {
   }
 
   clear(r: number, g: number, b: number, a: number): void {
-    const gl = this.#gl
-    gl.clearColor(r, g, b, a)
-    gl.clearDepth(1)
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+    this.#gl.clearColor(r, g, b, a)
+    this.#gl.clear(this.#gl.COLOR_BUFFER_BIT)
+  }
+
+  // layers are composited in draw order; depth is local to one layer.
+  clearDepth(): void {
+    this.#gl.clearDepth(1)
+    this.#gl.clear(this.#gl.DEPTH_BUFFER_BIT)
   }
 
   drawOverlay(blendMode: number): void {
