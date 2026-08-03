@@ -19,7 +19,7 @@ import {
   updateMsOffset,
   utcMsOffset
 } from '../input/layout.ts'
-import {Renderer} from '../renderer/renderer.ts'
+import {getWebGL2, Renderer} from '../renderer/renderer.ts'
 import {beep, SFX} from '../sfx/sfx.ts'
 import {downloadScreenshot, initCanvas} from '../utils/canvas-util.ts'
 import {initBody, initMetaViewport} from '../utils/dom-util.ts'
@@ -315,7 +315,7 @@ export class Engine {
     )
     const atlasImg = document.getElementById('atlas') as HTMLImageElement
     return new Renderer(
-      this.#canvas,
+      getWebGL2(this.#canvas, this.#wasm.Antialias() !== 0),
       this.#wasm.memory.buffer,
       this.#wasm.TilePointer(),
       this.#wasm.TileCount(),

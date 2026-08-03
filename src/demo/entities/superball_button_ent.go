@@ -114,9 +114,10 @@ func (this *SuperballButtonEnt) Update(
 			_ = superballs.Add(NewSuperballEnt(rnd, spawnXY))
 		}
 	}
-	if this.Action == SuperballActionHit {
+	switch this.Action {
+	case SuperballActionHit:
 		*hit = this.On
-	} else if this.Action == SuperballActionBeep {
+	case SuperballActionBeep:
 		*beep = this.On
 	}
 

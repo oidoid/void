@@ -47,15 +47,18 @@ type Engine[Game vgame.Game] struct {
 	beepCount          uint32
 	updateInMillis     uint64
 	drawAlways         bool
+	antialias          bool
 	tick               vgame.Tick
 }
 
 type EngineOpts struct {
-	Font    *vtext.Font
-	Level   *vlevels.Level
-	MaxSprs int
-	Seed1   uint64
-	Seed2   uint64
+	// enables WebGL antialiasing when the renderer is initialized.
+	Antialias bool
+	Font      *vtext.Font
+	Level     *vlevels.Level
+	MaxSprs   int
+	Seed1     uint64
+	Seed2     uint64
 }
 
 func New[Game vgame.Game](opts *EngineOpts) *Engine[Game] {
@@ -72,10 +75,11 @@ func New[Game vgame.Game](opts *EngineOpts) *Engine[Game] {
 		opts.Seed2 = rand.Uint64()
 	}
 	this := &Engine[Game]{
-		font:  opts.Font,
-		Level: opts.Level,
-		in:    vin.NewIn(),
-		rnd:   rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
+		font:      opts.Font,
+		Level:     opts.Level,
+		in:        vin.NewIn(),
+		rnd:       rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
+		antialias: opts.Antialias,
 	}
 	for i := range this.layers {
 		this.layers[i] = vgfx.NewLayerConfig(opts.MaxSprs)
@@ -180,8 +184,17 @@ func (this *Engine[Game]) SetDrawAlways(always bool) {
 
 func (this *Engine[Game]) DrawAlways() bool { return this.drawAlways }
 
+func (this *Engine[Game]) Antialias() bool { return this.antialias }
+
 func (this *Engine[Game]) DrawAlwaysFlag() int32 {
 	if this.drawAlways {
+		return 1
+	}
+	return 0
+}
+
+func (this *Engine[Game]) AntialiasFlag() int32 {
+	if this.antialias {
 		return 1
 	}
 	return 0

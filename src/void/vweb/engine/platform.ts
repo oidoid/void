@@ -13,6 +13,7 @@ export type Platform = {
   ScreenshotRequest(): number
   ContextLossRequest(): number
   DrawAlways(): number
+  Antialias(): number
   UpdateInMillisRequest(): bigint
   LayerConfigsPointer(): number
   Update(): Loop

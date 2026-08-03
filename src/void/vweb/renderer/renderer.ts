@@ -5,6 +5,39 @@ import {OverlayRenderer} from './overlay-renderer/overlay-renderer.ts'
 import {SprRenderer} from './spr-renderer/spr-renderer.ts'
 import {TileRenderer} from './tile-renderer/tile-renderer.ts'
 
+export function getWebGL2(
+  canvas: HTMLCanvasElement,
+  antialias: boolean
+): WebGL2RenderingContext {
+  const gl = canvas.getContext('webgl2', {
+    antialias,
+    powerPreference: 'low-power',
+    // avoid flicker caused by clearing the drawing buffer. see
+    // https://developer.chrome.com/blog/desynchronized/.
+    preserveDrawingBuffer: true
+    // disable desync in debug since it breaks FPS meter. only enable
+    // when canvas is known to draw next frame.
+    // to-do: ...(!debug?.render && {desynchronized: always})
+  })
+  if (gl) return gl
+
+  const ctx = canvas.getContext('2d')
+  if (ctx) {
+    ctx.fillStyle = 'orange'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    ctx.fillStyle = '#000'
+    ctx.font = 'bold 12px sans-serif'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(
+      'WebGL2 is not available in this browser.',
+      canvas.width / 2,
+      canvas.height / 2
+    )
+  }
+  throw Error('WebGL2 unavailable')
+}
+
 export class Renderer {
   readonly #gl: WebGL2RenderingContext
   readonly #loseContext: WEBGL_lose_context | null
@@ -13,7 +46,7 @@ export class Renderer {
   readonly #tiles: TileRenderer
 
   constructor(
-    canvas: HTMLCanvasElement,
+    gl: WebGL2RenderingContext,
     buffer: ArrayBuffer,
     tilePtr: number,
     tileCount: number,
@@ -28,20 +61,6 @@ export class Renderer {
     atlasCelsPerAnim: number,
     atlasImg: HTMLImageElement
   ) {
-    const gl = canvas.getContext('webgl2') // to-do: can't do this here and always need to use props.
-    if (!gl) {
-      const ctx2d = canvas.getContext('2d')!
-      ctx2d.fillStyle = 'orange'
-      ctx2d.fillRect(0, 0, canvas.width, canvas.height)
-      const msg = 'WebGL2 is not available in this browser.'
-      ctx2d.fillStyle = '#000'
-      ctx2d.font = `bold 12px sans-serif`
-      ctx2d.textAlign = 'center'
-      ctx2d.textBaseline = 'middle'
-      ctx2d.fillText(msg, canvas.width / 2, canvas.height / 2)
-      throw Error('webgl2 unavailable')
-    }
-
     gl.enable(gl.DEPTH_TEST)
     gl.depthFunc(gl.LEQUAL)
     gl.enable(gl.BLEND)

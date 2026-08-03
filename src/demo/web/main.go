@@ -44,6 +44,9 @@ func DrawAlways() int32 {
 	return gam.DrawAlwaysFlag()
 }
 
+//export Antialias
+func Antialias() int32 { return gam.AntialiasFlag() }
+
 //export UpdateInMillisRequest
 func UpdateInMillisRequest() uint64 {
 	return gam.UpdateInMillisRequest()
