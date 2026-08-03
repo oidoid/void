@@ -43,7 +43,7 @@ func UpdateSuperballButtons(
 			&layer.Sprs,
 			layer,
 			font,
-			&gam.Balls.Vec,
+			&gam.Superballs.Vec,
 			spawnCenter,
 			deltaMs,
 			lvl,

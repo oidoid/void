@@ -12,7 +12,7 @@ import (
 )
 
 func UpdateSuperballs(
-	vec *vvec.Vec[entities.BallEnt],
+	vec *vvec.Vec[entities.SuperballEnt],
 	gam *engine.Engine,
 ) vgame.Status {
 	anim := gam.Atlas.Anims[int(assets.SuperballDefault)]
@@ -54,7 +54,7 @@ func UpdateSuperballs(
 }
 
 func hitSuperballs(
-	ents []entities.BallEnt,
+	ents []entities.SuperballEnt,
 	grid *vgrid.Grid,
 	beep bool,
 	boing func(float32, float32),
@@ -80,7 +80,7 @@ func hitSuperballs(
 }
 
 func moveSuperballs(
-	ents []entities.BallEnt,
+	ents []entities.SuperballEnt,
 	beep bool,
 	boing func(float32, float32),
 	nearbox vgeo.Box[float32],

@@ -69,7 +69,7 @@ func TestGridSameCell(t *testing.T) {
 	}
 }
 
-// a ball is a point at the top-left corner of a box no larger than a cell,
+// a superball is a point at the top-left corner of a box no larger than a cell,
 // so only same, right, down, and down-right neighbors can ever truly
 // overlap; above-right and below-left never can, regardless of exact
 // position within the cell.

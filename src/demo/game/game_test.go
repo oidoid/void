@@ -48,11 +48,11 @@ func newGame(camX, camY float32, superballCount int) *engine.Engine {
 	gam.Cam().Y = camY
 	gam.Frame().DeltaMillis = 1000. / fps
 	for i := range superballCount {
-		ball := entities.NewBallEnt(
+		superball := entities.NewSuperballEnt(
 			gam.Random,
 			vgeo.NewXY(float32(i%benchCanvasSize), float32(i/benchCanvasSize)),
 		)
-		gam.Balls.Add(ball)
+		gam.Superballs.Add(superball)
 	}
 	return gam
 }

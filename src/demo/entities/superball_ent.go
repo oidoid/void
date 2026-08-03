@@ -9,8 +9,7 @@ import (
 	"github.com/oidoid/void/src/void/vgfx"
 )
 
-// to-do: rename.
-type BallEnt struct {
+type SuperballEnt struct {
 	vgeo.XY[float32]
 	Vel    vgeo.XY[float32]
 	Rot    float32
@@ -19,13 +18,13 @@ type BallEnt struct {
 
 const maxRotVel = .2
 
-func NewBallEnt(rnd func() float32, xy vgeo.XY[float32]) BallEnt {
+func NewSuperballEnt(rnd func() float32, xy vgeo.XY[float32]) SuperballEnt {
 	vel := vgeo.NewXY(rnd()*4-2, rnd()*4-2)
 	rotVel := (rnd()*2 - 1) * maxRotVel
-	return BallEnt{XY: xy, Vel: vel, RotVel: rotVel}
+	return SuperballEnt{XY: xy, Vel: vel, RotVel: rotVel}
 }
 
-func (this *BallEnt) Move(lvl vgeo.Box[float32], radius float32) {
+func (this *SuperballEnt) Move(lvl vgeo.Box[float32], radius float32) {
 	this.Rot += this.RotVel
 	diameter := radius * 2
 	this.X += this.Vel.X
@@ -47,7 +46,7 @@ func (this *BallEnt) Move(lvl vgeo.Box[float32], radius float32) {
 }
 
 // to-do: make all other ents follow Update / Draw / Hit() pattern.
-func (this *BallEnt) Draw(
+func (this *SuperballEnt) Draw(
 	sprs *[]vgfx.Spr,
 	clip vgeo.Box[float32],
 ) vgame.Status {
@@ -63,7 +62,7 @@ func (this *BallEnt) Draw(
 	return vgame.Pause // demo doesn't want superballs to require updates.
 }
 
-func (this *BallEnt) Hit(other *BallEnt, diameter float32) bool {
+func (this *SuperballEnt) Hit(other *SuperballEnt, diameter float32) bool {
 	dx := other.X - this.X
 	if dx < 0 {
 		dx = -dx

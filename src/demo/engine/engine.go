@@ -19,8 +19,7 @@ import (
 
 type Engine struct {
 	*vengine.Engine[*Engine]
-	// to-do: rename.
-	Balls          ventities.EntVec[*Engine, entities.BallEnt]
+	Superballs     ventities.EntVec[*Engine, entities.SuperballEnt]
 	HitSuperballs  bool
 	BeepSuperballs bool
 	SuperballGrid  vgrid.Grid

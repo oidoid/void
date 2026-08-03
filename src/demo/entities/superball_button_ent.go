@@ -96,22 +96,22 @@ func (this *SuperballButtonEnt) Update(
 	sprs *[]vgfx.Spr,
 	layer *vgfx.LayerConfig,
 	font *vtext.Font,
-	balls *vvec.Vec[BallEnt],
+	superballs *vvec.Vec[SuperballEnt],
 	spawnCenter vgeo.XY[float32],
 	deltaMs float64,
 	lvl vgeo.Box[float32],
 	rnd func() float32,
-	ballRadius float32,
+	superballRadius float32,
 	hit *bool,
 	beep *bool,
 ) vgame.Status {
 	loop := this.ButtonEnt.Update(in, sprs, layer, font)
 
 	if this.Action == SuperballActionAddSome && this.On {
-		spawnXY := vgeo.NewXY(spawnCenter.X-ballRadius, spawnCenter.Y-ballRadius)
+		spawnXY := vgeo.NewXY(spawnCenter.X-superballRadius, spawnCenter.Y-superballRadius)
 		n := min(4096, int(60_000*(deltaMs/1000)))
 		for range n {
-			_ = balls.Add(NewBallEnt(rnd, spawnXY))
+			_ = superballs.Add(NewSuperballEnt(rnd, spawnXY))
 		}
 	}
 	if this.Action == SuperballActionHit {
@@ -123,13 +123,13 @@ func (this *SuperballButtonEnt) Update(
 	if this.IsOffStart() {
 		switch this.Action {
 		case SuperballActionClear:
-			balls.Clear()
+			superballs.Clear()
 		case SuperballActionAddMany:
-			w := lvl.Max.X - lvl.Min.X - ballRadius*2
-			h := lvl.Max.Y - lvl.Min.Y - ballRadius*2
+			w := lvl.Max.X - lvl.Min.X - superballRadius*2
+			h := lvl.Max.Y - lvl.Min.Y - superballRadius*2
 			for range 1_000_000 {
 				xy := vgeo.NewXY(lvl.Min.X+rnd()*w, lvl.Min.Y+rnd()*h)
-				_ = balls.Add(NewBallEnt(rnd, xy))
+				_ = superballs.Add(NewSuperballEnt(rnd, xy))
 			}
 		}
 	}

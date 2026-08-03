@@ -11,8 +11,8 @@ import (
 func New() *engine.Engine {
 	this := engine.New()
 	this.In().MapDefaults()
-	this.Balls = *ventities.NewEntVec(hooks.UpdateSuperballs)
-	this.RegisterEntUpdate(&this.Balls)
+	this.Superballs = *ventities.NewEntVec(hooks.UpdateSuperballs)
+	this.RegisterEntUpdate(&this.Superballs)
 	this.Texts = *ventities.NewEntVec(vhooks.UpdateTexts[*engine.Engine])
 	this.RegisterEntUpdate(&this.Texts)
 	levelhooks.InitInit(this)

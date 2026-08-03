@@ -13,7 +13,7 @@ func UpdateEntStatuses(
 	gam *engine.Engine,
 ) vgame.Status {
 	font := gam.Font()
-	count := gam.Balls.Len()
+	count := gam.Superballs.Len()
 	sprCount := len(gam.Layer(gfx.LayerSuperballs).Sprs) // to-do: prior frame aggregate count.
 	ents := vec.Vals()
 	loop := vgame.Pause
