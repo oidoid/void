@@ -18,6 +18,9 @@ const highp uint sprHiddenMask = 1u;
 const highp uint sprHiddenShift = 0u;
 const highp uint sprZTopMask = 1u;
 const highp uint sprZTopShift = 12u;
+const highp uint sprRotMask = 0xfffu;
+const highp uint sprRotShift = 13u;
+const highp float tau = 6.283185307179586;
 const highp uint sprWHSource = 0u;
 const highp uint sprSublayerMask = 0xfu;
 const highp float sprDepthYRanks = 4096.;
@@ -28,7 +31,7 @@ layout(location=0) in highp vec2 aXY; // spr origin.
 layout(location=1) in highp uint aAnimCel; // hi 12 bits = AnimID, lo 4 bits = Cel.
 layout(location=2) in highp uint aZ;
 layout(location=3) in highp uvec2 aWH; // destination size; zero uses source cel size.
-layout(location=4) in highp uint aFlags; // bit 0 = Hidden; bits 1-3 = FlipX, FlipY, Stretch; bit 12 = ZTop.
+layout(location=4) in highp uint aFlags;
 
 out highp vec2 vTexUV; // local pixel position within destination box.
 flat out highp vec2 vDstWH;
@@ -60,11 +63,21 @@ void main() {
 
   highp vec2 corner = corners[gl_VertexID];
   highp vec2 originPx = aXY * uLayerScale;
-  highp vec2 sizePx = corner * wh * uLayerScale;
   highp vec2 camPx = floor(uCamXY / uLayerModulo) * uLayerModulo;
-  highp vec2 px = uRenderMode == layerRenderModeInt
-    ? floor(originPx / uLayerModulo) * uLayerModulo + sizePx + uLayerOffsetPhy - camPx
-    : originPx + sizePx + uLayerOffsetPhy - uCamXY;
+  highp vec2 originScreenPx = uRenderMode == layerRenderModeInt
+    ? floor(originPx / uLayerModulo) * uLayerModulo + uLayerOffsetPhy - camPx
+    : originPx + uLayerOffsetPhy - uCamXY;
+  highp vec2 centerPx = wh * uLayerScale * .5;
+  highp vec2 localPx = corner * wh * uLayerScale - centerPx;
+  highp float rot = float(
+    aFlags >> sprRotShift & sprRotMask
+  ) * tau / 4096.;
+  highp float sinRot = sin(rot);
+  highp float cosRot = cos(rot);
+  highp vec2 px = originScreenPx + centerPx + vec2(
+    cosRot * localPx.x + sinRot * localPx.y,
+    -sinRot * localPx.x + cosRot * localPx.y
+  );
   highp vec2 ndc = px / vec2(uResolution) * 2. - 1.;
   // layer draw order is handled by clearing depth between layer draws. within
   // this layer, pack the 4-bit sublayer and a 12-bit screen-Y anchor rank.

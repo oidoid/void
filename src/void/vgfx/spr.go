@@ -33,6 +33,9 @@ const (
 	sprPalAnimShift        = 4
 	sprZTopMask     uint32 = 1
 	sprZTopShift           = 12
+	sprRotMask      uint32 = 0xfff
+	sprRotShift            = 13
+	sprRotRadians          = float32(2 * 3.141592653589793 / 4096)
 )
 
 // to-do: rename Tag.
@@ -131,4 +134,19 @@ func (this *Spr) SetZTop(zTop bool) {
 	} else {
 		this.flags &^= sprZTopMask << sprZTopShift
 	}
+}
+
+func (this *Spr) Rot() float32 {
+	return float32(this.flags>>sprRotShift&sprRotMask) * sprRotRadians
+}
+
+func (this *Spr) SetRot(rot float32) {
+	steps := rot / sprRotRadians
+	if steps < 0 {
+		steps -= .5
+	} else {
+		steps += .5
+	}
+	this.flags = this.flags&^(sprRotMask<<sprRotShift) |
+		(uint32(int32(steps))&sprRotMask)<<sprRotShift
 }

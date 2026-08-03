@@ -69,8 +69,8 @@ func hitSuperballs(
 		if !beep || !nearbox.HitsXY(ents[l].XY) {
 			return ents[l].Hit(&ents[r], diameter)
 		}
-		dx := ents[r].D.X - ents[l].D.X
-		dy := ents[r].D.Y - ents[l].D.Y
+		dx := ents[r].Vel.X - ents[l].Vel.X
+		dy := ents[r].Vel.Y - ents[l].Vel.Y
 		if !ents[l].Hit(&ents[r], diameter) {
 			return false
 		}
@@ -92,9 +92,9 @@ func moveSuperballs(
 			ents[i].Move(lvl, radius)
 			continue
 		}
-		dx, dy := ents[i].D.X, ents[i].D.Y
+		dx, dy := ents[i].Vel.X, ents[i].Vel.Y
 		ents[i].Move(lvl, radius)
-		if ents[i].D.X != dx || ents[i].D.Y != dy {
+		if ents[i].Vel.X != dx || ents[i].Vel.Y != dy {
 			boing(dx, dy)
 		}
 	}

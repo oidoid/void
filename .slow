@@ -1,2 +1,2 @@
-BenchmarkGameUpdate_Draw 11.700
-BenchmarkGameUpdate_HitDraw 14.260
+BenchmarkGameUpdate_Draw 20.140
+BenchmarkGameUpdate_HitDraw 27.670

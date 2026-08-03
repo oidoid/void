@@ -73,3 +73,18 @@ func TestSprZTop(t *testing.T) {
 		t.Fatal("ZTop() = true, want false")
 	}
 }
+
+func TestSprRot(t *testing.T) {
+	spr := Spr{flags: sprHiddenMask << sprHiddenShift}
+	spr.SetRot(sprRotRadians * 1024)
+	if got, want := spr.Rot(), sprRotRadians*1024; got != want {
+		t.Fatalf("Rot() = %f, want %f", got, want)
+	}
+	if spr.flags&sprHiddenMask<<sprHiddenShift == 0 {
+		t.Fatal("SetRot() cleared Hidden")
+	}
+	spr.SetRot(-sprRotRadians)
+	if got, want := spr.Rot(), sprRotRadians*4095; got != want {
+		t.Fatalf("Rot() = %f, want %f", got, want)
+	}
+}

@@ -55,14 +55,17 @@ never run:
   - initialize: init
   - level: lvl
   - low: lo
-  - near box: nearbox
+  - memory: mem
   - millisecond(s): milli(s)
+  - near box: nearbox
   - palette: pal
   - physical: phy
   - pixel(s): px(s)
   - property / properties: prop(s)
+  - random: rnd
   - render box: clipbox
   - render: draw
+  - rotation: rot
   - speed: vel
   - sprite: spr
   - string: str
