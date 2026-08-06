@@ -58,6 +58,7 @@ import {
   shaderSprs,
   shaderTiles
 } from './layout.ts'
+import {PixelRatioObserver} from './pixel-ratio-observer.ts'
 import {LoopLoop, type Platform} from './platform.ts'
 import {WASI} from './wasi.ts'
 
@@ -77,6 +78,7 @@ export class Engine {
   #updateTimeoutId: number = 0
   #registered: boolean = false
   #renderer: Renderer | undefined
+  readonly #pxRatioObserver: PixelRatioObserver = new PixelRatioObserver()
   readonly #resizeObserver: ResizeObserver = new ResizeObserver(
     this.#onResize.bind(this)
   )
@@ -120,6 +122,7 @@ export class Engine {
     canvas.addEventListener('webglcontextlost', this.#onCtxLost)
     canvas.addEventListener('webglcontextrestored', this.#onCtxRestored)
     this.#renderer = this.#newRenderer()
+    this.#pxRatioObserver.onChange = () => this.#requestUpdate()
   }
 
   register(): void {
@@ -133,6 +136,7 @@ export class Engine {
     this.#resizeObserver.observe(this.#canvas.parentElement!, {
       box: 'device-pixel-content-box'
     })
+    this.#pxRatioObserver.register('add')
     this.#registered = true
   }
 
