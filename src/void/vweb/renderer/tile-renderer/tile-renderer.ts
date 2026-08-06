@@ -21,7 +21,6 @@ export class TileRenderer {
     const uResolution = gl.getUniformLocation(pgm, 'uResolution')!
     const uCamXY = gl.getUniformLocation(pgm, 'uCamXY')!
     const uLayerScale = gl.getUniformLocation(pgm, 'uLayerScale')!
-    const uLayerOffsetPhy = gl.getUniformLocation(pgm, 'uLayerOffsetPhy')!
     const uLayerModulo = gl.getUniformLocation(pgm, 'uLayerModulo')!
     const uRenderMode = gl.getUniformLocation(pgm, 'uRenderMode')!
     const uNowMillis = gl.getUniformLocation(pgm, 'uNowMillis')!
@@ -105,7 +104,6 @@ export class TileRenderer {
       uResolution,
       uCamXY,
       uLayerScale,
-      uLayerOffsetPhy,
       uLayerModulo,
       uRenderMode,
       uNowMillis,
@@ -121,7 +119,6 @@ export class TileRenderer {
   readonly #uResolution: WebGLUniformLocation
   readonly #uCamXY: WebGLUniformLocation
   readonly #uLayerScale: WebGLUniformLocation
-  readonly #uLayerOffsetPhy: WebGLUniformLocation
   readonly #uLayerModulo: WebGLUniformLocation
   readonly #uRenderMode: WebGLUniformLocation
   readonly #uNowMillis: WebGLUniformLocation
@@ -136,7 +133,6 @@ export class TileRenderer {
     uResolution: WebGLUniformLocation,
     uCamXY: WebGLUniformLocation,
     uLayerScale: WebGLUniformLocation,
-    uLayerOffsetPhy: WebGLUniformLocation,
     uLayerModulo: WebGLUniformLocation,
     uRenderMode: WebGLUniformLocation,
     uNowMillis: WebGLUniformLocation,
@@ -150,7 +146,6 @@ export class TileRenderer {
     this.#uResolution = uResolution
     this.#uCamXY = uCamXY
     this.#uLayerScale = uLayerScale
-    this.#uLayerOffsetPhy = uLayerOffsetPhy
     this.#uLayerModulo = uLayerModulo
     this.#uRenderMode = uRenderMode
     this.#uNowMillis = uNowMillis
@@ -174,23 +169,19 @@ export class TileRenderer {
     camX: number,
     camY: number,
     layerScale: number,
-    clipPhy: {x: number; y: number; w: number; h: number},
     layerModulo: number,
-    renderMode: number
+    renderMode: number,
+    resolutionW: number,
+    resolutionH: number
   ): void {
     const gl = this.#gl
     gl.useProgram(this.#pgm)
     gl.uniform1f(this.#uNowMillis, nowMillis)
     gl.uniform2f(this.#uCamXY, camX, camY)
     gl.uniform1f(this.#uLayerScale, layerScale)
-    gl.uniform2f(this.#uLayerOffsetPhy, clipPhy.x, clipPhy.y)
     gl.uniform1f(this.#uLayerModulo, layerModulo)
     gl.uniform1i(this.#uRenderMode, renderMode)
-    gl.uniform2i(
-      this.#uResolution,
-      gl.drawingBufferWidth,
-      gl.drawingBufferHeight
-    )
+    gl.uniform2i(this.#uResolution, resolutionW, resolutionH)
     gl.activeTexture(gl.TEXTURE0)
     gl.bindTexture(gl.TEXTURE_2D, this.#tilesTex)
     gl.activeTexture(gl.TEXTURE1)

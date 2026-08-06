@@ -3,7 +3,6 @@ export const tileVert: string = `#version 300 es
 uniform highp ivec2 uResolution;
 uniform highp vec2 uCamXY;
 uniform highp float uLayerScale;
-uniform highp vec2 uLayerOffsetPhy;
 uniform highp float uLayerModulo;
 uniform mediump int uRenderMode;
 uniform highp vec4 uLevel; // xywh.
@@ -29,8 +28,8 @@ void main() {
   highp vec2 sizePx = uv * uLevel.zw * uLayerScale;
   highp vec2 camPx = floor(uCamXY / uLayerModulo) * uLayerModulo;
   highp vec2 px = uRenderMode == renderModeInt
-    ? floor(originPx / uLayerModulo) * uLayerModulo + sizePx + uLayerOffsetPhy - camPx
-    : originPx + sizePx + uLayerOffsetPhy - uCamXY;
+    ? floor(originPx / uLayerModulo) * uLayerModulo + sizePx - camPx
+    : originPx + sizePx - uCamXY;
   highp vec2 ndc = px / vec2(uResolution) * 2. - 1.;
   ndc.y = -ndc.y;
   gl_Position = vec4(ndc, 1., 1.);

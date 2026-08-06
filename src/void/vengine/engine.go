@@ -1,6 +1,6 @@
 // ╭>°╮┬┌─╮╭─╮┬┌─╮
 // ╰──╰┴╯─╯╰─╰┴╯─╯
-package vengine // to-do: rename veng
+package vengine
 
 import (
 	"unsafe"
@@ -25,6 +25,7 @@ const (
 	FullscreenRequestExit
 )
 
+// to-do: rename Eng.
 type Engine[Game vgame.Game] struct {
 	Level              *vlevels.Level
 	Router             vlevels.Router[Game]
@@ -351,7 +352,8 @@ func (this *Engine[Game]) updateLayerConfigExport() {
 		if len(sprs) != 0 {
 			sprsPtr = uint32(uintptr(unsafe.Pointer(unsafe.SliceData(sprs))))
 		}
-		flags := uint8(layer.BlendMode) << vgfx.LayerFlagsBlendModeShift
+		flags := (uint8(layer.BlendMode) & vgfx.LayerFlagsBlendModeMask) <<
+			vgfx.LayerFlagsBlendModeShift
 		if layer.Depth {
 			flags |= vgfx.LayerFlagsDepthFlag << vgfx.LayerFlagsDepthShift
 		}

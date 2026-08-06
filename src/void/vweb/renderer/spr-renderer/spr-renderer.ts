@@ -21,7 +21,6 @@ export class SprRenderer {
     const uResolution = gl.getUniformLocation(pgm, 'uResolution')!
     const uCamXY = gl.getUniformLocation(pgm, 'uCamXY')!
     const uLayerScale = gl.getUniformLocation(pgm, 'uLayerScale')!
-    const uLayerOffsetPhy = gl.getUniformLocation(pgm, 'uLayerOffsetPhy')!
     const uLayerModulo = gl.getUniformLocation(pgm, 'uLayerModulo')!
     const uRenderMode = gl.getUniformLocation(pgm, 'uRenderMode')!
     const uNowMillis = gl.getUniformLocation(pgm, 'uNowMillis')!
@@ -121,7 +120,6 @@ export class SprRenderer {
       uResolution,
       uCamXY,
       uLayerScale,
-      uLayerOffsetPhy,
       uLayerModulo,
       uRenderMode,
       uNowMillis,
@@ -138,7 +136,6 @@ export class SprRenderer {
   readonly #uResolution: WebGLUniformLocation
   readonly #uCamXY: WebGLUniformLocation
   readonly #uLayerScale: WebGLUniformLocation
-  readonly #uLayerOffsetPhy: WebGLUniformLocation
   readonly #uLayerModulo: WebGLUniformLocation
   readonly #uRenderMode: WebGLUniformLocation
   readonly #uNowMillis: WebGLUniformLocation
@@ -154,7 +151,6 @@ export class SprRenderer {
     uResolution: WebGLUniformLocation,
     uCamXY: WebGLUniformLocation,
     uLayerScale: WebGLUniformLocation,
-    uLayerOffsetPhy: WebGLUniformLocation,
     uLayerModulo: WebGLUniformLocation,
     uRenderMode: WebGLUniformLocation,
     uNowMillis: WebGLUniformLocation,
@@ -169,7 +165,6 @@ export class SprRenderer {
     this.#uResolution = uResolution
     this.#uCamXY = uCamXY
     this.#uLayerScale = uLayerScale
-    this.#uLayerOffsetPhy = uLayerOffsetPhy
     this.#uLayerModulo = uLayerModulo
     this.#uRenderMode = uRenderMode
     this.#uNowMillis = uNowMillis
@@ -197,10 +192,11 @@ export class SprRenderer {
     camX: number,
     camY: number,
     layerScale: number,
-    clipPhy: {x: number; y: number; w: number; h: number},
     layerModulo: number,
     renderMode: number,
-    blendMode: number
+    blendMode: number,
+    resolutionW: number,
+    resolutionH: number
   ): void {
     if (!count) return
     const gl = this.#gl
@@ -208,15 +204,10 @@ export class SprRenderer {
     gl.uniform1f(this.#uNowMillis, nowMillis)
     gl.uniform2f(this.#uCamXY, camX, camY)
     gl.uniform1f(this.#uLayerScale, layerScale)
-    gl.uniform2f(this.#uLayerOffsetPhy, clipPhy.x, clipPhy.y)
     gl.uniform1f(this.#uLayerModulo, layerModulo)
     gl.uniform1i(this.#uRenderMode, renderMode)
     gl.uniform1i(this.#uBlendMode, blendMode)
-    gl.uniform2i(
-      this.#uResolution,
-      gl.drawingBufferWidth,
-      gl.drawingBufferHeight
-    )
+    gl.uniform2i(this.#uResolution, resolutionW, resolutionH)
 
     gl.activeTexture(gl.TEXTURE0)
     gl.bindTexture(gl.TEXTURE_2D, this.#atlasCelsTex)

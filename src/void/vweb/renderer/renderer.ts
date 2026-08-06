@@ -1,6 +1,9 @@
 const layerBlendModeMultiply = 1
 const layerBlendModeReplace = 2
+const layerRenderModeFloat = 1
 
+import type {XYWH} from '../geo/box.ts'
+import {ClipRenderer} from './clip-renderer/clip-renderer.ts'
 import {OverlayRenderer} from './overlay-renderer/overlay-renderer.ts'
 import {SprRenderer} from './spr-renderer/spr-renderer.ts'
 import {TileRenderer} from './tile-renderer/tile-renderer.ts'
@@ -42,6 +45,7 @@ export class Renderer {
   readonly #gl: WebGL2RenderingContext
   readonly #loseContext: WEBGL_lose_context | null
   readonly #overlay: OverlayRenderer
+  readonly #clip: ClipRenderer
   readonly #sprs: SprRenderer
   readonly #tiles: TileRenderer
 
@@ -69,6 +73,7 @@ export class Renderer {
     const tiles = new Uint16Array(buffer, tilePtr, tileCount)
     this.#loseContext = gl.getExtension('WEBGL_lose_context')
     this.#gl = gl
+    this.#clip = ClipRenderer.new(gl)
     this.#overlay = OverlayRenderer.new(gl)
     this.#sprs = SprRenderer.new(
       gl,
@@ -110,6 +115,7 @@ export class Renderer {
   dispose(): void {
     if (this.#gl.isContextLost()) return
     this.#overlay.dispose()
+    this.#clip.dispose()
     this.#sprs.dispose()
     this.#tiles.dispose()
   }
@@ -135,10 +141,9 @@ export class Renderer {
   }
 
   drawOverlay(blendMode: number): void {
-    // no scissor: overlay applies full-screen.
-    const clip = this.#beginLayer(false, blendMode, {x: 0, y: 0, w: 0, h: 0})
+    this.#beginLayer(false, blendMode)
     this.#overlay.draw()
-    this.#endLayer(false, blendMode, clip)
+    this.#endLayer(false, blendMode)
   }
 
   drawTiles(
@@ -150,19 +155,36 @@ export class Renderer {
     renderMode: number,
     blendMode: number,
     depth: boolean,
-    clipPhy: {x: number; y: number; w: number; h: number}
+    clipPhy: Readonly<XYWH>
   ): void {
-    const clip = this.#beginLayer(depth, blendMode, clipPhy)
+    const clipTarget = this.#clip.begin(layerScale, blendMode, depth, clipPhy)
+    if (clipTarget) {
+      // clip rasterization replaces modulo snapping.
+      this.#tiles.draw(
+        nowMillis,
+        camX / layerScale,
+        camY / layerScale,
+        1,
+        1,
+        layerRenderModeFloat,
+        clipTarget.w,
+        clipTarget.h
+      )
+      this.#clip.end(clipTarget, blendMode)
+      return
+    }
+    this.#beginLayer(depth, blendMode)
     this.#tiles.draw(
       nowMillis,
       camX,
       camY,
       layerScale,
-      clipPhy,
       layerModulo,
-      renderMode
+      renderMode,
+      this.phyW,
+      this.phyH
     )
-    this.#endLayer(depth, blendMode, clip)
+    this.#endLayer(depth, blendMode)
   }
 
   drawLayer(
@@ -177,9 +199,29 @@ export class Renderer {
     renderMode: number,
     blendMode: number,
     depth: boolean,
-    clipPhy: {x: number; y: number; w: number; h: number}
+    clipPhy: Readonly<XYWH>
   ): void {
-    const clip = this.#beginLayer(depth, blendMode, clipPhy)
+    const clipTarget = this.#clip.begin(layerScale, blendMode, depth, clipPhy)
+    if (clipTarget) {
+      // clip rasterization replaces modulo snapping.
+      this.#sprs.draw(
+        buffer,
+        sprPtr,
+        sprCount,
+        nowMillis,
+        camX / layerScale,
+        camY / layerScale,
+        1,
+        1,
+        layerRenderModeFloat,
+        blendMode,
+        clipTarget.w,
+        clipTarget.h
+      )
+      this.#clip.end(clipTarget, blendMode)
+      return
+    }
+    this.#beginLayer(depth, blendMode)
     this.#sprs.draw(
       buffer,
       sprPtr,
@@ -188,45 +230,40 @@ export class Renderer {
       camX,
       camY,
       layerScale,
-      clipPhy,
       layerModulo,
       renderMode,
-      blendMode
+      blendMode,
+      this.phyW,
+      this.phyH
     )
-    this.#endLayer(depth, blendMode, clip)
+    this.#endLayer(depth, blendMode)
   }
 
-  #beginLayer(
-    depth: boolean,
-    blendMode: number,
-    clipPhy: {x: number; y: number; w: number; h: number}
-  ): boolean {
-    const clip = clipPhy.w !== 0 && clipPhy.h !== 0
-    if (clip) {
-      this.#gl.enable(this.#gl.SCISSOR_TEST)
-      this.#gl.scissor(
-        clipPhy.x,
-        this.phyH - clipPhy.y - clipPhy.h,
-        clipPhy.w,
-        clipPhy.h
-      )
-    }
+  #beginLayer(depth: boolean, blendMode: number): void {
+    this.#setSourceBlend(blendMode)
+    this.#setDepth(depth)
+  }
+
+  #setSourceBlend(blendMode: number): void {
     if (blendMode === layerBlendModeMultiply)
       this.#gl.blendFunc(this.#gl.DST_COLOR, this.#gl.ZERO)
     else if (blendMode === layerBlendModeReplace)
       this.#gl.blendFunc(this.#gl.ONE, this.#gl.ZERO)
-    if (!depth) this.#gl.disable(this.#gl.DEPTH_TEST)
-    return clip
+    else this.#gl.blendFunc(this.#gl.SRC_ALPHA, this.#gl.ONE_MINUS_SRC_ALPHA)
   }
 
-  #endLayer(depth: boolean, blendMode: number, clip: boolean): void {
+  #setDepth(depth: boolean): void {
+    if (depth) this.#gl.enable(this.#gl.DEPTH_TEST)
+    else this.#gl.disable(this.#gl.DEPTH_TEST)
+  }
+
+  #endLayer(depth: boolean, blendMode: number): void {
     if (
       blendMode === layerBlendModeMultiply ||
       blendMode === layerBlendModeReplace
     )
-      this.#gl.blendFunc(this.#gl.SRC_ALPHA, this.#gl.ONE_MINUS_SRC_ALPHA)
+      this.#setSourceBlend(0)
     if (!depth) this.#gl.enable(this.#gl.DEPTH_TEST)
-    if (clip) this.#gl.disable(this.#gl.SCISSOR_TEST)
   }
 
   // https://webgl2fundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html

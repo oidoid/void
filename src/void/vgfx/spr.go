@@ -7,6 +7,7 @@ import (
 	"github.com/oidoid/void/src/void/vgeo"
 )
 
+// to-do: how much do we care about sprite size with culling?
 // to-do: rename Spr or Bmp or Anim. Anim is better aligned to parsing but Spr
 // is a better fit for games.
 type Spr struct {

@@ -38,7 +38,7 @@ const (
 	LayerFlagsDepthFlag            = uint8(0x1)
 	LayerFlagsDepthMask      uint8 = 0x1
 	LayerFlagsBlendModeShift       = uint8(1)
-	LayerFlagsBlendModeMask  uint8 = 0x7f
+	LayerFlagsBlendModeMask  uint8 = 0x3
 )
 
 type LayerScaleMode uint8

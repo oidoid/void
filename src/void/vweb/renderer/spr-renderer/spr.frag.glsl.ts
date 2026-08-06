@@ -1,4 +1,5 @@
 export const sprFrag: string = `#version 300 es
+precision highp float;
 
 uniform highp sampler2D uSprsheet;
 uniform highp usampler2D uAtlasCels;

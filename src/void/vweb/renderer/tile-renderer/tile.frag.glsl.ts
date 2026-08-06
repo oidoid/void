@@ -1,4 +1,5 @@
 export const tileFrag: string = `#version 300 es
+precision highp float;
 
 uniform highp usampler2D uTiles;
 uniform highp usampler2D uAtlasCels;
