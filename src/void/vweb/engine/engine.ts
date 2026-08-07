@@ -156,6 +156,7 @@ export class Engine {
     this.#updateTimeoutId = 0
     if (!this.#renderer || this.#renderer.isContextLost()) return
     this.#requestUpdate()
+    this.#resumeSFX()
     this.#renderer.resize(this.#phyW, this.#phyH)
     const nowMillis = performance.now()
     this.#writeUpdate(this.#renderer, nowMillis)
@@ -249,7 +250,6 @@ export class Engine {
   #playBeeps(): void {
     const count = this.#wasm.BeepCount()
     if (count === 0) return
-    if (this.#sfx.ctx.state === 'suspended') void this.#sfx.ctx.resume()
     const view = new DataView(
       this.#wasm.memory.buffer,
       this.#wasm.BeepPointer(),
@@ -265,6 +265,11 @@ export class Engine {
         view.getFloat32(o + 12, true)
       )
     }
+  }
+
+  #resumeSFX(): void {
+    if (this.#sfx.ctx.state !== 'suspended') return
+    void this.#sfx.ctx.resume().catch(() => {})
   }
 
   #requestUpdate(): void {
