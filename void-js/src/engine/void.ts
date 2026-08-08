@@ -1,42 +1,12 @@
 
-export type VoidOpts = {
-  /** the default atlas. */
-  atlas: HTMLImageElement | null
-  canvas?: HTMLCanvasElement | null
-  config: VoidConfig
-  description?: string
-  loader: Loader
-  random?: Random
-  sprites?: Partial<Omit<PoolOpts<Sprite>, 'alloc' | 'allocBytes'>>
-  tileset?: HTMLImageElement | null
-}
-
 export class Void {
-  readonly audio: AudioType = Audio()
-  readonly atlas: AtlasMap
-  readonly cam: Cam = new Cam()
-  readonly canvas: HTMLCanvasElement
-  readonly input: Input
-  level: LevelTiles | undefined
-  readonly loader: Loader
-  readonly looper: Looper = new Looper()
   readonly metrics: Metrics = {
     cur: {collide: 0, update: 0},
     prev: {collide: 0, frame: 0, update: 0}
   }
-  readonly pool: PoolMap
-  readonly random: Random
-  readonly renderer: Renderer
-  readonly tileset: Tileset | undefined
   /** delta since frame request. */
   readonly tick: Tick = {ms: 0, s: 0, start: 0}
-  readonly #atlasImage: HTMLImageElement
-  readonly #tilesetImage: HTMLImageElement | undefined
-  #backgroundRGBA: number
   #invalid: boolean = false
-  readonly #pixelRatioObserver: PixelRatioObserver = new PixelRatioObserver()
-  #interval: DelayInterval | undefined
-  #registered: boolean = false
   /** may trigger an initial force update. */
   readonly #resizeObserver = new ResizeObserver(() => this.onResize())
 
@@ -49,77 +19,18 @@ export class Void {
     )
     if (!opts.canvas) initBody()
 
-    this.cam.mode = opts.config.mode
-    this.cam.update(this.canvas)
-
-    this.random = opts.random ?? new Random(Date.now())
-
-    this.input = new Input(this.cam, this.canvas)
-    if (opts.config.input !== 'Custom') this.input.mapDefault()
     this.input.onEvent = () => this.onEvent()
 
-    this.#pixelRatioObserver.onChange = () => this.onResize()
 
-    if (!opts.atlas) throw Error('no atlas image')
-    this.#atlasImage = opts.atlas
-    this.#tilesetImage = opts.tileset ?? undefined
-
-    this.atlas = {
-      default: opts.config.atlas
-        ? parseAtlas(opts.config.atlas)
-        : {anim: {}, celXYWH: [], tags: []}
-    }
-
-    this.renderer = new Renderer(this.atlas.default, this.canvas, this.looper)
     // this doesn't really work. we only get `onContextRestored()` when pending
     // RAF.
     this.renderer.onContextRestored = () => this.onEvent()
 
-    this.tileset = opts.config.tileset
 
-    this.pool = {
-      default: SpritePool({
-        atlas: this.atlas.default,
-        looper: this.looper,
-        minPages: opts.sprites?.minPages ?? 3,
-        pageBlocks: opts.sprites?.pageBlocks ?? 1000
-      })
-    }
-
-    this.looper.onFrame = (millis, reason) => this.onFrame(millis, reason)
     this.looper.onHidden = () => this.onHidden()
 
-    this.loader = opts.loader
-
-    if (debug) (globalThis as {v?: Void}).v = this
   }
 
-  alloc(k: keyof PoolMap = 'default'): Sprite {
-    return this.pool[k].alloc()
-  }
-
-  get backgroundRGBA(): number {
-    return this.#backgroundRGBA
-  }
-
-  set backgroundRGBA(rgba: number) {
-    if (!this.canvas.parentElement) throw Error('no canvas parent')
-    this.canvas.parentElement.style.backgroundColor = rgbaHex(rgba)
-    this.#backgroundRGBA = rgba
-  }
-
-  clearInterval(): void {
-    this.#interval?.register('remove')
-    this.#interval = undefined
-  }
-
-  configCam(config: Readonly<CamConfig>): void {
-    if (config.minScale != null) this.cam.minScale = config.minScale
-    if (config.minWH) this.cam.minWH = config.minWH
-    if (config.x != null) this.cam.x = config.x
-    if (config.y != null) this.cam.y = config.y
-    if (config.zoomOut != null) this.cam.zoomOut = config.zoomOut
-  }
 
   /**
    * invalid state only impacts drawing in the current frame not requesting a
@@ -132,25 +43,6 @@ export class Void {
   /** does not impact cam or renderer invalid state. */
   set invalid(invalid: boolean) {
     this.#invalid = invalid
-  }
-
-  loadLevel(
-    json: Readonly<LevelSchema>,
-    atlas: keyof AtlasMap,
-    parseProp: EntPropParser
-  ): Zoo {
-    const lvl = parseLevel(json, this.pool, parseProp, this.atlas[atlas])
-    if (lvl.background != null) this.backgroundRGBA = lvl.background
-    if (lvl.cam) this.configCam(lvl.cam)
-    this.level = lvl.tiles
-    this.cam.bounds = lvl.tiles
-    if (lvl.tiles != null && this.tileset) {
-      const w = Math.ceil(lvl.tiles.w / this.tileset.tileWH.w)
-      const h = Math.ceil(lvl.tiles.h / this.tileset.tileWH.h)
-      if (lvl.tiles.tiles.length !== w * h) throw Error(`tiles not ${w}×${h}`)
-      this.renderer.setTiles(this.tileset, lvl.tiles)
-    }
-    return lvl.zoo
   }
 
   onEvent(): void {
@@ -199,25 +91,6 @@ export class Void {
     this.requestFrame('Force') // force cam reeval.
   }
 
-  async register(op: 'add' | 'remove'): Promise<void> {
-    this.input.register(op)
-    this.renderer.register(op)
-    this.looper.register(op)
-    if (op === 'add') this.#resizeObserver.observe(this.canvas.parentElement!)
-    else this.#resizeObserver.unobserve(this.canvas.parentElement!)
-    this.#pixelRatioObserver.register(op)
-
-    if (op === 'remove') void this.audio.context.suspend()
-
-    if (op === 'add') this.requestFrame('Force')
-    this.#interval?.register(op)
-
-    await Promise.all([this.#atlasImage.decode(), this.#tilesetImage?.decode()])
-    this.renderer.loadAtlas(this.#atlasImage)
-    if (this.#tilesetImage) this.renderer.loadTileset(this.#tilesetImage)
-    this.#registered = op === 'add'
-  }
-
   requestFrame(force?: 'Force'): LoopReason | undefined {
     let reason: LoopReason | undefined
     if (force || this.input.invalid || this.input.anyOn || this.renderer.always)
@@ -226,14 +99,6 @@ export class Void {
 
     if (reason) this.looper.requestFrame(reason)
     return reason
-  }
-
-  setInterval(period: Millis, delay?: () => Millis): void {
-    this.#interval?.register('remove')
-    this.#interval = new DelayInterval(delay ?? (() => 0), period, () =>
-      this.onInterval()
-    )
-    if (this.#registered) this.#interval.register('add')
   }
 
   async [Symbol.asyncDispose](): Promise<void> {
