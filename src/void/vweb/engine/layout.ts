@@ -5,10 +5,9 @@ export const sprFlagsOffset: number = 16
 export const sprStride: number = 20
 export const layerCount: number = 8
 
-export const layerConfigRenderModeOffset: number = 0
-export const layerConfigCamModeOffset: number = 1
-export const layerConfigShaderOffset: number = 2
-export const layerConfigFlagsOffset: number = 3
+export const layerConfigCamModeOffset: number = 0
+export const layerConfigShaderOffset: number = 1
+export const layerConfigFlagsOffset: number = 2
 export const layerFlagsDepthShift = 0 as const
 export const layerFlagsDepthFlag = 1 as const
 export const layerFlagsDepthMask = layerFlagsDepthFlag
@@ -19,16 +18,9 @@ export const layerConfigClipYPhyOffset: number = 6
 export const layerConfigClipWPhyOffset: number = 8
 export const layerConfigClipHPhyOffset: number = 10
 export const layerConfigScaleOffset: number = 12
-export const layerConfigModuloOffset: number = 16
-export const layerConfigSprsPtrOffset: number = 20
-export const layerConfigSprCountOffset: number = 24
-export const layerConfigStride: number = 28
-
-export const layerRenderModeInt = 0 as const
-export const layerRenderModeFloat = 1 as const
-export type LayerRenderMode =
-  | typeof layerRenderModeFloat
-  | typeof layerRenderModeInt
+export const layerConfigSprsPtrOffset: number = 16
+export const layerConfigSprCountOffset: number = 20
+export const layerConfigStride: number = 24
 
 export const layerCamModeApply = 0 as const
 export const layerCamModeFixed = 1 as const
@@ -50,11 +42,9 @@ export type Shader =
   | typeof shaderOverlay
 
 export type LayerConfig = {
-  renderMode: LayerRenderMode
   clipPhy: {x: number; y: number; w: number; h: number}
   camMode: LayerCamMode
   scale: number
-  modulo: number
   shader: Shader
   depth: boolean
   blendMode: LayerBlendMode

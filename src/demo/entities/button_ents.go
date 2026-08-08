@@ -18,7 +18,7 @@ func NewDrawToggleButton(gam game.Game) *ventities.ButtonEnt {
 	this := newButtonEnt("draw", ventities.ButtonTypeToggle)
 	this.ClipAnchor = ventities.HUDEnt{
 		Anchor: vgeo.DirNE,
-		Margin: vgeo.Edge[int16]{N: 4, E: 4},
+		Margin: vgeo.Edge[int16]{E: 4, N: 4},
 	}
 	this.AnchorMode = ventities.ButtonAnchorHUD
 	this.OnUpdate = func(ent *ventities.ButtonEnt) {
@@ -77,7 +77,7 @@ func newButtonEnt(
 		},
 		Anchor: ventities.AnchorEnt{
 			Dir:    vgeo.DirW,
-			Margin: vgeo.NewXY(float32(uiButtonGap), 0),
+			Margin: vgeo.NewXY(float32(uiButtonGap), float32(0)),
 		},
 		AnchorMode: ventities.ButtonAnchorRelative,
 		MinW:       buttonMinW,
@@ -94,12 +94,12 @@ func newWidgetNinePatch() ventities.NinePatchEnt {
 	fill := vgfx.Spr{AnimCel: assets.WidgetFill.Cel(0)}
 	return ventities.NinePatchEnt{
 		PatchByDir: [9]vgfx.Spr{
-			vgeo.DirN:      edge,
 			vgeo.DirE:      edge,
-			vgeo.DirS:      edge,
+			vgeo.DirN:      edge,
 			vgeo.DirW:      edge,
+			vgeo.DirS:      edge,
 			vgeo.DirCenter: fill,
 		},
-		CornerWH: vgeo.WH[uint16]{W: 1, H: 1},
+		CornerWH: vgeo.NewWH[uint16](1, 1),
 	}
 }

@@ -96,7 +96,7 @@ func placeCels(
 					y += rowH
 					rowH = 0
 				}
-				xy = vgeo.XY[uint16]{X: uint16(x), Y: uint16(y)}
+				xy = vgeo.NewXY(uint16(x), uint16(y))
 				places[k] = xy
 				cels = append(cels, placedCel{
 					pxs: frame, w: anim.W, h: anim.H, xy: xy,

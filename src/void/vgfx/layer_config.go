@@ -2,14 +2,7 @@ package vgfx
 
 import (
 	"github.com/oidoid/void/src/void/vgeo"
-)
-
-// how a layer's pixel coords are resolved.
-type LayerRenderMode uint8
-
-const (
-	LayerRenderModeInt   LayerRenderMode = iota // pixelated.
-	LayerRenderModeFloat                        // smooth.
+	"github.com/oidoid/void/src/void/vmath"
 )
 
 // whether camera offset is applied to a layer.
@@ -53,22 +46,15 @@ const (
 type LayerConfig struct {
 	// described in this layer's coord system.
 	Sprs []Spr
-	// to-do: necessary? we only care about int mode in cam and shader modulo.
-	RenderMode LayerRenderMode
-	// physical clipbox. zero width or height means full canvas. used for GPU
-	// scissorbox. to-do: this isn't great because Clip is derived and testing
-	// ClipPhy at 0,0,0,0 should be valid.
+	// physical clipbox. zero width or height means the full canvas.
 	ClipPhy vgeo.Box[uint16]
 	// clipbox in this layer's coordinate system derived from `ClipPhy`. always
 	// prefer phy values to converting layer clip to avoid rounding errors.
 	Clip vgeo.Box[float32]
 	// effective camera for this layer after mode is applied. updated by vengine.
-	Cam     vgeo.XY[float32]
-	CamMode LayerCamMode
-	Scale   float32
-	// pixel-snapping quantum: spr and cam coords are floor-snapped to the
-	// nearest multiple before rasterisation.
-	Modulo            uint8
+	Cam               vgeo.XY[float32]
+	CamMode           LayerCamMode
+	Scale             float32
 	ScaleMode         LayerScaleMode
 	AutoscaleMinClip  vgeo.WH[uint16]
 	AutoscaleMaxScale uint8 // caps computed scale; 0 = uncapped.
@@ -79,18 +65,27 @@ type LayerConfig struct {
 
 // packed layer config.
 type LayerConfigExport struct {
-	RenderMode LayerRenderMode
-	CamMode    LayerCamMode
-	Shader     Shader
-	Flags      uint8
-	ClipXPhy   uint16
-	ClipYPhy   uint16
-	ClipWPhy   uint16
-	ClipHPhy   uint16
-	Scale      float32
-	Modulo     uint8
-	SprsPtr    uint32
-	SprCount   uint32
+	CamMode  LayerCamMode
+	Shader   Shader
+	Flags    uint8
+	ClipXPhy uint16
+	ClipYPhy uint16
+	ClipWPhy uint16
+	ClipHPhy uint16
+	Scale    float32
+	SprsPtr  uint32
+	SprCount uint32
+}
+
+func PhyToClipStartPx(phy, phySize, layerSize uint16) uint16 {
+	return uint16(uint64(phy) * uint64(layerSize) / uint64(phySize))
+}
+
+func PhyToClipEndPx(phy, phySize, layerSize uint16) uint16 {
+	return uint16(
+		(uint64(phy)*uint64(layerSize) + uint64(phySize) - 1) /
+			uint64(phySize),
+	)
 }
 
 func NewLayerConfig(capacity int) LayerConfig {
@@ -102,54 +97,46 @@ func NewLayerConfig(capacity int) LayerConfig {
 }
 
 func (this *LayerConfig) Nearbox() vgeo.Box[float32] {
-	clipbox := this.Clip
-	w := clipbox.W() / 2
-	h := clipbox.H() / 2
-	return vgeo.NewBox(
-		clipbox.Min.X-w,
-		clipbox.Min.Y-h,
-		clipbox.Max.X+w,
-		clipbox.Max.Y+h,
-	)
+	clip := this.Clip
+	hw := clip.W() / 2
+	hh := clip.H() / 2
+	return vgeo.NewBox(clip.Min.X-hw, clip.Min.Y-hh, clip.Max.X+hw, clip.Max.Y+hh)
 }
 
 // converts a layer delta to a physical delta.
 func (this *LayerConfig) LayerToPhyScale(xy vgeo.XY[float32]) vgeo.XY[float32] {
 	scale := this.ScaleOrDefault()
-	return vgeo.XY[float32]{X: xy.X * scale, Y: xy.Y * scale}
+	return vgeo.NewXY(xy.X*scale, xy.Y*scale)
 }
 
 // converts a physical delta to a layer delta.
 func (this *LayerConfig) PhyToLayerScale(xy vgeo.XY[float32]) vgeo.XY[float32] {
 	scale := this.ScaleOrDefault()
-	return vgeo.XY[float32]{X: xy.X / scale, Y: xy.Y / scale}
+	return vgeo.NewXY(xy.X/scale, xy.Y/scale)
 }
 
 // converts physical pixels to layer coords, applying cam and clip.
 func (this *LayerConfig) PhyToLayer(xy vgeo.XY[float32]) vgeo.XY[float32] {
 	scale := this.ScaleOrDefault()
-	return vgeo.XY[float32]{
-		X: (xy.X - this.offsetPhy().X + this.Cam.X) / scale,
-		Y: (xy.Y - this.offsetPhy().Y + this.Cam.Y) / scale,
-	}
+	return vgeo.NewXY(
+		(xy.X-this.offsetPhy().X+this.Cam.X)/scale,
+		(xy.Y-this.offsetPhy().Y+this.Cam.Y)/scale,
+	)
 }
 
-// converts a physical origin to a snap-safe layer origin.
+// converts a physical origin to the containing layer pixel origin.
 func (this *LayerConfig) PhyToLayerInt(xy vgeo.XY[float32]) vgeo.XY[float32] {
-	scale := this.ScaleOrDefault()
-	return vgeo.XY[float32]{
-		X: (xy.X - this.offsetPhy().X + this.Cam.X + 0.5) / scale,
-		Y: (xy.Y - this.offsetPhy().Y + this.Cam.Y + 0.5) / scale,
-	}
+	xy = this.PhyToLayer(xy)
+	return vgeo.NewXY(vmath.Floor(xy.X), vmath.Floor(xy.Y))
 }
 
 // converts a layer coord to physical pixels, applying cam and clip.
 func (this *LayerConfig) LayerToPhy(xy vgeo.XY[float32]) vgeo.XY[float32] {
 	scale := this.ScaleOrDefault()
-	return vgeo.XY[float32]{
-		X: xy.X*scale + this.offsetPhy().X - this.Cam.X,
-		Y: xy.Y*scale + this.offsetPhy().Y - this.Cam.Y,
-	}
+	return vgeo.NewXY(
+		xy.X*scale+this.offsetPhy().X-this.Cam.X,
+		xy.Y*scale+this.offsetPhy().Y-this.Cam.Y,
+	)
 }
 
 // converts a physical size to a ceil layer size.
@@ -163,16 +150,7 @@ func (this *LayerConfig) PhyToLayerWHInt(wh vgeo.WH[uint16]) vgeo.WH[uint16] {
 	if float32(h)*scale < float32(wh.H) {
 		h++
 	}
-	return vgeo.WH[uint16]{
-		W: w, H: h,
-	}
-}
-
-func (this *LayerConfig) ModuloOrDefault() float32 {
-	if this.Modulo == 0 {
-		return 1
-	}
-	return float32(this.Modulo)
+	return vgeo.NewWH(w, h)
 }
 
 func (this *LayerConfig) ScaleOrDefault() float32 {
@@ -227,5 +205,8 @@ func (this *LayerConfig) offsetPhy() vgeo.XY[float32] {
 	if this.ClipPhy.W() == 0 || this.ClipPhy.H() == 0 {
 		return vgeo.XY[float32]{} // clip is viewport.
 	}
-	return vgeo.NewXY(float32(this.ClipPhy.Min.X), float32(this.ClipPhy.Min.Y))
+	return vgeo.NewXY(
+		float32(this.ClipPhy.Min.X),
+		float32(this.ClipPhy.Min.Y),
+	)
 }

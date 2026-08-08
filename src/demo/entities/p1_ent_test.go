@@ -17,7 +17,7 @@ func TestNewP1Ent(t *testing.T) {
 		Hurtbox: vgeo.XYWH[uint16](2, 0, 4, 4),
 	}
 	ent := NewP1Ent(vgeo.XY[float32]{}, anim)
-	if got, want := ent.WH, (vgeo.WH[uint16]{W: 8, H: 13}); got != want {
+	if got, want := ent.WH, vgeo.NewWH[uint16](8, 13); got != want {
 		t.Fatalf("WH = %v, want %v", got, want)
 	}
 	if got, want := ent.Hurtbox, anim.Hurtbox; got != want {
@@ -40,10 +40,10 @@ func TestP1EntTurnsRightAtWalls(t *testing.T) {
 	}
 	level := vlevels.Level{
 		Box:   vgeo.XYWH[int32](0, 0, 128, 128),
-		Tile:  vgeo.WH[uint8]{W: 16, H: 16},
+		Tile:  vgeo.NewWH[uint8](16, 16),
 		Tiles: tiles,
 	}
-	ent := NewP1Ent(vgeo.XY[float32]{X: 32, Y: 32}, vatlas.Anim{
+	ent := NewP1Ent(vgeo.NewXY[float32](32, 32), vatlas.Anim{
 		W: 1, H: 1, Hurtbox: vgeo.XYWH[uint16](0, 0, 1, 1),
 	})
 	wants := []struct {
@@ -51,10 +51,14 @@ func TestP1EntTurnsRightAtWalls(t *testing.T) {
 		dir   vgeo.Dir
 		moves int
 	}{
-		{xy: vgeo.XY[float32]{X: 112 - vgfx.Epsilon, Y: 32}, dir: vgeo.DirS, moves: 20},
-		{xy: vgeo.XY[float32]{X: 112 - vgfx.Epsilon, Y: 112 - vgfx.Epsilon}, dir: vgeo.DirW, moves: 20},
-		{xy: vgeo.XY[float32]{X: 16, Y: 112 - vgfx.Epsilon}, dir: vgeo.DirN, moves: 24},
-		{xy: vgeo.XY[float32]{X: 16, Y: 16}, dir: vgeo.DirE, moves: 24},
+		{xy: vgeo.NewXY(112-vgfx.Epsilon, 32), dir: vgeo.DirS, moves: 20},
+		{
+			xy:    vgeo.NewXY(112-vgfx.Epsilon, 112-vgfx.Epsilon),
+			dir:   vgeo.DirW,
+			moves: 20,
+		},
+		{xy: vgeo.NewXY(16, 112-vgfx.Epsilon), dir: vgeo.DirN, moves: 24},
+		{xy: vgeo.NewXY[float32](16, 16), dir: vgeo.DirE, moves: 24},
 	}
 	for _, want := range wants {
 		for range want.moves {

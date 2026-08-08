@@ -8,7 +8,7 @@ import (
 
 var InitLevel = vlevels.Level{
 	Box:   vgeo.XYWH[int32](-24, -24, 4096, 4096),
-	Tile:  vgeo.WH[uint8]{W: 16, H: 16},
+	Tile:  vgeo.NewWH[uint8](16, 16),
 	Tiles: vlevels.DecodeTiles(initLevelTilesRLE),
 }
 

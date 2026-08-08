@@ -1,6 +1,5 @@
 const layerBlendModeMultiply = 1
 const layerBlendModeReplace = 2
-const layerRenderModeFloat = 1
 
 import type {XYWH} from '../geo/box.ts'
 import {ClipRenderer} from './clip-renderer/clip-renderer.ts'
@@ -151,40 +150,19 @@ export class Renderer {
     camX: number,
     camY: number,
     layerScale: number,
-    layerModulo: number,
-    renderMode: number,
     blendMode: number,
     depth: boolean,
     clipPhy: Readonly<XYWH>
   ): void {
     const clipTarget = this.#clip.begin(layerScale, blendMode, depth, clipPhy)
-    if (clipTarget) {
-      // clip rasterization replaces modulo snapping.
-      this.#tiles.draw(
-        nowMillis,
-        camX / layerScale,
-        camY / layerScale,
-        1,
-        1,
-        layerRenderModeFloat,
-        clipTarget.w,
-        clipTarget.h
-      )
-      this.#clip.end(clipTarget, blendMode)
-      return
-    }
-    this.#beginLayer(depth, blendMode)
     this.#tiles.draw(
       nowMillis,
-      camX,
-      camY,
-      layerScale,
-      layerModulo,
-      renderMode,
-      this.phyW,
-      this.phyH
+      camX / layerScale,
+      camY / layerScale,
+      clipTarget.w,
+      clipTarget.h
     )
-    this.#endLayer(depth, blendMode)
+    this.#clip.end(clipTarget, blendMode)
   }
 
   drawLayer(
@@ -195,48 +173,23 @@ export class Renderer {
     camX: number,
     camY: number,
     layerScale: number,
-    layerModulo: number,
-    renderMode: number,
     blendMode: number,
     depth: boolean,
     clipPhy: Readonly<XYWH>
   ): void {
     const clipTarget = this.#clip.begin(layerScale, blendMode, depth, clipPhy)
-    if (clipTarget) {
-      // clip rasterization replaces modulo snapping.
-      this.#sprs.draw(
-        buffer,
-        sprPtr,
-        sprCount,
-        nowMillis,
-        camX / layerScale,
-        camY / layerScale,
-        1,
-        1,
-        layerRenderModeFloat,
-        blendMode,
-        clipTarget.w,
-        clipTarget.h
-      )
-      this.#clip.end(clipTarget, blendMode)
-      return
-    }
-    this.#beginLayer(depth, blendMode)
     this.#sprs.draw(
       buffer,
       sprPtr,
       sprCount,
       nowMillis,
-      camX,
-      camY,
-      layerScale,
-      layerModulo,
-      renderMode,
+      camX / layerScale,
+      camY / layerScale,
       blendMode,
-      this.phyW,
-      this.phyH
+      clipTarget.w,
+      clipTarget.h
     )
-    this.#endLayer(depth, blendMode)
+    this.#clip.end(clipTarget, blendMode)
   }
 
   #beginLayer(depth: boolean, blendMode: number): void {

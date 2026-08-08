@@ -48,6 +48,7 @@ never run:
   - configuration: config; never cfg
   - context: ctx
   - error: err
+  - floating-point: float; never frac
   - for example: eg
   - high: hi
   - hit box: hitbox
@@ -75,21 +76,28 @@ never run:
 - capitalize but skip sentence capitalization.
 - in English, prefer backticks around code snippets.
 - represent bit fields with an unshifted mask and a shift.
+- order dirs: E, NE, N, NW, W, SW, S, SE, Center.
 
 ### Go
 
 - format: `make fmt-go fmt-mod`.
+- prefer `vgeo.NewBox()` / `NewXY()` / `vgeo.NewWH()` to structs.
+  use `vgeo.XYWH()` when working with w/h. for numeric literals, use a
+  typed constructor and uncast values. eg, `vgeo.NewBox[float32](1, 2, 3, 4)`.
+- omit inferrable type args.
 - name the receiver `this`.
 - when using a local for the subject of a constructor, name it `this`.
 - name `In` vars `in`.
 - assume tab width is two.
 - wrap to 80 chars and pack cols to minimize lines. if all args / props can't fit on one line, do one arg / group per line. don't chop long strings.
-- comments must not restate the subject name, must not start with "is the", and avoid starting with "the".
+- comments must not restate the subject name, must not start with "is the",
+  and avoid starting with "the".
     ```go
     // ng: PadInt pads a non-negative integer to at least width digits with spaces.
     // ok: pads a non-negative integer to at least width digits with spaces.
     func PadInt(n, w int) string {
     ```
+- remove excess parens.
 
 ### TS
 

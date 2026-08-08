@@ -87,23 +87,25 @@ export class ClipRenderer {
     blendMode: number,
     depth: boolean,
     clipPhy: Readonly<XYWH>
-  ): ClipTarget | undefined {
-    if (
-      !clipPhy.w ||
-      !clipPhy.h ||
-      (clipPhy.w === this.#gl.drawingBufferWidth &&
-        clipPhy.h === this.#gl.drawingBufferHeight)
-    )
-      return
-    const w = Math.ceil(clipPhy.w / layerScale)
-    const h = Math.ceil(clipPhy.h / layerScale)
+  ): ClipTarget {
+    const phy =
+      !clipPhy.w || !clipPhy.h
+        ? {
+            x: 0,
+            y: 0,
+            w: this.#gl.drawingBufferWidth,
+            h: this.#gl.drawingBufferHeight
+          }
+        : clipPhy
+    const w = Math.ceil(phy.w / layerScale)
+    const h = Math.ceil(phy.h / layerScale)
     this.#resize(w, h)
     this.#gl.bindFramebuffer(this.#gl.FRAMEBUFFER, this.#framebuffer)
     this.#gl.viewport(0, 0, w, h)
     this.#clear(blendMode)
     this.#setSourceBlend(blendMode, true)
     this.#setDepth(depth)
-    return {phy: clipPhy, w, h}
+    return {phy, w, h}
   }
 
   end(clip: ClipTarget, blendMode: number): void {

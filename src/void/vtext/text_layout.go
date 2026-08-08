@@ -101,9 +101,12 @@ func LayoutText(opts TextLayoutOpts) TextLayout {
 		i += len(layout.Chars)
 	}
 	return TextLayout{
-		Chars:          chars,
-		Cursor:         cursor,
-		WH:             vgeo.WH[int16]{W: w, H: layoutNextLine(opts.Font, 0, cursor.Y, scale).Y},
+		Chars:  chars,
+		Cursor: cursor,
+		WH: vgeo.NewWH(
+			w,
+			layoutNextLine(opts.Font, 0, cursor.Y, scale).Y,
+		),
 		TrimH:          cursor.Y + int16(trimH),
 		TrimLeadForceH: cursor.Y + int16(opts.Font.CellH)*int16(scale),
 		TrimAllForceH:  cursor.Y + int16(opts.Font.CellH-opts.Font.Baseline)*int16(scale),
@@ -158,7 +161,7 @@ func layoutWord(
 	}
 	return TextLayout{
 		Chars:  chars[:n],
-		Cursor: vgeo.XY[int16]{X: x, Y: y},
+		Cursor: vgeo.NewXY(x, y),
 		TrimH:  int16(trimH),
 		WH:     vgeo.WH[int16]{W: fw},
 	}

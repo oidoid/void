@@ -2,14 +2,10 @@ export const sprVert: string = `#version 300 es
 
 uniform highp ivec2 uResolution;
 uniform highp vec2 uCamXY;
-uniform highp float uLayerScale;
-uniform highp float uLayerModulo;
-uniform mediump int uRenderMode;
 uniform highp float uNowMillis;
 uniform highp usampler2D uAtlasCels;
 uniform highp vec2 uAtlasSize;
 
-const mediump int layerRenderModeInt = 0;
 const highp uint animCelMask = 0xfu;
 const highp uint animCelShift = 4u;
 const highp float celsPerAnim = 16.;
@@ -63,13 +59,10 @@ void main() {
   bool zTop = (aFlags >> sprZTopShift & sprZTopMask) != 0u;
 
   highp vec2 corner = corners[gl_VertexID];
-  highp vec2 originPx = aXY * uLayerScale;
-  highp vec2 camPx = floor(uCamXY / uLayerModulo) * uLayerModulo;
-  highp vec2 originScreenPx = uRenderMode == layerRenderModeInt
-    ? floor(originPx / uLayerModulo) * uLayerModulo - camPx
-    : originPx - uCamXY;
-  highp vec2 centerPx = wh * uLayerScale * .5;
-  highp vec2 localPx = corner * wh * uLayerScale - centerPx;
+  highp vec2 originPx = aXY;
+  highp vec2 originScreenPx = originPx - uCamXY;
+  highp vec2 centerPx = wh * .5;
+  highp vec2 localPx = corner * wh - centerPx;
   highp float rot = float(
     aFlags >> sprRotShift & sprRotMask
   ) * tau / 4096.;
@@ -82,10 +75,8 @@ void main() {
   highp vec2 ndc = px / vec2(uResolution) * 2. - 1.;
   // layer draw order is handled by clearing depth between layer draws. within
   // this layer, pack the 4-bit sublayer and a 12-bit screen-Y anchor rank.
-  highp float originScreenY = uRenderMode == layerRenderModeInt
-    ? floor(originPx.y / uLayerModulo) * uLayerModulo - camPx.y
-    : originPx.y - uCamXY.y;
-  highp float anchorScreenY = originScreenY + (zTop ? 0. : wh.y * uLayerScale);
+  highp float originScreenY = originPx.y - uCamXY.y;
+  highp float anchorScreenY = originScreenY + (zTop ? 0. : wh.y);
   highp float anchorRank = clamp(
     floor(anchorScreenY * sprDepthYRanks / max(float(uResolution.y), 1.)),
     0.,

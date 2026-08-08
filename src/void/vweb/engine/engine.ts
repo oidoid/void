@@ -32,7 +32,6 @@ import {
   type LayerBlendMode,
   type LayerCamMode,
   type LayerConfig,
-  type LayerRenderMode,
   layerCamModeFixed,
   layerConfigCamModeOffset,
   layerConfigClipHPhyOffset,
@@ -40,8 +39,6 @@ import {
   layerConfigClipXPhyOffset,
   layerConfigClipYPhyOffset,
   layerConfigFlagsOffset,
-  layerConfigModuloOffset,
-  layerConfigRenderModeOffset,
   layerConfigScaleOffset,
   layerConfigShaderOffset,
   layerConfigSprCountOffset,
@@ -190,8 +187,6 @@ export class Engine {
           lx,
           ly,
           config.scale,
-          config.modulo,
-          config.renderMode,
           config.blendMode,
           config.depth,
           config.clipPhy
@@ -206,8 +201,6 @@ export class Engine {
           lx,
           ly,
           config.scale,
-          config.modulo,
-          config.renderMode,
           config.blendMode,
           config.depth,
           config.clipPhy
@@ -224,9 +217,6 @@ export class Engine {
     const o = ptr + layer * layerConfigStride
     const flags = view.getUint8(o + layerConfigFlagsOffset)
     return {
-      renderMode: view.getUint8(
-        o + layerConfigRenderModeOffset
-      ) as LayerRenderMode,
       clipPhy: {
         x: view.getUint16(o + layerConfigClipXPhyOffset, true),
         y: view.getUint16(o + layerConfigClipYPhyOffset, true),
@@ -235,7 +225,6 @@ export class Engine {
       },
       camMode: view.getUint8(o + layerConfigCamModeOffset) as LayerCamMode,
       scale: view.getFloat32(o + layerConfigScaleOffset, true),
-      modulo: view.getUint8(o + layerConfigModuloOffset),
       shader: view.getUint8(o + layerConfigShaderOffset) as Shader,
       depth:
         ((flags >>> layerFlagsDepthShift) & layerFlagsDepthMask) ===

@@ -41,24 +41,24 @@ func New() *Engine {
 	}
 	this.Layer(gfx.LayerTiles).Shader = vgfx.ShaderTiles
 	this.Layer(gfx.LayerTiles).ScaleMode = vgfx.LayerScaleModeAutoInt
-	this.Layer(gfx.LayerTiles).AutoscaleMinClip = vgeo.WH[uint16]{
-		W: gfx.LevelClipWPhy, H: gfx.LevelClipHPhy,
-	}
+	this.Layer(gfx.LayerTiles).AutoscaleMinClip = vgeo.NewWH(
+		gfx.LevelClipWPhy, gfx.LevelClipHPhy,
+	)
 	this.Layer(gfx.LayerP1).ScaleMode = vgfx.LayerScaleModeAutoInt
-	this.Layer(gfx.LayerP1).AutoscaleMinClip = vgeo.WH[uint16]{
-		W: gfx.LevelClipWPhy, H: gfx.LevelClipHPhy,
-	}
+	this.Layer(gfx.LayerP1).AutoscaleMinClip = vgeo.NewWH(
+		gfx.LevelClipWPhy, gfx.LevelClipHPhy,
+	)
 	this.Layer(gfx.LayerSuperballs).ScaleMode = vgfx.LayerScaleModeAutoInt
-	this.Layer(gfx.LayerSuperballs).AutoscaleMinClip = vgeo.WH[uint16]{
-		W: gfx.LevelClipWPhy, H: gfx.LevelClipHPhy,
-	}
+	this.Layer(gfx.LayerSuperballs).AutoscaleMinClip = vgeo.NewWH(
+		gfx.LevelClipWPhy, gfx.LevelClipHPhy,
+	)
 	*this.Cam() = this.Layer(gfx.LayerSuperballs).LayerToPhyScale(
 		vgeo.NewXY[float32](-96, -96),
 	)
 	this.Layer(gfx.LayerUI).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerUI).Depth = true
 	this.Layer(gfx.LayerUI).ScaleMode = vgfx.LayerScaleModeAutoInt
-	this.Layer(gfx.LayerUI).AutoscaleMinClip = vgeo.WH[uint16]{W: 256, H: 48}
+	this.Layer(gfx.LayerUI).AutoscaleMinClip = vgeo.NewWH[uint16](256, 48)
 	this.Layer(gfx.LayerOverlay).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerOverlay).Shader = vgfx.ShaderOverlay
 	this.Layer(gfx.LayerOverlay).BlendMode = vgfx.LayerBlendModeReplace
@@ -76,6 +76,7 @@ func New() *Engine {
 		float32(this.Level.Max.X-int32(this.Level.Tile.W)),
 		float32(this.Level.Max.Y-int32(this.Level.Tile.H)),
 	)
+
 	this.SuperballGrid = vgrid.New(lvl, diameter, 2*1024*1024)
 	return this
 }

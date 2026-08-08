@@ -108,7 +108,10 @@ func (this *SuperballButtonEnt) Update(
 	loop := this.ButtonEnt.Update(in, sprs, layer, font)
 
 	if this.Action == SuperballActionAddSome && this.On {
-		spawnXY := vgeo.NewXY(spawnCenter.X-superballRadius, spawnCenter.Y-superballRadius)
+		spawnXY := vgeo.NewXY(
+			spawnCenter.X-superballRadius,
+			spawnCenter.Y-superballRadius,
+		)
 		n := min(4096, int(60_000*(deltaMs/1000)))
 		for range n {
 			_ = superballs.Add(NewSuperballEnt(rnd, spawnXY))

@@ -37,7 +37,7 @@ func TestPollSerializationRoundTrip(t *testing.T) {
 		},
 		DeltaMillis:      16.5,
 		NowMillis:        123.5,
-		CanvasPhy:        vgeo.WH[uint16]{W: 640, H: 480},
+		CanvasPhy:        vgeo.NewWH[uint16](640, 480),
 		Fullscreen:       true,
 		DrawAlways:       true,
 		DrawCount:        3,

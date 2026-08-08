@@ -16,7 +16,7 @@ func TestTextEntScale(t *testing.T) {
 	ent.Update(
 		font,
 		&sprs,
-		vgeo.NewBox(float32(0), float32(0), float32(100), float32(100)),
+		vgeo.NewBox[float32](0, 0, 100, 100),
 	)
 
 	if got, want := ent.Layout.TrimLeadForceH, int16(font.CellH)*2; got != want {
@@ -25,10 +25,10 @@ func TestTextEntScale(t *testing.T) {
 	if got, want := len(sprs), 1; got != want {
 		t.Fatalf("spr count = %d, want %d", got, want)
 	}
-	if got, want := sprs[0].WH, (vgeo.WH[uint16]{
-		W: uint16(font.CellW) * 2,
-		H: uint16(font.CellH) * 2,
-	}); got != want {
+	if got, want := sprs[0].WH, vgeo.NewWH(
+		uint16(font.CellW)*2,
+		uint16(font.CellH)*2,
+	); got != want {
 		t.Errorf("spr WH = %+v, want %+v", got, want)
 	}
 	if !sprs[0].Stretch() {

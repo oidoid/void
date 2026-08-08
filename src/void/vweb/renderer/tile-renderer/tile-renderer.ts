@@ -20,9 +20,6 @@ export class TileRenderer {
     const pgm = buildProgram(gl, tileVert, tileFrag)
     const uResolution = gl.getUniformLocation(pgm, 'uResolution')!
     const uCamXY = gl.getUniformLocation(pgm, 'uCamXY')!
-    const uLayerScale = gl.getUniformLocation(pgm, 'uLayerScale')!
-    const uLayerModulo = gl.getUniformLocation(pgm, 'uLayerModulo')!
-    const uRenderMode = gl.getUniformLocation(pgm, 'uRenderMode')!
     const uNowMillis = gl.getUniformLocation(pgm, 'uNowMillis')!
     const uLevel = gl.getUniformLocation(pgm, 'uLevel')!
     const uTileWH = gl.getUniformLocation(pgm, 'uTileWH')!
@@ -103,9 +100,6 @@ export class TileRenderer {
       pgm,
       uResolution,
       uCamXY,
-      uLayerScale,
-      uLayerModulo,
-      uRenderMode,
       uNowMillis,
       vao,
       tilesTex,
@@ -118,9 +112,6 @@ export class TileRenderer {
   readonly #pgm: WebGLProgram
   readonly #uResolution: WebGLUniformLocation
   readonly #uCamXY: WebGLUniformLocation
-  readonly #uLayerScale: WebGLUniformLocation
-  readonly #uLayerModulo: WebGLUniformLocation
-  readonly #uRenderMode: WebGLUniformLocation
   readonly #uNowMillis: WebGLUniformLocation
   readonly #vao: WebGLVertexArrayObject
   readonly #tilesTex: WebGLTexture
@@ -132,9 +123,6 @@ export class TileRenderer {
     pgm: WebGLProgram,
     uResolution: WebGLUniformLocation,
     uCamXY: WebGLUniformLocation,
-    uLayerScale: WebGLUniformLocation,
-    uLayerModulo: WebGLUniformLocation,
-    uRenderMode: WebGLUniformLocation,
     uNowMillis: WebGLUniformLocation,
     vao: WebGLVertexArrayObject,
     tilesTex: WebGLTexture,
@@ -145,9 +133,6 @@ export class TileRenderer {
     this.#pgm = pgm
     this.#uResolution = uResolution
     this.#uCamXY = uCamXY
-    this.#uLayerScale = uLayerScale
-    this.#uLayerModulo = uLayerModulo
-    this.#uRenderMode = uRenderMode
     this.#uNowMillis = uNowMillis
     this.#vao = vao
     this.#tilesTex = tilesTex
@@ -168,9 +153,6 @@ export class TileRenderer {
     nowMillis: number,
     camX: number,
     camY: number,
-    layerScale: number,
-    layerModulo: number,
-    renderMode: number,
     resolutionW: number,
     resolutionH: number
   ): void {
@@ -178,9 +160,6 @@ export class TileRenderer {
     gl.useProgram(this.#pgm)
     gl.uniform1f(this.#uNowMillis, nowMillis)
     gl.uniform2f(this.#uCamXY, camX, camY)
-    gl.uniform1f(this.#uLayerScale, layerScale)
-    gl.uniform1f(this.#uLayerModulo, layerModulo)
-    gl.uniform1i(this.#uRenderMode, renderMode)
     gl.uniform2i(this.#uResolution, resolutionW, resolutionH)
     gl.activeTexture(gl.TEXTURE0)
     gl.bindTexture(gl.TEXTURE_2D, this.#tilesTex)

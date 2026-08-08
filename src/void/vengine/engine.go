@@ -292,7 +292,8 @@ func (this *Engine[Game]) BeginTick() vgame.Status {
 	this.in.Update(
 		this.frame.NowMillis,
 		&this.frame.InputPoll,
-		vgeo.Box[float32]{Min: this.cam}, // to-do: actual cam box.
+		vgeo.Box[float32]{
+			Min: this.cam}, // to-do: actual cam box.
 	)
 	this.tick.DrawCount = this.frame.DrawCount
 	this.drawAlways = this.frame.DrawAlways
@@ -318,7 +319,7 @@ func (this *Engine[Game]) updateLayerScales() {
 			clipW = float32(this.frame.CanvasPhy.W)
 			clipH = float32(this.frame.CanvasPhy.H)
 		}
-		config.UpdateScale(vgeo.WH[float32]{W: clipW, H: clipH})
+		config.UpdateScale(vgeo.NewWH(clipW, clipH))
 	}
 }
 
@@ -337,7 +338,7 @@ func (this *Engine[Game]) updateLayerClips() {
 			clipW = float32(this.frame.CanvasPhy.W)
 			clipH = float32(this.frame.CanvasPhy.H)
 		}
-		config.UpdateScale(vgeo.WH[float32]{W: clipW, H: clipH})
+		config.UpdateScale(vgeo.NewWH(clipW, clipH))
 		minXY := config.PhyToLayer(vgeo.NewXY(clipX, clipY))
 		maxXY := config.PhyToLayer(vgeo.NewXY(clipX+clipW, clipY+clipH))
 		config.Clip = vgeo.Box[float32]{Min: minXY, Max: maxXY}
@@ -358,18 +359,16 @@ func (this *Engine[Game]) updateLayerConfigExport() {
 			flags |= vgfx.LayerFlagsDepthFlag << vgfx.LayerFlagsDepthShift
 		}
 		this.layerConfigExport[i] = vgfx.LayerConfigExport{
-			RenderMode: layer.RenderMode,
-			CamMode:    layer.CamMode,
-			Shader:     layer.Shader,
-			Flags:      flags,
-			ClipXPhy:   layer.ClipPhy.Min.X,
-			ClipYPhy:   layer.ClipPhy.Min.Y,
-			ClipWPhy:   layer.ClipPhy.W(),
-			ClipHPhy:   layer.ClipPhy.H(),
-			Scale:      layer.ScaleOrDefault(),
-			Modulo:     uint8(layer.ModuloOrDefault()),
-			SprsPtr:    sprsPtr,
-			SprCount:   uint32(len(sprs)),
+			CamMode:  layer.CamMode,
+			Shader:   layer.Shader,
+			Flags:    flags,
+			ClipXPhy: layer.ClipPhy.Min.X,
+			ClipYPhy: layer.ClipPhy.Min.Y,
+			ClipWPhy: layer.ClipPhy.W(),
+			ClipHPhy: layer.ClipPhy.H(),
+			Scale:    layer.ScaleOrDefault(),
+			SprsPtr:  sprsPtr,
+			SprCount: uint32(len(sprs)),
 		}
 	}
 }

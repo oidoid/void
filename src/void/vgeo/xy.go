@@ -13,6 +13,7 @@ type XYZ[T vtypes.Number] struct {
 	Z T
 }
 
+//go:inline
 func NewXY[T vtypes.Number](x, y T) XY[T] {
 	return XY[T]{X: x, Y: y}
 }

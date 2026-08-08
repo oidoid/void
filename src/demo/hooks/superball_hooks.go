@@ -29,8 +29,12 @@ func UpdateSuperballs(
 	tileH := float32(gam.LevelTileH())
 	lb := gam.LevelBounds
 	lvl := vgeo.NewBox(
-		lb.Min.X+tileW, lb.Min.Y+tileH, lb.Max.X-tileW, lb.Max.Y-tileH,
+		lb.Min.X+tileW,
+		lb.Min.Y+tileH,
+		lb.Max.X-tileW,
+		lb.Max.Y-tileH,
 	)
+
 	ents := vec.Vals()
 	boing := gam.Boing
 	moveSuperballs(ents, gam.BeepSuperballs, boing, nearbox, lvl, radius)

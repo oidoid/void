@@ -10,7 +10,7 @@ import (
 func TestLevelTileAt(t *testing.T) {
 	level := Level{
 		Box:   vgeo.XYWH[int32](-8, -4, 16, 8),
-		Tile:  vgeo.WH[uint8]{W: 4, H: 4},
+		Tile:  vgeo.NewWH[uint8](4, 4),
 		Tiles: []vatlas.AnimID{1, 2, 3, 4, 5, 6, 7, 8},
 	}
 	cases := []struct {

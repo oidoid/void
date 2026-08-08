@@ -15,14 +15,14 @@ func TestHUDEntXY(t *testing.T) {
 		wantX  int16
 		wantY  int16
 	}{
-		{"NW", vgeo.DirNW, 2, 10, 8, 2, 2},
-		{"NE", vgeo.DirNE, 2, 10, 8, 88, 2},
-		{"SW", vgeo.DirSW, 2, 10, 8, 2, 50},
-		{"SE", vgeo.DirSE, 2, 10, 8, 88, 50},
-		{"N", vgeo.DirN, 2, 10, 8, 45, 2},
-		{"S", vgeo.DirS, 2, 10, 8, 45, 50},
 		{"E", vgeo.DirE, 2, 10, 8, 88, 26},
+		{"NE", vgeo.DirNE, 2, 10, 8, 88, 2},
+		{"N", vgeo.DirN, 2, 10, 8, 45, 2},
+		{"NW", vgeo.DirNW, 2, 10, 8, 2, 2},
 		{"W", vgeo.DirW, 2, 10, 8, 2, 26},
+		{"SW", vgeo.DirSW, 2, 10, 8, 2, 50},
+		{"S", vgeo.DirS, 2, 10, 8, 45, 50},
+		{"SE", vgeo.DirSE, 2, 10, 8, 88, 50},
 		{"Center", vgeo.DirCenter, 0, 10, 8, 45, 26},
 
 		// zero margin.
@@ -36,7 +36,7 @@ func TestHUDEntXY(t *testing.T) {
 			hud := HUDEnt{
 				Anchor: test.anchor,
 				Margin: vgeo.Edge[int16]{
-					N: test.margin, E: test.margin, S: test.margin, W: test.margin,
+					E: test.margin, N: test.margin, W: test.margin, S: test.margin,
 				},
 			}
 			got := hud.XY(test.w, test.h, clip)

@@ -22,6 +22,7 @@ func UpdateSuperballButtons(
 		(ballsClip.Min.X+ballsClip.Max.X)/2,
 		(ballsClip.Min.Y+ballsClip.Max.Y)/2,
 	)
+
 	deltaMs := gam.DeltaMs()
 	tileW := float32(gam.LevelTileW())
 	tileH := float32(gam.LevelTileH())
@@ -32,6 +33,7 @@ func UpdateSuperballButtons(
 		bounds.Max.X-tileW,
 		bounds.Max.Y-tileH,
 	)
+
 	rnd := gam.Random
 	ballRadius := float32(gam.Atlas.Anims[int(assets.SuperballDefault)].W) / 2
 	ents := vec.Vals()

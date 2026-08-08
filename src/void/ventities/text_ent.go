@@ -36,8 +36,10 @@ func (this *TextEnt) Update(
 			continue
 		}
 		xy := vgeo.NewXY(
-			float32(chBox.Min.X+this.XY.X), float32(chBox.Min.Y+this.XY.Y),
+			float32(chBox.Min.X+this.XY.X),
+			float32(chBox.Min.Y+this.XY.Y),
 		)
+
 		if xy.Y > clip.Max.Y {
 			break
 		}
@@ -46,10 +48,10 @@ func (this *TextEnt) Update(
 		}
 		spr := vgfx.Spr{AnimCel: font.AnimID(ch).Cel(0), XY: xy, Z: this.Z}
 		scale := this.scale()
-		spr.WH = vgeo.WH[uint16]{
-			W: uint16(font.CellW) * uint16(scale),
-			H: uint16(font.CellH) * uint16(scale),
-		}
+		spr.WH = vgeo.NewWH(
+			uint16(font.CellW)*uint16(scale),
+			uint16(font.CellH)*uint16(scale),
+		)
 		spr.SetStretch(true)
 		spr.SetPal(this.Pal)
 		*sprs = append(*sprs, spr)

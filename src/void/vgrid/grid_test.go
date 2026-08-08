@@ -6,9 +6,7 @@ import (
 	"github.com/oidoid/void/src/void/vgeo"
 )
 
-var testBounds = vgeo.NewBox(
-	float32(-45), float32(-45), float32(55), float32(55),
-)
+var testBounds = vgeo.NewBox[float32](-45, -45, 55, 55)
 
 func TestGridInsert(t *testing.T) {
 	tests := []struct {
@@ -16,14 +14,14 @@ func TestGridInsert(t *testing.T) {
 		vals []vgeo.XY[float32]
 	}{
 		{name: "empty grid yields no pairs"},
-		{name: "single ent yields no pairs", vals: []vgeo.XY[float32]{xy(5, 5)}},
+		{name: "single ent yields no pairs", vals: []vgeo.XY[float32]{vgeo.NewXY[float32](5, 5)}},
 		{
 			name: "out-of-bounds ents are dropped",
-			vals: []vgeo.XY[float32]{xy(200, 200), xy(200, 200), xy(200, 200)},
+			vals: []vgeo.XY[float32]{vgeo.NewXY[float32](200, 200), vgeo.NewXY[float32](200, 200), vgeo.NewXY[float32](200, 200)},
 		},
 		{
 			name: "negative-coordinate ents are in bounds",
-			vals: []vgeo.XY[float32]{xy(-1, -1)},
+			vals: []vgeo.XY[float32]{vgeo.NewXY[float32](-1, -1)},
 		},
 	}
 	for _, test := range tests {
@@ -47,12 +45,12 @@ func TestGridSameCell(t *testing.T) {
 	}{
 		{
 			name: "two ents produce one pair",
-			vals: []vgeo.XY[float32]{xy(5, 5), xy(6, 6)},
+			vals: []vgeo.XY[float32]{vgeo.NewXY[float32](5, 5), vgeo.NewXY[float32](6, 6)},
 			want: 1,
 		},
 		{
 			name: "three ents produce three pairs",
-			vals: []vgeo.XY[float32]{xy(5, 5), xy(6, 6), xy(7, 7)},
+			vals: []vgeo.XY[float32]{vgeo.NewXY[float32](5, 5), vgeo.NewXY[float32](6, 6), vgeo.NewXY[float32](7, 7)},
 			want: 3,
 		},
 	}
@@ -79,20 +77,20 @@ func TestGridAdjacentCells(t *testing.T) {
 		xy   vgeo.XY[float32]
 		want int
 	}{
-		{name: "above-left", xy: xy(-5, -5), want: 1},
-		{name: "above", xy: xy(5, -5), want: 1},
-		{name: "above-right", xy: xy(15, -5), want: 0},
-		{name: "left", xy: xy(-5, 5), want: 1},
-		{name: "same", xy: xy(5, 5), want: 1},
-		{name: "right", xy: xy(15, 5), want: 1},
-		{name: "below-left", xy: xy(-5, 15), want: 0},
-		{name: "below", xy: xy(5, 15), want: 1},
-		{name: "below-right", xy: xy(15, 15), want: 1},
+		{name: "above-left", xy: vgeo.NewXY[float32](-5, -5), want: 1},
+		{name: "above", xy: vgeo.NewXY[float32](5, -5), want: 1},
+		{name: "above-right", xy: vgeo.NewXY[float32](15, -5), want: 0},
+		{name: "left", xy: vgeo.NewXY[float32](-5, 5), want: 1},
+		{name: "same", xy: vgeo.NewXY[float32](5, 5), want: 1},
+		{name: "right", xy: vgeo.NewXY[float32](15, 5), want: 1},
+		{name: "below-left", xy: vgeo.NewXY[float32](-5, 15), want: 0},
+		{name: "below", xy: vgeo.NewXY[float32](5, 15), want: 1},
+		{name: "below-right", xy: vgeo.NewXY[float32](15, 15), want: 1},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			grid := newGrid()
-			grid.InsertAt(xy(5, 5), 0)
+			grid.InsertAt(vgeo.NewXY[float32](5, 5), 0)
 			grid.InsertAt(test.xy, 1)
 			if got := len(pairs(&grid)); got != test.want {
 				t.Errorf("pair count = %d, want %d", got, test.want)
@@ -104,8 +102,8 @@ func TestGridAdjacentCells(t *testing.T) {
 func TestGridNoSpuriousPairs(t *testing.T) {
 	t.Run("ents two cells apart produce no pairs", func(t *testing.T) {
 		grid := newGrid()
-		grid.InsertAt(xy(5, 5), 0)  // cell (5, 5).
-		grid.InsertAt(xy(25, 5), 1) // cell (5, 7).
+		grid.InsertAt(vgeo.NewXY[float32](5, 5), 0)  // cell (5, 5).
+		grid.InsertAt(vgeo.NewXY[float32](25, 5), 1) // cell (5, 7).
 		if got := len(pairs(&grid)); got != 0 {
 			t.Errorf("pair count = %d, want 0", got)
 		}
@@ -128,17 +126,17 @@ func TestGridNoSpuriousPairs(t *testing.T) {
 		//  col   3   4   5   6   7
 		grid := newGrid()
 		vals := []vgeo.XY[float32]{
-			xy(-15, -15), xy(-5, -15), xy(5, -15), xy(15, -15), xy(25, -15), // row 3
-			xy(-15, -5), xy(-15, 5), xy(-15, 15), // col 3
-			xy(25, -5), xy(25, 5), xy(25, 15), // col 7
-			xy(-15, 25), xy(-5, 25), xy(5, 25), xy(15, 25),
-			xy(25, 25), // row 7
+			vgeo.NewXY[float32](-15, -15), vgeo.NewXY[float32](-5, -15), vgeo.NewXY[float32](5, -15), vgeo.NewXY[float32](15, -15), vgeo.NewXY[float32](25, -15), // row 3
+			vgeo.NewXY[float32](-15, -5), vgeo.NewXY[float32](-15, 5), vgeo.NewXY[float32](-15, 15), // col 3
+			vgeo.NewXY[float32](25, -5), vgeo.NewXY[float32](25, 5), vgeo.NewXY[float32](25, 15), // col 7
+			vgeo.NewXY[float32](-15, 25), vgeo.NewXY[float32](-5, 25), vgeo.NewXY[float32](5, 25), vgeo.NewXY[float32](15, 25),
+			vgeo.NewXY[float32](25, 25), // row 7
 		}
 		for i, val := range vals {
 			grid.InsertAt(val, int32(i))
 		}
 		const center = int32(16)
-		grid.InsertAt(xy(5, 5), center) // cell (5, 5).
+		grid.InsertAt(vgeo.NewXY[float32](5, 5), center) // cell (5, 5).
 		for _, pair := range pairs(&grid) {
 			if pair[0] == center || pair[1] == center {
 				t.Errorf("unexpected center pair %v", pair)
@@ -148,9 +146,9 @@ func TestGridNoSpuriousPairs(t *testing.T) {
 	t.Run("each pair reported exactly once", func(t *testing.T) {
 		grid := newGrid()
 		vals := []vgeo.XY[float32]{
-			xy(5, 5),  // cell (5, 5).
-			xy(14, 5), // cell (5, 5). same cell: floor((14+45)/10) = 5.
-			xy(15, 5), // cell (6, 5). right neighbor of the first two.
+			vgeo.NewXY[float32](5, 5),  // cell (5, 5).
+			vgeo.NewXY[float32](14, 5), // cell (5, 5). same cell: floor((14+45)/10) = 5.
+			vgeo.NewXY[float32](15, 5), // cell (6, 5). right neighbor of the first two.
 		}
 		for i, val := range vals {
 			grid.InsertAt(val, int32(i))
@@ -158,13 +156,15 @@ func TestGridNoSpuriousPairs(t *testing.T) {
 		assertUniquePairs(t, pairs(&grid), 3)
 	})
 	t.Run("nonzero origin shifts bucketing correctly", func(t *testing.T) {
-		grid := New(vgeo.NewBox(
-			float32(50), float32(50), float32(150), float32(150),
-		), 10, 16)
+		grid := New(
+			vgeo.NewBox[float32](50, 50, 150, 150),
+			10,
+			16,
+		)
 		vals := []vgeo.XY[float32]{
-			xy(55, 55), // cell (0, 0).
-			xy(65, 55), // cell (1, 0). adjacent, right of the first.
-			xy(80, 55), // cell (3, 0). two away from the second.
+			vgeo.NewXY[float32](55, 55), // cell (0, 0).
+			vgeo.NewXY[float32](65, 55), // cell (1, 0). adjacent, right of the first.
+			vgeo.NewXY[float32](80, 55), // cell (3, 0). two away from the second.
 		}
 		for i, val := range vals {
 			grid.InsertAt(val, int32(i))
@@ -174,9 +174,11 @@ func TestGridNoSpuriousPairs(t *testing.T) {
 		}
 	})
 	t.Run("4 by 4 grid reports 33 unique pairs", func(t *testing.T) {
-		grid := New(vgeo.NewBox(
-			float32(0), float32(0), float32(40), float32(40),
-		), 10, 16)
+		grid := New(
+			vgeo.NewBox[float32](0, 0, 40, 40),
+			10,
+			16,
+		)
 		// cell layout (row-major):
 		//  0  1  2  3
 		//  4  5  6  7
@@ -187,7 +189,7 @@ func TestGridNoSpuriousPairs(t *testing.T) {
 		// its forward neighbors are 7, a, b; not 5. so (5, 6) must appear
 		// exactly once.
 		for i := range 16 {
-			grid.InsertAt(xy(float32(i%4*10), float32(i/4*10)), int32(i))
+			grid.InsertAt(vgeo.NewXY(float32(i%4*10), float32(i/4*10)), int32(i))
 		}
 		// 12 right + 12 down + 9 down-right = 33 total pairs.
 		assertUniquePairs(t, pairs(&grid), 33)
@@ -200,7 +202,7 @@ func TestGridDenseCell(t *testing.T) {
 	const ballCount = 200
 	grid := newGrid()
 	for i := range ballCount {
-		grid.InsertAt(xy(5, 5), int32(i))
+		grid.InsertAt(vgeo.NewXY[float32](5, 5), int32(i))
 	}
 	want := ballCount * (ballCount - 1) / 2
 	assertUniquePairs(t, pairs(&grid), want)
@@ -234,16 +236,12 @@ func assertUniquePairs(t *testing.T, pairs [][2]int32, want int) {
 	}
 }
 
-func xy(x, y float32) vgeo.XY[float32] {
-	return vgeo.NewXY(x, y)
-}
-
 // reporting a pair resolved must drop both vals from all later pairs, even
 // ones not yet reached in the same cell's chain.
 func TestGridResolvedPairsAreSkipped(t *testing.T) {
 	grid := newGrid()
 	for i := range 4 {
-		grid.InsertAt(xy(5, 5), int32(i))
+		grid.InsertAt(vgeo.NewXY[float32](5, 5), int32(i))
 	}
 	var seen [][2]int32
 	grid.ForEach(func(l, r int32) bool {
@@ -263,9 +261,9 @@ func TestGridResolvedPairsAreSkipped(t *testing.T) {
 // cross-cell pairs later in the same pass.
 func TestGridResolvedPairsSkipCrossCellPairs(t *testing.T) {
 	grid := newGrid()
-	grid.InsertAt(xy(5, 5), 0)
-	grid.InsertAt(xy(6, 6), 1)  // same cell as val 0.
-	grid.InsertAt(xy(15, 5), 2) // right neighbor cell.
+	grid.InsertAt(vgeo.NewXY[float32](5, 5), 0)
+	grid.InsertAt(vgeo.NewXY[float32](6, 6), 1)  // same cell as val 0.
+	grid.InsertAt(vgeo.NewXY[float32](15, 5), 2) // right neighbor cell.
 	var seen [][2]int32
 	grid.ForEach(func(l, r int32) bool {
 		seen = append(seen, [2]int32{l, r})

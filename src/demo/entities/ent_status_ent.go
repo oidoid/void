@@ -24,17 +24,17 @@ func NewEntStatusEnt() EntStatusEnt {
 	this := EntStatusEnt{}
 	this.Fill = ventities.NinePatchEnt{
 		PatchByDir: [9]vgfx.Spr{
-			vgeo.DirN:      {AnimCel: assets.ColorBlue.Cel(0)},
 			vgeo.DirE:      {AnimCel: assets.ColorBlue.Cel(0)},
-			vgeo.DirS:      {AnimCel: assets.ColorBlue.Cel(0)},
+			vgeo.DirN:      {AnimCel: assets.ColorBlue.Cel(0)},
 			vgeo.DirW:      {AnimCel: assets.ColorBlue.Cel(0)},
+			vgeo.DirS:      {AnimCel: assets.ColorBlue.Cel(0)},
 			vgeo.DirCenter: {AnimCel: assets.ColorBlue.Cel(0)},
 		},
-		CornerWH: vgeo.WH[uint16]{W: 1, H: 1},
+		CornerWH: vgeo.NewWH[uint16](1, 1),
 	}
 	this.Fill.SetZ(gfx.ZUIWidget - 1)
 	this.Anchor = vgeo.DirSW
-	this.Margin = vgeo.Edge[int16]{N: 4, E: 4, S: 4, W: 4}
+	this.Margin = vgeo.Edge[int16]{E: 4, N: 4, W: 4, S: 4}
 	this.Z = gfx.ZUIWidget
 	return this
 }
@@ -62,7 +62,7 @@ func (this *EntStatusEnt) Update(
 	fillXY := this.HUDEnt.XY(
 		this.Layout.W+fillMargin*2, this.Layout.TrimAllForceH+fillMargin*2, clip,
 	)
-	this.TextEnt.XY = vgeo.XY[int16]{X: fillXY.X + fillMargin, Y: fillXY.Y + fillMargin}
+	this.TextEnt.XY = vgeo.NewXY(fillXY.X+fillMargin, fillXY.Y+fillMargin)
 
 	this.drawFill(sprs)
 
@@ -74,11 +74,13 @@ func (this *EntStatusEnt) drawFill(sprs *[]vgfx.Spr) {
 	// to-do: this isn't great because we keep this fake state. we just want
 	// sprs.
 	this.Fill.XY = vgeo.NewXY(
-		float32(this.TextEnt.XY.X-margin), float32(this.TextEnt.XY.Y-margin),
+		float32(this.TextEnt.XY.X-margin),
+		float32(this.TextEnt.XY.Y-margin),
 	)
-	this.Fill.WH = vgeo.WH[uint16]{
-		W: uint16(this.Layout.W + margin*2),
-		H: uint16(this.Layout.TrimAllForceH + margin*2),
-	}
+
+	this.Fill.WH = vgeo.NewWH(
+		uint16(this.Layout.W+margin*2),
+		uint16(this.Layout.TrimAllForceH+margin*2),
+	)
 	this.Fill.Update(sprs)
 }

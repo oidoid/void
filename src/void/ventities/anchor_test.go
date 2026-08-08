@@ -23,13 +23,13 @@ func TestAnchorEntXY(t *testing.T) {
 		wantX  float32
 		wantY  float32
 	}{
-		{"W", vgeo.DirW, noMargin, 6, 22},
 		{"E", vgeo.DirE, noMargin, 18, 22},
-		{"N", vgeo.DirN, noMargin, 12, 16},
-		{"S", vgeo.DirS, noMargin, 12, 28},
-		{"NW", vgeo.DirNW, noMargin, 10, 16},
 		{"NE", vgeo.DirNE, noMargin, 14, 16},
+		{"N", vgeo.DirN, noMargin, 12, 16},
+		{"NW", vgeo.DirNW, noMargin, 10, 16},
+		{"W", vgeo.DirW, noMargin, 6, 22},
 		{"SW", vgeo.DirSW, noMargin, 6, 24},
+		{"S", vgeo.DirS, noMargin, 12, 28},
 		{"SE", vgeo.DirSE, noMargin, 18, 24},
 		{"Center", vgeo.DirCenter, noMargin, 12, 22},
 		{"E+marginX", vgeo.DirE, vgeo.XY[float32]{X: 2}, 20, 22},

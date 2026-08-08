@@ -3,13 +3,13 @@ package vgeo
 type Dir uint8
 
 const (
-	DirN Dir = iota
+	DirE Dir = iota
 	DirNE
-	DirE
-	DirSE
-	DirS
-	DirSW
-	DirW
+	DirN
 	DirNW
+	DirW
+	DirSW
+	DirS
+	DirSE
 	DirCenter
 )

@@ -43,7 +43,7 @@ func (this *CursorEnt) Update(
 	deltaMs float64,
 	layer *vgfx.LayerConfig,
 ) vgame.Status {
-	if phy := in.Ptr.Phy(); phy != nil {
+	if phy := in.Ptr.CenterPhy(); phy != nil {
 		this.onCursorPoint(*phy, in.Ptr.Device(), layer)
 	} else if this.Keyboard == 0 {
 		this.Visible = false
@@ -73,9 +73,9 @@ func (this *CursorEnt) Update(
 }
 
 func (this *CursorEnt) onCursorPoint(
-	phy vgeo.Box[float32], dev vin.PointerDevice, layer *vgfx.LayerConfig,
+	phy vgeo.XY[float32], dev vin.PointerDevice, layer *vgfx.LayerConfig,
 ) {
-	this.XY = layer.PhyToLayer(phy.Min)
+	this.XY = layer.PhyToLayer(phy)
 	this.Visible = dev == vin.PointerDeviceMouse
 }
 
@@ -85,7 +85,7 @@ func (this *CursorEnt) onCursorKey(
 	spd := vgfx.FloorEpsilon(this.Keyboard * float32(deltaMs) / 1000)
 
 	if in.IsAnyOnStart(vin.ButtonL | vin.ButtonR | vin.ButtonU | vin.ButtonD) {
-		this.XY = vgfx.DiagonalizeXY(this.XY, vgeo.XY[int]{X: dirX, Y: dirY})
+		this.XY = vgfx.DiagonalizeXY(this.XY, vgeo.NewXY(dirX, dirY))
 	}
 
 	this.XY.X = vmath.Clamp(clip.Min.X, clip.Max.X, this.XY.X+float32(dirX)*spd)

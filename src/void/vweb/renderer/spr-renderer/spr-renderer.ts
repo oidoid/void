@@ -20,9 +20,6 @@ export class SprRenderer {
     const pgm = buildProgram(gl, sprVert, sprFrag)
     const uResolution = gl.getUniformLocation(pgm, 'uResolution')!
     const uCamXY = gl.getUniformLocation(pgm, 'uCamXY')!
-    const uLayerScale = gl.getUniformLocation(pgm, 'uLayerScale')!
-    const uLayerModulo = gl.getUniformLocation(pgm, 'uLayerModulo')!
-    const uRenderMode = gl.getUniformLocation(pgm, 'uRenderMode')!
     const uNowMillis = gl.getUniformLocation(pgm, 'uNowMillis')!
     const uBlendMode = gl.getUniformLocation(pgm, 'uBlendMode')!
 
@@ -119,9 +116,6 @@ export class SprRenderer {
       pgm,
       uResolution,
       uCamXY,
-      uLayerScale,
-      uLayerModulo,
-      uRenderMode,
       uNowMillis,
       uBlendMode,
       vao,
@@ -135,9 +129,6 @@ export class SprRenderer {
   readonly #pgm: WebGLProgram
   readonly #uResolution: WebGLUniformLocation
   readonly #uCamXY: WebGLUniformLocation
-  readonly #uLayerScale: WebGLUniformLocation
-  readonly #uLayerModulo: WebGLUniformLocation
-  readonly #uRenderMode: WebGLUniformLocation
   readonly #uNowMillis: WebGLUniformLocation
   readonly #uBlendMode: WebGLUniformLocation
   readonly #vao: WebGLVertexArrayObject
@@ -150,9 +141,6 @@ export class SprRenderer {
     pgm: WebGLProgram,
     uResolution: WebGLUniformLocation,
     uCamXY: WebGLUniformLocation,
-    uLayerScale: WebGLUniformLocation,
-    uLayerModulo: WebGLUniformLocation,
-    uRenderMode: WebGLUniformLocation,
     uNowMillis: WebGLUniformLocation,
     uBlendMode: WebGLUniformLocation,
     vao: WebGLVertexArrayObject,
@@ -164,9 +152,6 @@ export class SprRenderer {
     this.#pgm = pgm
     this.#uResolution = uResolution
     this.#uCamXY = uCamXY
-    this.#uLayerScale = uLayerScale
-    this.#uLayerModulo = uLayerModulo
-    this.#uRenderMode = uRenderMode
     this.#uNowMillis = uNowMillis
     this.#uBlendMode = uBlendMode
     this.#vao = vao
@@ -191,9 +176,6 @@ export class SprRenderer {
     nowMillis: number,
     camX: number,
     camY: number,
-    layerScale: number,
-    layerModulo: number,
-    renderMode: number,
     blendMode: number,
     resolutionW: number,
     resolutionH: number
@@ -203,9 +185,6 @@ export class SprRenderer {
     gl.useProgram(this.#pgm)
     gl.uniform1f(this.#uNowMillis, nowMillis)
     gl.uniform2f(this.#uCamXY, camX, camY)
-    gl.uniform1f(this.#uLayerScale, layerScale)
-    gl.uniform1f(this.#uLayerModulo, layerModulo)
-    gl.uniform1i(this.#uRenderMode, renderMode)
     gl.uniform1i(this.#uBlendMode, blendMode)
     gl.uniform2i(this.#uResolution, resolutionW, resolutionH)
 

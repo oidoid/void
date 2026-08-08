@@ -127,10 +127,10 @@ func (this *ButtonEnt) Update(
 	this.NinePatchEnt.Update(sprs)
 
 	if this.Text.Text != "" {
-		this.Text.XY = vgeo.XY[int16]{
-			X: int16(this.XY.X) + (int16(this.WH.W)-this.Text.Layout.W)/2,
-			Y: int16(this.XY.Y) + (int16(this.WH.H)-this.Text.Layout.TrimAllForceH)/2,
-		}
+		this.Text.XY = vgeo.NewXY(
+			int16(this.XY.X)+(int16(this.WH.W)-this.Text.Layout.W)/2,
+			int16(this.XY.Y)+(int16(this.WH.H)-this.Text.Layout.TrimAllForceH)/2,
+		)
 		this.Text.Pal = this.pal(this.TextPals)
 		this.Text.Update(font, sprs, layer.Clip)
 	}

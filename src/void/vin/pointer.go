@@ -24,14 +24,12 @@ type Pointer struct {
 func newPointer(poll PointerPoll, cam vgeo.XY[float32]) Pointer {
 	phyW := poll.Phy.W()
 	phyH := poll.Phy.H()
-	xy := vgeo.XY[float32]{X: cam.X + poll.Phy.Min.X, Y: cam.Y + poll.Phy.Min.Y}
+	xy := vgeo.NewXY(cam.X+poll.Phy.Min.X, cam.Y+poll.Phy.Min.Y)
 	return Pointer{
-		poll:   poll,
-		xy:     xy,
-		center: vgeo.XY[float32]{X: xy.X + phyW/2, Y: xy.Y + phyH/2},
-		centerPhy: vgeo.XY[float32]{
-			X: poll.Phy.Min.X + phyW/2, Y: poll.Phy.Min.Y + phyH/2,
-		},
+		poll:      poll,
+		xy:        xy,
+		center:    vgeo.NewXY(xy.X+phyW/2, xy.Y+phyH/2),
+		centerPhy: vgeo.NewXY(poll.Phy.Min.X+phyW/2, poll.Phy.Min.Y+phyH/2),
 	}
 }
 

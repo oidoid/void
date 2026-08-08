@@ -19,33 +19,25 @@ func UpdateClipFillNinePatches(
 		layer := gam.Layer(ent.Z().Layer())
 		clip := layer.Clip
 		ent.XY = clip.Min
-		ent.WH = vgeo.WH[uint16]{W: uint16(clip.W()), H: uint16(clip.H())}
+		ent.WH = vgeo.NewWH(uint16(clip.W()), uint16(clip.H()))
 		ent.Update(&layer.Sprs)
 	}
 	return vgame.Pause
 }
 
-func UpdateLevelClipNinePatches(
+func UpdateLvlEdgeNinePatches(
 	vec *vvec.Vec[ventities.NinePatchEnt],
 	gam *engine.Engine,
 ) vgame.Status {
 	ui := gam.Layer(gfx.LayerUI)
-	level := gam.Layer(gfx.LayerTiles)
-	levelClipPhy := level.ClipPhy
-	xy := ui.PhyToLayerInt(vgeo.NewXY(
-		float32(levelClipPhy.Min.X),
-		float32(levelClipPhy.Min.Y),
-	))
-	wh := ui.PhyToLayerWHInt(vgeo.WH[uint16]{
-		W: levelClipPhy.W(),
-		H: levelClipPhy.H(),
-	})
+	lvl := gam.Layer(gfx.LayerTiles)
+	edge := lvlEdge(lvl.ClipPhy, *gam.CanvasPhy(), ui)
 
 	ents := vec.Vals()
 	for i := range ents {
 		ent := &ents[i]
-		ent.XY = xy
-		ent.WH = wh
+		ent.XY = edge.Min
+		ent.WH = vgeo.NewWH(uint16(edge.W()), uint16(edge.H()))
 		ent.Update(&ui.Sprs)
 	}
 	return vgame.Pause
