@@ -10,22 +10,43 @@
  */
 export interface Debug {
   cam?: string
+  draw?: 'always' | string
   input?: string
-  /** debug render invalidations. */
+  /** debug draw invalidations. */
   invalid?: string
   looper?: string
   mem?: string
-  render?: 'always' | 'error' | string
 }
 
-export const debug: Readonly<Debug> | undefined = Debug(
-  globalThis.location?.href
-)
+export let debug: Debug | undefined = Debug(globalThis.location?.href)
 
 export function findDebugParam(url: string): string | undefined {
   return [...new URL(url).searchParams].find(
     ([k]) => k.toLowerCase() === 'debug'
   )?.[1]
+}
+
+export function setDrawAlwaysParam(always: boolean): void {
+  if (always) {
+    debug ??= {}
+    debug.draw = 'always'
+  } else if (debug) delete debug.draw
+
+  const csv =
+    debug &&
+    Object.entries(debug)
+      .map(([k, v]) => (v === 'true' ? k : `${k}=${v}`))
+      .join(',')
+
+  const url = new URL(location.href)
+  const keys = [...url.searchParams.keys()].filter(
+    k => k.toLowerCase() === 'debug'
+  )
+  for (const k of keys) url.searchParams.delete(k)
+  if (csv) url.searchParams.set('debug', csv)
+  else debug = undefined
+
+  history.replaceState(history.state, '', url)
 }
 
 /** @internal */
@@ -46,11 +67,11 @@ export function Debug(url: string | undefined): Debug | undefined {
   const v = all || 'void' in debug
   const fallback: {[k in keyof Debug]: boolean} = {
     cam: v,
+    draw: false,
     input: v,
     invalid: all,
     looper: v,
-    mem: v,
-    render: v
+    mem: v
   }
 
   for (const k in fallback) if (fallback[k as keyof Debug]) debug[k] ??= 'true'

@@ -28,6 +28,7 @@ import {
   isFullscreen,
   requestFullscreen
 } from '../utils/fullscreen-util.ts'
+import {debug, setDrawAlwaysParam} from './debug.ts'
 import {
   type LayerBlendMode,
   type LayerCamMode,
@@ -105,7 +106,7 @@ export class Engine {
     this.#wasm = result.instance.exports as Platform
     wasi.link(this.#wasm.memory)
     this.#wasm._start()
-    this.#drawAlways = debugDrawOn()
+    this.#drawAlways = debug?.draw === 'always'
     this.#frame = new DataView(
       this.#wasm.memory.buffer,
       this.#wasm.FramePointer(),
@@ -126,8 +127,7 @@ export class Engine {
     if (this.#registered) return
     this.#input.onEvent = () => this.#requestUpdate()
     this.#input.register('add')
-    addEventListener('blur', this.#onReset) // to-do: requestUpdate()?
-    addEventListener('visibilitychange', this.#onReset) // to-do: requestUpdate()?
+    addEventListener('visibilitychange', this.#onReset)
     // wait for the observer's initial callback to size the canvas; drawing
     // before then leaves it 0x0, which the compositor can flash black.
     this.#resizeObserver.observe(this.#canvas.parentElement!, {
@@ -258,6 +258,7 @@ export class Engine {
 
   #resumeSFX(): void {
     if (this.#sfx.ctx.state !== 'suspended') return
+    if (!navigator.userActivation?.isActive) return
     void this.#sfx.ctx.resume().catch(() => {})
   }
 
@@ -332,6 +333,7 @@ export class Engine {
 
   #onReset = (): void => {
     this.#input.reset()
+    this.#requestUpdate()
   }
 
   #applyFullscreenRequest(): void {
@@ -356,7 +358,7 @@ export class Engine {
     const drawAlways = this.#wasm.DrawAlways() !== 0
     if (drawAlways === this.#drawAlways) return
     this.#drawAlways = drawAlways
-    setDrawOnParam(drawAlways)
+    setDrawAlwaysParam(drawAlways)
   }
 
   #writeUpdate(renderer: Renderer, nowMillis: number): void {
@@ -390,41 +392,4 @@ export class Engine {
     this.#input.postupdate() // to-do: move to postupdate()?
     this.#lastTime = nowMillis
   }
-}
-
-function debugDrawOn(): boolean {
-  return (
-    findDebugParam(location.href)
-      ?.split(',')
-      .some(str => str === 'draw=on') ?? false
-  )
-}
-
-// to-do: decide on web vs Go split.
-function setDrawOnParam(always: boolean): void {
-  const csv =
-    findDebugParam(location.href)
-      ?.split(',')
-      .filter(str => str && str !== 'draw=on') ?? []
-  if (always) csv.push('draw=on') // to-do: use sette API? i think it handles all this.
-
-  const oldURL = new URL(location.href)
-  oldURL.searchParams.delete('debug')
-  const params = []
-  if (oldURL.searchParams.size) params.push(`${oldURL.searchParams}`)
-  if (csv.length) params.push(`debug=${csv.join(',')}`)
-
-  const newURL =
-    oldURL.origin +
-    oldURL.pathname +
-    (params.length ? `?${params.join('&')}` : '') +
-    oldURL.hash
-
-  history.replaceState(history.state, '', newURL)
-}
-
-function findDebugParam(url: string): string | undefined {
-  return [...new URL(url).searchParams].find(
-    ([k]) => k.toLowerCase() === 'debug'
-  )?.[1]
 }

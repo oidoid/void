@@ -1,25 +1,25 @@
 import {test} from 'node:test'
-import {assert} from '../../test/assert.ts'
+import {assert} from '../test/assert.ts'
 import {Debug} from './debug.ts'
 
 test('one param', () => {
-  const url = 'https://oidoid.com/?debug=render'
-  assert(Debug(url), {render: 'true'})
+  const url = 'https://oidoid.com/?debug=draw'
+  assert(Debug(url), {draw: 'true'})
 })
 
 test('debug and params are case-insensitive', () => {
-  const url = 'https://oidoid.com/?Debug=Render=foo'
-  assert(Debug(url), {render: 'foo'})
+  const url = 'https://oidoid.com/?Debug=draw=foo'
+  assert(Debug(url), {draw: 'foo'})
 })
 
 test('multiple vals', () => {
-  const url = 'https://oidoid.com/?debug=cam,input=bar,render=Foo'
-  assert(Debug(url), {cam: 'true', input: 'bar', render: 'Foo'})
+  const url = 'https://oidoid.com/?debug=cam,input=bar,draw=Foo'
+  assert(Debug(url), {cam: 'true', input: 'bar', draw: 'Foo'})
 })
 
 test('multiple vals and params', () => {
   const url =
-    'https://oidoid.com/?abc=1&debug=cam,input=foo,unknown0=Bar,Unknown1,render=baz,&def'
+    'https://oidoid.com/?abc=1&debug=cam,input=foo,unknown0=Bar,Unknown1,draw=baz,&def'
 
   const debug = Debug(url)
   assert(debug, {
@@ -27,7 +27,7 @@ test('multiple vals and params', () => {
     input: 'foo',
     unknown0: 'Bar',
     unknown1: 'true',
-    render: 'baz'
+    draw: 'baz'
   } as Debug)
   assert((debug as unknown as {unknown1: string}).unknown1, 'true')
   assert((debug as unknown as {unknown2: undefined}).unknown2, undefined)
@@ -38,7 +38,7 @@ test('no vals', () => {
   const debug = Debug(url)
   assert(debug?.cam, 'true')
   assert(debug?.input, 'true')
-  assert(debug?.render, 'true')
+  assert(debug?.draw, undefined)
 })
 
 test('all', () => {
@@ -48,18 +48,18 @@ test('all', () => {
   assert(debug?.input, 'true')
   assert(debug?.invalid, 'true')
   assert(debug?.mem, 'true')
-  assert(debug?.render, 'true')
+  assert(debug?.draw, undefined)
   assert((debug as {abc: string}).abc, 'def')
 })
 
 test('void', () => {
-  const url = 'https://oidoid.com/?debug=nativescale,void,render=always'
+  const url = 'https://oidoid.com/?debug=nativescale,void,draw=always'
   const debug = Debug(url)
   assert(debug?.cam, 'true')
   assert(debug?.input, 'true')
   assert(debug?.invalid, undefined)
   assert(debug?.mem, 'true')
-  assert(debug?.render, 'always')
+  assert(debug?.draw, 'always')
   assert((debug as {nativescale: string}).nativescale, 'true')
   assert((debug as {unknown?: string}).unknown, undefined)
 })
