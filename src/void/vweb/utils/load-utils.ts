@@ -1,4 +1,4 @@
-import * as V from '../../engine/index.ts'
+import {fetchImage} from './fetch-util.ts'
 
 /**
  * returns the cached handle if read permission is granted, else shows a file
@@ -19,7 +19,7 @@ export async function loadImgFromHandle(
   handle: FileSystemFileHandle
 ): Promise<HTMLImageElement> {
   const url = URL.createObjectURL(await handle.getFile())
-  const img = await V.fetchImage(url)
+  const img = await fetchImage(url)
   URL.revokeObjectURL(url)
   return img
 }
@@ -27,20 +27,7 @@ export async function loadImgFromHandle(
 /** parses a game config JSON file and returns the tileset metadata. */
 export async function loadConfigData(
   handle: FileSystemFileHandle
-): Promise<V.Tileset> {
+): Promise<unknown> {
   const json = JSON.parse(await (await handle.getFile()).text())
-  return json.tileset as V.Tileset
-}
-
-/**
- * parses a level JSON file and writes tileset / levelTiles / tile onto the
- * loader.
- */
-export async function loadLevelData(
-  handle: FileSystemFileHandle,
-  loader: V.Loader
-): Promise<void> {
-  const json = JSON.parse(await (await handle.getFile()).text())
-  loader.levelTiles = json.level
-  loader.tile = 0
+  return json.tileset
 }

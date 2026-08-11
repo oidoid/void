@@ -160,7 +160,24 @@ func parseAsset(file *vatlas.Ase) (*asset, error) {
 		frameOut.Pal = append([]vatlas.AseRGBA(nil), pal...)
 		out.Frames[frameI] = frameOut
 	}
+	if err := validateSliceNames(out); err != nil {
+		return nil, err
+	}
 	return out, nil
+}
+
+// verifies every slice belongs to an animation tag.
+func validateSliceNames(asset *asset) error {
+	tags := make(map[string]bool, len(asset.TagSpans))
+	for _, tag := range asset.TagSpans {
+		tags[tag.Name] = true
+	}
+	for _, slice := range asset.Slices {
+		if !tags[slice.Name] {
+			return fmt.Errorf("atlas slice %q has no matching tag", slice.Name)
+		}
+	}
+	return nil
 }
 
 func parsePal(pal []vatlas.AseRGBA, chunk *vatlas.AsePal) []vatlas.AseRGBA {

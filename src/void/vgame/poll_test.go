@@ -22,9 +22,12 @@ func TestPollSerializationRoundTrip(t *testing.T) {
 				Primary:  true,
 				Clicks:   vin.ClickPrimary | vin.ClickAux,
 			}},
-			Wheel: vin.WheelPoll{Delta: vgeo.XYZ[float32]{
-				XY: vgeo.NewXY[float32](1.5, -2.5), Z: 3.5,
-			}},
+			Wheel: vin.WheelPoll{
+				Delta: vgeo.XYZ[float32]{
+					XY: vgeo.NewXY[float32](1.5, -2.5), Z: 3.5,
+				},
+				Pinch: 4.5,
+			},
 			Kbd:     vin.KeyboardPoll{Keys: vin.KeyUp | vin.KeyLeft, TextLen: 11},
 			PadsLen: 1,
 			Pads: [vin.MaxGamepads]vin.GamepadPoll{{
@@ -69,21 +72,21 @@ func TestPollLayout(t *testing.T) {
 			t.Errorf("%s: offset %d, want %d", name, got, want)
 		}
 	}
-	check("DeltaMs", unsafe.Offsetof(poll.DeltaMillis), 4376)
-	check("NowMs", unsafe.Offsetof(poll.NowMillis), 4384)
-	check("UtcMs", unsafe.Offsetof(poll.UtcMillis), 4392)
-	check("CanvasPhy.W", unsafe.Offsetof(poll.CanvasPhy), 4400)
-	check("CanvasPhy.H", unsafe.Offsetof(poll.CanvasPhy)+2, 4402)
-	check("Fullscreen", unsafe.Offsetof(poll.Fullscreen), 4404)
-	check("DrawCount", unsafe.Offsetof(poll.DrawCount), 4408)
-	check("UpdateMs", unsafe.Offsetof(poll.UpdateMillis), 4416)
-	check("DevicePixelRatio", unsafe.Offsetof(poll.DevicePixelRatio), 4424)
-	check("Time.Year", unsafe.Offsetof(poll.TimeFormat), 4432)
-	check("Time.Month", unsafe.Offsetof(poll.TimeFormat)+2, 4434)
-	check("Time.Day", unsafe.Offsetof(poll.TimeFormat)+3, 4435)
-	check("Time.Hour", unsafe.Offsetof(poll.TimeFormat)+4, 4436)
-	check("Time.Minute", unsafe.Offsetof(poll.TimeFormat)+5, 4437)
-	check("Time.Second", unsafe.Offsetof(poll.TimeFormat)+6, 4438)
-	check("Time.Millis", unsafe.Offsetof(poll.TimeFormat)+8, 4440)
-	check("sizeof(Poll)", unsafe.Sizeof(poll), 4448)
+	check("DeltaMs", unsafe.Offsetof(poll.DeltaMillis), 4384)
+	check("NowMs", unsafe.Offsetof(poll.NowMillis), 4392)
+	check("UtcMs", unsafe.Offsetof(poll.UtcMillis), 4400)
+	check("CanvasPhy.W", unsafe.Offsetof(poll.CanvasPhy), 4408)
+	check("CanvasPhy.H", unsafe.Offsetof(poll.CanvasPhy)+2, 4410)
+	check("Fullscreen", unsafe.Offsetof(poll.Fullscreen), 4412)
+	check("DrawCount", unsafe.Offsetof(poll.DrawCount), 4416)
+	check("UpdateMs", unsafe.Offsetof(poll.UpdateMillis), 4424)
+	check("DevicePixelRatio", unsafe.Offsetof(poll.DevicePixelRatio), 4432)
+	check("Time.Year", unsafe.Offsetof(poll.TimeFormat), 4440)
+	check("Time.Month", unsafe.Offsetof(poll.TimeFormat)+2, 4442)
+	check("Time.Day", unsafe.Offsetof(poll.TimeFormat)+3, 4443)
+	check("Time.Hour", unsafe.Offsetof(poll.TimeFormat)+4, 4444)
+	check("Time.Minute", unsafe.Offsetof(poll.TimeFormat)+5, 4445)
+	check("Time.Second", unsafe.Offsetof(poll.TimeFormat)+6, 4446)
+	check("Time.Millis", unsafe.Offsetof(poll.TimeFormat)+8, 4448)
+	check("sizeof(Poll)", unsafe.Sizeof(poll), 4456)
 }

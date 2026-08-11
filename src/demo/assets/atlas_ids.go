@@ -17,7 +17,7 @@ const (
 	ColorBlue
 	ColorBlack
 	ColorRed
-	CursorPointer
+	CursorPoint
 	GridCell
 	MemProp5x600
 	MemProp5x601

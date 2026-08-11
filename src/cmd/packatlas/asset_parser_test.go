@@ -54,6 +54,23 @@ func TestParseUserData(t *testing.T) {
 	}
 }
 
+func TestParseAssetRejectsSliceWithoutTag(t *testing.T) {
+	file := &vatlas.Ase{Frames: []vatlas.AseFrame{{Chunks: []vatlas.AseChunk{
+		{
+			Header: vatlas.AseChunkHeader{Type: vatlas.AseChunkTags},
+			Tags:   &vatlas.AseTags{Tags: []vatlas.AseTagSpan{{Name: "idle"}}},
+		},
+		{
+			Header: vatlas.AseChunkHeader{Type: vatlas.AseChunkSlice},
+			Slice:  &vatlas.AseSlice{Name: "run"},
+		},
+	}}}}
+	_, err := parseAsset(file)
+	if err == nil || err.Error() != "atlas slice \"run\" has no matching tag" {
+		t.Fatalf("error = %v", err)
+	}
+}
+
 func TestParseAsset(t *testing.T) {
 	color := vatlas.AseRGBA{R: 1, G: 2, B: 3, A: 255}
 	data := func(text string) vatlas.AseChunk {

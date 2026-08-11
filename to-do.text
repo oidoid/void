@@ -1,3 +1,6 @@
+fix version string and filename to include publish date v0.1.10-371-gebd7041e.
+  `void v${V.bundle.version}+${V.bundle.published}.${V.bundle.hash} ───oidoid>°──`
+
 tv
   clean up Aseprite assets and make buttons look nice.
   paint with IDs.

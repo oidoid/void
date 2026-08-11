@@ -211,7 +211,7 @@ func swapAnims(
 			return nil, fmt.Errorf("%s %s: %w",
 				anim.asset.name, anim.tagSpan.Name, err)
 		}
-		hitbox, hurtbox, err := parseHitboxes(anim.asset, anim.tagSpan.Name)
+		hitbox, hurtbox, err := parseBoxes(anim.asset, anim.tagSpan.Name)
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", anim.asset.name, err)
 		}
@@ -534,7 +534,7 @@ func findLayerCel(asset *asset, frameI int, assetLayer uint16) (assetCel, bool) 
 	return cel, true
 }
 
-func parseHitboxes(
+func parseBoxes(
 	asset *asset,
 	tag string,
 ) (hit, hurt vgeo.Box[uint16], err error) {

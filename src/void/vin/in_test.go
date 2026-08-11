@@ -1,12 +1,19 @@
 package vin
 
 import (
+	"math"
 	"testing"
 
 	"github.com/oidoid/void/src/void/vgeo"
 )
 
 var zeroCam = vgeo.Box[float32]{}
+
+func xyNear(l, r vgeo.XY[float32]) bool {
+	const epsilon = .0001
+	return math.Abs(float64(l.X-r.X)) < epsilon &&
+		math.Abs(float64(l.Y-r.Y)) < epsilon
+}
 
 func TestIsHeld(t *testing.T) {
 	in := NewIn()
@@ -511,11 +518,117 @@ func TestWheel(t *testing.T) {
 	in.Update(
 		0,
 		&InputPoll{
-			Wheel: WheelPoll{Delta: vgeo.XYZ[float32]{XY: vgeo.XY[float32]{Y: 3.5}}},
+			Wheel: WheelPoll{
+				Delta: vgeo.XYZ[float32]{XY: vgeo.XY[float32]{Y: 3.5}},
+				Pinch: 4.5,
+			},
 		},
 		zeroCam,
 	)
 	if in.Wheel.Delta.Y != 3.5 {
 		t.Errorf("Wheel.Delta.Y mismatch: got %v", in.Wheel.Delta.Y)
+	}
+	if in.Wheel.Pinch != 4.5 {
+		t.Errorf("Wheel.Pinch mismatch: got %v", in.Wheel.Pinch)
+	}
+}
+
+func TestPinch(t *testing.T) {
+	in := NewIn()
+	poll := &InputPoll{
+		PtrsLen: 3,
+		Ptrs: [MaxPointers]PointerPoll{
+			{ID: 1, Primary: true, Clicks: ClickPrimary},
+			{ID: 2, Clicks: ClickPrimary},
+			{ID: 3, Clicks: ClickPrimary},
+		},
+	}
+	poll.Ptrs[0].Phy = vgeo.NewBox[float32](0, 0, 0, 0)
+	poll.Ptrs[1].Phy = vgeo.NewBox[float32](10, 0, 10, 0)
+	poll.Ptrs[2].Phy = vgeo.NewBox[float32](0, 0, 0, 0)
+	in.Update(0, poll, zeroCam)
+	if in.Pinch == nil ||
+		in.Pinch.SpanPhy != vgeo.NewXY[float32](10, 0) ||
+		!xyNear(in.Pinch.CenterPhy, vgeo.NewXY[float32](10.0/3.0, 0)) ||
+		in.Pinch.DeltaPhy != (vgeo.XY[float32]{}) ||
+		in.Pinch.DeltaCenterPhy != (vgeo.XY[float32]{}) {
+		t.Errorf("initial pinch = %#v, want span (10, 0), center (10/3, 0), and zero deltas", in.Pinch)
+	}
+
+	poll.Ptrs[1].Phy = vgeo.NewBox[float32](14, 0, 14, 0)
+	in.Update(1, poll, zeroCam)
+	if in.Pinch == nil ||
+		in.Pinch.SpanPhy != vgeo.NewXY[float32](14, 0) ||
+		!xyNear(in.Pinch.CenterPhy, vgeo.NewXY[float32](14.0/3.0, 0)) ||
+		in.Pinch.DeltaPhy != vgeo.NewXY[float32](4, 0) ||
+		!xyNear(in.Pinch.DeltaCenterPhy, vgeo.NewXY[float32](4.0/3.0, 0)) {
+		t.Errorf("moved pinch = %#v, want span (14, 0), center (14/3, 0), and deltas (4, 0), (4/3, 0)", in.Pinch)
+	}
+
+	in.Update(2, poll, zeroCam)
+	if in.Pinch == nil ||
+		in.Pinch.SpanPhy != vgeo.NewXY[float32](14, 0) ||
+		!xyNear(in.Pinch.CenterPhy, vgeo.NewXY[float32](14.0/3.0, 0)) ||
+		in.Pinch.DeltaPhy != (vgeo.XY[float32]{}) ||
+		in.Pinch.DeltaCenterPhy != (vgeo.XY[float32]{}) {
+		t.Errorf("stationary pinch = %#v, want span (14, 0), center (14/3, 0), and zero deltas", in.Pinch)
+	}
+
+	poll.PtrsLen = 1
+	in.Update(3, poll, zeroCam)
+	if in.Pinch != nil {
+		t.Errorf("Pinch = %#v, want nil", in.Pinch)
+	}
+}
+
+func TestDrag(t *testing.T) {
+	in := NewIn()
+	poll := &InputPoll{
+		PtrsLen: 2,
+		Ptrs: [MaxPointers]PointerPoll{
+			{ID: 1, Primary: true, Clicks: ClickPrimary},
+			{ID: 2, Clicks: ClickPrimary},
+		},
+	}
+	poll.Ptrs[0].Phy = vgeo.NewBox[float32](0, 0, 0, 0)
+	poll.Ptrs[1].Phy = vgeo.NewBox[float32](10, 0, 10, 0)
+	in.Update(0, poll, zeroCam)
+	if in.Ptrs[0].Drag != (Drag{StartPhy: vgeo.NewXY[float32](0, 0)}) ||
+		in.Ptrs[1].Drag != (Drag{StartPhy: vgeo.NewXY[float32](10, 0)}) {
+		t.Errorf(
+			"initial drags = %#v, %#v, want start points",
+			in.Ptrs[0].Drag,
+			in.Ptrs[1].Drag,
+		)
+	}
+
+	poll.Ptrs[0].Phy = vgeo.NewBox[float32](5, 0, 5, 0)
+	poll.Ptrs[1].Phy = vgeo.NewBox[float32](15, 0, 15, 0)
+	in.Update(1, poll, zeroCam)
+	for i := range in.Ptrs {
+		drag := in.Ptrs[i].Drag
+		startPhy := vgeo.NewXY[float32](float32(i*10), 0)
+		if drag.StartPhy != startPhy || !drag.On || !drag.Start || drag.End {
+			t.Errorf("pointer %d Drag = %#v, want start", i, drag)
+		}
+	}
+
+	poll.Ptrs[0].Clicks = 0
+	in.Update(2, poll, zeroCam)
+	if in.Ptrs[0].Drag != (Drag{
+		StartPhy: vgeo.NewXY[float32](0, 0), End: true,
+	}) {
+		t.Errorf(
+			"released pointer Drag = %#v, want end",
+			in.Ptrs[0].Drag,
+		)
+	}
+	if in.Ptrs[1].Drag != (Drag{
+		StartPhy: vgeo.NewXY[float32](10, 0), On: true,
+	}) {
+		t.Errorf(
+			"held pointer Drag = %#v, want on",
+			in.Ptrs[1].Drag,
+		)
 	}
 }

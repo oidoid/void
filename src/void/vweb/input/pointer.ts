@@ -44,6 +44,8 @@ export class Pointer {
   /** readonly. */
   polls: {[pointerID: number]: PointerPoll} = {}
   onEvent: OnEvent = () => {}
+  /** IDs with final zero-button polls to remove after the current update. */
+  readonly #ended: Set<number> = new Set()
   readonly #target: HTMLCanvasElement
 
   constructor(target: HTMLCanvasElement) {
@@ -62,15 +64,29 @@ export class Pointer {
   }
 
   reset(): void {
-    this.polls = {}
+    for (const poll of Object.values(this.polls)) {
+      poll.buttons = 0
+      this.#ended.add(poll.id)
+    }
+  }
+
+  postupdate(): void {
+    for (const id of this.#ended) delete this.polls[id]
+    this.#ended.clear()
   }
 
   #onPointer = (ev: PointerEvent): void => {
-    if (ev.type === 'pointercancel' || ev.type === 'pointerleave')
+    if (
+      ev.type === 'pointerleave' &&
+      ev.buttons === 0 &&
+      !this.#ended.has(ev.pointerId)
+    )
       delete this.polls[ev.pointerId]
     else {
-      if (ev.type === 'pointerdown')
+      if (ev.type === 'pointerdown') {
         this.#target.setPointerCapture(ev.pointerId)
+        this.#ended.delete(ev.pointerId)
+      }
       const bounds = this.#target.getBoundingClientRect()
       const scaleX = bounds.width === 0 ? 0 : this.#target.width / bounds.width
       const scaleY =
@@ -89,6 +105,11 @@ export class Pointer {
         primary: ev.isPrimary,
         buttons: ev.buttons
       }
+      if (
+        ev.type === 'pointercancel' ||
+        (ev.type === 'pointerup' && ev.pointerType === 'touch')
+      )
+        this.#ended.add(ev.pointerId)
     }
     this.onEvent(`input-${ev.type}` as AnyEvent)
   }

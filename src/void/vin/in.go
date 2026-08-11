@@ -7,11 +7,15 @@ import "github.com/oidoid/void/src/void/vgeo"
 // triggered.
 // to-do: add void-js combo support.
 type In struct {
-	Kbd   Keyboard  // all keyboards aggregated.
-	Ptr   *Pointer  // primary pointer; nil if absent.
-	Ptrs  []Pointer // all pointers including primary if exists; aggregate into on.
-	Pads  []Gamepad // aggregated into on.
-	Wheel Wheel     // wheel state; all wheels aggregated.
+	Kbd  Keyboard  // all keyboards aggregated.
+	Ptr  *Pointer  // primary pointer; nil if absent.
+	Ptrs []Pointer // all pointers including primary if exists; aggregate into on.
+	Pads []Gamepad // aggregated into on.
+	// active multi-pointer pinch; nil unless two or more pointers pressed.
+	Pinch *Pinch
+	Wheel Wheel // wheel state; all wheels aggregated.
+
+	DragMinPhy float32 // min pointer movement before dragging.
 
 	Dir vgeo.XY[int8] // unit dir vector.
 
@@ -36,13 +40,22 @@ type In struct {
 	buttonMap [gamepadButtonBits]Button
 	textMap   map[rune]Button
 
-	now      float64 // time of last update.
-	prevCam  vgeo.Box[float32]
-	prevPoll InputPoll
+	now        float64 // time of last update.
+	prevCam    vgeo.Box[float32]
+	prevPoll   InputPoll
+	dragStates [MaxPointers]dragState
+	pinch      Pinch
+}
+
+type dragState struct {
+	id       int32
+	startPhy vgeo.XY[float32]
+	used     bool
+	dragging bool
 }
 
 func NewIn() *In {
-	return &In{MinHeldMillis: 300, textMap: make(map[rune]Button)}
+	return &In{DragMinPhy: 5, MinHeldMillis: 300, textMap: make(map[rune]Button)}
 }
 
 // true if on hasn't changed in MinHeldAge ms.
@@ -253,6 +266,8 @@ func (this *In) Reset(now float64) {
 	this.Pads = this.Pads[:0]
 	this.Kbd = Keyboard{}
 	this.Wheel = Wheel{}
+	this.Pinch = nil
+	this.dragStates = [MaxPointers]dragState{}
 
 	this.On = 0
 	this.onChangedAt = now
@@ -317,6 +332,114 @@ func (this *In) Update(now float64, poll *InputPoll, cam vgeo.Box[float32]) {
 		pad := &poll.Pads[i]
 		this.Pads = append(this.Pads, Gamepad{GamepadPoll: *pad})
 	}
+	this.updateGestures()
+}
+
+func (this *In) updateGestures() {
+	var centerSum, lo, hi vgeo.XY[float32]
+	ptrs := 0
+	for i := range this.Ptrs {
+		ptr := &this.Ptrs[i]
+		this.updateDrag(ptr)
+		if ptr.poll.Clicks == 0 {
+			continue
+		}
+		xy := ptr.poll.Phy.Min
+		if ptrs == 0 {
+			lo = xy
+			hi = xy
+		} else {
+			if xy.X < lo.X {
+				lo.X = xy.X
+			} else if xy.X > hi.X {
+				hi.X = xy.X
+			}
+			if xy.Y < lo.Y {
+				lo.Y = xy.Y
+			} else if xy.Y > hi.Y {
+				hi.Y = xy.Y
+			}
+		}
+		centerSum.X += ptr.poll.Phy.Min.X + ptr.poll.Phy.W()/2
+		centerSum.Y += ptr.poll.Phy.Min.Y + ptr.poll.Phy.H()/2
+		ptrs++
+	}
+	this.updatePinch(ptrs, lo, hi, centerSum)
+}
+
+func (this *In) updatePinch(
+	ptrs int,
+	lo, hi, centerSum vgeo.XY[float32],
+) {
+	if ptrs < 2 {
+		this.Pinch = nil
+		return
+	}
+	span := vgeo.NewXY(hi.X-lo.X, hi.Y-lo.Y)
+	center := vgeo.NewXY(
+		centerSum.X/float32(ptrs),
+		centerSum.Y/float32(ptrs),
+	)
+	this.pinch.SpanPhy = span
+	this.pinch.CenterPhy = center
+	if this.Pinch == nil {
+		this.pinch.prevSpanPhy = span
+		this.pinch.prevCenterPhy = center
+		this.pinch.DeltaPhy = vgeo.XY[float32]{}
+		this.pinch.DeltaCenterPhy = vgeo.XY[float32]{}
+	} else {
+		this.pinch.DeltaPhy = vgeo.NewXY(
+			span.X-this.pinch.prevSpanPhy.X,
+			span.Y-this.pinch.prevSpanPhy.Y,
+		)
+		this.pinch.DeltaCenterPhy = vgeo.NewXY(
+			center.X-this.pinch.prevCenterPhy.X,
+			center.Y-this.pinch.prevCenterPhy.Y,
+		)
+		this.pinch.prevSpanPhy = span
+		this.pinch.prevCenterPhy = center
+	}
+	this.Pinch = &this.pinch
+}
+
+func (this *In) updateDrag(ptr *Pointer) {
+	var state *dragState
+	for i := range this.dragStates {
+		candidate := &this.dragStates[i]
+		if candidate.used && candidate.id == ptr.poll.ID {
+			state = candidate
+			break
+		}
+	}
+	if ptr.poll.Clicks == 0 {
+		if state != nil {
+			ptr.Drag = Drag{StartPhy: state.startPhy, End: state.dragging}
+			*state = dragState{}
+		}
+		return
+	}
+	if state == nil {
+		for i := range this.dragStates {
+			candidate := &this.dragStates[i]
+			if !candidate.used {
+				candidate.id = ptr.poll.ID
+				candidate.startPhy = ptr.poll.Phy.Min
+				candidate.used = true
+				ptr.Drag.StartPhy = candidate.startPhy
+				return
+			}
+		}
+		return
+	}
+	x := ptr.poll.Phy.Min.X - state.startPhy.X
+	y := ptr.poll.Phy.Min.Y - state.startPhy.Y
+	dragging := x*x+y*y >= this.DragMinPhy*this.DragMinPhy
+	ptr.Drag = Drag{
+		StartPhy: state.startPhy,
+		On:       dragging,
+		Start:    !state.dragging && dragging,
+	}
+	state.dragging = dragging
 }
 
 func (this *In) evalOn(poll *InputPoll) Button {

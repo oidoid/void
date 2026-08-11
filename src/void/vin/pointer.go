@@ -15,10 +15,22 @@ const (
 )
 
 type Pointer struct {
+	Drag      Drag
 	poll      PointerPoll
 	xy        vgeo.XY[float32] // cam XY.
 	center    vgeo.XY[float32] // to-do: is this even useful? i need layer offset.
 	centerPhy vgeo.XY[float32]
+}
+
+// to-do: does distinguishing input end on simper than start off? i think it's
+// easier to think in terms of on + an edge. do we miss being able to check some
+// conditions?
+type Drag struct {
+	// physical pointer position when pressed.
+	StartPhy vgeo.XY[float32]
+	On       bool
+	Start    bool // first active frame.
+	End      bool // first inactive frame after dragging.
 }
 
 func newPointer(poll PointerPoll, cam vgeo.XY[float32]) Pointer {

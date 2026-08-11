@@ -11,6 +11,7 @@ test('Wheel', async ctx => {
     assert(wheel.deltaX, 0)
     assert(wheel.deltaY, 0)
     assert(wheel.deltaZ, 0)
+    assert(wheel.pinch, 0)
   })
 
   await ctx.test('modifiers', () => {
@@ -32,6 +33,9 @@ test('Wheel', async ctx => {
     assert(wheel.deltaX, 0)
     assert(wheel.deltaY, 0)
     assert(wheel.deltaZ, 0)
+    assert(wheel.pinch, 2)
+    target.dispatchEvent(WheelTestEvent({deltaY: 3, ctrlKey: true}))
+    assert(wheel.pinch, 5)
   })
 
   await ctx.test('untrusted', () => {
@@ -53,5 +57,6 @@ test('Wheel', async ctx => {
     assert(wheel.deltaX, 0)
     assert(wheel.deltaY, 0)
     assert(wheel.deltaZ, 0)
+    assert(wheel.pinch, 0)
   })
 })

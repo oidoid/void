@@ -10,7 +10,33 @@ import (
 )
 
 func testCursorEnt(keyboard float32) CursorEnt {
-	return NewCursorEnt(vatlas.AnimID(1), 0, keyboard, vgfx.Z(0))
+	return NewCursorEnt(
+		vatlas.AnimID(1), 0, keyboard, vgeo.Box[uint16]{}, vgfx.Z(0),
+	)
+}
+
+func TestNewCursorEnt_Hitbox(t *testing.T) {
+	hitbox := vgeo.XYWH[uint16](1, 2, 3, 4)
+	ent := NewCursorEnt(vatlas.AnimID(1), 0, 0, hitbox, vgfx.Z(0))
+	want := vgeo.XYWH[float32](1, 2, 3, 4)
+	if ent.Hitbox != want {
+		t.Fatalf("Hitbox = %v, want %v", ent.Hitbox, want)
+	}
+}
+
+func TestUpdate_Hitbox(t *testing.T) {
+	ent := NewCursorEnt(
+		vatlas.AnimID(1), 0, 1, vgeo.XYWH[uint16](1, 2, 3, 4), vgfx.Z(0),
+	)
+	ent.XY = vgeo.NewXY[float32](10.5, 20.5)
+	ent.Visible = true
+	layer := vgfx.NewLayerConfig(0)
+	sprs := []vgfx.Spr{}
+	ent.Update(vin.NewIn(), &sprs, 0, &layer)
+	want := vgeo.NewBox[float32](11.5, 22.5, 14.5, 26.5)
+	if ent.Hitbox != want {
+		t.Fatalf("Hitbox = %v, want %v", ent.Hitbox, want)
+	}
 }
 
 var defaultBounds = vgeo.XYWH[float32](-100, -100, 1000, 1000)

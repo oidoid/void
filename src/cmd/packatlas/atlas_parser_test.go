@@ -225,7 +225,7 @@ func TestParseHitboxes(t *testing.T) {
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			file := &asset{Slices: test.slices}
-			hit, hurt, err := parseHitboxes(file, "run")
+			hit, hurt, err := parseBoxes(file, "run")
 			if test.errText != "" {
 				if err == nil || !strings.Contains(err.Error(), test.errText) {
 					t.Fatalf("error = %v, want %q", err, test.errText)

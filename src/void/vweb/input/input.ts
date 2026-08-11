@@ -15,7 +15,8 @@ import {
   maxTextLen,
   pollSize,
   pollsOffset,
-  wheelOffset
+  wheelOffset,
+  wheelPinchOffset
 } from './layout.ts'
 import {Pointer} from './pointer.ts'
 import {Wheel} from './wheel.ts'
@@ -44,6 +45,7 @@ export class Input {
 
   postupdate(): void {
     this.#keyboard.postupdate()
+    this.#pointer.postupdate()
     this.#wheel.postupdate()
   }
 
@@ -112,6 +114,7 @@ export function writeInputPoll(
   view.setFloat32(wheelOffset, wheel.deltaX, true)
   view.setFloat32(wheelOffset + 4, wheel.deltaY, true)
   view.setFloat32(wheelOffset + 8, wheel.deltaZ, true)
+  view.setFloat32(wheelPinchOffset, wheel.pinch, true)
   view.setUint16(keyboardOffset, keyboard.keys, true)
   const textBytes = encoder.encode(keyboard.text)
   const textLen = Math.min(textBytes.length, maxTextLen)

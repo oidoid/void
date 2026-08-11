@@ -33,10 +33,15 @@ export function MenuTestEvent(
 }
 
 export function PointerTestEvent(
-  type: 'pointercancel' | 'pointerdown' | 'pointermove' | 'pointerup',
-  init: Partial<Readonly<PointerTestEventInit>>
+  type:
+    | 'pointerenter'
+    | 'pointerleave'
+    | 'pointercancel'
+    | 'pointerdown'
+    | 'pointermove'
+    | 'pointerup',
+  init?: Partial<Readonly<PointerTestEventInit>>
 ): Event
-export function PointerTestEvent(type: 'pointerenter' | 'pointerleave'): Event
 export function PointerTestEvent(
   type:
     | 'pointercancel'

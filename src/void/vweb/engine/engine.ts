@@ -127,7 +127,7 @@ export class Engine {
     if (this.#registered) return
     this.#input.onEvent = () => this.#requestUpdate()
     this.#input.register('add')
-    addEventListener('visibilitychange', this.#onReset)
+    addEventListener('visibilitychange', this.#onVisibility)
     // wait for the observer's initial callback to size the canvas; drawing
     // before then leaves it 0x0, which the compositor can flash black.
     this.#resizeObserver.observe(this.#canvas.parentElement!, {
@@ -331,7 +331,7 @@ export class Engine {
     )
   }
 
-  #onReset = (): void => {
+  #onVisibility = (): void => {
     this.#input.reset()
     this.#requestUpdate()
   }

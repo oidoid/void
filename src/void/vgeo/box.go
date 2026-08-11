@@ -6,6 +6,8 @@ type Box[T vtypes.Number] struct {
 	Min, Max XY[T]
 }
 
+// to-do: see code size impact of these funcs.
+//
 //go:inline
 func NewBox[T vtypes.Number](minX, minY, maxX, maxY T) Box[T] {
 	return Box[T]{Min: XY[T]{X: minX, Y: minY}, Max: XY[T]{X: maxX, Y: maxY}}
@@ -14,6 +16,12 @@ func NewBox[T vtypes.Number](minX, minY, maxX, maxY T) Box[T] {
 //go:inline
 func XYWH[T vtypes.Number](x, y, w, h T) Box[T] {
 	return Box[T]{Min: XY[T]{X: x, Y: y}, Max: XY[T]{X: x + w, Y: y + h}}
+}
+
+//go:inline
+func (this *Box[T]) MoveTo(xy XY[T]) {
+	this.Min.AddTo(xy)
+	this.Max.AddTo(xy)
 }
 
 func (this Box[T]) HitsPoint(x, y T) bool {

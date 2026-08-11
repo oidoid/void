@@ -94,7 +94,13 @@ func InitInit(gam *engine.Engine) {
 	mouseStatuses.Add(entities.NewMouseStatusEnt())
 	gam.RegisterEntUpdate(mouseStatuses)
 
-	cursor := ventities.NewCursorEnt(assets.CursorPointer, 0, 0, gfx.ZCursor)
+	cursor := ventities.NewCursorEnt(
+		assets.CursorPoint,
+		0,
+		0,
+		gam.Atlas.Anims[int(assets.CursorPoint)].Hitbox,
+		gfx.ZCursor,
+	)
 	cursors := ventities.NewEntVec(hooks.UpdateCursors)
 	cursors.Add(cursor)
 

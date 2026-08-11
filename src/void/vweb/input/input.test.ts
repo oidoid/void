@@ -18,16 +18,17 @@ import {
   pollsOffset,
   updateByteLen,
   updateMsOffset,
-  wheelOffset
+  wheelOffset,
+  wheelPinchOffset
 } from './layout.ts'
 import type {Pointer} from './pointer.ts'
 import type {Wheel} from './wheel.ts'
 
 test('Poll ABI layout matches vgame.Poll', () => {
-  assert(drawCountOffset, 4408)
-  assert(updateMsOffset, 4416)
-  assert(devicePixelRatioOffset, 4424)
-  assert(updateByteLen, 4448)
+  assert(drawCountOffset, 4416)
+  assert(updateMsOffset, 4424)
+  assert(devicePixelRatioOffset, 4432)
+  assert(updateByteLen, 4456)
 })
 
 const encoder: TextEncoder = new TextEncoder()
@@ -123,6 +124,7 @@ test('writeInputPoll()', async ctx => {
           }
         ],
         wheel: [1.5, -2.5, 3.5],
+        pinch: 4.5,
         keyboard: {keys: 0b101, text: 'hello world', textOverflow: false},
         gamepads: [
           {
@@ -142,6 +144,7 @@ test('writeInputPoll()', async ctx => {
       wheel.deltaX = want.wheel[0]!
       wheel.deltaY = want.wheel[1]!
       wheel.deltaZ = want.wheel[2]!
+      wheel.pinch = want.pinch
       gamepad.polls = {3: want.gamepads[0]!}
 
       writeInputPoll(
@@ -312,6 +315,7 @@ function readInputPoll(view: DataView): object {
       view.getFloat32(wheelOffset + 4, true),
       view.getFloat32(wheelOffset + 8, true)
     ],
+    pinch: view.getFloat32(wheelPinchOffset, true),
     keyboard: {
       keys: view.getUint16(keyboardOffset, true),
       text: new TextDecoder().decode(
@@ -335,7 +339,7 @@ function newInputs(
   return {
     keyboard: {keys, text} as unknown as Keyboard,
     pointer: {polls: {}} as unknown as Pointer,
-    wheel: {deltaX: 0, deltaY: 0, deltaZ: 0} as unknown as Wheel,
+    wheel: {deltaX: 0, deltaY: 0, deltaZ: 0, pinch: 0} as unknown as Wheel,
     gamepad: {polls: {}} as unknown as Gamepad
   }
 }
