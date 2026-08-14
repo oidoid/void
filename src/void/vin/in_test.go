@@ -378,6 +378,30 @@ func TestMapText(t *testing.T) {
 	}
 }
 
+func TestMapDefaultText(t *testing.T) {
+	tests := []struct {
+		text string
+		want Button
+	}{
+		{text: "0", want: ButtonScaleReset},
+		{text: "-", want: ButtonScaleDec},
+		{text: "+", want: ButtonScaleInc},
+	}
+	for _, test := range tests {
+		t.Run(test.text, func(t *testing.T) {
+			in := NewIn()
+			in.MapDefaultText()
+			poll := &InputPoll{}
+			copy(poll.Kbd.Text[:], test.text)
+			poll.Kbd.TextLen = uint16(len(test.text))
+			in.Update(0, poll, zeroCam)
+			if !in.IsOn(test.want) {
+				t.Errorf("text %q did not map to %v", test.text, test.want)
+			}
+		})
+	}
+}
+
 func TestMaskBlocksOn(t *testing.T) {
 	in := NewIn()
 	in.MapKey(KeyA, ButtonA)
@@ -518,18 +542,12 @@ func TestWheel(t *testing.T) {
 	in.Update(
 		0,
 		&InputPoll{
-			Wheel: WheelPoll{
-				Delta: vgeo.XYZ[float32]{XY: vgeo.XY[float32]{Y: 3.5}},
-				Pinch: 4.5,
-			},
+			Wheel: WheelPoll{Delta: vgeo.XYZ[float32]{XY: vgeo.XY[float32]{Y: 3.5}}},
 		},
 		zeroCam,
 	)
 	if in.Wheel.Delta.Y != 3.5 {
 		t.Errorf("Wheel.Delta.Y mismatch: got %v", in.Wheel.Delta.Y)
-	}
-	if in.Wheel.Pinch != 4.5 {
-		t.Errorf("Wheel.Pinch mismatch: got %v", in.Wheel.Pinch)
 	}
 }
 
@@ -608,13 +626,26 @@ func TestDrag(t *testing.T) {
 	for i := range in.Ptrs {
 		drag := in.Ptrs[i].Drag
 		startPhy := vgeo.NewXY[float32](float32(i*10), 0)
-		if drag.StartPhy != startPhy || !drag.On || !drag.Start || drag.End {
+		if drag.StartPhy != startPhy ||
+			drag.DeltaPhy != vgeo.NewXY[float32](5, 0) ||
+			!drag.On || !drag.Start || drag.End {
 			t.Errorf("pointer %d Drag = %#v, want start", i, drag)
 		}
 	}
 
-	poll.Ptrs[0].Clicks = 0
+	poll.Ptrs[0].Phy = vgeo.NewBox[float32](7, 0, 7, 0)
+	poll.Ptrs[1].Phy = vgeo.NewBox[float32](17, 0, 17, 0)
 	in.Update(2, poll, zeroCam)
+	for i := range in.Ptrs {
+		drag := in.Ptrs[i].Drag
+		if drag.DeltaPhy != vgeo.NewXY[float32](2, 0) ||
+			!drag.On || drag.Start || drag.End {
+			t.Errorf("pointer %d Drag = %#v, want on with delta (2, 0)", i, drag)
+		}
+	}
+
+	poll.Ptrs[0].Clicks = 0
+	in.Update(3, poll, zeroCam)
 	if in.Ptrs[0].Drag != (Drag{
 		StartPhy: vgeo.NewXY[float32](0, 0), End: true,
 	}) {

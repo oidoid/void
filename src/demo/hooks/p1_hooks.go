@@ -17,10 +17,10 @@ func UpdateP1s(
 	clip := layer.Clip
 	ents := vec.Vals()
 	deltaMillis := gam.DeltaMs()
-	level := gam.Level
+	lvl := gam.Level
 	loop := vgame.Pause
 	for i := range ents {
-		loop |= ents[i].Update(sprs, clip, deltaMillis, level)
+		loop |= ents[i].Update(sprs, clip, deltaMillis, lvl)
 	}
 	return loop
 }

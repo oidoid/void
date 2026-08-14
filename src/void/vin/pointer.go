@@ -28,6 +28,8 @@ type Pointer struct {
 type Drag struct {
 	// physical pointer position when pressed.
 	StartPhy vgeo.XY[float32]
+	// physical pointer movement since the last update.
+	DeltaPhy vgeo.XY[float32]
 	On       bool
 	Start    bool // first active frame.
 	End      bool // first inactive frame after dragging.

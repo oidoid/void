@@ -28,6 +28,31 @@ func TestNewP1Ent(t *testing.T) {
 	}
 }
 
+func TestP1EntDrawsWhenSpriteHitsClip(t *testing.T) {
+	clip := vgeo.XYWH[float32](0, 0, 10, 10)
+	level := vlevels.Level{Box: vgeo.XYWH[int32](0, 0, 10, 10)}
+	tests := []struct {
+		name string
+		x    float32
+		want int
+	}{
+		{name: "overlaps left edge", x: -7, want: 1},
+		{name: "touches left edge", x: -8, want: 0},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ent := NewP1Ent(vgeo.NewXY(test.x, float32(0)), vatlas.Anim{
+				W: 8, H: 13,
+			})
+			var sprs []vgfx.Spr
+			ent.Update(&sprs, clip, 0, &level)
+			if got := len(sprs); got != test.want {
+				t.Fatalf("sprites = %v, want %v", got, test.want)
+			}
+		})
+	}
+}
+
 func TestP1EntTurnsRightAtWalls(t *testing.T) {
 	tiles := make([]vatlas.AnimID, 64)
 	for x := range 8 {

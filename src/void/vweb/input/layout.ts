@@ -8,10 +8,8 @@ export const pollSize: number = 32
 export const pollsOffset: number = 4
 /** byte offset of WheelPoll within Update. */
 export const wheelOffset: number = pollsOffset + maxPointers * pollSize
-/** byte offset of trackpad pinch within WheelPoll. */
-export const wheelPinchOffset: number = wheelOffset + 12
-/** byte offset of KeyboardPoll within Update (WheelPoll = 16 bytes). */
-export const keyboardOffset: number = wheelPinchOffset + 4
+/** byte offset of KeyboardPoll within Update (WheelPoll = 12 bytes). */
+export const keyboardOffset: number = wheelOffset + 12
 /** byte offset of TextLen field within KeyboardPoll (after Keys uint16 = 2 bytes). */
 export const keyboardTextLenOffset: number = keyboardOffset + 2
 /** byte offset of Text field within KeyboardPoll (after Keys + TextLen = 4 bytes). */
@@ -30,7 +28,7 @@ export const gamepadPollSize: number = 24
 export const maxGamepads: number = 4
 /** byte offset of DeltaMs field within Update. */
 export const deltaMsOffset: number =
-  gamepadsOffset + maxGamepads * gamepadPollSize + 4
+  gamepadsOffset + maxGamepads * gamepadPollSize
 /** byte offset of NowMs field within Update. */
 export const nowMsOffset: number = deltaMsOffset + 8
 /** byte offset of UTC milliseconds within Update. */

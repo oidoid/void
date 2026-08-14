@@ -24,10 +24,16 @@ type Engine struct {
 	BeepSuperballs bool
 	SuperballGrid  vgrid.Grid
 	LastBoingMs    float64
+	LvlZoom        float32 // absolute lvl scale; zero uses the fitted scale.
 }
 
 var Version string
 var _ vgame.Game = (*Engine)(nil)
+
+const (
+	lvlScaleMin = float32(1)
+	lvlScaleMax = float32(80)
+)
 
 func New() *Engine {
 	font := vtext.MemProp5x6
@@ -40,18 +46,9 @@ func New() *Engine {
 		LastBoingMs: -math.MaxFloat64,
 	}
 	this.Layer(gfx.LayerTiles).Shader = vgfx.ShaderTiles
-	this.Layer(gfx.LayerTiles).ScaleMode = vgfx.LayerScaleModeAutoInt
-	this.Layer(gfx.LayerTiles).AutoscaleMinClip = vgeo.NewWH(
-		gfx.LevelClipWPhy, gfx.LevelClipHPhy,
-	)
-	this.Layer(gfx.LayerP1).ScaleMode = vgfx.LayerScaleModeAutoInt
-	this.Layer(gfx.LayerP1).AutoscaleMinClip = vgeo.NewWH(
-		gfx.LevelClipWPhy, gfx.LevelClipHPhy,
-	)
-	this.Layer(gfx.LayerSuperballs).ScaleMode = vgfx.LayerScaleModeAutoInt
-	this.Layer(gfx.LayerSuperballs).AutoscaleMinClip = vgeo.NewWH(
-		gfx.LevelClipWPhy, gfx.LevelClipHPhy,
-	)
+	this.Layer(gfx.LayerTiles).ScaleMode = vgfx.LayerScaleModeManual
+	this.Layer(gfx.LayerP1).ScaleMode = vgfx.LayerScaleModeManual
+	this.Layer(gfx.LayerSuperballs).ScaleMode = vgfx.LayerScaleModeManual
 	*this.Cam() = this.Layer(gfx.LayerSuperballs).LayerToPhyScale(
 		vgeo.NewXY[float32](-96, -96),
 	)
@@ -79,6 +76,111 @@ func New() *Engine {
 
 	this.SuperballGrid = vgrid.New(lvl, diameter, 2*1024*1024)
 	return this
+}
+
+func (this *Engine) UpdateLvlLayers() {
+	canvasPhy := *this.CanvasPhy()
+	baseScale := lvlScale(canvasPhy)
+	scale := this.lvlZoom(baseScale)
+	this.applyLvlScale(canvasPhy, baseScale, scale)
+}
+
+func (this *Engine) applyLvlScale(
+	canvasPhy vgeo.WH[uint16],
+	baseScale uint16,
+	scale float32,
+) {
+	this.LvlZoom = scale
+	clipW := gfx.LevelClipWPhy * baseScale
+	clipH := gfx.LevelClipHPhy * baseScale
+	clipPhy := vgeo.XYWH(
+		centerOffset(canvasPhy.W, clipW),
+		centerOffset(canvasPhy.H, clipH),
+		clipW,
+		clipH,
+	)
+	this.Layer(gfx.LayerTiles).ClipPhy = clipPhy
+	this.Layer(gfx.LayerTiles).Scale = scale
+	this.Layer(gfx.LayerP1).ClipPhy = clipPhy
+	this.Layer(gfx.LayerP1).Scale = scale
+	this.Layer(gfx.LayerSuperballs).ClipPhy = clipPhy
+	this.Layer(gfx.LayerSuperballs).Scale = scale
+}
+
+// adjusts lvl zoom while keeping the point at phy fixed on screen.
+func (this *Engine) ZoomLvlAt(phy vgeo.XY[float32], by float32) bool {
+	if by <= 0 {
+		return false
+	}
+	baseScale := lvlScale(*this.CanvasPhy())
+	scale := this.lvlZoom(baseScale) * by
+	return this.setLvlScaleAt(phy, scale)
+}
+
+// adjusts lvl scale while keeping the point at phy fixed on screen.
+func (this *Engine) AdjustLvlScaleAt(phy vgeo.XY[float32], by float32) bool {
+	baseScale := lvlScale(*this.CanvasPhy())
+	scale := this.lvlZoom(baseScale) + by
+	return this.setLvlScaleAt(phy, scale)
+}
+
+// resets lvl scale to the fitted scale while keeping the point at phy fixed.
+func (this *Engine) ResetLvlScaleAt(phy vgeo.XY[float32]) bool {
+	return this.setLvlScaleAt(phy, float32(lvlScale(*this.CanvasPhy())))
+}
+
+func (this *Engine) setLvlScaleAt(
+	phy vgeo.XY[float32],
+	scale float32,
+) bool {
+	canvasPhy := *this.CanvasPhy()
+	baseScale := lvlScale(canvasPhy)
+	scale = clampLvlScale(scale)
+	if scale == this.lvlZoom(baseScale) {
+		return false
+	}
+	tiles := this.Layer(gfx.LayerTiles)
+	xy := tiles.PhyToLayer(phy)
+	this.applyLvlScale(canvasPhy, baseScale, scale)
+	drawn := tiles.LayerToPhy(xy)
+	this.Cam().AddTo(vgeo.NewXY(drawn.X-phy.X, drawn.Y-phy.Y))
+	return true
+}
+
+func (this *Engine) lvlZoom(baseScale uint16) float32 {
+	zoom := this.LvlZoom
+	if zoom == 0 {
+		zoom = float32(baseScale)
+	}
+	return clampLvlScale(zoom)
+}
+
+func centerOffset(canvas, clip uint16) uint16 {
+	if canvas <= clip {
+		return 0
+	}
+	return (canvas - clip) / 2
+}
+
+func lvlScale(canvasPhy vgeo.WH[uint16]) uint16 {
+	scale := canvasPhy.W / gfx.LevelClipWPhy
+	if hScale := canvasPhy.H / gfx.LevelClipHPhy; hScale < scale {
+		scale = hScale
+	}
+	if scale == 0 {
+		return 1
+	}
+	return scale
+}
+
+func clampLvlScale(scale float32) float32 {
+	if scale < lvlScaleMin {
+		return lvlScaleMin
+	}
+	if scale > lvlScaleMax {
+		return lvlScaleMax
+	}
+	return scale
 }
 
 func (this *Engine) Boing(dx, dy float32) {

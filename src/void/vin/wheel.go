@@ -9,6 +9,4 @@ type Wheel struct {
 type WheelPoll struct {
 	// horizontal, vertical, and depth scroll delta in client pixels.
 	Delta vgeo.XYZ[float32]
-	// signed trackpad pinch delta in client pixels.
-	Pinch float32
 }

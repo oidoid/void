@@ -50,6 +50,7 @@ type In struct {
 type dragState struct {
 	id       int32
 	startPhy vgeo.XY[float32]
+	prevPhy  vgeo.XY[float32]
 	used     bool
 	dragging bool
 }
@@ -217,9 +218,9 @@ func (this *In) MapDefaults() {
 }
 
 func (this *In) MapDefaultText() {
-	this.MapText('+', ButtonScaleInc)
-	this.MapText('=', ButtonScaleReset)
 	this.MapText('-', ButtonScaleDec)
+	this.MapText('0', ButtonScaleReset)
+	this.MapText('+', ButtonScaleInc)
 }
 
 func (this *In) MapDefaultKeyboard() {
@@ -424,6 +425,7 @@ func (this *In) updateDrag(ptr *Pointer) {
 			if !candidate.used {
 				candidate.id = ptr.poll.ID
 				candidate.startPhy = ptr.poll.Phy.Min
+				candidate.prevPhy = ptr.poll.Phy.Min
 				candidate.used = true
 				ptr.Drag.StartPhy = candidate.startPhy
 				return
@@ -434,11 +436,20 @@ func (this *In) updateDrag(ptr *Pointer) {
 	x := ptr.poll.Phy.Min.X - state.startPhy.X
 	y := ptr.poll.Phy.Min.Y - state.startPhy.Y
 	dragging := x*x+y*y >= this.DragMinPhy*this.DragMinPhy
+	delta := vgeo.NewXY(
+		ptr.poll.Phy.Min.X-state.prevPhy.X,
+		ptr.poll.Phy.Min.Y-state.prevPhy.Y,
+	)
 	ptr.Drag = Drag{
 		StartPhy: state.startPhy,
+		DeltaPhy: delta,
 		On:       dragging,
 		Start:    !state.dragging && dragging,
 	}
+	if !dragging {
+		ptr.Drag.DeltaPhy = vgeo.XY[float32]{}
+	}
+	state.prevPhy = ptr.poll.Phy.Min
 	state.dragging = dragging
 }
 

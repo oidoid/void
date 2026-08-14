@@ -39,7 +39,9 @@ func (this *P1Ent) Update(
 	lvl *vlevels.Level,
 ) vgame.Status {
 	this.Move(deltaMillis, lvl)
-	if clip.HitsXY(this.XY) {
+	if clip.HitsBox(vgeo.XYWH(
+		this.X, this.Y, float32(this.W), float32(this.H),
+	)) {
 		*sprs = append(*sprs, this.spr())
 	}
 	return vgame.Pause // demo doesn't want p1 to require updates.
