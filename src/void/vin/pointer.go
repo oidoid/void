@@ -15,7 +15,9 @@ const (
 )
 
 type Pointer struct {
-	Drag      Drag
+	Drag Drag
+	// physical pointer bounds changed since the preceding input poll.
+	Moved     bool
 	poll      PointerPoll
 	xy        vgeo.XY[float32] // cam XY.
 	center    vgeo.XY[float32] // to-do: is this even useful? i need layer offset.
@@ -35,12 +37,15 @@ type Drag struct {
 	End      bool // first inactive frame after dragging.
 }
 
-func newPointer(poll PointerPoll, cam vgeo.XY[float32]) Pointer {
+func newPointer(
+	poll PointerPoll, cam vgeo.XY[float32], moved bool,
+) Pointer {
 	phyW := poll.Phy.W()
 	phyH := poll.Phy.H()
 	xy := vgeo.NewXY(cam.X+poll.Phy.Min.X, cam.Y+poll.Phy.Min.Y)
 	return Pointer{
 		poll:      poll,
+		Moved:     moved,
 		xy:        xy,
 		center:    vgeo.NewXY(xy.X+phyW/2, xy.Y+phyH/2),
 		centerPhy: vgeo.NewXY(poll.Phy.Min.X+phyW/2, poll.Phy.Min.Y+phyH/2),

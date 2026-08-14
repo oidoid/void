@@ -61,6 +61,13 @@ func TestPollSerializationRoundTrip(t *testing.T) {
 	}
 }
 
+func TestPollDeltaSecs(t *testing.T) {
+	poll := Poll{DeltaMillis: 16.5}
+	if got, want := poll.DeltaSecs(), .0165; got != want {
+		t.Errorf("DeltaSecs() = %v, want %v", got, want)
+	}
+}
+
 // verify Go struct offsets match the TS layout constants in
 // `src/void/vweb/input/layout.ts.`
 func TestPollLayout(t *testing.T) {

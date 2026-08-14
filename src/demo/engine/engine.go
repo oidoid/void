@@ -25,6 +25,9 @@ type Engine struct {
 	SuperballGrid  vgrid.Grid
 	LastBoingMs    float64
 	LvlZoom        float32 // absolute lvl scale; zero uses the fitted scale.
+	// to-do: Cam struct.
+	CamKeyPhy vgeo.XY[float32] // accumulates keyboard movement in phy coordinates.
+	CamPanOn  bool
 }
 
 var Version string
@@ -89,7 +92,7 @@ func (this *Engine) applyLvlScale(
 	canvasPhy vgeo.WH[uint16],
 	baseScale uint16,
 	scale float32,
-) {
+) vgeo.Box[uint16] {
 	this.LvlZoom = scale
 	clipW := gfx.LevelClipWPhy * baseScale
 	clipH := gfx.LevelClipHPhy * baseScale
@@ -105,6 +108,7 @@ func (this *Engine) applyLvlScale(
 	this.Layer(gfx.LayerP1).Scale = scale
 	this.Layer(gfx.LayerSuperballs).ClipPhy = clipPhy
 	this.Layer(gfx.LayerSuperballs).Scale = scale
+	return clipPhy
 }
 
 // adjusts lvl zoom while keeping the point at phy fixed on screen.
@@ -140,10 +144,19 @@ func (this *Engine) setLvlScaleAt(
 		return false
 	}
 	tiles := this.Layer(gfx.LayerTiles)
-	xy := tiles.PhyToLayer(phy)
-	this.applyLvlScale(canvasPhy, baseScale, scale)
-	drawn := tiles.LayerToPhy(xy)
-	this.Cam().AddTo(vgeo.NewXY(drawn.X-phy.X, drawn.Y-phy.Y))
+	oldClipPhy := tiles.ClipPhy
+	oldScale := tiles.ScaleOrDefault()
+	cam := *this.Cam()
+	clipPhy := this.applyLvlScale(canvasPhy, baseScale, scale)
+	ratio := scale / oldScale
+	// scales cam's old clip-relative distance about phy, then shifts it into the
+	// new clip so phy stays fixed on screen.
+	this.Cam().X =
+		(phy.X-float32(oldClipPhy.Min.X)+cam.X)*ratio +
+			float32(clipPhy.Min.X) - phy.X
+	this.Cam().Y =
+		(phy.Y-float32(oldClipPhy.Min.Y)+cam.Y)*ratio +
+			float32(clipPhy.Min.Y) - phy.Y
 	return true
 }
 

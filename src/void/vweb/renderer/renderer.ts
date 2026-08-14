@@ -154,11 +154,18 @@ export class Renderer {
     depth: boolean,
     clipPhy: Readonly<XYWH>
   ): void {
-    const clipTarget = this.#clip.begin(layerScale, blendMode, depth, clipPhy)
+    const clipTarget = this.#clip.begin(
+      layerScale,
+      blendMode,
+      depth,
+      clipPhy,
+      camX,
+      camY
+    )
     this.#tiles.draw(
       nowMillis,
-      camX / layerScale,
-      camY / layerScale,
+      clipTarget.camX,
+      clipTarget.camY,
       clipTarget.w,
       clipTarget.h
     )
@@ -177,14 +184,21 @@ export class Renderer {
     depth: boolean,
     clipPhy: Readonly<XYWH>
   ): void {
-    const clipTarget = this.#clip.begin(layerScale, blendMode, depth, clipPhy)
+    const clipTarget = this.#clip.begin(
+      layerScale,
+      blendMode,
+      depth,
+      clipPhy,
+      camX,
+      camY
+    )
     this.#sprs.draw(
       buffer,
       sprPtr,
       sprCount,
       nowMillis,
-      camX / layerScale,
-      camY / layerScale,
+      clipTarget.camX,
+      clipTarget.camY,
       blendMode,
       clipTarget.w,
       clipTarget.h

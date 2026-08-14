@@ -17,7 +17,9 @@ type In struct {
 
 	DragMinPhy float32 // min pointer movement before dragging.
 
-	Dir vgeo.XY[int8] // unit dir vector.
+	Dir     vgeo.XY[int8] // unit dir vector.
+	PrevDir vgeo.XY[int8] // prior unit dir vector.
+	DirOn   bool
 
 	On     Button
 	PrevOn Button
@@ -166,6 +168,11 @@ func (this *In) IsAnyStart(btns Button) bool {
 	return false
 }
 
+// reports when any directional button becomes active.
+func (this *In) DirOnStart() bool {
+	return this.IsAnyOnStart(ButtonL | ButtonR | ButtonU | ButtonD)
+}
+
 // map each keyboard key to all buttons.
 func (this *In) MapKey(keys Key, btns Button) {
 	for bit := range keyBits {
@@ -276,6 +283,8 @@ func (this *In) Reset(now float64) {
 	this.prevCam = vgeo.Box[float32]{}
 
 	this.Dir = vgeo.XY[int8]{}
+	this.PrevDir = vgeo.XY[int8]{}
+	this.DirOn = false
 }
 
 func (this *In) Update(now float64, poll *InputPoll, cam vgeo.Box[float32]) {
@@ -300,22 +309,11 @@ func (this *In) Update(now float64, poll *InputPoll, cam vgeo.Box[float32]) {
 	}
 
 	this.Dirty = cam != this.prevCam || !inputEq(poll, &this.prevPoll)
-	this.prevPoll = *poll
 	this.prevCam = cam
 
-	this.Dir = vgeo.XY[int8]{}
-	if this.On&ButtonR != 0 {
-		this.Dir.X++
-	}
-	if this.On&ButtonL != 0 {
-		this.Dir.X--
-	}
-	if this.On&ButtonD != 0 {
-		this.Dir.Y++
-	}
-	if this.On&ButtonU != 0 {
-		this.Dir.Y--
-	}
+	this.PrevDir = this.Dir
+	this.Dir = buttonDir(this.On)
+	this.DirOn = this.Dir != (vgeo.XY[int8]{})
 
 	this.Kbd = Keyboard{
 		Keys:         poll.Kbd.Keys,
@@ -324,16 +322,47 @@ func (this *In) Update(now float64, poll *InputPoll, cam vgeo.Box[float32]) {
 	}
 	this.Wheel = Wheel{WheelPoll: poll.Wheel}
 	for i := range poll.PtrsLen {
-		this.Ptrs = append(this.Ptrs, newPointer(poll.Ptrs[i], cam.Min))
+		ptr := newPointer(
+			poll.Ptrs[i], cam.Min, pointerMoved(poll.Ptrs[i], &this.prevPoll),
+		)
+		this.Ptrs = append(this.Ptrs, ptr)
 	}
 	if len(this.Ptrs) > 0 {
 		this.Ptr = &this.Ptrs[0]
 	}
+	this.prevPoll = *poll
 	for i := range poll.PadsLen {
 		pad := &poll.Pads[i]
 		this.Pads = append(this.Pads, Gamepad{GamepadPoll: *pad})
 	}
 	this.updateGestures()
+}
+
+func pointerMoved(poll PointerPoll, prev *InputPoll) bool {
+	for i := range prev.PtrsLen {
+		candidate := prev.Ptrs[i]
+		if candidate.ID == poll.ID {
+			return candidate.Phy != poll.Phy
+		}
+	}
+	return true
+}
+
+func buttonDir(on Button) vgeo.XY[int8] {
+	dir := vgeo.XY[int8]{}
+	if on&ButtonR != 0 {
+		dir.X++
+	}
+	if on&ButtonL != 0 {
+		dir.X--
+	}
+	if on&ButtonD != 0 {
+		dir.Y++
+	}
+	if on&ButtonU != 0 {
+		dir.Y--
+	}
+	return dir
 }
 
 func (this *In) updateGestures() {

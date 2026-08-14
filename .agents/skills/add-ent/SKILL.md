@@ -22,3 +22,4 @@ read the referenced example files before writing any code.
 - UI and forms are constructed with ents.
 - ent update logic belongs in the ent's `Update()` method, not the update all hook.
 - avoid inline closures for `EntVec` updates.
+- hooks accept only their ent vector and `Game`.

@@ -495,9 +495,33 @@ func TestPrevOn(t *testing.T) {
 func TestDir(t *testing.T) {
 	in := NewIn()
 	in.MapDefaultKeyboard()
-	in.Update(0, &InputPoll{Kbd: KeyboardPoll{Keys: KeyRight | KeyDown}}, zeroCam)
-	if in.Dir.X != 1 || in.Dir.Y != 1 {
-		t.Errorf("expected Dir (1,1), got (%d,%d)", in.Dir.X, in.Dir.Y)
+	in.Update(0, &InputPoll{Kbd: KeyboardPoll{Keys: KeyRight}}, zeroCam)
+	if in.Dir.X != 1 || in.Dir.Y != 0 {
+		t.Errorf("expected Dir (1,0), got (%d,%d)", in.Dir.X, in.Dir.Y)
+	}
+	if !in.DirOn {
+		t.Error("DirOn = false, want true")
+	}
+	if !in.DirOnStart() {
+		t.Error("DirOnStart() = false, want true")
+	}
+	in.Update(1, &InputPoll{Kbd: KeyboardPoll{Keys: KeyRight}}, zeroCam)
+	if in.PrevDir != vgeo.NewXY[int8](1, 0) {
+		t.Errorf("PrevDir = %v, want (1,0)", in.PrevDir)
+	}
+	if in.DirOnStart() {
+		t.Error("DirOnStart() = true, want false")
+	}
+	in.Update(2, &InputPoll{Kbd: KeyboardPoll{Keys: KeyRight | KeyDown}}, zeroCam)
+	if in.PrevDir != vgeo.NewXY[int8](1, 0) {
+		t.Errorf("PrevDir = %v, want (1,0)", in.PrevDir)
+	}
+	if !in.DirOnStart() {
+		t.Error("DirOnStart() = false, want true")
+	}
+	in.Update(3, &InputPoll{}, zeroCam)
+	if in.DirOn {
+		t.Error("DirOn = true, want false")
 	}
 }
 
@@ -534,6 +558,18 @@ func TestPtr(t *testing.T) {
 	}
 	if *in.Ptr.CenterPhy() != vgeo.NewXY[float32](7, 14) {
 		t.Errorf("CenterPhy mismatch: got %v", *in.Ptr.CenterPhy())
+	}
+	if !in.Ptr.Moved {
+		t.Error("initial Pointer.Moved = false, want true")
+	}
+	in.Update(1, poll, vgeo.NewBox[float32](100, 200, 0, 0))
+	if in.Ptr.Moved {
+		t.Error("stationary Pointer.Moved = true, want false")
+	}
+	poll.Ptrs[0].Phy.Min.X++
+	in.Update(2, poll, vgeo.NewBox[float32](100, 200, 0, 0))
+	if !in.Ptr.Moved {
+		t.Error("moved Pointer.Moved = false, want true")
 	}
 }
 

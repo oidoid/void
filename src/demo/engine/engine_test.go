@@ -48,6 +48,30 @@ func TestZoomLvlAt(t *testing.T) {
 	}
 }
 
+func TestZoomLvlAtKeepsStationaryAnchor(t *testing.T) {
+	gam := New()
+	gam.CanvasPhy().W = 1024
+	gam.CanvasPhy().H = 640
+	gam.LvlZoom = 40
+	*gam.Cam() = vgeo.NewXY[float32](100, 40)
+	gam.UpdateLvlLayers()
+	tiles := gam.Layer(gfx.LayerTiles)
+	tiles.UpdateCam(*gam.Cam())
+	anchor := vgeo.NewXY[float32](256, 160)
+	want := tiles.PhyToLayer(anchor)
+	for range 10 {
+		if !gam.ZoomLvlAt(anchor, 1.01) {
+			t.Fatal("ZoomLvlAt() = false, want true")
+		}
+		tiles.UpdateCam(*gam.Cam())
+		got := tiles.PhyToLayer(anchor)
+		if math.Abs(float64(got.X-want.X)) > .00001 ||
+			math.Abs(float64(got.Y-want.Y)) > .00001 {
+			t.Fatalf("anchor layer XY = %v, want %v", got, want)
+		}
+	}
+}
+
 func TestClampLvlScale(t *testing.T) {
 	tests := []struct {
 		name  string

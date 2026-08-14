@@ -27,6 +27,9 @@ type Poll struct {
 	TimeFormat       TimeFormat
 }
 
+// reports the time since the last requested frame in sec.
+func (this *Poll) DeltaSecs() float64 { return this.DeltaMillis / 1000 }
+
 // local time.
 type TimeFormat struct {
 	Year   uint16 // Gregorian year.

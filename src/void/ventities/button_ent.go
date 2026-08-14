@@ -92,14 +92,16 @@ func (this *ButtonEnt) Update(
 	sprs *[]vgfx.Spr,
 	layer *vgfx.LayerConfig,
 	font *vtext.Font,
+	cursorPhy *vgeo.XY[float32],
 ) vgame.Status {
 	this.Layout(font, layer.Clip)
 	this.Start = false
 	if this.OnUpdate != nil {
 		this.OnUpdate(this)
 	}
-	if phy := in.Ptr.CenterPhy(); phy != nil {
-		xy := layer.PhyToLayer(*phy) // to-do: can input expose a layer XY?
+	this.Focused = false
+	if cursorPhy != nil {
+		xy := layer.PhyToLayer(*cursorPhy) // to-do: can input expose a layer XY?
 		bounds := vgeo.XYWH(
 			this.XY.X, this.XY.Y, float32(this.WH.W), float32(this.WH.H),
 		)

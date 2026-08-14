@@ -11,13 +11,13 @@ func UpdateCursors[Game vgame.Game](
 	gam Game,
 ) vgame.Status {
 	in := gam.In()
-	deltaMs := gam.DeltaMs()
+	deltaSecs := gam.DeltaSecs()
 	ents := vec.Vals()
 	loop := vgame.Pause
 	for i := range ents {
 		ent := &ents[i]
 		layer := gam.Layer(ent.Z.Layer())
-		loop |= ent.Update(in, &layer.Sprs, deltaMs, layer)
+		loop |= ent.Update(in, &layer.Sprs, deltaSecs, layer)
 	}
 	return loop
 }

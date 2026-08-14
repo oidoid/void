@@ -3,10 +3,17 @@ package hooks
 import (
 	"testing"
 
+	"github.com/oidoid/void/src/demo/engine"
+	"github.com/oidoid/void/src/demo/gfx"
+	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vin"
 )
+
+func camKeyStepMillis() float64 {
+	return 1000 / float64(camKeyVel)
+}
 
 func TestPinchZoom(t *testing.T) {
 	tests := []struct {
@@ -132,5 +139,373 @@ func TestLvlEdge(t *testing.T) {
 				t.Fatalf("lvlEdge() = %v, want %v", got, test.wantEdge)
 			}
 		})
+	}
+}
+
+// keeps diagonal key motion synchronized on both whole lvl-px axes.
+func TestUpdateCamDiagonal(t *testing.T) {
+	gam := engine.New()
+	*gam.Cam() = vgeo.XY[float32]{}
+	gam.Layer(gfx.LayerTiles).Scale = 4
+	gam.Frame().DeltaMillis = camKeyStepMillis()
+	in := gam.In()
+	in.Dir = vgeo.NewXY[int8](1, 1)
+	in.DirOn = true
+	in.On = vin.ButtonR | vin.ButtonD
+	UpdateCam(gam)
+	if got := *gam.Cam(); got != vgeo.NewXY[float32](4, 4) {
+		t.Errorf("first diagonal cam = %v, want (4,4)", got)
+	}
+	in.PrevDir = in.Dir
+	in.PrevOn = in.On
+	in.Mask = 0
+	UpdateCam(gam)
+	if got := *gam.Cam(); got != vgeo.NewXY[float32](8, 8) {
+		t.Errorf("second diagonal cam = %v, want (8,8)", got)
+	}
+}
+
+// keeps key velocity constant in lvl px across camera scales.
+func TestUpdateCamKeyVel(t *testing.T) {
+	for _, scale := range []float32{4, 80} {
+		gam := engine.New()
+		*gam.Cam() = vgeo.XY[float32]{}
+		tiles := gam.Layer(gfx.LayerTiles)
+		tiles.Scale = scale
+		gam.Frame().DeltaMillis = camKeyStepMillis()
+		in := gam.In()
+		in.Dir = vgeo.NewXY[int8](1, 0)
+		in.DirOn = true
+		in.On = vin.ButtonR
+		UpdateCam(gam)
+		if got := tiles.PhyToLayerScale(*gam.Cam()); got != vgeo.NewXY[float32](1, 0) {
+			t.Errorf("scale %v key cam = %v, want (1,0)", scale, got)
+		}
+	}
+}
+
+// keeps directional input out of the camera while keyboard cursor mode is on.
+func TestUpdateCamCursorKeyMode(t *testing.T) {
+	gam := engine.New()
+	*gam.Cam() = vgeo.XY[float32]{}
+	gam.Layer(gfx.LayerTiles).Scale = 4
+	gam.Frame().DeltaMillis = camKeyStepMillis()
+	in := gam.In()
+	in.Dir = vgeo.NewXY[int8](1, 0)
+	in.DirOn = true
+	in.On = vin.ButtonR
+	gam.Cursor = &ventities.CursorEnt{KbdEnabled: true}
+	UpdateCam(gam)
+	if got := *gam.Cam(); got != (vgeo.XY[float32]{}) {
+		t.Errorf("keyboard cursor cam = %v, want zero", got)
+	}
+	gam.Cursor.KbdEnabled = false
+	UpdateCam(gam)
+	if got := gam.Cam().X; got != 4 {
+		t.Errorf("camera after keyboard cursor mode X = %v, want 4", got)
+	}
+}
+
+// limits a multi-key direction transition to one lvl-px step per axis.
+func TestUpdateCamDirChange(t *testing.T) {
+	gam := engine.New()
+	*gam.Cam() = vgeo.XY[float32]{}
+	gam.Layer(gfx.LayerTiles).Scale = 4
+	gam.Frame().DeltaMillis = camKeyStepMillis()
+	in := gam.In()
+	update := func(dir vgeo.XY[int8], prevOn, on vin.Button) {
+		in.PrevDir = in.Dir
+		in.Dir = dir
+		in.DirOn = dir != (vgeo.XY[int8]{})
+		in.PrevOn = prevOn
+		in.On = on
+		in.Mask = 0
+		UpdateCam(gam)
+	}
+	for i := range 12 {
+		prevOn := vin.ButtonR
+		if i == 0 {
+			prevOn = 0
+		}
+		update(vgeo.NewXY[int8](1, 0), prevOn, vin.ButtonR)
+	}
+	for i := range 12 {
+		prevOn := vin.ButtonR | vin.ButtonD
+		if i == 0 {
+			prevOn = vin.ButtonR
+		}
+		update(vgeo.NewXY[int8](1, 1), prevOn, vin.ButtonR|vin.ButtonD)
+	}
+	for i := range 12 {
+		prevOn := vin.ButtonR | vin.ButtonD | vin.ButtonL
+		if i == 0 {
+			prevOn = vin.ButtonR | vin.ButtonD
+		}
+		update(vgeo.NewXY[int8](0, 1), prevOn, vin.ButtonR|vin.ButtonD|vin.ButtonL)
+	}
+	before := *gam.Cam()
+	update(
+		vgeo.NewXY[int8](-1, 1),
+		vin.ButtonR|vin.ButtonD|vin.ButtonL,
+		vin.ButtonD|vin.ButtonL,
+	)
+	if got := *gam.Cam(); got != vgeo.NewXY[float32](92, 100) {
+		t.Errorf("released right cam = %v, want (92,100)", got)
+	}
+	if dx, dy := gam.Cam().X-before.X, gam.Cam().Y-before.Y; dx < -4 || dx > 4 || dy < -4 || dy > 4 {
+		t.Errorf("released right cam delta = (%v,%v), want at most one layer pixel", dx, dy)
+	}
+}
+
+// prevents cancelled directional progress from moving the opposite way on release.
+func TestUpdateCamOpposingKeysReleaseKeepsCam(t *testing.T) {
+	tests := []struct {
+		name     string
+		releases []vin.Button
+	}{
+		{name: "right then up", releases: []vin.Button{vin.ButtonU, 0}},
+		{name: "up then right", releases: []vin.Button{vin.ButtonR, 0}},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			gam := engine.New()
+			*gam.Cam() = vgeo.XY[float32]{}
+			gam.Layer(gfx.LayerTiles).Scale = 4
+			gam.Frame().DeltaMillis = 1000.0 / 60
+			in := gam.In()
+			update := func(on vin.Button) {
+				dir := vgeo.XY[int8]{}
+				if on&vin.ButtonR != 0 {
+					dir.X++
+				}
+				if on&vin.ButtonL != 0 {
+					dir.X--
+				}
+				if on&vin.ButtonD != 0 {
+					dir.Y++
+				}
+				if on&vin.ButtonU != 0 {
+					dir.Y--
+				}
+				in.PrevOn = in.On
+				in.PrevDir = in.Dir
+				in.On = on
+				in.Dir = dir
+				in.DirOn = in.Dir != (vgeo.XY[int8]{})
+				in.Mask = 0
+				UpdateCam(gam)
+			}
+			hold := func(on vin.Button) {
+				for range 180 {
+					update(on)
+				}
+			}
+
+			hold(vin.ButtonL)
+			hold(vin.ButtonL | vin.ButtonU)
+			hold(vin.ButtonL | vin.ButtonU | vin.ButtonR)
+			hold(vin.ButtonU | vin.ButtonR)
+			for _, on := range test.releases {
+				before := *gam.Cam()
+				update(on)
+				got := *gam.Cam()
+				if on == vin.ButtonU || on == 0 {
+					if got.X != before.X {
+						t.Errorf("released cam X = %v, want %v", got.X, before.X)
+					}
+				} else if got.X < before.X {
+					t.Errorf("released cam X = %v, moved left from %v", got.X, before.X)
+				}
+			}
+		})
+	}
+}
+
+// keeps rapid cardinal and diagonal transitions from accelerating either axis.
+func TestUpdateCamRapidDirChange(t *testing.T) {
+	newGam := func(scale float32) *engine.Engine {
+		gam := engine.New()
+		*gam.Cam() = vgeo.XY[float32]{}
+		gam.Layer(gfx.LayerTiles).Scale = scale
+		gam.Frame().DeltaMillis = camKeyStepMillis()
+		return gam
+	}
+	update := func(gam *engine.Engine, dir vgeo.XY[int8], on vin.Button) {
+		in := gam.In()
+		in.PrevOn = in.On
+		in.PrevDir = in.Dir
+		in.On = on
+		in.Dir = dir
+		in.DirOn = true
+		in.Mask = 0
+		UpdateCam(gam)
+	}
+	up := vgeo.NewXY[int8](0, -1)
+	upRight := vgeo.NewXY[int8](1, -1)
+	tests := []struct {
+		name   string
+		scale  float32
+		frames int
+		wantY  float32
+	}{
+		{name: "normal zoom", scale: 4, frames: 4, wantY: -16},
+		{name: "deep zoom", scale: 80, frames: 4, wantY: -320},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			held := newGam(test.scale)
+			for range test.frames {
+				update(held, upRight, vin.ButtonU|vin.ButtonR)
+			}
+			changed := newGam(test.scale)
+			for i := range test.frames {
+				if i%2 == 0 {
+					update(changed, up, vin.ButtonU)
+				} else {
+					update(changed, upRight, vin.ButtonU|vin.ButtonR)
+				}
+			}
+			if got := held.Cam().Y; got != test.wantY {
+				t.Errorf("held diagonal cam Y = %v, want %v", got, test.wantY)
+			}
+			if got := changed.Cam().Y; got != held.Cam().Y {
+				t.Errorf("changed diagonal cam Y = %v, want %v", got, held.Cam().Y)
+			}
+		})
+	}
+}
+
+// resumes key movement from the panned camera, not the prior key accumulator.
+func TestUpdateCamKeyPans(t *testing.T) {
+	gam := engine.New()
+	*gam.Cam() = vgeo.XY[float32]{}
+	gam.Layer(gfx.LayerTiles).Scale = 4
+	gam.Frame().DeltaMillis = camKeyStepMillis()
+	in := gam.In()
+	in.Dir = vgeo.NewXY[int8](1, 0)
+	in.DirOn = true
+	in.On = vin.ButtonR
+	UpdateCam(gam)
+	in.PrevDir = in.Dir
+	in.Ptr = &vin.Pointer{
+		Drag: vin.Drag{On: true, DeltaPhy: vgeo.NewXY[float32](-6.5, 0)},
+	}
+	UpdateCam(gam)
+	in.PrevDir = in.Dir
+	in.Ptr = &vin.Pointer{Drag: vin.Drag{End: true}}
+	UpdateCam(gam)
+	if got := gam.Cam().X; got != 16 {
+		t.Errorf("key cam X after pan = %v, want 16", got)
+	}
+}
+
+// discards a pre-zoom key position before applying held-key movement.
+func TestUpdateCamKeyZooms(t *testing.T) {
+	newGam := func() *engine.Engine {
+		gam := engine.New()
+		gam.CanvasPhy().W = 1024
+		gam.CanvasPhy().H = 640
+		*gam.Cam() = vgeo.NewXY[float32](100, 40)
+		gam.UpdateLvlLayers()
+		in := gam.In()
+		in.Dir = vgeo.NewXY[int8](1, 0)
+		in.DirOn = true
+		in.On = vin.ButtonR
+		in.Wheel.Delta.Y = -100
+		return gam
+	}
+	control := newGam()
+	UpdateCam(control)
+	stale := newGam()
+	stale.CamKeyPhy = vgeo.NewXY[float32](-1000, -1000)
+	UpdateCam(stale)
+	if got := *stale.Cam(); got != *control.Cam() {
+		t.Errorf("key cam after zoom = %v, want %v", got, *control.Cam())
+	}
+}
+
+// accumulates partial key movement without an initial or reversal snap jump.
+func TestUpdateCamKeySnap(t *testing.T) {
+	gam := engine.New()
+	*gam.Cam() = vgeo.XY[float32]{}
+	gam.Layer(gfx.LayerTiles).Scale = 4
+	gam.Frame().DeltaMillis = 10
+	in := gam.In()
+	in.Dir = vgeo.NewXY[int8](1, 0)
+	in.DirOn = true
+	in.On = vin.ButtonR
+	UpdateCam(gam)
+	if got := gam.Cam().X; got != 0 {
+		t.Errorf("first key cam X = %v, want 0", got)
+	}
+	gam.Frame().DeltaMillis = camKeyStepMillis()
+	in.PrevDir = in.Dir
+	UpdateCam(gam)
+	if got := gam.Cam().X; got != 4 {
+		t.Errorf("accumulated key cam X = %v, want 4", got)
+	}
+	in.PrevDir = in.Dir
+	in.Dir.X = -1
+	in.On = vin.ButtonL
+	in.Mask = 0
+	UpdateCam(gam)
+	if got := gam.Cam().X; got != 0 {
+		t.Errorf("first reversed key cam X = %v, want 0", got)
+	}
+	in.PrevDir = in.Dir
+	UpdateCam(gam)
+	if got := gam.Cam().X; got != -4 {
+		t.Errorf("second reversed key cam X = %v, want -4", got)
+	}
+}
+
+// leaves a stopped camera at its rendered position rather than rounding it.
+func TestUpdateCamKeyReleaseKeepsCam(t *testing.T) {
+	gam := engine.New()
+	*gam.Cam() = vgeo.NewXY[float32](1.5, 0)
+	gam.Layer(gfx.LayerTiles).Scale = 4
+	in := gam.In()
+	in.PrevOn = vin.ButtonR
+	UpdateCam(gam)
+	if got := *gam.Cam(); got != vgeo.NewXY[float32](1.5, 0) {
+		t.Errorf("key release cam = %v, want (1.5,0)", got)
+	}
+}
+
+// preserves an inactive axis when a diagonal key is released.
+func TestUpdateCamKeyReleaseAxisKeepsCam(t *testing.T) {
+	gam := engine.New()
+	*gam.Cam() = vgeo.NewXY[float32](4, 4)
+	gam.Layer(gfx.LayerTiles).Scale = 4
+	gam.Frame().DeltaMillis = 10
+	gam.CamKeyPhy = vgeo.NewXY[float32](1, 4)
+	in := gam.In()
+	in.PrevDir = vgeo.NewXY[int8](-1, -1)
+	in.Dir = vgeo.NewXY[int8](0, -1)
+	in.DirOn = true
+	in.On = vin.ButtonU
+	UpdateCam(gam)
+	if got := gam.Cam().X; got != 4 {
+		t.Errorf("released axis cam X = %v, want 4", got)
+	}
+}
+
+// snaps a pointer-panned camera to the lvl-px grid when dragging ends.
+func TestUpdateCamDragReleaseSnap(t *testing.T) {
+	gam := engine.New()
+	*gam.Cam() = vgeo.XY[float32]{}
+	gam.Layer(gfx.LayerTiles).Scale = 4
+	in := gam.In()
+	in.Ptr = &vin.Pointer{
+		Drag: vin.Drag{On: true, DeltaPhy: vgeo.NewXY[float32](1.5, 0)},
+	}
+	UpdateCam(gam)
+	if got := gam.Cam().X; got != -1.5 {
+		t.Errorf("drag cam X = %v, want -1.5", got)
+	}
+	in.Ptr = &vin.Pointer{Drag: vin.Drag{End: true}}
+	UpdateCam(gam)
+	if got := gam.Cam().X; got != 0 {
+		t.Errorf("released drag cam X = %v, want 0", got)
 	}
 }

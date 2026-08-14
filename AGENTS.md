@@ -67,6 +67,7 @@ never run:
   - render box: clipbox
   - render: draw
   - rotation: rot
+  - seconds: sec
   - speed: vel
   - sprite: spr
   - string: str

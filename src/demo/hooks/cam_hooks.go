@@ -12,56 +12,110 @@ import (
 	"github.com/oidoid/void/src/void/vin"
 )
 
+const camKeyVel = float32(10) // lvl px / sec.
+
 // to-do: update cam last and check click mask state.
 func UpdateCam(gam *engine.Engine) vgame.Status {
-	frame := gam.Frame()
 	in := gam.In()
 	stat := vgame.Pause
 	anchor := zoomAnchor(gam, in)
-	if pinch := in.Pinch; pinch != nil &&
+	dirOn := in.DirOn && (gam.Cursor == nil || !gam.Cursor.KbdEnabled)
+	pinch := in.Pinch
+	ptr := in.Ptr
+	panOn := pinch != nil || ptr != nil && ptr.Drag.On
+	panEnd := gam.CamPanOn && !panOn
+	gam.CamPanOn = panOn
+	lvlScaleChanged := false
+	if pinch != nil &&
 		gam.ZoomLvlAt(pinch.CenterPhy, pinchZoom(pinch)) {
 		stat |= vgame.Loop
+		lvlScaleChanged = true
 	}
 	if in.Wheel.Delta.Y != 0 &&
 		gam.ZoomLvlAt(anchor, wheelZoom(in.Wheel.Delta.Y)) {
 		stat |= vgame.Loop
+		lvlScaleChanged = true
 	}
 	if in.IsOnStart(vin.ButtonScaleReset) &&
 		gam.ResetLvlScaleAt(anchor) {
 		stat |= vgame.Loop
+		lvlScaleChanged = true
 	}
 	if in.IsOnStart(vin.ButtonScaleDec) &&
 		gam.AdjustLvlScaleAt(anchor, -keyZoomDelta) {
 		stat |= vgame.Loop
+		lvlScaleChanged = true
 	}
 	if in.IsOnStart(vin.ButtonScaleInc) &&
 		gam.AdjustLvlScaleAt(anchor, keyZoomDelta) {
 		stat |= vgame.Loop
+		lvlScaleChanged = true
 	}
-	d := .1 * float32(frame.DeltaMillis) // phy px/ms = 100 px/s
+	tiles := gam.Layer(gfx.LayerTiles)
+	d := camKeyVel * float32(gam.DeltaSecs()) * tiles.ScaleOrDefault()
 	if in.IsOn(vin.ButtonC) {
 		d *= 10
 	}
-	by := vgeo.NewXY(float32(in.Dir.X)*d, float32(in.Dir.Y)*d)
-	if pinch := in.Pinch; pinch != nil {
+	keyBy := vgeo.NewXY(float32(in.Dir.X)*d, float32(in.Dir.Y)*d)
+	by := vgeo.XY[float32]{}
+	if pinch != nil {
 		by.X -= pinch.DeltaCenterPhy.X
 		by.Y -= pinch.DeltaCenterPhy.Y
-	} else if ptr := in.Ptr; ptr != nil && ptr.Drag.On {
+	} else if ptr != nil && ptr.Drag.On {
 		by.X -= ptr.Drag.DeltaPhy.X
 		by.Y -= ptr.Drag.DeltaPhy.Y
 	}
-	if by == (vgeo.XY[float32]{}) {
+	cam := gam.Cam()
+	if dirOn {
+		keyStart := in.PrevDir == (vgeo.XY[int8]{}) || lvlScaleChanged
+		snapXY := tiles.PhyToLayerScale(*cam)
+		if keyStart {
+			// resume from the current snapped camera after a key or pan break.
+			gam.CamKeyPhy = *cam
+			snapXY = vgfx.SnapXY(snapXY, keyBy)
+			gam.CamKeyPhy = tiles.LayerToPhyScale(snapXY)
+		}
+		keyPhy := &gam.CamKeyPhy
+		if !keyStart {
+			// retain fractional progress only on axes whose direction is unchanged.
+			keyXY := tiles.PhyToLayerScale(*keyPhy)
+			if in.PrevDir.X != in.Dir.X {
+				keyXY.X = snapXY.X
+			}
+			if in.PrevDir.Y != in.Dir.Y {
+				keyXY.Y = snapXY.Y
+			}
+			*keyPhy = tiles.LayerToPhyScale(keyXY)
+		}
+		keyPhy.AddTo(keyBy)
+		keyXY := tiles.PhyToLayerScale(*keyPhy)
+		*cam = tiles.LayerToPhyScale(
+			vgfx.SnapMove(keyXY, snapXY, keyBy),
+		)
+	}
+	if by == (vgeo.XY[float32]{}) && !dirOn {
+		if panEnd {
+			snapCam(gam, vgeo.XY[float32]{})
+			return stat | vgame.Loop
+		}
 		return stat
 	}
-	cam := gam.Cam()
-	if in.IsAnyStart(vin.ButtonL | vin.ButtonR | vin.ButtonU | vin.ButtonD) {
-		tiles := gam.Layer(gfx.LayerTiles)
-		xy := tiles.PhyToLayerScale(*cam)
-		xy = vgfx.DiagonalizeXY(xy, by)
-		*cam = tiles.LayerToPhyScale(xy)
-	}
 	cam.AddTo(by)
+	if panEnd {
+		snapCam(gam, vgeo.XY[float32]{})
+	}
+	if dirOn && (by != (vgeo.XY[float32]{}) || panEnd) {
+		gam.CamKeyPhy = *cam
+	}
 	return stat | vgame.Loop
+}
+
+func snapCam(gam *engine.Engine, by vgeo.XY[float32]) {
+	cam := gam.Cam()
+	tiles := gam.Layer(gfx.LayerTiles)
+	xy := tiles.PhyToLayerScale(*cam)
+	xy = vgfx.SnapXY(xy, by)
+	*cam = tiles.LayerToPhyScale(xy)
 }
 
 func UpdateLayers(gam *engine.Engine) vgame.Status {

@@ -54,6 +54,7 @@ func TestP1EntDrawsWhenSpriteHitsClip(t *testing.T) {
 }
 
 func TestP1EntTurnsRightAtWalls(t *testing.T) {
+	const wallGap = p1MaxMove / 256 // eight collision bisections.
 	tiles := make([]vatlas.AnimID, 64)
 	for x := range 8 {
 		tiles[x] = assets.TileStripesGrey
@@ -76,13 +77,13 @@ func TestP1EntTurnsRightAtWalls(t *testing.T) {
 		dir   vgeo.Dir
 		moves int
 	}{
-		{xy: vgeo.NewXY(112-vgfx.Epsilon, 32), dir: vgeo.DirS, moves: 20},
+		{xy: vgeo.NewXY(112-wallGap, 32), dir: vgeo.DirS, moves: 20},
 		{
-			xy:    vgeo.NewXY(112-vgfx.Epsilon, 112-vgfx.Epsilon),
+			xy:    vgeo.NewXY(112-wallGap, 112-wallGap),
 			dir:   vgeo.DirW,
 			moves: 20,
 		},
-		{xy: vgeo.NewXY(16, 112-vgfx.Epsilon), dir: vgeo.DirN, moves: 24},
+		{xy: vgeo.NewXY(16, 112-wallGap), dir: vgeo.DirN, moves: 24},
 		{xy: vgeo.NewXY[float32](16, 16), dir: vgeo.DirE, moves: 24},
 	}
 	for _, want := range wants {

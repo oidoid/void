@@ -12,12 +12,20 @@ import (
 // update this ent first. always prefer testing against cursor, not input, in
 // other entities. the cursor may be moved by keyboard and has a hitbox.
 type CursorEnt struct {
+	// cursor position in layer coordinates. retains subpixel keyboard movement.
 	XY      vgeo.XY[float32]
 	Hitbox  vgeo.Box[float32]
 	Z       vgfx.Z
 	Visible bool // false until the first pointer or keyboard input.
-	// keyboard cursor velocity in pixels/second. zero disables keyboard control.
-	Kbd float32
+	// enables keyboard movement when the app selects keyboard cursor mode.
+	KbdEnabled bool
+	// keyboard cursor velocity in px/sec.
+	KbdVel float32
+	// visible and hitbox position in layer coordinates. stays pixel aligned during
+	// keyboard movement.
+	snapXY vgeo.XY[float32]
+	// reports whether keyboard movement initialized XY and snapXY.
+	kbdOn bool
 	// current animation ID; toggled between PointAnimID and PickAnimID.
 	animID     vatlas.AnimID
 	hitboxCopy vgeo.Box[float32]
@@ -29,7 +37,7 @@ type CursorEnt struct {
 
 func NewCursorEnt(
 	pointAnimID, pickAnimID vatlas.AnimID,
-	kbd float32,
+	kbdVel float32,
 	hitbox vgeo.Box[uint16],
 	z vgfx.Z,
 ) CursorEnt {
@@ -38,7 +46,7 @@ func NewCursorEnt(
 		float32(hitbox.Max.X), float32(hitbox.Max.Y),
 	)
 	return CursorEnt{
-		Kbd:         kbd,
+		KbdVel:      kbdVel,
 		pointAnimID: pointAnimID,
 		pickAnimID:  pickAnimID,
 		Hitbox:      hitboxF32,
@@ -51,20 +59,25 @@ func NewCursorEnt(
 func (this *CursorEnt) Update(
 	in *vin.In,
 	sprs *[]vgfx.Spr,
-	deltaMs float64,
+	deltaSecs float64,
 	layer *vgfx.LayerConfig,
 ) vgame.Status {
-	if phy := in.Ptr.CenterPhy(); phy != nil {
-		this.onCursorPoint(*phy, in.Ptr.Device(), layer)
-	} else if this.Kbd == 0 {
+	ptr := in.Ptr
+	ptrMoved := ptr != nil && ptr.Moved
+	if ptrMoved {
+		this.onCursorPoint(*ptr.CenterPhy(), ptr.Device(), layer)
+	}
+	if ptr == nil && !this.KbdEnabled {
 		this.Visible = false
 	}
 
 	dirX := int(in.Dir.X)
 	dirY := int(in.Dir.Y)
-	if in.Ptr == nil && this.Kbd > 0 &&
+	if !ptrMoved && this.KbdEnabled && this.KbdVel > 0 &&
 		(dirX != 0 || dirY != 0 || in.IsAnyOnStart(vin.ButtonA)) {
-		this.onCursorKey(in, dirX, dirY, deltaMs, layer.Clip)
+		this.onCursorKey(in, dirX, dirY, deltaSecs, layer.Clip)
+	} else if !this.KbdEnabled || dirX == 0 && dirY == 0 {
+		this.kbdOn = false
 	}
 
 	if this.pickAnimID != 0 && in.IsOn(vin.ButtonA) {
@@ -74,12 +87,12 @@ func (this *CursorEnt) Update(
 	}
 
 	this.Hitbox = this.hitboxCopy
-	this.Hitbox.MoveTo(this.XY)
+	this.Hitbox.MoveTo(this.snapXY)
 	if !this.Visible {
 		return vgame.Pause
 	}
 	*sprs = append(*sprs, vgfx.Spr{
-		XY:      this.XY,
+		XY:      this.snapXY,
 		AnimCel: this.animID.Cel(0),
 		Z:       this.Z,
 	})
@@ -90,19 +103,66 @@ func (this *CursorEnt) onCursorPoint(
 	phy vgeo.XY[float32], dev vin.PointerDevice, layer *vgfx.LayerConfig,
 ) {
 	this.XY = layer.PhyToLayer(phy)
+	this.snapXY = this.XY
+	this.kbdOn = false
 	this.Visible = dev == vin.PointerDeviceMouse
 }
 
-func (this *CursorEnt) onCursorKey(
-	in *vin.In, dirX, dirY int, deltaMs float64, clip vgeo.Box[float32],
-) {
-	v := vgfx.FloorEpsilon(this.Kbd * float32(deltaMs) / 1000)
+// returns the phy coordinate when the cursor is active.
+func (this *CursorEnt) Phy(
+	in *vin.In, layer *vgfx.LayerConfig,
+) (phy vgeo.XY[float32], on bool) {
+	if !this.Visible && (this.KbdEnabled || in.Ptr.CenterPhy() == nil) {
+		return vgeo.XY[float32]{}, false
+	}
+	return layer.LayerToPhy(this.snapXY), true
+}
 
-	if in.IsAnyOnStart(vin.ButtonL | vin.ButtonR | vin.ButtonU | vin.ButtonD) {
-		this.XY = vgfx.DiagonalizeXY(this.XY, vgeo.NewXY(dirX, dirY))
+func (this *CursorEnt) onCursorKey(
+	in *vin.In, dirX, dirY int, deltaSecs float64, clip vgeo.Box[float32],
+) {
+	by := vgeo.NewXY(
+		float32(dirX)*this.KbdVel*float32(deltaSecs),
+		float32(dirY)*this.KbdVel*float32(deltaSecs),
+	)
+	xy := &this.XY
+	if by != (vgeo.XY[float32]{}) {
+		snapXY := this.snapXY
+		if !this.kbdOn || in.PrevDir == (vgeo.XY[int8]{}) {
+			*xy = vgfx.SnapXY(snapXY, by)
+			snapXY = *xy
+		} else {
+			if in.PrevDir.X != int8(dirX) {
+				xy.X = snapXY.X
+			}
+			if in.PrevDir.Y != int8(dirY) {
+				xy.Y = snapXY.Y
+			}
+		}
+		xy.AddTo(by)
+		xy.X = vmath.Clamp(clip.Min.X, clip.Max.X, xy.X)
+		xy.Y = vmath.Clamp(clip.Min.Y, clip.Max.Y, xy.Y)
+		snapBy := by
+		if snapXY.X == clip.Min.X && by.X < 0 ||
+			snapXY.X == clip.Max.X && by.X > 0 {
+			snapBy.X = 0
+		}
+		if snapXY.Y == clip.Min.Y && by.Y < 0 ||
+			snapXY.Y == clip.Max.Y && by.Y > 0 {
+			snapBy.Y = 0
+		}
+		this.snapXY = vgfx.SnapMove(*xy, snapXY, snapBy)
 	}
 
-	this.XY.X = vmath.Clamp(clip.Min.X, clip.Max.X, this.XY.X+float32(dirX)*v)
-	this.XY.Y = vmath.Clamp(clip.Min.Y, clip.Max.Y, this.XY.Y+float32(dirY)*v)
+	beforeSnapXY := this.snapXY
+	this.snapXY.X = vmath.Clamp(clip.Min.X, clip.Max.X, this.snapXY.X)
+	this.snapXY.Y = vmath.Clamp(clip.Min.Y, clip.Max.Y, this.snapXY.Y)
+	if this.snapXY.X != beforeSnapXY.X {
+		xy.X = this.snapXY.X
+	}
+	if this.snapXY.Y != beforeSnapXY.Y {
+		xy.Y = this.snapXY.Y
+	}
+	this.kbdOn = by != (vgeo.XY[float32]{})
 	this.Visible = true
 }

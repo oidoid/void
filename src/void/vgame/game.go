@@ -16,7 +16,9 @@ type Game interface {
 	RequestScreenshot()
 	SetDrawAlways(bool)
 	CanvasPhy() *vgeo.WH[uint16]
+	CursorPhy() (phy vgeo.XY[float32], on bool)
 	DeltaMs() float64
+	DeltaSecs() float64
 	Font() *vtext.Font
 	Fullscreen() bool
 	In() *vin.In

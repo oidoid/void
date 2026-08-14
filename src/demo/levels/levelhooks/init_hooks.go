@@ -13,10 +13,12 @@ import (
 	"github.com/oidoid/void/src/void/vhooks"
 )
 
+const cursorKeyVel = float32(100) // px / sec.
+
 // to-do: collapse with engine init?
 func InitInit(gam *engine.Engine) {
-	gam.RegisterPreupdate(hooks.UpdateLayers)
 	gam.RegisterPreupdate(hooks.UpdateCam)
+	gam.RegisterPreupdate(hooks.UpdateLayers)
 	anim := gam.Atlas.Anims[int(assets.BackpackerWalkRight)]
 	tileW := int32(gam.Level.Tile.W)
 	tileH := int32(gam.Level.Tile.H)
@@ -30,7 +32,20 @@ func InitInit(gam *engine.Engine) {
 	))
 	gam.RegisterEntUpdate(p1s)
 
-	buttons := ventities.NewEntVec(vhooks.UpdateButtons[*engine.Engine], 4)
+	cursor := new(ventities.CursorEnt)
+	*cursor = ventities.NewCursorEnt(
+		assets.CursorPoint,
+		0,
+		cursorKeyVel,
+		gam.Atlas.Anims[int(assets.CursorPoint)].Hitbox,
+		gfx.ZCursor,
+	)
+	gam.Cursor = cursor
+	cursors := ventities.NewEntVec(hooks.UpdateCursors)
+	cursors.Add(cursor)
+	gam.RegisterEntUpdate(cursors)
+
+	buttons := ventities.NewEntVec(vhooks.UpdateButtons[*engine.Engine], 5)
 
 	drawBtn := entities.NewDrawToggleButton(gam)
 	buttons.Add(drawBtn)
@@ -43,12 +58,15 @@ func InitInit(gam *engine.Engine) {
 	fullscreenToggle := entities.NewFullscreenToggle(gam)
 	fullscreenToggle.Anchor.Ref = screenshotBtn
 	buttons.Add(fullscreenToggle)
+	cursorKeyToggle := entities.NewCursorKeyToggle(cursor)
+	cursorKeyToggle.Anchor.Ref = fullscreenToggle
+	buttons.Add(cursorKeyToggle)
 	gam.RegisterEntUpdate(buttons)
 
 	// to-do: collapse with buttons^?
 	superballButtons := ventities.NewEntVec(hooks.UpdateSuperballButtons, 5)
 	beepBtn := entities.NewBeepSuperballButtonEnt()
-	beepBtn.Anchor.Ref = fullscreenToggle
+	beepBtn.Anchor.Ref = cursorKeyToggle
 	superballButtons.Add(beepBtn)
 	hitBtn := entities.NewHitSuperballButtonEnt()
 	hitBtn.Anchor.Ref = beepBtn
@@ -94,16 +112,6 @@ func InitInit(gam *engine.Engine) {
 	mouseStatuses.Add(entities.NewMouseStatusEnt())
 	gam.RegisterEntUpdate(mouseStatuses)
 
-	cursor := ventities.NewCursorEnt(
-		assets.CursorPoint,
-		0,
-		0,
-		gam.Atlas.Anims[int(assets.CursorPoint)].Hitbox,
-		gfx.ZCursor,
-	)
-	cursors := ventities.NewEntVec(hooks.UpdateCursors)
-	cursors.Add(cursor)
-
 	lvlEdges := ventities.NewEntVec(hooks.UpdateLvlEdgeNinePatches)
 	lvlEdges.Add(newEdgeEnt(gfx.ZUILevelEdge, 1, 1))
 	gam.RegisterEntUpdate(lvlEdges)
@@ -113,7 +121,6 @@ func InitInit(gam *engine.Engine) {
 	clipFills.Add(newFillEnt(gfx.ZGrid))
 	gam.RegisterEntUpdate(clipFills)
 
-	gam.RegisterEntUpdate(cursors)
 }
 
 func UpdateInit(gam *engine.Engine) vgame.Status {

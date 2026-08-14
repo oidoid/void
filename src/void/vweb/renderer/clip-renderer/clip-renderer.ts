@@ -8,9 +8,20 @@ const layerBlendModeMultiply: number = 1
 const layerBlendModeReplace: number = 2
 
 export type ClipTarget = {
+  // canvas rectangle in physical pixels. end() scissors the composited target
+  // back to these bounds.
   phy: XYWH
-  w: number // framebuffer dimensions in layer pixels.
+  // physical origin where the offscreen target is composited. a fractional
+  // camera offset can place it before phy so layer pixels remain aligned.
+  x: number
+  y: number
+  // offscreen framebuffer dimensions in layer pixels. they can be larger than
+  // phy / scale when the camera offset exposes an extra layer pixel.
+  w: number
   h: number
+  scale: number // physical pixels per layer pixel.
+  camX: number // layer camera snapped to framebuffer pixels.
+  camY: number
 }
 
 export class ClipRenderer {
@@ -86,7 +97,9 @@ export class ClipRenderer {
     layerScale: number,
     blendMode: number,
     depth: boolean,
-    clipPhy: Readonly<XYWH>
+    clipPhy: Readonly<XYWH>,
+    camX: number,
+    camY: number
   ): ClipTarget {
     const phy =
       !clipPhy.w || !clipPhy.h
@@ -97,15 +110,31 @@ export class ClipRenderer {
             h: this.#gl.drawingBufferHeight
           }
         : clipPhy
-    const w = Math.ceil(phy.w / layerScale)
-    const h = Math.ceil(phy.h / layerScale)
+    const layerCamX = Math.floor(camX / layerScale)
+    const layerCamY = Math.floor(camY / layerScale)
+    const offsetX = camX - layerCamX * layerScale
+    const offsetY = camY - layerCamY * layerScale
+    // draw the extra layer pixels exposed by the fractional camera offset.
+    // end() composites this larger target at the offset, then scissors it back
+    // to phy.
+    const w = Math.ceil((phy.w + offsetX) / layerScale)
+    const h = Math.ceil((phy.h + offsetY) / layerScale)
     this.#resize(w, h)
     this.#gl.bindFramebuffer(this.#gl.FRAMEBUFFER, this.#framebuffer)
     this.#gl.viewport(0, 0, w, h)
     this.#clear(blendMode)
     this.#setSourceBlend(blendMode, true)
     this.#setDepth(depth)
-    return {phy, w, h}
+    return {
+      phy,
+      x: phy.x - offsetX,
+      y: phy.y - offsetY,
+      w,
+      h,
+      scale: layerScale,
+      camX: layerCamX,
+      camY: layerCamY
+    }
   }
 
   end(clip: ClipTarget, blendMode: number): void {
@@ -113,6 +142,16 @@ export class ClipRenderer {
     gl.disable(gl.DEPTH_TEST)
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight)
+    // the offset composite can extend past the requested clip. scissor restores
+    // its exact physical bounds. WebGL's scissor origin is bottom-left; phy is
+    // top-left.
+    gl.enable(gl.SCISSOR_TEST)
+    gl.scissor(
+      clip.phy.x,
+      gl.drawingBufferHeight - clip.phy.y - clip.phy.h,
+      clip.phy.w,
+      clip.phy.h
+    )
     this.#setCompositeBlend(blendMode)
 
     gl.useProgram(this.#pgm)
@@ -121,7 +160,13 @@ export class ClipRenderer {
       gl.drawingBufferWidth,
       gl.drawingBufferHeight
     )
-    gl.uniform4f(this.#uDstXYWH, clip.phy.x, clip.phy.y, clip.phy.w, clip.phy.h)
+    gl.uniform4f(
+      this.#uDstXYWH,
+      clip.x,
+      clip.y,
+      clip.w * clip.scale,
+      clip.h * clip.scale
+    )
     gl.uniform1i(this.#uTex, 0)
     gl.uniform1i(
       this.#uDiscardTransparent,
@@ -133,6 +178,7 @@ export class ClipRenderer {
     gl.drawArrays(gl.TRIANGLES, 0, 6)
     gl.bindVertexArray(null)
     gl.bindTexture(gl.TEXTURE_2D, null)
+    gl.disable(gl.SCISSOR_TEST)
     this.#setSourceBlend(layerBlendModeAlpha, false)
     gl.enable(gl.DEPTH_TEST)
   }

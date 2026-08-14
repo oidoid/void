@@ -15,9 +15,10 @@ func UpdateCamStatuses(
 ) vgame.Status {
 	font := gam.Font()
 	canvasPhy := *gam.CanvasPhy()
-	cam := vgeo.NewXY(gam.CamX(), gam.CamY())
 	fullscreen := gam.Fullscreen()
-	scale := gam.Layer(gfx.LayerTiles).ScaleOrDefault()
+	tiles := gam.Layer(gfx.LayerTiles)
+	camLvl := tiles.PhyToLayerScale(vgeo.NewXY(gam.CamX(), gam.CamY()))
+	scale := tiles.ScaleOrDefault()
 	ents := vec.Vals()
 	loop := vgame.Pause
 	for i := range ents {
@@ -27,7 +28,7 @@ func UpdateCamStatuses(
 			font,
 			sprs,
 			canvasPhy,
-			cam,
+			camLvl,
 			fullscreen,
 			scale,
 			layer.Clip,

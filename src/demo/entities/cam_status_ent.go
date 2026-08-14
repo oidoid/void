@@ -41,12 +41,12 @@ func (this *CamStatusEnt) Update(
 	font *vtext.Font,
 	sprs *[]vgfx.Spr,
 	canvasPhy vgeo.WH[uint16],
-	cam vgeo.XY[float32],
+	camLvl vgeo.XY[float32],
 	fullscreen bool,
 	scale float32,
 	clip vgeo.Box[float32],
 ) vgame.Status {
-	text := "(" + vtext.FmtFloat(cam.X) + ", " + vtext.FmtFloat(cam.Y) + ") " +
+	text := "(" + vtext.FmtFloat(camLvl.X) + ", " + vtext.FmtFloat(camLvl.Y) + ") " +
 		vtext.Itoa(int(canvasPhy.W)) + "x" + vtext.Itoa(int(canvasPhy.H))
 	if fullscreen {
 		text += "f"

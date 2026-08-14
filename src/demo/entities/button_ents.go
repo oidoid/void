@@ -57,6 +57,17 @@ func NewFullscreenToggle(gam game.Game) *ventities.ButtonEnt {
 	return this
 }
 
+func NewCursorKeyToggle(cursor *ventities.CursorEnt) *ventities.ButtonEnt {
+	this := newButtonEnt("kbd", ventities.ButtonTypeToggle)
+	this.OnUpdate = func(ent *ventities.ButtonEnt) {
+		ent.On = cursor.KbdEnabled
+	}
+	this.OnClick = func(ent *ventities.ButtonEnt) {
+		cursor.KbdEnabled = ent.On
+	}
+	return this
+}
+
 func newButtonEnt(
 	label string,
 	buttonType ventities.ButtonType,

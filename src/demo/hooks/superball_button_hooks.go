@@ -17,6 +17,11 @@ func UpdateSuperballButtons(
 	layer := gam.Layer(gfx.LayerUI)
 	in := gam.In()
 	font := gam.Font()
+	cursorPhy, cursorOn := gam.CursorPhy()
+	var cursorPhyPtr *vgeo.XY[float32]
+	if cursorOn {
+		cursorPhyPtr = &cursorPhy
+	}
 	ballsClip := gam.Layer(gfx.LayerSuperballs).Clip
 	spawnCenter := vgeo.NewXY(
 		(ballsClip.Min.X+ballsClip.Max.X)/2,
@@ -45,6 +50,7 @@ func UpdateSuperballButtons(
 			&layer.Sprs,
 			layer,
 			font,
+			cursorPhyPtr,
 			&gam.Superballs.Vec,
 			spawnCenter,
 			deltaMs,

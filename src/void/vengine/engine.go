@@ -31,6 +31,7 @@ type Engine[Game vgame.Game] struct {
 	Router             vlevels.Router[Game]
 	Atlas              vatlas.Atlas
 	Texts              ventities.EntVec[Game, ventities.TextEnt]
+	Cursor             *ventities.CursorEnt
 	font               *vtext.Font
 	frame              vgame.Poll
 	in                 *vin.In
@@ -117,6 +118,7 @@ func (this *Engine[Game]) Font() *vtext.Font {
 	return this.font
 }
 
+// to-do: rename to Poll, move props to Engine struct, and don't expose?
 func (this *Engine[Game]) Frame() *vgame.Poll { return &this.frame }
 func (this *Engine[Game]) Fullscreen() bool   { return this.frame.Fullscreen }
 func (this *Engine[Game]) NowMillis() float64 { return this.frame.NowMillis }
@@ -124,8 +126,9 @@ func (this *Engine[Game]) UtcMillis() uint64  { return this.frame.UtcMillis }
 func (this *Engine[Game]) Time() vgame.TimeFormat {
 	return this.frame.TimeFormat
 }
-func (this *Engine[Game]) DeltaMs() float64  { return this.frame.DeltaMillis }
-func (this *Engine[Game]) Tick() *vgame.Tick { return &this.tick }
+func (this *Engine[Game]) DeltaMs() float64   { return this.frame.DeltaMillis }
+func (this *Engine[Game]) DeltaSecs() float64 { return this.frame.DeltaSecs() }
+func (this *Engine[Game]) Tick() *vgame.Tick  { return &this.tick }
 
 func (this *Engine[Game]) RequestFullscreen(fullscreen bool) {
 	if fullscreen {
@@ -220,6 +223,15 @@ func (this *Engine[Game]) CanvasPhy() *vgeo.WH[uint16] {
 }
 func (this *Engine[Game]) In() *vin.In {
 	return this.in
+}
+
+// returns the cursor's phy coordinate when it is active.
+func (this *Engine[Game]) CursorPhy() (phy vgeo.XY[float32], on bool) {
+	cursor := this.Cursor
+	if cursor == nil {
+		return vgeo.XY[float32]{}, false
+	}
+	return cursor.Phy(this.in, this.Layer(cursor.Z.Layer()))
 }
 
 func (this *Engine[Game]) LevelX() int32 { return this.Level.Min.X }
