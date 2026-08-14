@@ -509,3 +509,34 @@ func TestUpdateCamDragReleaseSnap(t *testing.T) {
 		t.Errorf("released drag cam X = %v, want 0", got)
 	}
 }
+
+// pans only when the drag began inside the visible lvl clip.
+func TestUpdateCamDragStartsInLvlClip(t *testing.T) {
+	tests := []struct {
+		name  string
+		start vgeo.XY[float32]
+		want  float32
+	}{
+		{name: "outside", start: vgeo.NewXY[float32](99, 100)},
+		{name: "inside", start: vgeo.NewXY[float32](100, 100), want: -1.5},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			gam := engine.New()
+			*gam.Cam() = vgeo.XY[float32]{}
+			tiles := gam.Layer(gfx.LayerTiles)
+			tiles.ClipPhy = vgeo.XYWH[uint16](100, 100, 200, 100)
+			gam.In().Ptr = &vin.Pointer{
+				Drag: vin.Drag{
+					StartPhy: test.start,
+					DeltaPhy: vgeo.NewXY[float32](1.5, 0),
+					On:       true,
+				},
+			}
+			UpdateCam(gam)
+			if got := gam.Cam().X; got != test.want {
+				t.Errorf("drag cam X = %v, want %v", got, test.want)
+			}
+		})
+	}
+}

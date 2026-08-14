@@ -22,7 +22,9 @@ func UpdateCam(gam *engine.Engine) vgame.Status {
 	dirOn := in.DirOn && (gam.Cursor == nil || !gam.Cursor.KbdEnabled)
 	pinch := in.Pinch
 	ptr := in.Ptr
-	panOn := pinch != nil || ptr != nil && ptr.Drag.On
+	tiles := gam.Layer(gfx.LayerTiles)
+	dragOn := lvlDragOn(ptr, tiles.ClipPhy)
+	panOn := pinch != nil || dragOn
 	panEnd := gam.CamPanOn && !panOn
 	gam.CamPanOn = panOn
 	lvlScaleChanged := false
@@ -51,7 +53,6 @@ func UpdateCam(gam *engine.Engine) vgame.Status {
 		stat |= vgame.Loop
 		lvlScaleChanged = true
 	}
-	tiles := gam.Layer(gfx.LayerTiles)
 	d := camKeyVel * float32(gam.DeltaSecs()) * tiles.ScaleOrDefault()
 	if in.IsOn(vin.ButtonC) {
 		d *= 10
@@ -61,7 +62,7 @@ func UpdateCam(gam *engine.Engine) vgame.Status {
 	if pinch != nil {
 		by.X -= pinch.DeltaCenterPhy.X
 		by.Y -= pinch.DeltaCenterPhy.Y
-	} else if ptr != nil && ptr.Drag.On {
+	} else if dragOn {
 		by.X -= ptr.Drag.DeltaPhy.X
 		by.Y -= ptr.Drag.DeltaPhy.Y
 	}
@@ -108,6 +109,21 @@ func UpdateCam(gam *engine.Engine) vgame.Status {
 		gam.CamKeyPhy = *cam
 	}
 	return stat | vgame.Loop
+}
+
+// reports whether a drag began within the visible lvl clip.
+func lvlDragOn(ptr *vin.Pointer, clipPhy vgeo.Box[uint16]) bool {
+	if ptr == nil || !ptr.Drag.On {
+		return false
+	}
+	if clipPhy.W() == 0 || clipPhy.H() == 0 {
+		return true
+	}
+	clip := vgeo.NewBox(
+		float32(clipPhy.Min.X), float32(clipPhy.Min.Y),
+		float32(clipPhy.Max.X), float32(clipPhy.Max.Y),
+	)
+	return clip.HitsXY(ptr.Drag.StartPhy)
 }
 
 func snapCam(gam *engine.Engine, by vgeo.XY[float32]) {
