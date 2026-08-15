@@ -44,8 +44,11 @@ func DrawAlways() int32 {
 	return gam.DrawAlwaysFlag()
 }
 
-//export Antialias
-func Antialias() int32 { return gam.AntialiasFlag() }
+//export RequestWakelock
+func RequestWakelock() int32 { return gam.RequestWakelockFlag() }
+
+//export RenderMode
+func RenderMode() int32 { return gam.RenderModeFlag() }
 
 //export UpdateInMillisRequest
 func UpdateInMillisRequest() uint64 {

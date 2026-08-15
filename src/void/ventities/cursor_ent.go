@@ -27,8 +27,10 @@ type CursorEnt struct {
 	// reports whether keyboard movement initialized XY and snapXY.
 	kbdOn bool
 	// current animation ID; toggled between PointAnimID and PickAnimID.
-	animID     vatlas.AnimID
-	hitboxCopy vgeo.Box[float32]
+	animID      vatlas.AnimID
+	hitboxCopy  vgeo.Box[float32]
+	hitboxPhy   vgeo.Box[float32]
+	hitboxPhyOn bool
 	// animation ID when no button is pressed.
 	pointAnimID vatlas.AnimID
 	// animation ID when a button is pressed. zero disables pick animation.
@@ -88,6 +90,13 @@ func (this *CursorEnt) Update(
 
 	this.Hitbox = this.hitboxCopy
 	this.Hitbox.MoveTo(this.snapXY)
+	this.hitboxPhyOn = this.Visible || !this.KbdEnabled && ptr != nil &&
+		ptr.CenterPhy() != nil
+	if this.hitboxPhyOn {
+		lo := layer.LayerToPhy(this.Hitbox.Min)
+		hi := layer.LayerToPhy(this.Hitbox.Max)
+		this.hitboxPhy = vgeo.Box[float32]{Min: lo, Max: hi}
+	}
 	if !this.Visible {
 		return vgame.Pause
 	}
@@ -96,6 +105,9 @@ func (this *CursorEnt) Update(
 		AnimCel: this.animID.Cel(0),
 		Z:       this.Z,
 	})
+	if this.kbdOn {
+		return vgame.Loop
+	}
 	return vgame.Pause
 }
 
@@ -108,14 +120,12 @@ func (this *CursorEnt) onCursorPoint(
 	this.Visible = dev == vin.PointerDeviceMouse
 }
 
-// returns the phy coordinate when the cursor is active.
-func (this *CursorEnt) Phy(
-	in *vin.In, layer *vgfx.LayerConfig,
-) (phy vgeo.XY[float32], on bool) {
-	if !this.Visible && (this.KbdEnabled || in.Ptr.CenterPhy() == nil) {
-		return vgeo.XY[float32]{}, false
+// returns the physical hitbox computed by Update, or nil when inactive.
+func (this *CursorEnt) HitboxPhy() *vgeo.Box[float32] {
+	if this == nil || !this.hitboxPhyOn {
+		return nil
 	}
-	return layer.LayerToPhy(this.snapXY), true
+	return &this.hitboxPhy
 }
 
 func (this *CursorEnt) onCursorKey(
@@ -163,6 +173,6 @@ func (this *CursorEnt) onCursorKey(
 	if this.snapXY.Y != beforeSnapXY.Y {
 		xy.Y = this.snapXY.Y
 	}
-	this.kbdOn = by != (vgeo.XY[float32]{})
+	this.kbdOn = dirX != 0 || dirY != 0
 	this.Visible = true
 }

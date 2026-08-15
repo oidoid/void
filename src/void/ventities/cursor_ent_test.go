@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/oidoid/void/src/void/vatlas"
+	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vin"
@@ -54,24 +55,34 @@ func moveCursorKey(
 	ent.onCursorKey(in, int(dir.X), int(dir.Y), deltaSecs, defaultBounds)
 }
 
-func TestPhy(t *testing.T) {
-	ent := testCursorEnt(10)
-	ent.XY = vgeo.NewXY[float32](10, 20)
-	ent.snapXY = vgeo.NewXY[float32](4, 8)
+func TestNilHitboxPhy(t *testing.T) {
+	var ent *CursorEnt
+	if ent.HitboxPhy() != nil {
+		t.Fatal("nil cursor HitboxPhy() != nil")
+	}
+}
+
+func TestHitboxPhy(t *testing.T) {
+	ent := NewCursorEnt(
+		vatlas.AnimID(1), 0, 10, vgeo.XYWH[uint16](4, 8, 2, 3), vgfx.Z(0),
+	)
 	layer := vgfx.NewLayerConfig(0)
 	in := vin.NewIn()
-	if _, on := ent.Phy(in, &layer); on {
+	sprs := []vgfx.Spr{}
+	ent.Update(in, &sprs, 0, &layer)
+	if ent.HitboxPhy() != nil {
 		t.Fatal("hidden cursor without a pointer focused")
 	}
 	ent.Visible = true
-	if got, on := ent.Phy(in, &layer); !on ||
-		got != vgeo.NewXY[float32](4, 8) {
-		t.Errorf("visible cursor Phy() = (%v, %v), want ((4,8), true)",
-			got, on)
+	ent.KbdEnabled = true
+	ent.Update(in, &sprs, 0, &layer)
+	if got := ent.HitboxPhy(); got == nil ||
+		*got != vgeo.XYWH[float32](4, 8, 2, 3) {
+		t.Errorf("visible cursor HitboxPhy() = %v, want (4,8,2,3)", got)
 	}
 	ent.Visible = false
-	ent.KbdEnabled = true
-	if _, on := ent.Phy(in, &layer); on {
+	ent.Update(in, &sprs, 0, &layer)
+	if ent.HitboxPhy() != nil {
 		t.Fatal("hidden keyboard cursor without input focused")
 	}
 	ent.KbdEnabled = false
@@ -81,10 +92,10 @@ func TestPhy(t *testing.T) {
 		Primary: true,
 	}
 	in.Update(0, poll, vgeo.Box[float32]{})
-	if got, on := ent.Phy(in, &layer); !on ||
-		got != vgeo.NewXY[float32](4, 8) {
-		t.Errorf("touch cursor Phy() = (%v, %v), want ((4,8), true)",
-			got, on)
+	ent.Update(in, &sprs, 0, &layer)
+	if got := ent.HitboxPhy(); got == nil ||
+		*got != vgeo.XYWH[float32](4, 8, 2, 3) {
+		t.Errorf("touch cursor HitboxPhy() = %v, want (4,8,2,3)", got)
 	}
 }
 
@@ -267,14 +278,35 @@ func TestUpdate_KeyboardMode(t *testing.T) {
 	layer := vgfx.NewLayerConfig(0)
 	layer.Clip = defaultBounds
 	sprs := []vgfx.Spr{}
-	ent.Update(in, &sprs, .1, &layer)
+	if got := ent.Update(in, &sprs, .1, &layer); got != vgame.Pause {
+		t.Errorf("disabled keyboard cursor update = %v, want Pause", got)
+	}
 	if got := ent.XY.X; got != 0 {
 		t.Errorf("disabled keyboard cursor X = %v, want 0", got)
 	}
 	ent.KbdEnabled = true
-	ent.Update(in, &sprs, .1, &layer)
+	if got := ent.Update(in, &sprs, .1, &layer); got != vgame.Loop {
+		t.Errorf("moving keyboard cursor update = %v, want Loop", got)
+	}
 	if got := ent.XY.X; got != 1 {
 		t.Errorf("enabled keyboard cursor X = %v, want 1", got)
+	}
+}
+
+// keeps a held direction updating when its initial frame has no elapsed time.
+func TestUpdate_KeyboardModeZeroDeltaLoops(t *testing.T) {
+	ent := testCursorEnt(10)
+	ent.KbdEnabled = true
+	in := vin.NewIn()
+	in.Dir = vgeo.NewXY[int8](1, 0)
+	layer := vgfx.NewLayerConfig(0)
+	layer.Clip = defaultBounds
+	sprs := []vgfx.Spr{}
+	if got := ent.Update(in, &sprs, 0, &layer); got != vgame.Loop {
+		t.Errorf("zero-delta keyboard cursor update = %v, want Loop", got)
+	}
+	if got := ent.XY; got != (vgeo.XY[float32]{}) {
+		t.Errorf("zero-delta keyboard cursor XY = %v, want zero", got)
 	}
 }
 

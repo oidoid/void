@@ -5,6 +5,7 @@ import (
 	"github.com/oidoid/void/src/void/vin"
 )
 
+// to-do: rename Engine.Frame() to Engine.Poll().
 type Poll struct {
 	InputPoll vin.InputPoll
 	// time since the last frame was _requested_ in milliseconds.
@@ -17,15 +18,35 @@ type Poll struct {
 	CanvasPhy  vgeo.WH[uint16]
 	Fullscreen bool
 	DrawAlways bool
-	_          [2]byte
+	// URL override: none defers to the engine; off represents `debug=zzz`.
+	RequestWakelock WakelockRequest
+	Wakelocked      bool
+
 	// number of renderer clears completed.
-	DrawCount int32
-	_         [4]byte
+	DrawCount         int32
+	RequestFullscreen FullscreenRequest
+	Pointerlocked     bool
+	_                 [2]byte
 	// duration of the previous Go update call in milliseconds.
 	UpdateMillis     float64
 	DevicePixelRatio float64
 	TimeFormat       TimeFormat
 }
+
+type WakelockRequest int8
+
+const (
+	WakelockRequestNone WakelockRequest = iota
+	WakelockRequestOff  WakelockRequest = -1
+)
+
+type FullscreenRequest uint8
+
+const (
+	FullscreenRequestNone FullscreenRequest = iota
+	FullscreenRequestEnter
+	FullscreenRequestExit
+)
 
 // reports the time since the last requested frame in sec.
 func (this *Poll) DeltaSecs() float64 { return this.DeltaMillis / 1000 }

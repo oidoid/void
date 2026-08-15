@@ -96,7 +96,7 @@ func (this *SuperballButtonEnt) Update(
 	sprs *[]vgfx.Spr,
 	layer *vgfx.LayerConfig,
 	font *vtext.Font,
-	cursorPhy *vgeo.XY[float32],
+	cursorPhy *vgeo.Box[float32],
 	superballs *vvec.Vec[SuperballEnt],
 	spawnCenter vgeo.XY[float32],
 	deltaMs float64,

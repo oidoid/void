@@ -1,6 +1,6 @@
 import {download} from './dom-util.ts'
 
-export type RenderMode = 'Int' | 'Float'
+export type RenderMode = 'Pixel' | 'Float'
 
 export async function downloadScreenshot(
   canvas: HTMLCanvasElement,
@@ -30,8 +30,7 @@ export function initCanvas(
   canvas.style.cursor = 'none'
   canvas.style.display = 'block' // no line height spacing.
   canvas.style.outline = 'none' // disable focus outline.
-  // to-do: fix me and also fix the get context pixelation setting!
-  canvas.style.imageRendering = mode === 'Int' ? 'pixelated' : 'smooth' // to-do: why doesn't cam mode set this? do we even want this given shader?
+  canvas.style.imageRendering = mode === 'Pixel' ? 'pixelated' : 'smooth'
   // update on each pointermove *touch* Event like *mouse* Events.
   canvas.style.touchAction = 'none'
   canvas.tabIndex = 0

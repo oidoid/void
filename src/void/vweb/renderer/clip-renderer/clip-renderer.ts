@@ -25,7 +25,7 @@ export type ClipTarget = {
 }
 
 export class ClipRenderer {
-  static new(gl: WebGL2RenderingContext): ClipRenderer {
+  static new(gl: WebGL2RenderingContext, pixel: boolean): ClipRenderer {
     const pgm = buildProgram(gl, clipVert, clipFrag)
     const uResolution = gl.getUniformLocation(pgm, 'uResolution')!
     const uDstXYWH = gl.getUniformLocation(pgm, 'uDstXYWH')!
@@ -37,8 +37,9 @@ export class ClipRenderer {
     const vao = gl.createVertexArray()!
     const colorTex = gl.createTexture()!
     gl.bindTexture(gl.TEXTURE_2D, colorTex)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+    const filter = pixel ? gl.NEAREST : gl.LINEAR
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
     gl.bindTexture(gl.TEXTURE_2D, null)

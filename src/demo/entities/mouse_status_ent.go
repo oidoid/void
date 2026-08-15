@@ -28,6 +28,7 @@ func NewMouseStatusEnt() MouseStatusEnt {
 func (this *MouseStatusEnt) Update(
 	sprs *[]vgfx.Spr,
 	in *vin.In,
+	pointerlocked bool,
 	clip vgeo.Box[float32],
 ) vgame.Status {
 	this.visible = this.visible || in.Ptr.Device() == vin.PointerDeviceMouse
@@ -45,6 +46,7 @@ func (this *MouseStatusEnt) Update(
 	this.addOverlay(sprs, assets.MouseStatusPrimary, xy, clicks&vin.ClickPrimary != 0)
 	this.addOverlay(sprs, assets.MouseStatusSecondary, xy, clicks&vin.ClickSecondary != 0)
 	this.addOverlay(sprs, assets.MouseStatusAux, xy, clicks&vin.ClickAux != 0)
+	this.addOverlay(sprs, assets.MouseStatusLocked, xy, pointerlocked)
 	if in.Dirty {
 		return vgame.Loop
 	}

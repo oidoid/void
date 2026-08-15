@@ -32,7 +32,7 @@ export function initMetaViewport(description: string | undefined): void {
   }
 }
 
-export async function requestPointerLock(el: Element): Promise<void> {
+export async function requestPointerlock(el: Element): Promise<void> {
   if (!document.pointerLockElement)
     try {
       await el.requestPointerLock()

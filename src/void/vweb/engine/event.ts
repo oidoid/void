@@ -5,6 +5,7 @@ export type AnyEvent =
   | 'input-keyup'
   | 'input-pointercancel'
   | 'input-pointerdown'
+  | 'input-pointerlockchange'
   | 'input-pointermove'
   | 'input-pointerup'
   | 'input-wheel'

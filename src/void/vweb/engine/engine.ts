@@ -15,20 +15,26 @@ import {
   localSecondOffset,
   localYearOffset,
   nowMsOffset,
+  pointerlockedOffset,
+  requestFullscreenOffset,
+  requestWakelockOffset,
   updateByteLen,
   updateMsOffset,
-  utcMsOffset
+  utcMsOffset,
+  wakelockedOffset
 } from '../input/layout.ts'
 import {getWebGL2, Renderer} from '../renderer/renderer.ts'
 import {beep, SFX} from '../sfx/sfx.ts'
 import {downloadScreenshot, initCanvas} from '../utils/canvas-util.ts'
 import {initBody, initMetaViewport} from '../utils/dom-util.ts'
+import {isFullscreen} from '../utils/fullscreen-util.ts'
 import {
-  exitFullscreen,
-  isFullscreen,
-  requestFullscreen
-} from '../utils/fullscreen-util.ts'
-import {debug, setDrawAlwaysParam} from './debug.ts'
+  debug,
+  setDrawAlwaysParam,
+  setFullscreenParam,
+  setWakelockParam
+} from './debug.ts'
+import {Fullscreen} from './fullscreen.ts'
 import {
   type LayerBlendMode,
   type LayerCamMode,
@@ -57,7 +63,8 @@ import {
   shaderTiles
 } from './layout.ts'
 import {PixelRatioObserver} from './pixel-ratio-observer.ts'
-import {LoopLoop, type Platform} from './platform.ts'
+import {LoopLoop, type Platform, renderModePixel} from './platform.ts'
+import {Wakelock} from './wakelock.ts'
 import {WASI} from './wasi.ts'
 
 export class Engine {
@@ -65,6 +72,7 @@ export class Engine {
   #clearColor: [number, number, number, number] = [0, 0, 0, 1]
   #drawCount: number = 0
   #drawAlways: boolean = false
+  #requestWakelock: boolean = false
   #updateMs: number = 0
   #frame!: DataView
   #input!: Input
@@ -81,6 +89,8 @@ export class Engine {
     this.#onResize.bind(this)
   )
   #wasm!: Platform
+  #fullscreen!: Fullscreen
+  readonly #wakelock: Wakelock = new Wakelock()
 
   // to-do: use Wasm import.
   async load(
@@ -96,9 +106,6 @@ export class Engine {
         (clearColor & 0xff) / 255
       ]
     }
-    canvas = initCanvas(canvas, 'Float') // to-do: pass render mode.
-
-    this.#input = new Input(canvas)
     const wasi = new WASI()
     const result = await WebAssembly.instantiateStreaming(fetch(wasmURL), {
       wasi_snapshot_preview1: wasi
@@ -106,17 +113,26 @@ export class Engine {
     this.#wasm = result.instance.exports as Platform
     wasi.link(this.#wasm.memory)
     this.#wasm._start()
-    this.#drawAlways = debug?.draw === 'always'
+    const pixel = this.#wasm.RenderMode() === renderModePixel
+    canvas = initCanvas(canvas, pixel ? 'Pixel' : 'Float')
+
+    this.#input = new Input(canvas)
     this.#frame = new DataView(
       this.#wasm.memory.buffer,
       this.#wasm.FramePointer(),
       updateByteLen
     )
+    this.#drawAlways = debug?.draw === 'always'
+    this.#requestWakelock = false
+    this.#wakelock.onChange = () => this.#requestUpdate()
+    this.#wakelock.enabled = this.#requestWakelock
 
     initMetaViewport(undefined) // to-do: pass description.
     initBody()
 
     this.#canvas = canvas
+    this.#fullscreen = new Fullscreen(canvas.parentElement!, canvas)
+    this.#fullscreen.onChange = () => this.#requestUpdate()
     canvas.addEventListener('webglcontextlost', this.#onCtxLost)
     canvas.addEventListener('webglcontextrestored', this.#onCtxRestored)
     this.#renderer = this.#newRenderer()
@@ -125,7 +141,7 @@ export class Engine {
 
   register(): void {
     if (this.#registered) return
-    this.#input.onEvent = () => this.#requestUpdate()
+    this.#input.onEvent = this.#onInput
     this.#input.register('add')
     addEventListener('visibilitychange', this.#onVisibility)
     // wait for the observer's initial callback to size the canvas; drawing
@@ -162,6 +178,7 @@ export class Engine {
     this.#playBeeps()
     this.#applyFullscreenRequest()
     this.#applyDrawAlwaysParam()
+    this.#applyWakelock()
     if (loop !== LoopLoop) {
       cancelAnimationFrame(this.#rafId)
       this.#rafId = 0
@@ -313,8 +330,9 @@ export class Engine {
       atlasCelsCount
     )
     const atlasImg = document.getElementById('atlas') as HTMLImageElement
+    const pixel = this.#wasm.RenderMode() === renderModePixel
     return new Renderer(
-      getWebGL2(this.#canvas, this.#wasm.Antialias() !== 0),
+      getWebGL2(this.#canvas, !pixel),
       this.#wasm.memory.buffer,
       this.#wasm.TilePointer(),
       this.#wasm.TileCount(),
@@ -327,24 +345,30 @@ export class Engine {
       atlasCels,
       this.#wasm.AtlasAnimCount(),
       this.#wasm.AtlasCelsPerAnim(),
-      atlasImg
+      atlasImg,
+      pixel
     )
   }
 
   #onVisibility = (): void => {
     this.#input.reset()
+    this.#wakelock.enabled = this.#requestWakelock
+    this.#requestUpdate()
+  }
+
+  #onInput = (): void => {
+    this.#fullscreen.onInput()
     this.#requestUpdate()
   }
 
   #applyFullscreenRequest(): void {
     const request = this.#wasm.FullscreenRequest()
     if (request === 1) {
-      // to-do: enum.
-      void requestFullscreen({canvas: this.#canvas}, 'NoLock').then(() =>
-        this.#requestUpdate()
-      )
+      if (debug?.window) setFullscreenParam(true)
+      this.#fullscreen.enabled = true
     } else if (request === 2) {
-      void exitFullscreen().then(() => this.#requestUpdate())
+      if (!debug?.window) setFullscreenParam(false)
+      this.#fullscreen.enabled = false
     }
   }
 
@@ -361,6 +385,14 @@ export class Engine {
     setDrawAlwaysParam(drawAlways)
   }
 
+  #applyWakelock(): void {
+    const requestWakelock = this.#wasm.RequestWakelock() !== 0
+    if (requestWakelock === this.#requestWakelock) return
+    this.#requestWakelock = requestWakelock
+    setWakelockParam(requestWakelock)
+    this.#wakelock.enabled = requestWakelock
+  }
+
   #writeUpdate(renderer: Renderer, nowMillis: number): void {
     if (this.#frame.buffer !== this.#wasm.memory.buffer)
       this.#frame = new DataView(
@@ -374,7 +406,14 @@ export class Engine {
     this.#frame.setUint16(canvasHOffset, renderer.phyH, true)
     this.#frame.setUint8(isFullscreenOffset, isFullscreen() ? 1 : 0)
     this.#frame.setUint8(drawAlwaysOffset, this.#drawAlways ? 1 : 0)
+    this.#frame.setInt8(requestWakelockOffset, debug?.zzz ? -1 : 0)
+    this.#frame.setUint8(wakelockedOffset, this.#wakelock.locked ? 1 : 0)
     this.#frame.setInt32(drawCountOffset, this.#drawCount, true)
+    this.#frame.setUint8(requestFullscreenOffset, debug?.window ? 2 : 0)
+    this.#frame.setUint8(
+      pointerlockedOffset,
+      document.pointerLockElement === this.#canvas ? 1 : 0
+    )
     this.#frame.setFloat64(updateMsOffset, this.#updateMs, true)
     this.#frame.setFloat64(devicePixelRatioOffset, devicePixelRatio, true)
     const time = Date.now()

@@ -64,6 +64,16 @@ test('void', () => {
   assert((debug as {unknown?: string}).unknown, undefined)
 })
 
+test('zzz', () => {
+  assert(Debug('https://oidoid.com/?debug=zzz')?.zzz, 'true')
+  assert(Debug('https://oidoid.com/?debug=zzz=1')?.zzz, '1')
+})
+
+test('window', () => {
+  assert(Debug('https://oidoid.com/?debug=window')?.window, 'true')
+  assert(Debug('https://oidoid.com/?debug=window=1')?.window, '1')
+})
+
 test('no params', () => {
   const url = 'https://oidoid.com/'
   assert(Debug(url), undefined)

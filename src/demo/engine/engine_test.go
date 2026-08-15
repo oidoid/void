@@ -4,10 +4,73 @@ import (
 	"math"
 	"testing"
 
+	"github.com/oidoid/void/src/demo/entities"
 	"github.com/oidoid/void/src/demo/gfx"
+	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 )
+
+func TestWakelock(t *testing.T) {
+	gam := New()
+	if got := gam.RequestWakelockFlag(); got != 1 {
+		t.Errorf("RequestWakelockFlag() = %v, want 1", got)
+	}
+	gam.DisableWakelock(true)
+	if got := gam.RequestWakelockFlag(); got != 0 {
+		t.Errorf("RequestWakelockFlag() = %v, want 0", got)
+	}
+	if gam.Wakelock() {
+		t.Error("Wakelock() = true without browser confirmation")
+	}
+	gam.Frame().Wakelocked = true
+	if !gam.Wakelock() {
+		t.Error("Wakelock() = false, want true")
+	}
+}
+
+// applies the zzz URL override before the demo submits its wakelock request.
+func TestWakelockURLDisable(t *testing.T) {
+	gam := New()
+	gam.Router.Update = func(*Engine) vgame.Status { return vgame.Pause }
+	gam.Frame().RequestWakelock = vgame.WakelockRequestOff
+	gam.Update()
+	if !gam.WakelockDisabled() {
+		t.Error("WakelockDisabled() = false, want true")
+	}
+	if got := gam.RequestWakelockFlag(); got != 0 {
+		t.Errorf("RequestWakelockFlag() = %v, want 0", got)
+	}
+}
+
+// applies the window URL override before the demo submits its fullscreen request.
+func TestFullscreenURLDisable(t *testing.T) {
+	gam := New()
+	gam.Router.Update = func(*Engine) vgame.Status { return vgame.Pause }
+	gam.Frame().RequestFullscreen = vgame.FullscreenRequestExit
+	gam.Update()
+	if !gam.FullscreenDisabled() {
+		t.Error("FullscreenDisabled() = false, want true")
+	}
+	if got := gam.FullscreenRequest(); got != int32(vgame.FullscreenRequestExit) {
+		t.Errorf("FullscreenRequest() = %v, want exit", got)
+	}
+}
+
+// controls the persistent windowed setting directly.
+func TestFullscreenToggle(t *testing.T) {
+	gam := New()
+	toggle := entities.NewFullscreenToggle(gam)
+	toggle.OnUpdate(toggle)
+	if toggle.On {
+		t.Error("toggle.On = true, want false")
+	}
+	toggle.On = true
+	toggle.OnClick(toggle)
+	if !gam.FullscreenDisabled() {
+		t.Error("FullscreenDisabled() = false, want true")
+	}
+}
 
 func TestZoomLvlAt(t *testing.T) {
 	gam := New()
@@ -104,5 +167,31 @@ func TestAdjustLvlScaleAt(t *testing.T) {
 	}
 	if got, want := gam.Layer(gfx.LayerTiles).Scale, float32(2.25); got != want {
 		t.Errorf("tile scale = %v, want %v", got, want)
+	}
+}
+
+// requests fullscreen and wakelock until the demo toggles disable them.
+func TestDefaultFullscreenAndWakelockRequests(t *testing.T) {
+	gam := New()
+	gam.Router.Update = func(*Engine) vgame.Status { return vgame.Pause }
+	gam.Update()
+	if got := gam.FullscreenRequest(); got != int32(vgame.FullscreenRequestEnter) {
+		t.Errorf("FullscreenRequest() = %v, want enter", got)
+	}
+	gam.Update()
+	if got := gam.FullscreenRequest(); got != int32(vgame.FullscreenRequestNone) {
+		t.Errorf("FullscreenRequest() = %v, want none", got)
+	}
+	if got := gam.RequestWakelockFlag(); got != 1 {
+		t.Errorf("RequestWakelockFlag() = %v, want 1", got)
+	}
+	gam.DisableFullscreen(true)
+	gam.DisableWakelock(true)
+	gam.Update()
+	if got := gam.FullscreenRequest(); got != int32(vgame.FullscreenRequestExit) {
+		t.Errorf("FullscreenRequest() = %v, want exit", got)
+	}
+	if got := gam.RequestWakelockFlag(); got != 0 {
+		t.Errorf("RequestWakelockFlag() = %v, want 0", got)
 	}
 }

@@ -13,7 +13,8 @@ export type Platform = {
   ScreenshotRequest(): number
   ContextLossRequest(): number
   DrawAlways(): number
-  Antialias(): number
+  RequestWakelock(): number
+  RenderMode(): number
   UpdateInMillisRequest(): bigint
   LayerConfigsPointer(): number
   Update(): Loop
@@ -40,4 +41,7 @@ export type Platform = {
 
 export type Loop = typeof LoopPause | typeof LoopLoop
 export const LoopPause = 0 as const
+export const renderModeFloat = 0 as const
+export const renderModePixel = 1 as const
+
 export const LoopLoop = 1 as const

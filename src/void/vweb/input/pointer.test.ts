@@ -1,10 +1,12 @@
 import {test} from 'node:test'
 import {assert} from '../test/assert.ts'
 import {DevicePixelRatioMock} from '../test/device-pixel-ratio-mock.ts'
+import {DocumentMock} from '../test/document-mock.ts'
 import {PointerTestEvent} from '../test/test-event.ts'
 import {Pointer} from './pointer.ts'
 
 test('Pointer', async ctx => {
+  using _doc = new DocumentMock()
   using dpr = new DevicePixelRatioMock()
   dpr.ratio = 1
   const target = Object.assign(new EventTarget(), {
@@ -15,6 +17,14 @@ test('Pointer', async ctx => {
   }) as unknown as HTMLCanvasElement
   const pointer = new Pointer(target)
   pointer.register('add')
+
+  await ctx.test('reports pointer event names', () => {
+    const events: string[] = []
+    pointer.onEvent = event => events.push(event)
+    target.dispatchEvent(PointerTestEvent('pointermove'))
+    assert(events, ['input-pointermove'])
+    pointer.onEvent = () => {}
+  })
 
   await ctx.test('retains an end record through postupdate', () => {
     target.dispatchEvent(
@@ -70,4 +80,18 @@ test('Pointer', async ctx => {
   })
 
   pointer.register('remove')
+})
+
+test('pointer registers pointerlock changes', () => {
+  using doc = new DocumentMock()
+  const target = new EventTarget() as unknown as HTMLCanvasElement
+  const pointer = new Pointer(target)
+  const events: string[] = []
+  pointer.onEvent = event => events.push(event)
+  pointer.register('add')
+  doc.dispatchEvent(new Event('pointerlockchange'))
+  assert(events, ['input-pointerlockchange'])
+  pointer.register('remove')
+  doc.dispatchEvent(new Event('pointerlockchange'))
+  assert(events, ['input-pointerlockchange'])
 })

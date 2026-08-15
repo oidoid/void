@@ -15,7 +15,8 @@ export class TileRenderer {
     atlasCels: Uint16Array,
     atlasAnimCount: number,
     atlasCelsPerAnim: number,
-    atlasImg: HTMLImageElement
+    atlasImg: HTMLImageElement,
+    pixel: boolean
   ): TileRenderer {
     const pgm = buildProgram(gl, tileVert, tileFrag)
     const uResolution = gl.getUniformLocation(pgm, 'uResolution')!
@@ -69,6 +70,8 @@ export class TileRenderer {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
 
+    const filter = pixel ? gl.NEAREST : gl.LINEAR
+
     const sprsheetTex = gl.createTexture()!
     gl.activeTexture(gl.TEXTURE2)
     gl.bindTexture(gl.TEXTURE_2D, sprsheetTex)
@@ -80,8 +83,8 @@ export class TileRenderer {
       gl.UNSIGNED_BYTE,
       atlasImg
     )
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
     gl.bindTexture(gl.TEXTURE_2D, null)

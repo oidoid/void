@@ -171,6 +171,11 @@ func transformManifests(
 		if err := json.Unmarshal(srcBin, &manifest); err != nil {
 			return errorEndResult(err)
 		}
+		// to-do:
+		// if (config.bundle.version) manifest.version = config.bundle.version
+		if config.WatchPort != 0 {
+			manifest["start_url"] = "."
+		}
 		if icons, ok := manifest["icons"].([]any); ok {
 			for _, item := range icons {
 				icon, ok := item.(map[string]any)
@@ -188,11 +193,6 @@ func transformManifests(
 				icon["src"] = newSrc
 			}
 		}
-
-		// to-do:
-		// if (config.bundle.version) manifest.version = config.bundle.version
-		// if (config.watch)
-		//   manifest.start_url = `http://localhost:${config.port}`
 
 		manifestBin, err := json.Marshal(manifest)
 		if err != nil {

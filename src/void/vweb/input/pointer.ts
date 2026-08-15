@@ -61,6 +61,7 @@ export class Pointer {
       'pointerup'
     ])
       this.#target[`${op}EventListener`](ev, this.#onPointer as EventListener)
+    document[`${op}EventListener`]('pointerlockchange', this.#onPointerlock)
   }
 
   reset(): void {
@@ -113,4 +114,6 @@ export class Pointer {
     }
     this.onEvent(`input-${ev.type}` as AnyEvent)
   }
+
+  #onPointerlock = (): void => this.onEvent('input-pointerlockchange')
 }

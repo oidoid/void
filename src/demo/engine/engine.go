@@ -43,8 +43,9 @@ func New() *Engine {
 	font.FirstAnimID = assets.MemProp5x600
 	this := &Engine{
 		Engine: vengine.New[*Engine](&vengine.EngineOpts{
-			Font:  font,
-			Level: &levels.InitLevel,
+			Font:       font,
+			Level:      &levels.InitLevel,
+			RenderMode: vgfx.RenderModePixel,
 		}),
 		LastBoingMs: -math.MaxFloat64,
 	}

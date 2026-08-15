@@ -15,7 +15,8 @@ export class SprRenderer {
     atlasCels: Uint16Array,
     atlasAnimCount: number,
     atlasCelsPerAnim: number,
-    atlasImg: HTMLImageElement
+    atlasImg: HTMLImageElement,
+    pixel: boolean
   ): SprRenderer {
     const pgm = buildProgram(gl, sprVert, sprFrag)
     const uResolution = gl.getUniformLocation(pgm, 'uResolution')!
@@ -27,6 +28,7 @@ export class SprRenderer {
 
     gl.uniform1i(gl.getUniformLocation(pgm, 'uAtlasCels'), 0)
     gl.uniform1i(gl.getUniformLocation(pgm, 'uSprsheet'), 1)
+    gl.uniform1i(gl.getUniformLocation(pgm, 'uPixel')!, pixel ? 1 : 0)
 
     const atlasCelsTex = gl.createTexture()!
     gl.activeTexture(gl.TEXTURE0)
@@ -47,6 +49,8 @@ export class SprRenderer {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
 
+    const filter = pixel ? gl.NEAREST : gl.LINEAR
+
     const sprsheetTex = gl.createTexture()!
     gl.activeTexture(gl.TEXTURE1)
     gl.bindTexture(gl.TEXTURE_2D, sprsheetTex)
@@ -61,8 +65,8 @@ export class SprRenderer {
       gl.UNSIGNED_BYTE,
       atlasImg
     )
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter)
     gl.uniform2f(
       gl.getUniformLocation(pgm, 'uAtlasSize')!,
       atlasImg.naturalWidth,

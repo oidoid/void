@@ -17,14 +17,6 @@ import (
 	"github.com/oidoid/void/src/void/vtext"
 )
 
-type FullscreenRequest uint8
-
-const (
-	FullscreenRequestNone FullscreenRequest = iota
-	FullscreenRequestEnter
-	FullscreenRequestExit
-)
-
 // to-do: rename Eng.
 type Engine[Game vgame.Game] struct {
 	Level              *vlevels.Level
@@ -42,25 +34,26 @@ type Engine[Game vgame.Game] struct {
 	rnd                *rand.Rand
 	layers             [vgfx.LayerCount]vgfx.LayerConfig
 	layerConfigExport  [vgfx.LayerCount]vgfx.LayerConfigExport
-	fullscreenRequest  FullscreenRequest
+	fullscreenRequest  vgame.FullscreenRequest
 	screenshotRequest  bool
 	contextLossRequest bool
 	beeps              [16]vgame.Beep
 	beepCount          uint32
 	updateInMillis     uint64
 	drawAlways         bool
-	antialias          bool
+	disableFullscreen  bool
+	disableWakelock    bool
+	renderMode         vgfx.RenderMode
 	tick               vgame.Tick
 }
 
 type EngineOpts struct {
-	// enables WebGL antialiasing when the renderer is initialized.
-	Antialias bool
-	Font      *vtext.Font
-	Level     *vlevels.Level
-	MaxSprs   int
-	Seed1     uint64
-	Seed2     uint64
+	RenderMode vgfx.RenderMode
+	Font       *vtext.Font
+	Level      *vlevels.Level
+	MaxSprs    int
+	Seed1      uint64
+	Seed2      uint64
 }
 
 func New[Game vgame.Game](opts *EngineOpts) *Engine[Game] {
@@ -77,11 +70,12 @@ func New[Game vgame.Game](opts *EngineOpts) *Engine[Game] {
 		opts.Seed2 = rand.Uint64()
 	}
 	this := &Engine[Game]{
-		font:      opts.Font,
-		Level:     opts.Level,
-		in:        vin.NewIn(),
-		rnd:       rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
-		antialias: opts.Antialias,
+		font:              opts.Font,
+		Level:             opts.Level,
+		in:                vin.NewIn(),
+		rnd:               rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
+		fullscreenRequest: vgame.FullscreenRequestEnter,
+		renderMode:        opts.RenderMode,
 	}
 	for i := range this.layers {
 		this.layers[i] = vgfx.NewLayerConfig(opts.MaxSprs)
@@ -121,6 +115,7 @@ func (this *Engine[Game]) Font() *vtext.Font {
 // to-do: rename to Poll, move props to Engine struct, and don't expose?
 func (this *Engine[Game]) Frame() *vgame.Poll { return &this.frame }
 func (this *Engine[Game]) Fullscreen() bool   { return this.frame.Fullscreen }
+func (this *Engine[Game]) Pointerlock() bool  { return this.frame.Pointerlocked }
 func (this *Engine[Game]) NowMillis() float64 { return this.frame.NowMillis }
 func (this *Engine[Game]) UtcMillis() uint64  { return this.frame.UtcMillis }
 func (this *Engine[Game]) Time() vgame.TimeFormat {
@@ -132,15 +127,15 @@ func (this *Engine[Game]) Tick() *vgame.Tick  { return &this.tick }
 
 func (this *Engine[Game]) RequestFullscreen(fullscreen bool) {
 	if fullscreen {
-		this.fullscreenRequest = FullscreenRequestEnter
+		this.fullscreenRequest = vgame.FullscreenRequestEnter
 	} else {
-		this.fullscreenRequest = FullscreenRequestExit
+		this.fullscreenRequest = vgame.FullscreenRequestExit
 	}
 }
 
 func (this *Engine[Game]) FullscreenRequest() int32 {
 	request := this.fullscreenRequest
-	this.fullscreenRequest = FullscreenRequestNone
+	this.fullscreenRequest = vgame.FullscreenRequestNone
 	return int32(request)
 }
 
@@ -188,7 +183,36 @@ func (this *Engine[Game]) SetDrawAlways(always bool) {
 
 func (this *Engine[Game]) DrawAlways() bool { return this.drawAlways }
 
-func (this *Engine[Game]) Antialias() bool { return this.antialias }
+func (this *Engine[Game]) FullscreenDisabled() bool {
+	return this.disableFullscreen
+}
+
+func (this *Engine[Game]) DisableFullscreen(disable bool) {
+	this.disableFullscreen = disable
+	this.RequestFullscreen(!disable)
+}
+
+func (this *Engine[Game]) WakelockDisabled() bool { return this.disableWakelock }
+
+func (this *Engine[Game]) DisableWakelock(disable bool) {
+	this.disableWakelock = disable
+}
+
+// reports whether the browser currently holds the requested wakelock.
+func (this *Engine[Game]) Wakelock() bool {
+	return this.frame.Wakelocked
+}
+
+func (this *Engine[Game]) RequestWakelockFlag() int32 {
+	if !this.WakelockDisabled() {
+		return 1
+	}
+	return 0
+}
+
+func (this *Engine[Game]) RenderMode() vgfx.RenderMode {
+	return this.renderMode
+}
 
 func (this *Engine[Game]) DrawAlwaysFlag() int32 {
 	if this.drawAlways {
@@ -197,11 +221,8 @@ func (this *Engine[Game]) DrawAlwaysFlag() int32 {
 	return 0
 }
 
-func (this *Engine[Game]) AntialiasFlag() int32 {
-	if this.antialias {
-		return 1
-	}
-	return 0
+func (this *Engine[Game]) RenderModeFlag() int32 {
+	return int32(this.renderMode)
 }
 
 func (this *Engine[Game]) FramePointer() uintptr {
@@ -225,13 +246,9 @@ func (this *Engine[Game]) In() *vin.In {
 	return this.in
 }
 
-// returns the cursor's phy coordinate when it is active.
-func (this *Engine[Game]) CursorPhy() (phy vgeo.XY[float32], on bool) {
-	cursor := this.Cursor
-	if cursor == nil {
-		return vgeo.XY[float32]{}, false
-	}
-	return cursor.Phy(this.in, this.Layer(cursor.Z.Layer()))
+// returns the cursor's phy hitbox when active, else nil.
+func (this *Engine[Game]) CursorPhy() *vgeo.Box[float32] {
+	return this.Cursor.HitboxPhy()
 }
 
 func (this *Engine[Game]) LevelX() int32 { return this.Level.Min.X }
@@ -309,6 +326,12 @@ func (this *Engine[Game]) BeginTick() vgame.Status {
 	)
 	this.tick.DrawCount = this.frame.DrawCount
 	this.drawAlways = this.frame.DrawAlways
+	if this.frame.RequestWakelock == vgame.WakelockRequestOff {
+		this.DisableWakelock(true)
+	}
+	if this.frame.RequestFullscreen == vgame.FullscreenRequestExit {
+		this.DisableFullscreen(true)
+	}
 	for i := range this.layers {
 		this.layers[i].Sprs = this.layers[i].Sprs[:0]
 	}

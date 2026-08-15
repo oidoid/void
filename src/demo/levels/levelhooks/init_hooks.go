@@ -45,7 +45,7 @@ func InitInit(gam *engine.Engine) {
 	cursors.Add(cursor)
 	gam.RegisterEntUpdate(cursors)
 
-	buttons := ventities.NewEntVec(vhooks.UpdateButtons[*engine.Engine], 5)
+	buttons := ventities.NewEntVec(vhooks.UpdateButtons[*engine.Engine], 6)
 
 	drawBtn := entities.NewDrawToggleButton(gam)
 	buttons.Add(drawBtn)
@@ -58,8 +58,11 @@ func InitInit(gam *engine.Engine) {
 	fullscreenToggle := entities.NewFullscreenToggle(gam)
 	fullscreenToggle.Anchor.Ref = screenshotBtn
 	buttons.Add(fullscreenToggle)
+	wakelockToggle := entities.NewWakelockToggle(gam)
+	wakelockToggle.Anchor.Ref = fullscreenToggle
+	buttons.Add(wakelockToggle)
 	cursorKeyToggle := entities.NewCursorKeyToggle(cursor)
-	cursorKeyToggle.Anchor.Ref = fullscreenToggle
+	cursorKeyToggle.Anchor.Ref = wakelockToggle
 	buttons.Add(cursorKeyToggle)
 	gam.RegisterEntUpdate(buttons)
 

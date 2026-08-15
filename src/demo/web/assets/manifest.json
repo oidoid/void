@@ -6,28 +6,33 @@
   "homepage_url": "https://oidoid.com/",
   "icons": [
     {
-      "src": "../../../dist/public/demo/favicon/favicon16.webp",
+      "src": "../../../../dist/demo/favicon/favicon16.webp",
       "sizes": "16x16",
       "type": "image/webp"
     },
     {
-      "src": "../../../dist/public/demo/favicon/favicon32.webp",
+      "src": "../../../../dist/demo/favicon/favicon32.webp",
       "sizes": "32x32",
       "type": "image/webp"
     },
     {
-      "src": "../../../dist/public/demo/favicon/favicon48.webp",
+      "src": "../../../../dist/demo/favicon/favicon48.webp",
       "sizes": "48x48",
       "type": "image/webp"
     },
     {
-      "src": "../../../dist/public/demo/favicon/favicon64.webp",
+      "src": "../../../../dist/demo/favicon/favicon64.webp",
       "sizes": "64x64",
       "type": "image/webp"
     },
     {
-      "src": "../../../dist/public/demo/favicon/favicon192.webp",
+      "src": "../../../../dist/demo/favicon/favicon192.webp",
       "sizes": "192x192",
+      "type": "image/webp"
+    },
+    {
+      "src": "../../../../dist/demo/favicon/favicon512.webp",
+      "sizes": "512x512",
       "type": "image/webp"
     }
   ],

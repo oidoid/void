@@ -3,6 +3,7 @@ export const sprVert: string = `#version 300 es
 uniform highp ivec2 uResolution;
 uniform highp vec2 uCamXY;
 uniform highp float uNowMillis;
+uniform bool uPixel;
 uniform highp usampler2D uAtlasCels;
 uniform highp vec2 uAtlasSize;
 
@@ -59,7 +60,7 @@ void main() {
   bool zTop = (aFlags >> sprZTopShift & sprZTopMask) != 0u;
 
   highp vec2 corner = corners[gl_VertexID];
-  highp vec2 originPx = aXY;
+  highp vec2 originPx = uPixel ? floor(aXY + .5) : aXY;
   highp vec2 originScreenPx = originPx - uCamXY;
   highp vec2 centerPx = wh * .5;
   highp vec2 localPx = corner * wh - centerPx;

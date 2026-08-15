@@ -1,5 +1,3 @@
-import {requestPointerLock} from './dom-util.ts'
-
 export function isFullscreen(): boolean {
   if (!globalThis.document) return false
   return (
@@ -23,15 +21,12 @@ export async function exitFullscreen(): Promise<boolean> {
   return true
 }
 
-export async function requestFullscreen(
-  v: {canvas: HTMLCanvasElement},
-  noLock?: 'NoLock'
-): Promise<boolean> {
+export async function requestFullscreen(el: Element): Promise<boolean> {
   if (!document.fullscreenEnabled) return false
 
-  if (document.fullscreenElement !== v.canvas)
+  if (document.fullscreenElement !== el)
     try {
-      await v.canvas.requestFullscreen({navigationUI: 'hide'})
+      await el.requestFullscreen({navigationUI: 'hide'})
     } catch {
       return false
     }
@@ -39,8 +34,5 @@ export async function requestFullscreen(
   // hack: no pointer up or cancel.
   // to-do: v.input.reset()
 
-  if (!noLock) await requestPointerLock(v.canvas)
-
-  // to-do: v.onEvent()
   return true
 }

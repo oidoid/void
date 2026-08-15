@@ -47,12 +47,23 @@ func NewScreenshotButton(gam game.Game) *ventities.ButtonEnt {
 }
 
 func NewFullscreenToggle(gam game.Game) *ventities.ButtonEnt {
-	this := newButtonEnt("full", ventities.ButtonTypeToggle)
+	this := newButtonEnt("window", ventities.ButtonTypeToggle)
 	this.OnUpdate = func(ent *ventities.ButtonEnt) {
-		ent.On = gam.Fullscreen()
+		ent.On = gam.FullscreenDisabled()
 	}
 	this.OnClick = func(ent *ventities.ButtonEnt) {
-		gam.RequestFullscreen(ent.On)
+		gam.DisableFullscreen(ent.On)
+	}
+	return this
+}
+
+func NewWakelockToggle(gam game.Game) *ventities.ButtonEnt {
+	this := newButtonEnt("zzz", ventities.ButtonTypeToggle)
+	this.OnUpdate = func(ent *ventities.ButtonEnt) {
+		ent.On = gam.WakelockDisabled()
+	}
+	this.OnClick = func(ent *ventities.ButtonEnt) {
+		gam.DisableWakelock(ent.On)
 	}
 	return this
 }

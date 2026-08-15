@@ -16,6 +16,8 @@ export interface Debug {
   invalid?: string
   looper?: string
   mem?: string
+  window?: string
+  zzz?: string
 }
 
 type DebugParams = {[k: string]: string}
@@ -34,13 +36,25 @@ export function findDebugParam(url: string): string | undefined {
 }
 
 export function setDrawAlwaysParam(always: boolean): void {
-  if (always) {
+  setDebugParam('draw', always ? 'always' : undefined)
+}
+
+export function setWakelockParam(enabled: boolean): void {
+  setDebugParam('zzz', enabled ? undefined : 'true')
+}
+
+export function setFullscreenParam(enabled: boolean): void {
+  setDebugParam('window', enabled ? undefined : 'true')
+}
+
+export function setDebugParam(key: keyof Debug, val: string | undefined): void {
+  if (val) {
     debug ??= {}
-    debug.draw = 'always'
-    debugParams.draw = 'always'
+    debug[key] = val
+    debugParams[key] = val
   } else {
-    if (debug) delete debug.draw
-    delete debugParams.draw
+    if (debug) delete debug[key]
+    delete debugParams[key]
   }
 
   const csv = Object.entries(debugParams)

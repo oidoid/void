@@ -14,8 +14,10 @@ import {
   keyboardTextOffset,
   keyboardTextOverflowOffset,
   maxTextLen,
+  pointerlockedOffset,
   pollSize,
   pollsOffset,
+  requestFullscreenOffset,
   updateByteLen,
   updateMsOffset,
   wheelOffset
@@ -25,6 +27,8 @@ import type {Wheel} from './wheel.ts'
 
 test('Poll ABI layout matches vgame.Poll', () => {
   assert(drawCountOffset, 4408)
+  assert(requestFullscreenOffset, 4412)
+  assert(pointerlockedOffset, 4413)
   assert(updateMsOffset, 4416)
   assert(devicePixelRatioOffset, 4424)
   assert(updateByteLen, 4448)

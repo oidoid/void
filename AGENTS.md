@@ -60,6 +60,7 @@ never run:
   - millisecond(s): milli(s)
   - near box: nearbox
   - palette: pal
+  - pointer lock: pointerlock
   - physical: phy
   - pixel(s): px(s)
   - property / properties: prop(s)
@@ -73,11 +74,13 @@ never run:
   - string: str
   - value(s): v, val(s)
   - velocity: vel
+  - wake lock: wakelock
 - sentences end with periods.
 - capitalize but skip sentence capitalization.
 - in English, prefer backticks around code snippets.
 - represent bit fields with an unshifted mask and a shift.
 - order dirs: E, NE, N, NW, W, SW, S, SE, Center.
+- order public before private except for constructor which appears first.
 
 ### Go
 
@@ -112,6 +115,7 @@ supporting both modern and pixel games is critical. be very sensitive to roundin
 - prefer ceiling integral sizes. avoid truncation that causes sizes to be unexpectedly short.
 - prefer source data over inverted transforms to avoid accumulation errors.
 - use `vgfx.DiagonalizeXY()` as needed to sync triggered movements.
+- do not bother snapping sprites to integral boundaries. set `vengine.EngineOpts.RenderMode` to `vgfx.RenderModePixel` for pixel games. it snaps final sprite origins, disables antialiasing, and selects nearest rendering; retain fractional game coords for movement and collision. use `vgfx.RenderModeFloat` for smooth games.
 
 ## Verification
 
@@ -122,3 +126,4 @@ supporting both modern and pixel games is critical. be very sensitive to roundin
 ## Development
 
 - you can interact with the demo on http://localhost:1234 if the user is running `make`. try the URL or ask the user if you want to use it.
+- test pointer collision with the cursor entity hitbox.

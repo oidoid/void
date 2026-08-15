@@ -92,39 +92,42 @@ func (this *ButtonEnt) Update(
 	sprs *[]vgfx.Spr,
 	layer *vgfx.LayerConfig,
 	font *vtext.Font,
-	cursorPhy *vgeo.XY[float32],
+	cursorPhy *vgeo.Box[float32],
 ) vgame.Status {
 	this.Layout(font, layer.Clip)
 	this.Start = false
 	if this.OnUpdate != nil {
 		this.OnUpdate(this)
 	}
+	bounds := this.AnchorBox()
 	this.Focused = false
 	if cursorPhy != nil {
-		xy := layer.PhyToLayer(*cursorPhy) // to-do: can input expose a layer XY?
-		bounds := vgeo.XYWH(
-			this.XY.X, this.XY.Y, float32(this.WH.W), float32(this.WH.H),
-		)
-		this.Focused = bounds.HitsXY(xy)
+		lo := layer.PhyToLayer(cursorPhy.Min)
+		hi := layer.PhyToLayer(cursorPhy.Max)
+		this.Focused = bounds.HitsBox(vgeo.Box[float32]{Min: lo, Max: hi})
 	}
+	offStart := this.Type == ButtonTypeToggle && this.Focused &&
+		in.IsOffStart(vin.ButtonA)
+	pressed := this.Focused && in.IsOn(vin.ButtonA)
 	wasOn := this.On
 	if this.Type == ButtonTypeToggle {
-		if this.Focused && in.IsOnEnd(vin.ButtonA) {
+		if offStart {
 			this.On = !this.On
 		}
 	} else {
-		this.On = this.Focused && in.IsOn(vin.ButtonA)
+		this.On = pressed
 	}
 	this.Start = wasOn != this.On
+	loop := vgame.Pause
+	if pressed {
+		loop = vgame.Loop
+	}
 
-	bounds := vgeo.XYWH(
-		this.XY.X, this.XY.Y, float32(this.WH.W), float32(this.WH.H),
-	)
 	if !layer.Clip.HitsBox(bounds) {
-		return vgame.Pause
+		return loop
 	}
 	for i := range this.PatchByDir {
-		this.PatchByDir[i].SetPal(this.pal(this.Pals))
+		this.PatchByDir[i].SetPal(this.pal(this.Pals, pressed))
 	}
 	this.NinePatchEnt.Update(sprs)
 
@@ -133,7 +136,7 @@ func (this *ButtonEnt) Update(
 			int16(this.XY.X)+(int16(this.WH.W)-this.Text.Layout.W)/2,
 			int16(this.XY.Y)+(int16(this.WH.H)-this.Text.Layout.TrimAllForceH)/2,
 		)
-		this.Text.Pal = this.pal(this.TextPals)
+		this.Text.Pal = this.pal(this.TextPals, pressed)
 		this.Text.Update(font, sprs, layer.Clip)
 	}
 
@@ -141,19 +144,23 @@ func (this *ButtonEnt) Update(
 		this.OnClick(this)
 	}
 	if this.Start {
-		return vgame.Loop
+		loop = vgame.Loop
 	}
-	return vgame.Pause
+	return loop
 }
 
-func (this *ButtonEnt) pal(pals ButtonPals) vatlas.AnimID {
-	if this.Focused && this.On {
+func (this *ButtonEnt) pal(pals ButtonPals, pressed bool) vatlas.AnimID {
+	on := this.On
+	if this.Type == ButtonTypeToggle && pressed {
+		on = !on
+	}
+	if this.Focused && on {
 		return pals.FocusedOn
 	}
 	if this.Focused {
 		return pals.Focused
 	}
-	if this.On {
+	if on {
 		return pals.On
 	}
 	return pals.Base

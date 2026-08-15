@@ -16,10 +16,11 @@ func UpdateMouseStatuses(
 	sprs := &layer.Sprs
 	clip := layer.Clip
 	in := gam.In()
+	pointerlocked := gam.Pointerlock()
 	ents := vec.Vals()
 	loop := vgame.Pause
 	for i := range ents {
-		loop |= ents[i].Update(sprs, in, clip)
+		loop |= ents[i].Update(sprs, in, pointerlocked, clip)
 	}
 	return loop
 }

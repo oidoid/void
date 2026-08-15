@@ -128,6 +128,7 @@ func TestTransformManifests_OneFile(t *testing.T) {
 
 func TestTransformManifests_NotOneFile(t *testing.T) {
 	config, entryDir := mockCLIConfig(t, false)
+	config.WatchPort = 1234
 	os.WriteFile(filepath.Join(entryDir, "icon.png"), []byte("png"), 0o644)
 	manifest := map[string]any{
 		"name":  "Test",
@@ -163,6 +164,17 @@ func TestTransformManifests_NotOneFile(t *testing.T) {
 		filepath.Join(config.OutDir, "icon.png"),
 	); err != nil {
 		t.Errorf("expected icon.png copied to outDir: %v", err)
+	}
+	manifestBin, err := os.ReadFile(filepath.Join(config.OutDir, "manifest.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got map[string]any
+	if err := json.Unmarshal(manifestBin, &got); err != nil {
+		t.Fatal(err)
+	}
+	if got["start_url"] != "." {
+		t.Errorf("start_url = %v, want .", got["start_url"])
 	}
 }
 

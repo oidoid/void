@@ -37,15 +37,18 @@ func TestPollSerializationRoundTrip(t *testing.T) {
 				Axes:      [4]float32{-1, -0.5, 0.5, 1},
 			}},
 		},
-		DeltaMillis:      16.5,
-		NowMillis:        123.5,
-		CanvasPhy:        vgeo.NewWH[uint16](640, 480),
-		Fullscreen:       true,
-		DrawAlways:       true,
-		DrawCount:        3,
-		UpdateMillis:     4.5,
-		DevicePixelRatio: 2,
-		UtcMillis:        1_767_000_000_123,
+		DeltaMillis:       16.5,
+		NowMillis:         123.5,
+		CanvasPhy:         vgeo.NewWH[uint16](640, 480),
+		Fullscreen:        true,
+		DrawAlways:        true,
+		RequestWakelock:   WakelockRequestOff,
+		Wakelocked:        true,
+		DrawCount:         3,
+		RequestFullscreen: FullscreenRequestExit,
+		UpdateMillis:      4.5,
+		DevicePixelRatio:  2,
+		UtcMillis:         1_767_000_000_123,
 		TimeFormat: TimeFormat{
 			Year: 2026, Month: 7, Day: 19, Hour: 7, Minute: 52, Second: 20, Milli: 123,
 		},
@@ -84,7 +87,10 @@ func TestPollLayout(t *testing.T) {
 	check("CanvasPhy.W", unsafe.Offsetof(poll.CanvasPhy), 4400)
 	check("CanvasPhy.H", unsafe.Offsetof(poll.CanvasPhy)+2, 4402)
 	check("Fullscreen", unsafe.Offsetof(poll.Fullscreen), 4404)
+	check("RequestWakelock", unsafe.Offsetof(poll.RequestWakelock), 4406)
+	check("Wakelocked", unsafe.Offsetof(poll.Wakelocked), 4407)
 	check("DrawCount", unsafe.Offsetof(poll.DrawCount), 4408)
+	check("RequestFullscreen", unsafe.Offsetof(poll.RequestFullscreen), 4412)
 	check("UpdateMs", unsafe.Offsetof(poll.UpdateMillis), 4416)
 	check("DevicePixelRatio", unsafe.Offsetof(poll.DevicePixelRatio), 4424)
 	check("Time.Year", unsafe.Offsetof(poll.TimeFormat), 4432)

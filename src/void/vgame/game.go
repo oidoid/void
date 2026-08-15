@@ -15,12 +15,17 @@ type Game interface {
 	RequestFullscreen(bool)
 	RequestScreenshot()
 	SetDrawAlways(bool)
+	DisableFullscreen(bool)
+	DisableWakelock(bool)
 	CanvasPhy() *vgeo.WH[uint16]
-	CursorPhy() (phy vgeo.XY[float32], on bool)
+	CursorPhy() *vgeo.Box[float32]
 	DeltaMs() float64
 	DeltaSecs() float64
 	Font() *vtext.Font
 	Fullscreen() bool
+	FullscreenDisabled() bool
+	Wakelock() bool
+	WakelockDisabled() bool
 	In() *vin.In
 	NowMillis() float64
 	Time() TimeFormat

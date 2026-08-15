@@ -3,7 +3,7 @@ import {overlayFrag} from './overlay.frag.glsl.ts'
 import {overlayVert} from './overlay.vert.glsl.ts'
 
 export class OverlayRenderer {
-  static new(gl: WebGL2RenderingContext): OverlayRenderer {
+  static new(gl: WebGL2RenderingContext, pixel: boolean): OverlayRenderer {
     const pgm = buildProgram(gl, overlayVert, overlayFrag)
     const uResolution = gl.getUniformLocation(pgm, 'uResolution')!
     const uFrame = gl.getUniformLocation(pgm, 'uFrame')!
@@ -11,8 +11,9 @@ export class OverlayRenderer {
 
     const frameTex = gl.createTexture()!
     gl.bindTexture(gl.TEXTURE_2D, frameTex)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+    const filter = pixel ? gl.NEAREST : gl.LINEAR
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
     gl.bindTexture(gl.TEXTURE_2D, null)

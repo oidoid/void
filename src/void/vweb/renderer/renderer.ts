@@ -62,7 +62,8 @@ export class Renderer {
     atlasCels: Uint16Array,
     atlasAnimCount: number,
     atlasCelsPerAnim: number,
-    atlasImg: HTMLImageElement
+    atlasImg: HTMLImageElement,
+    pixel: boolean
   ) {
     gl.enable(gl.DEPTH_TEST)
     gl.depthFunc(gl.LEQUAL)
@@ -72,14 +73,15 @@ export class Renderer {
     const tiles = new Uint16Array(buffer, tilePtr, tileCount)
     this.#loseContext = gl.getExtension('WEBGL_lose_context')
     this.#gl = gl
-    this.#clip = ClipRenderer.new(gl)
-    this.#overlay = OverlayRenderer.new(gl)
+    this.#clip = ClipRenderer.new(gl, pixel)
+    this.#overlay = OverlayRenderer.new(gl, pixel)
     this.#sprs = SprRenderer.new(
       gl,
       atlasCels,
       atlasAnimCount,
       atlasCelsPerAnim,
-      atlasImg
+      atlasImg,
+      pixel
     )
     this.#tiles = TileRenderer.new(
       gl,
@@ -93,7 +95,8 @@ export class Renderer {
       atlasCels,
       atlasAnimCount,
       atlasCelsPerAnim,
-      atlasImg
+      atlasImg,
+      pixel
     )
   }
 
