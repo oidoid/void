@@ -22,15 +22,14 @@ func InitInit(gam *engine.Engine) {
 	anim := gam.Atlas.Anims[int(assets.BackpackerWalkRight)]
 	tileW := int32(gam.Level.Tile.W)
 	tileH := int32(gam.Level.Tile.H)
-	p1s := ventities.NewEntVec(hooks.UpdateP1s, 1)
-	p1s.Add(entities.NewP1Ent(
+	p1 := entities.NewP1Ent(
 		vgeo.NewXY(
 			float32(gam.Level.Min.X+tileW),
 			float32(gam.Level.Min.Y+tileH-int32(anim.Hurtbox.Min.Y)),
 		),
 		anim,
-	))
-	gam.RegisterEntUpdate(p1s)
+	)
+	gam.Register(&p1)
 
 	cursor := new(ventities.CursorEnt)
 	*cursor = ventities.NewCursorEnt(
@@ -85,35 +84,29 @@ func InitInit(gam *engine.Engine) {
 	superballButtons.Add(zeroBtn)
 	gam.RegisterEntUpdate(superballButtons)
 
-	camStatuses := ventities.NewEntVec(hooks.UpdateCamStatuses, 1)
 	camStatus := entities.NewCamStatusEnt(assets.ColorBlue, gfx.ZUIWidget)
 	camStatus.Anchor = ventities.AnchorEnt{
 		Dir:    vgeo.DirW,
 		Margin: vgeo.NewXY[float32](4, 0),
 		Ref:    zeroBtn,
 	}
-	camStatuses.Add(camStatus)
-	gam.RegisterEntUpdate(camStatuses)
+	gam.Register(&camStatus)
 
-	drawStatuses := ventities.NewEntVec(hooks.UpdateDrawStatuses)
-	drawStatuses.Add(entities.NewDrawStatusEnt(
+	drawStatus := entities.NewDrawStatusEnt(
 		assets.ColorBlue,
 		vgeo.DirSE,
 		vgeo.Edge[int16]{E: 4, N: 4, W: 4, S: 4},
-	))
-	gam.RegisterEntUpdate(drawStatuses)
+	)
+	gam.Register(&drawStatus)
 
-	clocks := ventities.NewEntVec(hooks.UpdateClocks, 1)
-	clocks.Add(entities.NewClockEnt())
-	gam.RegisterEntUpdate(clocks)
+	clock := entities.NewClockEnt()
+	gam.Register(&clock)
 
-	entStatuses := ventities.NewEntVec(hooks.UpdateEntStatuses)
-	entStatuses.Add(entities.NewEntStatusEnt())
-	gam.RegisterEntUpdate(entStatuses)
+	entStatus := entities.NewEntStatusEnt()
+	gam.Register(&entStatus)
 
-	mouseStatuses := ventities.NewEntVec(hooks.UpdateMouseStatuses)
-	mouseStatuses.Add(entities.NewMouseStatusEnt())
-	gam.RegisterEntUpdate(mouseStatuses)
+	mouseStatus := entities.NewMouseStatusEnt()
+	gam.Register(&mouseStatus)
 
 	lvlEdges := ventities.NewEntVec(hooks.UpdateLvlEdgeNinePatches)
 	lvlEdges.Add(newEdgeEnt(gfx.ZUILevelEdge, 1, 1))

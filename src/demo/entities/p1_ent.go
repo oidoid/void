@@ -2,6 +2,7 @@ package entities
 
 import (
 	"github.com/oidoid/void/src/demo/assets"
+	"github.com/oidoid/void/src/demo/game"
 	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vgame"
@@ -32,17 +33,13 @@ func NewP1Ent(xy vgeo.XY[float32], anim vatlas.Anim) P1Ent {
 	}
 }
 
-func (this *P1Ent) Update(
-	sprs *[]vgfx.Spr,
-	clip vgeo.Box[float32],
-	deltaMillis float64,
-	lvl *vlevels.Level,
-) vgame.Status {
-	this.Move(deltaMillis, lvl)
-	if clip.HitsBox(vgeo.XYWH(
+func (this *P1Ent) Update(gam game.Game) vgame.Status {
+	layer := gam.Layer(gfx.LayerP1)
+	this.Move(gam.DeltaMs(), gam.Lvl())
+	if layer.Clip.HitsBox(vgeo.XYWH(
 		this.X, this.Y, float32(this.W), float32(this.H),
 	)) {
-		*sprs = append(*sprs, this.spr())
+		layer.Sprs = append(layer.Sprs, this.spr())
 	}
 	return vgame.Pause // demo doesn't want p1 to require updates.
 }

@@ -1,40 +1,49 @@
-package entities
+package entities_test
 
 import (
 	"testing"
 
 	"github.com/oidoid/void/src/demo/assets"
+	"github.com/oidoid/void/src/demo/engine"
+	"github.com/oidoid/void/src/demo/entities"
+	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/vgeo"
-	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vin"
 )
 
 // draws the lock overlay only while the browser has locked the canvas pointer.
 func TestMouseStatusPointerlocked(t *testing.T) {
-	tests := []struct {
+	for _, test := range []struct {
 		name    string
 		locked  bool
 		sprsLen int
 	}{
-		{"unlocked", false, 1},
-		{"locked", true, 2},
-	}
-	for _, test := range tests {
+		{name: "unlocked", sprsLen: 1},
+		{name: "locked", locked: true, sprsLen: 2},
+	} {
 		t.Run(test.name, func(t *testing.T) {
-			ent := NewMouseStatusEnt()
-			ent.visible = true
-			sprs := []vgfx.Spr{}
-			ent.Update(
-				&sprs, vin.NewIn(), test.locked,
-				vgeo.NewBox[float32](0, 0, 100, 100),
-			)
+			gam := engine.New()
+			gam.Frame().Pointerlocked = test.locked
+			gam.Layer(gfx.LayerUI).Clip = vgeo.XYWH[float32](0, 0, 100, 100)
+			poll := vin.InputPoll{PtrsLen: 1}
+			poll.Ptrs[0] = vin.PointerPoll{
+				Device: vin.PointerDeviceMouse, Primary: true,
+			}
+			gam.In().Update(0, &poll, vgeo.Box[float32]{})
+
+			ent := entities.NewMouseStatusEnt()
+			ent.Update(gam)
+			sprs := gam.Layer(gfx.LayerUI).Sprs
 			if got := len(sprs); got != test.sprsLen {
 				t.Errorf("sprites = %v, want %v", got, test.sprsLen)
 				return
 			}
 			if test.locked && sprs[1].AnimCel != assets.MouseStatusLocked.Cel(0) {
-				t.Errorf("lock AnimCel = %v, want %v", sprs[1].AnimCel,
-					assets.MouseStatusLocked.Cel(0))
+				t.Errorf(
+					"lock AnimCel = %v, want %v",
+					sprs[1].AnimCel,
+					assets.MouseStatusLocked.Cel(0),
+				)
 			}
 		})
 	}

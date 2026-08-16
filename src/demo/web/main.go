@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/oidoid/void/src/demo/app"
 	"github.com/oidoid/void/src/demo/engine"
-	"github.com/oidoid/void/src/demo/game"
 	"github.com/oidoid/void/src/void/vgame"
 )
 
@@ -10,7 +10,7 @@ var gam *engine.Engine
 
 func main() {
 	println(engine.Version)
-	gam = game.New()
+	gam = app.New()
 }
 
 //export FramePointer

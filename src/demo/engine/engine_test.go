@@ -6,9 +6,11 @@ import (
 
 	"github.com/oidoid/void/src/demo/entities"
 	"github.com/oidoid/void/src/demo/gfx"
+	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
+	"github.com/oidoid/void/src/void/vlevels"
 )
 
 func TestWakelock(t *testing.T) {
@@ -69,6 +71,31 @@ func TestFullscreenToggle(t *testing.T) {
 	toggle.OnClick(toggle)
 	if !gam.FullscreenDisabled() {
 		t.Error("FullscreenDisabled() = false, want true")
+	}
+}
+
+func TestP1EntDrawsWhenSpriteHitsClip(t *testing.T) {
+	clip := vgeo.XYWH[float32](0, 0, 10, 10)
+	for _, test := range []struct {
+		name string
+		x    float32
+		want int
+	}{
+		{name: "overlaps left edge", x: -7, want: 1},
+		{name: "touches left edge", x: -8, want: 0},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			gam := New()
+			gam.Level = &vlevels.Level{Box: vgeo.XYWH[int32](0, 0, 10, 10)}
+			gam.Layer(gfx.LayerP1).Clip = clip
+			ent := entities.NewP1Ent(
+				vgeo.NewXY(test.x, float32(0)), vatlas.Anim{W: 8, H: 13},
+			)
+			ent.Update(gam)
+			if got := len(gam.Layer(gfx.LayerP1).Sprs); got != test.want {
+				t.Fatalf("sprites = %v, want %v", got, test.want)
+			}
+		})
 	}
 }
 

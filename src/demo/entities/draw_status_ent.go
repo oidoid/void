@@ -1,6 +1,7 @@
 package entities
 
 import (
+	"github.com/oidoid/void/src/demo/game"
 	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/ventities"
@@ -48,13 +49,13 @@ func NewDrawStatusEnt(
 	return this
 }
 
-func (this *DrawStatusEnt) Update(
-	font *vtext.Font,
-	sprs *[]vgfx.Spr,
-	nowMillis float64,
-	tick *vgame.Tick,
-	clip vgeo.Box[float32],
-) vgame.Status {
+func (this *DrawStatusEnt) Update(gam game.Game) vgame.Status {
+	font := gam.Font()
+	layer := gam.Layer(this.Z.Layer())
+	sprs := &layer.Sprs
+	nowMillis := gam.NowMillis()
+	tick := gam.Tick()
+	clip := layer.Clip
 	this.Next.Frames++
 	if nowMillis-this.Next.Start >= 1000 {
 		this.PrevFPS = this.Next.Frames

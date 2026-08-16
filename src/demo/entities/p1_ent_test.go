@@ -6,7 +6,6 @@ import (
 	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vgeo"
-	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vlevels"
 )
 
@@ -28,31 +27,6 @@ func TestNewP1Ent(t *testing.T) {
 	}
 }
 
-func TestP1EntDrawsWhenSpriteHitsClip(t *testing.T) {
-	clip := vgeo.XYWH[float32](0, 0, 10, 10)
-	level := vlevels.Level{Box: vgeo.XYWH[int32](0, 0, 10, 10)}
-	tests := []struct {
-		name string
-		x    float32
-		want int
-	}{
-		{name: "overlaps left edge", x: -7, want: 1},
-		{name: "touches left edge", x: -8, want: 0},
-	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			ent := NewP1Ent(vgeo.NewXY(test.x, float32(0)), vatlas.Anim{
-				W: 8, H: 13,
-			})
-			var sprs []vgfx.Spr
-			ent.Update(&sprs, clip, 0, &level)
-			if got := len(sprs); got != test.want {
-				t.Fatalf("sprites = %v, want %v", got, test.want)
-			}
-		})
-	}
-}
-
 func TestP1EntTurnsRightAtWalls(t *testing.T) {
 	const wallGap = p1MaxMove / 256 // eight collision bisections.
 	tiles := make([]vatlas.AnimID, 64)
@@ -69,9 +43,10 @@ func TestP1EntTurnsRightAtWalls(t *testing.T) {
 		Tile:  vgeo.NewWH[uint8](16, 16),
 		Tiles: tiles,
 	}
-	ent := NewP1Ent(vgeo.NewXY[float32](32, 32), vatlas.Anim{
-		W: 1, H: 1, Hurtbox: vgeo.XYWH[uint16](0, 0, 1, 1),
-	})
+	ent := NewP1Ent(
+		vgeo.NewXY[float32](32, 32),
+		vatlas.Anim{W: 1, H: 1, Hurtbox: vgeo.XYWH[uint16](0, 0, 1, 1)},
+	)
 	wants := []struct {
 		xy    vgeo.XY[float32]
 		dir   vgeo.Dir

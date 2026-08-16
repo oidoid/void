@@ -5,6 +5,7 @@ import (
 
 	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/demo/entities"
+	"github.com/oidoid/void/src/demo/game"
 	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/demo/levels"
 	"github.com/oidoid/void/src/void/vatlas"
@@ -28,6 +29,14 @@ type Engine struct {
 	// to-do: Cam struct.
 	CamKeyPhy vgeo.XY[float32] // accumulates keyboard movement in phy coordinates.
 	CamPanOn  bool
+}
+
+type entUpdater struct {
+	ent ventities.Updater[game.Game]
+}
+
+func (this entUpdater) Update(gam *Engine) vgame.Status {
+	return this.ent.Update(gam)
 }
 
 var Version string
@@ -81,6 +90,12 @@ func New() *Engine {
 	this.SuperballGrid = vgrid.New(lvl, diameter, 2*1024*1024)
 	return this
 }
+
+func (this *Engine) Register(ent ventities.Updater[game.Game]) {
+	this.RegisterUpdate(entUpdater{ent})
+}
+
+func (this *Engine) SuperballCount() int { return this.Superballs.Len() }
 
 func (this *Engine) UpdateLvlLayers() {
 	canvasPhy := *this.CanvasPhy()

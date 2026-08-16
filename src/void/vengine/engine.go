@@ -20,7 +20,7 @@ import (
 // to-do: rename Eng.
 type Engine[Game vgame.Game] struct {
 	Level              *vlevels.Level
-	Router             vlevels.Router[Game]
+	Router             vgame.Router[Game]
 	Atlas              vatlas.Atlas
 	Texts              ventities.EntVec[Game, ventities.TextEnt]
 	Cursor             *ventities.CursorEnt
@@ -94,23 +94,23 @@ func (this *Engine[Game]) Beep(beep vgame.Beep) {
 	this.beepCount++
 }
 
-func (this *Engine[Game]) RegisterEntUpdate(
-	vec interface{ Update(Game) vgame.Status },
-) {
-	this.updaters.Register(vec.Update)
+func (this *Engine[Game]) RegisterEntUpdate(vec ventities.Updater[Game]) {
+	this.RegisterUpdate(vec)
 }
 
 func (this *Engine[Game]) RegisterPreupdate(fn func(Game) vgame.Status) {
-	this.preupdaters.Register(fn)
+	this.preupdaters.Register(ventities.UpdaterFunc[Game](fn))
 }
 
-func (this *Engine[Game]) RegisterUpdate(fn func(Game) vgame.Status) {
-	this.updaters.Register(fn)
+func (this *Engine[Game]) RegisterUpdate(updater ventities.Updater[Game]) {
+	this.updaters.Register(updater)
 }
 
 func (this *Engine[Game]) Font() *vtext.Font {
 	return this.font
 }
+
+func (this *Engine[Game]) Lvl() *vlevels.Level { return this.Level }
 
 // to-do: rename to Poll, move props to Engine struct, and don't expose?
 func (this *Engine[Game]) Frame() *vgame.Poll { return &this.frame }

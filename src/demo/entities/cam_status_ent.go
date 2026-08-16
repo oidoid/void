@@ -1,6 +1,8 @@
 package entities
 
 import (
+	"github.com/oidoid/void/src/demo/game"
+	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgame"
@@ -37,21 +39,20 @@ func NewCamStatusEnt(fillAnimID vatlas.AnimID, z vgfx.Z) CamStatusEnt {
 	return this
 }
 
-func (this *CamStatusEnt) Update(
-	font *vtext.Font,
-	sprs *[]vgfx.Spr,
-	canvasPhy vgeo.WH[uint16],
-	camLvl vgeo.XY[float32],
-	fullscreen bool,
-	scale float32,
-	clip vgeo.Box[float32],
-) vgame.Status {
+func (this *CamStatusEnt) Update(gam game.Game) vgame.Status {
+	font := gam.Font()
+	layer := gam.Layer(this.Z.Layer())
+	sprs := &layer.Sprs
+	canvasPhy := *gam.CanvasPhy()
+	tiles := gam.Layer(gfx.LayerTiles)
+	camLvl := tiles.PhyToLayerScale(vgeo.NewXY(gam.CamX(), gam.CamY()))
+	clip := layer.Clip
 	text := "(" + vtext.FmtFloat(camLvl.X) + ", " + vtext.FmtFloat(camLvl.Y) + ") " +
 		vtext.Itoa(int(canvasPhy.W)) + "x" + vtext.Itoa(int(canvasPhy.H))
-	if fullscreen {
+	if gam.Fullscreen() {
 		text += "f"
 	}
-	text += "@" + vtext.FmtFloat(scale) + "x"
+	text += "@" + vtext.FmtFloat(tiles.ScaleOrDefault()) + "x"
 	this.SetText(text)
 
 	this.LayoutChars(font)

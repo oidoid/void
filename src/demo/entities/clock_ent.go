@@ -1,11 +1,11 @@
 package entities
 
 import (
+	"github.com/oidoid/void/src/demo/game"
 	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
-	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vtext"
 )
 
@@ -23,21 +23,17 @@ func NewClockEnt() ClockEnt {
 	return this
 }
 
-func (this *ClockEnt) Update(
-	font *vtext.Font,
-	sprs *[]vgfx.Spr,
-	utcMillis uint64,
-	time vgame.TimeFormat,
-	clip vgeo.Box[float32],
-	requestUpdateInMillis func(uint64),
-) vgame.Status {
-	this.SetText(timeString(time))
+func (this *ClockEnt) Update(gam game.Game) vgame.Status {
+	layer := gam.Layer(gfx.LayerUI)
+	font := gam.Font()
+	clip := layer.Clip
+	this.SetText(timeString(gam.Time()))
 	this.LayoutChars(font)
 	this.TextEnt.XY = this.HUDEnt.XY(
 		this.Layout.W, this.Layout.TrimLeadForceH, clip,
 	)
-	this.TextEnt.Update(font, sprs, clip)
-	requestUpdateInMillis(millisToNextMin(utcMillis))
+	this.TextEnt.Update(font, &layer.Sprs, clip)
+	gam.RequestUpdateInMillis(millisToNextMin(gam.UtcMillis()))
 	return vgame.Pause
 }
 

@@ -23,9 +23,9 @@ see the [agent file](AGENTS.md).
 
 ### Ents and Hooks
 
-ents are a single data and behavior instance. hooks operate on an ents of a kind efficiently.
+ents are a single data and behavior instance. low-count demo ents implement `Update(game.Game)` and register directly with `gam.Register()`. hooks operate on high-count or coordinated ent vectors efficiently.
 
-ents with an update hook return whether they have been updated and so request a new frame. this is important lo energy apps.
+ents with an update hook return whether they have been updated and so request a new frame. this is important for lo energy apps.
 
 see the [agent skill](.agents/skills/add-ent/SKILL.md).
 

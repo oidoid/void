@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/oidoid/void/src/demo/assets"
+	"github.com/oidoid/void/src/demo/game"
 	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgame"
@@ -39,15 +40,13 @@ func NewEntStatusEnt() EntStatusEnt {
 	return this
 }
 
-func (this *EntStatusEnt) Update(
-	font *vtext.Font,
-	sprs *[]vgfx.Spr,
-	count int,
-	sprCount int,
-	clip vgeo.Box[float32],
-) vgame.Status {
-	countText := vtext.Itoa(count)
-	sprCountText := vtext.Itoa(sprCount)
+func (this *EntStatusEnt) Update(gam game.Game) vgame.Status {
+	font := gam.Font()
+	layer := gam.Layer(this.Z.Layer())
+	sprs := &layer.Sprs
+	clip := layer.Clip
+	countText := vtext.Itoa(gam.SuperballCount())
+	sprCountText := vtext.Itoa(len(gam.Layer(gfx.LayerSuperballs).Sprs))
 	w := max(len(countText), len(sprCountText))
 	// to-do: do we even need PadInt()?
 	this.SetText(

@@ -4,6 +4,7 @@ import (
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vin"
+	"github.com/oidoid/void/src/void/vlevels"
 	"github.com/oidoid/void/src/void/vtext"
 )
 
@@ -31,5 +32,11 @@ type Game interface {
 	Time() TimeFormat
 	Tick() *Tick
 	Layer(vgfx.Layer) *vgfx.LayerConfig
+	Lvl() *vlevels.Level
+	CamX() float32
+	CamY() float32
+	Pointerlock() bool
 	Random() float32
+	RequestUpdateInMillis(uint64)
+	UtcMillis() uint64
 }
