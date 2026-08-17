@@ -14,6 +14,9 @@ const (
 	BackpackerWalkRight
 	BackpackerWalkDown
 	BackpackerWalkUp
+	BlockStripesGrey
+	BlockStripesBlue
+	BlockRed
 	ColorBlue
 	ColorBlack
 	ColorRed
@@ -156,9 +159,6 @@ const (
 	PolyTriangle
 	PolySquare
 	SuperballDefault
-	TileStripesGrey
-	TileStripesBlue
-	TileRed
 	UICheckboxChecked
 	ViewportEdgeNW
 	ViewportEdgeN

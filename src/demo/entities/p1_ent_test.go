@@ -31,12 +31,12 @@ func TestP1EntTurnsRightAtWalls(t *testing.T) {
 	const wallGap = p1MaxMove / 256 // eight collision bisections.
 	tiles := make([]vatlas.AnimID, 64)
 	for x := range 8 {
-		tiles[x] = assets.TileStripesGrey
-		tiles[56+x] = assets.TileStripesGrey
+		tiles[x] = assets.BlockStripesGrey
+		tiles[56+x] = assets.BlockStripesGrey
 	}
 	for y := range 8 {
-		tiles[y*8] = assets.TileStripesGrey
-		tiles[y*8+7] = assets.TileStripesGrey
+		tiles[y*8] = assets.BlockStripesGrey
+		tiles[y*8+7] = assets.BlockStripesGrey
 	}
 	level := vlevels.Level{
 		Box:   vgeo.XYWH[int32](0, 0, 128, 128),
