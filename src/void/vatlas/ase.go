@@ -5,6 +5,7 @@ package vatlas
 type AseColorDepth uint16
 type AseLayerType uint16
 type AseCelType uint16
+type AseTilesetFlags uint32
 
 const (
 	AseFileMagic       uint16        = 0xa5e0
@@ -14,30 +15,36 @@ const (
 	AseColorGrayscale  AseColorDepth = 16
 	AseColorRGBA       AseColorDepth = 32
 
-	AseHeaderLayerUUIDMask  uint32       = 1
-	AseHeaderLayerUUIDShift              = 2
-	AseLayerVisibleMask     uint16       = 1
-	AseLayerVisibleShift                 = 0
-	AseLayerNormal          AseLayerType = 0
-	AseLayerGroup           AseLayerType = 1
-	AseLayerTilemap         AseLayerType = 2
-	AseCelRaw               AseCelType   = 0
-	AseCelLinked            AseCelType   = 1
-	AseCelCompressed        AseCelType   = 2
-	AseCelTilemap           AseCelType   = 3
-	AsePalEntryNameMask     uint16       = 1
-	AsePalEntryNameShift                 = 0
-	AseOldPalColorsMax                   = 256
-	AseSliceNinePatchMask   uint32       = 1
-	AseSliceNinePatchShift               = 0
-	AseSlicePivotMask       uint32       = 1
-	AseSlicePivotShift                   = 1
-	AseUserDataTextMask     uint32       = 1
-	AseUserDataTextShift                 = 0
-	AseUserDataColorMask    uint32       = 1
-	AseUserDataColorShift                = 1
-	AseUserDataPropsMask    uint32       = 1
-	AseUserDataPropsShift                = 2
+	AseHeaderLayerUUIDMask   uint32          = 1
+	AseHeaderLayerUUIDShift                  = 2
+	AseLayerVisibleMask      uint16          = 1
+	AseLayerVisibleShift                     = 0
+	AseLayerNormal           AseLayerType    = 0
+	AseLayerGroup            AseLayerType    = 1
+	AseLayerTilemap          AseLayerType    = 2
+	AseCelRaw                AseCelType      = 0
+	AseCelLinked             AseCelType      = 1
+	AseCelCompressed         AseCelType      = 2
+	AseCelTilemap            AseCelType      = 3
+	AsePalEntryNameMask      uint16          = 1
+	AsePalEntryNameShift                     = 0
+	AseOldPalColorsMax                       = 256
+	AseSliceNinePatchMask    uint32          = 1
+	AseSliceNinePatchShift                   = 0
+	AseSlicePivotMask        uint32          = 1
+	AseSlicePivotShift                       = 1
+	AseUserDataTextMask      uint32          = 1
+	AseUserDataTextShift                     = 0
+	AseUserDataColorMask     uint32          = 1
+	AseUserDataColorShift                    = 1
+	AseUserDataPropsMask     uint32          = 1
+	AseUserDataPropsShift                    = 2
+	AseTilesetExternalMask   AseTilesetFlags = 1
+	AseTilesetExternalShift                  = 0
+	AseTilesetEmbeddedMask   AseTilesetFlags = 1
+	AseTilesetEmbeddedShift                  = 1
+	AseTilesetZeroEmptyMask  AseTilesetFlags = 1
+	AseTilesetZeroEmptyShift                 = 2
 )
 
 // .aseprite binary model.
@@ -95,6 +102,7 @@ const (
 	AseChunkPal      AseChunkType = 0x2019
 	AseChunkUserData AseChunkType = 0x2020
 	AseChunkSlice    AseChunkType = 0x2022
+	AseChunkTileset  AseChunkType = 0x2023
 )
 
 type AseChunk struct {
@@ -106,6 +114,7 @@ type AseChunk struct {
 	Pal      *AsePal
 	UserData *AseUserData
 	Slice    *AseSlice
+	Tileset  *AseTileset
 }
 
 type AseLayerHeader struct {
@@ -191,6 +200,19 @@ type AseUserDataHeader struct {
 	Flags uint32
 }
 
+type AseTilesetHeader struct {
+	ID        uint32
+	Flags     AseTilesetFlags
+	Count     uint32
+	W, H      uint16 // tile dimensions in pixels.
+	BaseIndex int16  // display-only tile index offset.
+	_         [14]byte
+}
+
+type AseTilesetExternal struct {
+	FileID, TilesetID uint32
+}
+
 type AseLayer struct {
 	Header  AseLayerHeader
 	Name    string
@@ -232,6 +254,13 @@ type AseUserDataProps struct {
 	Size  uint32
 	Count uint32
 	Bin   []byte
+}
+
+type AseTileset struct {
+	Header   AseTilesetHeader
+	Name     string
+	External *AseTilesetExternal
+	Pxs      []byte // vertically stacked tiles in ascending tile-ID order.
 }
 
 type AseRGBA struct{ R, G, B, A uint8 }

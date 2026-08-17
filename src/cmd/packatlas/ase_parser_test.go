@@ -156,6 +156,35 @@ func TestReadCel(t *testing.T) {
 	}
 }
 
+func TestReadTileset(t *testing.T) {
+	want := &vatlas.AseTileset{
+		Header: vatlas.AseTilesetHeader{
+			ID: 7,
+			Flags: vatlas.AseTilesetExternalMask<<vatlas.AseTilesetExternalShift |
+				vatlas.AseTilesetEmbeddedMask<<vatlas.AseTilesetEmbeddedShift |
+				vatlas.AseTilesetZeroEmptyMask<<vatlas.AseTilesetZeroEmptyShift,
+			Count: 2, W: 2, H: 1,
+		},
+		Name: "tiles",
+		External: &vatlas.AseTilesetExternal{
+			FileID: 3, TilesetID: 4,
+		},
+		Pxs: []byte{1, 2, 3, 4},
+	}
+	compressed := compressAse(t, want.Pxs)
+	bin := append(serializeAse(t, want.Header), serializeAseStr(t, want.Name)...)
+	bin = append(bin, serializeAse(t, *want.External, uint32(len(compressed)))...)
+	bin = append(bin, compressed...)
+	parser := aseParser{bin: bin}
+	got, err := parser.readTileset(vatlas.AseColorIndexed)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("got %#v, want %#v", got, want)
+	}
+}
+
 func TestReadTags(t *testing.T) {
 	want := &vatlas.AseTags{
 		Header: vatlas.AseTagsHeader{Count: 1},

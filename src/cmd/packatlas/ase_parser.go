@@ -122,6 +122,8 @@ func (this *aseParser) readChunk(
 		chunk.UserData, err = chunkReader.readUserData()
 	case vatlas.AseChunkSlice:
 		chunk.Slice, err = chunkReader.readSlice()
+	case vatlas.AseChunkTileset:
+		chunk.Tileset, err = chunkReader.readTileset(depth)
 	}
 	return chunk, err
 }
@@ -198,6 +200,64 @@ func (this *aseParser) readCel(
 		)
 	}
 	return cel, nil
+}
+
+func (this *aseParser) readTileset(
+	depth vatlas.AseColorDepth,
+) (*vatlas.AseTileset, error) {
+	tileset := &vatlas.AseTileset{}
+	if err := this.readTo(&tileset.Header); err != nil {
+		return nil, err
+	}
+	name, err := this.readStr()
+	if err != nil {
+		return nil, err
+	}
+	tileset.Name = name
+	flags := tileset.Header.Flags
+	if flags>>vatlas.AseTilesetExternalShift&
+		vatlas.AseTilesetExternalMask != 0 {
+		tileset.External = &vatlas.AseTilesetExternal{}
+		if err := this.readTo(tileset.External); err != nil {
+			return nil, err
+		}
+	}
+	if flags>>vatlas.AseTilesetEmbeddedShift&
+		vatlas.AseTilesetEmbeddedMask == 0 {
+		return tileset, nil
+	}
+	var dataLen uint32
+	if err := this.readTo(&dataLen); err != nil {
+		return nil, err
+	}
+	compressed, err := this.readBytes(int(dataLen))
+	if err != nil {
+		return nil, err
+	}
+	pxLen := uint64(tileset.Header.Count) * uint64(tileset.Header.W) *
+		uint64(tileset.Header.H) * uint64(depth/8)
+	n := int(pxLen)
+	if uint64(n) != pxLen {
+		return nil, fmt.Errorf("tileset image is too large")
+	}
+	z, err := zlib.NewReader(bytes.NewReader(compressed))
+	if err != nil {
+		return nil, err
+	}
+	tileset.Pxs, err = io.ReadAll(z)
+	closeErr := z.Close()
+	if err == nil {
+		err = closeErr
+	}
+	if err != nil {
+		return nil, err
+	}
+	if len(tileset.Pxs) != n {
+		return nil, fmt.Errorf(
+			"tileset decoded %d pixels, want %d", len(tileset.Pxs), n,
+		)
+	}
+	return tileset, nil
 }
 
 func (this *aseParser) readTags() (*vatlas.AseTags, error) {

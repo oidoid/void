@@ -48,6 +48,7 @@ type asset struct {
 	Layers           []assetLayer
 	TagSpans         []assetTagSpan
 	Slices           []assetSlice
+	Tilesets         []vatlas.AseTileset
 	RGBA             vatlas.AseRGBA
 	Data             *assetData
 }
@@ -112,6 +113,8 @@ func parseAsset(file *vatlas.Ase) (*asset, error) {
 				pal = parsePal(pal, chunk.Pal)
 			case chunk.Slice != nil:
 				out.Slices = append(out.Slices, assetSlice{AseSlice: *chunk.Slice})
+			case chunk.Tileset != nil:
+				out.Tilesets = append(out.Tilesets, *chunk.Tileset)
 			case chunk.UserData != nil:
 				switch {
 				case len(pendingTags) != 0:

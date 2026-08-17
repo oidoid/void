@@ -166,4 +166,11 @@ const (
 	WidgetEdgeLight
 	WidgetEdgeDark
 	WidgetFill
+	Tile0
+	Tile1
+	Tile2
+	Tile3
+	Tile4
+	Tile5
+	Tile6
 )

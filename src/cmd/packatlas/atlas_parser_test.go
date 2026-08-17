@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -30,6 +31,8 @@ func TestAseFixedRecordSizes(t *testing.T) {
 		{"old palette packet header", vatlas.AseOldPalPacketHeader{}, 2},
 		{"assetSlice header", vatlas.AseSliceHeader{}, 12},
 		{"tilemap cel header", vatlas.AseCelTilemapHeader{}, 32},
+		{"tileset header", vatlas.AseTilesetHeader{}, 32},
+		{"external tileset", vatlas.AseTilesetExternal{}, 8},
 		{"assetSlice key header", vatlas.AseKeyHeader{}, 20},
 		{"user data header", vatlas.AseUserDataHeader{}, 4},
 		{"color", vatlas.AseRGBA{}, 4},
@@ -163,6 +166,48 @@ func TestPlaceCelsDeduplicates(t *testing.T) {
 	}
 }
 
+func TestParseAtlasNativeTiles(t *testing.T) {
+	red := vatlas.AseRGBA{R: 255, A: 255}
+	green := vatlas.AseRGBA{G: 255, A: 255}
+	file := &asset{
+		name:             "some/path/tile.aseprite",
+		ColorDepth:       vatlas.AseColorIndexed,
+		TransparentIndex: 0,
+		Frames:           []assetFrame{{Pal: []vatlas.AseRGBA{{}, red, green}}},
+		Tilesets: []vatlas.AseTileset{{
+			Header: vatlas.AseTilesetHeader{
+				Flags: vatlas.AseTilesetEmbeddedMask <<
+					vatlas.AseTilesetEmbeddedShift,
+				Count: 3, W: 1, H: 1,
+			},
+			Name: "ignored-base", Pxs: []byte{0, 1, 2},
+		}},
+	}
+	img, atlas, keys, err := parseAtlas([]*asset{file})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(atlas.Anims) != 4 || len(keys) != 4 {
+		t.Fatalf("got %d anims and %d keys, want 4 each", len(atlas.Anims), len(keys))
+	}
+	for tileID := range 3 {
+		animID := tileID + 1
+		if got, want := keys[animID].qualifiedTag(), "Tile"+strconv.Itoa(tileID); got != want {
+			t.Errorf("tile %d key = %q, want %q", tileID, got, want)
+		}
+		if got := atlas.Anims[animID]; got.Cels != 1 || got.W != 1 || got.H != 1 {
+			t.Errorf("tile %d anim = %#v", tileID, got)
+		}
+	}
+	for animID, want := range []vatlas.AseRGBA{{}, red, green} {
+		cel := atlas.Cels[((animID+1)*vatlas.CelsPerAnim)*4:]
+		px := img.Pix[int(cel[1])*img.Stride+int(cel[0])*4:]
+		if got := (vatlas.AseRGBA{R: px[0], G: px[1], B: px[2], A: px[3]}); got != want {
+			t.Errorf("tile %d pixel = %#v, want %#v", animID, got, want)
+		}
+	}
+}
+
 func TestParseHitboxes(t *testing.T) {
 	box := func(x, y int32, w, h uint32) vatlas.AseXYWH {
 		return vatlas.AseXYWH{X: x, Y: y, W: w, H: h}
@@ -289,6 +334,28 @@ func TestReadAsepriteFontPaletteData(t *testing.T) {
 		}
 	}
 	t.Fatal("no opaque font pixels")
+}
+
+func TestReadAsepriteNativeTiles(t *testing.T) {
+	file, err := readAsset("../../demo/assets/atlas/tile.aseprite")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(file.Tilesets) != 1 || file.Tilesets[0].Header.Count == 0 {
+		t.Fatalf("tilesets = %#v, want one nonempty tileset", file.Tilesets)
+	}
+	_, atlas, keys, err := parseAtlas([]*asset{file})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := int(file.Tilesets[0].Header.Count) + 1
+	if len(atlas.Anims) != want || len(keys) != want {
+		t.Fatalf("got %d anims and %d keys, want %d each",
+			len(atlas.Anims), len(keys), want)
+	}
+	if got := keys[1].qualifiedTag(); got != "Tile0" {
+		t.Fatalf("first tile key = %q, want Tile0", got)
+	}
 }
 
 func TestReadAsepriteSprData(t *testing.T) {

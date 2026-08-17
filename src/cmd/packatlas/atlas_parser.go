@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"unicode"
 
@@ -245,6 +246,63 @@ func swapAnims(
 	return swappedAnims, nil
 }
 
+// packs embedded native tiles in contiguous source tile-ID order.
+func packTiles(
+	assets []*asset,
+) (packed []swappedAnim, err error) {
+	for _, asset := range assets {
+		stem := strings.TrimSuffix(
+			filepath.Base(asset.name), filepath.Ext(asset.name),
+		)
+		for _, tileset := range asset.Tilesets {
+			flags := tileset.Header.Flags
+			if flags>>vatlas.AseTilesetEmbeddedShift&
+				vatlas.AseTilesetEmbeddedMask == 0 {
+				return nil, fmt.Errorf(
+					"%s: tileset %q has no embedded image",
+					asset.name, tileset.Name,
+				)
+			}
+			tilePxLen := uint64(tileset.Header.W) * uint64(tileset.Header.H) *
+				uint64(asset.ColorDepth/8)
+			pxLen := tilePxLen * uint64(tileset.Header.Count)
+			if uint64(len(tileset.Pxs)) != pxLen {
+				return nil, fmt.Errorf(
+					"%s: tileset %q has %d pixel bytes, want %d",
+					asset.name, tileset.Name, len(tileset.Pxs), pxLen,
+				)
+			}
+			if tilePxLen > uint64(^uint(0)>>1) {
+				return nil, fmt.Errorf(
+					"%s: tileset %q tiles are too large", asset.name, tileset.Name,
+				)
+			}
+			pal := []vatlas.AseRGBA(nil)
+			if len(asset.Frames) != 0 {
+				pal = asset.Frames[0].Pal
+			}
+			tileLen := int(tilePxLen)
+			for tileID := range tileset.Header.Count {
+				from := int(tileID) * tileLen
+				frame := rawFrame{pxs: tileset.Pxs[from : from+tileLen], pal: pal}
+				tag := strconv.FormatUint(uint64(tileID), 10)
+				if len(asset.Tilesets) > 1 {
+					tag = fmt.Sprintf("tileset-%d-tile-%d", tileset.Header.ID, tileID)
+				}
+				key := stemTag{stem: stem, tag: tag}
+				packed = append(packed, swappedAnim{
+					Anim: vatlas.Anim{
+						Cels: 1, W: tileset.Header.W, H: tileset.Header.H,
+					},
+					stemTag: key,
+					frames:  []swappedFrame{serializeFrame(asset, frame)},
+				})
+			}
+		}
+	}
+	return packed, nil
+}
+
 // finds an unqualified base palette tag.
 func findBasePal(anims []anim, tag string) (anim, error) {
 	var found anim
@@ -459,6 +517,11 @@ func parseAtlas(
 	if err != nil {
 		return nil, nil, nil, err
 	}
+	tiles, err := packTiles(assets)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	packed = append(packed, tiles...)
 	cels, celXY, height, err := placeCels(packed)
 	if err != nil {
 		return nil, nil, nil, err
