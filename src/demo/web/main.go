@@ -68,17 +68,6 @@ func TilePointer() uintptr {
 	return gam.TilePointer()
 }
 
-//export TileCount
-func TileCount() uint32 {
-	return gam.TileCount()
-}
-
-//export LevelX
-func LevelX() int32 { return gam.LevelX() }
-
-//export LevelY
-func LevelY() int32 { return gam.LevelY() }
-
 //export LevelW
 func LevelW() int32 { return gam.LevelW() }
 
@@ -86,10 +75,10 @@ func LevelW() int32 { return gam.LevelW() }
 func LevelH() int32 { return gam.LevelH() }
 
 //export LevelTileW
-func LevelTileW() int32 { return int32(gam.LevelTileW()) }
+func LevelTileW() uint8 { return gam.LevelTileW() }
 
 //export LevelTileH
-func LevelTileH() int32 { return int32(gam.LevelTileH()) }
+func LevelTileH() uint8 { return gam.LevelTileH() }
 
 //export CamX
 func CamX() float32 { return gam.CamX() }

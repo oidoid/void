@@ -8,13 +8,14 @@ import (
 )
 
 type Argv struct {
-	ColorMode string
-	Entries   []string
-	Name      string
-	ImgOut    string
-	Pkg       string
-	CodeOut   string
-	Watch     bool
+	ColorMode          string
+	Entries            []string
+	Name               string
+	ImgOut             string
+	Pkg                string
+	CodeOut            string
+	TilesetManifestOut string
+	Watch              bool
 }
 
 func NewArgv() (Argv, error) {
@@ -23,11 +24,19 @@ func NewArgv() (Argv, error) {
 	flag.StringVar(&this.Name, "name", "", "atlas name")
 	flag.StringVar(&this.ImgOut, "img-out", "", "image output directory")
 	flag.StringVar(&this.CodeOut, "code-out", "", "gencode output directory")
+	flag.StringVar(
+		&this.TilesetManifestOut,
+		"tileset-manifest-out",
+		"",
+		"tileset manifest output file",
+	)
 	flag.BoolVar(&this.Watch, "watch", false, "re-pack on file changes")
 	flag.Usage = func() {
 		fmt.Fprintf(
 			flag.CommandLine.Output(),
-			"packatlas --name=<name> --img-out=<dir> [--color-mode=<mode>] [--watch] <entries…>\n",
+			"packatlas --name=<name> --img-out=<dir> "+
+				"[--tileset-manifest-out=<file>] "+
+				"[--color-mode=<mode>] [--watch] <entries…>\n",
 		)
 		flag.PrintDefaults()
 	}

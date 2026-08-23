@@ -256,6 +256,7 @@ type AseUserDataProps struct {
 	Bin   []byte
 }
 
+// contains static native tile images; Aseprite defines no per-tile animation.
 type AseTileset struct {
 	Header   AseTilesetHeader
 	Name     string

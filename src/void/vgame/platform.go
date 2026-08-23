@@ -7,9 +7,6 @@ type Platform interface {
 	LayerConfigsPointer() uintptr
 	Update() Status
 	TilePointer() uintptr
-	TileCount() uint32
-	LevelX() int32
-	LevelY() int32
 	LevelW() int32
 	LevelH() int32
 	LevelTileW() uint8

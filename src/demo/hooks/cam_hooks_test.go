@@ -74,6 +74,53 @@ func TestKeyZoom(t *testing.T) {
 	}
 }
 
+func TestKeyZoomTarget(t *testing.T) {
+	tests := []struct {
+		name      string
+		scale, by float32
+		want      float32
+	}{
+		{name: "aligned in", scale: 3.25, by: .25, want: 3.5},
+		{name: "unaligned in", scale: 3.2, by: .25, want: 3.25},
+		{name: "aligned out", scale: 3.25, by: -.25, want: 3},
+		{name: "unaligned out", scale: 3.2, by: -.25, want: 3},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if got := keyZoomTarget(test.scale, test.by); got != test.want {
+				t.Errorf("keyZoomTarget(%v, %v) = %v, want %v",
+					test.scale, test.by, got, test.want)
+			}
+		})
+	}
+}
+
+func TestUpdateCamZoomEndSnapsNearInteger(t *testing.T) {
+	tests := []struct {
+		name        string
+		scale, want float32
+	}{
+		{name: "below", scale: 3.9, want: 4},
+		{name: "above", scale: 4.1, want: 4},
+		{name: "outside", scale: 4.11, want: 4.11},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			gam := engine.New()
+			gam.CanvasPhy().W = 1024
+			gam.CanvasPhy().H = 640
+			gam.LvlZoom = test.scale
+			gam.UpdateLvlLayers()
+			gam.CamZoomOn = true
+			gam.CamZoomAnchorPhy = vgeo.NewXY[float32](256, 160)
+			UpdateCam(gam)
+			if got := gam.Layer(gfx.LayerTiles).ScaleOrDefault(); got != test.want {
+				t.Errorf("scale = %v, want %v", got, test.want)
+			}
+		})
+	}
+}
+
 func TestLvlEdge(t *testing.T) {
 	tests := []struct {
 		name      string

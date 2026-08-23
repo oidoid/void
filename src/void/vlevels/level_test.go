@@ -9,7 +9,7 @@ import (
 
 func TestLevelTileAt(t *testing.T) {
 	level := Level{
-		Box:   vgeo.XYWH[int32](-8, -4, 16, 8),
+		WH:    vgeo.NewWH[int32](16, 8),
 		Tile:  vgeo.NewWH[uint8](4, 4),
 		Tiles: []vatlas.AnimID{1, 2, 3, 4, 5, 6, 7, 8},
 	}
@@ -18,14 +18,14 @@ func TestLevelTileAt(t *testing.T) {
 		xy   vgeo.XY[int32]
 		want vatlas.AnimID
 	}{
-		{"top left", vgeo.NewXY[int32](-8, -4), 1},
-		{"top right", vgeo.NewXY[int32](7, -4), 4},
-		{"bottom left", vgeo.NewXY[int32](-8, 3), 5},
-		{"bottom right", vgeo.NewXY[int32](7, 3), 8},
-		{"west", vgeo.NewXY[int32](-9, -4), 0},
-		{"east", vgeo.NewXY[int32](8, -4), 0},
-		{"north", vgeo.NewXY[int32](-8, -5), 0},
-		{"south", vgeo.NewXY[int32](-8, 4), 0},
+		{"top left", vgeo.NewXY[int32](0, 0), 1},
+		{"top right", vgeo.NewXY[int32](15, 0), 4},
+		{"bottom left", vgeo.NewXY[int32](0, 7), 5},
+		{"bottom right", vgeo.NewXY[int32](15, 7), 8},
+		{"west", vgeo.NewXY[int32](-1, 0), 0},
+		{"east", vgeo.NewXY[int32](16, 0), 0},
+		{"north", vgeo.NewXY[int32](0, -1), 0},
+		{"south", vgeo.NewXY[int32](0, 8), 0},
 	}
 	for _, test := range cases {
 		t.Run(test.name, func(t *testing.T) {

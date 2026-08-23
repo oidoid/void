@@ -39,7 +39,7 @@ func TestP1EntTurnsRightAtWalls(t *testing.T) {
 		tiles[y*8+7] = assets.BlockStripesGrey
 	}
 	level := vlevels.Level{
-		Box:   vgeo.XYWH[int32](0, 0, 128, 128),
+		WH:    vgeo.NewWH[int32](128, 128),
 		Tile:  vgeo.NewWH[uint8](16, 16),
 		Tiles: tiles,
 	}

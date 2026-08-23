@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"image"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"unicode"
 
@@ -246,15 +245,14 @@ func swapAnims(
 	return swappedAnims, nil
 }
 
-// packs embedded native tiles in contiguous source tile-ID order.
+// packs embedded native tiles in contiguous source tile-ID order. tiles do not
+// support animation.
 func packTiles(
 	assets []*asset,
 ) (packed []swappedAnim, err error) {
 	for _, asset := range assets {
-		stem := strings.TrimSuffix(
-			filepath.Base(asset.name), filepath.Ext(asset.name),
-		)
-		for _, tileset := range asset.Tilesets {
+		for tilesetI := range asset.Tilesets {
+			tileset := &asset.Tilesets[tilesetI]
 			flags := tileset.Header.Flags
 			if flags>>vatlas.AseTilesetEmbeddedShift&
 				vatlas.AseTilesetEmbeddedMask == 0 {
@@ -285,17 +283,11 @@ func packTiles(
 			for tileID := range tileset.Header.Count {
 				from := int(tileID) * tileLen
 				frame := rawFrame{pxs: tileset.Pxs[from : from+tileLen], pal: pal}
-				tag := strconv.FormatUint(uint64(tileID), 10)
-				if len(asset.Tilesets) > 1 {
-					tag = fmt.Sprintf("tileset-%d-tile-%d", tileset.Header.ID, tileID)
-				}
-				key := stemTag{stem: stem, tag: tag}
 				packed = append(packed, swappedAnim{
 					Anim: vatlas.Anim{
 						Cels: 1, W: tileset.Header.W, H: tileset.Header.H,
 					},
-					stemTag: key,
-					frames:  []swappedFrame{serializeFrame(asset, frame)},
+					frames: []swappedFrame{serializeFrame(asset, frame)},
 				})
 			}
 		}
@@ -521,17 +513,26 @@ func parseAtlas(
 	if err != nil {
 		return nil, nil, nil, err
 	}
+	tagCount := len(packed)
 	packed = append(packed, tiles...)
+	if len(packed) > vatlas.MaxAnimIDs {
+		return nil, nil, nil, fmt.Errorf(
+			"atlas animation count %d exceeds %d",
+			len(packed), vatlas.MaxAnimIDs,
+		)
+	}
 	cels, celXY, height, err := placeCels(packed)
 	if err != nil {
 		return nil, nil, nil, err
 	}
 	img := draw(cels, height)
 	anims := make([]vatlas.Anim, len(packed))
-	tags := make([]stemTag, len(packed))
-	for i, anim := range packed {
-		anims[i] = anim.Anim
-		tags[i] = anim.stemTag
+	tags := make([]stemTag, tagCount)
+	for i := range packed {
+		anims[i] = packed[i].Anim
+	}
+	for i := range tags {
+		tags[i] = packed[i].stemTag
 	}
 	atlas := vatlas.NewAtlas(anims, celXY)
 	return img, &atlas, tags, nil
@@ -606,8 +607,8 @@ func parseBoxes(
 			continue
 		}
 		first := assetSlice.Keys[0].Header.Bounds
-		for _, key := range assetSlice.Keys {
-			if key.Header.Bounds != first {
+		for _, k := range assetSlice.Keys {
+			if k.Header.Bounds != first {
 				return hit, hurt, fmt.Errorf(
 					"atlas tag %q hitbox bounds varies across frames", tag,
 				)

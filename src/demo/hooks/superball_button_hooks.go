@@ -27,12 +27,11 @@ func UpdateSuperballButtons(
 	deltaMs := gam.DeltaMs()
 	tileW := float32(gam.LevelTileW())
 	tileH := float32(gam.LevelTileH())
-	bounds := gam.LevelBounds
 	lvl := vgeo.NewBox(
-		bounds.Min.X+tileW,
-		bounds.Min.Y+tileH,
-		bounds.Max.X-tileW,
-		bounds.Max.Y-tileH,
+		tileW,
+		tileH,
+		float32(gam.Level.W)-tileW,
+		float32(gam.Level.H)-tileH,
 	)
 
 	rnd := gam.Random

@@ -27,12 +27,11 @@ func UpdateSuperballs(
 	clip.Min.Y -= diameter
 	tileW := float32(gam.LevelTileW())
 	tileH := float32(gam.LevelTileH())
-	lb := gam.LevelBounds
 	lvl := vgeo.NewBox(
-		lb.Min.X+tileW,
-		lb.Min.Y+tileH,
-		lb.Max.X-tileW,
-		lb.Max.Y-tileH,
+		tileW,
+		tileH,
+		float32(gam.Level.W)-tileW,
+		float32(gam.Level.H)-tileH,
 	)
 
 	ents := vec.Vals()

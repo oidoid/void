@@ -86,7 +86,7 @@ func TestP1EntDrawsWhenSpriteHitsClip(t *testing.T) {
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			gam := New()
-			gam.Level = &vlevels.Level{Box: vgeo.XYWH[int32](0, 0, 10, 10)}
+			gam.Level = &vlevels.Level{WH: vgeo.NewWH[int32](10, 10)}
 			gam.Layer(gfx.LayerP1).Clip = clip
 			ent := entities.NewP1Ent(
 				vgeo.NewXY(test.x, float32(0)), vatlas.Anim{W: 8, H: 13},

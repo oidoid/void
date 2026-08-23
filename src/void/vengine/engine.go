@@ -30,7 +30,6 @@ type Engine[Game vgame.Game] struct {
 	cam                vgeo.XY[float32] // to-do: cam always moves in physical space.
 	preupdaters        ventities.Zoo[Game]
 	updaters           ventities.Zoo[Game]
-	LevelBounds        vgeo.Box[float32] // to-do: can this be in vlevels.Level?
 	rnd                *rand.Rand
 	layers             [vgfx.LayerCount]vgfx.LayerConfig
 	layerConfigExport  [vgfx.LayerCount]vgfx.LayerConfigExport
@@ -251,10 +250,8 @@ func (this *Engine[Game]) CursorPhy() *vgeo.Box[float32] {
 	return this.Cursor.HitboxPhy()
 }
 
-func (this *Engine[Game]) LevelX() int32 { return this.Level.Min.X }
-func (this *Engine[Game]) LevelY() int32 { return this.Level.Min.Y }
-func (this *Engine[Game]) LevelW() int32 { return this.Level.W() }
-func (this *Engine[Game]) LevelH() int32 { return this.Level.H() }
+func (this *Engine[Game]) LevelW() int32 { return this.Level.W }
+func (this *Engine[Game]) LevelH() int32 { return this.Level.H }
 
 func (this *Engine[Game]) LayerConfigsPointer() uintptr {
 	return uintptr(unsafe.Pointer(unsafe.SliceData(this.layerConfigExport[:])))
@@ -268,9 +265,6 @@ func (this *Engine[Game]) TilePointer() uintptr {
 		return 0
 	}
 	return uintptr(unsafe.Pointer(&this.Level.Tiles[0]))
-}
-func (this *Engine[Game]) TileCount() uint32 {
-	return uint32(len(this.Level.Tiles))
 }
 func (this *Engine[Game]) LevelTileW() uint8 { return this.Level.Tile.W }
 func (this *Engine[Game]) LevelTileH() uint8 { return this.Level.Tile.H }
@@ -335,12 +329,6 @@ func (this *Engine[Game]) BeginTick() vgame.Status {
 	for i := range this.layers {
 		this.layers[i].Sprs = this.layers[i].Sprs[:0]
 	}
-	this.LevelBounds = vgeo.NewBox(
-		float32(this.Level.Min.X),
-		float32(this.Level.Min.Y),
-		float32(this.Level.Max.X),
-		float32(this.Level.Max.Y),
-	)
 	return vgame.Pause
 }
 

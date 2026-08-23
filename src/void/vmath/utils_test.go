@@ -93,3 +93,27 @@ func TestFloor(t *testing.T) {
 		})
 	}
 }
+
+func TestRound(t *testing.T) {
+	cases := []struct {
+		name string
+		in   float32
+		want float32
+	}{
+		{"zero", 0, 0},
+		{"positive down", 1.4, 1},
+		{"positive half", 1.5, 2},
+		{"negative up", -1.4, -1},
+		{"negative half", -1.5, -2},
+	}
+	for _, test := range cases {
+		t.Run(test.name, func(t *testing.T) {
+			if got := Round(test.in); got != test.want {
+				t.Fatalf("Round(%v) = %v, want %v", test.in, got, test.want)
+			}
+		})
+	}
+	if got := Round(2); got != 2 {
+		t.Fatalf("Round(2) = %v, want 2", got)
+	}
+}

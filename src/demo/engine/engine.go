@@ -15,6 +15,7 @@ import (
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vgrid"
+	"github.com/oidoid/void/src/void/vmath"
 	"github.com/oidoid/void/src/void/vtext"
 )
 
@@ -27,8 +28,10 @@ type Engine struct {
 	LastBoingMs    float64
 	LvlZoom        float32 // absolute lvl scale; zero uses the fitted scale.
 	// to-do: Cam struct.
-	CamKeyPhy vgeo.XY[float32] // accumulates keyboard movement in phy coordinates.
-	CamPanOn  bool
+	CamKeyPhy        vgeo.XY[float32] // accumulates keyboard movement in phy coordinates.
+	CamZoomAnchorPhy vgeo.XY[float32]
+	CamPanOn         bool
+	CamZoomOn        bool
 }
 
 type entUpdater struct {
@@ -80,11 +83,11 @@ func New() *Engine {
 	anim := this.Atlas.Anims[int(assets.SuperballDefault)]
 	diameter := float32(anim.Hitbox.Max.X - anim.Hitbox.Min.X)
 	// omit level edge.
-	lvl := vgeo.NewBox(
-		float32(this.Level.Min.X+int32(this.Level.Tile.W)),
-		float32(this.Level.Min.Y+int32(this.Level.Tile.H)),
-		float32(this.Level.Max.X-int32(this.Level.Tile.W)),
-		float32(this.Level.Max.Y-int32(this.Level.Tile.H)),
+	lvl := vgeo.NewBox[float32](
+		float32(this.Level.Tile.W),
+		float32(this.Level.Tile.H),
+		float32(this.Level.W-int32(this.Level.Tile.W)),
+		float32(this.Level.H-int32(this.Level.Tile.H)),
 	)
 
 	this.SuperballGrid = vgrid.New(lvl, diameter, 2*1024*1024)
@@ -228,9 +231,9 @@ func (this *Engine) Boing(dx, dy float32) {
 func (this *Engine) Update() vgame.Status {
 	stat := this.Engine.BeginTick()
 	dpr := this.Frame().DevicePixelRatio
-	this.Layer(gfx.LayerUI).AutoscaleMaxScale = uint8(math.Round(3 * dpr))
-	this.Layer(gfx.LayerOverlay).Scale = float32(math.Round(3 * dpr))
-	this.Layer(gfx.LayerCursor).Scale = float32(math.Round(2 * dpr))
+	this.Layer(gfx.LayerUI).AutoscaleMaxScale = uint8(vmath.Round(3 * dpr))
+	this.Layer(gfx.LayerOverlay).Scale = float32(vmath.Round(3 * dpr))
+	this.Layer(gfx.LayerCursor).Scale = float32(vmath.Round(2 * dpr))
 	this.Layer(gfx.LayerGrid).Scale = float32(math.Floor(dpr))
 	stat |= this.Engine.Preupdate(this)
 	stat |= this.Router.Update(this)

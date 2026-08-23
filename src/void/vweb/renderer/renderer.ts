@@ -52,9 +52,6 @@ export class Renderer {
     gl: WebGL2RenderingContext,
     buffer: ArrayBuffer,
     tilePtr: number,
-    tileCount: number,
-    levelX: number,
-    levelY: number,
     levelW: number,
     levelH: number,
     tileW: number,
@@ -70,7 +67,11 @@ export class Renderer {
     gl.enable(gl.BLEND)
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
-    const tiles = new Uint16Array(buffer, tilePtr, tileCount)
+    const tiles = new Uint16Array(
+      buffer,
+      tilePtr,
+      (levelW / tileW) * (levelH / tileH)
+    )
     this.#loseContext = gl.getExtension('WEBGL_lose_context')
     this.#gl = gl
     this.#clip = ClipRenderer.new(gl, pixel)
@@ -88,15 +89,10 @@ export class Renderer {
       tiles,
       tileW,
       tileH,
-      levelX,
-      levelY,
       levelW,
       levelH,
-      atlasCels,
-      atlasAnimCount,
-      atlasCelsPerAnim,
-      atlasImg,
-      pixel
+      this.#sprs.atlasCelsTex,
+      this.#sprs.sprsheetTex
     )
   }
 
@@ -118,8 +114,8 @@ export class Renderer {
     if (this.#gl.isContextLost()) return
     this.#overlay.dispose()
     this.#clip.dispose()
-    this.#sprs.dispose()
     this.#tiles.dispose()
+    this.#sprs.dispose()
   }
 
   loseContext(): void {
@@ -149,7 +145,6 @@ export class Renderer {
   }
 
   drawTiles(
-    nowMillis: number,
     camX: number,
     camY: number,
     layerScale: number,
@@ -166,7 +161,6 @@ export class Renderer {
       camY
     )
     this.#tiles.draw(
-      nowMillis,
       clipTarget.camX,
       clipTarget.camY,
       clipTarget.w,

@@ -3,10 +3,11 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
-	"strconv"
+	"encoding/json"
 	"strings"
 	"testing"
 
+	"github.com/oidoid/void/src/cmd/internal/tilesetmanifest"
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vgeo"
 )
@@ -187,14 +188,12 @@ func TestParseAtlasNativeTiles(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(atlas.Anims) != 4 || len(keys) != 4 {
-		t.Fatalf("got %d anims and %d keys, want 4 each", len(atlas.Anims), len(keys))
+	if len(atlas.Anims) != 4 || len(keys) != 1 {
+		t.Fatalf("got %d anims and %d keys, want 4 and 1",
+			len(atlas.Anims), len(keys))
 	}
 	for tileID := range 3 {
-		animID := tileID + 1
-		if got, want := keys[animID].qualifiedTag(), "Tile"+strconv.Itoa(tileID); got != want {
-			t.Errorf("tile %d key = %q, want %q", tileID, got, want)
-		}
+		animID := tileID + len(keys)
 		if got := atlas.Anims[animID]; got.Cels != 1 || got.W != 1 || got.H != 1 {
 			t.Errorf("tile %d anim = %#v", tileID, got)
 		}
@@ -205,6 +204,25 @@ func TestParseAtlasNativeTiles(t *testing.T) {
 		if got := (vatlas.AseRGBA{R: px[0], G: px[1], B: px[2], A: px[3]}); got != want {
 			t.Errorf("tile %d pixel = %#v, want %#v", animID, got, want)
 		}
+	}
+}
+
+func TestParseAtlasRejectsTooManyNativeTiles(t *testing.T) {
+	file := &asset{
+		name: "tiles.aseprite", W: 1, H: 1,
+		ColorDepth: vatlas.AseColorIndexed,
+		Tilesets: []vatlas.AseTileset{{
+			Header: vatlas.AseTilesetHeader{
+				Flags: vatlas.AseTilesetEmbeddedMask <<
+					vatlas.AseTilesetEmbeddedShift,
+				Count: vatlas.MaxAnimIDs, W: 1, H: 1,
+			},
+			Pxs: make([]byte, vatlas.MaxAnimIDs),
+		}},
+	}
+	_, _, _, err := parseAtlas([]*asset{file})
+	if err == nil || !strings.Contains(err.Error(), "animation count") {
+		t.Fatalf("err = %v, want animation-count overflow", err)
 	}
 }
 
@@ -349,12 +367,101 @@ func TestReadAsepriteNativeTiles(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := int(file.Tilesets[0].Header.Count) + 1
-	if len(atlas.Anims) != want || len(keys) != want {
-		t.Fatalf("got %d anims and %d keys, want %d each",
+	if len(atlas.Anims) != want || len(keys) != 1 {
+		t.Fatalf("got %d anims and %d keys, want %d and 1",
 			len(atlas.Anims), len(keys), want)
 	}
-	if got := keys[1].qualifiedTag(); got != "Tile0" {
-		t.Fatalf("first tile key = %q, want Tile0", got)
+	for tileID := range file.Tilesets[0].Header.Count {
+		anim := &atlas.Anims[int(tileID)+len(keys)]
+		if anim.Cels != 1 {
+			t.Errorf("tile %d has %d cels, want 1", tileID, anim.Cels)
+		}
+	}
+	manifest, err := genTilesetManifest([]*asset{file}, vatlas.AnimID(len(keys)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got []tilesetmanifest.TilesetManifest
+	if err := json.Unmarshal(manifest, &got); err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 1 {
+		t.Fatalf("tilesets = %d, want 1", len(got))
+	}
+	// Tiled sees the rendered Aseprite canvas as a grid. These cells prove the
+	// grid resolves back through the native tilemap to native tile IDs.
+	wantAnims := map[int]vatlas.AnimID{0: 3, 1: 2, 8: 5, 9: 12}
+	for cell, want := range wantAnims {
+		if got := got[0].Anims[cell]; got != want {
+			t.Errorf("cell %d anim = %d, want %d", cell, got, want)
+		}
+	}
+}
+
+func TestNewTilesetManifestMultipleNativeTilesets(t *testing.T) {
+	visible := vatlas.AseLayerVisibleMask << vatlas.AseLayerVisibleShift
+	embedded := vatlas.AseTilesetEmbeddedMask <<
+		vatlas.AseTilesetEmbeddedShift
+	tilemap := func(x int16, tileID byte) assetCel {
+		return assetCel{AseCel: vatlas.AseCel{
+			Header: vatlas.AseCelHeader{
+				X: x, Type: vatlas.AseCelTilemap,
+			},
+			Tilemap: vatlas.AseCelTilemapHeader{
+				W: 1, H: 1, Bits: 8, ID: 0xff,
+			},
+			Pxs: []byte{tileID},
+		}}
+	}
+	file := &asset{
+		name: "tiles.aseprite", W: 2, H: 1,
+		Frames: []assetFrame{{Cels: map[uint16]assetCel{
+			0: tilemap(0, 1), 1: tilemap(1, 2),
+		}}},
+		Layers: []assetLayer{
+			{AseLayer: vatlas.AseLayer{
+				Header: vatlas.AseLayerHeader{
+					Flags: visible, Type: vatlas.AseLayerTilemap,
+				},
+				Tileset: 0,
+			}},
+			{AseLayer: vatlas.AseLayer{
+				Header: vatlas.AseLayerHeader{
+					Flags: visible, Type: vatlas.AseLayerTilemap,
+				},
+				Tileset: 1,
+			}},
+		},
+		Tilesets: []vatlas.AseTileset{
+			{Header: vatlas.AseTilesetHeader{
+				Flags: embedded, Count: 2, W: 1, H: 1,
+			}},
+			{Header: vatlas.AseTilesetHeader{
+				Flags: embedded, Count: 3, W: 1, H: 1,
+			}},
+		},
+	}
+	manifests, err := newTilesetManifest([]*asset{file}, 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := manifests[0].Anims
+	if len(got) != 2 || got[0] != 11 || got[1] != 14 {
+		t.Fatalf("animation IDs = %v, want [11 14]", got)
+	}
+}
+
+func TestNewTilesetManifestRejectsLargeTile(t *testing.T) {
+	file := &asset{
+		name: "large.aseprite", W: 256, H: 1,
+		Frames: []assetFrame{{}},
+		Tilesets: []vatlas.AseTileset{{Header: vatlas.AseTilesetHeader{
+			W: 256, H: 1,
+		}}},
+	}
+	_, err := newTilesetManifest([]*asset{file}, 0)
+	if err == nil || !strings.Contains(err.Error(), "outside 1..255") {
+		t.Fatalf("err = %v, want uint8 overflow", err)
 	}
 }
 

@@ -164,6 +164,14 @@ export class SprRenderer {
     this.#sprsheetTex = sprsheetTex
   }
 
+  get sprsheetTex(): WebGLTexture {
+    return this.#sprsheetTex
+  }
+
+  get atlasCelsTex(): WebGLTexture {
+    return this.#atlasCelsTex
+  }
+
   dispose(): void {
     const gl = this.#gl
     gl.deleteProgram(this.#pgm)

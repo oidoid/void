@@ -200,7 +200,6 @@ export class Engine {
       if (config.shader === shaderTiles) {
         this.#renderer.clearDepth()
         this.#renderer.drawTiles(
-          nowMillis,
           lx,
           ly,
           config.scale,
@@ -335,9 +334,6 @@ export class Engine {
       getWebGL2(this.#canvas, !pixel),
       this.#wasm.memory.buffer,
       this.#wasm.TilePointer(),
-      this.#wasm.TileCount(),
-      this.#wasm.LevelX(),
-      this.#wasm.LevelY(),
       this.#wasm.LevelW(),
       this.#wasm.LevelH(),
       this.#wasm.LevelTileW(),

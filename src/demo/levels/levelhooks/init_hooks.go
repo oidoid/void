@@ -24,8 +24,8 @@ func InitInit(gam *engine.Engine) {
 	tileH := int32(gam.Level.Tile.H)
 	p1 := entities.NewP1Ent(
 		vgeo.NewXY(
-			float32(gam.Level.Min.X+tileW),
-			float32(gam.Level.Min.Y+tileH-int32(anim.Hurtbox.Min.Y)),
+			float32(tileW),
+			float32(tileH-int32(anim.Hurtbox.Min.Y)),
 		),
 		anim,
 	)

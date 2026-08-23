@@ -89,8 +89,7 @@ func (this *P1Ent) hitsWall(
 	maxX := int32(vmath.Floor(xy.X + float32(this.Hurtbox.Max.X) - 1))
 	minY := int32(vmath.Floor(xy.Y + float32(this.Hurtbox.Min.Y)))
 	maxY := int32(vmath.Floor(xy.Y + float32(this.Hurtbox.Max.Y) - 1))
-	if minX < lvl.Min.X || maxX >= lvl.Max.X ||
-		minY < lvl.Min.Y || maxY >= lvl.Max.Y {
+	if minX < 0 || maxX >= lvl.W || minY < 0 || maxY >= lvl.H {
 		return true
 	}
 	switch this.Dir {

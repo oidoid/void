@@ -6,20 +6,21 @@ import (
 )
 
 type Level struct {
-	vgeo.Box[int32]
-	Tile  vgeo.WH[uint8]
+	// pixel dimensions; divisible by the corresponding Tile dimension.
+	vgeo.WH[int32]
+	// cell dimensions in pixels.
+	Tile vgeo.WH[uint8]
+	// single-cel animation IDs in row-major order; length is W/Tile.W*H/Tile.H,
+	// and zero leaves a cell empty.
 	Tiles []vatlas.AnimID
 }
 
 func (this *Level) TileAt(xy vgeo.XY[int32]) vatlas.AnimID {
-	if xy.X < this.Min.X || xy.X >= this.Max.X ||
-		xy.Y < this.Min.Y || xy.Y >= this.Max.Y {
+	if xy.X < 0 || xy.X >= this.W || xy.Y < 0 || xy.Y >= this.H {
 		return 0
 	}
 	tileW := int32(this.Tile.W)
 	tileH := int32(this.Tile.H)
-	tileCols := (this.W() + tileW - 1) / tileW
-	tileX := (xy.X - this.Min.X) / tileW
-	tileY := (xy.Y - this.Min.Y) / tileH
-	return this.Tiles[tileY*tileCols+tileX]
+	tileCols := this.W / tileW
+	return this.Tiles[xy.Y/tileH*tileCols+xy.X/tileW]
 }

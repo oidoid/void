@@ -129,11 +129,26 @@ func packAtlas(argv *Argv) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(
+	if err := os.WriteFile(
 		filepath.Join(argv.CodeOut, argv.Name+"_ids.go"),
 		idsSrc,
 		0o644,
+	); err != nil {
+		return err
+	}
+	if argv.TilesetManifestOut == "" {
+		return nil
+	}
+	tilesetManifestBin, err := genTilesetManifest(
+		assets, vatlas.AnimID(len(stemTags)),
 	)
+	if err != nil {
+		return err
+	}
+	if err := os.MkdirAll(filepath.Dir(argv.TilesetManifestOut), 0o755); err != nil {
+		return err
+	}
+	return os.WriteFile(argv.TilesetManifestOut, tilesetManifestBin, 0o644)
 }
 
 func genData(pkg string, data []byte) ([]byte, error) {

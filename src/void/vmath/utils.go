@@ -34,3 +34,11 @@ func Floor[T vtypes.Number](v T) T {
 	}
 	return i
 }
+
+func Round[T vtypes.Number](v T) T {
+	half := T(1) / 2
+	if v < 0 {
+		return Ceil(v - half)
+	}
+	return Floor(v + half)
+}

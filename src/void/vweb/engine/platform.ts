@@ -20,11 +20,7 @@ export type Platform = {
   Update(): Loop
   // byte offset into `memory` of the first tile.
   TilePointer(): number
-  // total number of tiles.
-  TileCount(): number
-  // level origin and size in pixels.
-  LevelX(): number
-  LevelY(): number
+  // level size in pixels. origin is always `(0, 0)`.
   LevelW(): number
   LevelH(): number
   // tile pixel dimensions.

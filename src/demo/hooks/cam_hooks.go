@@ -8,6 +8,7 @@ import (
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
+	"github.com/oidoid/void/src/void/vmath"
 
 	"github.com/oidoid/void/src/void/vin"
 )
@@ -27,29 +28,41 @@ func UpdateCam(gam *engine.Engine) vgame.Status {
 	panOn := pinch != nil || dragOn
 	panEnd := gam.CamPanOn && !panOn
 	gam.CamPanOn = panOn
+	wheelZoomOn := in.Wheel.Delta.Y != 0
+	zoomOn := pinch != nil || wheelZoomOn
+	zoomEnd := gam.CamZoomOn && !zoomOn
+	gam.CamZoomOn = zoomOn
+	if pinch != nil {
+		gam.CamZoomAnchorPhy = pinch.CenterPhy
+	} else if wheelZoomOn {
+		gam.CamZoomAnchorPhy = anchor
+	}
 	lvlScaleChanged := false
 	if pinch != nil &&
 		gam.ZoomLvlAt(pinch.CenterPhy, pinchZoom(pinch)) {
 		stat |= vgame.Loop
 		lvlScaleChanged = true
 	}
-	if in.Wheel.Delta.Y != 0 &&
+	if wheelZoomOn &&
 		gam.ZoomLvlAt(anchor, wheelZoom(in.Wheel.Delta.Y)) {
 		stat |= vgame.Loop
 		lvlScaleChanged = true
 	}
-	if in.IsOnStart(vin.ButtonScaleReset) &&
-		gam.ResetLvlScaleAt(anchor) {
+	if zoomEnd && snapLvlScaleAt(gam, gam.CamZoomAnchorPhy) {
+		stat |= vgame.Loop
+		lvlScaleChanged = true
+	}
+	if in.IsOnStart(vin.ButtonScaleReset) && gam.ResetLvlScaleAt(anchor) {
 		stat |= vgame.Loop
 		lvlScaleChanged = true
 	}
 	if in.IsOnStart(vin.ButtonScaleDec) &&
-		gam.AdjustLvlScaleAt(anchor, -keyZoomDelta) {
+		adjustLvlScaleAtKey(gam, anchor, -keyZoomDelta) {
 		stat |= vgame.Loop
 		lvlScaleChanged = true
 	}
 	if in.IsOnStart(vin.ButtonScaleInc) &&
-		gam.AdjustLvlScaleAt(anchor, keyZoomDelta) {
+		adjustLvlScaleAtKey(gam, anchor, keyZoomDelta) {
 		stat |= vgame.Loop
 		lvlScaleChanged = true
 	}
@@ -109,6 +122,37 @@ func UpdateCam(gam *engine.Engine) vgame.Status {
 		gam.CamKeyPhy = *cam
 	}
 	return stat | vgame.Loop
+}
+
+func adjustLvlScaleAtKey(
+	gam *engine.Engine,
+	anchor vgeo.XY[float32],
+	by float32,
+) bool {
+	scale := gam.Layer(gfx.LayerTiles).ScaleOrDefault()
+	target := keyZoomTarget(scale, by)
+	return gam.AdjustLvlScaleAt(anchor, target-scale)
+}
+
+func keyZoomTarget(scale, by float32) float32 {
+	if by > 0 {
+		return (vmath.Floor(scale/by) + 1) * by
+	}
+	step := -by
+	return (vmath.Ceil(scale/step) - 1) * step
+}
+
+func snapLvlScaleAt(
+	gam *engine.Engine,
+	anchor vgeo.XY[float32],
+) bool {
+	const tolerance = float32(.1)
+	scale := gam.Layer(gfx.LayerTiles).ScaleOrDefault()
+	target := vmath.Round(scale)
+	if v := scale - target; v < -tolerance || v > tolerance {
+		return false
+	}
+	return gam.AdjustLvlScaleAt(anchor, target-scale)
 }
 
 // reports whether a drag began within the visible lvl clip.
