@@ -124,20 +124,20 @@ func (this *P1Ent) turnRight() {
 }
 
 func (this *P1Ent) spr() vgfx.Spr {
-	anim := assets.BackpackerWalkRight
+	tag := assets.BackpackerWalkRight
 	spr := vgfx.Spr{
-		AnimCel: anim.Cel(0),
-		XY:      this.XY,
-		Z:       gfx.ZP1,
-		WH:      this.WH,
+		TagCel: tag.Cel(0),
+		XY:     this.XY,
+		Z:      gfx.ZP1,
+		WH:     this.WH,
 	}
 	switch this.Dir {
 	case vgeo.DirN:
-		spr.SetAnim(assets.BackpackerWalkUp)
+		spr.SetTag(assets.BackpackerWalkUp)
 	case vgeo.DirW:
 		spr.SetFlipX(true)
 	case vgeo.DirS:
-		spr.SetAnim(assets.BackpackerWalkDown)
+		spr.SetTag(assets.BackpackerWalkDown)
 	}
 	return spr
 }

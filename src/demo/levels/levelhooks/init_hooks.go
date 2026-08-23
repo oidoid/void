@@ -126,7 +126,7 @@ func UpdateInit(gam *engine.Engine) vgame.Status {
 func newEdgeEnt(z vgfx.Z, w, h uint16) ventities.NinePatchEnt {
 	var patches [9]vgfx.Spr
 	for i := range patches {
-		patches[i].SetAnim(assets.ColorBlack)
+		patches[i].SetTag(assets.ColorBlack)
 	}
 	patches[vgeo.DirCenter] = vgfx.Spr{}
 	ent := ventities.NinePatchEnt{
@@ -139,18 +139,18 @@ func newEdgeEnt(z vgfx.Z, w, h uint16) ventities.NinePatchEnt {
 func newCornerEdgeEnt(z vgfx.Z) ventities.NinePatchEnt {
 	const cornerTopLeftWH = 16
 	ent := newEdgeEnt(z, cornerTopLeftWH, cornerTopLeftWH)
-	ent.PatchByDir[vgeo.DirE].SetAnim(assets.ViewportEdgeW)
+	ent.PatchByDir[vgeo.DirE].SetTag(assets.ViewportEdgeW)
 	ent.PatchByDir[vgeo.DirE].SetFlipX(true)
-	ent.PatchByDir[vgeo.DirNE].SetAnim(assets.ViewportEdgeNW)
+	ent.PatchByDir[vgeo.DirNE].SetTag(assets.ViewportEdgeNW)
 	ent.PatchByDir[vgeo.DirNE].SetFlipX(true)
-	ent.PatchByDir[vgeo.DirN].SetAnim(assets.ViewportEdgeN)
-	ent.PatchByDir[vgeo.DirNW].SetAnim(assets.ViewportEdgeNW)
-	ent.PatchByDir[vgeo.DirW].SetAnim(assets.ViewportEdgeW)
-	ent.PatchByDir[vgeo.DirSW].SetAnim(assets.ViewportEdgeNW)
+	ent.PatchByDir[vgeo.DirN].SetTag(assets.ViewportEdgeN)
+	ent.PatchByDir[vgeo.DirNW].SetTag(assets.ViewportEdgeNW)
+	ent.PatchByDir[vgeo.DirW].SetTag(assets.ViewportEdgeW)
+	ent.PatchByDir[vgeo.DirSW].SetTag(assets.ViewportEdgeNW)
 	ent.PatchByDir[vgeo.DirSW].SetFlipY(true)
-	ent.PatchByDir[vgeo.DirS].SetAnim(assets.ViewportEdgeN)
+	ent.PatchByDir[vgeo.DirS].SetTag(assets.ViewportEdgeN)
 	ent.PatchByDir[vgeo.DirS].SetFlipY(true)
-	ent.PatchByDir[vgeo.DirSE].SetAnim(assets.ViewportEdgeNW)
+	ent.PatchByDir[vgeo.DirSE].SetTag(assets.ViewportEdgeNW)
 	ent.PatchByDir[vgeo.DirSE].SetFlipX(true)
 	ent.PatchByDir[vgeo.DirSE].SetFlipY(true)
 	return ent
@@ -158,7 +158,7 @@ func newCornerEdgeEnt(z vgfx.Z) ventities.NinePatchEnt {
 
 func newFillEnt(z vgfx.Z) ventities.NinePatchEnt {
 	var patches [9]vgfx.Spr
-	patches[vgeo.DirCenter].SetAnim(assets.GridCell)
+	patches[vgeo.DirCenter].SetTag(assets.GridCell)
 	ent := ventities.NinePatchEnt{PatchByDir: patches}
 	ent.SetZ(z)
 	return ent

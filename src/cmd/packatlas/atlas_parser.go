@@ -15,8 +15,7 @@ import (
 // max width of palette.
 const maxPalColors = 256
 
-// max ID of palette.
-const maxPalAnimID = 0xff
+const maxPalTag = 0xff // greatest palette tag.
 
 const atlasRowWidth = 4096
 
@@ -187,9 +186,9 @@ func sortAnims(anims []anim, palAssets palAssets) ([]anim, error) {
 			rest = append(rest, anim)
 		}
 	}
-	if len(pals) > maxPalAnimID {
+	if len(pals) > maxPalTag {
 		return nil, fmt.Errorf(
-			"palette animation count %d exceeds %d", len(pals), maxPalAnimID,
+			"palette tag count %d exceeds %d", len(pals), maxPalTag,
 		)
 	}
 	return append(pals, rest...), nil
@@ -515,10 +514,10 @@ func parseAtlas(
 	}
 	tagCount := len(packed)
 	packed = append(packed, tiles...)
-	if len(packed) > vatlas.MaxAnimIDs {
+	if len(packed) > vatlas.MaxTags {
 		return nil, nil, nil, fmt.Errorf(
-			"atlas animation count %d exceeds %d",
-			len(packed), vatlas.MaxAnimIDs,
+			"atlas tag count %d exceeds %d",
+			len(packed), vatlas.MaxTags,
 		)
 	}
 	cels, celXY, height, err := placeCels(packed)

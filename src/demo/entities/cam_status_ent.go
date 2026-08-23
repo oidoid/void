@@ -17,15 +17,15 @@ type CamStatusEnt struct {
 	Anchor ventities.AnchorEnt
 }
 
-func NewCamStatusEnt(fillAnimID vatlas.AnimID, z vgfx.Z) CamStatusEnt {
+func NewCamStatusEnt(fillTag vatlas.Tag, z vgfx.Z) CamStatusEnt {
 	this := CamStatusEnt{}
 	this.Fill = ventities.NinePatchEnt{
 		PatchByDir: [9]vgfx.Spr{
-			vgeo.DirE:      {AnimCel: fillAnimID.Cel(0)},
-			vgeo.DirN:      {AnimCel: fillAnimID.Cel(0)},
-			vgeo.DirW:      {AnimCel: fillAnimID.Cel(0)},
-			vgeo.DirS:      {AnimCel: fillAnimID.Cel(0)},
-			vgeo.DirCenter: {AnimCel: fillAnimID.Cel(0)},
+			vgeo.DirE:      {TagCel: fillTag.Cel(0)},
+			vgeo.DirN:      {TagCel: fillTag.Cel(0)},
+			vgeo.DirW:      {TagCel: fillTag.Cel(0)},
+			vgeo.DirS:      {TagCel: fillTag.Cel(0)},
+			vgeo.DirCenter: {TagCel: fillTag.Cel(0)},
 		},
 		CornerWH: vgeo.NewWH[uint16](1, 1),
 	}

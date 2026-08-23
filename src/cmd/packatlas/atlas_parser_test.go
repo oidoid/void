@@ -193,16 +193,16 @@ func TestParseAtlasNativeTiles(t *testing.T) {
 			len(atlas.Anims), len(keys))
 	}
 	for tileID := range 3 {
-		animID := tileID + len(keys)
-		if got := atlas.Anims[animID]; got.Cels != 1 || got.W != 1 || got.H != 1 {
+		tag := tileID + len(keys)
+		if got := atlas.Anims[tag]; got.Cels != 1 || got.W != 1 || got.H != 1 {
 			t.Errorf("tile %d anim = %#v", tileID, got)
 		}
 	}
-	for animID, want := range []vatlas.AseRGBA{{}, red, green} {
-		cel := atlas.Cels[((animID+1)*vatlas.CelsPerAnim)*4:]
+	for tag, want := range []vatlas.AseRGBA{{}, red, green} {
+		cel := atlas.Cels[((tag+1)*vatlas.CelsPerAnim)*4:]
 		px := img.Pix[int(cel[1])*img.Stride+int(cel[0])*4:]
 		if got := (vatlas.AseRGBA{R: px[0], G: px[1], B: px[2], A: px[3]}); got != want {
-			t.Errorf("tile %d pixel = %#v, want %#v", animID, got, want)
+			t.Errorf("tile %d pixel = %#v, want %#v", tag, got, want)
 		}
 	}
 }
@@ -215,14 +215,14 @@ func TestParseAtlasRejectsTooManyNativeTiles(t *testing.T) {
 			Header: vatlas.AseTilesetHeader{
 				Flags: vatlas.AseTilesetEmbeddedMask <<
 					vatlas.AseTilesetEmbeddedShift,
-				Count: vatlas.MaxAnimIDs, W: 1, H: 1,
+				Count: vatlas.MaxTags, W: 1, H: 1,
 			},
-			Pxs: make([]byte, vatlas.MaxAnimIDs),
+			Pxs: make([]byte, vatlas.MaxTags),
 		}},
 	}
 	_, _, _, err := parseAtlas([]*asset{file})
-	if err == nil || !strings.Contains(err.Error(), "animation count") {
-		t.Fatalf("err = %v, want animation-count overflow", err)
+	if err == nil || !strings.Contains(err.Error(), "tag count") {
+		t.Fatalf("err = %v, want tag-count overflow", err)
 	}
 }
 
@@ -330,13 +330,13 @@ func TestReadAsepriteFontPaletteData(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for animI, key := range keys {
+	for tag, key := range keys {
 		if key.stem != "mem-prop-5x6" {
 			continue
 		}
-		anim := atlas.Anims[animI]
+		anim := atlas.Anims[tag]
 		for celI := 0; celI < int(anim.Cels); celI++ {
-			cel := atlas.Cels[(animI*vatlas.CelsPerAnim+celI)*4:]
+			cel := atlas.Cels[(tag*vatlas.CelsPerAnim+celI)*4:]
 			for y := range int(anim.H) {
 				for x := range int(anim.W) {
 					px := img.Pix[(int(cel[1])+y)*img.Stride+(int(cel[0])+x)*4:]
@@ -377,7 +377,7 @@ func TestReadAsepriteNativeTiles(t *testing.T) {
 			t.Errorf("tile %d has %d cels, want 1", tileID, anim.Cels)
 		}
 	}
-	manifest, err := genTilesetManifest([]*asset{file}, vatlas.AnimID(len(keys)))
+	manifest, err := genTilesetManifest([]*asset{file}, vatlas.Tag(len(keys)))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -390,9 +390,9 @@ func TestReadAsepriteNativeTiles(t *testing.T) {
 	}
 	// Tiled sees the rendered Aseprite canvas as a grid. These cells prove the
 	// grid resolves back through the native tilemap to native tile IDs.
-	wantAnims := map[int]vatlas.AnimID{0: 3, 1: 2, 8: 5, 9: 12}
-	for cell, want := range wantAnims {
-		if got := got[0].Anims[cell]; got != want {
+	wantTags := map[int]vatlas.Tag{0: 3, 1: 2, 8: 5, 9: 12}
+	for cell, want := range wantTags {
+		if got := got[0].Tags[cell]; got != want {
 			t.Errorf("cell %d anim = %d, want %d", cell, got, want)
 		}
 	}
@@ -445,9 +445,9 @@ func TestNewTilesetManifestMultipleNativeTilesets(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	got := manifests[0].Anims
+	got := manifests[0].Tags
 	if len(got) != 2 || got[0] != 11 || got[1] != 14 {
-		t.Fatalf("animation IDs = %v, want [11 14]", got)
+		t.Fatalf("tags = %v, want [11 14]", got)
 	}
 }
 

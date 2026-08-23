@@ -1,4 +1,4 @@
-export const sprAnimCelOffset: number = 8
+export const sprTagCelOffset: number = 8
 export const sprZOffset: number = 10
 export const sprWHOffset: number = 12
 export const sprFlagsOffset: number = 16

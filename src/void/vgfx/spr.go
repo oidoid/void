@@ -12,9 +12,9 @@ import (
 // is a better fit for games.
 type Spr struct {
 	vgeo.XY[float32]
-	AnimCel vatlas.AnimCel
-	Z       Z // to-do: bake into flags and expose setter?
-	_       [1]byte
+	TagCel vatlas.TagCel
+	Z      Z // to-do: bake into flags and expose setter?
+	_      [1]byte
 	vgeo.WH[uint16]
 	flags uint32
 }
@@ -30,8 +30,8 @@ const (
 	sprFlipYShift          = 2
 	sprStretchMask  uint32 = 1
 	sprStretchShift        = 3
-	sprPalAnimMask  uint32 = 0xff
-	sprPalAnimShift        = 4
+	sprPalTagMask   uint32 = 0xff
+	sprPalTagShift         = 4
 	sprZTopMask     uint32 = 1
 	sprZTopShift           = 12
 	sprRotMask      uint32 = 0xfff
@@ -39,26 +39,25 @@ const (
 	sprRotRadians          = float32(2 * 3.141592653589793 / 4096)
 )
 
-// to-do: rename Tag.
-func (this *Spr) Anim() vatlas.AnimID {
-	return vatlas.AnimID(this.AnimCel >> vatlas.AnimCelShift)
+func (this *Spr) Tag() vatlas.Tag {
+	return vatlas.Tag(this.TagCel >> vatlas.TagCelShift)
 }
 
-func (this *Spr) SetAnim(id vatlas.AnimID) {
-	this.AnimCel = vatlas.AnimCel(
-		uint16(id)<<vatlas.AnimCelShift |
-			uint16(this.AnimCel)&uint16(vatlas.AnimCelMask),
+func (this *Spr) SetTag(tag vatlas.Tag) {
+	this.TagCel = vatlas.TagCel(
+		uint16(tag)<<vatlas.TagCelShift |
+			uint16(this.TagCel)&uint16(vatlas.TagCelMask),
 	)
 }
 
 func (this *Spr) Cel() uint8 {
-	return uint8(this.AnimCel & vatlas.AnimCelMask)
+	return uint8(this.TagCel & vatlas.TagCelMask)
 }
 
 func (this *Spr) SetCel(cel uint8) {
-	this.AnimCel = vatlas.AnimCel(
-		uint16(this.AnimCel)&^uint16(vatlas.AnimCelMask) |
-			uint16(cel&uint8(vatlas.AnimCelMask)),
+	this.TagCel = vatlas.TagCel(
+		uint16(this.TagCel)&^uint16(vatlas.TagCelMask) |
+			uint16(cel&uint8(vatlas.TagCelMask)),
 	)
 }
 
@@ -111,15 +110,15 @@ func (this *Spr) SetStretch(stretch bool) {
 	}
 }
 
-func (this *Spr) Pal() vatlas.AnimID {
-	return vatlas.AnimID(
-		this.flags >> sprPalAnimShift & sprPalAnimMask,
+func (this *Spr) Pal() vatlas.Tag {
+	return vatlas.Tag(
+		this.flags >> sprPalTagShift & sprPalTagMask,
 	)
 }
 
-func (this *Spr) SetPal(id vatlas.AnimID) {
-	this.flags = this.flags&^(sprPalAnimMask<<sprPalAnimShift) |
-		(uint32(id)&sprPalAnimMask)<<sprPalAnimShift
+func (this *Spr) SetPal(tag vatlas.Tag) {
+	this.flags = this.flags&^(sprPalTagMask<<sprPalTagShift) |
+		(uint32(tag)&sprPalTagMask)<<sprPalTagShift
 }
 
 // whether depth order is anchored at the top of the spr clipbox or the

@@ -26,19 +26,19 @@ type CursorEnt struct {
 	snapXY vgeo.XY[float32]
 	// reports whether keyboard movement initialized XY and snapXY.
 	kbdOn bool
-	// current animation ID; toggled between PointAnimID and PickAnimID.
-	animID      vatlas.AnimID
+	// current tag; toggled between pointTag and pickTag.
+	tag         vatlas.Tag
 	hitboxCopy  vgeo.Box[float32]
 	hitboxPhy   vgeo.Box[float32]
 	hitboxPhyOn bool
-	// animation ID when no button is pressed.
-	pointAnimID vatlas.AnimID
-	// animation ID when a button is pressed. zero disables pick animation.
-	pickAnimID vatlas.AnimID
+	// tag when no button is pressed.
+	pointTag vatlas.Tag
+	// tag when a button is pressed. zero disables the pick spr.
+	pickTag vatlas.Tag
 }
 
 func NewCursorEnt(
-	pointAnimID, pickAnimID vatlas.AnimID,
+	pointTag, pickTag vatlas.Tag,
 	kbdVel float32,
 	hitbox vgeo.Box[uint16],
 	z vgfx.Z,
@@ -48,13 +48,13 @@ func NewCursorEnt(
 		float32(hitbox.Max.X), float32(hitbox.Max.Y),
 	)
 	return CursorEnt{
-		KbdVel:      kbdVel,
-		pointAnimID: pointAnimID,
-		pickAnimID:  pickAnimID,
-		Hitbox:      hitboxF32,
-		hitboxCopy:  hitboxF32,
-		animID:      pointAnimID,
-		Z:           z,
+		KbdVel:     kbdVel,
+		pointTag:   pointTag,
+		pickTag:    pickTag,
+		Hitbox:     hitboxF32,
+		hitboxCopy: hitboxF32,
+		tag:        pointTag,
+		Z:          z,
 	}
 }
 
@@ -82,10 +82,10 @@ func (this *CursorEnt) Update(
 		this.kbdOn = false
 	}
 
-	if this.pickAnimID != 0 && in.IsOn(vin.ButtonA) {
-		this.animID = this.pickAnimID
+	if this.pickTag != 0 && in.IsOn(vin.ButtonA) {
+		this.tag = this.pickTag
 	} else {
-		this.animID = this.pointAnimID
+		this.tag = this.pointTag
 	}
 
 	this.Hitbox = this.hitboxCopy
@@ -101,9 +101,9 @@ func (this *CursorEnt) Update(
 		return vgame.Pause
 	}
 	*sprs = append(*sprs, vgfx.Spr{
-		XY:      this.snapXY,
-		AnimCel: this.animID.Cel(0),
-		Z:       this.Z,
+		XY:     this.snapXY,
+		TagCel: this.tag.Cel(0),
+		Z:      this.Z,
 	})
 	if this.kbdOn {
 		return vgame.Loop

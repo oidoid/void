@@ -22,8 +22,8 @@ const highp uint sprFlipYMask = 1u;
 const highp uint sprFlipYShift = 2u;
 const highp uint sprStretchMask = 1u;
 const highp uint sprStretchShift = 3u;
-const highp uint sprPalAnimMask = 0xffu;
-const highp uint sprPalAnimShift = 4u;
+const highp uint sprPalTagMask = 0xffu;
+const highp uint sprPalTagShift = 4u;
 
 highp vec4 palColor(highp uvec4 cel, mediump int slot) {
   return texelFetch(
@@ -45,9 +45,9 @@ void main() {
   if (flipY) samplePos.y = vCelXYWH.w - samplePos.y;
   highp vec4 tex = texture(uSprsheet, (vCelXYWH.xy + samplePos) / uAtlasSize);
   if (tex.a == 0.) discard;
-  highp uint palID = (vFlags >> sprPalAnimShift) & sprPalAnimMask;
-  if (palID != 0u) {
-    highp uvec4 palCel = texelFetch(uAtlasCels, ivec2(0, int(palID)), 0);
+  highp uint palTag = (vFlags >> sprPalTagShift) & sprPalTagMask;
+  if (palTag != 0u) {
+    highp uvec4 palCel = texelFetch(uAtlasCels, ivec2(0, int(palTag)), 0);
     mediump uint palSlot = uint(round(tex.r * 255.));
     if (palSlot < palCel.z) {
       tex = palColor(palCel, int(palSlot));

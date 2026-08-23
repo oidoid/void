@@ -18,7 +18,7 @@ func TestButtonEnt_TogglePalPreview(t *testing.T) {
 		on      bool
 		focused bool
 		pressed bool
-		want    vatlas.AnimID
+		want    vatlas.Tag
 	}{
 		{"off", false, false, false, pals.Base},
 		{"off focused", false, true, false, pals.Focused},

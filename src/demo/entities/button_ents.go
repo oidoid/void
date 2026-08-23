@@ -112,8 +112,8 @@ func newButtonEnt(
 }
 
 func newWidgetNinePatch() ventities.NinePatchEnt {
-	edge := vgfx.Spr{AnimCel: assets.WidgetEdgeLight.Cel(0)}
-	fill := vgfx.Spr{AnimCel: assets.WidgetFill.Cel(0)}
+	edge := vgfx.Spr{TagCel: assets.WidgetEdgeLight.Cel(0)}
+	fill := vgfx.Spr{TagCel: assets.WidgetFill.Cel(0)}
 	return ventities.NinePatchEnt{
 		PatchByDir: [9]vgfx.Spr{
 			vgeo.DirE:      edge,

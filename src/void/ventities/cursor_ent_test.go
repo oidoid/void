@@ -12,7 +12,7 @@ import (
 
 func testCursorEnt(keyboard float32) CursorEnt {
 	return NewCursorEnt(
-		vatlas.AnimID(1), 0, keyboard, vgeo.Box[uint16]{}, vgfx.Z(0),
+		vatlas.Tag(1), 0, keyboard, vgeo.Box[uint16]{}, vgfx.Z(0),
 	)
 }
 
@@ -23,7 +23,7 @@ func setCursorXY(ent *CursorEnt, xy vgeo.XY[float32]) {
 
 func TestNewCursorEnt_Hitbox(t *testing.T) {
 	hitbox := vgeo.XYWH[uint16](1, 2, 3, 4)
-	ent := NewCursorEnt(vatlas.AnimID(1), 0, 0, hitbox, vgfx.Z(0))
+	ent := NewCursorEnt(vatlas.Tag(1), 0, 0, hitbox, vgfx.Z(0))
 	want := vgeo.XYWH[float32](1, 2, 3, 4)
 	if ent.Hitbox != want {
 		t.Fatalf("Hitbox = %v, want %v", ent.Hitbox, want)
@@ -32,7 +32,7 @@ func TestNewCursorEnt_Hitbox(t *testing.T) {
 
 func TestUpdate_Hitbox(t *testing.T) {
 	ent := NewCursorEnt(
-		vatlas.AnimID(1), 0, 1, vgeo.XYWH[uint16](1, 2, 3, 4), vgfx.Z(0),
+		vatlas.Tag(1), 0, 1, vgeo.XYWH[uint16](1, 2, 3, 4), vgfx.Z(0),
 	)
 	setCursorXY(&ent, vgeo.NewXY[float32](10.5, 20.5))
 	ent.Visible = true
@@ -64,7 +64,7 @@ func TestNilHitboxPhy(t *testing.T) {
 
 func TestHitboxPhy(t *testing.T) {
 	ent := NewCursorEnt(
-		vatlas.AnimID(1), 0, 10, vgeo.XYWH[uint16](4, 8, 2, 3), vgfx.Z(0),
+		vatlas.Tag(1), 0, 10, vgeo.XYWH[uint16](4, 8, 2, 3), vgfx.Z(0),
 	)
 	layer := vgfx.NewLayerConfig(0)
 	in := vin.NewIn()

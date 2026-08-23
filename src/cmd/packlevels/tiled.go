@@ -158,13 +158,13 @@ func readLevel(path string, tilesets tilesetIndex) (vlevels.Level, error) {
 	if uint64(len(gids)) != total {
 		return vlevels.Level{}, fmt.Errorf("got %d tiles, want %d", len(gids), total)
 	}
-	tiles := make([]vatlas.AnimID, len(gids))
+	tiles := make([]vatlas.Tag, len(gids))
 	for i, gid := range gids {
-		animID, err := animIDForGID(gid, tmx.Tilesets)
+		tag, err := tagForGID(gid, tmx.Tilesets)
 		if err != nil {
 			return vlevels.Level{}, fmt.Errorf("tile %d: %w", i, err)
 		}
-		tiles[i] = animID
+		tiles[i] = tag
 	}
 	w := uint64(tmx.W) * uint64(tmx.TileW)
 	h := uint64(tmx.H) * uint64(tmx.TileH)
@@ -178,8 +178,8 @@ func readLevel(path string, tilesets tilesetIndex) (vlevels.Level, error) {
 	}, nil
 }
 
-// resolves a Tiled global tile ID to its final atlas animation ID.
-func animIDForGID(gid uint32, tilesets []tmxTileset) (vatlas.AnimID, error) {
+// resolves a Tiled global tile ID to its final atlas tag.
+func tagForGID(gid uint32, tilesets []tmxTileset) (vatlas.Tag, error) {
 	if gid == 0 {
 		return 0, nil
 	}
@@ -193,13 +193,13 @@ func animIDForGID(gid uint32, tilesets []tmxTileset) (vatlas.AnimID, error) {
 	if gid < tileset.FirstGID {
 		return 0, fmt.Errorf("GID %d has no tileset", gid)
 	}
-	// Tiled GID -> preview canvas cell -> Aseprite native tile -> final atlas
-	// animation ID. adjacent preview cells may resolve to non-contiguous IDs.
+	// Tiled GID -> preview canvas cell -> Aseprite native tile -> final atlas tag.
+	// adjacent preview cells may resolve to non-contiguous tags.
 	localID := gid - tileset.FirstGID
-	if localID >= uint32(len(tileset.manifest.Anims)) {
+	if localID >= uint32(len(tileset.manifest.Tags)) {
 		return 0, fmt.Errorf("GID %d local ID %d is out of range", gid, localID)
 	}
-	return tileset.manifest.Anims[localID], nil
+	return tileset.manifest.Tags[localID], nil
 }
 
 func loadTileset(
@@ -235,7 +235,7 @@ func loadTileset(
 	}
 	if this.TileW != manifest.TileW || this.TileH != manifest.TileH ||
 		this.Image.W != manifest.W || this.Image.H != manifest.H ||
-		this.TileCount != uint32(len(manifest.Anims)) || this.Cols == 0 ||
+		this.TileCount != uint32(len(manifest.Tags)) || this.Cols == 0 ||
 		this.TileCount%this.Cols != 0 ||
 		uint64(this.Cols)*uint64(this.TileW) != uint64(this.Image.W) ||
 		uint64(this.TileCount/this.Cols)*uint64(this.TileH) != uint64(this.Image.H) {

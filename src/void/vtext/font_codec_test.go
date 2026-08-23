@@ -20,7 +20,7 @@ func TestFontRoundTrip(t *testing.T) {
 		DefaultWhitespaceKerning: mem.DefaultWhitespaceKerning,
 		EndOfLineKerning:         mem.EndOfLineKerning,
 		DefaultCharW:             mem.DefaultCharW,
-		FirstAnimID:              mem.FirstAnimID,
+		FirstTag:                 mem.FirstTag,
 	}
 
 	kerning := encodeKerning(mem.kerningPairs)

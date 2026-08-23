@@ -13,7 +13,7 @@ const levelHeaderLen = 10
 // [tile(2) count8(1) [count16(2)]]*
 // count8 zero escapes to count16; common short runs therefore use three bytes.
 func EncodeLevel(lvl *Level) []byte {
-	rle := vrle.Encode[vatlas.AnimID, uint16](lvl.Tiles)
+	rle := vrle.Encode[vatlas.Tag, uint16](lvl.Tiles)
 	bin := make([]byte, levelHeaderLen, levelHeaderLen+len(rle)*3)
 	w, h := uint32(lvl.W), uint32(lvl.H)
 	bin[0], bin[1], bin[2], bin[3] = byte(w), byte(w>>8), byte(w>>16), byte(w>>24)
@@ -37,9 +37,9 @@ func DecodeLevel(bin []byte) Level {
 		uint32(bin[6])<<16 | uint32(bin[7])<<24
 	tile := vgeo.NewWH(bin[8], bin[9])
 	total := w / uint32(tile.W) * (h / uint32(tile.H))
-	tiles := make([]vatlas.AnimID, 0, total)
+	tiles := make([]vatlas.Tag, 0, total)
 	for i := levelHeaderLen; i < len(bin); {
-		val := vatlas.AnimID(uint16(bin[i]) | uint16(bin[i+1])<<8)
+		val := vatlas.Tag(uint16(bin[i]) | uint16(bin[i+1])<<8)
 		count := uint16(bin[i+2])
 		i += 3
 		if count == 0 {

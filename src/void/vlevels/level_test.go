@@ -11,12 +11,12 @@ func TestLevelTileAt(t *testing.T) {
 	level := Level{
 		WH:    vgeo.NewWH[int32](16, 8),
 		Tile:  vgeo.NewWH[uint8](4, 4),
-		Tiles: []vatlas.AnimID{1, 2, 3, 4, 5, 6, 7, 8},
+		Tiles: []vatlas.Tag{1, 2, 3, 4, 5, 6, 7, 8},
 	}
 	cases := []struct {
 		name string
 		xy   vgeo.XY[int32]
-		want vatlas.AnimID
+		want vatlas.Tag
 	}{
 		{"top left", vgeo.NewXY[int32](0, 0), 1},
 		{"top right", vgeo.NewXY[int32](15, 0), 4},

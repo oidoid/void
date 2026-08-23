@@ -52,9 +52,9 @@ func (this *SuperballEnt) Draw(
 ) vgame.Status {
 	if clip.HitsXY(this.XY) {
 		spr := vgfx.Spr{
-			AnimCel: assets.SuperballDefault.Cel(0),
-			XY:      this.XY,
-			Z:       gfx.ZSuperball,
+			TagCel: assets.SuperballDefault.Cel(0),
+			XY:     this.XY,
+			Z:      gfx.ZSuperball,
 		}
 		spr.SetRot(this.Rot)
 		*sprs = append(*sprs, spr)

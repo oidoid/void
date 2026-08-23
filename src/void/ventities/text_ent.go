@@ -14,7 +14,7 @@ type TextEnt struct {
 	Layout    vtext.TextLayout // nil `Layout.Chars` to force relayout.
 	XY        vgeo.XY[int16]
 	Z         vgfx.Z
-	Pal       vatlas.AnimID
+	Pal       vatlas.Tag
 	Trim      vtext.Trim
 	textScale uint8
 }
@@ -46,7 +46,7 @@ func (this *TextEnt) Update(
 		if !clip.HitsXY(xy) {
 			continue
 		}
-		spr := vgfx.Spr{AnimCel: font.AnimID(ch).Cel(0), XY: xy, Z: this.Z}
+		spr := vgfx.Spr{TagCel: font.Tag(ch).Cel(0), XY: xy, Z: this.Z}
 		scale := this.scale()
 		spr.WH = vgeo.NewWH(
 			uint16(font.CellW)*uint16(scale),

@@ -25,11 +25,11 @@ func NewEntStatusEnt() EntStatusEnt {
 	this := EntStatusEnt{}
 	this.Fill = ventities.NinePatchEnt{
 		PatchByDir: [9]vgfx.Spr{
-			vgeo.DirE:      {AnimCel: assets.ColorBlue.Cel(0)},
-			vgeo.DirN:      {AnimCel: assets.ColorBlue.Cel(0)},
-			vgeo.DirW:      {AnimCel: assets.ColorBlue.Cel(0)},
-			vgeo.DirS:      {AnimCel: assets.ColorBlue.Cel(0)},
-			vgeo.DirCenter: {AnimCel: assets.ColorBlue.Cel(0)},
+			vgeo.DirE:      {TagCel: assets.ColorBlue.Cel(0)},
+			vgeo.DirN:      {TagCel: assets.ColorBlue.Cel(0)},
+			vgeo.DirW:      {TagCel: assets.ColorBlue.Cel(0)},
+			vgeo.DirS:      {TagCel: assets.ColorBlue.Cel(0)},
+			vgeo.DirCenter: {TagCel: assets.ColorBlue.Cel(0)},
 		},
 		CornerWH: vgeo.NewWH[uint16](1, 1),
 	}

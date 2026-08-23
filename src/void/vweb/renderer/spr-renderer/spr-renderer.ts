@@ -1,7 +1,7 @@
 import {
-  sprAnimCelOffset,
   sprFlagsOffset,
   sprStride,
+  sprTagCelOffset,
   sprWHOffset,
   sprZOffset
 } from '../../engine/layout.ts'
@@ -87,15 +87,9 @@ export class SprRenderer {
     gl.vertexAttribPointer(0, 2, gl.FLOAT, false, sprStride, 0)
     gl.vertexAttribDivisor(0, 1)
 
-    // aAnimCel (uint16): hi 12 bits = AnimID, lo 4 bits = Cel.
+    // aTagCel (uint16): hi 12 bits = Tag, lo 4 bits = Cel.
     gl.enableVertexAttribArray(1)
-    gl.vertexAttribIPointer(
-      1,
-      1,
-      gl.UNSIGNED_SHORT,
-      sprStride,
-      sprAnimCelOffset
-    )
+    gl.vertexAttribIPointer(1, 1, gl.UNSIGNED_SHORT, sprStride, sprTagCelOffset)
     gl.vertexAttribDivisor(1, 1)
 
     // aZ as uint8.

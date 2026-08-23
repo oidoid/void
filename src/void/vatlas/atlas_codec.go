@@ -102,8 +102,8 @@ func EncodeAtlas(atlas *Atlas) []byte {
 	// drop WH which is known from Anims. encode as uint32 since that's the size
 	// of a cel that will repeat.
 	celXY := make([]uint32, 0)
-	for animIdx, anim := range atlas.Anims {
-		base := animIdx * CelsPerAnim * 4
+	for tag, anim := range atlas.Anims {
+		base := tag * CelsPerAnim * 4
 		for cel := 0; cel < int(anim.Cels); cel++ {
 			x := uint32(atlas.Cels[base+cel*4])
 			y := uint32(atlas.Cels[base+cel*4+1])

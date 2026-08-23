@@ -27,7 +27,7 @@ func TestReadLevel(t *testing.T) {
 </map>`)
 	tilesets := []tilesetmanifest.TilesetManifest{{
 		Path: image, W: 32, H: 16, TileW: 16, TileH: 16,
-		Anims: []vatlas.AnimID{9, 10},
+		Tags: []vatlas.Tag{9, 10},
 	}}
 	index, err := newTilesetIndex(tilesets)
 	if err != nil {
@@ -41,7 +41,7 @@ func TestReadLevel(t *testing.T) {
 		got.Tile.W != 16 || got.Tile.H != 16 {
 		t.Fatalf("level dimensions = %#v", got)
 	}
-	want := []vatlas.AnimID{9, 10, 0, 9}
+	want := []vatlas.Tag{9, 10, 0, 9}
 	if !reflect.DeepEqual(got.Tiles, want) {
 		t.Fatalf("tiles = %v, want %v", got.Tiles, want)
 	}
@@ -59,12 +59,12 @@ func TestReadLevelRejectsLargeTile(t *testing.T) {
 	}
 }
 
-func TestAnimIDForGID(t *testing.T) {
+func TestTagForGID(t *testing.T) {
 	first := tilesetmanifest.TilesetManifest{
-		Anims: []vatlas.AnimID{9, 10},
+		Tags: []vatlas.Tag{9, 10},
 	}
 	second := tilesetmanifest.TilesetManifest{
-		Anims: []vatlas.AnimID{20, 21},
+		Tags: []vatlas.Tag{20, 21},
 	}
 	tilesets := []tmxTileset{
 		{FirstGID: 1, manifest: &first},
@@ -72,7 +72,7 @@ func TestAnimIDForGID(t *testing.T) {
 	}
 	cases := map[string]struct {
 		gid  uint32
-		want vatlas.AnimID
+		want vatlas.Tag
 		err  bool
 	}{
 		"empty":        {0, 0, false},
@@ -85,12 +85,12 @@ func TestAnimIDForGID(t *testing.T) {
 	}
 	for name, test := range cases {
 		t.Run(name, func(t *testing.T) {
-			got, err := animIDForGID(test.gid, tilesets)
+			got, err := tagForGID(test.gid, tilesets)
 			if (err != nil) != test.err {
 				t.Fatalf("err = %v, want error %t", err, test.err)
 			}
 			if got != test.want {
-				t.Fatalf("AnimID = %d, want %d", got, test.want)
+				t.Fatalf("Tag = %d, want %d", got, test.want)
 			}
 		})
 	}

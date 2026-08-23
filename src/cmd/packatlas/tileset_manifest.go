@@ -11,9 +11,9 @@ import (
 )
 
 func genTilesetManifest(
-	assets []*asset, firstAnimID vatlas.AnimID,
+	assets []*asset, firstTag vatlas.Tag,
 ) ([]byte, error) {
-	tilesets, err := newTilesetManifest(assets, firstAnimID)
+	tilesets, err := newTilesetManifest(assets, firstTag)
 	if err != nil {
 		return nil, err
 	}
@@ -22,31 +22,31 @@ func genTilesetManifest(
 }
 
 // native tiles follow public animations in asset, tileset, then native tile-ID
-// order. firstAnimID therefore resolves every native tile directly. The
+// order. firstTag therefore resolves every native tile directly. The
 // build-only result lets packlevels translate each Tiled preview cell to its
-// final AnimID.
+// final tag.
 func newTilesetManifest(
-	assets []*asset, firstAnimID vatlas.AnimID,
+	assets []*asset, firstTag vatlas.Tag,
 ) ([]tilesetmanifest.TilesetManifest, error) {
 	this := make([]tilesetmanifest.TilesetManifest, 0, len(assets))
 	for _, asset := range assets {
 		if len(asset.Tilesets) == 0 {
 			continue
 		}
-		tileset, err := mapTileset(asset, firstAnimID)
+		tileset, err := mapTileset(asset, firstTag)
 		if err != nil {
 			return nil, err
 		}
 		this = append(this, tileset)
 		for tilesetI := range asset.Tilesets {
-			firstAnimID += vatlas.AnimID(asset.Tilesets[tilesetI].Header.Count)
+			firstTag += vatlas.Tag(asset.Tilesets[tilesetI].Header.Count)
 		}
 	}
 	return this, nil
 }
 
 func mapTileset(
-	asset *asset, firstAnimID vatlas.AnimID,
+	asset *asset, firstTag vatlas.Tag,
 ) (tilesetmanifest.TilesetManifest, error) {
 	if len(asset.Frames) == 0 {
 		return tilesetmanifest.TilesetManifest{}, fmt.Errorf(
@@ -75,7 +75,7 @@ func mapTileset(
 		Path: filepath.ToSlash(filepath.Clean(asset.name)),
 		W:    asset.W, H: asset.H,
 		TileW: uint8(first.Header.W), TileH: uint8(first.Header.H),
-		Anims: make([]vatlas.AnimID, cols*rows),
+		Tags: make([]vatlas.Tag, cols*rows),
 	}
 	mapped := false
 	for layerI, layer := range asset.Layers {
@@ -91,9 +91,9 @@ func mapTileset(
 			)
 		}
 		tileset := &asset.Tilesets[layer.Tileset]
-		tilesetAnimID := firstAnimID
+		tilesetTag := firstTag
 		for tilesetI := range int(layer.Tileset) {
-			tilesetAnimID += vatlas.AnimID(
+			tilesetTag += vatlas.Tag(
 				asset.Tilesets[tilesetI].Header.Count,
 			)
 		}
@@ -112,7 +112,7 @@ func mapTileset(
 			)
 		}
 		if err := mapTileCel(
-			&this, cols, rows, tileset, &cel, tilesetAnimID,
+			&this, cols, rows, tileset, &cel, tilesetTag,
 		); err != nil {
 			return tilesetmanifest.TilesetManifest{}, fmt.Errorf(
 				"%s: layer %q: %w", asset.name, layer.Name, err,
@@ -133,7 +133,7 @@ func mapTileCel(
 	cols, rows int,
 	tileset *vatlas.AseTileset,
 	cel *assetCel,
-	firstAnimID vatlas.AnimID,
+	firstTag vatlas.Tag,
 ) error {
 	if cel.Tilemap.Bits != 8 && cel.Tilemap.Bits != 16 && cel.Tilemap.Bits != 32 {
 		return fmt.Errorf("%d-bit tile IDs are unsupported", cel.Tilemap.Bits)
@@ -166,8 +166,8 @@ func mapTileCel(
 				vatlas.AseTilesetZeroEmptyMask != 0 {
 				continue
 			}
-			tilesetManifest.Anims[dstY*cols+dstX] =
-				firstAnimID + vatlas.AnimID(tileID)
+			tilesetManifest.Tags[dstY*cols+dstX] =
+				firstTag + vatlas.Tag(tileID)
 		}
 	}
 	return nil

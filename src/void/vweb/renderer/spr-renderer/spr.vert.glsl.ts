@@ -7,8 +7,8 @@ uniform bool uPixel;
 uniform highp usampler2D uAtlasCels;
 uniform highp vec2 uAtlasSize;
 
-const highp uint animCelMask = 0xfu;
-const highp uint animCelShift = 4u;
+const highp uint tagCelMask = 0xfu;
+const highp uint tagCelShift = 4u;
 const highp float celsPerAnim = 16.;
 const highp uint sprHiddenMask = 1u;
 const highp uint sprHiddenShift = 0u;
@@ -23,7 +23,7 @@ const highp float sprDepthYRanks = 4096.;
 const highp float sprDepthRange = 65536.;
 
 layout(location = 0) in highp vec2 aXY; // spr origin.
-layout(location = 1) in highp uint aAnimCel; // hi 12 bits = AnimID, lo 4 bits = Cel.
+layout(location = 1) in highp uint aTagCel; // hi 12 bits = Tag, lo 4 bits = Cel.
 layout(location = 2) in highp uint aZ;
 layout(location = 3) in highp uvec2 aWH; // destination size; zero uses source cel size.
 layout(location = 4) in highp uint aFlags;
@@ -44,16 +44,16 @@ const highp vec2 corners[6] = vec2[6](
 );
 
 void main() {
-  highp uint animID = aAnimCel >> animCelShift;
+  highp uint tag = aTagCel >> tagCelShift;
   bool hidden = (aFlags >> sprHiddenShift & sprHiddenMask) != 0u;
-  if (animID == 0u || hidden) {
+  if (tag == 0u || hidden) {
     gl_Position = vec4(2., 0., 0., 1.);
     return;
   }
 
   highp uint celI =
-    (aAnimCel + uint(floor(uNowMillis * celsPerAnim / 1000.))) & animCelMask;
-  highp uvec4 cel = texelFetch(uAtlasCels, ivec2(int(celI), int(animID)), 0);
+    (aTagCel + uint(floor(uNowMillis * celsPerAnim / 1000.))) & tagCelMask;
+  highp uvec4 cel = texelFetch(uAtlasCels, ivec2(int(celI), int(tag)), 0);
   highp vec2 celMin = vec2(float(cel.x), float(cel.y));
   highp vec2 celWH = vec2(float(cel.z), float(cel.w));
   highp vec2 wh = aWH.x != sprWHSource ? vec2(float(aWH.x), float(aWH.y)) : celWH;

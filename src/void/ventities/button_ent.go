@@ -25,10 +25,10 @@ const (
 )
 
 type ButtonPals struct {
-	Base      vatlas.AnimID
-	Focused   vatlas.AnimID
-	On        vatlas.AnimID
-	FocusedOn vatlas.AnimID
+	Base      vatlas.Tag
+	Focused   vatlas.Tag
+	On        vatlas.Tag
+	FocusedOn vatlas.Tag
 }
 
 type ButtonEnt struct {
@@ -149,7 +149,7 @@ func (this *ButtonEnt) Update(
 	return loop
 }
 
-func (this *ButtonEnt) pal(pals ButtonPals, pressed bool) vatlas.AnimID {
+func (this *ButtonEnt) pal(pals ButtonPals, pressed bool) vatlas.Tag {
 	on := this.On
 	if this.Type == ButtonTypeToggle && pressed {
 		on = !on

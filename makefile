@@ -51,7 +51,7 @@ build-levels: build-atlas; $(call packlevels_demo,)
 build-favicon:; $(favicon_demo)
 build-web: build-demo build-atlas; $(call pack_demo,--minify --one-file)
 
-clean:; rm --force --recursive dist/ src/demo/assets/atlas_bin.go src/demo/assets/atlas_ids.go
+clean:; rm --force --recursive dist/ src/demo/assets/atlas_bin.go src/demo/assets/atlas_tags.go
 
 # to-do:
 # go generate

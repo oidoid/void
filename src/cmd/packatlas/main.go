@@ -125,13 +125,13 @@ func packAtlas(argv *Argv) error {
 	); err != nil {
 		return err
 	}
-	idsSrc, err := genIDs(argv.Pkg, stemTags)
+	tagsSrc, err := genTags(argv.Pkg, stemTags)
 	if err != nil {
 		return err
 	}
 	if err := os.WriteFile(
-		filepath.Join(argv.CodeOut, argv.Name+"_ids.go"),
-		idsSrc,
+		filepath.Join(argv.CodeOut, argv.Name+"_tags.go"),
+		tagsSrc,
 		0o644,
 	); err != nil {
 		return err
@@ -140,7 +140,7 @@ func packAtlas(argv *Argv) error {
 		return nil
 	}
 	tilesetManifestBin, err := genTilesetManifest(
-		assets, vatlas.AnimID(len(stemTags)),
+		assets, vatlas.Tag(len(stemTags)),
 	)
 	if err != nil {
 		return err
@@ -168,7 +168,7 @@ func genData(pkg string, data []byte) ([]byte, error) {
 	return format.Source([]byte(str.String()))
 }
 
-func genIDs(pkg string, stemTags []stemTag) ([]byte, error) {
+func genTags(pkg string, stemTags []stemTag) ([]byte, error) {
 	var str strings.Builder
 	fmt.Fprintf(
 		&str,
@@ -178,7 +178,7 @@ func genIDs(pkg string, stemTags []stemTag) ([]byte, error) {
 	)
 	for i, stemTag := range stemTags {
 		if i == 0 {
-			fmt.Fprintf(&str, "\t%s vatlas.AnimID = iota\n", stemTag.qualifiedTag())
+			fmt.Fprintf(&str, "\t%s vatlas.Tag = iota\n", stemTag.qualifiedTag())
 		} else {
 			fmt.Fprintf(&str, "\t%s\n", stemTag.qualifiedTag())
 		}

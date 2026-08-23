@@ -29,7 +29,7 @@ func TestNewP1Ent(t *testing.T) {
 
 func TestP1EntTurnsRightAtWalls(t *testing.T) {
 	const wallGap = p1MaxMove / 256 // eight collision bisections.
-	tiles := make([]vatlas.AnimID, 64)
+	tiles := make([]vatlas.Tag, 64)
 	for x := range 8 {
 		tiles[x] = assets.BlockStripesGrey
 		tiles[56+x] = assets.BlockStripesGrey

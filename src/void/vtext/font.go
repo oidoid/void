@@ -47,13 +47,13 @@ type Font struct {
 	charWidths [256]uint8
 	// characters that descend below the baseline.
 	descends [32]uint8
-	// the first animation ID in the atlas for this font's glyphs. character
-	// sprs are indexed as FirstAnimID + charCode.
-	FirstAnimID vatlas.AnimID
+	// the first atlas tag for this font's glyphs. character
+	// sprs are indexed as FirstTag + charCode.
+	FirstTag vatlas.Tag
 }
 
-func (this *Font) AnimID(ch rune) vatlas.AnimID {
-	return this.FirstAnimID + vatlas.AnimID(ch)
+func (this *Font) Tag(ch rune) vatlas.Tag {
+	return this.FirstTag + vatlas.Tag(ch)
 }
 
 const hexChars = "0123456789abcdef"

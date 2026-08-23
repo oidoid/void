@@ -19,10 +19,10 @@ type Atlas struct {
 func NewAtlas(anims []Anim, celXY []uint16) Atlas {
 	cels := make([]uint16, len(anims)*CelsPerAnim*4)
 	cellI := 0
-	for animI, anim := range anims {
+	for tag, anim := range anims {
 		for cel := 0; cel < CelsPerAnim; cel++ {
 			wrap := cel % int(anim.Cels)
-			u16 := (animI*CelsPerAnim + cel) * 4
+			u16 := (tag*CelsPerAnim + cel) * 4
 			cels[u16+0] = celXY[cellI+wrap*2]
 			cels[u16+1] = celXY[cellI+wrap*2+1]
 			cels[u16+2] = anim.W

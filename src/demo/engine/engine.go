@@ -52,7 +52,7 @@ const (
 
 func New() *Engine {
 	font := vtext.MemProp5x6
-	font.FirstAnimID = assets.MemProp5x600
+	font.FirstTag = assets.MemProp5x600
 	this := &Engine{
 		Engine: vengine.New[*Engine](&vengine.EngineOpts{
 			Font:       font,

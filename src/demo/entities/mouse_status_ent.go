@@ -39,7 +39,7 @@ func (this *MouseStatusEnt) Update(gam game.Game) vgame.Status {
 	xy := vgeo.NewXY(float32(hudXY.X), float32(hudXY.Y))
 	*sprs = append(
 		*sprs,
-		vgfx.Spr{XY: xy, AnimCel: assets.MouseStatusBase.Cel(0), Z: gfx.ZUIWidget},
+		vgfx.Spr{XY: xy, TagCel: assets.MouseStatusBase.Cel(0), Z: gfx.ZUIWidget},
 	)
 	clicks := in.Ptr.Clicks()
 	this.addOverlay(sprs, assets.MouseStatusPrimary, xy, clicks&vin.ClickPrimary != 0)
@@ -54,7 +54,7 @@ func (this *MouseStatusEnt) Update(gam game.Game) vgame.Status {
 
 func (this *MouseStatusEnt) addOverlay(
 	sprs *[]vgfx.Spr,
-	animID vatlas.AnimID,
+	tag vatlas.Tag,
 	xy vgeo.XY[float32],
 	on bool,
 ) {
@@ -62,6 +62,6 @@ func (this *MouseStatusEnt) addOverlay(
 		return
 	}
 	*sprs = append(
-		*sprs, vgfx.Spr{XY: xy, AnimCel: animID.Cel(0), Z: gfx.ZUIWidget},
+		*sprs, vgfx.Spr{XY: xy, TagCel: tag.Cel(0), Z: gfx.ZUIWidget},
 	)
 }

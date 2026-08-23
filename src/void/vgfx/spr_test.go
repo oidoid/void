@@ -13,8 +13,8 @@ func TestSprLayout(t *testing.T) {
 	if SprStride != 20 {
 		t.Fatalf("SprStride = %d, want 20", SprStride)
 	}
-	if got := unsafe.Offsetof(spr.AnimCel); got != 8 {
-		t.Fatalf("AnimCel offset = %d, want 8", got)
+	if got := unsafe.Offsetof(spr.TagCel); got != 8 {
+		t.Fatalf("TagCel offset = %d, want 8", got)
 	}
 	if got := unsafe.Offsetof(spr.Z); got != 10 {
 		t.Fatalf("Z offset = %d, want 10", got)
@@ -31,7 +31,7 @@ func TestSprPal(t *testing.T) {
 	spr := Spr{flags: sprHiddenMask<<sprHiddenShift |
 		sprFlipYMask<<sprFlipYShift |
 		sprStretchMask<<sprStretchShift}
-	spr.SetPal(vatlas.AnimID(0xff))
+	spr.SetPal(vatlas.Tag(0xff))
 	if got := spr.Pal(); got != 0xff {
 		t.Fatalf("Pal() = %d, want %d", got, 0xff)
 	}
@@ -51,7 +51,7 @@ func TestSprPal(t *testing.T) {
 
 func TestSprZTop(t *testing.T) {
 	spr := Spr{flags: sprHiddenMask<<sprHiddenShift |
-		sprPalAnimMask<<sprPalAnimShift}
+		sprPalTagMask<<sprPalTagShift}
 
 	if spr.ZTop() {
 		t.Fatal("ZTop() = true, want false")
@@ -62,9 +62,9 @@ func TestSprZTop(t *testing.T) {
 		t.Fatal("ZTop() = false, want true")
 	}
 	if spr.flags&(sprHiddenMask<<sprHiddenShift|
-		sprPalAnimMask<<sprPalAnimShift) !=
+		sprPalTagMask<<sprPalTagShift) !=
 		sprHiddenMask<<sprHiddenShift|
-			sprPalAnimMask<<sprPalAnimShift {
+			sprPalTagMask<<sprPalTagShift {
 		t.Fatalf("SetZTop(true) changed unrelated flags: %b", spr.flags)
 	}
 

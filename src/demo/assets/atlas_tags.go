@@ -4,7 +4,7 @@ package assets
 import "github.com/oidoid/void/src/void/vatlas"
 
 const (
-	VoidNil vatlas.AnimID = iota
+	VoidNil vatlas.Tag = iota
 	PalWidget
 	PalWidgetFocused
 	PalWidgetOn

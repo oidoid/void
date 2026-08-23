@@ -7,8 +7,8 @@ import "github.com/oidoid/void/src/void/vatlas"
 // this path, dimensions, and cell order, but the tile pipeline does not copy
 // its pixels into the atlas as tiles: packatlas extracts each embedded native
 // tile image instead. the generic sprite pipeline may still pack the rendered
-// Aseprite frame independently. `Anims` maps each preview cell to its final
-// packed native-tile animation ID. native tiles cannot animate, so every
+// Aseprite frame independently. `Tags` maps each preview cell to its final
+// packed native-tile tag. native tiles cannot animate, so every
 // referenced atlas animation has one cel.
 type TilesetManifest struct {
 	// normalized Aseprite path matched against the TSX image path.
@@ -21,10 +21,10 @@ type TilesetManifest struct {
 	TileW uint8 `json:"tileW"`
 	// native tileset cell height in pixels.
 	TileH uint8 `json:"tileH"`
-	// indexes final atlas animation IDs by row-major preview canvas cell after
+	// indexes final atlas tags by row-major preview canvas cell after
 	// resolving the Aseprite native tile stored in each cell. adjacent cells
-	// need not map to contiguous or increasing IDs; eg, `[164, 163, 168]` maps
-	// preview cells 0, 1, and 2 to atlas animation IDs 164, 163, and 168. every
-	// ID references one cel.
-	Anims []vatlas.AnimID `json:"anims"`
+	// need not map to contiguous or increasing tags; eg, `[164, 163, 168]` maps
+	// preview cells 0, 1, and 2 to atlas tags 164, 163, and 168. every tag
+	// references one cel.
+	Tags []vatlas.Tag `json:"tags"`
 }

@@ -38,10 +38,10 @@ func TestMouseStatusPointerlocked(t *testing.T) {
 				t.Errorf("sprites = %v, want %v", got, test.sprsLen)
 				return
 			}
-			if test.locked && sprs[1].AnimCel != assets.MouseStatusLocked.Cel(0) {
+			if test.locked && sprs[1].TagCel != assets.MouseStatusLocked.Cel(0) {
 				t.Errorf(
-					"lock AnimCel = %v, want %v",
-					sprs[1].AnimCel,
+					"lock TagCel = %v, want %v",
+					sprs[1].TagCel,
 					assets.MouseStatusLocked.Cel(0),
 				)
 			}
