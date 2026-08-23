@@ -81,7 +81,7 @@ lint-static:; go tool staticcheck ./src/...
 lint-vet:; go vet ./src/...
 lint-web:; npx lint > /dev/null
 
-test: dependencies .WAIT build test-fmt-go test-fmt-mod lint test-go test-web typecheck-web .WAIT fat-check
+test: dependencies .WAIT build .WAIT test-fmt-go test-fmt-mod lint test-go test-web typecheck-web .WAIT fat-check
 test-fmt-go:
 	out=$$(gofmt -l -s ./src/)
 	[ -z "$$out" ] || { printf >&2 "unformatted files:\n%s\n" "$$out"; false; }
