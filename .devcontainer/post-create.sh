@@ -14,12 +14,12 @@ sudo dpkg --install /tmp/tinygo.deb
 
 # wasm-opt.
 curl \
-  --location https://github.com/WebAssembly/binaryen/releases/download/version_130/binaryen-version_130-x86_64-linux.tar.gz |
+  --location https://github.com/WebAssembly/binaryen/releases/download/version_132/binaryen-version_132-x86_64-linux.tar.gz |
 sudo tar --extract --gzip --directory /usr/local/bin/ --strip-components=2 --wildcards '*/bin/wasm-opt'
 
 # watchexec.
 curl \
-  --location https://github.com/watchexec/watchexec/releases/download/v2.5.1/watchexec-2.5.1-x86_64-unknown-linux-musl.deb \
+  --location https://github.com/watchexec/watchexec/releases/download/v2.6.1/watchexec-2.6.1-x86_64-unknown-linux-musl.deb \
   --output /tmp/watchexec.deb
 sudo dpkg --install /tmp/watchexec.deb
 
