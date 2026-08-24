@@ -1,11 +1,11 @@
 package levelhooks
 
 import (
-	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/demo/engine"
 	"github.com/oidoid/void/src/demo/entities"
 	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/demo/hooks"
+	"github.com/oidoid/void/src/demo/tags"
 	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
@@ -19,7 +19,7 @@ const cursorKeyVel = float32(100) // px / sec.
 func InitInit(gam *engine.Engine) {
 	gam.RegisterPreupdate(hooks.UpdateCam)
 	gam.RegisterPreupdate(hooks.UpdateLayers)
-	anim := gam.Atlas.Anims[int(assets.BackpackerWalkRight)]
+	anim := gam.Atlas.Anims[int(tags.BackpackerWalkRight)]
 	tileW := int32(gam.Level.Tile.W)
 	tileH := int32(gam.Level.Tile.H)
 	p1 := entities.NewP1Ent(
@@ -33,10 +33,10 @@ func InitInit(gam *engine.Engine) {
 
 	cursor := new(ventities.CursorEnt)
 	*cursor = ventities.NewCursorEnt(
-		assets.CursorPoint,
+		tags.CursorPoint,
 		0,
 		cursorKeyVel,
-		gam.Atlas.Anims[int(assets.CursorPoint)].Hitbox,
+		gam.Atlas.Anims[int(tags.CursorPoint)].Hitbox,
 		gfx.ZCursor,
 	)
 	gam.Cursor = cursor
@@ -84,7 +84,7 @@ func InitInit(gam *engine.Engine) {
 	superballButtons.Add(zeroBtn)
 	gam.RegisterEntUpdate(superballButtons)
 
-	camStatus := entities.NewCamStatusEnt(assets.ColorBlue, gfx.ZUIWidget)
+	camStatus := entities.NewCamStatusEnt(tags.ColorBlue, gfx.ZUIWidget)
 	camStatus.Anchor = ventities.AnchorEnt{
 		Dir:    vgeo.DirW,
 		Margin: vgeo.NewXY[float32](4, 0),
@@ -93,7 +93,7 @@ func InitInit(gam *engine.Engine) {
 	gam.Register(&camStatus)
 
 	drawStatus := entities.NewDrawStatusEnt(
-		assets.ColorBlue,
+		tags.ColorBlue,
 		vgeo.DirSE,
 		vgeo.Edge[int16]{E: 4, N: 4, W: 4, S: 4},
 	)
@@ -126,7 +126,7 @@ func UpdateInit(gam *engine.Engine) vgame.Status {
 func newEdgeEnt(z vgfx.Z, w, h uint16) ventities.NinePatchEnt {
 	var patches [9]vgfx.Spr
 	for i := range patches {
-		patches[i].SetTag(assets.ColorBlack)
+		patches[i].SetTag(tags.ColorBlack)
 	}
 	patches[vgeo.DirCenter] = vgfx.Spr{}
 	ent := ventities.NinePatchEnt{
@@ -139,18 +139,18 @@ func newEdgeEnt(z vgfx.Z, w, h uint16) ventities.NinePatchEnt {
 func newCornerEdgeEnt(z vgfx.Z) ventities.NinePatchEnt {
 	const cornerTopLeftWH = 16
 	ent := newEdgeEnt(z, cornerTopLeftWH, cornerTopLeftWH)
-	ent.PatchByDir[vgeo.DirE].SetTag(assets.ViewportEdgeW)
+	ent.PatchByDir[vgeo.DirE].SetTag(tags.ViewportEdgeW)
 	ent.PatchByDir[vgeo.DirE].SetFlipX(true)
-	ent.PatchByDir[vgeo.DirNE].SetTag(assets.ViewportEdgeNW)
+	ent.PatchByDir[vgeo.DirNE].SetTag(tags.ViewportEdgeNW)
 	ent.PatchByDir[vgeo.DirNE].SetFlipX(true)
-	ent.PatchByDir[vgeo.DirN].SetTag(assets.ViewportEdgeN)
-	ent.PatchByDir[vgeo.DirNW].SetTag(assets.ViewportEdgeNW)
-	ent.PatchByDir[vgeo.DirW].SetTag(assets.ViewportEdgeW)
-	ent.PatchByDir[vgeo.DirSW].SetTag(assets.ViewportEdgeNW)
+	ent.PatchByDir[vgeo.DirN].SetTag(tags.ViewportEdgeN)
+	ent.PatchByDir[vgeo.DirNW].SetTag(tags.ViewportEdgeNW)
+	ent.PatchByDir[vgeo.DirW].SetTag(tags.ViewportEdgeW)
+	ent.PatchByDir[vgeo.DirSW].SetTag(tags.ViewportEdgeNW)
 	ent.PatchByDir[vgeo.DirSW].SetFlipY(true)
-	ent.PatchByDir[vgeo.DirS].SetTag(assets.ViewportEdgeN)
+	ent.PatchByDir[vgeo.DirS].SetTag(tags.ViewportEdgeN)
 	ent.PatchByDir[vgeo.DirS].SetFlipY(true)
-	ent.PatchByDir[vgeo.DirSE].SetTag(assets.ViewportEdgeNW)
+	ent.PatchByDir[vgeo.DirSE].SetTag(tags.ViewportEdgeNW)
 	ent.PatchByDir[vgeo.DirSE].SetFlipX(true)
 	ent.PatchByDir[vgeo.DirSE].SetFlipY(true)
 	return ent
@@ -158,7 +158,7 @@ func newCornerEdgeEnt(z vgfx.Z) ventities.NinePatchEnt {
 
 func newFillEnt(z vgfx.Z) ventities.NinePatchEnt {
 	var patches [9]vgfx.Spr
-	patches[vgeo.DirCenter].SetTag(assets.GridCell)
+	patches[vgeo.DirCenter].SetTag(tags.GridCell)
 	ent := ventities.NinePatchEnt{PatchByDir: patches}
 	ent.SetZ(z)
 	return ent

@@ -1,9 +1,9 @@
 package entities
 
 import (
-	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/demo/game"
 	"github.com/oidoid/void/src/demo/gfx"
+	"github.com/oidoid/void/src/demo/tags"
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
@@ -99,22 +99,22 @@ func (this *P1Ent) hitsWall(
 			tileX = maxX
 		}
 		first := lvl.TileAt(vgeo.NewXY(tileX, minY))
-		if first == assets.BlockStripesGrey {
+		if first == tags.BlockStripesGrey {
 			return true
 		}
 		last := lvl.TileAt(vgeo.NewXY(tileX, maxY))
-		return last == assets.BlockStripesGrey
+		return last == tags.BlockStripesGrey
 	case vgeo.DirN, vgeo.DirS:
 		tileY := minY
 		if this.Dir == vgeo.DirS {
 			tileY = maxY
 		}
 		first := lvl.TileAt(vgeo.NewXY(minX, tileY))
-		if first == assets.BlockStripesGrey {
+		if first == tags.BlockStripesGrey {
 			return true
 		}
 		last := lvl.TileAt(vgeo.NewXY(maxX, tileY))
-		return last == assets.BlockStripesGrey
+		return last == tags.BlockStripesGrey
 	}
 	return false
 }
@@ -124,7 +124,7 @@ func (this *P1Ent) turnRight() {
 }
 
 func (this *P1Ent) spr() vgfx.Spr {
-	tag := assets.BackpackerWalkRight
+	tag := tags.BackpackerWalkRight
 	spr := vgfx.Spr{
 		TagCel: tag.Cel(0),
 		XY:     this.XY,
@@ -133,11 +133,11 @@ func (this *P1Ent) spr() vgfx.Spr {
 	}
 	switch this.Dir {
 	case vgeo.DirN:
-		spr.SetTag(assets.BackpackerWalkUp)
+		spr.SetTag(tags.BackpackerWalkUp)
 	case vgeo.DirW:
 		spr.SetFlipX(true)
 	case vgeo.DirS:
-		spr.SetTag(assets.BackpackerWalkDown)
+		spr.SetTag(tags.BackpackerWalkDown)
 	}
 	return spr
 }

@@ -3,7 +3,7 @@ package entities
 import (
 	"testing"
 
-	"github.com/oidoid/void/src/demo/assets"
+	"github.com/oidoid/void/src/demo/tags"
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vlevels"
@@ -31,12 +31,12 @@ func TestP1EntTurnsRightAtWalls(t *testing.T) {
 	const wallGap = p1MaxMove / 256 // eight collision bisections.
 	tiles := make([]vatlas.Tag, 64)
 	for x := range 8 {
-		tiles[x] = assets.BlockStripesGrey
-		tiles[56+x] = assets.BlockStripesGrey
+		tiles[x] = tags.BlockStripesGrey
+		tiles[56+x] = tags.BlockStripesGrey
 	}
 	for y := range 8 {
-		tiles[y*8] = assets.BlockStripesGrey
-		tiles[y*8+7] = assets.BlockStripesGrey
+		tiles[y*8] = tags.BlockStripesGrey
+		tiles[y*8+7] = tags.BlockStripesGrey
 	}
 	level := vlevels.Level{
 		WH:    vgeo.NewWH[int32](128, 128),

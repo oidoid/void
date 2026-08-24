@@ -10,7 +10,7 @@ type Level struct {
 	vgeo.WH[int32]
 	// cell dimensions in pixels.
 	Tile vgeo.WH[uint8]
-	// single-cel atlas tags in row-major order; length is W/Tile.W*H/Tile.H,
+	// single-cel tags in row-major order; length is W/Tile.W*H/Tile.H,
 	// and zero leaves a cell empty.
 	Tiles []vatlas.Tag
 }

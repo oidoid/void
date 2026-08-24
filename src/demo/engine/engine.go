@@ -8,6 +8,7 @@ import (
 	"github.com/oidoid/void/src/demo/game"
 	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/demo/levels"
+	"github.com/oidoid/void/src/demo/tags"
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/ventities"
@@ -52,7 +53,7 @@ const (
 
 func New() *Engine {
 	font := vtext.MemProp5x6
-	font.FirstTag = assets.MemProp5x600
+	font.FirstTag = tags.MemProp5x600
 	this := &Engine{
 		Engine: vengine.New[*Engine](&vengine.EngineOpts{
 			Font:       font,
@@ -80,10 +81,10 @@ func New() *Engine {
 	this.Layer(gfx.LayerGrid).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerGrid).BlendMode = vgfx.LayerBlendModeMultiply
 	this.Atlas = vatlas.DecodeAtlas(assets.AtlasBin)
-	anim := this.Atlas.Anims[int(assets.SuperballDefault)]
+	anim := this.Atlas.Anims[int(tags.SuperballDefault)]
 	diameter := float32(anim.Hitbox.Max.X - anim.Hitbox.Min.X)
 	// omit level edge.
-	lvl := vgeo.NewBox[float32](
+	lvl := vgeo.NewBox(
 		float32(this.Level.Tile.W),
 		float32(this.Level.Tile.H),
 		float32(this.Level.W-int32(this.Level.Tile.W)),

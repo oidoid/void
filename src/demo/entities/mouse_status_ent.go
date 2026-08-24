@@ -1,9 +1,9 @@
 package entities
 
 import (
-	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/demo/game"
 	"github.com/oidoid/void/src/demo/gfx"
+	"github.com/oidoid/void/src/demo/tags"
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgame"
@@ -39,13 +39,13 @@ func (this *MouseStatusEnt) Update(gam game.Game) vgame.Status {
 	xy := vgeo.NewXY(float32(hudXY.X), float32(hudXY.Y))
 	*sprs = append(
 		*sprs,
-		vgfx.Spr{XY: xy, TagCel: assets.MouseStatusBase.Cel(0), Z: gfx.ZUIWidget},
+		vgfx.Spr{XY: xy, TagCel: tags.MouseStatusBase.Cel(0), Z: gfx.ZUIWidget},
 	)
 	clicks := in.Ptr.Clicks()
-	this.addOverlay(sprs, assets.MouseStatusPrimary, xy, clicks&vin.ClickPrimary != 0)
-	this.addOverlay(sprs, assets.MouseStatusSecondary, xy, clicks&vin.ClickSecondary != 0)
-	this.addOverlay(sprs, assets.MouseStatusAux, xy, clicks&vin.ClickAux != 0)
-	this.addOverlay(sprs, assets.MouseStatusLocked, xy, gam.Pointerlock())
+	this.addOverlay(sprs, tags.MouseStatusPrimary, xy, clicks&vin.ClickPrimary != 0)
+	this.addOverlay(sprs, tags.MouseStatusSecondary, xy, clicks&vin.ClickSecondary != 0)
+	this.addOverlay(sprs, tags.MouseStatusAux, xy, clicks&vin.ClickAux != 0)
+	this.addOverlay(sprs, tags.MouseStatusLocked, xy, gam.Pointerlock())
 	if in.Dirty {
 		return vgame.Loop
 	}

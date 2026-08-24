@@ -126,7 +126,7 @@ func filterAnims(assets []*asset) (anims []anim, err error) {
 		for _, tag := range asset.TagSpans {
 			k := stemTag{stem: stem, tag: tag.Name}
 			if seen[k] {
-				return nil, fmt.Errorf("atlas tag %q duplicate", k.qualifiedTag())
+				return nil, fmt.Errorf("tag %q duplicate", k.qualifiedTag())
 			}
 			seen[k] = true
 			anims = append(anims, anim{stemTag: k, asset: asset, tagSpan: tag})
@@ -516,7 +516,7 @@ func parseAtlas(
 	packed = append(packed, tiles...)
 	if len(packed) > vatlas.MaxTags {
 		return nil, nil, nil, fmt.Errorf(
-			"atlas tag count %d exceeds %d",
+			"tag count %d exceeds %d",
 			len(packed), vatlas.MaxTags,
 		)
 	}
@@ -609,7 +609,7 @@ func parseBoxes(
 		for _, k := range assetSlice.Keys {
 			if k.Header.Bounds != first {
 				return hit, hurt, fmt.Errorf(
-					"atlas tag %q hitbox bounds varies across frames", tag,
+					"tag %q hitbox bounds varies across frames", tag,
 				)
 			}
 		}
@@ -625,7 +625,7 @@ func parseBoxes(
 		case vatlas.AseRGBA{B: 255, A: 255}:
 			hit, hurt = box, box
 		default:
-			return hit, hurt, fmt.Errorf("atlas tag %q hitbox color unsupported", tag)
+			return hit, hurt, fmt.Errorf("tag %q hitbox color unsupported", tag)
 		}
 	}
 	return

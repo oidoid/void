@@ -3,10 +3,10 @@ package entities_test
 import (
 	"testing"
 
-	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/demo/engine"
 	"github.com/oidoid/void/src/demo/entities"
 	"github.com/oidoid/void/src/demo/gfx"
+	"github.com/oidoid/void/src/demo/tags"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vin"
 )
@@ -38,11 +38,11 @@ func TestMouseStatusPointerlocked(t *testing.T) {
 				t.Errorf("sprites = %v, want %v", got, test.sprsLen)
 				return
 			}
-			if test.locked && sprs[1].TagCel != assets.MouseStatusLocked.Cel(0) {
+			if test.locked && sprs[1].TagCel != tags.MouseStatusLocked.Cel(0) {
 				t.Errorf(
 					"lock TagCel = %v, want %v",
 					sprs[1].TagCel,
-					assets.MouseStatusLocked.Cel(0),
+					tags.MouseStatusLocked.Cel(0),
 				)
 			}
 		})

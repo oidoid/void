@@ -1,10 +1,10 @@
 package hooks
 
 import (
-	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/demo/engine"
 	"github.com/oidoid/void/src/demo/entities"
 	"github.com/oidoid/void/src/demo/gfx"
+	"github.com/oidoid/void/src/demo/tags"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vmem/vvec"
@@ -35,7 +35,7 @@ func UpdateSuperballButtons(
 	)
 
 	rnd := gam.Random
-	ballRadius := float32(gam.Atlas.Anims[int(assets.SuperballDefault)].W) / 2
+	ballRadius := float32(gam.Atlas.Anims[int(tags.SuperballDefault)].W) / 2
 	ents := vec.Vals()
 	loop := vgame.Pause
 	// to-do: lot of places we actually want an XYWH not a min-max Box.

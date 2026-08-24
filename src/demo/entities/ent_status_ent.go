@@ -3,9 +3,9 @@ package entities
 import (
 	"strings"
 
-	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/demo/game"
 	"github.com/oidoid/void/src/demo/gfx"
+	"github.com/oidoid/void/src/demo/tags"
 	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
@@ -25,11 +25,11 @@ func NewEntStatusEnt() EntStatusEnt {
 	this := EntStatusEnt{}
 	this.Fill = ventities.NinePatchEnt{
 		PatchByDir: [9]vgfx.Spr{
-			vgeo.DirE:      {TagCel: assets.ColorBlue.Cel(0)},
-			vgeo.DirN:      {TagCel: assets.ColorBlue.Cel(0)},
-			vgeo.DirW:      {TagCel: assets.ColorBlue.Cel(0)},
-			vgeo.DirS:      {TagCel: assets.ColorBlue.Cel(0)},
-			vgeo.DirCenter: {TagCel: assets.ColorBlue.Cel(0)},
+			vgeo.DirE:      {TagCel: tags.ColorBlue.Cel(0)},
+			vgeo.DirN:      {TagCel: tags.ColorBlue.Cel(0)},
+			vgeo.DirW:      {TagCel: tags.ColorBlue.Cel(0)},
+			vgeo.DirS:      {TagCel: tags.ColorBlue.Cel(0)},
+			vgeo.DirCenter: {TagCel: tags.ColorBlue.Cel(0)},
 		},
 		CornerWH: vgeo.NewWH[uint16](1, 1),
 	}

@@ -178,7 +178,7 @@ func readLevel(path string, tilesets tilesetIndex) (vlevels.Level, error) {
 	}, nil
 }
 
-// resolves a Tiled global tile ID to its final atlas tag.
+// resolves a Tiled global tile ID to its final tag.
 func tagForGID(gid uint32, tilesets []tmxTileset) (vatlas.Tag, error) {
 	if gid == 0 {
 		return 0, nil
@@ -193,7 +193,7 @@ func tagForGID(gid uint32, tilesets []tmxTileset) (vatlas.Tag, error) {
 	if gid < tileset.FirstGID {
 		return 0, fmt.Errorf("GID %d has no tileset", gid)
 	}
-	// Tiled GID -> preview canvas cell -> Aseprite native tile -> final atlas tag.
+	// Tiled GID -> preview canvas cell -> Aseprite native tile -> final tag.
 	// adjacent preview cells may resolve to non-contiguous tags.
 	localID := gid - tileset.FirstGID
 	if localID >= uint32(len(tileset.manifest.Tags)) {

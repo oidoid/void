@@ -2,8 +2,8 @@
 package entities
 
 import (
-	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/demo/gfx"
+	"github.com/oidoid/void/src/demo/tags"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
@@ -52,7 +52,7 @@ func (this *SuperballEnt) Draw(
 ) vgame.Status {
 	if clip.HitsXY(this.XY) {
 		spr := vgfx.Spr{
-			TagCel: assets.SuperballDefault.Cel(0),
+			TagCel: tags.SuperballDefault.Cel(0),
 			XY:     this.XY,
 			Z:      gfx.ZSuperball,
 		}

@@ -1,8 +1,8 @@
 package entities
 
 import (
-	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/demo/gfx"
+	"github.com/oidoid/void/src/demo/tags"
 	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
@@ -64,16 +64,16 @@ func newSuperballButtonEnt(
 		ButtonEnt: ventities.ButtonEnt{
 			NinePatchEnt: newWidgetNinePatch(),
 			Pals: ventities.ButtonPals{
-				Base:      assets.PalWidget,
-				Focused:   assets.PalWidgetFocused,
-				On:        assets.PalWidgetOn,
-				FocusedOn: assets.PalWidgetFocusedOn,
+				Base:      tags.PalWidget,
+				Focused:   tags.PalWidgetFocused,
+				On:        tags.PalWidgetOn,
+				FocusedOn: tags.PalWidgetFocusedOn,
 			},
 			TextPals: ventities.ButtonPals{
-				Base:      assets.PalText,
-				Focused:   assets.PalText,
-				On:        assets.PalTextLight,
-				FocusedOn: assets.PalTextLight,
+				Base:      tags.PalText,
+				Focused:   tags.PalText,
+				On:        tags.PalTextLight,
+				FocusedOn: tags.PalTextLight,
 			},
 			Anchor: ventities.AnchorEnt{
 				Dir:    vgeo.DirW,

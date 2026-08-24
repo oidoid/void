@@ -21,10 +21,9 @@ type TilesetManifest struct {
 	TileW uint8 `json:"tileW"`
 	// native tileset cell height in pixels.
 	TileH uint8 `json:"tileH"`
-	// indexes final atlas tags by row-major preview canvas cell after
-	// resolving the Aseprite native tile stored in each cell. adjacent cells
-	// need not map to contiguous or increasing tags; eg, `[164, 163, 168]` maps
-	// preview cells 0, 1, and 2 to atlas tags 164, 163, and 168. every tag
-	// references one cel.
+	// indexes final tags by row-major preview canvas cell after resolving the
+	// Aseprite native tile stored in each cell. adjacent cells need not map to
+	// contiguous or increasing tags; eg, `[164, 163, 168]` maps preview cells
+	// 0, 1, and 2 to tags 164, 163, and 168. every tag references one cel.
 	Tags []vatlas.Tag `json:"tags"`
 }

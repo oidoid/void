@@ -114,26 +114,28 @@ func packAtlas(argv *Argv) error {
 		return fmt.Errorf("converting to WebP: %w", err)
 	}
 	atlasBin := vatlas.EncodeAtlas(atlas)
-	dataSrc, err := genData(argv.Pkg, atlasBin)
+	dataSrc, err := genData(
+		filepath.Base(filepath.Dir(argv.AtlasOut)), atlasBin,
+	)
 	if err != nil {
 		return err
 	}
-	if err := os.WriteFile(
-		filepath.Join(argv.CodeOut, argv.Name+"_bin.go"),
-		dataSrc,
-		0o644,
-	); err != nil {
+	if err := os.MkdirAll(filepath.Dir(argv.AtlasOut), 0o755); err != nil {
 		return err
 	}
-	tagsSrc, err := genTags(argv.Pkg, stemTags)
+	if err := os.WriteFile(argv.AtlasOut, dataSrc, 0o644); err != nil {
+		return err
+	}
+	tagsSrc, err := genTags(
+		filepath.Base(filepath.Dir(argv.TagsOut)), stemTags,
+	)
 	if err != nil {
 		return err
 	}
-	if err := os.WriteFile(
-		filepath.Join(argv.CodeOut, argv.Name+"_tags.go"),
-		tagsSrc,
-		0o644,
-	); err != nil {
+	if err := os.MkdirAll(filepath.Dir(argv.TagsOut), 0o755); err != nil {
+		return err
+	}
+	if err := os.WriteFile(argv.TagsOut, tagsSrc, 0o644); err != nil {
 		return err
 	}
 	if argv.TilesetManifestOut == "" {

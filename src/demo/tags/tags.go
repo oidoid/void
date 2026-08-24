@@ -1,5 +1,5 @@
 // codegen by packatlas.
-package assets
+package tags
 
 import "github.com/oidoid/void/src/void/vatlas"
 

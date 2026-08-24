@@ -20,7 +20,7 @@ tinygo_flags += $(go_tags) --ldflags="-X github.com/oidoid/void/src/demo/engine.
 pack_demo = go run ./src/cmd/pack --out=dist/demo/ --tsconfig=src/demo/web/tsconfig.json $(1) src/demo/web/assets/index.html
 # $(1) flags
 tileset_manifest_demo := dist/demo/tileset-manifest.json
-packatlas_demo = go run ./src/cmd/packatlas --name=atlas --img-out=dist/demo/ --code-out=src/demo/assets/ --tileset-manifest-out=$(tileset_manifest_demo) $(1) src/demo/assets/atlas/
+packatlas_demo = go run ./src/cmd/packatlas --name=atlas --img-out=dist/demo/ --atlas-out=src/demo/assets/atlas_bin.go --tags-out=src/demo/tags/tags.go --tileset-manifest-out=$(tileset_manifest_demo) $(1) src/demo/assets/atlas/
 packlevels_demo = go run ./src/cmd/packlevels --tileset-manifest=$(tileset_manifest_demo) --out=src/demo/levels $(1) src/demo/assets/levels/
 favicon_demo = \
 	mkdir -p dist/demo/favicon; \
@@ -51,7 +51,7 @@ build-levels: build-atlas; $(call packlevels_demo,)
 build-favicon:; $(favicon_demo)
 build-web: build-demo build-atlas; $(call pack_demo,--minify --one-file)
 
-clean:; rm --force --recursive dist/ src/demo/assets/atlas_bin.go src/demo/assets/atlas_tags.go
+clean:; rm --force --recursive dist/ src/demo/assets/atlas_bin.go src/demo/tags/tags.go
 
 # to-do:
 # go generate

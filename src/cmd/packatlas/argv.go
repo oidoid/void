@@ -4,7 +4,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"path/filepath"
 )
 
 type Argv struct {
@@ -12,8 +11,8 @@ type Argv struct {
 	Entries            []string
 	Name               string
 	ImgOut             string
-	Pkg                string
-	CodeOut            string
+	AtlasOut           string
+	TagsOut            string
 	TilesetManifestOut string
 	Watch              bool
 }
@@ -23,7 +22,8 @@ func NewArgv() (Argv, error) {
 	flag.StringVar(&this.ColorMode, "color-mode", "indexed", "Aseprite color mode")
 	flag.StringVar(&this.Name, "name", "", "atlas name")
 	flag.StringVar(&this.ImgOut, "img-out", "", "image output directory")
-	flag.StringVar(&this.CodeOut, "code-out", "", "gencode output directory")
+	flag.StringVar(&this.AtlasOut, "atlas-out", "", "atlas Go output file")
+	flag.StringVar(&this.TagsOut, "tags-out", "", "tags Go output file")
 	flag.StringVar(
 		&this.TilesetManifestOut,
 		"tileset-manifest-out",
@@ -35,6 +35,7 @@ func NewArgv() (Argv, error) {
 		fmt.Fprintf(
 			flag.CommandLine.Output(),
 			"packatlas --name=<name> --img-out=<dir> "+
+				"--atlas-out=<file> --tags-out=<file> "+
 				"[--tileset-manifest-out=<file>] "+
 				"[--color-mode=<mode>] [--watch] <entries…>\n",
 		)
@@ -51,7 +52,12 @@ func NewArgv() (Argv, error) {
 	if this.ImgOut == "" {
 		return Argv{}, errors.New("--img-out required")
 	}
-	this.Pkg = filepath.Base(this.CodeOut)
+	if this.AtlasOut == "" {
+		return Argv{}, errors.New("--atlas-out required")
+	}
+	if this.TagsOut == "" {
+		return Argv{}, errors.New("--tags-out required")
+	}
 
 	return this, nil
 }

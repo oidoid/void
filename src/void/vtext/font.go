@@ -47,8 +47,8 @@ type Font struct {
 	charWidths [256]uint8
 	// characters that descend below the baseline.
 	descends [32]uint8
-	// the first atlas tag for this font's glyphs. character
-	// sprs are indexed as FirstTag + charCode.
+	// the first tag for this font's glyphs. character sprs are indexed as
+	// FirstTag + charCode.
 	FirstTag vatlas.Tag
 }
 

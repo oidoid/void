@@ -1,10 +1,10 @@
 package hooks
 
 import (
-	"github.com/oidoid/void/src/demo/assets"
 	"github.com/oidoid/void/src/demo/engine"
 	"github.com/oidoid/void/src/demo/entities"
 	"github.com/oidoid/void/src/demo/gfx"
+	"github.com/oidoid/void/src/demo/tags"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgrid"
@@ -15,7 +15,7 @@ func UpdateSuperballs(
 	vec *vvec.Vec[entities.SuperballEnt],
 	gam *engine.Engine,
 ) vgame.Status {
-	anim := gam.Atlas.Anims[int(assets.SuperballDefault)]
+	anim := gam.Atlas.Anims[int(tags.SuperballDefault)]
 	hitbox := anim.Hitbox
 	radius := float32(hitbox.Max.X-hitbox.Min.X) / 2
 	diameter := radius * 2
