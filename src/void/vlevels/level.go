@@ -1,7 +1,6 @@
 package vlevels
 
 import (
-	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vgeo"
 )
 
@@ -10,12 +9,16 @@ type Level struct {
 	vgeo.WH[int32]
 	// cell dimensions in pixels.
 	Tile vgeo.WH[uint8]
-	// single-cel tags in row-major order; length is W/Tile.W*H/Tile.H,
-	// and zero leaves a cell empty.
-	Tiles []vatlas.Tag
+	// packed cells in row-major order; length is W/Tile.W*H/Tile.H, and zero
+	// leaves a cell empty.
+	Tiles []Tile
 }
 
-func (this *Level) TileAt(xy vgeo.XY[int32]) vatlas.Tag {
+func (this *Level) HitsAt(xy vgeo.XY[int32]) bool {
+	return this.TileAt(xy).Hits()
+}
+
+func (this *Level) TileAt(xy vgeo.XY[int32]) Tile {
 	if xy.X < 0 || xy.X >= this.W || xy.Y < 0 || xy.Y >= this.H {
 		return 0
 	}

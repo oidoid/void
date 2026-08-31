@@ -29,14 +29,15 @@ func TestNewP1Ent(t *testing.T) {
 
 func TestP1EntTurnsRightAtWalls(t *testing.T) {
 	const wallGap = p1MaxMove / 256 // eight collision bisections.
-	tiles := make([]vatlas.Tag, 64)
+	tiles := make([]vlevels.Tile, 64)
+	wall := vlevels.NewTile(tags.BlockStripesGrey, true)
 	for x := range 8 {
-		tiles[x] = tags.BlockStripesGrey
-		tiles[56+x] = tags.BlockStripesGrey
+		tiles[x] = wall
+		tiles[56+x] = wall
 	}
 	for y := range 8 {
-		tiles[y*8] = tags.BlockStripesGrey
-		tiles[y*8+7] = tags.BlockStripesGrey
+		tiles[y*8] = wall
+		tiles[y*8+7] = wall
 	}
 	level := vlevels.Level{
 		WH:    vgeo.NewWH[int32](128, 128),

@@ -1,4 +1,10 @@
 {
   "extends": ["@oidoid/config/biome"],
-  "files": {"includes": ["!!dist", "!!src/demo/assets/levels/**/*.tsx"]}
+  "files": {
+    "includes": [
+      "!!dist",
+      "!!src/demo/assets/levels/**/*.tsx",
+      "!!src/demo/assets/tiles/**/*.tsx"
+    ]
+  }
 }

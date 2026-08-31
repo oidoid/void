@@ -98,23 +98,19 @@ func (this *P1Ent) hitsWall(
 		if this.Dir == vgeo.DirE {
 			tileX = maxX
 		}
-		first := lvl.TileAt(vgeo.NewXY(tileX, minY))
-		if first == tags.BlockStripesGrey {
+		if lvl.HitsAt(vgeo.NewXY(tileX, minY)) {
 			return true
 		}
-		last := lvl.TileAt(vgeo.NewXY(tileX, maxY))
-		return last == tags.BlockStripesGrey
+		return lvl.HitsAt(vgeo.NewXY(tileX, maxY))
 	case vgeo.DirN, vgeo.DirS:
 		tileY := minY
 		if this.Dir == vgeo.DirS {
 			tileY = maxY
 		}
-		first := lvl.TileAt(vgeo.NewXY(minX, tileY))
-		if first == tags.BlockStripesGrey {
+		if lvl.HitsAt(vgeo.NewXY(minX, tileY)) {
 			return true
 		}
-		last := lvl.TileAt(vgeo.NewXY(maxX, tileY))
-		return last == tags.BlockStripesGrey
+		return lvl.HitsAt(vgeo.NewXY(maxX, tileY))
 	}
 	return false
 }

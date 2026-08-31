@@ -11,13 +11,16 @@ in highp vec2 vPx;
 
 out highp vec4 fragColor;
 
+const highp uint tileTagMask = 0xfffu;
+const highp uint tileTagShift = 0u;
+
 void main() {
   highp ivec2 gridWH = ivec2(uLevelWH / uTileWH);
   highp ivec2 cell = ivec2(int(vPx.x / uTileWH.x), int(vPx.y / uTileWH.y));
   if (cell.x < 0 || cell.x >= gridWH.x ||
       cell.y < 0 || cell.y >= gridWH.y) discard;
 
-  highp uint tile = texelFetch(uTiles, cell, 0).r;
+  highp uint tile = (texelFetch(uTiles, cell, 0).r >> tileTagShift) & tileTagMask;
   if (tile == 0u) discard;
 
   // tile animations only contain cel zero.

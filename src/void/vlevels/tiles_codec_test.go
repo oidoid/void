@@ -4,7 +4,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vgeo"
 )
 
@@ -15,23 +14,23 @@ func TestLevelRoundTrip(t *testing.T) {
 		},
 		"single": {
 			WH: vgeo.NewWH[int32](8, 8), Tile: vgeo.NewWH[uint8](8, 8),
-			Tiles: []vatlas.Tag{5},
+			Tiles: []Tile{5},
 		},
 		"all same": {
 			WH: vgeo.NewWH[int32](32, 8), Tile: vgeo.NewWH[uint8](8, 8),
-			Tiles: []vatlas.Tag{2, 2, 2, 2},
+			Tiles: []Tile{2, 2, 2, 2},
 		},
 		"mixed": {
 			WH: vgeo.NewWH[int32](32, 16), Tile: vgeo.NewWH[uint8](8, 8),
-			Tiles: []vatlas.Tag{1, 1, 0, 0, 0, 3, 1, 1},
+			Tiles: []Tile{1, 1, 0, 0, 0, NewTile(3, true), 1, 1},
 		},
 		"no repeats": {
 			WH: vgeo.NewWH[int32](32, 8), Tile: vgeo.NewWH[uint8](8, 8),
-			Tiles: []vatlas.Tag{1, 2, 3, 4},
+			Tiles: []Tile{1, 2, 3, 4},
 		},
 		"long run": {
 			WH: vgeo.NewWH[int32](256, 1), Tile: vgeo.NewWH[uint8](1, 1),
-			Tiles: make([]vatlas.Tag, 256),
+			Tiles: make([]Tile, 256),
 		},
 	}
 	for name, lvl := range cases {
@@ -59,7 +58,7 @@ func TestLevelRunEncodingLength(t *testing.T) {
 			lvl := Level{
 				WH:    vgeo.NewWH(int32(test.count), int32(1)),
 				Tile:  vgeo.NewWH[uint8](1, 1),
-				Tiles: make([]vatlas.Tag, test.count),
+				Tiles: make([]Tile, test.count),
 			}
 			if got := len(EncodeLevel(&lvl)); got != test.want {
 				t.Fatalf("encoded length = %d, want %d", got, test.want)

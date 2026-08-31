@@ -12,7 +12,6 @@ import (
 	"unicode"
 
 	"github.com/oidoid/void/src/cmd/internal/tilesetmanifest"
-	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vlevels"
 )
@@ -49,6 +48,8 @@ type tmxTileset struct {
 	Source string `xml:"source,attr"`
 	// atlas mapping resolved from the external TSX image.
 	manifest *tilesetmanifest.TilesetManifest
+	// local tile ID to `hits` property.
+	hits []bool
 }
 
 // supported subset of an external TSX tileset.
@@ -62,6 +63,19 @@ type tsxTileset struct {
 	Cols uint32 `xml:"columns,attr"`
 	// rendered Aseprite preview canvas.
 	Image tsxImage `xml:"image"`
+	// sparse tile metadata identified by local ID.
+	Tiles []tsxTile `xml:"tile"`
+}
+
+type tsxTile struct {
+	ID    uint32    `xml:"id,attr"`
+	Props []tsxProp `xml:"properties>property"`
+}
+
+type tsxProp struct {
+	Name  string `xml:"name,attr"`
+	Type  string `xml:"type,attr"`
+	Value string `xml:"value,attr"`
 }
 
 // image reference used by Tiled to display a tileset preview.
@@ -158,13 +172,13 @@ func readLevel(path string, tilesets tilesetIndex) (vlevels.Level, error) {
 	if uint64(len(gids)) != total {
 		return vlevels.Level{}, fmt.Errorf("got %d tiles, want %d", len(gids), total)
 	}
-	tiles := make([]vatlas.Tag, len(gids))
+	tiles := make([]vlevels.Tile, len(gids))
 	for i, gid := range gids {
-		tag, err := tagForGID(gid, tmx.Tilesets)
+		tile, err := tileForGID(gid, tmx.Tilesets)
 		if err != nil {
 			return vlevels.Level{}, fmt.Errorf("tile %d: %w", i, err)
 		}
-		tiles[i] = tag
+		tiles[i] = tile
 	}
 	w := uint64(tmx.W) * uint64(tmx.TileW)
 	h := uint64(tmx.H) * uint64(tmx.TileH)
@@ -178,8 +192,8 @@ func readLevel(path string, tilesets tilesetIndex) (vlevels.Level, error) {
 	}, nil
 }
 
-// resolves a Tiled global tile ID to its final tag.
-func tagForGID(gid uint32, tilesets []tmxTileset) (vatlas.Tag, error) {
+// resolves a Tiled global tile ID to its final packed tile.
+func tileForGID(gid uint32, tilesets []tmxTileset) (vlevels.Tile, error) {
 	if gid == 0 {
 		return 0, nil
 	}
@@ -197,9 +211,15 @@ func tagForGID(gid uint32, tilesets []tmxTileset) (vatlas.Tag, error) {
 	// adjacent preview cells may resolve to non-contiguous tags.
 	localID := gid - tileset.FirstGID
 	if localID >= uint32(len(tileset.manifest.Tags)) {
-		return 0, fmt.Errorf("GID %d local ID %d is out of range", gid, localID)
+		return 0,
+			fmt.Errorf("GID %d local ID %d is out of range of tags", gid, localID)
 	}
-	return tileset.manifest.Tags[localID], nil
+	if int(localID) >= len(tileset.hits) {
+		return 0,
+			fmt.Errorf("GID %d local ID %d is out of range of hits", gid, localID)
+	}
+	hits := tileset.hits[localID]
+	return vlevels.NewTile(tileset.manifest.Tags[localID], hits), nil
 }
 
 func loadTileset(
@@ -241,8 +261,44 @@ func loadTileset(
 		uint64(this.TileCount/this.Cols)*uint64(this.TileH) != uint64(this.Image.H) {
 		return fmt.Errorf("tileset dimensions differ from Aseprite manifest")
 	}
+	hits, err := parseTileHits(&this)
+	if err != nil {
+		return err
+	}
 	ref.manifest = manifest
+	ref.hits = hits
 	return nil
+}
+
+func parseTileHits(tileset *tsxTileset) ([]bool, error) {
+	hits := make([]bool, tileset.TileCount)
+	for _, tile := range tileset.Tiles {
+		if tile.ID >= tileset.TileCount {
+			return nil, fmt.Errorf("tile ID %d is out of range", tile.ID)
+		}
+		for _, prop := range tile.Props {
+			if prop.Name != "hits" {
+				continue
+			}
+			if prop.Type != "bool" {
+				return nil, fmt.Errorf(
+					"tile ID %d property %q must be bool", tile.ID, prop.Name,
+				)
+			}
+			switch prop.Value {
+			case "", "false":
+				hits[tile.ID] = false
+			case "true":
+				hits[tile.ID] = true
+			default:
+				return nil, fmt.Errorf(
+					"tile ID %d property %q has invalid bool %q",
+					tile.ID, prop.Name, prop.Value,
+				)
+			}
+		}
+	}
+	return hits, nil
 }
 
 func parseCSV(data tmxData) ([]uint32, error) {
