@@ -3,8 +3,14 @@ set -euo pipefail
 
 sudo apt update
 
-# cwebp.
-sudo apt install --no-install-recommends --yes webp
+# Shader Minifier, cwebp.
+sudo apt install --no-install-recommends --yes mono-runtime webp
+
+# Shader Minifier.
+curl \
+  --location https://github.com/laurentlb/shader-minifier/releases/download/1.6.0/shader_minifier.exe \
+  --output /tmp/shader_minifier.exe
+sudo install --mode=0755 /tmp/shader_minifier.exe /usr/local/bin/shader_minifier.exe
 
 # TinyGo.
 curl \

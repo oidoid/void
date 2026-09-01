@@ -1,4 +1,4 @@
-export const clipVert: string = `#version 300 es
+#version 300 es
 
 uniform highp ivec2 uResolution;
 uniform highp vec4 uDstXYWH;
@@ -23,4 +23,3 @@ void main() {
   gl_Position = vec4(ndc, 0., 1.);
   vUV = vec2(corner.x, 1. - corner.y);
 }
-`

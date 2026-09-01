@@ -1,6 +1,6 @@
 import {buildProgram} from '../gl.ts'
-import {overlayFrag} from './overlay.frag.glsl.ts'
-import {overlayVert} from './overlay.vert.glsl.ts'
+import overlayFrag from './overlay.frag.glsl'
+import overlayVert from './overlay.vert.glsl'
 
 export class OverlayRenderer {
   static new(gl: WebGL2RenderingContext, pixel: boolean): OverlayRenderer {

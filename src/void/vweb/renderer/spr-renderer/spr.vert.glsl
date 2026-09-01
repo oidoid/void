@@ -1,4 +1,4 @@
-export const sprVert: string = `#version 300 es
+#version 300 es
 
 uniform highp ivec2 uResolution;
 uniform highp vec2 uCamXY;
@@ -94,4 +94,3 @@ void main() {
   vCelXYWH = vec4(celMin, celWH);
   vFlags = aFlags;
 }
-`

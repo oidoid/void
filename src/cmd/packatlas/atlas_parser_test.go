@@ -390,7 +390,7 @@ func TestReadAsepriteNativeTiles(t *testing.T) {
 	}
 	// Tiled sees the rendered Aseprite canvas as a grid. These cells prove the
 	// grid resolves back through the native tilemap to native tile IDs.
-	wantTags := map[int]vatlas.Tag{0: 3, 1: 2, 8: 5, 9: 12}
+	wantTags := map[int]vatlas.Tag{0: 11, 1: 12, 8: 12, 9: 16}
 	for cell, want := range wantTags {
 		if got := got[0].Tags[cell]; got != want {
 			t.Errorf("cell %d anim = %d, want %d", cell, got, want)

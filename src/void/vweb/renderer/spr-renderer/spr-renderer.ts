@@ -6,8 +6,8 @@ import {
   sprZOffset
 } from '../../engine/layout.ts'
 import {buildProgram} from '../gl.ts'
-import {sprFrag} from './spr.frag.glsl.ts'
-import {sprVert} from './spr.vert.glsl.ts'
+import sprFrag from './spr.frag.glsl'
+import sprVert from './spr.vert.glsl'
 
 export class SprRenderer {
   static new(

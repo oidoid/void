@@ -33,6 +33,8 @@ see the [agent skill](.agents/skills/add-ent/SKILL.md).
 
 - Aseprite
 - cwebp
+- Mono
+- Shader Minifier
 
 ### Make
 

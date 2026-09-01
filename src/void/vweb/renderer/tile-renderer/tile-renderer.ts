@@ -1,6 +1,6 @@
 import {buildProgram} from '../gl.ts'
-import {tileFrag} from './tile.frag.glsl.ts'
-import {tileVert} from './tile.vert.glsl.ts'
+import tileFrag from './tile.frag.glsl'
+import tileVert from './tile.vert.glsl'
 
 /** draws static, single-cel level tiles. */
 export class TileRenderer {

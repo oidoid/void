@@ -55,6 +55,7 @@ func main() {
 		MinifyWhitespace:  config.Minify,
 		Outdir:            config.OutDir,
 		Plugins: []api.Plugin{
+			plugins.GLSLPlugin(config),
 			plugins.HTMLPlugin(config),
 			plugins.WasmPlugin(config),
 		},

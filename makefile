@@ -58,7 +58,7 @@ clean:; rm --force --recursive dist/ src/demo/assets/atlas_bin.go src/demo/tags/
 # src/void/vtext/mem_prop_5x6_gen.go
 
 dependencies:
-	for exe in go node tinygo wasm-opt watchexec; do
+	for exe in go mono node shader_minifier.exe tinygo wasm-opt watchexec; do
 		command -v $$exe > /dev/null || { echo "no $$exe" >&2; false; }
 	done
 

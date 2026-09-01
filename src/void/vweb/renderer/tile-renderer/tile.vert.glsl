@@ -1,4 +1,4 @@
-export const tileVert: string = `#version 300 es
+#version 300 es
 
 uniform highp ivec2 uResolution;
 uniform highp vec2 uCamXY;
@@ -24,4 +24,3 @@ void main() {
   ndc.y = -ndc.y;
   gl_Position = vec4(ndc, 1., 1.);
 }
-`

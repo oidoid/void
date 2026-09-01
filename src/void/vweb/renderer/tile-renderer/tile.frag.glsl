@@ -1,4 +1,4 @@
-export const tileFrag: string = `#version 300 es
+#version 300 es
 precision highp float;
 
 uniform highp usampler2D uTiles;
@@ -30,4 +30,3 @@ void main() {
   if (tex.a == 0.) discard;
   fragColor = tex;
 }
-`

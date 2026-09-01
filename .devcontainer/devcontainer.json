@@ -12,6 +12,7 @@
         "biomejs.biome",
         "golang.go",
         "ms-vscode.makefile-tools",
+        "openai.chatgpt",
         "slevesque.shader"
       ]
     }
