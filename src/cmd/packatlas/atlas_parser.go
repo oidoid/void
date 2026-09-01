@@ -19,7 +19,7 @@ const maxPalTag = 0xff // greatest palette tag.
 
 const atlasRowWidth = 4096
 
-var nilKey = stemTag{stem: "void", tag: "Nil"}
+var nilKey = stemTag{tag: "Nil"}
 
 type rawFrame struct {
 	pxs []byte // full asset image.

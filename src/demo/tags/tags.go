@@ -4,7 +4,7 @@ package tags
 import "github.com/oidoid/void/src/void/vatlas"
 
 const (
-	VoidNil vatlas.Tag = iota
+	Nil vatlas.Tag = iota
 	PalWidget
 	PalWidgetFocused
 	PalWidgetOn
