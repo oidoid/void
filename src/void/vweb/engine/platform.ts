@@ -19,13 +19,13 @@ export type Platform = {
   LayerConfigsPointer(): number
   Update(): Loop
   // byte offset into `memory` of the first tile.
-  TilePointer(): number
-  // level size in pixels. origin is always `(0, 0)`.
-  LevelW(): number
-  LevelH(): number
+  BoardTilesPointer(): number
+  // board size in pixels. origin is always `(0, 0)`.
+  BoardW(): number
+  BoardH(): number
   // tile pixel dimensions.
-  LevelTileW(): number
-  LevelTileH(): number
+  BoardTileW(): number
+  BoardTileH(): number
   // camera position in world pixels.
   CamX(): number
   CamY(): number

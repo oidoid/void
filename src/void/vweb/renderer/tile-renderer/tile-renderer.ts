@@ -2,26 +2,26 @@ import {buildProgram} from '../gl.ts'
 import tileFrag from './tile.frag.glsl'
 import tileVert from './tile.vert.glsl'
 
-/** draws static, single-cel level tiles. */
+/** draws static, single-cel board tiles. */
 export class TileRenderer {
   static new(
     gl: WebGL2RenderingContext,
     tiles: Uint16Array,
     tileW: number,
     tileH: number,
-    levelW: number,
-    levelH: number,
+    boardW: number,
+    boardH: number,
     atlasCelsTex: WebGLTexture,
     sprsheetTex: WebGLTexture
   ): TileRenderer {
     const pgm = buildProgram(gl, tileVert, tileFrag)
     const uResolution = gl.getUniformLocation(pgm, 'uResolution')!
     const uCamXY = gl.getUniformLocation(pgm, 'uCamXY')!
-    const uLevelWH = gl.getUniformLocation(pgm, 'uLevelWH')!
+    const uBoardWH = gl.getUniformLocation(pgm, 'uBoardWH')!
     const uTileWH = gl.getUniformLocation(pgm, 'uTileWH')!
 
-    const gridW = levelW / tileW
-    const gridH = levelH / tileH
+    const gridW = boardW / tileW
+    const gridH = boardH / tileH
 
     const vao = gl.createVertexArray()!
 
@@ -46,7 +46,7 @@ export class TileRenderer {
     gl.bindTexture(gl.TEXTURE_2D, null)
 
     gl.useProgram(pgm)
-    gl.uniform2f(uLevelWH, levelW, levelH)
+    gl.uniform2f(uBoardWH, boardW, boardH)
     gl.uniform2f(uTileWH, tileW, tileH)
     gl.uniform1i(gl.getUniformLocation(pgm, 'uTiles')!, 0)
     gl.uniform1i(gl.getUniformLocation(pgm, 'uAtlasCels')!, 1)

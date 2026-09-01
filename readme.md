@@ -21,6 +21,10 @@ see the [agent file](AGENTS.md).
 - `src/cmd/`: command line utils for building void apps.
 - `src/demo/`: engine demonstration.
 
+### Levels and Boards
+
+levels are a higher-level app composition that selects a board and wires gameplay around it.
+
 ### Ents and Hooks
 
 ents are a single data and behavior instance. low-count demo ents implement `Update(game.Game)` and register directly with `gam.Register()`. hooks operate on high-count or coordinated ent vectors efficiently.

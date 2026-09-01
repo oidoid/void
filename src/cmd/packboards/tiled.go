@@ -12,8 +12,8 @@ import (
 	"unicode"
 
 	"github.com/oidoid/void/src/cmd/internal/tilesetmanifest"
+	"github.com/oidoid/void/src/void/vboards"
 	"github.com/oidoid/void/src/void/vgeo"
-	"github.com/oidoid/void/src/void/vlevels"
 )
 
 const maxI32 = 1<<31 - 1
@@ -22,11 +22,11 @@ const tiledFlipMask uint32 = 0xf0000000
 // indexes atlas mappings by normalized absolute Aseprite path.
 type tilesetIndex map[string]*tilesetmanifest.TilesetManifest
 
-// supported subset of a finite orthogonal TMX map.
-type tmxMap struct {
+// supported subset of a finite orthogonal TMX board.
+type tmxBoard struct {
 	// projection; only `orthogonal` is accepted.
 	Orientation string `xml:"orientation,attr"`
-	// nonzero for unbounded maps, which are unsupported.
+	// nonzero for unbounded boards, which are unsupported.
 	Infinite int `xml:"infinite,attr"`
 	// grid dimensions in tiles.
 	W uint32 `xml:"width,attr"`
@@ -34,13 +34,13 @@ type tmxMap struct {
 	// cell dimensions in pixels.
 	TileW uint8 `xml:"tilewidth,attr"`
 	TileH uint8 `xml:"tileheight,attr"`
-	// external TSX references and their map-local GID ranges.
+	// external TSX references and their board-local GID ranges.
 	Tilesets []tmxTileset `xml:"tileset"`
 	// tile grids; exactly one is currently supported.
 	Layers []tmxLayer `xml:"layer"`
 }
 
-// map-local reference to an external TSX tileset.
+// board-local reference to an external TSX tileset.
 type tmxTileset struct {
 	// first global tile ID assigned to the referenced tileset.
 	FirstGID uint32 `xml:"firstgid,attr"`
@@ -89,10 +89,10 @@ type tsxImage struct {
 
 // finite tile grid from a TMX `layer` element.
 type tmxLayer struct {
-	// grid origin in tiles; must match the map origin.
+	// grid origin in tiles; must match the board origin.
 	X int32 `xml:"x,attr"`
 	Y int32 `xml:"y,attr"`
-	// grid dimensions in tiles; must match the map.
+	// grid dimensions in tiles; must match the board.
 	W uint32 `xml:"width,attr"`
 	H uint32 `xml:"height,attr"`
 	// encoded row-major global tile IDs.
@@ -126,66 +126,66 @@ func newTilesetIndex(
 	return this, nil
 }
 
-func readLevel(path string, tilesets tilesetIndex) (vlevels.Level, error) {
+func readBoard(path string, tilesets tilesetIndex) (vboards.Board, error) {
 	bin, err := os.ReadFile(path)
 	if err != nil {
-		return vlevels.Level{}, err
+		return vboards.Board{}, err
 	}
-	tmx := tmxMap{}
+	tmx := tmxBoard{}
 	if err := xml.Unmarshal(bin, &tmx); err != nil {
-		return vlevels.Level{}, err
+		return vboards.Board{}, err
 	}
 	if tmx.Orientation != "orthogonal" || tmx.Infinite != 0 {
-		return vlevels.Level{}, fmt.Errorf("only finite orthogonal maps are supported")
+		return vboards.Board{}, fmt.Errorf("only finite orthogonal boards are supported")
 	}
 	if tmx.W == 0 || tmx.H == 0 || tmx.TileW == 0 || tmx.TileH == 0 {
-		return vlevels.Level{}, fmt.Errorf("invalid map or tile dimensions")
+		return vboards.Board{}, fmt.Errorf("invalid board or tile dimensions")
 	}
 	if len(tmx.Layers) != 1 {
-		return vlevels.Level{}, fmt.Errorf("got %d tile layers, want 1", len(tmx.Layers))
+		return vboards.Board{}, fmt.Errorf("got %d tile layers, want 1", len(tmx.Layers))
 	}
 	layer := tmx.Layers[0]
 	if layer.X != 0 || layer.Y != 0 || layer.W != tmx.W || layer.H != tmx.H {
-		return vlevels.Level{}, fmt.Errorf("tile layer bounds differ from map")
+		return vboards.Board{}, fmt.Errorf("tile layer bounds differ from board")
 	}
 	for i := range tmx.Tilesets {
 		if err := loadTileset(
 			path, &tmx.Tilesets[i], tmx.TileW, tmx.TileH, tilesets,
 		); err != nil {
-			return vlevels.Level{}, err
+			return vboards.Board{}, err
 		}
 		if i != 0 && tmx.Tilesets[i-1].FirstGID >= tmx.Tilesets[i].FirstGID {
-			return vlevels.Level{}, fmt.Errorf("tilesets are not in increasing firstgid order")
+			return vboards.Board{}, fmt.Errorf("tilesets are not in increasing firstgid order")
 		}
 	}
 	if len(tmx.Tilesets) == 0 {
-		return vlevels.Level{}, fmt.Errorf("map has no tileset")
+		return vboards.Board{}, fmt.Errorf("board has no tileset")
 	}
 	gids, err := parseCSV(layer.Data)
 	if err != nil {
-		return vlevels.Level{}, err
+		return vboards.Board{}, err
 	}
 	total := uint64(tmx.W) * uint64(tmx.H)
 	if total > uint64(^uint32(0)) {
-		return vlevels.Level{}, fmt.Errorf("level tile count exceeds uint32")
+		return vboards.Board{}, fmt.Errorf("board tile count exceeds uint32")
 	}
 	if uint64(len(gids)) != total {
-		return vlevels.Level{}, fmt.Errorf("got %d tiles, want %d", len(gids), total)
+		return vboards.Board{}, fmt.Errorf("got %d tiles, want %d", len(gids), total)
 	}
-	tiles := make([]vlevels.Tile, len(gids))
+	tiles := make([]vboards.Tile, len(gids))
 	for i, gid := range gids {
 		tile, err := tileForGID(gid, tmx.Tilesets)
 		if err != nil {
-			return vlevels.Level{}, fmt.Errorf("tile %d: %w", i, err)
+			return vboards.Board{}, fmt.Errorf("tile %d: %w", i, err)
 		}
 		tiles[i] = tile
 	}
 	w := uint64(tmx.W) * uint64(tmx.TileW)
 	h := uint64(tmx.H) * uint64(tmx.TileH)
 	if w > maxI32 || h > maxI32 {
-		return vlevels.Level{}, fmt.Errorf("level dimensions exceed int32")
+		return vboards.Board{}, fmt.Errorf("board dimensions exceed int32")
 	}
-	return vlevels.Level{
+	return vboards.Board{
 		WH:    vgeo.NewWH(int32(w), int32(h)),
 		Tile:  vgeo.NewWH(tmx.TileW, tmx.TileH),
 		Tiles: tiles,
@@ -193,7 +193,7 @@ func readLevel(path string, tilesets tilesetIndex) (vlevels.Level, error) {
 }
 
 // resolves a Tiled global tile ID to its final packed tile.
-func tileForGID(gid uint32, tilesets []tmxTileset) (vlevels.Tile, error) {
+func tileForGID(gid uint32, tilesets []tmxTileset) (vboards.Tile, error) {
 	if gid == 0 {
 		return 0, nil
 	}
@@ -219,7 +219,7 @@ func tileForGID(gid uint32, tilesets []tmxTileset) (vlevels.Tile, error) {
 			fmt.Errorf("GID %d local ID %d is out of range of hits", gid, localID)
 	}
 	hits := tileset.hits[localID]
-	return vlevels.NewTile(tileset.manifest.Tags[localID], hits), nil
+	return vboards.NewTile(tileset.manifest.Tags[localID], hits), nil
 }
 
 func loadTileset(
@@ -251,7 +251,7 @@ func loadTileset(
 		return fmt.Errorf("tileset image %q is missing from atlas", this.Image.Source)
 	}
 	if this.TileW != tileW || this.TileH != tileH {
-		return fmt.Errorf("tileset tile size differs from map")
+		return fmt.Errorf("tileset tile size differs from board")
 	}
 	if this.TileW != manifest.TileW || this.TileH != manifest.TileH ||
 		this.Image.W != manifest.W || this.Image.H != manifest.H ||

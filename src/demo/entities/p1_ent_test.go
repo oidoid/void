@@ -5,8 +5,8 @@ import (
 
 	"github.com/oidoid/void/src/demo/tags"
 	"github.com/oidoid/void/src/void/vatlas"
+	"github.com/oidoid/void/src/void/vboards"
 	"github.com/oidoid/void/src/void/vgeo"
-	"github.com/oidoid/void/src/void/vlevels"
 )
 
 func TestNewP1Ent(t *testing.T) {
@@ -29,8 +29,8 @@ func TestNewP1Ent(t *testing.T) {
 
 func TestP1EntTurnsRightAtWalls(t *testing.T) {
 	const wallGap = p1MaxMove / 256 // eight collision bisections.
-	tiles := make([]vlevels.Tile, 64)
-	wall := vlevels.NewTile(tags.BlockStripesGrey, true)
+	tiles := make([]vboards.Tile, 64)
+	wall := vboards.NewTile(tags.BlockStripesGrey, true)
 	for x := range 8 {
 		tiles[x] = wall
 		tiles[56+x] = wall
@@ -39,7 +39,7 @@ func TestP1EntTurnsRightAtWalls(t *testing.T) {
 		tiles[y*8] = wall
 		tiles[y*8+7] = wall
 	}
-	level := vlevels.Level{
+	board := vboards.Board{
 		WH:    vgeo.NewWH[int32](128, 128),
 		Tile:  vgeo.NewWH[uint8](16, 16),
 		Tiles: tiles,
@@ -64,7 +64,7 @@ func TestP1EntTurnsRightAtWalls(t *testing.T) {
 	}
 	for _, want := range wants {
 		for range want.moves {
-			ent.Move(500, &level)
+			ent.Move(500, &board)
 		}
 		if ent.XY != want.xy || ent.Dir != want.dir {
 			t.Fatalf("P1 = (%v, %v), want (%v, %v)", ent.XY, ent.Dir, want.xy, want.dir)

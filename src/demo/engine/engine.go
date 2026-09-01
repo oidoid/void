@@ -7,9 +7,9 @@ import (
 	"github.com/oidoid/void/src/demo/entities"
 	"github.com/oidoid/void/src/demo/game"
 	"github.com/oidoid/void/src/demo/gfx"
-	"github.com/oidoid/void/src/demo/levels"
 	"github.com/oidoid/void/src/demo/tags"
 	"github.com/oidoid/void/src/void/vatlas"
+	"github.com/oidoid/void/src/void/vboards"
 	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgame"
@@ -57,7 +57,6 @@ func New() *Engine {
 	this := &Engine{
 		Engine: vengine.New[*Engine](&vengine.EngineOpts{
 			Font:       font,
-			Level:      &levels.InitLevel,
 			RenderMode: vgfx.RenderModePixel,
 		}),
 		LastBoingMs: -math.MaxFloat64,
@@ -81,18 +80,21 @@ func New() *Engine {
 	this.Layer(gfx.LayerGrid).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerGrid).BlendMode = vgfx.LayerBlendModeMultiply
 	this.Atlas = vatlas.DecodeAtlas(assets.AtlasBin)
+	return this
+}
+
+func (this *Engine) SetBoard(board *vboards.Board) {
+	this.BoardData = board
 	anim := this.Atlas.Anims[int(tags.SuperballDefault)]
 	diameter := float32(anim.Hitbox.Max.X - anim.Hitbox.Min.X)
-	// omit level edge.
-	lvl := vgeo.NewBox(
-		float32(this.Level.Tile.W),
-		float32(this.Level.Tile.H),
-		float32(this.Level.W-int32(this.Level.Tile.W)),
-		float32(this.Level.H-int32(this.Level.Tile.H)),
+	// omit board edge.
+	bounds := vgeo.NewBox(
+		float32(board.Tile.W),
+		float32(board.Tile.H),
+		float32(board.W-int32(board.Tile.W)),
+		float32(board.H-int32(board.Tile.H)),
 	)
-
-	this.SuperballGrid = vgrid.New(lvl, diameter, 2*1024*1024)
-	return this
+	this.SuperballGrid = vgrid.New(bounds, diameter, 2*1024*1024)
 }
 
 func (this *Engine) Register(ent ventities.Updater[game.Game]) {

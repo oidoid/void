@@ -24,23 +24,23 @@ func NewSuperballEnt(rnd func() float32, xy vgeo.XY[float32]) SuperballEnt {
 	return SuperballEnt{XY: xy, Vel: vel, RotVel: rotVel}
 }
 
-func (this *SuperballEnt) Move(lvl vgeo.Box[float32], radius float32) {
+func (this *SuperballEnt) Move(board vgeo.Box[float32], radius float32) {
 	this.Rot += this.RotVel
 	diameter := radius * 2
 	this.X += this.Vel.X
 	this.Y += this.Vel.Y
-	if this.X < lvl.Min.X {
-		this.X = lvl.Min.X
+	if this.X < board.Min.X {
+		this.X = board.Min.X
 		this.Vel.X = -this.Vel.X
-	} else if this.X+diameter > lvl.Max.X {
-		this.X = lvl.Max.X - diameter
+	} else if this.X+diameter > board.Max.X {
+		this.X = board.Max.X - diameter
 		this.Vel.X = -this.Vel.X
 	}
-	if this.Y < lvl.Min.Y {
-		this.Y = lvl.Min.Y
+	if this.Y < board.Min.Y {
+		this.Y = board.Min.Y
 		this.Vel.Y = -this.Vel.Y
-	} else if this.Y+diameter > lvl.Max.Y {
-		this.Y = lvl.Max.Y - diameter
+	} else if this.Y+diameter > board.Max.Y {
+		this.Y = board.Max.Y - diameter
 		this.Vel.Y = -this.Vel.Y
 	}
 }

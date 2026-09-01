@@ -4,7 +4,7 @@ precision highp float;
 uniform highp usampler2D uTiles;
 uniform highp usampler2D uAtlasCels;
 uniform highp sampler2D uSprsheet;
-uniform highp vec2 uLevelWH;
+uniform highp vec2 uBoardWH;
 uniform highp vec2 uTileWH;
 
 in highp vec2 vPx;
@@ -15,7 +15,7 @@ const highp uint tileTagMask = 0xfffu;
 const highp uint tileTagShift = 0u;
 
 void main() {
-  highp ivec2 gridWH = ivec2(uLevelWH / uTileWH);
+  highp ivec2 gridWH = ivec2(uBoardWH / uTileWH);
   highp ivec2 cell = ivec2(int(vPx.x / uTileWH.x), int(vPx.y / uTileWH.y));
   if (cell.x < 0 || cell.x >= gridWH.x ||
       cell.y < 0 || cell.y >= gridWH.y) discard;

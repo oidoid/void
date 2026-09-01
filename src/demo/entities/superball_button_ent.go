@@ -100,7 +100,7 @@ func (this *SuperballButtonEnt) Update(
 	superballs *vvec.Vec[SuperballEnt],
 	spawnCenter vgeo.XY[float32],
 	deltaMs float64,
-	lvl vgeo.Box[float32],
+	board vgeo.Box[float32],
 	rnd func() float32,
 	superballRadius float32,
 	hit *bool,
@@ -130,10 +130,10 @@ func (this *SuperballButtonEnt) Update(
 		case SuperballActionClear:
 			superballs.Clear()
 		case SuperballActionAddMany:
-			w := lvl.Max.X - lvl.Min.X - superballRadius*2
-			h := lvl.Max.Y - lvl.Min.Y - superballRadius*2
+			w := board.Max.X - board.Min.X - superballRadius*2
+			h := board.Max.Y - board.Min.Y - superballRadius*2
 			for range 1_000_000 {
-				xy := vgeo.NewXY(lvl.Min.X+rnd()*w, lvl.Min.Y+rnd()*h)
+				xy := vgeo.NewXY(board.Min.X+rnd()*w, board.Min.Y+rnd()*h)
 				_ = superballs.Add(NewSuperballEnt(rnd, xy))
 			}
 		}

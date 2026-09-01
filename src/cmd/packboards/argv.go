@@ -28,7 +28,7 @@ func NewArgv() (Argv, error) {
 	flag.Usage = func() {
 		fmt.Fprintf(
 			flag.CommandLine.Output(),
-			"packlevels --tileset-manifest=<file> --out=<dir> "+
+			"packboards --tileset-manifest=<file> --out=<dir> "+
 				"[--watch] <TMX files…>\n",
 		)
 		flag.PrintDefaults()

@@ -8,18 +8,18 @@ import (
 	"math/rand/v2"
 
 	"github.com/oidoid/void/src/void/vatlas"
+	"github.com/oidoid/void/src/void/vboards"
 	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vin"
-	"github.com/oidoid/void/src/void/vlevels"
 	"github.com/oidoid/void/src/void/vtext"
 )
 
 // to-do: rename Eng.
 type Engine[Game vgame.Game] struct {
-	Level              *vlevels.Level
+	BoardData          *vboards.Board
 	Router             vgame.Router[Game]
 	Atlas              vatlas.Atlas
 	Texts              ventities.EntVec[Game, ventities.TextEnt]
@@ -49,7 +49,7 @@ type Engine[Game vgame.Game] struct {
 type EngineOpts struct {
 	RenderMode vgfx.RenderMode
 	Font       *vtext.Font
-	Level      *vlevels.Level
+	Board      *vboards.Board
 	MaxSprs    int
 	Seed1      uint64
 	Seed2      uint64
@@ -70,7 +70,7 @@ func New[Game vgame.Game](opts *EngineOpts) *Engine[Game] {
 	}
 	this := &Engine[Game]{
 		font:              opts.Font,
-		Level:             opts.Level,
+		BoardData:         opts.Board,
 		in:                vin.NewIn(),
 		rnd:               rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
 		fullscreenRequest: vgame.FullscreenRequestEnter,
@@ -109,7 +109,7 @@ func (this *Engine[Game]) Font() *vtext.Font {
 	return this.font
 }
 
-func (this *Engine[Game]) Lvl() *vlevels.Level { return this.Level }
+func (this *Engine[Game]) Board() *vboards.Board { return this.BoardData }
 
 // to-do: rename to Poll, move props to Engine struct, and don't expose?
 func (this *Engine[Game]) Frame() *vgame.Poll { return &this.frame }
@@ -250,8 +250,8 @@ func (this *Engine[Game]) CursorPhy() *vgeo.Box[float32] {
 	return this.Cursor.HitboxPhy()
 }
 
-func (this *Engine[Game]) LevelW() int32 { return this.Level.W }
-func (this *Engine[Game]) LevelH() int32 { return this.Level.H }
+func (this *Engine[Game]) BoardW() int32 { return this.BoardData.W }
+func (this *Engine[Game]) BoardH() int32 { return this.BoardData.H }
 
 func (this *Engine[Game]) LayerConfigsPointer() uintptr {
 	return uintptr(unsafe.Pointer(unsafe.SliceData(this.layerConfigExport[:])))
@@ -260,14 +260,14 @@ func (this *Engine[Game]) Layer(layer vgfx.Layer) *vgfx.LayerConfig {
 	return &this.layers[layer]
 }
 
-func (this *Engine[Game]) TilePointer() uintptr {
-	if this.Level == nil || len(this.Level.Tiles) == 0 {
+func (this *Engine[Game]) BoardTilesPointer() uintptr {
+	if this.BoardData == nil || len(this.BoardData.Tiles) == 0 {
 		return 0
 	}
-	return uintptr(unsafe.Pointer(&this.Level.Tiles[0]))
+	return uintptr(unsafe.Pointer(&this.BoardData.Tiles[0]))
 }
-func (this *Engine[Game]) LevelTileW() uint8 { return this.Level.Tile.W }
-func (this *Engine[Game]) LevelTileH() uint8 { return this.Level.Tile.H }
+func (this *Engine[Game]) BoardTileW() uint8 { return this.BoardData.Tile.W }
+func (this *Engine[Game]) BoardTileH() uint8 { return this.BoardData.Tile.H }
 
 func (this *Engine[Game]) EndTick(stat vgame.Status) vgame.Status {
 	if this.drawAlways {

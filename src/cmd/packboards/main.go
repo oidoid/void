@@ -1,4 +1,4 @@
-// pack Tiled maps into compact Go level data.
+// pack Tiled TMX files into compact Go board data.
 package main
 
 import (
@@ -14,7 +14,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/oidoid/void/src/cmd/internal/fileutils"
 	"github.com/oidoid/void/src/cmd/internal/tilesetmanifest"
-	"github.com/oidoid/void/src/void/vlevels"
+	"github.com/oidoid/void/src/void/vboards"
 )
 
 func main() {
@@ -23,7 +23,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	if err := packLevels(&argv); err != nil {
+	if err := packBoards(&argv); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		if !argv.Watch {
 			os.Exit(1)
@@ -66,7 +66,7 @@ func watch(argv *Argv) (err error) {
 				filepath.Clean(event.Name) != filepath.Clean(argv.TilesetManifest) {
 				continue
 			}
-			if err := packLevels(argv); err != nil {
+			if err := packBoards(argv); err != nil {
 				fmt.Fprintln(os.Stderr, err)
 			}
 		case err, ok := <-watcher.Errors:
@@ -78,7 +78,7 @@ func watch(argv *Argv) (err error) {
 	}
 }
 
-func packLevels(argv *Argv) error {
+func packBoards(argv *Argv) error {
 	tilesetManifestBin, err := os.ReadFile(argv.TilesetManifest)
 	if err != nil {
 		return err
@@ -99,16 +99,16 @@ func packLevels(argv *Argv) error {
 		return err
 	}
 	for _, path := range paths {
-		lvl, err := readLevel(path, i)
+		board, err := readBoard(path, i)
 		if err != nil {
 			return fmt.Errorf("%s: %w", path, err)
 		}
-		src, err := genLevel(argv.Pkg, path, &lvl)
+		src, err := genBoard(argv.Pkg, path, &board)
 		if err != nil {
 			return fmt.Errorf("%s: %w", path, err)
 		}
 		name := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
-		out := filepath.Join(argv.Out, name+"_level.go")
+		out := filepath.Join(argv.Out, name+"_board.go")
 		if err := os.WriteFile(out, src, 0o644); err != nil {
 			return err
 		}
@@ -116,18 +116,18 @@ func packLevels(argv *Argv) error {
 	return nil
 }
 
-func genLevel(pkg, path string, lvl *vlevels.Level) ([]byte, error) {
+func genBoard(pkg, path string, board *vboards.Board) ([]byte, error) {
 	name := goName(strings.TrimSuffix(filepath.Base(path), filepath.Ext(path)))
 	firstCh, _ := utf8.DecodeRuneInString(name)
 	if name == "" || !unicode.IsLetter(firstCh) {
 		return nil, fmt.Errorf("filename does not form a Go identifier")
 	}
-	bin := vlevels.EncodeLevel(lvl)
+	bin := vboards.EncodeBoard(board)
 	var str strings.Builder
 	fmt.Fprintf(&str,
-		"// codegen by packlevels.\npackage %s\n\n"+
-			"import \"github.com/oidoid/void/src/void/vlevels\"\n\n"+
-			"var %sLevel = vlevels.DecodeLevel([]byte{",
+		"// codegen by packboards.\npackage %s\n\n"+
+			"import \"github.com/oidoid/void/src/void/vboards\"\n\n"+
+			"var %sBoard = vboards.DecodeBoard([]byte{",
 		pkg, name,
 	)
 	for i, v := range bin {

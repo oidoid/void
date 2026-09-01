@@ -25,3 +25,4 @@ read the referenced example files before writing any code.
 - direct ents avoid an `EntVec` and hook below 100 instances.
 - avoid inline closures for `EntVec` updates.
 - hooks accept only their ent vector and `Game`.
+- boards contain spatial data; levels select a board and compose gameplay around it.

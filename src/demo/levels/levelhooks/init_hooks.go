@@ -1,6 +1,7 @@
 package levelhooks
 
 import (
+	"github.com/oidoid/void/src/demo/boards"
 	"github.com/oidoid/void/src/demo/engine"
 	"github.com/oidoid/void/src/demo/entities"
 	"github.com/oidoid/void/src/demo/gfx"
@@ -17,11 +18,12 @@ const cursorKeyVel = float32(100) // px / sec.
 
 // to-do: collapse with engine init?
 func InitInit(gam *engine.Engine) {
+	gam.SetBoard(&boards.InitBoard)
 	gam.RegisterPreupdate(hooks.UpdateCam)
 	gam.RegisterPreupdate(hooks.UpdateLayers)
 	anim := gam.Atlas.Anims[int(tags.BackpackerWalkRight)]
-	tileW := int32(gam.Level.Tile.W)
-	tileH := int32(gam.Level.Tile.H)
+	tileW := int32(gam.Board().Tile.W)
+	tileH := int32(gam.Board().Tile.H)
 	p1 := entities.NewP1Ent(
 		vgeo.NewXY(
 			float32(tileW),

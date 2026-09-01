@@ -1,4 +1,4 @@
-package vlevels
+package vboards
 
 import (
 	"testing"
@@ -7,8 +7,8 @@ import (
 	"github.com/oidoid/void/src/void/vgeo"
 )
 
-func TestLevelTileAt(t *testing.T) {
-	level := Level{
+func TestBoardTileAt(t *testing.T) {
+	board := Board{
 		WH:   vgeo.NewWH[int32](16, 8),
 		Tile: vgeo.NewWH[uint8](4, 4),
 		Tiles: []Tile{
@@ -36,10 +36,10 @@ func TestLevelTileAt(t *testing.T) {
 	}
 	for _, test := range cases {
 		t.Run(test.name, func(t *testing.T) {
-			if got := level.TileAt(test.xy).Tag(); got != test.wantTag {
+			if got := board.TileAt(test.xy).Tag(); got != test.wantTag {
 				t.Fatalf("TileAt(%v) = %v, want %v", test.xy, got, test.wantTag)
 			}
-			if got := level.HitsAt(test.xy); got != test.wantHits {
+			if got := board.HitsAt(test.xy); got != test.wantHits {
 				t.Fatalf("HitsAt(%v) = %v, want %v", test.xy, got, test.wantHits)
 			}
 		})

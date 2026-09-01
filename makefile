@@ -21,7 +21,7 @@ pack_demo = go run ./src/cmd/pack --out=dist/demo/ --tsconfig=src/demo/web/tscon
 # $(1) flags
 tileset_manifest_demo := dist/demo/tileset-manifest.json
 packatlas_demo = go run ./src/cmd/packatlas --name=atlas --img-out=dist/demo/ --atlas-out=src/demo/assets/atlas_bin.go --tags-out=src/demo/tags/tags.go --tileset-manifest-out=$(tileset_manifest_demo) $(1) src/demo/assets/atlas/
-packlevels_demo = go run ./src/cmd/packlevels --tileset-manifest=$(tileset_manifest_demo) --out=src/demo/levels $(1) src/demo/assets/levels/
+packboards_demo = go run ./src/cmd/packboards --tileset-manifest=$(tileset_manifest_demo) --out=src/demo/boards $(1) src/demo/assets/boards/
 favicon_demo = \
 	mkdir -p dist/demo/favicon; \
 	for scale in 1 2 3 4 12 32; do \
@@ -30,24 +30,24 @@ favicon_demo = \
 		cwebp -exact -lossless -mt -quiet -z 9 $$favicon.png -o $$favicon.webp; \
 	done
 
-.PHONY: bench build build-cmd build-demo build-go build-atlas build-levels build-favicon build-web clean dependencies fat-analyze fat-check fat-save fmt fmt-go fmt-mod fmt-web install lint lint-critic lint-static lint-vet lint-web slow-check slow-save test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-atlas watch-levels watch-web
+.PHONY: bench build build-cmd build-demo build-go build-atlas build-boards build-favicon build-web clean dependencies fat-analyze fat-check fat-save fmt fmt-go fmt-mod fmt-web install lint lint-critic lint-static lint-vet lint-web slow-check slow-save test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-atlas watch-boards watch-web
 
 watch: export DEBUG := 1
-watch: dependencies build-atlas .WAIT build-levels build-favicon .WAIT watch-go watch-atlas watch-levels watch-web
+watch: dependencies build-atlas .WAIT build-boards build-favicon .WAIT watch-go watch-atlas watch-boards watch-web
 watch-go:; watchexec --exts=go --quiet --watch=src/ -- $(MAKE) build-go
 watch-atlas:; $(call packatlas_demo,--watch)
-watch-levels:; $(call packlevels_demo,--watch)
+watch-boards:; $(call packboards_demo,--watch)
 watch-web:; $(call pack_demo,--watch)
 
 build: build-cmd build-demo build-web
 build-cmd:; go build $(go_tags) -o dist/ ./src/cmd/...
-build-demo: build-atlas .WAIT build-levels build-favicon .WAIT build-go
+build-demo: build-atlas .WAIT build-boards build-favicon .WAIT build-go
 build-go:
 	# no concurrency.
 	GOOS=wasip1 GOARCH=wasm tinygo build $(tinygo_flags) -o $(out_demo) ./src/demo/web/
 	$(if $(value DEBUG),,wasm-opt -o $(out_demo) -Oz --strip-debug --strip-producers $(out_demo))
 build-atlas:; $(call packatlas_demo,)
-build-levels: build-atlas; $(call packlevels_demo,)
+build-boards: build-atlas; $(call packboards_demo,)
 build-favicon:; $(favicon_demo)
 build-web: build-demo build-atlas; $(call pack_demo,--minify --one-file)
 

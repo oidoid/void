@@ -8,10 +8,10 @@ import (
 
 	"github.com/oidoid/void/src/cmd/internal/tilesetmanifest"
 	"github.com/oidoid/void/src/void/vatlas"
-	"github.com/oidoid/void/src/void/vlevels"
+	"github.com/oidoid/void/src/void/vboards"
 )
 
-func TestReadLevel(t *testing.T) {
+func TestReadBoard(t *testing.T) {
 	dir := t.TempDir()
 	image := filepath.Join(dir, "tiles.aseprite")
 	tsx := filepath.Join(dir, "tiles.tsx")
@@ -39,31 +39,31 @@ func TestReadLevel(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	got, err := readLevel(tmx, index)
+	got, err := readBoard(tmx, index)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if got.W != 32 || got.H != 32 ||
 		got.Tile.W != 16 || got.Tile.H != 16 {
-		t.Fatalf("level dimensions = %#v", got)
+		t.Fatalf("board dimensions = %#v", got)
 	}
-	want := []vlevels.Tile{
-		vlevels.NewTile(9, false), vlevels.NewTile(10, true), 0,
-		vlevels.NewTile(9, false),
+	want := []vboards.Tile{
+		vboards.NewTile(9, false), vboards.NewTile(10, true), 0,
+		vboards.NewTile(9, false),
 	}
 	if !reflect.DeepEqual(got.Tiles, want) {
 		t.Fatalf("tiles = %v, want %v", got.Tiles, want)
 	}
 }
 
-func TestReadLevelRejectsLargeTile(t *testing.T) {
+func TestReadBoardRejectsLargeTile(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "large-tile.tmx")
 	writeTestFile(t, path, `<?xml version="1.0"?>
 <map orientation="orthogonal" width="1" height="1" tilewidth="256"
  tileheight="1" infinite="0">
  <layer width="1" height="1"><data encoding="csv">0</data></layer>
 </map>`)
-	if _, err := readLevel(path, nil); err == nil {
+	if _, err := readBoard(path, nil); err == nil {
 		t.Fatal("want uint8 tile-dimension error")
 	}
 }
@@ -81,13 +81,13 @@ func TestTileForGID(t *testing.T) {
 	}
 	cases := map[string]struct {
 		gid  uint32
-		want vlevels.Tile
+		want vboards.Tile
 		err  bool
 	}{
 		"empty":        {0, 0, false},
-		"first":        {1, vlevels.NewTile(9, false), false},
-		"next":         {2, vlevels.NewTile(10, true), false},
-		"second":       {10, vlevels.NewTile(20, true), false},
+		"first":        {1, vboards.NewTile(9, false), false},
+		"next":         {2, vboards.NewTile(10, true), false},
+		"second":       {10, vboards.NewTile(20, true), false},
 		"gap":          {3, 0, true},
 		"out of range": {12, 0, true},
 		"flip":         {tiledFlipMask | 1, 0, true},

@@ -63,22 +63,22 @@ func Update() vgame.Status {
 	return gam.Update()
 }
 
-//export TilePointer
-func TilePointer() uintptr {
-	return gam.TilePointer()
+//export BoardTilesPointer
+func BoardTilesPointer() uintptr {
+	return gam.BoardTilesPointer()
 }
 
-//export LevelW
-func LevelW() int32 { return gam.LevelW() }
+//export BoardW
+func BoardW() int32 { return gam.BoardW() }
 
-//export LevelH
-func LevelH() int32 { return gam.LevelH() }
+//export BoardH
+func BoardH() int32 { return gam.BoardH() }
 
-//export LevelTileW
-func LevelTileW() uint8 { return gam.LevelTileW() }
+//export BoardTileW
+func BoardTileW() uint8 { return gam.BoardTileW() }
 
-//export LevelTileH
-func LevelTileH() uint8 { return gam.LevelTileH() }
+//export BoardTileH
+func BoardTileH() uint8 { return gam.BoardTileH() }
 
 //export CamX
 func CamX() float32 { return gam.CamX() }

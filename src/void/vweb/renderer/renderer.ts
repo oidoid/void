@@ -52,8 +52,8 @@ export class Renderer {
     gl: WebGL2RenderingContext,
     buffer: ArrayBuffer,
     tilePtr: number,
-    levelW: number,
-    levelH: number,
+    boardW: number,
+    boardH: number,
     tileW: number,
     tileH: number,
     atlasCels: Uint16Array,
@@ -70,7 +70,7 @@ export class Renderer {
     const tiles = new Uint16Array(
       buffer,
       tilePtr,
-      (levelW / tileW) * (levelH / tileH)
+      (boardW / tileW) * (boardH / tileH)
     )
     this.#loseContext = gl.getExtension('WEBGL_lose_context')
     this.#gl = gl
@@ -89,8 +89,8 @@ export class Renderer {
       tiles,
       tileW,
       tileH,
-      levelW,
-      levelH,
+      boardW,
+      boardH,
       this.#sprs.atlasCelsTex,
       this.#sprs.sprsheetTex
     )

@@ -1,10 +1,10 @@
-package vlevels
+package vboards
 
 import (
 	"github.com/oidoid/void/src/void/vatlas"
 )
 
-// packed level cell with an atlas tag and gameplay flags.
+// packed board cell with an atlas tag and gameplay flags.
 type Tile uint16
 
 const (

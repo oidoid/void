@@ -1,4 +1,4 @@
-package vlevels
+package vboards
 
 import (
 	"reflect"
@@ -7,8 +7,8 @@ import (
 	"github.com/oidoid/void/src/void/vgeo"
 )
 
-func TestLevelRoundTrip(t *testing.T) {
-	cases := map[string]Level{
+func TestBoardRoundTrip(t *testing.T) {
+	cases := map[string]Board{
 		"empty": {
 			WH: vgeo.NewWH[int32](0, 0), Tile: vgeo.NewWH[uint8](1, 1),
 		},
@@ -33,34 +33,34 @@ func TestLevelRoundTrip(t *testing.T) {
 			Tiles: make([]Tile, 256),
 		},
 	}
-	for name, lvl := range cases {
+	for name, board := range cases {
 		t.Run(name, func(t *testing.T) {
-			got := DecodeLevel(EncodeLevel(&lvl))
-			if len(got.Tiles) == 0 && len(lvl.Tiles) == 0 {
-				got.Tiles, lvl.Tiles = nil, nil
+			got := DecodeBoard(EncodeBoard(&board))
+			if len(got.Tiles) == 0 && len(board.Tiles) == 0 {
+				got.Tiles, board.Tiles = nil, nil
 			}
-			if !reflect.DeepEqual(got, lvl) {
-				t.Fatalf("got %v, want %v", got, lvl)
+			if !reflect.DeepEqual(got, board) {
+				t.Fatalf("got %v, want %v", got, board)
 			}
 		})
 	}
 }
 
-func TestLevelRunEncodingLength(t *testing.T) {
+func TestBoardRunEncodingLength(t *testing.T) {
 	for _, test := range []struct {
 		name        string
 		count, want int
 	}{
-		{"short", 255, levelHeaderLen + 3},
-		{"long", 256, levelHeaderLen + 5},
+		{"short", 255, boardHeaderLen + 3},
+		{"long", 256, boardHeaderLen + 5},
 	} {
 		t.Run(test.name, func(t *testing.T) {
-			lvl := Level{
+			board := Board{
 				WH:    vgeo.NewWH(int32(test.count), int32(1)),
 				Tile:  vgeo.NewWH[uint8](1, 1),
 				Tiles: make([]Tile, test.count),
 			}
-			if got := len(EncodeLevel(&lvl)); got != test.want {
+			if got := len(EncodeBoard(&board)); got != test.want {
 				t.Fatalf("encoded length = %d, want %d", got, test.want)
 			}
 		})

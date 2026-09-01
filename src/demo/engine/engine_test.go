@@ -7,10 +7,10 @@ import (
 	"github.com/oidoid/void/src/demo/entities"
 	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/void/vatlas"
+	"github.com/oidoid/void/src/void/vboards"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
-	"github.com/oidoid/void/src/void/vlevels"
 )
 
 func TestWakelock(t *testing.T) {
@@ -86,7 +86,7 @@ func TestP1EntDrawsWhenSpriteHitsClip(t *testing.T) {
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			gam := New()
-			gam.Level = &vlevels.Level{WH: vgeo.NewWH[int32](10, 10)}
+			gam.BoardData = &vboards.Board{WH: vgeo.NewWH[int32](10, 10)}
 			gam.Layer(gfx.LayerP1).Clip = clip
 			ent := entities.NewP1Ent(
 				vgeo.NewXY(test.x, float32(0)), vatlas.Anim{W: 8, H: 13},

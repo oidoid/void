@@ -23,7 +23,7 @@ func genTilesetManifest(
 
 // native tiles follow public animations in asset, tileset, then native tile-ID
 // order. firstTag therefore resolves every native tile directly. The
-// build-only result lets packlevels translate each Tiled preview cell to its
+// build-only result lets packboards translate each Tiled preview cell to its
 // final tag.
 func newTilesetManifest(
 	assets []*asset, firstTag vatlas.Tag,

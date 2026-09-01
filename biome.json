@@ -3,8 +3,8 @@
   "files": {
     "includes": [
       "!!dist",
-      "!!src/demo/assets/levels/**/*.tsx",
-      "!!src/demo/assets/tiles/**/*.tsx"
+      "!!src/demo/assets/boards/**/*.tsx",
+      "!!src/demo/assets/boarddefs/**/*.tsx"
     ]
   }
 }

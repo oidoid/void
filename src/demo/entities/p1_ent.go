@@ -5,10 +5,10 @@ import (
 	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/demo/tags"
 	"github.com/oidoid/void/src/void/vatlas"
+	"github.com/oidoid/void/src/void/vboards"
 	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
-	"github.com/oidoid/void/src/void/vlevels"
 	"github.com/oidoid/void/src/void/vmath"
 )
 
@@ -35,7 +35,7 @@ func NewP1Ent(xy vgeo.XY[float32], anim vatlas.Anim) P1Ent {
 
 func (this *P1Ent) Update(gam game.Game) vgame.Status {
 	layer := gam.Layer(gfx.LayerP1)
-	this.Move(gam.DeltaMs(), gam.Lvl())
+	this.Move(gam.DeltaMs(), gam.Board())
 	if layer.Clip.HitsBox(vgeo.XYWH(
 		this.X, this.Y, float32(this.W), float32(this.H),
 	)) {
@@ -44,7 +44,7 @@ func (this *P1Ent) Update(gam game.Game) vgame.Status {
 	return vgame.Pause // demo doesn't want p1 to require updates.
 }
 
-func (this *P1Ent) Move(deltaMillis float64, lvl *vlevels.Level) {
+func (this *P1Ent) Move(deltaMillis float64, board *vboards.Board) {
 	by := min(float32(deltaMillis)*p1Vel, p1MaxMove)
 	next := this.XY
 	switch this.Dir {
@@ -57,8 +57,8 @@ func (this *P1Ent) Move(deltaMillis float64, lvl *vlevels.Level) {
 	case vgeo.DirS:
 		next.Y += by
 	}
-	if this.hitsWall(next, lvl) {
-		this.XY = this.moveToWall(next, lvl)
+	if this.hitsWall(next, board) {
+		this.XY = this.moveToWall(next, board)
 		this.turnRight()
 		return
 	}
@@ -67,12 +67,12 @@ func (this *P1Ent) Move(deltaMillis float64, lvl *vlevels.Level) {
 
 func (this *P1Ent) moveToWall(
 	next vgeo.XY[float32],
-	lvl *vlevels.Level,
+	board *vboards.Board,
 ) vgeo.XY[float32] {
 	safe, wall := this.XY, next
 	for range 8 {
 		mid := vgeo.NewXY((safe.X+wall.X)/2, (safe.Y+wall.Y)/2)
-		if this.hitsWall(mid, lvl) {
+		if this.hitsWall(mid, board) {
 			wall = mid
 		} else {
 			safe = mid
@@ -83,13 +83,13 @@ func (this *P1Ent) moveToWall(
 
 func (this *P1Ent) hitsWall(
 	xy vgeo.XY[float32],
-	lvl *vlevels.Level,
+	board *vboards.Board,
 ) bool {
 	minX := int32(vmath.Floor(xy.X + float32(this.Hurtbox.Min.X)))
 	maxX := int32(vmath.Floor(xy.X + float32(this.Hurtbox.Max.X) - 1))
 	minY := int32(vmath.Floor(xy.Y + float32(this.Hurtbox.Min.Y)))
 	maxY := int32(vmath.Floor(xy.Y + float32(this.Hurtbox.Max.Y) - 1))
-	if minX < 0 || maxX >= lvl.W || minY < 0 || maxY >= lvl.H {
+	if minX < 0 || maxX >= board.W || minY < 0 || maxY >= board.H {
 		return true
 	}
 	switch this.Dir {
@@ -98,19 +98,19 @@ func (this *P1Ent) hitsWall(
 		if this.Dir == vgeo.DirE {
 			tileX = maxX
 		}
-		if lvl.HitsAt(vgeo.NewXY(tileX, minY)) {
+		if board.HitsAt(vgeo.NewXY(tileX, minY)) {
 			return true
 		}
-		return lvl.HitsAt(vgeo.NewXY(tileX, maxY))
+		return board.HitsAt(vgeo.NewXY(tileX, maxY))
 	case vgeo.DirN, vgeo.DirS:
 		tileY := minY
 		if this.Dir == vgeo.DirS {
 			tileY = maxY
 		}
-		if lvl.HitsAt(vgeo.NewXY(minX, tileY)) {
+		if board.HitsAt(vgeo.NewXY(minX, tileY)) {
 			return true
 		}
-		return lvl.HitsAt(vgeo.NewXY(maxX, tileY))
+		return board.HitsAt(vgeo.NewXY(maxX, tileY))
 	}
 	return false
 }

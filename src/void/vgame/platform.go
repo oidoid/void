@@ -6,11 +6,11 @@ type Platform interface {
 	FramePointer() uintptr
 	LayerConfigsPointer() uintptr
 	Update() Status
-	TilePointer() uintptr
-	LevelW() int32
-	LevelH() int32
-	LevelTileW() uint8
-	LevelTileH() uint8
+	BoardTilesPointer() uintptr
+	BoardW() int32
+	BoardH() int32
+	BoardTileW() uint8
+	BoardTileH() uint8
 	CamX() float32 // to-do: rename Phy.
 	CamY() float32
 	AtlasAnimCount() uint32

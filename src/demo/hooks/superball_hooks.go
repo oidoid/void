@@ -25,18 +25,18 @@ func UpdateSuperballs(
 	nearbox := layer.Nearbox()
 	clip.Min.X -= diameter
 	clip.Min.Y -= diameter
-	tileW := float32(gam.LevelTileW())
-	tileH := float32(gam.LevelTileH())
-	lvl := vgeo.NewBox(
+	tileW := float32(gam.BoardTileW())
+	tileH := float32(gam.BoardTileH())
+	board := vgeo.NewBox(
 		tileW,
 		tileH,
-		float32(gam.Level.W)-tileW,
-		float32(gam.Level.H)-tileH,
+		float32(gam.Board().W)-tileW,
+		float32(gam.Board().H)-tileH,
 	)
 
 	ents := vec.Vals()
 	boing := gam.Boing
-	moveSuperballs(ents, gam.BeepSuperballs, boing, nearbox, lvl, radius)
+	moveSuperballs(ents, gam.BeepSuperballs, boing, nearbox, board, radius)
 	if gam.HitSuperballs {
 		hitSuperballs(
 			ents,
@@ -87,16 +87,16 @@ func moveSuperballs(
 	beep bool,
 	boing func(float32, float32),
 	nearbox vgeo.Box[float32],
-	lvl vgeo.Box[float32],
+	board vgeo.Box[float32],
 	radius float32,
 ) {
 	for i := range ents {
 		if !beep || !nearbox.HitsXY(ents[i].XY) {
-			ents[i].Move(lvl, radius)
+			ents[i].Move(board, radius)
 			continue
 		}
 		dx, dy := ents[i].Vel.X, ents[i].Vel.Y
-		ents[i].Move(lvl, radius)
+		ents[i].Move(board, radius)
 		if ents[i].Vel.X != dx || ents[i].Vel.Y != dy {
 			boing(dx, dy)
 		}

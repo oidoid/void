@@ -7,7 +7,7 @@ import (
 // an animation within an Atlas.
 type Anim struct {
 	// number of cels in a full animation cycle including cels extended for
-	// duration and the second half of pingpongs. level tiles always have one cel.
+	// duration and the second half of pingpongs. board tiles always have one cel.
 	Cels uint8
 	// clipbox / source area.
 	W, H uint16
