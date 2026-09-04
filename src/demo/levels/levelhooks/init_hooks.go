@@ -12,6 +12,7 @@ import (
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vhooks"
+	"github.com/oidoid/void/src/void/vmath"
 )
 
 const cursorKeyVel = float32(100) // px / sec.
@@ -22,16 +23,32 @@ func InitInit(gam *engine.Engine) {
 	gam.RegisterPreupdate(hooks.UpdateCam)
 	gam.RegisterPreupdate(hooks.UpdateLayers)
 	anim := gam.Atlas.Anims[int(tags.BackpackerWalkRight)]
-	tileW := int32(gam.Board().Tile.W)
-	tileH := int32(gam.Board().Tile.H)
-	p1 := entities.NewP1Ent(
-		vgeo.NewXY(
-			float32(tileW),
-			float32(tileH-int32(anim.Hurtbox.Min.Y)),
-		),
-		anim,
-	)
-	gam.Register(&p1)
+	for _, spawn := range boards.InitP1Spawns {
+		p1 := entities.NewP1Ent(spawn.XY, anim)
+		p1.Z = spawn.Z
+		p1.SetTag(spawn.Tag)
+		p1.SetCel(spawn.Cel)
+		p1.Hide(spawn.Hidden)
+		p1.SetFlipX(spawn.FlipX)
+		p1.SetFlipY(spawn.FlipY)
+		p1.SetStretch(spawn.Stretch)
+		p1.SetPal(spawn.Pal)
+		p1.SetZTop(spawn.ZTop)
+		p1.WH = vgeo.NewWH(
+			uint16(vmath.Ceil(spawn.WH.W)),
+			uint16(vmath.Ceil(spawn.WH.H)),
+		)
+		p1.Clockwise = spawn.Clockwise
+		gam.Register(&p1)
+	}
+
+	rnd := gam.Random
+	for _, spawn := range boards.InitSuperballSpawns {
+		superball := entities.NewSuperballEnt(rnd, spawn.XY)
+		superball.Vel = spawn.Vel
+		superball.Rot = spawn.Rot
+		_ = gam.Superballs.Add(superball)
+	}
 
 	cursor := new(ventities.CursorEnt)
 	*cursor = ventities.NewCursorEnt(

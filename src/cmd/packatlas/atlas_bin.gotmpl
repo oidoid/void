@@ -1,0 +1,6 @@
+// codegen by packatlas.
+package {{.Pkg}}
+
+var AtlasBin = []byte{
+	{{range .Bin}}{{printf "0x%02x, " .}}{{end}}
+}

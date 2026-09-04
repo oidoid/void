@@ -2,6 +2,7 @@
 package main
 
 import (
+	_ "embed"
 	"fmt"
 	"go/format"
 	"image/png"
@@ -9,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"text/template"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/oidoid/void/src/cmd/internal/fileutils"
@@ -16,6 +18,22 @@ import (
 )
 
 var initialisms = map[string]bool{"UI": true}
+
+//go:embed atlas_bin.gotmpl
+var atlasBinTemplSrc string
+var atlasBinTempl = template.Must(template.New(
+	"atlas_bin.gotmpl",
+).Parse(atlasBinTemplSrc))
+
+//go:embed atlas_tags.gotmpl
+var atlasTagsTemplSrc string
+var atlasTagsTempl = template.Must(template.New(
+	"atlas_tags.gotmpl",
+).Funcs(
+	template.FuncMap{
+		"tag": func(tag stemTag) string { return tag.qualifiedTag() },
+	},
+).Parse(atlasTagsTemplSrc))
 
 func main() {
 	argv, err := NewArgv()
@@ -114,7 +132,7 @@ func packAtlas(argv *Argv) error {
 		return fmt.Errorf("converting to WebP: %w", err)
 	}
 	atlasBin := vatlas.EncodeAtlas(atlas)
-	dataSrc, err := genData(
+	binSrc, err := genBin(
 		filepath.Base(filepath.Dir(argv.AtlasOut)), atlasBin,
 	)
 	if err != nil {
@@ -123,7 +141,7 @@ func packAtlas(argv *Argv) error {
 	if err := os.MkdirAll(filepath.Dir(argv.AtlasOut), 0o755); err != nil {
 		return err
 	}
-	if err := os.WriteFile(argv.AtlasOut, dataSrc, 0o644); err != nil {
+	if err := os.WriteFile(argv.AtlasOut, binSrc, 0o644); err != nil {
 		return err
 	}
 	tagsSrc, err := genTags(
@@ -141,9 +159,7 @@ func packAtlas(argv *Argv) error {
 	if argv.TilesetManifestOut == "" {
 		return nil
 	}
-	tilesetManifestBin, err := genTilesetManifest(
-		assets, vatlas.Tag(len(stemTags)),
-	)
+	tilesetManifestBin, err := genTilesetManifest(assets, stemTags)
 	if err != nil {
 		return err
 	}
@@ -153,39 +169,27 @@ func packAtlas(argv *Argv) error {
 	return os.WriteFile(argv.TilesetManifestOut, tilesetManifestBin, 0o644)
 }
 
-func genData(pkg string, data []byte) ([]byte, error) {
+func genBin(pkg string, bin []byte) ([]byte, error) {
 	var str strings.Builder
-	fmt.Fprintf(
-		&str,
-		"// codegen by packatlas.\npackage %s\n\nvar AtlasBin = []byte{",
-		pkg,
-	)
-	for i, v := range data {
-		if i%16 == 0 {
-			str.WriteString("\n\t")
-		}
-		fmt.Fprintf(&str, "0x%02x,", v)
+	templData := struct {
+		Pkg string
+		Bin []byte
+	}{pkg, bin}
+	if err := atlasBinTempl.Execute(&str, &templData); err != nil {
+		return nil, fmt.Errorf("executing atlas bin template: %w", err)
 	}
-	str.WriteString("\n}\n")
 	return format.Source([]byte(str.String()))
 }
 
 func genTags(pkg string, stemTags []stemTag) ([]byte, error) {
 	var str strings.Builder
-	fmt.Fprintf(
-		&str,
-		"// codegen by packatlas.\npackage %s\n\n"+
-			"import \"github.com/oidoid/void/src/void/vatlas\"\n\nconst (\n",
-		pkg,
-	)
-	for i, stemTag := range stemTags {
-		if i == 0 {
-			fmt.Fprintf(&str, "\t%s vatlas.Tag = iota\n", stemTag.qualifiedTag())
-		} else {
-			fmt.Fprintf(&str, "\t%s\n", stemTag.qualifiedTag())
-		}
+	templData := struct {
+		Pkg  string
+		Tags []stemTag
+	}{pkg, stemTags}
+	if err := atlasTagsTempl.Execute(&str, &templData); err != nil {
+		return nil, fmt.Errorf("executing atlas tags template: %w", err)
 	}
-	fmt.Fprintf(&str, ")\n")
 	return format.Source([]byte(str.String()))
 }
 

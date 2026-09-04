@@ -11,14 +11,21 @@ import (
 )
 
 func genTilesetManifest(
-	assets []*asset, firstTag vatlas.Tag,
+	assets []*asset, tags []stemTag,
 ) ([]byte, error) {
-	tilesets, err := newTilesetManifest(assets, firstTag)
+	tilesets, err := newTilesetManifest(assets, vatlas.Tag(len(tags)))
 	if err != nil {
 		return nil, err
 	}
-	bin, err := json.MarshalIndent(tilesets, "", "  ")
-	return append(bin, '\n'), err
+	namedTags := make(map[string]vatlas.Tag, len(tags))
+	for i, tag := range tags {
+		namedTags[tag.qualifiedTag()] = vatlas.Tag(i)
+	}
+	manifest := tilesetmanifest.TilesetManifestSpec{
+		Tags: namedTags, Tilesets: tilesets,
+	}
+	bin, err := json.MarshalIndent(&manifest, "", "  ")
+	return append(bin, 0x0a), err
 }
 
 // native tiles follow public animations in asset, tileset, then native tile-ID
@@ -27,8 +34,8 @@ func genTilesetManifest(
 // final tag.
 func newTilesetManifest(
 	assets []*asset, firstTag vatlas.Tag,
-) ([]tilesetmanifest.TilesetManifest, error) {
-	this := make([]tilesetmanifest.TilesetManifest, 0, len(assets))
+) ([]tilesetmanifest.TilesetSpec, error) {
+	this := make([]tilesetmanifest.TilesetSpec, 0, len(assets))
 	for _, asset := range assets {
 		if len(asset.Tilesets) == 0 {
 			continue
@@ -47,22 +54,22 @@ func newTilesetManifest(
 
 func mapTileset(
 	asset *asset, firstTag vatlas.Tag,
-) (tilesetmanifest.TilesetManifest, error) {
+) (tilesetmanifest.TilesetSpec, error) {
 	if len(asset.Frames) == 0 {
-		return tilesetmanifest.TilesetManifest{}, fmt.Errorf(
+		return tilesetmanifest.TilesetSpec{}, fmt.Errorf(
 			"%s: native tiles have no frame", asset.name,
 		)
 	}
 	first := &asset.Tilesets[0]
 	if first.Header.W == 0 || first.Header.H == 0 ||
 		first.Header.W > 255 || first.Header.H > 255 {
-		return tilesetmanifest.TilesetManifest{}, fmt.Errorf(
+		return tilesetmanifest.TilesetSpec{}, fmt.Errorf(
 			"%s: tile size %dx%d is outside 1..255", asset.name,
 			first.Header.W, first.Header.H,
 		)
 	}
 	if asset.W%first.Header.W != 0 || asset.H%first.Header.H != 0 {
-		return tilesetmanifest.TilesetManifest{}, fmt.Errorf(
+		return tilesetmanifest.TilesetSpec{}, fmt.Errorf(
 			"%s: image %dx%d is not divisible by tile size %dx%d",
 			asset.name,
 			asset.W, asset.H,
@@ -71,7 +78,7 @@ func mapTileset(
 	}
 	cols := int(asset.W / first.Header.W)
 	rows := int(asset.H / first.Header.H)
-	this := tilesetmanifest.TilesetManifest{
+	this := tilesetmanifest.TilesetSpec{
 		Path: filepath.ToSlash(filepath.Clean(asset.name)),
 		W:    asset.W, H: asset.H,
 		TileW: uint8(first.Header.W), TileH: uint8(first.Header.H),
@@ -85,7 +92,7 @@ func mapTileset(
 			continue
 		}
 		if int(layer.Tileset) >= len(asset.Tilesets) {
-			return tilesetmanifest.TilesetManifest{}, fmt.Errorf(
+			return tilesetmanifest.TilesetSpec{}, fmt.Errorf(
 				"%s: layer %q tileset %d is missing",
 				asset.name, layer.Name, layer.Tileset,
 			)
@@ -98,7 +105,7 @@ func mapTileset(
 			)
 		}
 		if tileset.Header.W != first.Header.W || tileset.Header.H != first.Header.H {
-			return tilesetmanifest.TilesetManifest{}, fmt.Errorf(
+			return tilesetmanifest.TilesetSpec{}, fmt.Errorf(
 				"%s: native tilesets use different tile sizes", asset.name,
 			)
 		}
@@ -107,21 +114,21 @@ func mapTileset(
 			continue
 		}
 		if cel.Header.Type != vatlas.AseCelTilemap {
-			return tilesetmanifest.TilesetManifest{}, fmt.Errorf(
+			return tilesetmanifest.TilesetSpec{}, fmt.Errorf(
 				"%s: layer %q cel is not a tilemap", asset.name, layer.Name,
 			)
 		}
 		if err := mapTileCel(
 			&this, cols, rows, tileset, &cel, tilesetTag,
 		); err != nil {
-			return tilesetmanifest.TilesetManifest{}, fmt.Errorf(
+			return tilesetmanifest.TilesetSpec{}, fmt.Errorf(
 				"%s: layer %q: %w", asset.name, layer.Name, err,
 			)
 		}
 		mapped = true
 	}
 	if !mapped {
-		return tilesetmanifest.TilesetManifest{}, fmt.Errorf(
+		return tilesetmanifest.TilesetSpec{}, fmt.Errorf(
 			"%s: native tiles have no tilemap cel", asset.name,
 		)
 	}
@@ -129,7 +136,7 @@ func mapTileset(
 }
 
 func mapTileCel(
-	tilesetManifest *tilesetmanifest.TilesetManifest,
+	tilesetManifest *tilesetmanifest.TilesetSpec,
 	cols, rows int,
 	tileset *vatlas.AseTileset,
 	cel *assetCel,

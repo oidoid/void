@@ -3,15 +3,24 @@
 package main
 
 import (
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"go/format"
 	"os"
 	"path/filepath"
 	"strings"
+	templ "text/template"
 
 	"github.com/oidoid/void/src/void/vtext"
 )
+
+//go:embed font.gotmpl
+var fontTemplSrc string
+
+var fontTempl = templ.Must(templ.New(
+	"font.gotmpl",
+).Parse(fontTemplSrc))
 
 type fontJSON struct {
 	ID                       string          `json:"id"`
@@ -58,44 +67,29 @@ func run(in, out string) error {
 	}
 	pkg := filepath.Base(filepath.Dir(absOut))
 
+	templData := struct {
+		Pkg      string
+		VarName  string
+		Font     *fontJSON
+		Kerning  []byte
+		Widths   []byte
+		Descends []byte
+	}{
+		pkg,
+		shishKebabToTitleCase(font.ID),
+		&font,
+		vtext.EncodeKerning(
+			font.Kerning,
+			font.DefaultKerning,
+			font.DefaultWhitespaceKerning,
+		),
+		vtext.EncodeWidths(font.CharW, font.DefaultCharW),
+		vtext.EncodeDescends(font.Descends),
+	}
 	var str strings.Builder
-	fmt.Fprintf(&str, "// codegen by genfont.\n")
-	fmt.Fprintf(&str, "package %s\n\n", pkg)
-
-	varName := shishKebabToTitleCase(font.ID)
-	fmt.Fprintf(&str, "var %s = decodeFont(&Font{\n", varName)
-	fmt.Fprintf(&str, "\tID: %q,\n", font.ID)
-	fmt.Fprintf(&str, "\tName: %q,\n", font.Name)
-	fmt.Fprintf(&str, "\tCellW: %d,\n", font.CellW)
-	fmt.Fprintf(&str, "\tCellH: %d,\n", font.CellH)
-	fmt.Fprintf(&str, "\tLeading: %d,\n", font.Leading)
-	fmt.Fprintf(&str, "\tLineH: %d,\n", font.LineH)
-	fmt.Fprintf(&str, "\tBaseline: %d,\n", font.Baseline)
-	fmt.Fprintf(&str, "\tDefaultKerning: %d,\n", font.DefaultKerning)
-	fmt.Fprintf(
-		&str,
-		"\tDefaultWhitespaceKerning: %d,\n",
-		font.DefaultWhitespaceKerning,
-	)
-	fmt.Fprintf(&str, "\tEndOfLineKerning: %d,\n", font.EndOfLineKerning)
-	fmt.Fprintf(&str, "\tDefaultCharW: %d,\n", font.DefaultCharW)
-	fmt.Fprintf(&str, "}, []byte{\n")
-	for _, b := range vtext.EncodeKerning(
-		font.Kerning,
-		font.DefaultKerning,
-		font.DefaultWhitespaceKerning,
-	) {
-		fmt.Fprintf(&str, "\t%d,\n", b)
+	if err := fontTempl.Execute(&str, &templData); err != nil {
+		return fmt.Errorf("executing font template: %w", err)
 	}
-	fmt.Fprintf(&str, "}, []byte{\n")
-	for _, b := range vtext.EncodeWidths(font.CharW, font.DefaultCharW) {
-		fmt.Fprintf(&str, "\t%d,\n", b)
-	}
-	fmt.Fprintf(&str, "}, []byte{\n")
-	for _, b := range vtext.EncodeDescends(font.Descends) {
-		fmt.Fprintf(&str, "\t%d,\n", b)
-	}
-	fmt.Fprintf(&str, "})\n")
 
 	src, err := format.Source([]byte(str.String()))
 	if err != nil {

@@ -1,0 +1,9 @@
+// codegen by packatlas.
+package {{.Pkg}}
+
+import "github.com/oidoid/void/src/void/vatlas"
+
+const (
+	{{range $i, $tag := .Tags}}{{if not $i}}{{tag $tag}} vatlas.Tag = iota
+	{{else}}{{tag $tag}}
+	{{end}}{{end}})

@@ -1,0 +1,47 @@
+{{define "spawn"}}vboards.Spawn{
+{{if or .XY.X .XY.Y}}	XY: vgeo.NewXY[float32]({{.XY.X}}, {{.XY.Y}}),
+{{end}}{{if or .WH.W .WH.H}}	WH: vgeo.NewWH[float32]({{.WH.W}}, {{.WH.H}}),
+{{end}}{{if .Rot}}	Rot: {{.Rot}},
+{{end}}{{if .Z}}	Z: {{.Z}},
+{{end}}{{if .Tag}}	Tag: {{.Tag}},
+{{end}}{{if .Cel}}	Cel: {{.Cel}},
+{{end}}{{if .Pal}}	Pal: {{.Pal}},
+{{end}}{{if .Hidden}}	Hidden: true,
+{{end}}{{if .FlipX}}	FlipX: true,
+{{end}}{{if .FlipY}}	FlipY: true,
+{{end}}{{if .Stretch}}	Stretch: true,
+{{end}}{{if .ZTop}}	ZTop: true,
+{{end}}}{{end -}}
+// codegen by packboards.
+package {{.Pkg}}
+
+import (
+	"github.com/oidoid/void/src/void/vboards"
+	"github.com/oidoid/void/src/void/vgeo"
+)
+
+var {{.Name}}Board = vboards.DecodeBoard([]byte{
+	{{range .Bin}}{{printf "0x%02x, " .}}{{end}}
+})
+{{range $group := .Board.Spawns}}
+{{$className := name $group.Class}}{{if $group.Props}}
+type {{$.Name}}{{$className}}Spawn struct {
+	vboards.Spawn
+	{{range $group.Props}}{{if .IsBool}}{{name .Name}} bool
+	{{else if .IsInt}}{{name .Name}} int32
+	{{else if .IsXY}}{{name .Name}} vgeo.XY[float32]
+	{{end}}{{end}}}
+
+var {{$.Name}}{{$className}}Spawns = [...]{{$.Name}}{{$className}}Spawn{
+	{{range $spawn := $group.Spawns}}{
+		Spawn: {{template "spawn" $spawn}},
+		{{range $prop := $spawn.Props}}{{if $prop.IsBool}}{{if $prop.Bool}}{{name $prop.Name}}: true,
+		{{end}}{{else if $prop.IsInt}}{{if $prop.Int}}{{name $prop.Name}}: {{$prop.Int}},
+		{{end}}{{else if $prop.IsXY}}{{if or $prop.XY.X $prop.XY.Y}}{{name $prop.Name}}: vgeo.NewXY[float32]({{$prop.XY.X}}, {{$prop.XY.Y}}),
+		{{end}}{{end}}{{end}}},
+	{{end}}}
+{{else}}
+var {{$.Name}}{{$className}}Spawns = [...]vboards.Spawn{
+	{{range $group.Spawns}}{{template "spawn" .}},
+	{{end}}}
+{{end}}{{end}}

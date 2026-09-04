@@ -2,12 +2,14 @@
 package main
 
 import (
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"go/format"
 	"os"
 	"path/filepath"
 	"strings"
+	"text/template"
 	"unicode"
 	"unicode/utf8"
 
@@ -16,6 +18,14 @@ import (
 	"github.com/oidoid/void/src/cmd/internal/tilesetmanifest"
 	"github.com/oidoid/void/src/void/vboards"
 )
+
+//go:embed board.gotmpl
+var boardTemplSrc string
+var boardTempl = template.Must(template.New("board.gotmpl").Funcs(
+	template.FuncMap{
+		"name": goName,
+	},
+).Parse(boardTemplSrc))
 
 func main() {
 	argv, err := NewArgv()
@@ -83,11 +93,11 @@ func packBoards(argv *Argv) error {
 	if err != nil {
 		return err
 	}
-	var tilesets []tilesetmanifest.TilesetManifest
-	if err := json.Unmarshal(tilesetManifestBin, &tilesets); err != nil {
+	var manifest tilesetmanifest.TilesetManifestSpec
+	if err := json.Unmarshal(tilesetManifestBin, &manifest); err != nil {
 		return fmt.Errorf("%s: %w", argv.TilesetManifest, err)
 	}
-	i, err := newTilesetIndex(tilesets)
+	i, err := newTilesetIndex(manifest.Tilesets)
 	if err != nil {
 		return fmt.Errorf("%s: %w", argv.TilesetManifest, err)
 	}
@@ -99,7 +109,7 @@ func packBoards(argv *Argv) error {
 		return err
 	}
 	for _, path := range paths {
-		board, err := readBoard(path, i)
+		board, err := readBoard(path, i, manifest.Tags)
 		if err != nil {
 			return fmt.Errorf("%s: %w", path, err)
 		}
@@ -116,27 +126,58 @@ func packBoards(argv *Argv) error {
 	return nil
 }
 
-func genBoard(pkg, path string, board *vboards.Board) ([]byte, error) {
+func genBoard(pkg, path string, board *spawnBoardSpec) ([]byte, error) {
 	name := goName(strings.TrimSuffix(filepath.Base(path), filepath.Ext(path)))
 	firstCh, _ := utf8.DecodeRuneInString(name)
 	if name == "" || !unicode.IsLetter(firstCh) {
 		return nil, fmt.Errorf("filename does not form a Go identifier")
 	}
-	bin := vboards.EncodeBoard(board)
-	var str strings.Builder
-	fmt.Fprintf(&str,
-		"// codegen by packboards.\npackage %s\n\n"+
-			"import \"github.com/oidoid/void/src/void/vboards\"\n\n"+
-			"var %sBoard = vboards.DecodeBoard([]byte{",
-		pkg, name,
-	)
-	for i, v := range bin {
-		if i%16 == 0 {
-			str.WriteString("\n\t")
+	classNames := make(map[string]string, len(board.Spawns))
+	for _, group := range board.Spawns {
+		className := goName(group.Class)
+		firstCh, _ := utf8.DecodeRuneInString(className)
+		if className == "" || !unicode.IsLetter(firstCh) {
+			return nil, fmt.Errorf(
+				"object class %q does not form a Go identifier", group.Class,
+			)
 		}
-		fmt.Fprintf(&str, "0x%02x,", v)
+		if other, ok := classNames[className]; ok {
+			return nil, fmt.Errorf(
+				"object classes %q and %q form the same Go identifier",
+				other,
+				group.Class,
+			)
+		}
+		classNames[className] = group.Class
+		propNames := make(map[string]string, len(group.Props))
+		for _, prop := range group.Props {
+			propName := goName(prop.Name)
+			firstCh, _ := utf8.DecodeRuneInString(propName)
+			if propName == "" || !unicode.IsLetter(firstCh) {
+				return nil, fmt.Errorf(
+					"object prop %q does not form a Go identifier", prop.Name,
+				)
+			}
+			if other, ok := propNames[propName]; ok {
+				return nil, fmt.Errorf(
+					"object props %q and %q form the same Go identifier",
+					other, prop.Name,
+				)
+			}
+			propNames[propName] = prop.Name
+		}
 	}
-	str.WriteString("\n})\n")
+
+	var str strings.Builder
+	data := struct {
+		Pkg   string
+		Name  string
+		Bin   []byte
+		Board *spawnBoardSpec
+	}{pkg, name, vboards.EncodeBoard(&board.Board), board}
+	if err := boardTempl.Execute(&str, &data); err != nil {
+		return nil, fmt.Errorf("executing board template: %w", err)
+	}
 	return format.Source([]byte(str.String()))
 }
 

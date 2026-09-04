@@ -1,16 +1,10 @@
 package vmath
 
-import "github.com/oidoid/void/src/void/vtypes"
+import (
+	"math"
 
-func Clamp[T vtypes.Number](lo, hi, v T) T {
-	if v < lo {
-		return lo
-	}
-	if v > hi {
-		return hi
-	}
-	return v
-}
+	"github.com/oidoid/void/src/void/vtypes"
+)
 
 func Abs[T vtypes.Number](v T) T {
 	if v < 0 {
@@ -25,6 +19,20 @@ func Ceil[T vtypes.Number](v T) T {
 		return i + 1
 	}
 	return i
+}
+
+func Clamp[T vtypes.Number](lo, hi, v T) T {
+	if v < lo {
+		return lo
+	}
+	if v > hi {
+		return hi
+	}
+	return v
+}
+
+func Finite(v float32) bool {
+	return !math.IsNaN(float64(v)) && !math.IsInf(float64(v), 0)
 }
 
 func Floor[T vtypes.Number](v T) T {

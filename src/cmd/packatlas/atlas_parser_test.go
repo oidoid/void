@@ -377,22 +377,25 @@ func TestReadAsepriteNativeTiles(t *testing.T) {
 			t.Errorf("tile %d has %d cels, want 1", tileID, anim.Cels)
 		}
 	}
-	manifest, err := genTilesetManifest([]*asset{file}, vatlas.Tag(len(keys)))
+	manifest, err := genTilesetManifest([]*asset{file}, keys)
 	if err != nil {
 		t.Fatal(err)
 	}
-	var got []tilesetmanifest.TilesetManifest
+	var got tilesetmanifest.TilesetManifestSpec
 	if err := json.Unmarshal(manifest, &got); err != nil {
 		t.Fatal(err)
 	}
-	if len(got) != 1 {
-		t.Fatalf("tilesets = %d, want 1", len(got))
+	if len(got.Tilesets) != 1 {
+		t.Fatalf("tilesets = %d, want 1", len(got.Tilesets))
+	}
+	if got.Tags[keys[0].qualifiedTag()] != 0 {
+		t.Fatalf("named tags = %v, want %s=0", got.Tags, keys[0].qualifiedTag())
 	}
 	// Tiled sees the rendered Aseprite canvas as a grid. These cells prove the
 	// grid resolves back through the native tilemap to native tile IDs.
 	wantTags := map[int]vatlas.Tag{0: 11, 1: 12, 8: 12, 9: 16}
 	for cell, want := range wantTags {
-		if got := got[0].Tags[cell]; got != want {
+		if got := got.Tilesets[0].Tags[cell]; got != want {
 			t.Errorf("cell %d anim = %d, want %d", cell, got, want)
 		}
 	}

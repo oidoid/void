@@ -11,24 +11,34 @@ import (
 
 type SuperballEnt struct {
 	vgeo.XY[float32]
-	Vel    vgeo.XY[float32]
-	Rot    float32
-	RotVel float32
+	Vel    vgeo.XY[float32] // px / sec.
+	Rot    float32          // radians.
+	RotVel float32          // radians / sec.
 }
 
-const maxRotVel = .2
+const (
+	superballMaxVel    = float32(120)
+	superballMaxRotVel = float32(12)
+)
 
 func NewSuperballEnt(rnd func() float32, xy vgeo.XY[float32]) SuperballEnt {
-	vel := vgeo.NewXY(rnd()*4-2, rnd()*4-2)
-	rotVel := (rnd()*2 - 1) * maxRotVel
+	vel := vgeo.NewXY(
+		(rnd()*2-1)*superballMaxVel,
+		(rnd()*2-1)*superballMaxVel,
+	)
+	rotVel := (rnd()*2 - 1) * superballMaxRotVel
 	return SuperballEnt{XY: xy, Vel: vel, RotVel: rotVel}
 }
 
-func (this *SuperballEnt) Move(board vgeo.Box[float32], radius float32) {
-	this.Rot += this.RotVel
+func (this *SuperballEnt) Move(
+	deltaSec float32,
+	board vgeo.Box[float32],
+	radius float32,
+) {
+	this.Rot += this.RotVel * deltaSec
 	diameter := radius * 2
-	this.X += this.Vel.X
-	this.Y += this.Vel.Y
+	this.X += this.Vel.X * deltaSec
+	this.Y += this.Vel.Y * deltaSec
 	if this.X < board.Min.X {
 		this.X = board.Min.X
 		this.Vel.X = -this.Vel.X

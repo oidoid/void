@@ -50,6 +50,7 @@ never run:
   - error: err
   - floating-point: float; never frac
   - for example: eg
+  - format: fmt
   - high: hi
   - hit box: hitbox
   - hurt box: hurtbox
@@ -59,6 +60,7 @@ never run:
   - memory: mem
   - millisecond(s): milli(s)
   - near box: nearbox
+  - object(s): obj(s)
   - palette: pal
   - pointer lock: pointerlock
   - physical: phy
@@ -69,9 +71,11 @@ never run:
   - render: draw
   - rotation: rot
   - seconds: sec
+  - source(s): src(s)
   - speed: vel
   - sprite: spr
   - string: str
+  - template: templ
   - value(s): v, val(s)
   - velocity: vel
   - wake lock: wakelock
@@ -81,6 +85,7 @@ never run:
 - represent bit fields with an unshifted mask and a shift.
 - order dirs: E, NE, N, NW, W, SW, S, SE, Center.
 - order public before private except for constructor which appears first.
+- prefer one type per file.
 
 ### Go
 

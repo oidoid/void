@@ -1,14 +1,235 @@
 {
     "automappingRulesFile": "rules.txt",
-    "commands": [
-    ],
+    "commands": [],
     "compatibilityVersion": 1100,
     "extensionsPath": "extensions",
     "folders": [
         "."
     ],
-    "properties": [
-    ],
+    "properties": [],
     "propertyTypes": [
+        {
+            "color": "#ff7f27",
+            "drawFill": true,
+            "id": 1,
+            "members": [
+                {
+                    "name": "X",
+                    "type": "float",
+                    "value": 0
+                },
+                {
+                    "name": "Y",
+                    "type": "float",
+                    "value": 0
+                }
+            ],
+            "name": "XY",
+            "type": "class",
+            "useAs": [
+                "property"
+            ]
+        },
+        {
+            "id": 7,
+            "name": "Cel",
+            "storageType": "int",
+            "type": "enum",
+            "values": [
+                "0",
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12",
+                "13",
+                "14",
+                "15"
+            ],
+            "valuesAsFlags": false
+        },
+        {
+            "id": 4,
+            "name": "Layer",
+            "storageType": "int",
+            "type": "enum",
+            "values": [
+                "Tiles",
+                "P1",
+                "Superballs",
+                "UI",
+                "ViewportEdge",
+                "Cursor",
+                "Overlay",
+                "Grid"
+            ],
+            "valuesAsFlags": false
+        },
+        {
+            "id": 5,
+            "name": "Z",
+            "storageType": "int",
+            "type": "enum",
+            "values": [
+                "0",
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12",
+                "13",
+                "14",
+                "15"
+            ],
+            "valuesAsFlags": false
+        },
+        {
+            "id": 6,
+            "name": "Pal",
+            "storageType": "int",
+            "type": "enum",
+            "values": [
+                "Default",
+                "Widget",
+                "WidgetFocused",
+                "WidgetOn",
+                "WidgetFocusedOn",
+                "Text",
+                "TextLight"
+            ],
+            "valuesAsFlags": false
+        },
+        {
+            "color": "#ff7f27",
+            "drawFill": true,
+            "id": 2,
+            "members": [
+                {
+                    "name": "Cel",
+                    "propertyType": "Cel",
+                    "type": "int",
+                    "value": 0
+                },
+                {
+                    "name": "Tag",
+                    "type": "string",
+                    "value": "SuperballDefault"
+                },
+                {
+                    "name": "Layer",
+                    "propertyType": "Layer",
+                    "type": "int",
+                    "value": 2
+                },
+                {
+                    "name": "Pal",
+                    "type": "int",
+                    "value": 0,
+                    "propertyType": "Pal"
+                },
+                {
+                    "name": "Stretch",
+                    "type": "bool",
+                    "value": true
+                },
+                {
+                    "name": "Z",
+                    "propertyType": "Z",
+                    "type": "int",
+                    "value": 0
+                },
+                {
+                    "name": "ZTop",
+                    "type": "bool",
+                    "value": false
+                },
+                {
+                    "name": "Vel",
+                    "propertyType": "XY",
+                    "type": "class",
+                    "value": {
+                        "X": 0,
+                        "Y": 0
+                    }
+                }
+            ],
+            "name": "Superball",
+            "type": "class",
+            "useAs": [
+                "object",
+                "tile"
+            ]
+        },
+        {
+            "color": "#00a2e8",
+            "drawFill": true,
+            "id": 3,
+            "members": [
+                {
+                    "name": "Clockwise",
+                    "type": "bool",
+                    "value": true
+                },
+                {
+                    "name": "Cel",
+                    "propertyType": "Cel",
+                    "type": "int",
+                    "value": 0
+                },
+                {
+                    "name": "Tag",
+                    "type": "string",
+                    "value": "BackpackerWalkRight"
+                },
+                {
+                    "name": "Layer",
+                    "propertyType": "Layer",
+                    "type": "int",
+                    "value": 1
+                },
+                {
+                    "name": "Pal",
+                    "type": "int",
+                    "value": 0,
+                    "propertyType": "Pal"
+                },
+                {
+                    "name": "Stretch",
+                    "type": "bool",
+                    "value": true
+                },
+                {
+                    "name": "Z",
+                    "propertyType": "Z",
+                    "type": "int",
+                    "value": 0
+                },
+                {
+                    "name": "ZTop",
+                    "type": "bool",
+                    "value": false
+                }
+            ],
+            "name": "P1",
+            "type": "class",
+            "useAs": [
+                "object",
+                "tile"
+            ]
+        }
     ]
 }

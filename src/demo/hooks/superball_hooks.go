@@ -36,7 +36,15 @@ func UpdateSuperballs(
 
 	ents := vec.Vals()
 	boing := gam.Boing
-	moveSuperballs(ents, gam.BeepSuperballs, boing, nearbox, board, radius)
+	moveSuperballs(
+		ents,
+		gam.BeepSuperballs,
+		boing,
+		nearbox,
+		board,
+		radius,
+		float32(gam.DeltaSecs()),
+	)
 	if gam.HitSuperballs {
 		hitSuperballs(
 			ents,
@@ -89,14 +97,15 @@ func moveSuperballs(
 	nearbox vgeo.Box[float32],
 	board vgeo.Box[float32],
 	radius float32,
+	deltaSec float32,
 ) {
 	for i := range ents {
 		if !beep || !nearbox.HitsXY(ents[i].XY) {
-			ents[i].Move(board, radius)
+			ents[i].Move(deltaSec, board, radius)
 			continue
 		}
 		dx, dy := ents[i].Vel.X, ents[i].Vel.Y
-		ents[i].Move(board, radius)
+		ents[i].Move(deltaSec, board, radius)
 		if ents[i].Vel.X != dx || ents[i].Vel.Y != dy {
 			boing(dx, dy)
 		}

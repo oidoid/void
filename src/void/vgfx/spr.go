@@ -20,6 +20,7 @@ type Spr struct {
 }
 
 const SprStride = int(unsafe.Sizeof(Spr{}))
+const SprPalMax = vatlas.Tag(sprPalTagMask)
 
 const (
 	sprHiddenMask   uint32 = 1
@@ -36,7 +37,8 @@ const (
 	sprZTopShift           = 12
 	sprRotMask      uint32 = 0xfff
 	sprRotShift            = 13
-	sprRotRadians          = float32(2 * 3.141592653589793 / 4096)
+
+	sprRotRadians = float32(2 * 3.141592653589793 / 4096)
 )
 
 func (this *Spr) Tag() vatlas.Tag {

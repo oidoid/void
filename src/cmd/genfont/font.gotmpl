@@ -1,0 +1,22 @@
+// codegen by genfont.
+package {{.Pkg}}
+
+var {{.VarName}} = decodeFont(&Font{
+	ID: {{printf "%q" .Font.ID}},
+	Name: {{printf "%q" .Font.Name}},
+	CellW: {{.Font.CellW}},
+	CellH: {{.Font.CellH}},
+	Leading: {{.Font.Leading}},
+	LineH: {{.Font.LineH}},
+	Baseline: {{.Font.Baseline}},
+	DefaultKerning: {{.Font.DefaultKerning}},
+	DefaultWhitespaceKerning: {{.Font.DefaultWhitespaceKerning}},
+	EndOfLineKerning: {{.Font.EndOfLineKerning}},
+	DefaultCharW: {{.Font.DefaultCharW}},
+}, []byte{
+	{{range .Kerning}}{{.}},
+	{{end}}}, []byte{
+	{{range .Widths}}{{.}},
+	{{end}}}, []byte{
+	{{range .Descends}}{{.}},
+	{{end}}})

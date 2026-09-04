@@ -13,29 +13,29 @@ import (
 )
 
 type P1Ent struct {
-	vgeo.XY[float32]
-	vgeo.WH[uint16]
-	Hurtbox vgeo.Box[uint16]
-	Dir     vgeo.Dir
+	vgfx.Spr
+	Hurtbox   vgeo.Box[uint16]
+	Dir       vgeo.Dir
+	Clockwise bool
 }
 
 const (
-	p1Vel     = float32(8. / 1000)
+	p1Vel     = float32(8)
 	p1MaxMove = float32(4)
 )
 
 func NewP1Ent(xy vgeo.XY[float32], anim vatlas.Anim) P1Ent {
 	return P1Ent{
-		XY:      xy,
-		Dir:     vgeo.DirE,
-		WH:      vgeo.NewWH(anim.W, anim.H),
-		Hurtbox: anim.Hurtbox,
+		Spr: vgfx.Spr{
+			XY: xy, WH: vgeo.NewWH(anim.W, anim.H), Z: gfx.ZP1,
+		},
+		Dir: vgeo.DirE, Hurtbox: anim.Hurtbox, Clockwise: true,
 	}
 }
 
 func (this *P1Ent) Update(gam game.Game) vgame.Status {
-	layer := gam.Layer(gfx.LayerP1)
-	this.Move(gam.DeltaMs(), gam.Board())
+	layer := gam.Layer(this.Z.Layer())
+	this.Move(gam.DeltaSecs(), gam.Board())
 	if layer.Clip.HitsBox(vgeo.XYWH(
 		this.X, this.Y, float32(this.W), float32(this.H),
 	)) {
@@ -44,8 +44,8 @@ func (this *P1Ent) Update(gam game.Game) vgame.Status {
 	return vgame.Pause // demo doesn't want p1 to require updates.
 }
 
-func (this *P1Ent) Move(deltaMillis float64, board *vboards.Board) {
-	by := min(float32(deltaMillis)*p1Vel, p1MaxMove)
+func (this *P1Ent) Move(deltaSecs float64, board *vboards.Board) {
+	by := min(float32(deltaSecs)*p1Vel, p1MaxMove)
 	next := this.XY
 	switch this.Dir {
 	case vgeo.DirE:
@@ -59,7 +59,7 @@ func (this *P1Ent) Move(deltaMillis float64, board *vboards.Board) {
 	}
 	if this.hitsWall(next, board) {
 		this.XY = this.moveToWall(next, board)
-		this.turnRight()
+		this.turn()
 		return
 	}
 	this.XY = next
@@ -115,25 +115,27 @@ func (this *P1Ent) hitsWall(
 	return false
 }
 
-func (this *P1Ent) turnRight() {
-	this.Dir = vgeo.Dir((this.Dir + vgeo.DirCenter - 2) % vgeo.DirCenter)
+func (this *P1Ent) turn() {
+	by := vgeo.DirN
+	if this.Clockwise {
+		by = vgeo.DirS
+	}
+	this.Dir = (this.Dir + by) % vgeo.DirCenter
 }
 
 func (this *P1Ent) spr() vgfx.Spr {
-	tag := tags.BackpackerWalkRight
-	spr := vgfx.Spr{
-		TagCel: tag.Cel(0),
-		XY:     this.XY,
-		Z:      gfx.ZP1,
-		WH:     this.WH,
-	}
+	spr := this.Spr
 	switch this.Dir {
 	case vgeo.DirN:
 		spr.SetTag(tags.BackpackerWalkUp)
 	case vgeo.DirW:
-		spr.SetFlipX(true)
+		spr.SetFlipX(!spr.FlipX())
 	case vgeo.DirS:
 		spr.SetTag(tags.BackpackerWalkDown)
+	default:
+		if spr.Tag() == 0 {
+			spr.SetTag(tags.BackpackerWalkRight)
+		}
 	}
 	return spr
 }

@@ -2,6 +2,12 @@ package tilesetmanifest
 
 import "github.com/oidoid/void/src/void/vatlas"
 
+// build-time atlas metadata shared by packatlas and packboards.
+type TilesetManifestSpec struct {
+	Tags     map[string]vatlas.Tag `json:"tags"`
+	Tilesets []TilesetSpec         `json:"tilesets"`
+}
+
 // an atlas-backed Tiled tileset sourced from an Aseprite file. Tiled displays
 // the rendered Aseprite canvas as a grid of preview cells. the preview supplies
 // this path, dimensions, and cell order, but the tile pipeline does not copy
@@ -10,7 +16,7 @@ import "github.com/oidoid/void/src/void/vatlas"
 // Aseprite frame independently. `Tags` maps each preview cell to its final
 // packed native-tile tag. native tiles cannot animate, so every
 // referenced atlas animation has one cel.
-type TilesetManifest struct {
+type TilesetSpec struct {
 	// normalized Aseprite path matched against the TSX image path.
 	Path string `json:"path"`
 	// rendered preview canvas width in pixels.

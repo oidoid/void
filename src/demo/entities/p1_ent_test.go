@@ -3,6 +3,7 @@ package entities
 import (
 	"testing"
 
+	"github.com/oidoid/void/src/demo/gfx"
 	"github.com/oidoid/void/src/demo/tags"
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vboards"
@@ -24,6 +25,17 @@ func TestNewP1Ent(t *testing.T) {
 	}
 	if got, want := ent.Dir, vgeo.DirE; got != want {
 		t.Fatalf("Dir = %v, want %v", got, want)
+	}
+	if !ent.Clockwise {
+		t.Fatal("Clockwise = false, want true")
+	}
+	if ent.Z != gfx.ZP1 {
+		t.Fatalf("Z = %d, want %d", ent.Z, gfx.ZP1)
+	}
+	ent.SetTag(tags.ColorRed)
+	spr := ent.spr()
+	if got := spr.Tag(); got != tags.ColorRed {
+		t.Fatalf("Tag = %d, want %d", got, tags.ColorRed)
 	}
 }
 
@@ -64,7 +76,7 @@ func TestP1EntTurnsRightAtWalls(t *testing.T) {
 	}
 	for _, want := range wants {
 		for range want.moves {
-			ent.Move(500, &board)
+			ent.Move(.5, &board)
 		}
 		if ent.XY != want.xy || ent.Dir != want.dir {
 			t.Fatalf("P1 = (%v, %v), want (%v, %v)", ent.XY, ent.Dir, want.xy, want.dir)
