@@ -59,10 +59,12 @@ func InitInit(gam *engine.Engine) {
 		gfx.ZCursor,
 	)
 	gam.Cursor = cursor
-	cursors := gam.RegisterEntVec(hooks.UpdateCursors)
+	cursors := ventities.NewEntVec(hooks.UpdateCursors)
 	cursors.Add(cursor)
+	gam.RegisterUpdate(cursors)
 
-	buttons := gam.RegisterEntVec(vhooks.UpdateButtons[*engine.Engine], 6)
+	buttons := ventities.NewEntVec(vhooks.UpdateButtons[*engine.Engine], 6)
+	gam.RegisterUpdate(buttons)
 
 	drawBtn := entities.NewDrawToggleButton(gam)
 	buttons.Add(drawBtn)
@@ -82,7 +84,8 @@ func InitInit(gam *engine.Engine) {
 	cursorKeyToggle.Anchor.Ref = wakelockToggle
 	buttons.Add(cursorKeyToggle)
 	// to-do: collapse with buttons^?
-	superballButtons := gam.RegisterEntVec(hooks.UpdateSuperballButtons, 5)
+	superballButtons := ventities.NewEntVec(hooks.UpdateSuperballButtons, 5)
+	gam.RegisterUpdate(superballButtons)
 	beepBtn := entities.NewBeepSuperballButtonEnt()
 	beepBtn.Anchor.Ref = cursorKeyToggle
 	superballButtons.Add(beepBtn)
@@ -123,12 +126,14 @@ func InitInit(gam *engine.Engine) {
 	mouseStatus := entities.NewMouseStatusEnt()
 	gam.Register(&mouseStatus)
 
-	lvlEdges := gam.RegisterEntVec(hooks.UpdateLvlEdgeNinePatches)
+	lvlEdges := ventities.NewEntVec(hooks.UpdateLvlEdgeNinePatches)
 	lvlEdges.Add(newEdgeEnt(gfx.ZUILevelEdge, 1, 1))
+	gam.RegisterUpdate(lvlEdges)
 
-	clipFills := gam.RegisterEntVec(hooks.UpdateClipFillNinePatches)
+	clipFills := ventities.NewEntVec(hooks.UpdateClipFillNinePatches)
 	clipFills.Add(newCornerEdgeEnt(gfx.ZViewportEdge))
 	clipFills.Add(newFillEnt(gfx.ZGrid))
+	gam.RegisterUpdate(clipFills)
 
 }
 

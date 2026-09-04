@@ -13,7 +13,7 @@ read the referenced example files before writing any code.
 
 **3. add the hook.** if >= 100 instances, add a new hook to `src/void/vhooks/<name>_hooks.go` or `src/demo/hooks/<name>_hooks.go` with an update all function that loops over the ents and calls the ent's `Update<Names>()` method. eg, [`src/demo/hooks/mouse_status_hooks.go`](../../../src/demo/hooks/mouse_status_hooks.go).
 
-**4. wire the ent instances and hook into the level.** if >= 100 instances, add a new ent vector to the level init hook and register it with `gam.RegisterEntUpdate()`. eg, [`src/demo/levels/levelhooks/init_hooks.go`](../../../src/demo/levels/levelhooks/init_hooks.go). if not, call `gam.Register(&ent)` during level init.
+**4. wire the ent instances and hook into the level.** if >= 100 instances, create a new ent vector with `ventities.NewEntVec()` in the level init hook and register its pointer with `gam.RegisterUpdate()`. eg, [`src/demo/levels/levelhooks/init_hooks.go`](../../../src/demo/levels/levelhooks/init_hooks.go). if not, call `gam.Register(&ent)` during level init.
 
 
 # Tips

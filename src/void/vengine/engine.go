@@ -93,19 +93,6 @@ func (this *Engine[Game]) Beep(beep vgame.Beep) {
 	this.beepCount++
 }
 
-func (this *Engine[Game]) RegisterEntUpdate(vec ventities.Updater[Game]) {
-	this.RegisterUpdate(vec)
-}
-
-func (this *Engine[Game]) RegisterEntVec[Ent any](
-	update ventities.UpdateAll[Game, Ent],
-	size ...int,
-) *ventities.EntVec[Game, Ent] {
-	vec := ventities.NewEntVec(update, size...)
-	this.RegisterEntUpdate(vec)
-	return vec
-}
-
 func (this *Engine[Game]) RegisterPreupdate(fn func(Game) vgame.Status) {
 	this.preupdaters.Register(ventities.UpdaterFunc[Game](fn))
 }

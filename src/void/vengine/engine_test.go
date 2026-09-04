@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/oidoid/void/src/void/vgame"
-	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
 type engineTestGame struct {
@@ -35,25 +34,5 @@ func TestFullscreenAndWakelockDefaultOn(t *testing.T) {
 	}
 	if got := engine.RequestWakelockFlag(); got != 0 {
 		t.Errorf("RequestWakelockFlag() = %v, want 0", got)
-	}
-}
-
-func TestRegisterEntVec(t *testing.T) {
-	var engine Engine[*engineTestGame]
-	updates := 0
-	vec := engine.RegisterEntVec(func(
-		vec *vvec.Vec[int], gam *engineTestGame,
-	) vgame.Status {
-		updates += vec.Len()
-		return vgame.Loop
-	})
-	vec.Add(1)
-	vec.Add(2)
-	gam := &engineTestGame{Engine: &engine}
-	if got := engine.updaters.Update(gam); got != vgame.Loop {
-		t.Errorf("Update() = %v, want %v", got, vgame.Loop)
-	}
-	if updates != 2 {
-		t.Errorf("updates = %v, want 2", updates)
 	}
 }
