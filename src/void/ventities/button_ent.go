@@ -75,7 +75,7 @@ func (this *ButtonEnt) Layout(
 	switch this.AnchorMode {
 	case ButtonAnchorHUD:
 		xy := this.ClipAnchor.XY(int16(this.WH.W), int16(this.WH.H), clip)
-		this.XY = vgeo.NewXY(float32(xy.X), float32(xy.Y))
+		this.XY = xy.Cast[float32]()
 	case ButtonAnchorRelative:
 		this.XY = this.Anchor.XY(float32(this.WH.W), float32(this.WH.H))
 	}

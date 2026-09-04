@@ -1,6 +1,6 @@
 module github.com/oidoid/void
 
-go 1.26.7
+go 1.27.1
 
 tool honnef.co/go/tools/cmd/staticcheck
 

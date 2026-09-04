@@ -70,7 +70,7 @@ fat-save:; go run ./src/cmd/fat save
 
 fmt: fmt-mod fmt-go fmt-web
 fmt-mod:; go mod tidy
-fmt-go:; gofmt -s -w ./src/
+fmt-go:; go fmt ./src/...
 fmt-web:; npx lint --fix > /dev/null
 
 install:; go mod download; npm install;
@@ -83,7 +83,7 @@ lint-web:; npx lint > /dev/null
 
 test: dependencies .WAIT build .WAIT test-fmt-go test-fmt-mod lint test-go test-web typecheck-web .WAIT fat-check
 test-fmt-go:
-	out=$$(gofmt -l -s ./src/)
+	out=$$(go fmt ./src/...)
 	[ -z "$$out" ] || { printf >&2 "unformatted files:\n%s\n" "$$out"; false; }
 test-fmt-mod:; go mod tidy -diff
 test-go:;	go test $(go_tags) ./src/... | $(go_test_filter)

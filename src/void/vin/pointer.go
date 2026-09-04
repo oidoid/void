@@ -42,7 +42,7 @@ func newPointer(
 ) Pointer {
 	phyW := poll.Phy.W()
 	phyH := poll.Phy.H()
-	xy := vgeo.NewXY(cam.X+poll.Phy.Min.X, cam.Y+poll.Phy.Min.Y)
+	xy := cam.Add(poll.Phy.Min)
 	return Pointer{
 		poll:      poll,
 		Moved:     moved,

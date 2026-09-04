@@ -6,14 +6,14 @@ import (
 	"github.com/oidoid/void/src/void/vtypes"
 )
 
-func Abs[T vtypes.Number](v T) T {
+func Abs[T vtypes.Num](v T) T {
 	if v < 0 {
 		return -v
 	}
 	return v
 }
 
-func Ceil[T vtypes.Number](v T) T {
+func Ceil[T vtypes.Num](v T) T {
 	i := T(int64(v))
 	if v > i {
 		return i + 1
@@ -21,7 +21,7 @@ func Ceil[T vtypes.Number](v T) T {
 	return i
 }
 
-func Clamp[T vtypes.Number](lo, hi, v T) T {
+func Clamp[T vtypes.Num](lo, hi, v T) T {
 	if v < lo {
 		return lo
 	}
@@ -35,7 +35,7 @@ func Finite(v float32) bool {
 	return !math.IsNaN(float64(v)) && !math.IsInf(float64(v), 0)
 }
 
-func Floor[T vtypes.Number](v T) T {
+func Floor[T vtypes.Num](v T) T {
 	i := T(int64(v))
 	if v < i {
 		return i - 1
@@ -43,7 +43,7 @@ func Floor[T vtypes.Number](v T) T {
 	return i
 }
 
-func Round[T vtypes.Number](v T) T {
+func Round[T vtypes.Num](v T) T {
 	half := T(1) / 2
 	if v < 0 {
 		return Ceil(v - half)

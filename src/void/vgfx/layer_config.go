@@ -106,13 +106,13 @@ func (this *LayerConfig) Nearbox() vgeo.Box[float32] {
 // converts a layer delta to a physical delta.
 func (this *LayerConfig) LayerToPhyScale(xy vgeo.XY[float32]) vgeo.XY[float32] {
 	scale := this.ScaleOrDefault()
-	return vgeo.NewXY(xy.X*scale, xy.Y*scale)
+	return xy.Mul(scale)
 }
 
 // converts a physical delta to a layer delta.
 func (this *LayerConfig) PhyToLayerScale(xy vgeo.XY[float32]) vgeo.XY[float32] {
 	scale := this.ScaleOrDefault()
-	return vgeo.NewXY(xy.X/scale, xy.Y/scale)
+	return xy.Div(scale)
 }
 
 // converts physical pixels to layer coords, applying cam and clip.

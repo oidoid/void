@@ -8,6 +8,6 @@ type Uint interface {
 	~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64
 }
 
-type Number interface {
+type Num interface {
 	Int | Uint | ~uintptr | ~float32 | ~float64
 }

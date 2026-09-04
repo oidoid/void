@@ -31,7 +31,7 @@ func Itoa(n int) string {
 }
 
 // format a float to a string with one decimal place.
-func FmtFloat[T vtypes.Number](num T) string {
+func FmtFloat[T vtypes.Num](num T) string {
 	i := int(num)
 	frac := int((num - T(i)) * 10)
 	if frac < 0 {
@@ -44,7 +44,7 @@ func FmtFloat[T vtypes.Number](num T) string {
 }
 
 // `FmtFloat()` but pad the integer part to at least two digits.
-func FmtFloat2[T vtypes.Number](num T) string {
+func FmtFloat2[T vtypes.Num](num T) string {
 	s := FmtFloat(num)
 	if len(s) < 4 { // e.g. "1.6" → " 1.6"
 		return " " + s

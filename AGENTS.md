@@ -60,6 +60,7 @@ never run:
   - memory: mem
   - millisecond(s): milli(s)
   - near box: nearbox
+  - number: num
   - object(s): obj(s)
   - palette: pal
   - pointer lock: pointerlock

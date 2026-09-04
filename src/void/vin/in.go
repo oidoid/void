@@ -405,11 +405,8 @@ func (this *In) updatePinch(
 		this.Pinch = nil
 		return
 	}
-	span := vgeo.NewXY(hi.X-lo.X, hi.Y-lo.Y)
-	center := vgeo.NewXY(
-		centerSum.X/float32(ptrs),
-		centerSum.Y/float32(ptrs),
-	)
+	span := hi.Sub(lo)
+	center := centerSum.Div(float32(ptrs))
 	this.pinch.SpanPhy = span
 	this.pinch.CenterPhy = center
 	if this.Pinch == nil {
@@ -418,14 +415,8 @@ func (this *In) updatePinch(
 		this.pinch.DeltaPhy = vgeo.XY[float32]{}
 		this.pinch.DeltaCenterPhy = vgeo.XY[float32]{}
 	} else {
-		this.pinch.DeltaPhy = vgeo.NewXY(
-			span.X-this.pinch.prevSpanPhy.X,
-			span.Y-this.pinch.prevSpanPhy.Y,
-		)
-		this.pinch.DeltaCenterPhy = vgeo.NewXY(
-			center.X-this.pinch.prevCenterPhy.X,
-			center.Y-this.pinch.prevCenterPhy.Y,
-		)
+		this.pinch.DeltaPhy = span.Sub(this.pinch.prevSpanPhy)
+		this.pinch.DeltaCenterPhy = center.Sub(this.pinch.prevCenterPhy)
 		this.pinch.prevSpanPhy = span
 		this.pinch.prevCenterPhy = center
 	}
@@ -465,10 +456,7 @@ func (this *In) updateDrag(ptr *Pointer) {
 	x := ptr.poll.Phy.Min.X - state.startPhy.X
 	y := ptr.poll.Phy.Min.Y - state.startPhy.Y
 	dragging := x*x+y*y >= this.DragMinPhy*this.DragMinPhy
-	delta := vgeo.NewXY(
-		ptr.poll.Phy.Min.X-state.prevPhy.X,
-		ptr.poll.Phy.Min.Y-state.prevPhy.Y,
-	)
+	delta := ptr.poll.Phy.Min.Sub(state.prevPhy)
 	ptr.Drag = Drag{
 		StartPhy: state.startPhy,
 		DeltaPhy: delta,

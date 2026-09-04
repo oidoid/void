@@ -36,7 +36,7 @@ func (this *MouseStatusEnt) Update(gam game.Game) vgame.Status {
 	}
 
 	hudXY := this.HUDEnt.XY(mouseStatusSize, mouseStatusSize, layer.Clip)
-	xy := vgeo.NewXY(float32(hudXY.X), float32(hudXY.Y))
+	xy := hudXY.Cast[float32]()
 	*sprs = append(
 		*sprs,
 		vgfx.Spr{XY: xy, TagCel: tags.MouseStatusBase.Cel(0), Z: gfx.ZUIWidget},

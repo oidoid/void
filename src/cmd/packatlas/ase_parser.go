@@ -25,7 +25,7 @@ func (this *aseParser) readBytes(n int) ([]byte, error) {
 	return v, nil
 }
 
-func (this *aseParser) readTo(data any) error {
+func (this *aseParser) readTo[T any](data *T) error {
 	n, err := binary.Decode(this.bin[this.i:], binary.LittleEndian, data)
 	if err != nil {
 		return err

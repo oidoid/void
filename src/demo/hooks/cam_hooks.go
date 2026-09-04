@@ -163,10 +163,7 @@ func lvlDragOn(ptr *vin.Pointer, clipPhy vgeo.Box[uint16]) bool {
 	if clipPhy.W() == 0 || clipPhy.H() == 0 {
 		return true
 	}
-	clip := vgeo.NewBox(
-		float32(clipPhy.Min.X), float32(clipPhy.Min.Y),
-		float32(clipPhy.Max.X), float32(clipPhy.Max.Y),
-	)
+	clip := clipPhy.Cast[float32]()
 	return clip.HitsXY(ptr.Drag.StartPhy)
 }
 
@@ -184,10 +181,7 @@ func UpdateLayers(gam *engine.Engine) vgame.Status {
 }
 
 func pinchZoom(pinch *vin.Pinch) float32 {
-	prev := vgeo.NewXY(
-		pinch.SpanPhy.X-pinch.DeltaPhy.X,
-		pinch.SpanPhy.Y-pinch.DeltaPhy.Y,
-	)
+	prev := pinch.SpanPhy.Sub(pinch.DeltaPhy)
 	prevDistance := float32(math.Hypot(float64(prev.X), float64(prev.Y)))
 	if prevDistance == 0 {
 		return 1

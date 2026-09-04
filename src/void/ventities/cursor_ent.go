@@ -43,10 +43,7 @@ func NewCursorEnt(
 	hitbox vgeo.Box[uint16],
 	z vgfx.Z,
 ) CursorEnt {
-	hitboxF32 := vgeo.NewBox(
-		float32(hitbox.Min.X), float32(hitbox.Min.Y),
-		float32(hitbox.Max.X), float32(hitbox.Max.Y),
-	)
+	hitboxF32 := hitbox.Cast[float32]()
 	return CursorEnt{
 		KbdVel:     kbdVel,
 		pointTag:   pointTag,

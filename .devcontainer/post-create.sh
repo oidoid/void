@@ -14,7 +14,7 @@ sudo install --mode=0755 /tmp/shader_minifier.exe /usr/local/bin/shader_minifier
 
 # TinyGo.
 curl \
-  --location https://github.com/tinygo-org/tinygo/releases/download/v0.41.1/tinygo_0.41.1_amd64.deb \
+  --location https://github.com/tinygo-org/tinygo/releases/download/v0.42.0/tinygo_0.42.0_amd64.deb \
   --output /tmp/tinygo.deb
 sudo dpkg --install /tmp/tinygo.deb
 

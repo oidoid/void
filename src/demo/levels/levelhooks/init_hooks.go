@@ -59,11 +59,10 @@ func InitInit(gam *engine.Engine) {
 		gfx.ZCursor,
 	)
 	gam.Cursor = cursor
-	cursors := ventities.NewEntVec(hooks.UpdateCursors)
+	cursors := gam.RegisterEntVec(hooks.UpdateCursors)
 	cursors.Add(cursor)
-	gam.RegisterEntUpdate(cursors)
 
-	buttons := ventities.NewEntVec(vhooks.UpdateButtons[*engine.Engine], 6)
+	buttons := gam.RegisterEntVec(vhooks.UpdateButtons[*engine.Engine], 6)
 
 	drawBtn := entities.NewDrawToggleButton(gam)
 	buttons.Add(drawBtn)
@@ -82,10 +81,8 @@ func InitInit(gam *engine.Engine) {
 	cursorKeyToggle := entities.NewCursorKeyToggle(cursor)
 	cursorKeyToggle.Anchor.Ref = wakelockToggle
 	buttons.Add(cursorKeyToggle)
-	gam.RegisterEntUpdate(buttons)
-
 	// to-do: collapse with buttons^?
-	superballButtons := ventities.NewEntVec(hooks.UpdateSuperballButtons, 5)
+	superballButtons := gam.RegisterEntVec(hooks.UpdateSuperballButtons, 5)
 	beepBtn := entities.NewBeepSuperballButtonEnt()
 	beepBtn.Anchor.Ref = cursorKeyToggle
 	superballButtons.Add(beepBtn)
@@ -101,7 +98,6 @@ func InitInit(gam *engine.Engine) {
 	zeroBtn := entities.NewZeroSuperballButtonEnt()
 	zeroBtn.Anchor.Ref = addSomeBtn
 	superballButtons.Add(zeroBtn)
-	gam.RegisterEntUpdate(superballButtons)
 
 	camStatus := entities.NewCamStatusEnt(tags.ColorBlue, gfx.ZUIWidget)
 	camStatus.Anchor = ventities.AnchorEnt{
@@ -127,14 +123,12 @@ func InitInit(gam *engine.Engine) {
 	mouseStatus := entities.NewMouseStatusEnt()
 	gam.Register(&mouseStatus)
 
-	lvlEdges := ventities.NewEntVec(hooks.UpdateLvlEdgeNinePatches)
+	lvlEdges := gam.RegisterEntVec(hooks.UpdateLvlEdgeNinePatches)
 	lvlEdges.Add(newEdgeEnt(gfx.ZUILevelEdge, 1, 1))
-	gam.RegisterEntUpdate(lvlEdges)
 
-	clipFills := ventities.NewEntVec(hooks.UpdateClipFillNinePatches)
+	clipFills := gam.RegisterEntVec(hooks.UpdateClipFillNinePatches)
 	clipFills.Add(newCornerEdgeEnt(gfx.ZViewportEdge))
 	clipFills.Add(newFillEnt(gfx.ZGrid))
-	gam.RegisterEntUpdate(clipFills)
 
 }
 

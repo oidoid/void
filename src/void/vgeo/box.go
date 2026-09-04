@@ -2,20 +2,27 @@ package vgeo
 
 import "github.com/oidoid/void/src/void/vtypes"
 
-type Box[T vtypes.Number] struct {
+type Box[T vtypes.Num] struct {
 	Min, Max XY[T]
 }
 
 // to-do: see code size impact of these funcs.
 //
 //go:inline
-func NewBox[T vtypes.Number](minX, minY, maxX, maxY T) Box[T] {
+func NewBox[T vtypes.Num](minX, minY, maxX, maxY T) Box[T] {
 	return Box[T]{Min: XY[T]{X: minX, Y: minY}, Max: XY[T]{X: maxX, Y: maxY}}
 }
 
 //go:inline
-func XYWH[T vtypes.Number](x, y, w, h T) Box[T] {
+func XYWH[T vtypes.Num](x, y, w, h T) Box[T] {
 	return Box[T]{Min: XY[T]{X: x, Y: y}, Max: XY[T]{X: x + w, Y: y + h}}
+}
+
+//go:inline
+func (this Box[T]) Cast[To vtypes.Num]() Box[To] {
+	return NewBox(
+		To(this.Min.X), To(this.Min.Y), To(this.Max.X), To(this.Max.Y),
+	)
 }
 
 //go:inline

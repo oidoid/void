@@ -71,7 +71,7 @@ func (this *P1Ent) moveToWall(
 ) vgeo.XY[float32] {
 	safe, wall := this.XY, next
 	for range 8 {
-		mid := vgeo.NewXY((safe.X+wall.X)/2, (safe.Y+wall.Y)/2)
+		mid := safe.Add(wall).Div(2)
 		if this.hitsWall(mid, board) {
 			wall = mid
 		} else {
