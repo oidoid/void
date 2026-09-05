@@ -323,7 +323,7 @@ func (this *In) Update(now float64, poll *InPoll, cam vgeo.Box[float32]) {
 	this.Wheel = Wheel{WheelPoll: poll.Wheel}
 	for i := range poll.PtrsLen {
 		ptr := newPointer(
-			poll.Ptrs[i], cam.Min, pointerMoved(poll.Ptrs[i], &this.prevPoll),
+			poll.Ptrs[i], pointerMoved(poll.Ptrs[i], &this.prevPoll),
 		)
 		this.Ptrs = append(this.Ptrs, ptr)
 	}

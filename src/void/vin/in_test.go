@@ -550,12 +550,6 @@ func TestPtr(t *testing.T) {
 	if *in.Ptr.Phy() != vgeo.NewBox[float32](2, 4, 12, 24) {
 		t.Errorf("Phy mismatch: got %v", *in.Ptr.Phy())
 	}
-	if *in.Ptr.XY() != vgeo.NewXY[float32](102, 204) {
-		t.Errorf("XY mismatch: got %v", *in.Ptr.XY())
-	}
-	if *in.Ptr.Center() != vgeo.NewXY[float32](107, 214) {
-		t.Errorf("Center mismatch: got %v", *in.Ptr.Center())
-	}
 	if *in.Ptr.CenterPhy() != vgeo.NewXY[float32](7, 14) {
 		t.Errorf("CenterPhy mismatch: got %v", *in.Ptr.CenterPhy())
 	}

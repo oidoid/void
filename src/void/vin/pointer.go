@@ -19,8 +19,6 @@ type Pointer struct {
 	// physical pointer bounds changed since the preceding input poll.
 	Moved     bool
 	poll      PointerPoll
-	xy        vgeo.XY[float32] // cam XY.
-	center    vgeo.XY[float32] // to-do: is this even useful? i need layer offset.
 	centerPhy vgeo.XY[float32]
 }
 
@@ -37,17 +35,12 @@ type Drag struct {
 	End      bool // first inactive frame after dragging.
 }
 
-func newPointer(
-	poll PointerPoll, cam vgeo.XY[float32], moved bool,
-) Pointer {
+func newPointer(poll PointerPoll, moved bool) Pointer {
 	phyW := poll.Phy.W()
 	phyH := poll.Phy.H()
-	xy := cam.Add(poll.Phy.Min)
 	return Pointer{
 		poll:      poll,
 		Moved:     moved,
-		xy:        xy,
-		center:    vgeo.NewXY(xy.X+phyW/2, xy.Y+phyH/2),
 		centerPhy: vgeo.NewXY(poll.Phy.Min.X+phyW/2, poll.Phy.Min.Y+phyH/2),
 	}
 }
@@ -102,7 +95,6 @@ func (this *Pointer) Device() PointerDevice {
 }
 
 // to-do: why is this a box? where is the point inside the box?
-// to-do: rename CamX, CamY, UIX, UIY / HUDX, HUDY?
 func (this *Pointer) Phy() *vgeo.Box[float32] {
 	if this == nil {
 		return nil
@@ -110,29 +102,11 @@ func (this *Pointer) Phy() *vgeo.Box[float32] {
 	return &this.poll.Phy
 }
 
-func (this *Pointer) Center() *vgeo.XY[float32] {
-	if this == nil {
-		return nil
-	}
-	return &this.center
-}
-
 func (this *Pointer) CenterPhy() *vgeo.XY[float32] {
 	if this == nil {
 		return nil
 	}
 	return &this.centerPhy
-}
-
-// to-do: how does this work with multiple scales? i think cam is always in phy
-// and input has fixed and cam relative positiions.
-// XY returns the pointer's level-space position (physical position offset by
-// the cam).
-func (this *Pointer) XY() *vgeo.XY[float32] {
-	if this == nil {
-		return nil
-	}
-	return &this.xy
 }
 
 type PointerDevice uint8
