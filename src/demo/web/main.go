@@ -6,7 +6,7 @@ import (
 	"github.com/oidoid/void/src/void/vgame"
 )
 
-var gam *engine.Engine
+var gam *engine.Eng
 
 func main() {
 	println("void " + engine.Version + " ───oidoid>°──")

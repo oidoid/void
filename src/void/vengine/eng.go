@@ -17,8 +17,7 @@ import (
 	"github.com/oidoid/void/src/void/vtext"
 )
 
-// to-do: rename Eng.
-type Engine[Game vgame.Game] struct {
+type Eng[Game vgame.Game] struct {
 	BoardData          *vboards.Board
 	Router             vgame.Router[Game]
 	Atlas              vatlas.Atlas
@@ -46,7 +45,7 @@ type Engine[Game vgame.Game] struct {
 	tick               vgame.Tick
 }
 
-type EngineOpts struct {
+type EngOpts struct {
 	RenderMode vgfx.RenderMode
 	Font       *vtext.Font
 	Board      *vboards.Board
@@ -55,9 +54,9 @@ type EngineOpts struct {
 	Seed2      uint64
 }
 
-func New[Game vgame.Game](opts *EngineOpts) *Engine[Game] {
+func New[Game vgame.Game](opts *EngOpts) *Eng[Game] {
 	if opts == nil {
-		opts = &EngineOpts{}
+		opts = &EngOpts{}
 	}
 	if opts.MaxSprs == 0 {
 		opts.MaxSprs = 16 * 1024
@@ -68,7 +67,7 @@ func New[Game vgame.Game](opts *EngineOpts) *Engine[Game] {
 	if opts.Seed2 == 0 {
 		opts.Seed2 = rand.Uint64()
 	}
-	this := &Engine[Game]{
+	this := &Eng[Game]{
 		font:              opts.Font,
 		BoardData:         opts.Board,
 		in:                vin.NewIn(),
@@ -83,9 +82,9 @@ func New[Game vgame.Game](opts *EngineOpts) *Engine[Game] {
 	return this
 }
 
-func (this *Engine[Game]) Random() float32 { return this.rnd.Float32() }
+func (this *Eng[Game]) Random() float32 { return this.rnd.Float32() }
 
-func (this *Engine[Game]) Beep(beep vgame.Beep) {
+func (this *Eng[Game]) Beep(beep vgame.Beep) {
 	if this.beepCount == uint32(len(this.beeps)) {
 		return
 	}
@@ -93,34 +92,34 @@ func (this *Engine[Game]) Beep(beep vgame.Beep) {
 	this.beepCount++
 }
 
-func (this *Engine[Game]) RegisterPreupdate(fn func(Game) vgame.Status) {
+func (this *Eng[Game]) RegisterPreupdate(fn func(Game) vgame.Status) {
 	this.preupdaters.Register(ventities.UpdaterFunc[Game](fn))
 }
 
-func (this *Engine[Game]) RegisterUpdate(updater ventities.Updater[Game]) {
+func (this *Eng[Game]) RegisterUpdate(updater ventities.Updater[Game]) {
 	this.updaters.Register(updater)
 }
 
-func (this *Engine[Game]) Font() *vtext.Font {
+func (this *Eng[Game]) Font() *vtext.Font {
 	return this.font
 }
 
-func (this *Engine[Game]) Board() *vboards.Board { return this.BoardData }
+func (this *Eng[Game]) Board() *vboards.Board { return this.BoardData }
 
 // to-do: rename to Poll, move props to Engine struct, and don't expose?
-func (this *Engine[Game]) Frame() *vgame.Poll { return &this.frame }
-func (this *Engine[Game]) Fullscreen() bool   { return this.frame.Fullscreen }
-func (this *Engine[Game]) Pointerlock() bool  { return this.frame.Pointerlocked }
-func (this *Engine[Game]) NowMillis() float64 { return this.frame.NowMillis }
-func (this *Engine[Game]) UtcMillis() uint64  { return this.frame.UtcMillis }
-func (this *Engine[Game]) Time() vgame.TimeFormat {
+func (this *Eng[Game]) Frame() *vgame.Poll { return &this.frame }
+func (this *Eng[Game]) Fullscreen() bool   { return this.frame.Fullscreen }
+func (this *Eng[Game]) Pointerlock() bool  { return this.frame.Pointerlocked }
+func (this *Eng[Game]) NowMillis() float64 { return this.frame.NowMillis }
+func (this *Eng[Game]) UtcMillis() uint64  { return this.frame.UtcMillis }
+func (this *Eng[Game]) Time() vgame.TimeFormat {
 	return this.frame.TimeFormat
 }
-func (this *Engine[Game]) DeltaMs() float64   { return this.frame.DeltaMillis }
-func (this *Engine[Game]) DeltaSecs() float64 { return this.frame.DeltaSecs() }
-func (this *Engine[Game]) Tick() *vgame.Tick  { return &this.tick }
+func (this *Eng[Game]) DeltaMs() float64   { return this.frame.DeltaMillis }
+func (this *Eng[Game]) DeltaSecs() float64 { return this.frame.DeltaSecs() }
+func (this *Eng[Game]) Tick() *vgame.Tick  { return &this.tick }
 
-func (this *Engine[Game]) RequestFullscreen(fullscreen bool) {
+func (this *Eng[Game]) RequestFullscreen(fullscreen bool) {
 	if fullscreen {
 		this.fullscreenRequest = vgame.FullscreenRequestEnter
 	} else {
@@ -128,18 +127,18 @@ func (this *Engine[Game]) RequestFullscreen(fullscreen bool) {
 	}
 }
 
-func (this *Engine[Game]) FullscreenRequest() int32 {
+func (this *Eng[Game]) FullscreenRequest() int32 {
 	request := this.fullscreenRequest
 	this.fullscreenRequest = vgame.FullscreenRequestNone
 	return int32(request)
 }
 
-func (this *Engine[Game]) RequestScreenshot() {
+func (this *Eng[Game]) RequestScreenshot() {
 	this.screenshotRequest = true
 }
 
 // to-do: just a big flag API?
-func (this *Engine[Game]) ScreenshotRequest() int32 {
+func (this *Eng[Game]) ScreenshotRequest() int32 {
 	if !this.screenshotRequest {
 		return 0
 	}
@@ -147,24 +146,24 @@ func (this *Engine[Game]) ScreenshotRequest() int32 {
 	return 1
 }
 
-func (this *Engine[Game]) RequestContextLoss() {
+func (this *Eng[Game]) RequestContextLoss() {
 	this.contextLossRequest = true
 }
 
 // requests an update after millis. zero cancels the pending request. always
 // cleared on next frame. to-do: is this right?
-func (this *Engine[Game]) RequestUpdateInMillis(millis uint64) {
+func (this *Eng[Game]) RequestUpdateInMillis(millis uint64) {
 	this.updateInMillis = millis
 }
 
 // returns and clears the pending update delay.
-func (this *Engine[Game]) UpdateInMillisRequest() uint64 {
+func (this *Eng[Game]) UpdateInMillisRequest() uint64 {
 	millis := this.updateInMillis
 	this.updateInMillis = 0
 	return millis
 }
 
-func (this *Engine[Game]) ContextLossRequest() int32 {
+func (this *Eng[Game]) ContextLossRequest() int32 {
 	if !this.contextLossRequest {
 		return 0
 	}
@@ -172,100 +171,100 @@ func (this *Engine[Game]) ContextLossRequest() int32 {
 	return 1
 }
 
-func (this *Engine[Game]) SetDrawAlways(always bool) {
+func (this *Eng[Game]) SetDrawAlways(always bool) {
 	this.drawAlways = always
 }
 
-func (this *Engine[Game]) DrawAlways() bool { return this.drawAlways }
+func (this *Eng[Game]) DrawAlways() bool { return this.drawAlways }
 
-func (this *Engine[Game]) FullscreenDisabled() bool {
+func (this *Eng[Game]) FullscreenDisabled() bool {
 	return this.disableFullscreen
 }
 
-func (this *Engine[Game]) DisableFullscreen(disable bool) {
+func (this *Eng[Game]) DisableFullscreen(disable bool) {
 	this.disableFullscreen = disable
 	this.RequestFullscreen(!disable)
 }
 
-func (this *Engine[Game]) WakelockDisabled() bool { return this.disableWakelock }
+func (this *Eng[Game]) WakelockDisabled() bool { return this.disableWakelock }
 
-func (this *Engine[Game]) DisableWakelock(disable bool) {
+func (this *Eng[Game]) DisableWakelock(disable bool) {
 	this.disableWakelock = disable
 }
 
 // reports whether the browser currently holds the requested wakelock.
-func (this *Engine[Game]) Wakelock() bool {
+func (this *Eng[Game]) Wakelock() bool {
 	return this.frame.Wakelocked
 }
 
-func (this *Engine[Game]) RequestWakelockFlag() int32 {
+func (this *Eng[Game]) RequestWakelockFlag() int32 {
 	if !this.WakelockDisabled() {
 		return 1
 	}
 	return 0
 }
 
-func (this *Engine[Game]) RenderMode() vgfx.RenderMode {
+func (this *Eng[Game]) RenderMode() vgfx.RenderMode {
 	return this.renderMode
 }
 
-func (this *Engine[Game]) DrawAlwaysFlag() int32 {
+func (this *Eng[Game]) DrawAlwaysFlag() int32 {
 	if this.drawAlways {
 		return 1
 	}
 	return 0
 }
 
-func (this *Engine[Game]) RenderModeFlag() int32 {
+func (this *Eng[Game]) RenderModeFlag() int32 {
 	return int32(this.renderMode)
 }
 
-func (this *Engine[Game]) FramePointer() uintptr {
+func (this *Eng[Game]) FramePointer() uintptr {
 	return uintptr(unsafe.Pointer(&this.frame))
 }
 
-func (this *Engine[Game]) BeepPointer() uintptr {
+func (this *Eng[Game]) BeepPointer() uintptr {
 	return uintptr(unsafe.Pointer(&this.beeps[0]))
 }
 
-func (this *Engine[Game]) BeepCount() uint32 { return this.beepCount }
+func (this *Eng[Game]) BeepCount() uint32 { return this.beepCount }
 
-func (this *Engine[Game]) Cam() *vgeo.XY[float32] { return &this.cam }
-func (this *Engine[Game]) CamX() float32          { return this.cam.X }
-func (this *Engine[Game]) CamY() float32          { return this.cam.Y }
+func (this *Eng[Game]) Cam() *vgeo.XY[float32] { return &this.cam }
+func (this *Eng[Game]) CamX() float32          { return this.cam.X }
+func (this *Eng[Game]) CamY() float32          { return this.cam.Y }
 
-func (this *Engine[Game]) CanvasPhy() *vgeo.WH[uint16] {
+func (this *Eng[Game]) CanvasPhy() *vgeo.WH[uint16] {
 	return &this.frame.CanvasPhy
 }
-func (this *Engine[Game]) In() *vin.In {
+func (this *Eng[Game]) In() *vin.In {
 	return this.in
 }
 
 // returns the cursor's phy hitbox when active, else nil.
-func (this *Engine[Game]) CursorPhy() *vgeo.Box[float32] {
+func (this *Eng[Game]) CursorPhy() *vgeo.Box[float32] {
 	return this.Cursor.HitboxPhy()
 }
 
-func (this *Engine[Game]) BoardW() int32 { return this.BoardData.W }
-func (this *Engine[Game]) BoardH() int32 { return this.BoardData.H }
+func (this *Eng[Game]) BoardW() int32 { return this.BoardData.W }
+func (this *Eng[Game]) BoardH() int32 { return this.BoardData.H }
 
-func (this *Engine[Game]) LayerConfigsPointer() uintptr {
+func (this *Eng[Game]) LayerConfigsPointer() uintptr {
 	return uintptr(unsafe.Pointer(unsafe.SliceData(this.layerConfigExport[:])))
 }
-func (this *Engine[Game]) Layer(layer vgfx.Layer) *vgfx.LayerConfig {
+func (this *Eng[Game]) Layer(layer vgfx.Layer) *vgfx.LayerConfig {
 	return &this.layers[layer]
 }
 
-func (this *Engine[Game]) BoardTilesPointer() uintptr {
+func (this *Eng[Game]) BoardTilesPointer() uintptr {
 	if this.BoardData == nil || len(this.BoardData.Tiles) == 0 {
 		return 0
 	}
 	return uintptr(unsafe.Pointer(&this.BoardData.Tiles[0]))
 }
-func (this *Engine[Game]) BoardTileW() uint8 { return this.BoardData.Tile.W }
-func (this *Engine[Game]) BoardTileH() uint8 { return this.BoardData.Tile.H }
+func (this *Eng[Game]) BoardTileW() uint8 { return this.BoardData.Tile.W }
+func (this *Eng[Game]) BoardTileH() uint8 { return this.BoardData.Tile.H }
 
-func (this *Engine[Game]) EndTick(stat vgame.Status) vgame.Status {
+func (this *Eng[Game]) EndTick(stat vgame.Status) vgame.Status {
 	if this.drawAlways {
 		stat |= vgame.Loop
 	}
@@ -276,37 +275,37 @@ func (this *Engine[Game]) EndTick(stat vgame.Status) vgame.Status {
 	return stat
 }
 
-func (this *Engine[Game]) Preupdate(gam Game) vgame.Status {
+func (this *Eng[Game]) Preupdate(gam Game) vgame.Status {
 	this.updateLayerScales()
 	stat := this.preupdaters.Update(gam)
 	this.updateLayerClips()
 	return stat
 }
 
-func (this *Engine[Game]) Ents() *ventities.Zoo[Game] {
+func (this *Eng[Game]) Ents() *ventities.Zoo[Game] {
 	return &this.updaters
 }
 
-func (this *Engine[Game]) AtlasAnimCount() uint32 {
+func (this *Eng[Game]) AtlasAnimCount() uint32 {
 	return uint32(len(this.Atlas.Anims))
 }
 
-func (this *Engine[Game]) AtlasCelsPerAnim() uint32 {
+func (this *Eng[Game]) AtlasCelsPerAnim() uint32 {
 	return uint32(vatlas.CelsPerAnim)
 }
 
-func (this *Engine[Game]) AtlasCelsPointer() uintptr {
+func (this *Eng[Game]) AtlasCelsPointer() uintptr {
 	if len(this.Atlas.Cels) == 0 {
 		return 0
 	}
 	return uintptr(unsafe.Pointer(unsafe.SliceData(this.Atlas.Cels)))
 }
 
-func (this *Engine[Game]) AtlasCelsCount() uint32 {
+func (this *Eng[Game]) AtlasCelsCount() uint32 {
 	return uint32(len(this.Atlas.Cels))
 }
 
-func (this *Engine[Game]) BeginTick() vgame.Status {
+func (this *Eng[Game]) BeginTick() vgame.Status {
 	this.beepCount = 0
 	this.in.Update(
 		this.frame.NowMillis,
@@ -328,7 +327,7 @@ func (this *Engine[Game]) BeginTick() vgame.Status {
 	return vgame.Pause
 }
 
-func (this *Engine[Game]) updateLayerScales() {
+func (this *Eng[Game]) updateLayerScales() {
 	for i := range this.layers {
 		config := &this.layers[i]
 		clip := config.ClipPhy
@@ -342,7 +341,7 @@ func (this *Engine[Game]) updateLayerScales() {
 	}
 }
 
-func (this *Engine[Game]) updateLayerClips() {
+func (this *Eng[Game]) updateLayerClips() {
 	for i := range this.layers {
 		config := &this.layers[i]
 		config.UpdateCam(this.cam)
@@ -364,7 +363,7 @@ func (this *Engine[Game]) updateLayerClips() {
 	}
 }
 
-func (this *Engine[Game]) updateLayerConfigExport() {
+func (this *Eng[Game]) updateLayerConfigExport() {
 	for i := range this.layers {
 		layer := &this.layers[i]
 		sprs := layer.Sprs

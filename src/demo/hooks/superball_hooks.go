@@ -13,7 +13,7 @@ import (
 
 func UpdateSuperballs(
 	vec *vvec.Vec[entities.SuperballEnt],
-	gam *engine.Engine,
+	gam *engine.Eng,
 ) vgame.Status {
 	anim := gam.Atlas.Anims[int(tags.SuperballDefault)]
 	hitbox := anim.Hitbox

@@ -18,7 +18,7 @@ import (
 const cursorKeyVel = float32(100) // px / sec.
 
 // to-do: collapse with engine init?
-func InitInit(gam *engine.Engine) {
+func InitInit(gam *engine.Eng) {
 	gam.SetBoard(&boards.InitBoard)
 	gam.RegisterPreupdate(hooks.UpdateCam)
 	gam.RegisterPreupdate(hooks.UpdateLayers)
@@ -63,7 +63,7 @@ func InitInit(gam *engine.Engine) {
 	cursors.Add(cursor)
 	gam.RegisterUpdate(cursors)
 
-	buttons := ventities.NewEntVec(vhooks.UpdateButtons[*engine.Engine], 6)
+	buttons := ventities.NewEntVec(vhooks.UpdateButtons[*engine.Eng], 6)
 	gam.RegisterUpdate(buttons)
 
 	drawBtn := entities.NewDrawToggleButton(gam)
@@ -137,7 +137,7 @@ func InitInit(gam *engine.Engine) {
 
 }
 
-func UpdateInit(gam *engine.Engine) vgame.Status {
+func UpdateInit(gam *engine.Eng) vgame.Status {
 	return gam.Ents().Update(gam)
 }
 

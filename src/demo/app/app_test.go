@@ -36,7 +36,7 @@ func BenchmarkGameUpdate_HitDraw(b *testing.B) {
 	reportMetrics(b)
 }
 
-func newGame(camX, camY float32, superballCount int) *engine.Engine {
+func newGame(camX, camY float32, superballCount int) *engine.Eng {
 	gam := New()
 	// pre-size the superballs sprite buffer so the benchmark measures
 	// steady-state draw performance rather than slice growth.

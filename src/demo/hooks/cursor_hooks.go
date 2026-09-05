@@ -12,7 +12,7 @@ import (
 
 func UpdateCursors(
 	vec *vvec.Vec[*ventities.CursorEnt],
-	gam *engine.Engine,
+	gam *engine.Eng,
 ) vgame.Status {
 	input := gam.In()
 	deltaSecs := gam.DeltaSecs()

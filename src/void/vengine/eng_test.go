@@ -7,14 +7,14 @@ import (
 )
 
 type engineTestGame struct {
-	*Engine[*engineTestGame]
+	*Eng[*engineTestGame]
 }
 
 func (*engineTestGame) Update() vgame.Status { return vgame.Pause }
 
 // starts fullscreen and wakelock enabled until an app disables either.
 func TestFullscreenAndWakelockDefaultOn(t *testing.T) {
-	var engine Engine[*engineTestGame]
+	var engine Eng[*engineTestGame]
 	if engine.FullscreenDisabled() {
 		t.Error("FullscreenDisabled() = true, want false")
 	}

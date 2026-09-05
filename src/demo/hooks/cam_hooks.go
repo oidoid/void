@@ -16,7 +16,7 @@ import (
 const camKeyVel = float32(10) // lvl px / sec.
 
 // to-do: update cam last and check click mask state.
-func UpdateCam(gam *engine.Engine) vgame.Status {
+func UpdateCam(gam *engine.Eng) vgame.Status {
 	in := gam.In()
 	stat := vgame.Pause
 	anchor := zoomAnchor(gam, in)
@@ -125,7 +125,7 @@ func UpdateCam(gam *engine.Engine) vgame.Status {
 }
 
 func adjustLvlScaleAtKey(
-	gam *engine.Engine,
+	gam *engine.Eng,
 	anchor vgeo.XY[float32],
 	by float32,
 ) bool {
@@ -143,7 +143,7 @@ func keyZoomTarget(scale, by float32) float32 {
 }
 
 func snapLvlScaleAt(
-	gam *engine.Engine,
+	gam *engine.Eng,
 	anchor vgeo.XY[float32],
 ) bool {
 	const tolerance = float32(.1)
@@ -167,7 +167,7 @@ func lvlDragOn(ptr *vin.Pointer, clipPhy vgeo.Box[uint16]) bool {
 	return clip.HitsXY(ptr.Drag.StartPhy)
 }
 
-func snapCam(gam *engine.Engine, by vgeo.XY[float32]) {
+func snapCam(gam *engine.Eng, by vgeo.XY[float32]) {
 	cam := gam.Cam()
 	tiles := gam.Layer(gfx.LayerTiles)
 	xy := tiles.PhyToLayerScale(*cam)
@@ -175,7 +175,7 @@ func snapCam(gam *engine.Engine, by vgeo.XY[float32]) {
 	*cam = tiles.LayerToPhyScale(xy)
 }
 
-func UpdateLayers(gam *engine.Engine) vgame.Status {
+func UpdateLayers(gam *engine.Eng) vgame.Status {
 	gam.UpdateLvlLayers()
 	return vgame.Pause
 }
@@ -207,7 +207,7 @@ const (
 	wheelZoomDelta = float32(.25)
 )
 
-func zoomAnchor(gam *engine.Engine, in *vin.In) vgeo.XY[float32] {
+func zoomAnchor(gam *engine.Eng, in *vin.In) vgeo.XY[float32] {
 	if ptr := in.Ptr.CenterPhy(); ptr != nil {
 		return *ptr
 	}

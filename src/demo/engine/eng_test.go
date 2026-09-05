@@ -34,7 +34,7 @@ func TestWakelock(t *testing.T) {
 // applies the zzz URL override before the demo submits its wakelock request.
 func TestWakelockURLDisable(t *testing.T) {
 	gam := New()
-	gam.Router.Update = func(*Engine) vgame.Status { return vgame.Pause }
+	gam.Router.Update = func(*Eng) vgame.Status { return vgame.Pause }
 	gam.Frame().RequestWakelock = vgame.WakelockRequestOff
 	gam.Update()
 	if !gam.WakelockDisabled() {
@@ -48,7 +48,7 @@ func TestWakelockURLDisable(t *testing.T) {
 // applies the window URL override before the demo submits its fullscreen request.
 func TestFullscreenURLDisable(t *testing.T) {
 	gam := New()
-	gam.Router.Update = func(*Engine) vgame.Status { return vgame.Pause }
+	gam.Router.Update = func(*Eng) vgame.Status { return vgame.Pause }
 	gam.Frame().RequestFullscreen = vgame.FullscreenRequestExit
 	gam.Update()
 	if !gam.FullscreenDisabled() {
@@ -200,7 +200,7 @@ func TestAdjustLvlScaleAt(t *testing.T) {
 // requests fullscreen and wakelock until the demo toggles disable them.
 func TestDefaultFullscreenAndWakelockRequests(t *testing.T) {
 	gam := New()
-	gam.Router.Update = func(*Engine) vgame.Status { return vgame.Pause }
+	gam.Router.Update = func(*Eng) vgame.Status { return vgame.Pause }
 	gam.Update()
 	if got := gam.FullscreenRequest(); got != int32(vgame.FullscreenRequestEnter) {
 		t.Errorf("FullscreenRequest() = %v, want enter", got)

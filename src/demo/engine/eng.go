@@ -20,9 +20,9 @@ import (
 	"github.com/oidoid/void/src/void/vtext"
 )
 
-type Engine struct {
-	*vengine.Engine[*Engine]
-	Superballs     ventities.EntVec[*Engine, entities.SuperballEnt]
+type Eng struct {
+	*vengine.Eng[*Eng]
+	Superballs     ventities.EntVec[*Eng, entities.SuperballEnt]
 	HitSuperballs  bool
 	BeepSuperballs bool
 	SuperballGrid  vgrid.Grid
@@ -39,23 +39,23 @@ type entUpdater struct {
 	ent ventities.Updater[game.Game]
 }
 
-func (this entUpdater) Update(gam *Engine) vgame.Status {
+func (this entUpdater) Update(gam *Eng) vgame.Status {
 	return this.ent.Update(gam)
 }
 
 var Version string
-var _ vgame.Game = (*Engine)(nil)
+var _ vgame.Game = (*Eng)(nil)
 
 const (
 	lvlScaleMin = float32(1)
 	lvlScaleMax = float32(80)
 )
 
-func New() *Engine {
+func New() *Eng {
 	font := vtext.MemProp5x6
 	font.FirstTag = tags.MemProp5x600
-	this := &Engine{
-		Engine: vengine.New[*Engine](&vengine.EngineOpts{
+	this := &Eng{
+		Eng: vengine.New[*Eng](&vengine.EngOpts{
 			Font:       font,
 			RenderMode: vgfx.RenderModePixel,
 		}),
@@ -83,7 +83,7 @@ func New() *Engine {
 	return this
 }
 
-func (this *Engine) SetBoard(board *vboards.Board) {
+func (this *Eng) SetBoard(board *vboards.Board) {
 	this.BoardData = board
 	anim := this.Atlas.Anims[int(tags.SuperballDefault)]
 	diameter := float32(anim.Hitbox.Max.X - anim.Hitbox.Min.X)
@@ -97,20 +97,20 @@ func (this *Engine) SetBoard(board *vboards.Board) {
 	this.SuperballGrid = vgrid.New(bounds, diameter, 2*1024*1024)
 }
 
-func (this *Engine) Register(ent ventities.Updater[game.Game]) {
+func (this *Eng) Register(ent ventities.Updater[game.Game]) {
 	this.RegisterUpdate(entUpdater{ent})
 }
 
-func (this *Engine) SuperballCount() int { return this.Superballs.Len() }
+func (this *Eng) SuperballCount() int { return this.Superballs.Len() }
 
-func (this *Engine) UpdateLvlLayers() {
+func (this *Eng) UpdateLvlLayers() {
 	canvasPhy := *this.CanvasPhy()
 	baseScale := lvlScale(canvasPhy)
 	scale := this.lvlZoom(baseScale)
 	this.applyLvlScale(canvasPhy, baseScale, scale)
 }
 
-func (this *Engine) applyLvlScale(
+func (this *Eng) applyLvlScale(
 	canvasPhy vgeo.WH[uint16],
 	baseScale uint16,
 	scale float32,
@@ -134,7 +134,7 @@ func (this *Engine) applyLvlScale(
 }
 
 // adjusts lvl zoom while keeping the point at phy fixed on screen.
-func (this *Engine) ZoomLvlAt(phy vgeo.XY[float32], by float32) bool {
+func (this *Eng) ZoomLvlAt(phy vgeo.XY[float32], by float32) bool {
 	if by <= 0 {
 		return false
 	}
@@ -144,18 +144,18 @@ func (this *Engine) ZoomLvlAt(phy vgeo.XY[float32], by float32) bool {
 }
 
 // adjusts lvl scale while keeping the point at phy fixed on screen.
-func (this *Engine) AdjustLvlScaleAt(phy vgeo.XY[float32], by float32) bool {
+func (this *Eng) AdjustLvlScaleAt(phy vgeo.XY[float32], by float32) bool {
 	baseScale := lvlScale(*this.CanvasPhy())
 	scale := this.lvlZoom(baseScale) + by
 	return this.setLvlScaleAt(phy, scale)
 }
 
 // resets lvl scale to the fitted scale while keeping the point at phy fixed.
-func (this *Engine) ResetLvlScaleAt(phy vgeo.XY[float32]) bool {
+func (this *Eng) ResetLvlScaleAt(phy vgeo.XY[float32]) bool {
 	return this.setLvlScaleAt(phy, float32(lvlScale(*this.CanvasPhy())))
 }
 
-func (this *Engine) setLvlScaleAt(
+func (this *Eng) setLvlScaleAt(
 	phy vgeo.XY[float32],
 	scale float32,
 ) bool {
@@ -182,7 +182,7 @@ func (this *Engine) setLvlScaleAt(
 	return true
 }
 
-func (this *Engine) lvlZoom(baseScale uint16) float32 {
+func (this *Eng) lvlZoom(baseScale uint16) float32 {
 	zoom := this.LvlZoom
 	if zoom == 0 {
 		zoom = float32(baseScale)
@@ -218,7 +218,7 @@ func clampLvlScale(scale float32) float32 {
 	return scale
 }
 
-func (this *Engine) Boing(dx, dy float32) {
+func (this *Eng) Boing(dx, dy float32) {
 	if !this.BeepSuperballs || this.NowMillis()-this.LastBoingMs < 40 {
 		return
 	}
@@ -231,14 +231,14 @@ func (this *Engine) Boing(dx, dy float32) {
 }
 
 // to-do: separate method for resizing cam or whatever.
-func (this *Engine) Update() vgame.Status {
-	stat := this.Engine.BeginTick()
+func (this *Eng) Update() vgame.Status {
+	stat := this.Eng.BeginTick()
 	dpr := this.Frame().DevicePixelRatio
 	this.Layer(gfx.LayerUI).AutoscaleMaxScale = uint8(vmath.Round(3 * dpr))
 	this.Layer(gfx.LayerOverlay).Scale = float32(vmath.Round(3 * dpr))
 	this.Layer(gfx.LayerCursor).Scale = float32(vmath.Round(2 * dpr))
 	this.Layer(gfx.LayerGrid).Scale = float32(math.Floor(dpr))
-	stat |= this.Engine.Preupdate(this)
+	stat |= this.Eng.Preupdate(this)
 	stat |= this.Router.Update(this)
-	return this.Engine.EndTick(stat)
+	return this.Eng.EndTick(stat)
 }

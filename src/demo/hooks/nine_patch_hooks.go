@@ -11,7 +11,7 @@ import (
 
 func UpdateClipFillNinePatches(
 	vec *vvec.Vec[ventities.NinePatchEnt],
-	gam *engine.Engine,
+	gam *engine.Eng,
 ) vgame.Status {
 	ents := vec.Vals()
 	for i := range ents {
@@ -27,7 +27,7 @@ func UpdateClipFillNinePatches(
 
 func UpdateLvlEdgeNinePatches(
 	vec *vvec.Vec[ventities.NinePatchEnt],
-	gam *engine.Engine,
+	gam *engine.Eng,
 ) vgame.Status {
 	ui := gam.Layer(gfx.LayerUI)
 	lvl := gam.Layer(gfx.LayerTiles)

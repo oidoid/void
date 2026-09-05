@@ -12,7 +12,7 @@ import (
 
 func UpdateSuperballButtons(
 	vec *vvec.Vec[*entities.SuperballButtonEnt],
-	gam *engine.Engine,
+	gam *engine.Eng,
 ) vgame.Status {
 	layer := gam.Layer(gfx.LayerUI)
 	in := gam.In()

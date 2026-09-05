@@ -370,14 +370,14 @@ func TestUpdateCamOpposingKeysReleaseKeepsCam(t *testing.T) {
 
 // keeps rapid cardinal and diagonal transitions from accelerating either axis.
 func TestUpdateCamRapidDirChange(t *testing.T) {
-	newGam := func(scale float32) *engine.Engine {
+	newGam := func(scale float32) *engine.Eng {
 		gam := engine.New()
 		*gam.Cam() = vgeo.XY[float32]{}
 		gam.Layer(gfx.LayerTiles).Scale = scale
 		gam.Frame().DeltaMillis = camKeyStepMillis()
 		return gam
 	}
-	update := func(gam *engine.Engine, dir vgeo.XY[int8], on vin.Button) {
+	update := func(gam *engine.Eng, dir vgeo.XY[int8], on vin.Button) {
 		in := gam.In()
 		in.PrevOn = in.On
 		in.PrevDir = in.Dir
@@ -448,7 +448,7 @@ func TestUpdateCamKeyPans(t *testing.T) {
 
 // discards a pre-zoom key position before applying held-key movement.
 func TestUpdateCamKeyZooms(t *testing.T) {
-	newGam := func() *engine.Engine {
+	newGam := func() *engine.Eng {
 		gam := engine.New()
 		gam.CanvasPhy().W = 1024
 		gam.CanvasPhy().H = 640
