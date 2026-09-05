@@ -15,9 +15,6 @@ export async function exitFullscreen(): Promise<boolean> {
       return false
     }
 
-  // hack: no pointer up or cancel.
-  // to-do: v.input.reset()
-
   return true
 }
 
@@ -30,9 +27,6 @@ export async function requestFullscreen(el: Element): Promise<boolean> {
     } catch {
       return false
     }
-
-  // hack: no pointer up or cancel.
-  // to-do: v.input.reset()
 
   return true
 }

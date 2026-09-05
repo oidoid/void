@@ -19,7 +19,7 @@ export function getWebGL2(
     preserveDrawingBuffer: true
     // disable desync in debug since it breaks FPS meter. only enable
     // when canvas is known to draw next frame.
-    // to-do: ...(!debug?.render && {desynchronized: always})
+    // to-do: ...(!debug?.draw && {desynchronized: always})
   })
   if (gl) return gl
 

@@ -4,10 +4,11 @@ export type RenderMode = 'Pixel' | 'Float'
 
 export async function downloadScreenshot(
   canvas: HTMLCanvasElement,
-  name: string
+  name: string,
+  time: number
 ): Promise<void> {
   using img = await screenshot(canvas)
-  const timestamp = filenameTimestamp(new Date()) // to-do: pass in timestamp.
+  const timestamp = filenameTimestamp(new Date(time))
   download(img.uri, `${name}-screenshot-${timestamp}.webp`)
 }
 

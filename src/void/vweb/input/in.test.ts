@@ -1,8 +1,4 @@
 import {test} from 'node:test'
-import {assert} from '../test/assert.ts'
-import type {Gamepad} from './gamepad.ts'
-import {writeInPoll} from './in.ts'
-import type {Keyboard} from './keyboard.ts'
 import {
   devicePixelRatioOffset,
   drawCountOffset,
@@ -21,7 +17,11 @@ import {
   updateByteLen,
   updateMsOffset,
   wheelOffset
-} from './layout.ts'
+} from '../engine/layout.ts'
+import {assert} from '../test/assert.ts'
+import type {Gamepad} from './gamepad.ts'
+import {writeInPoll} from './in.ts'
+import type {Keyboard} from './keyboard.ts'
 import type {Pointer} from './pointer.ts'
 import type {Wheel} from './wheel.ts'
 

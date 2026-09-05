@@ -1,3 +1,5 @@
+import {debug} from '../engine/debug.ts'
+
 export function buildProgram(
   gl: WebGL2RenderingContext,
   vertSrc: string,
@@ -13,8 +15,7 @@ export function buildProgram(
   gl.detachShader(pgm, frag)
   gl.deleteShader(vert)
   gl.deleteShader(frag)
-  // to-do: `debug?.render && `.
-  if (!gl.getProgramParameter(pgm, gl.LINK_STATUS)) {
+  if (debug?.draw && !gl.getProgramParameter(pgm, gl.LINK_STATUS)) {
     const log = gl.getProgramInfoLog(pgm)?.slice(0, -1)
     throw Error(`shader link failure; ${log}`)
   }
@@ -29,8 +30,7 @@ function compileShader(
   const shader = gl.createShader(type)!
   gl.shaderSource(shader, src)
   gl.compileShader(shader)
-  // to-do: `debug?.render && `.
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+  if (debug?.draw && !gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
     const log = gl.getShaderInfoLog(shader)?.slice(0, -1)
     throw Error(`shader compile failure; ${log}`)
   }

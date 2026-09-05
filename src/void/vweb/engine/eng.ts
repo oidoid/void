@@ -1,28 +1,4 @@
 import {In} from '../input/in.ts'
-import {
-  canvasHOffset,
-  canvasWOffset,
-  deltaMsOffset,
-  devicePixelRatioOffset,
-  drawAlwaysOffset,
-  drawCountOffset,
-  isFullscreenOffset,
-  localDayOffset,
-  localHourOffset,
-  localMillisOffset,
-  localMinuteOffset,
-  localMonthOffset,
-  localSecondOffset,
-  localYearOffset,
-  nowMsOffset,
-  pointerlockedOffset,
-  requestFullscreenOffset,
-  requestWakelockOffset,
-  updateByteLen,
-  updateMsOffset,
-  utcMsOffset,
-  wakelockedOffset
-} from '../input/layout.ts'
 import {getWebGL2, Renderer} from '../renderer/renderer.ts'
 import {beep, SFX} from '../sfx/sfx.ts'
 import {downloadScreenshot, initCanvas} from '../utils/canvas-util.ts'
@@ -36,6 +12,13 @@ import {
 } from './debug.ts'
 import {Fullscreen} from './fullscreen.ts'
 import {
+  canvasHOffset,
+  canvasWOffset,
+  deltaMsOffset,
+  devicePixelRatioOffset,
+  drawAlwaysOffset,
+  drawCountOffset,
+  isFullscreenOffset,
   type LayerBlendMode,
   type LayerCamMode,
   type LayerConfig,
@@ -57,10 +40,25 @@ import {
   layerFlagsDepthFlag,
   layerFlagsDepthMask,
   layerFlagsDepthShift,
+  localDayOffset,
+  localHourOffset,
+  localMillisOffset,
+  localMinuteOffset,
+  localMonthOffset,
+  localSecondOffset,
+  localYearOffset,
+  nowMsOffset,
+  pointerlockedOffset,
+  requestFullscreenOffset,
+  requestWakelockOffset,
   type Shader,
   shaderOverlay,
   shaderSprs,
-  shaderTiles
+  shaderTiles,
+  updateByteLen,
+  updateMsOffset,
+  utcMsOffset,
+  wakelockedOffset
 } from './layout.ts'
 import {PixelRatioObserver} from './pixel-ratio-observer.ts'
 import {LoopLoop, type Platform, renderModePixel} from './platform.ts'
@@ -370,7 +368,7 @@ export class Eng {
 
   #applyPostDrawRequests(renderer: Renderer): void {
     if (this.#wasm.ScreenshotRequest())
-      void downloadScreenshot(this.#canvas, 'void')
+      void downloadScreenshot(this.#canvas, 'void', Date.now())
     if (this.#wasm.ContextLossRequest()) renderer.loseContext()
   }
 
