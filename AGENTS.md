@@ -1,7 +1,5 @@
 # Agent Instructions
 
-if you change or add any pattern, or when you are corrected, update agent rules and skills as appropriate.
-
 ## Before Starting Any Task
 
 - check `.agents/skills/` for a relevant skill and follow it if one matches. never skip this step.

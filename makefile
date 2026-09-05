@@ -1,6 +1,9 @@
 include config.make
 
 out_demo := dist/demo/index.wasm
+bundle_version = $(shell git describe --dirty)
+bundle_published = $(shell TZ=UTC git log -1 --format=%cd --date=format-local:%Y%m%d)
+bundle_id = $(bundle_version)+$(bundle_published)
 tinygo_nodebug := --no-debug
 go_tags := $(if $(value DEBUG),--tags=debug,)
 # pick fastest CPU with `lscpu --extended`.
@@ -15,7 +18,7 @@ go_test_filter = \
 	sed --regexp-extended --unbuffered $(if $(value V),'','/^ok |\[no test files\]$$|PASS$$|^goos: |^goarch: |^pkg: |^cpu: /d')
 # precise GC lets the collector skip scanning pointer-free heap objects instead
 # of conservatively treating every word as a possible pointer.
-tinygo_flags += $(go_tags) --ldflags="-X github.com/oidoid/void/src/demo/engine.Version=$(shell git describe --dirty)" --scheduler=none --gc=precise $(if $(value DEBUG),,$(tinygo_nodebug) --panic=trap) $(if $(value V),--print-allocs=.,)
+tinygo_flags += $(go_tags) --ldflags="-X github.com/oidoid/void/src/demo/engine.Version=$(bundle_id)" --scheduler=none --gc=precise $(if $(value DEBUG),,$(tinygo_nodebug) --panic=trap) $(if $(value V),--print-allocs=.,)
 # $(1) flags
 pack_demo = go run ./src/cmd/pack --out=dist/demo/ --tsconfig=src/demo/web/tsconfig.json $(1) src/demo/web/assets/index.html
 # $(1) flags
@@ -49,7 +52,9 @@ build-go:
 build-atlas:; $(call packatlas_demo,)
 build-boards: build-atlas; $(call packboards_demo,)
 build-favicon:; $(favicon_demo)
-build-web: build-demo build-atlas; $(call pack_demo,--minify --one-file)
+build-web: build-demo build-atlas
+	$(call pack_demo,--minify --one-file)
+	$(if $(value DEBUG),,cp dist/demo/index.html 'dist/demo/void-$(bundle_id).html')
 
 clean:; rm --force --recursive dist/ src/demo/assets/atlas_bin.go src/demo/tags/tags.go
 

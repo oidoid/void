@@ -9,7 +9,7 @@ import (
 var gam *engine.Engine
 
 func main() {
-	println(engine.Version)
+	println("void " + engine.Version + " ───oidoid>°──")
 	gam = app.New()
 }
 

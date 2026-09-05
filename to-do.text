@@ -1,13 +1,6 @@
-fix version string and filename to include publish date v0.1.10-371-gebd7041e.
-  `void v${V.bundle.version}+${V.bundle.published}.${V.bundle.hash} ───oidoid>°──`
 
-tv
-  clean up Aseprite assets and make buttons look nice.
-  paint with IDs.
 dynamic texture loading from a url.
 demo
-  add checkbox UI.
-  center scaling on mouse.
   add `Sprite.looped` animation. hourglass or widget?
   add sticky notes.
     explore a void-based Linear Text.
@@ -15,12 +8,7 @@ demo
     make a friendly note taking app that is Mario Paint fun.
   implement fun eggtimer.
 perf
-  why always render when holding the left or middle mouse button down? it should be an update but not a render?
-  it doesn't make sense to insert static sprites as ents. just make an array sprite ent to hold a whole group.
-  add pause on blur option.
-  minify GLSL
-    https://github.com/vanruesc/esbuild-plugin-glsl/blob/main/src/minifyShader.ts
-    https://github.com/UstymUkhman/vite-plugin-glsl/blob/main/src/loadShader.js
+  add pause on blur option. default on.
 input
   limit gamepad polling to once a second if gamepad.bits is off and hasn't been updated in 60s.
   mapping
@@ -34,12 +22,6 @@ input
   Input.point.click and Input.isOn('A') overlap is confusing, Input mouse / button overlap is confusing.
 output
   add disk saving to storage. https://github.com/GoogleChromeLabs/browser-fs-access.
-parser
-  use `$dynamicRef` once understood by IDEs. see https://github.com/microsoft/vscode/issues/155379.
-  validate json schemas themselves and usages.
-  wrap AJV into linter.
-  it's confusing that some values are init only and others resync live every update. how to clarify what's an init value / fallback init value vs live value. for example of live, look at HUD's interaction with sprite. I don't want to write code that runs every loop and isn't needed by 99% of ents. that 1% can be custom ents.
-  how can I enforce the user parser typing? maybe just omit the V props. it's ok to return undefined but the switch should handle all props. this would prevent overriding a V parser though.
 features
   provide a utility for scaling icons. I actually see great results with SVG icon in recent Chromium.
   consider adding a utility to sync palettes.
@@ -47,16 +29,3 @@ features
     xargs --no-run-if-empty --delimiter=\\n --replace \
       aseprite --batch {} --palette src/assets/atlas/palette.aseprite --save-as {}
   support a query param for Void.random seeding.
-zoo
-  actually call `free()` and maybe inline `free()` method in zoo if `Ent.sprite` is the only the only resource ever deinitialized.
-  querying ents from another ent is very clumsy. cant' really do it at parse time unless you know all those ents have been inserted so you have to wait until first update or put it in `Loader` or `Void`. maybe there needs to be an init() callback that is invoked by level loader `zoo.initEnts()`.
-  Void.invalid vs Ent.invalid vs Render.invalid vs Void.requestFrame() is confusing overlap.
-sprite
-  add palette swapping. what's the API?
-tiling and level editing.
-  add Aseprite tile mode support? not sure if I ever had this or only LDTK. unclear how if I support ent annotations in this mode for full level editing experience.
-research
-  decide on exactOptionalPropertyTypes in void and Super Patience.
-  how can I shrink void-template, especially needing to touch schema.json, level-parser.ts, level-schema.ts, ent.ts, new-ent.ts, decl.ts, ... all to add an ent.
-test
-  use dispose pattern to isolate test mock dependencies and global access.
