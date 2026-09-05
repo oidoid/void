@@ -1,4 +1,4 @@
-import {Input} from '../input/input.ts'
+import {In} from '../input/in.ts'
 import {
   canvasHOffset,
   canvasWOffset,
@@ -67,7 +67,7 @@ import {LoopLoop, type Platform, renderModePixel} from './platform.ts'
 import {Wakelock} from './wakelock.ts'
 import {WASI} from './wasi.ts'
 
-export class Engine {
+export class Eng {
   #canvas!: HTMLCanvasElement
   #clearColor: [number, number, number, number] = [0, 0, 0, 1]
   #drawCount: number = 0
@@ -75,7 +75,7 @@ export class Engine {
   #requestWakelock: boolean = false
   #updateMs: number = 0
   #poll!: DataView
-  #input!: Input
+  #input!: In
   #lastTime: number = 0
   #phyW: number = 0 // don't care if these init later.
   #phyH: number = 0
@@ -116,7 +116,7 @@ export class Engine {
     const pixel = this.#wasm.RenderMode() === renderModePixel
     canvas = initCanvas(canvas, pixel ? 'Pixel' : 'Float')
 
-    this.#input = new Input(canvas)
+    this.#input = new In(canvas)
     this.#poll = new DataView(
       this.#wasm.memory.buffer,
       this.#wasm.PollPointer(),

@@ -5,7 +5,6 @@ import (
 	"github.com/oidoid/void/src/void/vin"
 )
 
-// to-do: rename Engine.Frame() to Engine.Poll().
 type Poll struct {
 	InPoll vin.InPoll
 	// time since the last frame was _requested_ in milliseconds.

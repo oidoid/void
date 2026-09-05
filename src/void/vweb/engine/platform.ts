@@ -3,8 +3,7 @@ export type Platform = {
   memory: WebAssembly.Memory
   // initialises the Go runtime and calls `main()`.
   _start(): void
-  // to-do: better name for "frame"?
-  // byte offset into `memory` of the frame.
+  // byte offset into `memory` of the poll.
   PollPointer(): number
   BeepPointer(): number
   BeepCount(): number
@@ -37,7 +36,7 @@ export type Platform = {
 
 export type Loop = typeof LoopPause | typeof LoopLoop
 export const LoopPause = 0 as const
+export const LoopLoop = 1 as const
+
 export const renderModeFloat = 0 as const
 export const renderModePixel = 1 as const
-
-export const LoopLoop = 1 as const

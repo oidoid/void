@@ -61,9 +61,10 @@ never run:
   - number: num
   - object(s): obj(s)
   - palette: pal
-  - pointer lock: pointerlock
   - physical: phy
   - pixel(s): px(s)
+  - pointer: ptr
+  - pointer lock: ptrlock
   - property / properties: prop(s)
   - random: rnd
   - render box: clipbox

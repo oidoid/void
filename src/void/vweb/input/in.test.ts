@@ -1,7 +1,7 @@
 import {test} from 'node:test'
 import {assert} from '../test/assert.ts'
 import type {Gamepad} from './gamepad.ts'
-import {writeInPoll} from './input.ts'
+import {writeInPoll} from './in.ts'
 import type {Keyboard} from './keyboard.ts'
 import {
   devicePixelRatioOffset,

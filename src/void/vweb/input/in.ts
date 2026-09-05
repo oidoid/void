@@ -20,7 +20,7 @@ import {
 import {Pointer} from './pointer.ts'
 import {Wheel} from './wheel.ts'
 
-export class Input {
+export class In {
   onEvent: OnEvent = () => {}
   readonly #ctxMenu: ContextMenu
   readonly #gamepad: Gamepad
@@ -57,7 +57,6 @@ export class Input {
   }
 
   reset(): void {
-    // to-do: review.
     this.#gamepad.reset()
     this.#keyboard.reset()
     this.#pointer.reset()
