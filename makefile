@@ -33,7 +33,7 @@ favicon_demo = \
 		cwebp -exact -lossless -mt -quiet -z 9 $$favicon.png -o $$favicon.webp; \
 	done
 
-.PHONY: bench build build-cmd build-demo build-go build-atlas build-boards build-favicon build-web clean dependencies fat-analyze fat-check fat-save fmt fmt-go fmt-mod fmt-web install lint lint-critic lint-static lint-vet lint-web slow-check slow-save test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-atlas watch-boards watch-web
+.PHONY: bench build build-cmd build-demo build-go build-atlas build-boards build-favicon build-web clean dependencies fat-analyze fat-check fat-save fmt fmt-go fmt-mod fmt-web gen-go install lint lint-critic lint-static lint-vet lint-web slow-check slow-save test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-atlas watch-boards watch-web
 
 watch: export DEBUG := 1
 watch: dependencies build-atlas .WAIT build-boards build-favicon .WAIT watch-go watch-atlas watch-boards watch-web
@@ -58,10 +58,6 @@ build-web: build-demo build-atlas
 
 clean:; rm --force --recursive dist/ src/demo/assets/atlas_bin.go src/demo/tags/tags.go
 
-# to-do:
-# go generate
-# src/void/vtext/mem_prop_5x6_gen.go
-
 dependencies:
 	for exe in go mono node shader_minifier.exe tinygo wasm-opt watchexec; do
 		command -v $$exe > /dev/null || { echo "no $$exe" >&2; false; }
@@ -77,6 +73,8 @@ fmt: fmt-mod fmt-go fmt-web
 fmt-mod:; go mod tidy
 fmt-go:; go fmt ./src/...
 fmt-web:; npx lint --fix > /dev/null
+
+gen-go:; go generate ./src/...
 
 install:; go mod download; npm install;
 
