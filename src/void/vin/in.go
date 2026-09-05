@@ -44,7 +44,7 @@ type In struct {
 
 	now        float64 // time of last update.
 	prevCam    vgeo.Box[float32]
-	prevPoll   InputPoll
+	prevPoll   InPoll
 	dragStates [MaxPointers]dragState
 	pinch      Pinch
 }
@@ -287,9 +287,9 @@ func (this *In) Reset(now float64) {
 	this.DirOn = false
 }
 
-func (this *In) Update(now float64, poll *InputPoll, cam vgeo.Box[float32]) {
+func (this *In) Update(now float64, poll *InPoll, cam vgeo.Box[float32]) {
 	if poll == nil {
-		poll = &InputPoll{}
+		poll = &InPoll{}
 	}
 
 	this.Mask = 0
@@ -338,7 +338,7 @@ func (this *In) Update(now float64, poll *InputPoll, cam vgeo.Box[float32]) {
 	this.updateGestures()
 }
 
-func pointerMoved(poll PointerPoll, prev *InputPoll) bool {
+func pointerMoved(poll PointerPoll, prev *InPoll) bool {
 	for i := range prev.PtrsLen {
 		candidate := prev.Ptrs[i]
 		if candidate.ID == poll.ID {
@@ -470,7 +470,7 @@ func (this *In) updateDrag(ptr *Pointer) {
 	state.dragging = dragging
 }
 
-func (this *In) evalOn(poll *InputPoll) Button {
+func (this *In) evalOn(poll *InPoll) Button {
 	var on Button
 
 	keys := poll.Kbd.Keys
@@ -524,7 +524,7 @@ func (this *In) evalOn(poll *InputPoll) Button {
 	return on
 }
 
-func inputEq(l, r *InputPoll) bool {
+func inputEq(l, r *InPoll) bool {
 	if l.PtrsLen != r.PtrsLen || l.PadsLen != r.PadsLen {
 		return false
 	}

@@ -18,46 +18,46 @@ func xyNear(l, r vgeo.XY[float32]) bool {
 func TestIsHeld(t *testing.T) {
 	in := NewIn()
 	in.MapKey(KeyA, ButtonA)
-	in.Update(0, &InputPoll{}, zeroCam)
+	in.Update(0, &InPoll{}, zeroCam)
 
-	in.Update(10, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(10, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 
-	in.Update(309, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(309, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if in.IsHeld() {
 		t.Error("held should be false before MinHeldMillis")
 	}
 
-	in.Update(310, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(310, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if !in.IsHeld() {
 		t.Error("held should be true after MinHeldMillis")
 	}
 
-	in.Update(1000, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(1000, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if !in.IsHeld() {
 		t.Error("held should remain true after MinHeldMillis")
 	}
 
-	in.Update(1001, &InputPoll{}, zeroCam)
+	in.Update(1001, &InPoll{}, zeroCam)
 	if in.IsHeld() {
 		t.Error("held should reset when off")
 	}
 
-	in.Update(1002, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(1002, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if in.IsHeld() {
 		t.Error("held should remain off before MinHeldMillis")
 	}
 
-	in.Update(1302, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(1302, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if !in.IsHeld() {
 		t.Error("held should be true after MinHeldMillis again")
 	}
 
-	in.Update(1303, &InputPoll{}, zeroCam)
+	in.Update(1303, &InPoll{}, zeroCam)
 	if in.IsHeld() {
 		t.Error("held should reset when off")
 	}
 
-	in.Update(1603, &InputPoll{}, zeroCam)
+	in.Update(1603, &InPoll{}, zeroCam)
 	if !in.IsHeld() {
 		t.Error("held should be true after MinHeldMillis of unchanging input")
 	}
@@ -66,17 +66,17 @@ func TestIsHeld(t *testing.T) {
 func TestIsOff(t *testing.T) {
 	in := NewIn()
 	in.MapKey(KeyA, ButtonA)
-	in.Update(0, &InputPoll{}, zeroCam)
+	in.Update(0, &InPoll{}, zeroCam)
 	if !in.IsOff(ButtonA) {
 		t.Error("IsOff should be true when button is off")
 	}
 
-	in.Update(1, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(1, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if in.IsOff(ButtonA) {
 		t.Error("IsOff should be false when button is on")
 	}
 
-	in.Update(10, &InputPoll{}, zeroCam)
+	in.Update(10, &InPoll{}, zeroCam)
 	if !in.IsOff(ButtonA) {
 		t.Error("IsOff should be true when button is off again")
 	}
@@ -85,17 +85,17 @@ func TestIsOff(t *testing.T) {
 func TestIsOffStart(t *testing.T) {
 	in := NewIn()
 	in.MapKey(KeyA, ButtonA)
-	in.Update(0, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(0, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if in.IsOffStart(ButtonA) {
 		t.Error("IsOffStart should be false while button is on")
 	}
 
-	in.Update(1, &InputPoll{}, zeroCam)
+	in.Update(1, &InPoll{}, zeroCam)
 	if !in.IsOffStart(ButtonA) {
 		t.Error("IsOffStart should be true when button turns off")
 	}
 
-	in.Update(2, &InputPoll{}, zeroCam)
+	in.Update(2, &InPoll{}, zeroCam)
 	if in.IsOffStart(ButtonA) {
 		t.Error("IsOffStart should not repeat while button remains off")
 	}
@@ -104,17 +104,17 @@ func TestIsOffStart(t *testing.T) {
 func TestIsOffEnd(t *testing.T) {
 	in := NewIn()
 	in.MapKey(KeyA, ButtonA)
-	in.Update(0, &InputPoll{}, zeroCam)
+	in.Update(0, &InPoll{}, zeroCam)
 	if in.IsOffEnd(ButtonA) {
 		t.Error("IsOffEnd should be false while button is off")
 	}
 
-	in.Update(1, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(1, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if !in.IsOffEnd(ButtonA) {
 		t.Error("IsOffEnd should be true when button turns on")
 	}
 
-	in.Update(2, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(2, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if in.IsOffEnd(ButtonA) {
 		t.Error("IsOffEnd should not repeat while button remains on")
 	}
@@ -123,17 +123,17 @@ func TestIsOffEnd(t *testing.T) {
 func TestIsOn(t *testing.T) {
 	in := NewIn()
 	in.MapKey(KeyA, ButtonA)
-	in.Update(0, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(0, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if !in.IsOn(ButtonA) {
 		t.Error("IsOn should be true when button is on")
 	}
 
-	in.Update(1, &InputPoll{}, zeroCam)
+	in.Update(1, &InPoll{}, zeroCam)
 	if in.IsOn(ButtonA) {
 		t.Error("IsOn should be false when button is off")
 	}
 
-	in.Update(10, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(10, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if !in.IsOn(ButtonA) {
 		t.Error("IsOn should be true when button is on again")
 	}
@@ -143,11 +143,11 @@ func TestIsOnMultiBit(t *testing.T) {
 	in := NewIn()
 	in.MapKey(KeyA, ButtonA)
 	in.MapKey(KeyB, ButtonB)
-	in.Update(0, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA | KeyB}}, zeroCam)
+	in.Update(0, &InPoll{Kbd: KeyboardPoll{Keys: KeyA | KeyB}}, zeroCam)
 	if !in.IsOn(ButtonA | ButtonB) {
 		t.Error("IsOn with multi-bit should require ALL bits")
 	}
-	in.Update(0, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(0, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if in.IsOn(ButtonA | ButtonB) {
 		t.Error("IsOn should be false when not all bits active")
 	}
@@ -156,17 +156,17 @@ func TestIsOnMultiBit(t *testing.T) {
 func TestIsOnStart(t *testing.T) {
 	in := NewIn()
 	in.MapKey(KeyA, ButtonA)
-	in.Update(0, &InputPoll{}, zeroCam)
+	in.Update(0, &InPoll{}, zeroCam)
 	if in.IsOnStart(ButtonA) {
 		t.Error("IsOnStart should be false while button is off")
 	}
 
-	in.Update(1, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(1, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if !in.IsOnStart(ButtonA) {
 		t.Error("IsOnStart should be true when button turns on")
 	}
 
-	in.Update(2, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(2, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if in.IsOnStart(ButtonA) {
 		t.Error("IsOnStart should not repeat while button remains on")
 	}
@@ -175,17 +175,17 @@ func TestIsOnStart(t *testing.T) {
 func TestIsOnEnd(t *testing.T) {
 	in := NewIn()
 	in.MapKey(KeyA, ButtonA)
-	in.Update(0, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(0, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if in.IsOnEnd(ButtonA) {
 		t.Error("IsOnEnd should be false while button is on")
 	}
 
-	in.Update(1, &InputPoll{}, zeroCam)
+	in.Update(1, &InPoll{}, zeroCam)
 	if !in.IsOnEnd(ButtonA) {
 		t.Error("IsOnEnd should be true when button turns off")
 	}
 
-	in.Update(2, &InputPoll{}, zeroCam)
+	in.Update(2, &InPoll{}, zeroCam)
 	if in.IsOnEnd(ButtonA) {
 		t.Error("IsOnEnd should not repeat while button remains off")
 	}
@@ -195,17 +195,17 @@ func TestIsAnyOn(t *testing.T) {
 	in := NewIn()
 	in.MapKey(KeyA, ButtonA)
 	in.MapKey(KeyB, ButtonB)
-	in.Update(0, &InputPoll{}, zeroCam)
+	in.Update(0, &InPoll{}, zeroCam)
 	if in.IsAnyOn(ButtonA | ButtonB) {
 		t.Error("IsAnyOn should be false when all buttons are off")
 	}
 
-	in.Update(1, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(1, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if !in.IsAnyOn(ButtonA | ButtonB) {
 		t.Error("IsAnyOn should be true when any button is on")
 	}
 
-	in.Update(2, &InputPoll{}, zeroCam)
+	in.Update(2, &InPoll{}, zeroCam)
 	if in.IsAnyOn(ButtonA | ButtonB) {
 		t.Error("IsAnyOn should be false when all buttons are off again")
 	}
@@ -215,17 +215,17 @@ func TestIsAnyOnStart(t *testing.T) {
 	in := NewIn()
 	in.MapKey(KeyA, ButtonA)
 	in.MapKey(KeyB, ButtonB)
-	in.Update(0, &InputPoll{}, zeroCam)
+	in.Update(0, &InPoll{}, zeroCam)
 	if in.IsAnyOnStart(ButtonA | ButtonB) {
 		t.Error("IsAnyOnStart should be false while all buttons are off")
 	}
 
-	in.Update(1, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(1, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if !in.IsAnyOnStart(ButtonA | ButtonB) {
 		t.Error("IsAnyOnStart should be true when any button turns on")
 	}
 
-	in.Update(2, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(2, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if in.IsAnyOnStart(ButtonA | ButtonB) {
 		t.Error("IsAnyOnStart should not repeat while buttons remain on")
 	}
@@ -235,17 +235,17 @@ func TestIsAnyOnEnd(t *testing.T) {
 	in := NewIn()
 	in.MapKey(KeyA, ButtonA)
 	in.MapKey(KeyB, ButtonB)
-	in.Update(0, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA | KeyB}}, zeroCam)
+	in.Update(0, &InPoll{Kbd: KeyboardPoll{Keys: KeyA | KeyB}}, zeroCam)
 	if in.IsAnyOnEnd(ButtonA | ButtonB) {
 		t.Error("IsAnyOnEnd should be false while all buttons are on")
 	}
 
-	in.Update(1, &InputPoll{Kbd: KeyboardPoll{Keys: KeyB}}, zeroCam)
+	in.Update(1, &InPoll{Kbd: KeyboardPoll{Keys: KeyB}}, zeroCam)
 	if !in.IsAnyOnEnd(ButtonA | ButtonB) {
 		t.Error("IsAnyOnEnd should be true when any button turns off")
 	}
 
-	in.Update(2, &InputPoll{Kbd: KeyboardPoll{Keys: KeyB}}, zeroCam)
+	in.Update(2, &InPoll{Kbd: KeyboardPoll{Keys: KeyB}}, zeroCam)
 	if in.IsAnyOnEnd(ButtonA | ButtonB) {
 		t.Error("IsAnyOnEnd should not repeat while buttons remain unchanged")
 	}
@@ -255,22 +255,22 @@ func TestIsAnyStart(t *testing.T) {
 	in := NewIn()
 	in.MapKey(KeyA, ButtonA)
 	in.MapKey(KeyB, ButtonB)
-	in.Update(0, &InputPoll{}, zeroCam)
+	in.Update(0, &InPoll{}, zeroCam)
 	if in.IsAnyStart(ButtonA | ButtonB) {
 		t.Error("IsAnyStart should be false while all buttons are unchanged")
 	}
 
-	in.Update(1, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(1, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if !in.IsAnyStart(ButtonA | ButtonB) {
 		t.Error("IsAnyStart should be true when any button turns on")
 	}
 
-	in.Update(2, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(2, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if in.IsAnyStart(ButtonA | ButtonB) {
 		t.Error("IsAnyStart should not repeat while buttons remain unchanged")
 	}
 
-	in.Update(3, &InputPoll{}, zeroCam)
+	in.Update(3, &InPoll{}, zeroCam)
 	if !in.IsAnyStart(ButtonA | ButtonB) {
 		t.Error("IsAnyStart should be true when any button turns off")
 	}
@@ -279,8 +279,8 @@ func TestIsAnyStart(t *testing.T) {
 func TestIsAnyStartRespectsMask(t *testing.T) {
 	in := NewIn()
 	in.MapKey(KeyA, ButtonA)
-	in.Update(0, &InputPoll{}, zeroCam)
-	in.Update(1, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(0, &InPoll{}, zeroCam)
+	in.Update(1, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	in.Mask |= ButtonA
 	if in.IsAnyStart(ButtonA) {
 		t.Error("IsAnyStart should ignore masked changed buttons")
@@ -290,7 +290,7 @@ func TestIsAnyStartRespectsMask(t *testing.T) {
 func TestMapKey(t *testing.T) {
 	in := NewIn()
 	in.MapKey(KeyA, ButtonA)
-	in.Update(0, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(0, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if !in.IsOn(ButtonA) {
 		t.Error("MapKey should map key to button")
 	}
@@ -299,7 +299,7 @@ func TestMapKey(t *testing.T) {
 func TestMapClick(t *testing.T) {
 	in := NewIn()
 	in.MapClick(ClickPrimary, ButtonA)
-	in.Update(0, &InputPoll{
+	in.Update(0, &InPoll{
 		PtrsLen: 1,
 		Ptrs:    [MaxPointers]PointerPoll{{Primary: true, Clicks: ClickPrimary}},
 	}, zeroCam)
@@ -311,7 +311,7 @@ func TestMapClick(t *testing.T) {
 func TestMapButton(t *testing.T) {
 	in := NewIn()
 	in.MapButton(GamepadButtonA, ButtonA)
-	in.Update(0, &InputPoll{
+	in.Update(0, &InPoll{
 		PadsLen: 1,
 		Pads:    [4]GamepadPoll{{Connected: true, Buttons: GamepadButtonA}},
 	}, zeroCam)
@@ -323,7 +323,7 @@ func TestMapButton(t *testing.T) {
 func TestMapAxis(t *testing.T) {
 	in := NewIn()
 	in.MapAxis(0, ButtonL, ButtonR)
-	in.Update(0, &InputPoll{
+	in.Update(0, &InPoll{
 		PadsLen: 1,
 		Pads:    [4]GamepadPoll{{Connected: true, Axes: [4]float32{-0.6, 0, 0, 0}}},
 	}, zeroCam)
@@ -331,7 +331,7 @@ func TestMapAxis(t *testing.T) {
 		t.Error("MapAxis should map negative axis to button")
 	}
 
-	in.Update(1, &InputPoll{
+	in.Update(1, &InPoll{
 		PadsLen: 1,
 		Pads:    [4]GamepadPoll{{Connected: true, Axes: [4]float32{0.6, 0, 0, 0}}},
 	}, zeroCam)
@@ -345,7 +345,7 @@ func TestMapWheel(t *testing.T) {
 	in.MapWheel(ButtonU, ButtonD)
 	in.Update(
 		0,
-		&InputPoll{
+		&InPoll{
 			Wheel: WheelPoll{Delta: vgeo.XYZ[float32]{XY: vgeo.XY[float32]{Y: -1}}},
 		},
 		zeroCam,
@@ -356,7 +356,7 @@ func TestMapWheel(t *testing.T) {
 
 	in.Update(
 		1,
-		&InputPoll{
+		&InPoll{
 			Wheel: WheelPoll{Delta: vgeo.XYZ[float32]{XY: vgeo.XY[float32]{Y: 1}}},
 		},
 		zeroCam,
@@ -369,7 +369,7 @@ func TestMapWheel(t *testing.T) {
 func TestMapText(t *testing.T) {
 	in := NewIn()
 	in.MapText('z', ButtonA)
-	poll := &InputPoll{}
+	poll := &InPoll{}
 	poll.Kbd.Text[0] = 'z'
 	poll.Kbd.TextLen = 1
 	in.Update(0, poll, zeroCam)
@@ -391,7 +391,7 @@ func TestMapDefaultText(t *testing.T) {
 		t.Run(test.text, func(t *testing.T) {
 			in := NewIn()
 			in.MapDefaultText()
-			poll := &InputPoll{}
+			poll := &InPoll{}
 			copy(poll.Kbd.Text[:], test.text)
 			poll.Kbd.TextLen = uint16(len(test.text))
 			in.Update(0, poll, zeroCam)
@@ -405,7 +405,7 @@ func TestMapDefaultText(t *testing.T) {
 func TestMaskBlocksOn(t *testing.T) {
 	in := NewIn()
 	in.MapKey(KeyA, ButtonA)
-	in.Update(0, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(0, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if !in.IsOn(ButtonA) {
 		t.Error("Initial button should be on")
 	}
@@ -421,7 +421,7 @@ func TestMaskBlocksOn(t *testing.T) {
 func TestMaskResetsOnUpdate(t *testing.T) {
 	in := NewIn()
 	in.MapKey(KeyA, ButtonA)
-	in.Update(0, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(0, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if !in.IsOn(ButtonA) {
 		t.Error("Initial button should be on")
 	}
@@ -429,7 +429,7 @@ func TestMaskResetsOnUpdate(t *testing.T) {
 	if in.IsOn(ButtonA) {
 		t.Error("Mask button should return false for IsOn")
 	}
-	in.Update(1, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(1, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if !in.IsOn(ButtonA) {
 		t.Error("Mask should be reset by Update")
 	}
@@ -438,17 +438,17 @@ func TestMaskResetsOnUpdate(t *testing.T) {
 func TestOn(t *testing.T) {
 	in := NewIn()
 	in.MapKey(KeyA, ButtonA)
-	in.Update(0, &InputPoll{}, zeroCam)
+	in.Update(0, &InPoll{}, zeroCam)
 	if in.On != 0 {
 		t.Errorf("On = %v, want 0", in.On)
 	}
 
-	in.Update(1, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(1, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if in.On != ButtonA {
 		t.Errorf("On = %v, want %v", in.On, ButtonA)
 	}
 
-	in.Update(2, &InputPoll{}, zeroCam)
+	in.Update(2, &InPoll{}, zeroCam)
 	if in.On != 0 {
 		t.Errorf("On = %v, want 0", in.On)
 	}
@@ -457,17 +457,17 @@ func TestOn(t *testing.T) {
 func TestEverOn(t *testing.T) {
 	in := NewIn()
 	in.MapKey(KeyA, ButtonA)
-	in.Update(0, &InputPoll{}, zeroCam)
+	in.Update(0, &InPoll{}, zeroCam)
 	if in.EverOn {
 		t.Error("EverOn should be false before any button is on")
 	}
 
-	in.Update(1, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(1, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if !in.EverOn {
 		t.Error("EverOn should be true after a button turns on")
 	}
 
-	in.Update(2, &InputPoll{}, zeroCam)
+	in.Update(2, &InPoll{}, zeroCam)
 	if !in.EverOn {
 		t.Error("EverOn should stay true after button turns off")
 	}
@@ -476,17 +476,17 @@ func TestEverOn(t *testing.T) {
 func TestPrevOn(t *testing.T) {
 	in := NewIn()
 	in.MapKey(KeyA, ButtonA)
-	in.Update(0, &InputPoll{}, zeroCam)
+	in.Update(0, &InPoll{}, zeroCam)
 	if in.PrevOn != 0 {
 		t.Errorf("PrevOn = %v, want 0", in.PrevOn)
 	}
 
-	in.Update(1, &InputPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	in.Update(1, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
 	if in.PrevOn != 0 {
 		t.Errorf("PrevOn = %v, want 0", in.PrevOn)
 	}
 
-	in.Update(2, &InputPoll{}, zeroCam)
+	in.Update(2, &InPoll{}, zeroCam)
 	if in.PrevOn != ButtonA {
 		t.Errorf("PrevOn = %v, want %v", in.PrevOn, ButtonA)
 	}
@@ -495,7 +495,7 @@ func TestPrevOn(t *testing.T) {
 func TestDir(t *testing.T) {
 	in := NewIn()
 	in.MapDefaultKeyboard()
-	in.Update(0, &InputPoll{Kbd: KeyboardPoll{Keys: KeyRight}}, zeroCam)
+	in.Update(0, &InPoll{Kbd: KeyboardPoll{Keys: KeyRight}}, zeroCam)
 	if in.Dir.X != 1 || in.Dir.Y != 0 {
 		t.Errorf("expected Dir (1,0), got (%d,%d)", in.Dir.X, in.Dir.Y)
 	}
@@ -505,21 +505,21 @@ func TestDir(t *testing.T) {
 	if !in.DirOnStart() {
 		t.Error("DirOnStart() = false, want true")
 	}
-	in.Update(1, &InputPoll{Kbd: KeyboardPoll{Keys: KeyRight}}, zeroCam)
+	in.Update(1, &InPoll{Kbd: KeyboardPoll{Keys: KeyRight}}, zeroCam)
 	if in.PrevDir != vgeo.NewXY[int8](1, 0) {
 		t.Errorf("PrevDir = %v, want (1,0)", in.PrevDir)
 	}
 	if in.DirOnStart() {
 		t.Error("DirOnStart() = true, want false")
 	}
-	in.Update(2, &InputPoll{Kbd: KeyboardPoll{Keys: KeyRight | KeyDown}}, zeroCam)
+	in.Update(2, &InPoll{Kbd: KeyboardPoll{Keys: KeyRight | KeyDown}}, zeroCam)
 	if in.PrevDir != vgeo.NewXY[int8](1, 0) {
 		t.Errorf("PrevDir = %v, want (1,0)", in.PrevDir)
 	}
 	if !in.DirOnStart() {
 		t.Error("DirOnStart() = false, want true")
 	}
-	in.Update(3, &InputPoll{}, zeroCam)
+	in.Update(3, &InPoll{}, zeroCam)
 	if in.DirOn {
 		t.Error("DirOn = true, want false")
 	}
@@ -527,7 +527,7 @@ func TestDir(t *testing.T) {
 
 func TestKbd(t *testing.T) {
 	in := NewIn()
-	in.Update(0, &InputPoll{Kbd: KeyboardPoll{Keys: KeyUp | KeyA}}, zeroCam)
+	in.Update(0, &InPoll{Kbd: KeyboardPoll{Keys: KeyUp | KeyA}}, zeroCam)
 	if in.Kbd.Keys != KeyUp|KeyA {
 		t.Errorf("Keys field mismatch: got %v", in.Kbd.Keys)
 	}
@@ -535,7 +535,7 @@ func TestKbd(t *testing.T) {
 
 func TestPtr(t *testing.T) {
 	in := NewIn()
-	poll := &InputPoll{
+	poll := &InPoll{
 		PtrsLen: 1,
 		Ptrs:    [MaxPointers]PointerPoll{{Primary: true, Clicks: ClickPrimary}},
 	}
@@ -577,7 +577,7 @@ func TestWheel(t *testing.T) {
 	in := NewIn()
 	in.Update(
 		0,
-		&InputPoll{
+		&InPoll{
 			Wheel: WheelPoll{Delta: vgeo.XYZ[float32]{XY: vgeo.XY[float32]{Y: 3.5}}},
 		},
 		zeroCam,
@@ -589,7 +589,7 @@ func TestWheel(t *testing.T) {
 
 func TestPinch(t *testing.T) {
 	in := NewIn()
-	poll := &InputPoll{
+	poll := &InPoll{
 		PtrsLen: 3,
 		Ptrs: [MaxPointers]PointerPoll{
 			{ID: 1, Primary: true, Clicks: ClickPrimary},
@@ -637,7 +637,7 @@ func TestPinch(t *testing.T) {
 
 func TestDrag(t *testing.T) {
 	in := NewIn()
-	poll := &InputPoll{
+	poll := &InPoll{
 		PtrsLen: 2,
 		Ptrs: [MaxPointers]PointerPoll{
 			{ID: 1, Primary: true, Clicks: ClickPrimary},

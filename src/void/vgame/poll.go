@@ -7,7 +7,7 @@ import (
 
 // to-do: rename Engine.Frame() to Engine.Poll().
 type Poll struct {
-	InputPoll vin.InputPoll
+	InPoll vin.InPoll
 	// time since the last frame was _requested_ in milliseconds.
 	DeltaMillis float64
 	// millis since the performance time origin.

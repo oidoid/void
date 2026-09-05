@@ -86,7 +86,7 @@ func TestHitboxPhy(t *testing.T) {
 		t.Fatal("hidden keyboard cursor without input focused")
 	}
 	ent.KbdEnabled = false
-	poll := &vin.InputPoll{PtrsLen: 1}
+	poll := &vin.InPoll{PtrsLen: 1}
 	poll.Ptrs[0] = vin.PointerPoll{
 		Device:  vin.PointerDeviceTouch,
 		Primary: true,
@@ -326,7 +326,7 @@ func TestUpdate_PointerLeaves(t *testing.T) {
 			in := vin.NewIn()
 			layer := vgfx.NewLayerConfig(0)
 			sprs := []vgfx.Spr{}
-			poll := &vin.InputPoll{PtrsLen: 1}
+			poll := &vin.InPoll{PtrsLen: 1}
 			poll.Ptrs[0] = vin.PointerPoll{
 				Phy:     vgeo.NewBox[float32](4, 8, 4, 8),
 				Device:  vin.PointerDeviceMouse,
@@ -337,7 +337,7 @@ func TestUpdate_PointerLeaves(t *testing.T) {
 			if !ent.Visible {
 				t.Fatal("cursor hidden while mouse is present")
 			}
-			in.Update(1, &vin.InputPoll{}, vgeo.Box[float32]{})
+			in.Update(1, &vin.InPoll{}, vgeo.Box[float32]{})
 			ent.Update(in, &sprs, 0, &layer)
 			if ent.Visible != test.want {
 				t.Errorf("cursor visible after mouse leaves = %v, want %v",
@@ -356,7 +356,7 @@ func TestUpdate_KeyboardModeFollowsMovedPointer(t *testing.T) {
 	layer.Clip = defaultBounds
 	sprs := []vgfx.Spr{}
 	update := func(now float64, x float32, keys vin.Key) {
-		poll := &vin.InputPoll{
+		poll := &vin.InPoll{
 			Kbd:     vin.KeyboardPoll{Keys: keys},
 			PtrsLen: 1,
 		}

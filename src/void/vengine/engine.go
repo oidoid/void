@@ -310,7 +310,7 @@ func (this *Engine[Game]) BeginTick() vgame.Status {
 	this.beepCount = 0
 	this.in.Update(
 		this.frame.NowMillis,
-		&this.frame.InputPoll,
+		&this.frame.InPoll,
 		vgeo.Box[float32]{
 			Min: this.cam}, // to-do: actual cam box.
 	)

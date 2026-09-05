@@ -10,7 +10,7 @@ import (
 
 func TestPollSerializationRoundTrip(t *testing.T) {
 	want := Poll{
-		InputPoll: vin.InputPoll{
+		InPoll: vin.InPoll{
 			PtrsLen: 1,
 			Ptrs: [vin.MaxPointers]vin.PointerPoll{{
 				ID:       7,
@@ -53,7 +53,7 @@ func TestPollSerializationRoundTrip(t *testing.T) {
 			Year: 2026, Month: 7, Day: 19, Hour: 7, Minute: 52, Second: 20, Milli: 123,
 		},
 	}
-	copy(want.InputPoll.Kbd.Text[:], "hello world")
+	copy(want.InPoll.Kbd.Text[:], "hello world")
 
 	serialized := append([]byte(nil), unsafe.Slice((*byte)(unsafe.Pointer(&want)), unsafe.Sizeof(want))...)
 	var got Poll
