@@ -2,14 +2,11 @@ package cliconfig
 
 import (
 	"encoding/json"
-	"regexp"
-
 	"os"
+	"regexp"
 )
 
 type CLIConfig struct {
-	// void.json dir.
-	// ConfigDir        string
 	Conditions       []string
 	Entries          []string
 	Minify           bool
@@ -32,11 +29,6 @@ var (
 )
 
 func NewCLIConfig(argv Argv) (*CLIConfig, error) {
-	// void, err := readVoidConfig(argv.configFilename)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
 	tsconfig, err := readTsconfig(argv.TsconfigFilename)
 	if err != nil {
 		return nil, err
@@ -66,23 +58,6 @@ func readTsconfig(filename string) (*tsconfig, error) {
 	return &tsconfig, nil
 }
 
-// func readVoidConfig(filename string) (*schemas.VoidConfig, error) {
-// 	bin, err := os.ReadFile(filename)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	if err := validateVoidJSON(bin); err != nil {
-// 		return nil, err
-// 	}
-
-// 	config, err := schemas.UnmarshalVoidConfig(bin)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return config, nil
-// }
-
 func stripJSONC(bin []byte) []byte {
 	bin = jsoncCommentRe.ReplaceAllFunc(bin, func(match []byte) []byte {
 		if match[0] == '"' {
@@ -92,25 +67,3 @@ func stripJSONC(bin []byte) []byte {
 	})
 	return jsoncTrailingCommaRe.ReplaceAll(bin, []byte("$1"))
 }
-
-// func validateVoidJSON(jsonStr []byte) error {
-// 	jsonAny, err := jsonschema.UnmarshalJSON(bytes.NewReader(jsonStr))
-// 	if err != nil {
-// 		return err
-// 	}
-// 	schemaAny, err := jsonschema.UnmarshalJSON(
-// 		bytes.NewReader(schemas.VoidSchemaBytes),
-// 	)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	cc := jsonschema.NewCompiler()
-// 	if err := cc.AddResource("void.v0.json", schemaAny); err != nil {
-// 		return err
-// 	}
-// 	schema, err := cc.Compile("void.v0.json")
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return schema.Validate(jsonAny)
-// }

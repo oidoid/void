@@ -11,5 +11,3 @@ const (
 	// exclude trailing leading and descender space from height even when in use.
 	TrimAllForce
 )
-
-// to-do: can i gen Go from JSON Schema?

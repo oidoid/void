@@ -1,4 +1,0 @@
-{
-  "$schema": "../../schemas/void.v0.json",
-  "out": {"dir": "../../dist/demo"}
-}
