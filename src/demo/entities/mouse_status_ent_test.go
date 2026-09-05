@@ -23,7 +23,7 @@ func TestMouseStatusPointerlocked(t *testing.T) {
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			gam := engine.New()
-			gam.Frame().Pointerlocked = test.locked
+			gam.Poll().Pointerlocked = test.locked
 			gam.Layer(gfx.LayerUI).Clip = vgeo.XYWH[float32](0, 0, 100, 100)
 			poll := vin.InPoll{PtrsLen: 1}
 			poll.Ptrs[0] = vin.PointerPoll{

@@ -20,7 +20,7 @@ const (
 func BenchmarkGameUpdate_Draw(b *testing.B) {
 	gam := newGame(-5000, -5000, superballDrawCount)
 	for b.Loop() {
-		gam.Frame().NowMillis += 1000. / fps
+		gam.Poll().NowMillis += 1000. / fps
 		gam.Update()
 	}
 	reportMetrics(b)
@@ -30,7 +30,7 @@ func BenchmarkGameUpdate_HitDraw(b *testing.B) {
 	gam := newGame(-5000, -5000, superballHitDrawCount)
 	for b.Loop() {
 		gam.HitSuperballs = true
-		gam.Frame().NowMillis += 1000. / fps
+		gam.Poll().NowMillis += 1000. / fps
 		gam.Update()
 	}
 	reportMetrics(b)
@@ -45,7 +45,7 @@ func newGame(camX, camY float32, superballCount int) *engine.Eng {
 	gam.CanvasPhy().H = benchCanvasSize
 	gam.Cam().X = camX
 	gam.Cam().Y = camY
-	gam.Frame().DeltaMillis = 1000. / fps
+	gam.Poll().DeltaMillis = 1000. / fps
 	for i := range superballCount {
 		superball := entities.NewSuperballEnt(
 			gam.Random,

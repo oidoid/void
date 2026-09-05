@@ -25,7 +25,7 @@ func TestWakelock(t *testing.T) {
 	if gam.Wakelock() {
 		t.Error("Wakelock() = true without browser confirmation")
 	}
-	gam.Frame().Wakelocked = true
+	gam.Poll().Wakelocked = true
 	if !gam.Wakelock() {
 		t.Error("Wakelock() = false, want true")
 	}
@@ -35,7 +35,7 @@ func TestWakelock(t *testing.T) {
 func TestWakelockURLDisable(t *testing.T) {
 	gam := New()
 	gam.Router.Update = func(*Eng) vgame.Status { return vgame.Pause }
-	gam.Frame().RequestWakelock = vgame.WakelockRequestOff
+	gam.Poll().RequestWakelock = vgame.WakelockRequestOff
 	gam.Update()
 	if !gam.WakelockDisabled() {
 		t.Error("WakelockDisabled() = false, want true")
@@ -49,7 +49,7 @@ func TestWakelockURLDisable(t *testing.T) {
 func TestFullscreenURLDisable(t *testing.T) {
 	gam := New()
 	gam.Router.Update = func(*Eng) vgame.Status { return vgame.Pause }
-	gam.Frame().RequestFullscreen = vgame.FullscreenRequestExit
+	gam.Poll().RequestFullscreen = vgame.FullscreenRequestExit
 	gam.Update()
 	if !gam.FullscreenDisabled() {
 		t.Error("FullscreenDisabled() = false, want true")

@@ -13,9 +13,9 @@ func main() {
 	gam = app.New()
 }
 
-//export FramePointer
-func FramePointer() uintptr {
-	return gam.FramePointer()
+//export PollPointer
+func PollPointer() uintptr {
+	return gam.PollPointer()
 }
 
 //export BeepPointer

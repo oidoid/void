@@ -74,7 +74,7 @@ export class Engine {
   #drawAlways: boolean = false
   #requestWakelock: boolean = false
   #updateMs: number = 0
-  #frame!: DataView
+  #poll!: DataView
   #input!: Input
   #lastTime: number = 0
   #phyW: number = 0 // don't care if these init later.
@@ -117,9 +117,9 @@ export class Engine {
     canvas = initCanvas(canvas, pixel ? 'Pixel' : 'Float')
 
     this.#input = new Input(canvas)
-    this.#frame = new DataView(
+    this.#poll = new DataView(
       this.#wasm.memory.buffer,
-      this.#wasm.FramePointer(),
+      this.#wasm.PollPointer(),
       updateByteLen
     )
     this.#drawAlways = debug?.draw === 'always'
@@ -390,40 +390,40 @@ export class Engine {
   }
 
   #writeUpdate(renderer: Renderer, nowMillis: number): void {
-    if (this.#frame.buffer !== this.#wasm.memory.buffer)
-      this.#frame = new DataView(
+    if (this.#poll.buffer !== this.#wasm.memory.buffer)
+      this.#poll = new DataView(
         this.#wasm.memory.buffer,
-        this.#wasm.FramePointer(),
+        this.#wasm.PollPointer(),
         updateByteLen
       )
     const delta = this.#lastTime === 0 ? 0 : nowMillis - this.#lastTime
-    this.#frame.setFloat64(deltaMsOffset, delta, true)
-    this.#frame.setUint16(canvasWOffset, renderer.phyW, true)
-    this.#frame.setUint16(canvasHOffset, renderer.phyH, true)
-    this.#frame.setUint8(isFullscreenOffset, isFullscreen() ? 1 : 0)
-    this.#frame.setUint8(drawAlwaysOffset, this.#drawAlways ? 1 : 0)
-    this.#frame.setInt8(requestWakelockOffset, debug?.zzz ? -1 : 0)
-    this.#frame.setUint8(wakelockedOffset, this.#wakelock.locked ? 1 : 0)
-    this.#frame.setInt32(drawCountOffset, this.#drawCount, true)
-    this.#frame.setUint8(requestFullscreenOffset, debug?.window ? 2 : 0)
-    this.#frame.setUint8(
+    this.#poll.setFloat64(deltaMsOffset, delta, true)
+    this.#poll.setUint16(canvasWOffset, renderer.phyW, true)
+    this.#poll.setUint16(canvasHOffset, renderer.phyH, true)
+    this.#poll.setUint8(isFullscreenOffset, isFullscreen() ? 1 : 0)
+    this.#poll.setUint8(drawAlwaysOffset, this.#drawAlways ? 1 : 0)
+    this.#poll.setInt8(requestWakelockOffset, debug?.zzz ? -1 : 0)
+    this.#poll.setUint8(wakelockedOffset, this.#wakelock.locked ? 1 : 0)
+    this.#poll.setInt32(drawCountOffset, this.#drawCount, true)
+    this.#poll.setUint8(requestFullscreenOffset, debug?.window ? 2 : 0)
+    this.#poll.setUint8(
       pointerlockedOffset,
       document.pointerLockElement === this.#canvas ? 1 : 0
     )
-    this.#frame.setFloat64(updateMsOffset, this.#updateMs, true)
-    this.#frame.setFloat64(devicePixelRatioOffset, devicePixelRatio, true)
+    this.#poll.setFloat64(updateMsOffset, this.#updateMs, true)
+    this.#poll.setFloat64(devicePixelRatioOffset, devicePixelRatio, true)
     const time = Date.now()
     const date = new Date(time)
-    this.#frame.setFloat64(nowMsOffset, nowMillis, true)
-    this.#frame.setBigUint64(utcMsOffset, BigInt(time), true)
-    this.#frame.setUint16(localYearOffset, date.getFullYear(), true)
-    this.#frame.setUint8(localMonthOffset, date.getMonth() + 1)
-    this.#frame.setUint8(localDayOffset, date.getDate())
-    this.#frame.setUint8(localHourOffset, date.getHours())
-    this.#frame.setUint8(localMinuteOffset, date.getMinutes())
-    this.#frame.setUint8(localSecondOffset, date.getSeconds())
-    this.#frame.setUint16(localMillisOffset, date.getMilliseconds(), true)
-    this.#input.update(this.#frame)
+    this.#poll.setFloat64(nowMsOffset, nowMillis, true)
+    this.#poll.setBigUint64(utcMsOffset, BigInt(time), true)
+    this.#poll.setUint16(localYearOffset, date.getFullYear(), true)
+    this.#poll.setUint8(localMonthOffset, date.getMonth() + 1)
+    this.#poll.setUint8(localDayOffset, date.getDate())
+    this.#poll.setUint8(localHourOffset, date.getHours())
+    this.#poll.setUint8(localMinuteOffset, date.getMinutes())
+    this.#poll.setUint8(localSecondOffset, date.getSeconds())
+    this.#poll.setUint16(localMillisOffset, date.getMilliseconds(), true)
+    this.#input.update(this.#poll)
     this.#input.postupdate() // to-do: move to postupdate()?
     this.#lastTime = nowMillis
   }

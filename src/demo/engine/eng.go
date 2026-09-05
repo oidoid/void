@@ -233,7 +233,7 @@ func (this *Eng) Boing(dx, dy float32) {
 // to-do: separate method for resizing cam or whatever.
 func (this *Eng) Update() vgame.Status {
 	stat := this.Eng.BeginTick()
-	dpr := this.Frame().DevicePixelRatio
+	dpr := this.Poll().DevicePixelRatio
 	this.Layer(gfx.LayerUI).AutoscaleMaxScale = uint8(vmath.Round(3 * dpr))
 	this.Layer(gfx.LayerOverlay).Scale = float32(vmath.Round(3 * dpr))
 	this.Layer(gfx.LayerCursor).Scale = float32(vmath.Round(2 * dpr))

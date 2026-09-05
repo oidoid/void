@@ -24,7 +24,7 @@ type Eng[Game vgame.Game] struct {
 	Texts              ventities.EntVec[Game, ventities.TextEnt]
 	Cursor             *ventities.CursorEnt
 	font               *vtext.Font
-	frame              vgame.Poll
+	poll               vgame.Poll
 	in                 *vin.In
 	cam                vgeo.XY[float32] // to-do: cam always moves in physical space.
 	preupdaters        ventities.Zoo[Game]
@@ -107,16 +107,16 @@ func (this *Eng[Game]) Font() *vtext.Font {
 func (this *Eng[Game]) Board() *vboards.Board { return this.BoardData }
 
 // to-do: rename to Poll, move props to Engine struct, and don't expose?
-func (this *Eng[Game]) Frame() *vgame.Poll { return &this.frame }
-func (this *Eng[Game]) Fullscreen() bool   { return this.frame.Fullscreen }
-func (this *Eng[Game]) Pointerlock() bool  { return this.frame.Pointerlocked }
-func (this *Eng[Game]) NowMillis() float64 { return this.frame.NowMillis }
-func (this *Eng[Game]) UtcMillis() uint64  { return this.frame.UtcMillis }
+func (this *Eng[Game]) Poll() *vgame.Poll  { return &this.poll }
+func (this *Eng[Game]) Fullscreen() bool   { return this.poll.Fullscreen }
+func (this *Eng[Game]) Pointerlock() bool  { return this.poll.Pointerlocked }
+func (this *Eng[Game]) NowMillis() float64 { return this.poll.NowMillis }
+func (this *Eng[Game]) UtcMillis() uint64  { return this.poll.UtcMillis }
 func (this *Eng[Game]) Time() vgame.TimeFormat {
-	return this.frame.TimeFormat
+	return this.poll.TimeFormat
 }
-func (this *Eng[Game]) DeltaMs() float64   { return this.frame.DeltaMillis }
-func (this *Eng[Game]) DeltaSecs() float64 { return this.frame.DeltaSecs() }
+func (this *Eng[Game]) DeltaMs() float64   { return this.poll.DeltaMillis }
+func (this *Eng[Game]) DeltaSecs() float64 { return this.poll.DeltaSecs() }
 func (this *Eng[Game]) Tick() *vgame.Tick  { return &this.tick }
 
 func (this *Eng[Game]) RequestFullscreen(fullscreen bool) {
@@ -194,7 +194,7 @@ func (this *Eng[Game]) DisableWakelock(disable bool) {
 
 // reports whether the browser currently holds the requested wakelock.
 func (this *Eng[Game]) Wakelock() bool {
-	return this.frame.Wakelocked
+	return this.poll.Wakelocked
 }
 
 func (this *Eng[Game]) RequestWakelockFlag() int32 {
@@ -219,8 +219,8 @@ func (this *Eng[Game]) RenderModeFlag() int32 {
 	return int32(this.renderMode)
 }
 
-func (this *Eng[Game]) FramePointer() uintptr {
-	return uintptr(unsafe.Pointer(&this.frame))
+func (this *Eng[Game]) PollPointer() uintptr {
+	return uintptr(unsafe.Pointer(&this.poll))
 }
 
 func (this *Eng[Game]) BeepPointer() uintptr {
@@ -234,7 +234,7 @@ func (this *Eng[Game]) CamX() float32          { return this.cam.X }
 func (this *Eng[Game]) CamY() float32          { return this.cam.Y }
 
 func (this *Eng[Game]) CanvasPhy() *vgeo.WH[uint16] {
-	return &this.frame.CanvasPhy
+	return &this.poll.CanvasPhy
 }
 func (this *Eng[Game]) In() *vin.In {
 	return this.in
@@ -268,7 +268,7 @@ func (this *Eng[Game]) EndTick(stat vgame.Status) vgame.Status {
 	if this.drawAlways {
 		stat |= vgame.Loop
 	}
-	this.tick.UpdateMs = this.frame.UpdateMillis
+	this.tick.UpdateMs = this.poll.UpdateMillis
 	// to-do: make frame finalization explicit instead of hanging this off
 	// EndTick.
 	this.updateLayerConfigExport()
@@ -308,17 +308,17 @@ func (this *Eng[Game]) AtlasCelsCount() uint32 {
 func (this *Eng[Game]) BeginTick() vgame.Status {
 	this.beepCount = 0
 	this.in.Update(
-		this.frame.NowMillis,
-		&this.frame.InPoll,
+		this.poll.NowMillis,
+		&this.poll.InPoll,
 		vgeo.Box[float32]{
 			Min: this.cam}, // to-do: actual cam box.
 	)
-	this.tick.DrawCount = this.frame.DrawCount
-	this.drawAlways = this.frame.DrawAlways
-	if this.frame.RequestWakelock == vgame.WakelockRequestOff {
+	this.tick.DrawCount = this.poll.DrawCount
+	this.drawAlways = this.poll.DrawAlways
+	if this.poll.RequestWakelock == vgame.WakelockRequestOff {
 		this.DisableWakelock(true)
 	}
-	if this.frame.RequestFullscreen == vgame.FullscreenRequestExit {
+	if this.poll.RequestFullscreen == vgame.FullscreenRequestExit {
 		this.DisableFullscreen(true)
 	}
 	for i := range this.layers {
@@ -334,8 +334,8 @@ func (this *Eng[Game]) updateLayerScales() {
 		clipW := float32(clip.W())
 		clipH := float32(clip.H())
 		if clipW == 0 || clipH == 0 {
-			clipW = float32(this.frame.CanvasPhy.W)
-			clipH = float32(this.frame.CanvasPhy.H)
+			clipW = float32(this.poll.CanvasPhy.W)
+			clipH = float32(this.poll.CanvasPhy.H)
 		}
 		config.UpdateScale(vgeo.NewWH(clipW, clipH))
 	}
@@ -353,8 +353,8 @@ func (this *Eng[Game]) updateLayerClips() {
 		if clipW == 0 || clipH == 0 {
 			clipX = 0
 			clipY = 0
-			clipW = float32(this.frame.CanvasPhy.W)
-			clipH = float32(this.frame.CanvasPhy.H)
+			clipW = float32(this.poll.CanvasPhy.W)
+			clipH = float32(this.poll.CanvasPhy.H)
 		}
 		config.UpdateScale(vgeo.NewWH(clipW, clipH))
 		minXY := config.PhyToLayer(vgeo.NewXY(clipX, clipY))

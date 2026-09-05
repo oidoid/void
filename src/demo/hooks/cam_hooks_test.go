@@ -194,7 +194,7 @@ func TestUpdateCamDiagonal(t *testing.T) {
 	gam := engine.New()
 	*gam.Cam() = vgeo.XY[float32]{}
 	gam.Layer(gfx.LayerTiles).Scale = 4
-	gam.Frame().DeltaMillis = camKeyStepMillis()
+	gam.Poll().DeltaMillis = camKeyStepMillis()
 	in := gam.In()
 	in.Dir = vgeo.NewXY[int8](1, 1)
 	in.DirOn = true
@@ -219,7 +219,7 @@ func TestUpdateCamKeyVel(t *testing.T) {
 		*gam.Cam() = vgeo.XY[float32]{}
 		tiles := gam.Layer(gfx.LayerTiles)
 		tiles.Scale = scale
-		gam.Frame().DeltaMillis = camKeyStepMillis()
+		gam.Poll().DeltaMillis = camKeyStepMillis()
 		in := gam.In()
 		in.Dir = vgeo.NewXY[int8](1, 0)
 		in.DirOn = true
@@ -236,7 +236,7 @@ func TestUpdateCamCursorKeyMode(t *testing.T) {
 	gam := engine.New()
 	*gam.Cam() = vgeo.XY[float32]{}
 	gam.Layer(gfx.LayerTiles).Scale = 4
-	gam.Frame().DeltaMillis = camKeyStepMillis()
+	gam.Poll().DeltaMillis = camKeyStepMillis()
 	in := gam.In()
 	in.Dir = vgeo.NewXY[int8](1, 0)
 	in.DirOn = true
@@ -258,7 +258,7 @@ func TestUpdateCamDirChange(t *testing.T) {
 	gam := engine.New()
 	*gam.Cam() = vgeo.XY[float32]{}
 	gam.Layer(gfx.LayerTiles).Scale = 4
-	gam.Frame().DeltaMillis = camKeyStepMillis()
+	gam.Poll().DeltaMillis = camKeyStepMillis()
 	in := gam.In()
 	update := func(dir vgeo.XY[int8], prevOn, on vin.Button) {
 		in.PrevDir = in.Dir
@@ -318,7 +318,7 @@ func TestUpdateCamOpposingKeysReleaseKeepsCam(t *testing.T) {
 			gam := engine.New()
 			*gam.Cam() = vgeo.XY[float32]{}
 			gam.Layer(gfx.LayerTiles).Scale = 4
-			gam.Frame().DeltaMillis = 1000.0 / 60
+			gam.Poll().DeltaMillis = 1000.0 / 60
 			in := gam.In()
 			update := func(on vin.Button) {
 				dir := vgeo.XY[int8]{}
@@ -374,7 +374,7 @@ func TestUpdateCamRapidDirChange(t *testing.T) {
 		gam := engine.New()
 		*gam.Cam() = vgeo.XY[float32]{}
 		gam.Layer(gfx.LayerTiles).Scale = scale
-		gam.Frame().DeltaMillis = camKeyStepMillis()
+		gam.Poll().DeltaMillis = camKeyStepMillis()
 		return gam
 	}
 	update := func(gam *engine.Eng, dir vgeo.XY[int8], on vin.Button) {
@@ -427,7 +427,7 @@ func TestUpdateCamKeyPans(t *testing.T) {
 	gam := engine.New()
 	*gam.Cam() = vgeo.XY[float32]{}
 	gam.Layer(gfx.LayerTiles).Scale = 4
-	gam.Frame().DeltaMillis = camKeyStepMillis()
+	gam.Poll().DeltaMillis = camKeyStepMillis()
 	in := gam.In()
 	in.Dir = vgeo.NewXY[int8](1, 0)
 	in.DirOn = true
@@ -476,7 +476,7 @@ func TestUpdateCamKeySnap(t *testing.T) {
 	gam := engine.New()
 	*gam.Cam() = vgeo.XY[float32]{}
 	gam.Layer(gfx.LayerTiles).Scale = 4
-	gam.Frame().DeltaMillis = 10
+	gam.Poll().DeltaMillis = 10
 	in := gam.In()
 	in.Dir = vgeo.NewXY[int8](1, 0)
 	in.DirOn = true
@@ -485,7 +485,7 @@ func TestUpdateCamKeySnap(t *testing.T) {
 	if got := gam.Cam().X; got != 0 {
 		t.Errorf("first key cam X = %v, want 0", got)
 	}
-	gam.Frame().DeltaMillis = camKeyStepMillis()
+	gam.Poll().DeltaMillis = camKeyStepMillis()
 	in.PrevDir = in.Dir
 	UpdateCam(gam)
 	if got := gam.Cam().X; got != 4 {
@@ -524,7 +524,7 @@ func TestUpdateCamKeyReleaseAxisKeepsCam(t *testing.T) {
 	gam := engine.New()
 	*gam.Cam() = vgeo.NewXY[float32](4, 4)
 	gam.Layer(gfx.LayerTiles).Scale = 4
-	gam.Frame().DeltaMillis = 10
+	gam.Poll().DeltaMillis = 10
 	gam.CamKeyPhy = vgeo.NewXY[float32](1, 4)
 	in := gam.In()
 	in.PrevDir = vgeo.NewXY[int8](-1, -1)

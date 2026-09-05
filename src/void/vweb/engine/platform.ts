@@ -5,7 +5,7 @@ export type Platform = {
   _start(): void
   // to-do: better name for "frame"?
   // byte offset into `memory` of the frame.
-  FramePointer(): number
+  PollPointer(): number
   BeepPointer(): number
   BeepCount(): number
   // consumes a pending fullscreen request: 0 none, 1 enter, 2 exit.
