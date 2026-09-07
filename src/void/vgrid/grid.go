@@ -135,6 +135,9 @@ func (this *Grid) pairsWithin(cellIdx int, fn func(l, r int32) bool) {
 // of any resolved pair.
 func (this *Grid) pairsAcross(lCellIdx, rCellIdx int, fn func(l, r int32) bool) {
 	l := this.heads[lCellIdx]
+	if l == noNode || this.heads[rCellIdx] == noNode {
+		return
+	}
 	for l != noNode {
 		// captured before fn can mutate the chain via unlink.
 		nextL := this.nodes[l].next
