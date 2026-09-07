@@ -12,6 +12,8 @@ type Game interface {
 	Beep(Beep)
 	Platform
 	DrawAlways() bool
+	DrawOnBlur() bool
+	SetDrawOnBlur(bool)
 	RequestContextLoss()
 	RequestFullscreen(bool)
 	RequestScreenshot()

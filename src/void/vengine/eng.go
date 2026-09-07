@@ -39,6 +39,7 @@ type Eng[Game vgame.Game] struct {
 	beepCount          uint32
 	updateInMillis     uint64
 	drawAlways         bool
+	drawOnBlur         bool
 	disableFullscreen  bool
 	disableWakelock    bool
 	renderMode         vgfx.RenderMode
@@ -46,6 +47,7 @@ type Eng[Game vgame.Game] struct {
 }
 
 type EngOpts struct {
+	DrawOnBlur bool // allows updates and drawing without focus; defaults off.
 	RenderMode vgfx.RenderMode
 	Font       *vtext.Font
 	Board      *vboards.Board
@@ -74,6 +76,7 @@ func New[Game vgame.Game](opts *EngOpts) *Eng[Game] {
 		rnd:               rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
 		fullscreenRequest: vgame.FullscreenRequestEnter,
 		renderMode:        opts.RenderMode,
+		drawOnBlur:        opts.DrawOnBlur,
 	}
 	for i := range this.layers {
 		this.layers[i] = vgfx.NewLayerConfig(opts.MaxSprs)
@@ -176,6 +179,18 @@ func (this *Eng[Game]) SetDrawAlways(always bool) {
 }
 
 func (this *Eng[Game]) DrawAlways() bool { return this.drawAlways }
+
+// allow normal updates and drawing while unfocused.
+func (this *Eng[Game]) SetDrawOnBlur(on bool) { this.drawOnBlur = on }
+
+func (this *Eng[Game]) DrawOnBlur() bool { return this.drawOnBlur }
+
+func (this *Eng[Game]) DrawOnBlurFlag() int32 {
+	if this.drawOnBlur {
+		return 1
+	}
+	return 0
+}
 
 func (this *Eng[Game]) FullscreenDisabled() bool {
 	return this.disableFullscreen

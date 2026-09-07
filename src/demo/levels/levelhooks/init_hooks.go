@@ -63,13 +63,16 @@ func InitInit(gam *engine.Eng) {
 	cursors.Add(cursor)
 	gam.RegisterUpdate(cursors)
 
-	buttons := ventities.NewEntVec(vhooks.UpdateButtons[*engine.Eng], 6)
+	buttons := ventities.NewEntVec(vhooks.UpdateButtons[*engine.Eng], 7)
 	gam.RegisterUpdate(buttons)
 
 	drawBtn := entities.NewDrawToggleButton(gam)
 	buttons.Add(drawBtn)
+	blurToggle := entities.NewDrawOnBlurToggle(gam)
+	blurToggle.Anchor.Ref = drawBtn
+	buttons.Add(blurToggle)
 	contextLossBtn := entities.NewContextLossButton(gam)
-	contextLossBtn.Anchor.Ref = drawBtn
+	contextLossBtn.Anchor.Ref = blurToggle
 	buttons.Add(contextLossBtn)
 	screenshotBtn := entities.NewScreenshotButton(gam)
 	screenshotBtn.Anchor.Ref = contextLossBtn

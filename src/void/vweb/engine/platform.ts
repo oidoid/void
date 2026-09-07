@@ -12,6 +12,7 @@ export type Platform = {
   ScreenshotRequest(): number
   ContextLossRequest(): number
   DrawAlways(): number
+  DrawOnBlur(): number
   RequestWakelock(): number
   RenderMode(): number
   UpdateInMillisRequest(): bigint

@@ -30,6 +30,17 @@ func NewDrawToggleButton(gam game.Game) *ventities.ButtonEnt {
 	return this
 }
 
+func NewDrawOnBlurToggle(gam game.Game) *ventities.ButtonEnt {
+	this := newButtonEnt("blur", ventities.ButtonTypeToggle)
+	this.OnUpdate = func(ent *ventities.ButtonEnt) {
+		ent.On = gam.DrawOnBlur()
+	}
+	this.OnClick = func(ent *ventities.ButtonEnt) {
+		gam.SetDrawOnBlur(ent.On)
+	}
+	return this
+}
+
 func NewContextLossButton(gam game.Game) *ventities.ButtonEnt {
 	this := newButtonEnt("!gl", ventities.ButtonTypeButton)
 	this.OnClick = func(*ventities.ButtonEnt) {

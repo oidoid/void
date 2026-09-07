@@ -130,11 +130,11 @@ export class Eng {
 
     this.#canvas = canvas
     this.#fullscreen = new Fullscreen(canvas.parentElement!, canvas)
-    this.#fullscreen.onChange = () => this.#requestUpdate()
+    this.#fullscreen.onChange = () => this.#requestUpdate('Force')
     canvas.addEventListener('webglcontextlost', this.#onCtxLost)
     canvas.addEventListener('webglcontextrestored', this.#onCtxRestored)
     this.#renderer = this.#newRenderer()
-    this.#pxRatioObserver.onChange = () => this.#requestUpdate()
+    this.#pxRatioObserver.onChange = () => this.#requestUpdate('Force')
   }
 
   register(): void {
@@ -142,6 +142,8 @@ export class Eng {
     this.#input.onEvent = this.#onInput
     this.#input.register('add')
     addEventListener('visibilitychange', this.#onVisibility)
+    addEventListener('blur', this.#onFocus)
+    addEventListener('focus', this.#onFocus)
     // wait for the observer's initial callback to size the canvas; drawing
     // before then leaves it 0x0, which the compositor can flash black.
     this.#resizeObserver.observe(this.#canvas.parentElement!, {
@@ -151,25 +153,31 @@ export class Eng {
     this.#registered = true
   }
 
-  update(): void {
+  update(force?: 'Force'): void {
     try {
-      this.#update()
+      this.#update(force)
     } catch (err) {
       // to-do: this.register('remove') instead.
-      cancelAnimationFrame(this.#rafId)
+      this.#cancelFrame()
       throw err
     }
   }
 
-  #update(): void {
-    this.#rafId = 0
+  #update(force?: 'Force'): void {
+    this.#cancelFrame()
     clearTimeout(this.#updateTimeoutId)
     this.#updateTimeoutId = 0
-    if (!this.#renderer || this.#renderer.isContextLost()) return
+    if (
+      !this.#renderer ||
+      this.#renderer.isContextLost() ||
+      (!force && this.#paused())
+    )
+      return
     this.#requestUpdate()
     this.#resumeSFX()
     this.#renderer.resize(this.#phyW, this.#phyH)
     const nowMillis = performance.now()
+    if (this.#paused()) this.#lastTime = 0
     this.#writeUpdate(this.#renderer, nowMillis)
     const updateStart = performance.now()
     const loop = this.#wasm.Update()
@@ -177,11 +185,10 @@ export class Eng {
     this.#applyFullscreenRequest()
     this.#applyDrawAlwaysParam()
     this.#applyWakelock()
-    if (loop !== LoopLoop) {
-      cancelAnimationFrame(this.#rafId)
-      this.#rafId = 0
+    if (loop !== LoopLoop || this.#paused()) {
+      this.#cancelFrame()
       this.#lastTime = 0
-      this.#requestDelayedUpdate()
+      if (!this.#paused()) this.#requestDelayedUpdate()
     }
     this.#updateMs = performance.now() - updateStart
     const buffer = this.#wasm.memory.buffer
@@ -276,10 +283,27 @@ export class Eng {
     void this.#sfx.ctx.resume().catch(() => {})
   }
 
-  #requestUpdate(): void {
-    if (!this.#renderer || this.#renderer.isContextLost() || this.#rafId) return
-    this.#rafId = requestAnimationFrame(() => this.update())
+  #requestUpdate(force?: 'Force'): void {
+    if (
+      !this.#renderer ||
+      this.#renderer.isContextLost() ||
+      this.#rafId ||
+      (!force && this.#paused())
+    )
+      return
+    this.#rafId = requestAnimationFrame(() => this.update(force))
     this.#lastTime ||= performance.now()
+  }
+
+  #paused(): boolean {
+    return (
+      this.#wasm.DrawOnBlur() === 0 && (document.hidden || !document.hasFocus())
+    )
+  }
+
+  #cancelFrame(): void {
+    cancelAnimationFrame(this.#rafId)
+    this.#rafId = 0
   }
 
   #requestDelayedUpdate(): void {
@@ -292,18 +316,20 @@ export class Eng {
   }
 
   #onResize(entries: readonly Readonly<ResizeObserverEntry>[]): void {
+    console.log('onresize', new Date())
     for (const entry of entries) {
       const [size] = entry.devicePixelContentBoxSize
       if (!size) continue
       this.#phyW = size.inlineSize
       this.#phyH = size.blockSize
     }
-    this.#requestUpdate()
+    // resizing needs one frame even when focus loss pauses the loop.
+    this.#requestUpdate('Force')
   }
 
   #onCtxLost = (ev: Event): void => {
     ev.preventDefault()
-    cancelAnimationFrame(this.#rafId)
+    this.#cancelFrame()
     clearTimeout(this.#updateTimeoutId)
     this.#renderer?.dispose()
     this.#renderer = undefined
@@ -315,7 +341,7 @@ export class Eng {
 
   #onCtxRestored = (): void => {
     this.#renderer = this.#newRenderer()
-    if (this.#registered) this.#requestUpdate()
+    if (this.#registered) this.#requestUpdate('Force')
   }
 
   #newRenderer(): Renderer {
@@ -345,8 +371,16 @@ export class Eng {
   }
 
   #onVisibility = (): void => {
-    this.#input.reset()
     this.#wakelock.enabled = this.#requestWakelock
+    this.#onFocus()
+  }
+
+  #onFocus = (): void => {
+    this.#input.reset()
+    this.#cancelFrame()
+    clearTimeout(this.#updateTimeoutId)
+    this.#updateTimeoutId = 0
+    if (this.#paused()) this.#lastTime = 0
     this.#requestUpdate()
   }
 

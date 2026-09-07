@@ -44,6 +44,9 @@ func DrawAlways() int32 {
 	return gam.DrawAlwaysFlag()
 }
 
+//export DrawOnBlur
+func DrawOnBlur() int32 { return gam.DrawOnBlurFlag() }
+
 //export RequestWakelock
 func RequestWakelock() int32 { return gam.RequestWakelockFlag() }
 
