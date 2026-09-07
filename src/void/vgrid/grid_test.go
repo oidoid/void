@@ -1,6 +1,7 @@
 package vgrid
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/oidoid/void/src/void/vgeo"
@@ -295,5 +296,63 @@ func TestGridResolvedDiagonalPairIsSkipped(t *testing.T) {
 	})
 	if len(seen) != 1 || seen[0] != [2]int32{0, 1} {
 		t.Fatalf("pairs = %v, want only resolved diagonal pair [0 1]", seen)
+	}
+}
+
+// compare every resolution combination with filtering the original pair order.
+func TestGridRemovalOrder(t *testing.T) {
+	tests := []struct {
+		name string
+		cols [4]float32
+	}{
+		{name: "same cell", cols: [4]float32{5, 5, 5, 5}},
+		{name: "two per cell", cols: [4]float32{5, 5, 15, 15}},
+		{name: "three left", cols: [4]float32{5, 5, 5, 15}},
+		{name: "three right", cols: [4]float32{5, 15, 15, 15}},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			grid := newGrid()
+			insert := func() {
+				grid.Clear()
+				for i, x := range test.cols {
+					grid.InsertAt(vgeo.NewXY(x, 5), int32(i))
+				}
+			}
+			insert()
+			original := pairs(&grid)
+			for mask := 0; mask < 1<<len(original); mask++ {
+				insert()
+				var resolves [4][4]bool
+				var removed [4]bool
+				var want, got, remaining [][2]int32
+				for i, pair := range original {
+					l, r := pair[0], pair[1]
+					resolves[l][r] = mask&(1<<i) != 0
+					if removed[l] || removed[r] {
+						continue
+					}
+					want = append(want, pair)
+					if resolves[l][r] {
+						removed[l], removed[r] = true, true
+					}
+				}
+				grid.ForEach(func(l, r int32) bool {
+					got = append(got, [2]int32{l, r})
+					return resolves[l][r]
+				})
+				if !slices.Equal(got, want) {
+					t.Fatalf("mask %d: pairs = %v, want %v", mask, got, want)
+				}
+				for _, pair := range original {
+					if !removed[pair[0]] && !removed[pair[1]] {
+						remaining = append(remaining, pair)
+					}
+				}
+				if got := pairs(&grid); !slices.Equal(got, remaining) {
+					t.Fatalf("mask %d: remaining = %v, want %v", mask, got, remaining)
+				}
+			}
+		})
 	}
 }

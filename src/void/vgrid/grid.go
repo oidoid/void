@@ -11,8 +11,8 @@ const noNode int32 = -1
 type node struct {
 	// caller-provided val. eg, an array index.
 	v int32
-	// neighbor node indices or noNode.
-	prev, next int32
+	// next node index or noNode.
+	next int32
 }
 
 // stores int32 values by spatial cell and visits each same-or-neighbor-cell
@@ -72,10 +72,7 @@ func (this *Grid) InsertAt(xy vgeo.XY[float32], v int32) bool {
 	}
 	i := int32(len(this.nodes))
 	head := this.heads[cellIdx]
-	this.nodes = append(this.nodes, node{v: v, prev: noNode, next: head})
-	if head != noNode {
-		this.nodes[head].prev = i
-	}
+	this.nodes = append(this.nodes, node{v: v, next: head})
 	this.heads[cellIdx] = i
 	return true
 }
@@ -111,23 +108,24 @@ func (this *Grid) cellIdxAt(xy vgeo.XY[float32]) (int, bool) {
 // reports every unique pair within one cell's chain, unlinking both vals of
 // any resolved pair.
 func (this *Grid) pairsWithin(cellIdx int, fn func(l, r int32) bool) {
-	l := this.heads[cellIdx]
+	l, prevL := this.heads[cellIdx], noNode
+outer:
 	for l != noNode {
-		// captured before fn can mutate the chain via unlink.
-		nextL := this.nodes[l].next
 		lv := this.nodes[l].v
-		for r := nextL; r != noNode; r = this.nodes[r].next {
-			rNext := this.nodes[r].next
+		prevR := l
+		for r := this.nodes[l].next; r != noNode; r = this.nodes[r].next {
 			if fn(lv, this.nodes[r].v) {
-				if r == nextL {
-					nextL = rNext
-				}
-				this.unlink(r, cellIdx)
-				this.unlink(l, cellIdx)
-				break
+				this.unlink(r, prevR, cellIdx)
+				// removing an adjacent r changes l.next.
+				nextL := this.nodes[l].next
+				this.unlink(l, prevL, cellIdx)
+				l = nextL
+				continue outer
 			}
+			prevR = r
 		}
-		l = nextL
+		prevL = l
+		l = this.nodes[l].next
 	}
 }
 
@@ -138,30 +136,32 @@ func (this *Grid) pairsAcross(lCellIdx, rCellIdx int, fn func(l, r int32) bool) 
 	if l == noNode || this.heads[rCellIdx] == noNode {
 		return
 	}
+	prevL := noNode
+outer:
 	for l != noNode {
-		// captured before fn can mutate the chain via unlink.
 		nextL := this.nodes[l].next
 		lv := this.nodes[l].v
+		prevR := noNode
 		for r := this.heads[rCellIdx]; r != noNode; r = this.nodes[r].next {
 			if fn(lv, this.nodes[r].v) {
-				this.unlink(r, rCellIdx)
-				this.unlink(l, lCellIdx)
-				break
+				this.unlink(r, prevR, rCellIdx)
+				this.unlink(l, prevL, lCellIdx)
+				l = nextL
+				continue outer
 			}
+			prevR = r
 		}
+		prevL = l
 		l = nextL
 	}
 }
 
-// removes node i, in cellIdx's chain, in O(1).
-func (this *Grid) unlink(i int32, cellIdx int) {
-	n := this.nodes[i]
-	if n.prev == noNode {
-		this.heads[cellIdx] = n.next
+// removes node i, given its predecessor or noNode for the head.
+func (this *Grid) unlink(i, prev int32, cellIdx int) {
+	next := this.nodes[i].next
+	if prev == noNode {
+		this.heads[cellIdx] = next
 	} else {
-		this.nodes[n.prev].next = n.next
-	}
-	if n.next != noNode {
-		this.nodes[n.next].prev = n.prev
+		this.nodes[prev].next = next
 	}
 }
