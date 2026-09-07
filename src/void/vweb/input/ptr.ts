@@ -1,16 +1,16 @@
 import type {AnyEvent, OnEvent} from '../engine/event.ts'
 
-export type PointerDevice = (typeof PointerDevice)[keyof typeof PointerDevice]
-const PointerDevice = {Unknown: 0, Mouse: 1, Pen: 2, Touch: 3} as const
-const pointerDevice: Record<string, PointerDevice> = {
-  mouse: PointerDevice.Mouse,
-  pen: PointerDevice.Pen,
-  touch: PointerDevice.Touch
+export type PtrDevice = (typeof PtrDevice)[keyof typeof PtrDevice]
+const PtrDevice = {Unknown: 0, Mouse: 1, Pen: 2, Touch: 3} as const
+const ptrDevice: Record<string, PtrDevice> = {
+  mouse: PtrDevice.Mouse,
+  pen: PtrDevice.Pen,
+  touch: PtrDevice.Touch
 }
 
-export type PointerPoll = {
+export type PtrPoll = {
   /**
-   * pointer ID; -1 if nonpointing device (eg, a click event fired on a button
+   * ptr ID; -1 if nonpointing device (eg, a click event fired on a button
    * activated via keyboard).
    */
   id: number
@@ -30,8 +30,8 @@ export type PointerPoll = {
   tiltY: number
   /** pen rotation around its axis in degrees [0°, 359°]. */
   twist: number
-  device: PointerDevice
-  /** true if this is the primary pointer. */
+  device: PtrDevice
+  /** true if this is the primary ptr. */
   primary: boolean
   /**
    * bitmask of buttons pressed: 1 primary (left); 2 secondary (right);
@@ -40,9 +40,9 @@ export type PointerPoll = {
   buttons: number
 }
 
-export class Pointer {
+export class Ptr {
   /** readonly. */
-  polls: {[pointerID: number]: PointerPoll} = {}
+  polls: {[ptrID: number]: PtrPoll} = {}
   onEvent: OnEvent = () => {}
   /** IDs with final zero-button polls to remove after the current update. */
   readonly #ended: Set<number> = new Set()
@@ -60,8 +60,8 @@ export class Pointer {
       'pointermove',
       'pointerup'
     ])
-      this.#target[`${op}EventListener`](ev, this.#onPointer as EventListener)
-    document[`${op}EventListener`]('pointerlockchange', this.#onPointerlock)
+      this.#target[`${op}EventListener`](ev, this.#onPtr as EventListener)
+    document[`${op}EventListener`]('pointerlockchange', this.#onPtrlock)
   }
 
   reset(): void {
@@ -76,7 +76,7 @@ export class Pointer {
     this.#ended.clear()
   }
 
-  #onPointer = (ev: PointerEvent): void => {
+  #onPtr = (ev: PointerEvent): void => {
     if (
       ev.type === 'pointerleave' &&
       ev.buttons === 0 &&
@@ -102,7 +102,7 @@ export class Pointer {
         tiltX: ev.tiltX,
         tiltY: ev.tiltY,
         twist: ev.twist,
-        device: pointerDevice[ev.pointerType] ?? PointerDevice.Unknown,
+        device: ptrDevice[ev.pointerType] ?? PtrDevice.Unknown,
         primary: ev.isPrimary,
         buttons: ev.buttons
       }
@@ -115,5 +115,5 @@ export class Pointer {
     this.onEvent(`input-${ev.type}` as AnyEvent)
   }
 
-  #onPointerlock = (): void => this.onEvent('input-pointerlockchange')
+  #onPtrlock = (): void => this.onEvent('input-pointerlockchange')
 }

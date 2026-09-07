@@ -12,13 +12,13 @@ func TestPollSerializationRoundTrip(t *testing.T) {
 	want := Poll{
 		InPoll: vin.InPoll{
 			PtrsLen: 1,
-			Ptrs: [vin.MaxPointers]vin.PointerPoll{{
+			Ptrs: [vin.MaxPtrs]vin.PtrPoll{{
 				ID:       7,
 				Phy:      vgeo.NewBox[float32](10, 20, 13, 24),
 				Pressure: 0.5,
 				Tilt:     vgeo.NewXY[int8](-1, 2),
 				Twist:    30,
-				Device:   vin.PointerDevicePen,
+				Device:   vin.PtrDevPen,
 				Primary:  true,
 				Clicks:   vin.ClickPrimary | vin.ClickAux,
 			}},

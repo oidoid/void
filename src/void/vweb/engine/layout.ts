@@ -1,11 +1,11 @@
-/** max concurrent pointers tracked (one per finger). */
-export const maxPointers: number = 5
-/** bytes per PointerPoll. */
+/** max concurrent ptrs tracked (one per finger). */
+export const maxPtrs: number = 5
+/** bytes per PtrPoll. */
 export const pollSize: number = 32
-/** byte offset of the pointer array within Update (PointersLen uint8 + 3 pad). */
+/** byte offset of the ptr array within Update (PtrsLen uint8 + 3 pad). */
 export const pollsOffset: number = 4
 /** byte offset of WheelPoll within Update. */
-export const wheelOffset: number = pollsOffset + maxPointers * pollSize
+export const wheelOffset: number = pollsOffset + maxPtrs * pollSize
 /** byte offset of KeyboardPoll within Update (WheelPoll = 12 bytes). */
 export const keyboardOffset: number = wheelOffset + 12
 /** byte offset of TextLen field within KeyboardPoll (after Keys uint16 = 2 bytes). */
@@ -47,8 +47,8 @@ export const wakelockedOffset: number = requestWakelockOffset + 1
 export const drawCountOffset: number = isFullscreenOffset + 4
 /** byte offset of URL fullscreen request within Update. */
 export const requestFullscreenOffset: number = drawCountOffset + 4
-/** byte offset of browser-confirmed pointerlock within Update. */
-export const pointerlockedOffset: number = requestFullscreenOffset + 1
+/** byte offset of browser-confirmed ptrlock within Update. */
+export const ptrlockedOffset: number = requestFullscreenOffset + 1
 /** byte offset of UpdateMs field (duration of the previous Go update call, milliseconds). */
 export const updateMsOffset: number = drawCountOffset + 8
 /** byte offset of DevicePixelRatio field within Update. */

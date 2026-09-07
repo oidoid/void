@@ -4,8 +4,8 @@ export type Platform = {
   // initialises the Go runtime and calls `main()`.
   _start(): void
   // byte offset into `memory` of the poll.
-  PollPointer(): number
-  BeepPointer(): number
+  PollPtr(): number
+  BeepPtr(): number
   BeepCount(): number
   // consumes a pending fullscreen request: 0 none, 1 enter, 2 exit.
   FullscreenRequest(): number
@@ -16,10 +16,10 @@ export type Platform = {
   RequestWakelock(): number
   RenderMode(): number
   UpdateInMillisRequest(): bigint
-  LayerConfigsPointer(): number
+  LayerConfigsPtr(): number
   Update(): Loop
   // byte offset into `memory` of the first tile.
-  BoardTilesPointer(): number
+  BoardTilesPtr(): number
   // board size in pixels. origin is always `(0, 0)`.
   BoardW(): number
   BoardH(): number
@@ -31,7 +31,7 @@ export type Platform = {
   CamY(): number
   AtlasAnimCount(): number
   AtlasCelsPerAnim(): number
-  AtlasCelsPointer(): number
+  AtlasCelsPtr(): number
   AtlasCelsCount(): number
 }
 

@@ -434,12 +434,12 @@ func TestUpdateCamKeyPans(t *testing.T) {
 	in.On = vin.ButtonR
 	UpdateCam(gam)
 	in.PrevDir = in.Dir
-	in.Ptr = &vin.Pointer{
+	in.Ptr = &vin.Ptr{
 		Drag: vin.Drag{On: true, DeltaPhy: vgeo.NewXY[float32](-6.5, 0)},
 	}
 	UpdateCam(gam)
 	in.PrevDir = in.Dir
-	in.Ptr = &vin.Pointer{Drag: vin.Drag{End: true}}
+	in.Ptr = &vin.Ptr{Drag: vin.Drag{End: true}}
 	UpdateCam(gam)
 	if got := gam.Cam().X; got != 16 {
 		t.Errorf("key cam X after pan = %v, want 16", got)
@@ -543,14 +543,14 @@ func TestUpdateCamDragReleaseSnap(t *testing.T) {
 	*gam.Cam() = vgeo.XY[float32]{}
 	gam.Layer(gfx.LayerTiles).Scale = 4
 	in := gam.In()
-	in.Ptr = &vin.Pointer{
+	in.Ptr = &vin.Ptr{
 		Drag: vin.Drag{On: true, DeltaPhy: vgeo.NewXY[float32](1.5, 0)},
 	}
 	UpdateCam(gam)
 	if got := gam.Cam().X; got != -1.5 {
 		t.Errorf("drag cam X = %v, want -1.5", got)
 	}
-	in.Ptr = &vin.Pointer{Drag: vin.Drag{End: true}}
+	in.Ptr = &vin.Ptr{Drag: vin.Drag{End: true}}
 	UpdateCam(gam)
 	if got := gam.Cam().X; got != 0 {
 		t.Errorf("released drag cam X = %v, want 0", got)
@@ -573,7 +573,7 @@ func TestUpdateCamDragStartsInLvlClip(t *testing.T) {
 			*gam.Cam() = vgeo.XY[float32]{}
 			tiles := gam.Layer(gfx.LayerTiles)
 			tiles.ClipPhy = vgeo.XYWH[uint16](100, 100, 200, 100)
-			gam.In().Ptr = &vin.Pointer{
+			gam.In().Ptr = &vin.Ptr{
 				Drag: vin.Drag{
 					StartPhy: test.start,
 					DeltaPhy: vgeo.NewXY[float32](1.5, 0),

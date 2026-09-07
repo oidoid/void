@@ -301,7 +301,7 @@ func TestMapClick(t *testing.T) {
 	in.MapClick(ClickPrimary, ButtonA)
 	in.Update(0, &InPoll{
 		PtrsLen: 1,
-		Ptrs:    [MaxPointers]PointerPoll{{Primary: true, Clicks: ClickPrimary}},
+		Ptrs:    [MaxPtrs]PtrPoll{{Primary: true, Clicks: ClickPrimary}},
 	}, zeroCam)
 	if !in.IsOn(ButtonA) {
 		t.Error("MapClick should map pointer click to button")
@@ -537,12 +537,12 @@ func TestPtr(t *testing.T) {
 	in := NewIn()
 	poll := &InPoll{
 		PtrsLen: 1,
-		Ptrs:    [MaxPointers]PointerPoll{{Primary: true, Clicks: ClickPrimary}},
+		Ptrs:    [MaxPtrs]PtrPoll{{Primary: true, Clicks: ClickPrimary}},
 	}
 	poll.Ptrs[0].Phy = vgeo.NewBox[float32](2, 4, 12, 24)
 	in.Update(0, poll, vgeo.NewBox[float32](100, 200, 0, 0))
 	if in.Ptr == nil {
-		t.Error("Pointer should not be nil")
+		t.Error("Ptr should not be nil")
 	}
 	if in.Ptr.Clicks() != ClickPrimary {
 		t.Error("Buttons field mismatch")
@@ -554,16 +554,16 @@ func TestPtr(t *testing.T) {
 		t.Errorf("CenterPhy mismatch: got %v", *in.Ptr.CenterPhy())
 	}
 	if !in.Ptr.Moved {
-		t.Error("initial Pointer.Moved = false, want true")
+		t.Error("initial Ptr.Moved = false, want true")
 	}
 	in.Update(1, poll, vgeo.NewBox[float32](100, 200, 0, 0))
 	if in.Ptr.Moved {
-		t.Error("stationary Pointer.Moved = true, want false")
+		t.Error("stationary Ptr.Moved = true, want false")
 	}
 	poll.Ptrs[0].Phy.Min.X++
 	in.Update(2, poll, vgeo.NewBox[float32](100, 200, 0, 0))
 	if !in.Ptr.Moved {
-		t.Error("moved Pointer.Moved = false, want true")
+		t.Error("moved Ptr.Moved = false, want true")
 	}
 }
 
@@ -585,7 +585,7 @@ func TestPinch(t *testing.T) {
 	in := NewIn()
 	poll := &InPoll{
 		PtrsLen: 3,
-		Ptrs: [MaxPointers]PointerPoll{
+		Ptrs: [MaxPtrs]PtrPoll{
 			{ID: 1, Primary: true, Clicks: ClickPrimary},
 			{ID: 2, Clicks: ClickPrimary},
 			{ID: 3, Clicks: ClickPrimary},
@@ -633,7 +633,7 @@ func TestDrag(t *testing.T) {
 	in := NewIn()
 	poll := &InPoll{
 		PtrsLen: 2,
-		Ptrs: [MaxPointers]PointerPoll{
+		Ptrs: [MaxPtrs]PtrPoll{
 			{ID: 1, Primary: true, Clicks: ClickPrimary},
 			{ID: 2, Clicks: ClickPrimary},
 		},

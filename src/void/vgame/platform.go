@@ -1,12 +1,12 @@
 package vgame
 
 type Platform interface {
-	BeepPointer() uintptr
+	BeepPtr() uintptr
 	BeepCount() uint32
-	PollPointer() uintptr
-	LayerConfigsPointer() uintptr
+	PollPtr() uintptr
+	LayerConfigsPtr() uintptr
 	Update() Status
-	BoardTilesPointer() uintptr
+	BoardTilesPtr() uintptr
 	BoardW() int32
 	BoardH() int32
 	BoardTileW() uint8
@@ -15,6 +15,6 @@ type Platform interface {
 	CamY() float32
 	AtlasAnimCount() uint32
 	AtlasCelsPerAnim() uint32
-	AtlasCelsPointer() uintptr
+	AtlasCelsPtr() uintptr
 	AtlasCelsCount() uint32
 }

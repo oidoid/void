@@ -9,11 +9,11 @@ export class Fullscreen {
   #enabled: boolean = false
   #changing: boolean = false
   readonly #target: Element
-  // readonly #pointerlock: Element
+  // readonly #ptrlock: Element
 
-  constructor(target: Element, _pointerlock: Element) {
+  constructor(target: Element, _ptrlock: Element) {
     this.#target = target
-    // this.#pointerlock = pointerlock
+    // this.#ptrlock = ptrlock
   }
 
   set enabled(enabled: boolean) {
@@ -32,8 +32,8 @@ export class Fullscreen {
     const changed = enabled
       ? await requestFullscreen(this.#target)
       : await exitFullscreen()
-    // to-do: pointer lock.
-    // if (changed && enabled) await requestPointerlock(this.#pointerlock)
+    // to-do: ptr lock.
+    // if (changed && enabled) await requestPtrlock(this.#ptrlock)
     this.#changing = false
     if (changed) this.onChange?.()
     if (enabled !== this.#enabled) void this.#update()

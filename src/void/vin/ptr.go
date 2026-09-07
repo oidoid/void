@@ -14,11 +14,11 @@ const (
 	clickBits = iota // bit-width of the defined button set; sizes clickMap
 )
 
-type Pointer struct {
+type Ptr struct {
 	Drag Drag
 	// physical pointer bounds changed since the preceding input poll.
 	Moved     bool
-	poll      PointerPoll
+	poll      PtrPoll
 	centerPhy vgeo.XY[float32]
 }
 
@@ -35,91 +35,91 @@ type Drag struct {
 	End      bool // first inactive frame after dragging.
 }
 
-func newPointer(poll PointerPoll, moved bool) Pointer {
+func newPtr(poll PtrPoll, moved bool) Ptr {
 	phyW := poll.Phy.W()
 	phyH := poll.Phy.H()
-	return Pointer{
+	return Ptr{
 		poll:      poll,
 		Moved:     moved,
 		centerPhy: vgeo.NewXY(poll.Phy.Min.X+phyW/2, poll.Phy.Min.Y+phyH/2),
 	}
 }
 
-func (this *Pointer) Clicks() Click {
+func (this *Ptr) Clicks() Click {
 	if this == nil {
 		return 0
 	}
 	return this.poll.Clicks
 }
 
-func (this *Pointer) Primary() bool {
+func (this *Ptr) Primary() bool {
 	if this == nil {
 		return false
 	}
 	return this.poll.Primary
 }
 
-func (this *Pointer) Pressure() float32 {
+func (this *Ptr) Pressure() float32 {
 	if this == nil {
 		return 0
 	}
 	return this.poll.Pressure
 }
 
-func (this *Pointer) ID() int32 {
+func (this *Ptr) ID() int32 {
 	if this == nil {
 		return -1
 	}
 	return this.poll.ID
 }
 
-func (this *Pointer) Tilt() *vgeo.XY[int8] {
+func (this *Ptr) Tilt() *vgeo.XY[int8] {
 	if this == nil {
 		return nil
 	}
 	return &this.poll.Tilt
 }
 
-func (this *Pointer) Twist() uint16 {
+func (this *Ptr) Twist() uint16 {
 	if this == nil {
 		return 0
 	}
 	return this.poll.Twist
 }
 
-func (this *Pointer) Device() PointerDevice {
+func (this *Ptr) Device() PtrDevice {
 	if this == nil {
-		return PointerDeviceUnknown
+		return PtrDevUnknown
 	}
 	return this.poll.Device
 }
 
 // to-do: why is this a box? where is the point inside the box?
-func (this *Pointer) Phy() *vgeo.Box[float32] {
+func (this *Ptr) Phy() *vgeo.Box[float32] {
 	if this == nil {
 		return nil
 	}
 	return &this.poll.Phy
 }
 
-func (this *Pointer) CenterPhy() *vgeo.XY[float32] {
+func (this *Ptr) CenterPhy() *vgeo.XY[float32] {
 	if this == nil {
 		return nil
 	}
 	return &this.centerPhy
 }
 
-type PointerDevice uint8
+type PtrDevice uint8
 
 const (
-	PointerDeviceUnknown PointerDevice = iota
-	PointerDeviceMouse
-	PointerDevicePen
-	PointerDeviceTouch
+	PtrDevUnknown PtrDevice = iota
+	PtrDevMouse
+	PtrDevPen
+	PtrDevTouch
 )
 
 // virtual pointing device state. devices are ephemeral and may be virtual.
-type PointerPoll struct {
+type PtrPoll struct {
 	// pointer ID; -1 if nonpointing device (eg, a click event fired on a button
 	// activated via keyboard).
 	ID int32
@@ -132,7 +132,7 @@ type PointerPoll struct {
 	Tilt vgeo.XY[int8]
 	// pen rotation around its axis in degrees [0°, 359°].
 	Twist  uint16
-	Device PointerDevice
+	Device PtrDevice
 	// true if this is the primary pointer.
 	Primary bool
 	// bitmask of buttons pressed.

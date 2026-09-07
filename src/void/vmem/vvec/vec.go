@@ -80,7 +80,7 @@ func (this *Vec[V]) free(handle Handle) {
 }
 
 func (this *Vec[V]) Len() int { return len(this.vals) }
-func (this *Vec[V]) Pointer() uintptr {
+func (this *Vec[V]) Ptr() uintptr {
 	if this.Cap() == 0 {
 		return 0
 	}

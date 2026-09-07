@@ -37,7 +37,7 @@ type Game interface {
 	Board() *vboards.Board
 	CamX() float32
 	CamY() float32
-	Pointerlock() bool
+	Ptrlock() bool
 	Random() float32
 	RequestUpdateInMillis(uint64)
 	UtcMillis() uint64

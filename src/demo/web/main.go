@@ -13,13 +13,13 @@ func main() {
 	gam = app.New()
 }
 
-//export PollPointer
-func PollPointer() uintptr {
-	return gam.PollPointer()
+//export PollPtr
+func PollPtr() uintptr {
+	return gam.PollPtr()
 }
 
-//export BeepPointer
-func BeepPointer() uintptr { return gam.BeepPointer() }
+//export BeepPtr
+func BeepPtr() uintptr { return gam.BeepPtr() }
 
 //export BeepCount
 func BeepCount() uint32 { return gam.BeepCount() }
@@ -58,17 +58,17 @@ func UpdateInMillisRequest() uint64 {
 	return gam.UpdateInMillisRequest()
 }
 
-//export LayerConfigsPointer
-func LayerConfigsPointer() uintptr { return gam.LayerConfigsPointer() }
+//export LayerConfigsPtr
+func LayerConfigsPtr() uintptr { return gam.LayerConfigsPtr() }
 
 //export Update
 func Update() vgame.Status {
 	return gam.Update()
 }
 
-//export BoardTilesPointer
-func BoardTilesPointer() uintptr {
-	return gam.BoardTilesPointer()
+//export BoardTilesPtr
+func BoardTilesPtr() uintptr {
+	return gam.BoardTilesPtr()
 }
 
 //export BoardW
@@ -95,8 +95,8 @@ func AtlasAnimCount() uint32 { return gam.AtlasAnimCount() }
 //export AtlasCelsPerAnim
 func AtlasCelsPerAnim() uint32 { return gam.AtlasCelsPerAnim() }
 
-//export AtlasCelsPointer
-func AtlasCelsPointer() uintptr { return gam.AtlasCelsPointer() }
+//export AtlasCelsPtr
+func AtlasCelsPtr() uintptr { return gam.AtlasCelsPtr() }
 
 //export AtlasCelsCount
 func AtlasCelsCount() uint32 { return gam.AtlasCelsCount() }

@@ -8,8 +8,8 @@ import "github.com/oidoid/void/src/void/vgeo"
 // to-do: add void-js combo support.
 type In struct {
 	Kbd  Keyboard  // all keyboards aggregated.
-	Ptr  *Pointer  // primary pointer; nil if absent.
-	Ptrs []Pointer // all pointers including primary if exists; aggregate into on.
+	Ptr  *Ptr      // primary pointer; nil if absent.
+	Ptrs []Ptr     // all pointers including primary if exists; aggregate into on.
 	Pads []Gamepad // aggregated into on.
 	// active multi-pointer pinch; nil unless two or more pointers pressed.
 	Pinch *Pinch
@@ -45,7 +45,7 @@ type In struct {
 	now        float64 // time of last update.
 	prevCam    vgeo.Box[float32]
 	prevPoll   InPoll
-	dragStates [MaxPointers]dragState
+	dragStates [MaxPtrs]dragState
 	pinch      Pinch
 }
 
@@ -219,7 +219,7 @@ func (this *In) MapText(ch rune, btns Button) {
 
 func (this *In) MapDefaults() {
 	this.MapDefaultKeyboard()
-	this.MapDefaultPointer()
+	this.MapDefaultPtr()
 	this.MapDefaultGamepad()
 	this.MapDefaultText()
 }
@@ -242,7 +242,7 @@ func (this *In) MapDefaultKeyboard() {
 	this.MapKey(KeyBack, ButtonBack)
 }
 
-func (this *In) MapDefaultPointer() {
+func (this *In) MapDefaultPtr() {
 	this.MapClick(ClickPrimary, ButtonA)
 	this.MapClick(ClickSecondary, ButtonB)
 	this.MapClick(ClickAux, ButtonC)
@@ -275,7 +275,7 @@ func (this *In) Reset(now float64) {
 	this.Kbd = Keyboard{}
 	this.Wheel = Wheel{}
 	this.Pinch = nil
-	this.dragStates = [MaxPointers]dragState{}
+	this.dragStates = [MaxPtrs]dragState{}
 
 	this.On = 0
 	this.onChangedAt = now
@@ -322,8 +322,8 @@ func (this *In) Update(now float64, poll *InPoll, cam vgeo.Box[float32]) {
 	}
 	this.Wheel = Wheel{WheelPoll: poll.Wheel}
 	for i := range poll.PtrsLen {
-		ptr := newPointer(
-			poll.Ptrs[i], pointerMoved(poll.Ptrs[i], &this.prevPoll),
+		ptr := newPtr(
+			poll.Ptrs[i], ptrMoved(poll.Ptrs[i], &this.prevPoll),
 		)
 		this.Ptrs = append(this.Ptrs, ptr)
 	}
@@ -338,7 +338,7 @@ func (this *In) Update(now float64, poll *InPoll, cam vgeo.Box[float32]) {
 	this.updateGestures()
 }
 
-func pointerMoved(poll PointerPoll, prev *InPoll) bool {
+func ptrMoved(poll PtrPoll, prev *InPoll) bool {
 	for i := range prev.PtrsLen {
 		candidate := prev.Ptrs[i]
 		if candidate.ID == poll.ID {
@@ -423,7 +423,7 @@ func (this *In) updatePinch(
 	this.Pinch = &this.pinch
 }
 
-func (this *In) updateDrag(ptr *Pointer) {
+func (this *In) updateDrag(ptr *Ptr) {
 	var state *dragState
 	for i := range this.dragStates {
 		candidate := &this.dragStates[i]
@@ -529,7 +529,7 @@ func inputEq(l, r *InPoll) bool {
 		return false
 	}
 
-	// manually implement `PointerPoll` and `GamepadPoll` equality to skip heavy
+	// manually implement `PtrPoll` and `GamepadPoll` equality to skip heavy
 	// fat costs.
 	for i := range l.PtrsLen {
 		if l.Ptrs[i] != r.Ptrs[i] {

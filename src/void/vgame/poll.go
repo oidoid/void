@@ -24,7 +24,7 @@ type Poll struct {
 	// number of renderer clears completed.
 	DrawCount         int32
 	RequestFullscreen FullscreenRequest
-	Pointerlocked     bool
+	Ptrlocked         bool
 	_                 [2]byte
 	// duration of the previous Go update call in milliseconds.
 	UpdateMillis     float64

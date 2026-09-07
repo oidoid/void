@@ -30,6 +30,7 @@ func NewSuperballEnt(rnd func() float32, xy vgeo.XY[float32]) SuperballEnt {
 	return SuperballEnt{XY: xy, Vel: vel, RotVel: rotVel}
 }
 
+//go:inline
 func (this *SuperballEnt) Move(
 	deltaSec float32,
 	board vgeo.Box[float32],

@@ -109,12 +109,12 @@ func (this *CursorEnt) Update(
 }
 
 func (this *CursorEnt) onCursorPoint(
-	phy vgeo.XY[float32], dev vin.PointerDevice, layer *vgfx.LayerConfig,
+	phy vgeo.XY[float32], dev vin.PtrDevice, layer *vgfx.LayerConfig,
 ) {
 	this.XY = layer.PhyToLayer(phy)
 	this.snapXY = this.XY
 	this.kbdOn = false
-	this.Visible = dev == vin.PointerDeviceMouse
+	this.Visible = dev == vin.PtrDevMouse
 }
 
 // returns the physical hitbox computed by Update, or nil when inactive.

@@ -12,7 +12,7 @@ import (
 )
 
 // draws the lock overlay only while the browser has locked the canvas pointer.
-func TestMouseStatusPointerlocked(t *testing.T) {
+func TestMouseStatusPtrlocked(t *testing.T) {
 	for _, test := range []struct {
 		name    string
 		locked  bool
@@ -23,11 +23,11 @@ func TestMouseStatusPointerlocked(t *testing.T) {
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			gam := engine.New()
-			gam.Poll().Pointerlocked = test.locked
+			gam.Poll().Ptrlocked = test.locked
 			gam.Layer(gfx.LayerUI).Clip = vgeo.XYWH[float32](0, 0, 100, 100)
 			poll := vin.InPoll{PtrsLen: 1}
-			poll.Ptrs[0] = vin.PointerPoll{
-				Device: vin.PointerDeviceMouse, Primary: true,
+			poll.Ptrs[0] = vin.PtrPoll{
+				Device: vin.PtrDevMouse, Primary: true,
 			}
 			gam.In().Update(0, &poll, vgeo.Box[float32]{})
 

@@ -8,7 +8,7 @@ import {
   keyboardTextOffset,
   keyboardTextOverflowOffset,
   maxGamepads,
-  maxPointers,
+  maxPtrs,
   maxTextLen,
   pollSize,
   pollsOffset,
@@ -17,7 +17,7 @@ import {
 import {ContextMenu} from './context-menu.ts'
 import {Gamepad} from './gamepad.ts'
 import {Keyboard} from './keyboard.ts'
-import {Pointer} from './pointer.ts'
+import {Ptr} from './ptr.ts'
 import {Wheel} from './wheel.ts'
 
 export class In {
@@ -26,7 +26,7 @@ export class In {
   readonly #gamepad: Gamepad
   readonly #keyboard: Keyboard
   readonly #encoder: TextEncoder = new TextEncoder()
-  readonly #pointer: Pointer
+  readonly #ptr: Ptr
   #u8: Uint8Array = new Uint8Array(0)
   readonly #wheel: Wheel
 
@@ -34,17 +34,17 @@ export class In {
     this.#ctxMenu = new ContextMenu(canvas)
     this.#gamepad = new Gamepad(canvas)
     this.#keyboard = new Keyboard(canvas)
-    this.#pointer = new Pointer(canvas)
+    this.#ptr = new Ptr(canvas)
     this.#wheel = new Wheel(canvas)
     this.#gamepad.onEvent = ev => this.onEvent(ev)
     this.#keyboard.onEvent = ev => this.onEvent(ev)
-    this.#pointer.onEvent = ev => this.onEvent(ev)
+    this.#ptr.onEvent = ev => this.onEvent(ev)
     this.#wheel.onEvent = ev => this.onEvent(ev)
   }
 
   postupdate(): void {
     this.#keyboard.postupdate()
-    this.#pointer.postupdate()
+    this.#ptr.postupdate()
     this.#wheel.postupdate()
   }
 
@@ -52,14 +52,14 @@ export class In {
     this.#ctxMenu.register(op)
     this.#gamepad.register(op)
     this.#keyboard.register(op)
-    this.#pointer.register(op)
+    this.#ptr.register(op)
     this.#wheel.register(op)
   }
 
   reset(): void {
     this.#gamepad.reset()
     this.#keyboard.reset()
-    this.#pointer.reset()
+    this.#ptr.reset()
   }
 
   [Symbol.dispose](): void {
@@ -70,7 +70,7 @@ export class In {
     this.#gamepad.update()
     this.#u8 = writeInPoll(
       view,
-      this.#pointer,
+      this.#ptr,
       this.#wheel,
       this.#keyboard,
       this.#gamepad,
@@ -83,17 +83,17 @@ export class In {
 /** @internal */
 export function writeInPoll(
   view: DataView,
-  pointer: Pointer,
+  ptr: Ptr,
   wheel: Wheel,
   keyboard: Keyboard,
   gamepad: Gamepad,
   encoder: TextEncoder,
   u8: Uint8Array
 ): Uint8Array {
-  const polls = Object.values(pointer.polls)
-  const pointersLen = Math.min(polls.length, maxPointers)
-  view.setUint8(0, pointersLen)
-  for (let i = 0; i < pointersLen; i++) {
+  const polls = Object.values(ptr.polls)
+  const ptrsLen = Math.min(polls.length, maxPtrs)
+  view.setUint8(0, ptrsLen)
+  for (let i = 0; i < ptrsLen; i++) {
     const poll = polls[i]!
     const o = pollsOffset + i * pollSize
     view.setInt32(o, poll.id, true)

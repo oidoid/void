@@ -112,7 +112,7 @@ func (this *Eng[Game]) Board() *vboards.Board { return this.BoardData }
 // to-do: rename to Poll, move props to Engine struct, and don't expose?
 func (this *Eng[Game]) Poll() *vgame.Poll  { return &this.poll }
 func (this *Eng[Game]) Fullscreen() bool   { return this.poll.Fullscreen }
-func (this *Eng[Game]) Pointerlock() bool  { return this.poll.Pointerlocked }
+func (this *Eng[Game]) Ptrlock() bool      { return this.poll.Ptrlocked }
 func (this *Eng[Game]) NowMillis() float64 { return this.poll.NowMillis }
 func (this *Eng[Game]) UtcMillis() uint64  { return this.poll.UtcMillis }
 func (this *Eng[Game]) Time() vgame.TimeFormat {
@@ -234,11 +234,11 @@ func (this *Eng[Game]) RenderModeFlag() int32 {
 	return int32(this.renderMode)
 }
 
-func (this *Eng[Game]) PollPointer() uintptr {
+func (this *Eng[Game]) PollPtr() uintptr {
 	return uintptr(unsafe.Pointer(&this.poll))
 }
 
-func (this *Eng[Game]) BeepPointer() uintptr {
+func (this *Eng[Game]) BeepPtr() uintptr {
 	return uintptr(unsafe.Pointer(&this.beeps[0]))
 }
 
@@ -263,14 +263,14 @@ func (this *Eng[Game]) CursorPhy() *vgeo.Box[float32] {
 func (this *Eng[Game]) BoardW() int32 { return this.BoardData.W }
 func (this *Eng[Game]) BoardH() int32 { return this.BoardData.H }
 
-func (this *Eng[Game]) LayerConfigsPointer() uintptr {
+func (this *Eng[Game]) LayerConfigsPtr() uintptr {
 	return uintptr(unsafe.Pointer(unsafe.SliceData(this.layerConfigExport[:])))
 }
 func (this *Eng[Game]) Layer(layer vgfx.Layer) *vgfx.LayerConfig {
 	return &this.layers[layer]
 }
 
-func (this *Eng[Game]) BoardTilesPointer() uintptr {
+func (this *Eng[Game]) BoardTilesPtr() uintptr {
 	if this.BoardData == nil || len(this.BoardData.Tiles) == 0 {
 		return 0
 	}
@@ -309,7 +309,7 @@ func (this *Eng[Game]) AtlasCelsPerAnim() uint32 {
 	return uint32(vatlas.CelsPerAnim)
 }
 
-func (this *Eng[Game]) AtlasCelsPointer() uintptr {
+func (this *Eng[Game]) AtlasCelsPtr() uintptr {
 	if len(this.Atlas.Cels) == 0 {
 		return 0
 	}

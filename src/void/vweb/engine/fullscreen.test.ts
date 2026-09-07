@@ -23,7 +23,7 @@ import {Fullscreen} from './fullscreen.ts'
 //   await Promise.resolve()
 //   await settled
 //   assert.equal(mock.requests, 2)
-//   assert.equal(mock.pointerlocks, 1)
+//   assert.equal(mock.ptrlocks, 1)
 //   assert(changes, [2])
 // })
 

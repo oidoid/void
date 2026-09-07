@@ -30,7 +30,7 @@ func (this *MouseStatusEnt) Update(gam game.Game) vgame.Status {
 	layer := gam.Layer(gfx.LayerUI)
 	sprs := &layer.Sprs
 	in := gam.In()
-	this.visible = this.visible || in.Ptr.Device() == vin.PointerDeviceMouse
+	this.visible = this.visible || in.Ptr.Device() == vin.PtrDevMouse
 	if !this.visible {
 		return vgame.Pause
 	}
@@ -45,7 +45,7 @@ func (this *MouseStatusEnt) Update(gam game.Game) vgame.Status {
 	this.addOverlay(sprs, tags.MouseStatusPrimary, xy, clicks&vin.ClickPrimary != 0)
 	this.addOverlay(sprs, tags.MouseStatusSecondary, xy, clicks&vin.ClickSecondary != 0)
 	this.addOverlay(sprs, tags.MouseStatusAux, xy, clicks&vin.ClickAux != 0)
-	this.addOverlay(sprs, tags.MouseStatusLocked, xy, gam.Pointerlock())
+	this.addOverlay(sprs, tags.MouseStatusLocked, xy, gam.Ptrlock())
 	if in.Dirty {
 		return vgame.Loop
 	}

@@ -1,4 +1,4 @@
-export type PointerTestEventInit = {
+export type PtrTestEventInit = {
   buttons: number
   ctrlKey: boolean
   isPrimary: boolean
@@ -32,7 +32,7 @@ export function MenuTestEvent(
   return Object.assign(TestEvent(type), init)
 }
 
-export function PointerTestEvent(
+export function PtrTestEvent(
   type:
     | 'pointerenter'
     | 'pointerleave'
@@ -40,9 +40,9 @@ export function PointerTestEvent(
     | 'pointerdown'
     | 'pointermove'
     | 'pointerup',
-  init?: Partial<Readonly<PointerTestEventInit>>
+  init?: Partial<Readonly<PtrTestEventInit>>
 ): Event
-export function PointerTestEvent(
+export function PtrTestEvent(
   type:
     | 'pointercancel'
     | 'pointerdown'
@@ -50,7 +50,7 @@ export function PointerTestEvent(
     | 'pointerup'
     | 'pointerenter'
     | 'pointerleave',
-  init?: Partial<Readonly<PointerTestEventInit>>
+  init?: Partial<Readonly<PtrTestEventInit>>
 ): Event {
   return Object.assign(
     TestEvent(type),
@@ -65,7 +65,7 @@ export function PointerTestEvent(
       offsetY: 0,
       pointerId: 1,
       pointerType: 'mouse'
-    } satisfies PointerTestEventInit,
+    } satisfies PtrTestEventInit,
     init
   )
 }

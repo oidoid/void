@@ -1,12 +1,12 @@
 package vin
 
-const MaxPointers uint8 = 5
+const MaxPtrs uint8 = 5
 const MaxGamepads uint8 = 4
 
 // a snapshot of input for a frame.
 type InPoll struct {
 	PtrsLen uint8
-	Ptrs    [MaxPointers]PointerPoll
+	Ptrs    [MaxPtrs]PtrPoll
 	Wheel   WheelPoll
 	Kbd     KeyboardPoll
 	PadsLen uint8

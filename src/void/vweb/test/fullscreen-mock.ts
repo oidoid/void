@@ -1,6 +1,6 @@
 export class FullscreenMock {
   requests: number = 0
-  pointerlocks: number = 0
+  ptrlocks: number = 0
   exits: number = 0
   rejection: Error | undefined
   readonly target: Element
@@ -30,7 +30,7 @@ export class FullscreenMock {
     } as Element
     this.canvas = {
       requestPointerLock: async (): Promise<void> => {
-        this.pointerlocks++
+        this.ptrlocks++
         document.pointerLockElement = this.canvas
       }
     } as Element

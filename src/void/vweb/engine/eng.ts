@@ -48,7 +48,7 @@ import {
   localSecondOffset,
   localYearOffset,
   nowMsOffset,
-  pointerlockedOffset,
+  ptrlockedOffset,
   requestFullscreenOffset,
   requestWakelockOffset,
   type Shader,
@@ -117,7 +117,7 @@ export class Eng {
     this.#input = new In(canvas)
     this.#poll = new DataView(
       this.#wasm.memory.buffer,
-      this.#wasm.PollPointer(),
+      this.#wasm.PollPtr(),
       updateByteLen
     )
     this.#drawAlways = debug?.draw === 'always'
@@ -192,7 +192,7 @@ export class Eng {
     }
     this.#updateMs = performance.now() - updateStart
     const buffer = this.#wasm.memory.buffer
-    const layerConfigPtr = this.#wasm.LayerConfigsPointer()
+    const layerConfigPtr = this.#wasm.LayerConfigsPtr()
     const layerConfigView = new DataView(buffer)
     const camX = this.#wasm.CamX()
     const camY = this.#wasm.CamY()
@@ -262,7 +262,7 @@ export class Eng {
     if (count === 0) return
     const view = new DataView(
       this.#wasm.memory.buffer,
-      this.#wasm.BeepPointer(),
+      this.#wasm.BeepPtr(),
       count * 16
     )
     for (let i = 0; i < count; i++) {
@@ -345,7 +345,7 @@ export class Eng {
   }
 
   #newRenderer(): Renderer {
-    const atlasCelsPtr = this.#wasm.AtlasCelsPointer()
+    const atlasCelsPtr = this.#wasm.AtlasCelsPtr()
     const atlasCelsCount = this.#wasm.AtlasCelsCount()
     const atlasCels = new Uint16Array(
       this.#wasm.memory.buffer,
@@ -357,7 +357,7 @@ export class Eng {
     return new Renderer(
       getWebGL2(this.#canvas, !pixel),
       this.#wasm.memory.buffer,
-      this.#wasm.BoardTilesPointer(),
+      this.#wasm.BoardTilesPtr(),
       this.#wasm.BoardW(),
       this.#wasm.BoardH(),
       this.#wasm.BoardTileW(),
@@ -425,7 +425,7 @@ export class Eng {
     if (this.#poll.buffer !== this.#wasm.memory.buffer)
       this.#poll = new DataView(
         this.#wasm.memory.buffer,
-        this.#wasm.PollPointer(),
+        this.#wasm.PollPtr(),
         updateByteLen
       )
     const delta = this.#lastTime === 0 ? 0 : nowMillis - this.#lastTime
@@ -439,7 +439,7 @@ export class Eng {
     this.#poll.setInt32(drawCountOffset, this.#drawCount, true)
     this.#poll.setUint8(requestFullscreenOffset, debug?.window ? 2 : 0)
     this.#poll.setUint8(
-      pointerlockedOffset,
+      ptrlockedOffset,
       document.pointerLockElement === this.#canvas ? 1 : 0
     )
     this.#poll.setFloat64(updateMsOffset, this.#updateMs, true)

@@ -156,7 +156,7 @@ func snapLvlScaleAt(
 }
 
 // reports whether a drag began within the visible lvl clip.
-func lvlDragOn(ptr *vin.Pointer, clipPhy vgeo.Box[uint16]) bool {
+func lvlDragOn(ptr *vin.Ptr, clipPhy vgeo.Box[uint16]) bool {
 	if ptr == nil || !ptr.Drag.On {
 		return false
 	}

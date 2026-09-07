@@ -87,8 +87,8 @@ func TestHitboxPhy(t *testing.T) {
 	}
 	ent.KbdEnabled = false
 	poll := &vin.InPoll{PtrsLen: 1}
-	poll.Ptrs[0] = vin.PointerPoll{
-		Device:  vin.PointerDeviceTouch,
+	poll.Ptrs[0] = vin.PtrPoll{
+		Device:  vin.PtrDevTouch,
 		Primary: true,
 	}
 	in.Update(0, poll, vgeo.Box[float32]{})
@@ -104,7 +104,7 @@ func TestOnCursorPoint_SetsPosition(t *testing.T) {
 	layer := vgfx.NewLayerConfig(0)
 	ent.onCursorPoint(
 		vgeo.NewXY[float32](104, 204),
-		vin.PointerDeviceMouse,
+		vin.PtrDevMouse,
 		&layer,
 	)
 	if ent.XY.X != 104 || ent.XY.Y != 204 {
@@ -115,7 +115,7 @@ func TestOnCursorPoint_SetsPosition(t *testing.T) {
 func TestOnCursorPoint_VisibleForMouse(t *testing.T) {
 	ent := testCursorEnt(0)
 	layer := vgfx.NewLayerConfig(0)
-	ent.onCursorPoint(vgeo.XY[float32]{}, vin.PointerDeviceMouse, &layer)
+	ent.onCursorPoint(vgeo.XY[float32]{}, vin.PtrDevMouse, &layer)
 	if !ent.Visible {
 		t.Fatal("want visible for Mouse, got hidden")
 	}
@@ -124,7 +124,7 @@ func TestOnCursorPoint_VisibleForMouse(t *testing.T) {
 func TestOnCursorPoint_HiddenForTouch(t *testing.T) {
 	ent := testCursorEnt(0)
 	layer := vgfx.NewLayerConfig(0)
-	ent.onCursorPoint(vgeo.XY[float32]{}, vin.PointerDeviceTouch, &layer)
+	ent.onCursorPoint(vgeo.XY[float32]{}, vin.PtrDevTouch, &layer)
 	if ent.Visible {
 		t.Fatal("want hidden for Touch, got visible")
 	}
@@ -257,7 +257,7 @@ func TestOnCursorKey_RestartsAfterPoint(t *testing.T) {
 	layer := vgfx.NewLayerConfig(0)
 	ent.onCursorPoint(
 		vgeo.NewXY[float32](.25, .75),
-		vin.PointerDeviceMouse,
+		vin.PtrDevMouse,
 		&layer,
 	)
 	in := vin.NewIn()
@@ -310,7 +310,7 @@ func TestUpdate_KeyboardModeZeroDeltaLoops(t *testing.T) {
 	}
 }
 
-func TestUpdate_PointerLeaves(t *testing.T) {
+func TestUpdate_PtrLeaves(t *testing.T) {
 	tests := []struct {
 		name       string
 		kbdEnabled bool
@@ -327,9 +327,9 @@ func TestUpdate_PointerLeaves(t *testing.T) {
 			layer := vgfx.NewLayerConfig(0)
 			sprs := []vgfx.Spr{}
 			poll := &vin.InPoll{PtrsLen: 1}
-			poll.Ptrs[0] = vin.PointerPoll{
+			poll.Ptrs[0] = vin.PtrPoll{
 				Phy:     vgeo.NewBox[float32](4, 8, 4, 8),
-				Device:  vin.PointerDeviceMouse,
+				Device:  vin.PtrDevMouse,
 				Primary: true,
 			}
 			in.Update(0, poll, vgeo.Box[float32]{})
@@ -347,7 +347,7 @@ func TestUpdate_PointerLeaves(t *testing.T) {
 	}
 }
 
-func TestUpdate_KeyboardModeFollowsMovedPointer(t *testing.T) {
+func TestUpdate_KeyboardModeFollowsMovedPtr(t *testing.T) {
 	ent := testCursorEnt(10)
 	ent.KbdEnabled = true
 	in := vin.NewIn()
@@ -360,9 +360,9 @@ func TestUpdate_KeyboardModeFollowsMovedPointer(t *testing.T) {
 			Kbd:     vin.KeyboardPoll{Keys: keys},
 			PtrsLen: 1,
 		}
-		poll.Ptrs[0] = vin.PointerPoll{
+		poll.Ptrs[0] = vin.PtrPoll{
 			Phy:     vgeo.NewBox(x, float32(0), x, float32(0)),
-			Device:  vin.PointerDeviceMouse,
+			Device:  vin.PtrDevMouse,
 			Primary: true,
 		}
 		in.Update(now, poll, vgeo.Box[float32]{})

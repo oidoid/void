@@ -10,9 +10,9 @@ import {
   keyboardTextOffset,
   keyboardTextOverflowOffset,
   maxTextLen,
-  pointerlockedOffset,
   pollSize,
   pollsOffset,
+  ptrlockedOffset,
   requestFullscreenOffset,
   updateByteLen,
   updateMsOffset,
@@ -22,13 +22,13 @@ import {assert} from '../test/assert.ts'
 import type {Gamepad} from './gamepad.ts'
 import {writeInPoll} from './in.ts'
 import type {Keyboard} from './keyboard.ts'
-import type {Pointer} from './pointer.ts'
+import type {Ptr} from './ptr.ts'
 import type {Wheel} from './wheel.ts'
 
 test('Poll ABI layout matches vgame.Poll', () => {
   assert(drawCountOffset, 4408)
   assert(requestFullscreenOffset, 4412)
-  assert(pointerlockedOffset, 4413)
+  assert(ptrlockedOffset, 4413)
   assert(updateMsOffset, 4416)
   assert(devicePixelRatioOffset, 4424)
   assert(updateByteLen, 4448)
@@ -39,39 +39,23 @@ const encoder: TextEncoder = new TextEncoder()
 test('writeInPoll()', async ctx => {
   await ctx.test('empty text', () => {
     const view = newView()
-    const {pointer, wheel, keyboard, gamepad} = newInputs('')
-    writeInPoll(
-      view,
-      pointer,
-      wheel,
-      keyboard,
-      gamepad,
-      encoder,
-      new Uint8Array(0)
-    )
+    const {ptr, wheel, keyboard, gamepad} = newInputs('')
+    writeInPoll(view, ptr, wheel, keyboard, gamepad, encoder, new Uint8Array(0))
     assert(view.getUint16(keyboardTextLenOffset, true), 0)
     assert(view.getUint8(keyboardTextOverflowOffset), 0)
   })
 
   await ctx.test('keys written', () => {
     const view = newView()
-    const {pointer, wheel, keyboard, gamepad} = newInputs('', 0b101)
-    writeInPoll(
-      view,
-      pointer,
-      wheel,
-      keyboard,
-      gamepad,
-      encoder,
-      new Uint8Array(0)
-    )
+    const {ptr, wheel, keyboard, gamepad} = newInputs('', 0b101)
+    writeInPoll(view, ptr, wheel, keyboard, gamepad, encoder, new Uint8Array(0))
     assert(view.getUint16(keyboardOffset, true), 0b101)
   })
 
-  await ctx.test('pointer box writes Go Min and Max', () => {
+  await ctx.test('ptr box writes Go Min and Max', () => {
     const view = newView()
-    const {pointer, wheel, keyboard, gamepad} = newInputs('')
-    pointer.polls = {
+    const {ptr, wheel, keyboard, gamepad} = newInputs('')
+    ptr.polls = {
       7: {
         id: 7,
         physX: 10,
@@ -87,15 +71,7 @@ test('writeInPoll()', async ctx => {
         buttons: 1
       }
     }
-    writeInPoll(
-      view,
-      pointer,
-      wheel,
-      keyboard,
-      gamepad,
-      encoder,
-      new Uint8Array(0)
-    )
+    writeInPoll(view, ptr, wheel, keyboard, gamepad, encoder, new Uint8Array(0))
     const o = pollsOffset
     assert(view.getInt32(o, true), 7)
     assert(view.getFloat32(o + 4, true), 10)
@@ -110,7 +86,7 @@ test('writeInPoll()', async ctx => {
     () => {
       const view = newView()
       const want = {
-        pointers: [
+        ptrs: [
           {
             id: 7,
             physX: 10,
@@ -138,11 +114,11 @@ test('writeInPoll()', async ctx => {
           }
         ]
       }
-      const {pointer, wheel, keyboard, gamepad} = newInputs(
+      const {ptr, wheel, keyboard, gamepad} = newInputs(
         want.keyboard.text,
         want.keyboard.keys
       )
-      pointer.polls = {7: want.pointers[0]!}
+      ptr.polls = {7: want.ptrs[0]!}
       wheel.deltaX = want.wheel[0]!
       wheel.deltaY = want.wheel[1]!
       wheel.deltaZ = want.wheel[2]!
@@ -150,7 +126,7 @@ test('writeInPoll()', async ctx => {
 
       writeInPoll(
         view,
-        pointer,
+        ptr,
         wheel,
         keyboard,
         gamepad,
@@ -164,10 +140,10 @@ test('writeInPoll()', async ctx => {
 
   await ctx.test('short text is written', () => {
     const view = newView()
-    const {pointer, wheel, keyboard, gamepad} = newInputs('hi')
+    const {ptr, wheel, keyboard, gamepad} = newInputs('hi')
     const u8 = writeInPoll(
       view,
-      pointer,
+      ptr,
       wheel,
       keyboard,
       gamepad,
@@ -185,97 +161,63 @@ test('writeInPoll()', async ctx => {
 
   await ctx.test('text at exact max length, no overflow', () => {
     const view = newView()
-    const {pointer, wheel, keyboard, gamepad} = newInputs(
-      'a'.repeat(maxTextLen)
-    )
-    writeInPoll(
-      view,
-      pointer,
-      wheel,
-      keyboard,
-      gamepad,
-      encoder,
-      new Uint8Array(0)
-    )
+    const {ptr, wheel, keyboard, gamepad} = newInputs('a'.repeat(maxTextLen))
+    writeInPoll(view, ptr, wheel, keyboard, gamepad, encoder, new Uint8Array(0))
     assert(view.getUint16(keyboardTextLenOffset, true), maxTextLen)
     assert(view.getUint8(keyboardTextOverflowOffset), 0)
   })
 
   await ctx.test('text exceeding max length sets overflow', () => {
     const view = newView()
-    const {pointer, wheel, keyboard, gamepad} = newInputs(
+    const {ptr, wheel, keyboard, gamepad} = newInputs(
       'a'.repeat(maxTextLen + 1)
     )
-    writeInPoll(
-      view,
-      pointer,
-      wheel,
-      keyboard,
-      gamepad,
-      encoder,
-      new Uint8Array(0)
-    )
+    writeInPoll(view, ptr, wheel, keyboard, gamepad, encoder, new Uint8Array(0))
     assert(view.getUint16(keyboardTextLenOffset, true), maxTextLen)
     assert(view.getUint8(keyboardTextOverflowOffset), 1)
   })
 
   await ctx.test('reuses u8 when buffer unchanged', () => {
     const view = newView()
-    const {pointer, wheel, keyboard, gamepad} = newInputs('a')
+    const {ptr, wheel, keyboard, gamepad} = newInputs('a')
     const u8a = writeInPoll(
       view,
-      pointer,
+      ptr,
       wheel,
       keyboard,
       gamepad,
       encoder,
       new Uint8Array(0)
     )
-    const u8b = writeInPoll(
-      view,
-      pointer,
-      wheel,
-      keyboard,
-      gamepad,
-      encoder,
-      u8a
-    )
+    const u8b = writeInPoll(view, ptr, wheel, keyboard, gamepad, encoder, u8a)
     assert(u8a === u8b, true)
   })
 
   await ctx.test('refreshes u8 on buffer change', () => {
     const view1 = newView()
     const view2 = newView()
-    const {pointer, wheel, keyboard, gamepad} = newInputs('x')
+    const {ptr, wheel, keyboard, gamepad} = newInputs('x')
     const u8a = writeInPoll(
       view1,
-      pointer,
+      ptr,
       wheel,
       keyboard,
       gamepad,
       encoder,
       new Uint8Array(0)
     )
-    const u8b = writeInPoll(
-      view2,
-      pointer,
-      wheel,
-      keyboard,
-      gamepad,
-      encoder,
-      u8a
-    )
+    const u8b = writeInPoll(view2, ptr, wheel, keyboard, gamepad, encoder, u8a)
     assert(u8b.buffer, view2.buffer)
     assert(u8a === u8b, false)
   })
 })
 function readInPoll(view: DataView): object {
-  const pointers = []
+  const ptrs = []
   for (let i = 0; i < view.getUint8(0); i++) {
     const o = pollsOffset + i * pollSize
     const physX = view.getFloat32(o + 4, true)
     const physY = view.getFloat32(o + 8, true)
-    pointers.push({
+    ptrs.push({
       id: view.getInt32(o, true),
       physX,
       physY,
@@ -310,7 +252,7 @@ function readInPoll(view: DataView): object {
   }
 
   return {
-    pointers,
+    ptrs,
     wheel: [
       view.getFloat32(wheelOffset, true),
       view.getFloat32(wheelOffset + 4, true),
@@ -331,14 +273,14 @@ function newInputs(
   text: string = '',
   keys: number = 0
 ): {
-  pointer: Pointer
+  ptr: Ptr
   wheel: Wheel
   keyboard: Keyboard
   gamepad: Gamepad
 } {
   return {
     keyboard: {keys, text} as unknown as Keyboard,
-    pointer: {polls: {}} as unknown as Pointer,
+    ptr: {polls: {}} as unknown as Ptr,
     wheel: {deltaX: 0, deltaY: 0, deltaZ: 0} as unknown as Wheel,
     gamepad: {polls: {}} as unknown as Gamepad
   }

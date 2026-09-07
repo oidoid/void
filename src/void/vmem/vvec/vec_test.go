@@ -5,31 +5,31 @@ import (
 	"unsafe"
 )
 
-func TestPointerZeroCapacityIsZero(t *testing.T) {
+func TestPtrZeroCapacityIsZero(t *testing.T) {
 	vec := New[int](0)
 
-	if got := vec.Pointer(); got != 0 {
+	if got := vec.Ptr(); got != 0 {
 		t.Errorf("got pointer %d, want 0", got)
 	}
 }
 
-func TestPointerEmptySliceUsesBackingArray(t *testing.T) {
+func TestPtrEmptySliceUsesBackingArray(t *testing.T) {
 	vec := New[int](4)
-	pointerBeforeAdd := vec.Pointer()
+	ptrBeforeAdd := vec.Ptr()
 
-	if pointerBeforeAdd == 0 {
+	if ptrBeforeAdd == 0 {
 		t.Fatal("got 0 pointer for nonzero capacity")
 	}
 
 	v := 7
 	vec.Add(v)
 
-	pointerAfterAdd := uintptr(unsafe.Pointer(&vec.Vals()[0]))
-	if pointerBeforeAdd != pointerAfterAdd {
+	ptrAfterAdd := uintptr(unsafe.Pointer(&vec.Vals()[0]))
+	if ptrBeforeAdd != ptrAfterAdd {
 		t.Errorf(
 			"got pointer %d before add and %d after add, want same backing array",
-			pointerBeforeAdd,
-			pointerAfterAdd,
+			ptrBeforeAdd,
+			ptrAfterAdd,
 		)
 	}
 }
