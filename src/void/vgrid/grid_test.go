@@ -67,10 +67,7 @@ func TestGridSameCell(t *testing.T) {
 	}
 }
 
-// a superball is a point at the top-left corner of a box no larger than a cell,
-// so only same, right, down, and down-right neighbors can ever truly
-// overlap; above-right and below-left never can, regardless of exact
-// position within the cell.
+// boxes no larger than a cell can overlap across any of its eight neighbors.
 func TestGridAdjacentCells(t *testing.T) {
 	tests := []struct {
 		name string
@@ -79,11 +76,11 @@ func TestGridAdjacentCells(t *testing.T) {
 	}{
 		{name: "above-left", xy: vgeo.NewXY[float32](-5, -5), want: 1},
 		{name: "above", xy: vgeo.NewXY[float32](5, -5), want: 1},
-		{name: "above-right", xy: vgeo.NewXY[float32](15, -5), want: 0},
+		{name: "above-right", xy: vgeo.NewXY[float32](15, -5), want: 1},
 		{name: "left", xy: vgeo.NewXY[float32](-5, 5), want: 1},
 		{name: "same", xy: vgeo.NewXY[float32](5, 5), want: 1},
 		{name: "right", xy: vgeo.NewXY[float32](15, 5), want: 1},
-		{name: "below-left", xy: vgeo.NewXY[float32](-5, 15), want: 0},
+		{name: "below-left", xy: vgeo.NewXY[float32](-5, 15), want: 1},
 		{name: "below", xy: vgeo.NewXY[float32](5, 15), want: 1},
 		{name: "below-right", xy: vgeo.NewXY[float32](15, 15), want: 1},
 	}
@@ -173,7 +170,7 @@ func TestGridNoSpuriousPairs(t *testing.T) {
 			t.Errorf("pair count = %d, want 1", got)
 		}
 	})
-	t.Run("4 by 4 grid reports 33 unique pairs", func(t *testing.T) {
+	t.Run("4 by 4 grid reports 42 unique pairs", func(t *testing.T) {
 		grid := New(
 			vgeo.NewBox[float32](0, 0, 40, 40),
 			10,
@@ -184,15 +181,15 @@ func TestGridNoSpuriousPairs(t *testing.T) {
 		//  4  5  6  7
 		//  8  9  a  b
 		//  c  d  e  f
-		// scenario: when processing cell 5 we check 5 vs 6, 9, a (forward
-		// neighbors: right, down, down-right). when we later process cell 6
-		// its forward neighbors are 7, a, b; not 5. so (5, 6) must appear
+		// scenario: when processing cell 5 we check 5 vs 6, 9, a, 8 (forward
+		// neighbors: right, down, down-right, down-left). cell 6 checks
+		// 7, a, b, 9; not 5. so (5, 6) must appear
 		// exactly once.
 		for i := range 16 {
 			grid.InsertAt(vgeo.NewXY(float32(i%4*10), float32(i/4*10)), int32(i))
 		}
-		// 12 right + 12 down + 9 down-right = 33 total pairs.
-		assertUniquePairs(t, pairs(&grid), 33)
+		// 12 right + 12 down + 9 down-right + 9 down-left = 42 total pairs.
+		assertUniquePairs(t, pairs(&grid), 42)
 	})
 }
 
@@ -271,5 +268,32 @@ func TestGridResolvedPairsSkipCrossCellPairs(t *testing.T) {
 	})
 	if len(seen) != 1 {
 		t.Fatalf("calls = %v, want 1 same-cell pair only", seen)
+	}
+}
+
+// overlapping boxes on opposite sides of a cell corner must be candidates.
+func TestGridDiagonalOverlap(t *testing.T) {
+	for _, offset := range []float32{0, -10.5} {
+		grid := New(
+			vgeo.NewBox(offset, offset, offset+30, offset+30), 10, 2,
+		)
+		grid.InsertAt(vgeo.NewXY(offset+9, offset+10), 0)
+		grid.InsertAt(vgeo.NewXY(offset+10, offset+9), 1)
+		assertUniquePairs(t, pairs(&grid), 1)
+	}
+}
+
+func TestGridResolvedDiagonalPairIsSkipped(t *testing.T) {
+	grid := New(vgeo.NewBox[float32](0, 0, 30, 30), 10, 3)
+	grid.InsertAt(vgeo.NewXY[float32](10, 9), 0)
+	grid.InsertAt(vgeo.NewXY[float32](9, 10), 1)
+	grid.InsertAt(vgeo.NewXY[float32](9, 20), 2)
+	var seen [][2]int32
+	grid.ForEach(func(l, r int32) bool {
+		seen = append(seen, [2]int32{l, r})
+		return true
+	})
+	if len(seen) != 1 || seen[0] != [2]int32{0, 1} {
+		t.Fatalf("pairs = %v, want only resolved diagonal pair [0 1]", seen)
 	}
 }

@@ -17,8 +17,8 @@ type node struct {
 
 // stores int32 values by spatial cell and visits each same-or-neighbor-cell
 // pair exactly once. vals are the top-left corner of a box no larger than a
-// cell, so on read a box can only reach its own cell or the right, down, and
-// down-right neighbors. if the caller reports a pair resolved, both vals are
+// cell. overlapping boxes can originate in any of the eight neighboring
+// cells. if the caller reports a pair resolved, both vals are
 // dropped from all further pairs for the remainder of the pass.
 type Grid struct {
 	// first nodes index for each cell, or `noNode`.
@@ -49,7 +49,7 @@ func New(bounds vgeo.Box[float32], cellSize float32, nodeCap int) Grid {
 		cols:     cols,
 		rows:     rows,
 		stride:   stride,
-		// +1 row reserves down/down-right neighbors of the last row.
+		// +1 row reserves downward neighbors of the last row.
 		heads: make([]int32, stride*(rows+1)),
 		nodes: make([]node, 0, nodeCap),
 	}
@@ -91,6 +91,7 @@ func (this *Grid) ForEach(fn func(l, r int32) (resolved bool)) {
 			this.pairsAcross(cellIdx, cellIdx+1, fn)             // right.
 			this.pairsAcross(cellIdx, cellIdx+this.stride, fn)   // down.
 			this.pairsAcross(cellIdx, cellIdx+this.stride+1, fn) // down-right.
+			this.pairsAcross(cellIdx, cellIdx+this.stride-1, fn) // down-left.
 		}
 	}
 }
