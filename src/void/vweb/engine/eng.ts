@@ -316,7 +316,6 @@ export class Eng {
   }
 
   #onResize(entries: readonly Readonly<ResizeObserverEntry>[]): void {
-    console.log('onresize', new Date())
     for (const entry of entries) {
       const [size] = entry.devicePixelContentBoxSize
       if (!size) continue
