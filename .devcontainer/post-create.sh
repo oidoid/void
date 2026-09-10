@@ -44,7 +44,7 @@ sudo apt install \
 # `xvfb-run`. start as `xvfb-run npm start`.
 sudo apt install --no-install-recommends --yes xauth xvfb
 
-npm install
+make install
 
 npm install --global playwright @playwright/test
 npx playwright install --with-deps

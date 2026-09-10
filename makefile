@@ -1,7 +1,7 @@
 include config.make
 
 out_demo := dist/demo/index.wasm
-bundle_version = $(shell git describe --dirty)
+bundle_version = $(shell git describe --always --dirty)
 bundle_published = $(shell TZ=UTC git log -1 --format=%cd --date=format-local:%Y%m%d)
 bundle_id = $(bundle_version)+$(bundle_published)
 tinygo_nodebug := --no-debug
@@ -59,7 +59,7 @@ build-web: build-demo build-atlas
 clean:; rm --force --recursive dist/ src/demo/assets/atlas_bin.go src/demo/tags/tags.go
 
 dependencies:
-	for exe in go mono node shader_minifier.exe tinygo wasm-opt watchexec; do
+	for exe in aseprite cwebp go mono node shader_minifier.exe tinygo wasm-opt watchexec; do
 		command -v $$exe > /dev/null || { echo "no $$exe" >&2; false; }
 	done
 
