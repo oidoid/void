@@ -230,6 +230,36 @@
                 "object",
                 "tile"
             ]
+        },
+        {
+            "color": "#fff200",
+            "drawFill": true,
+            "id": 8,
+            "members": [
+                {
+                    "name": "Layer",
+                    "propertyType": "Layer",
+                    "type": "int",
+                    "value": 2
+                },
+                {
+                    "name": "Pal",
+                    "propertyType": "Pal",
+                    "type": "int",
+                    "value": 5
+                },
+                {
+                    "name": "Z",
+                    "propertyType": "Z",
+                    "type": "int",
+                    "value": 3
+                }
+            ],
+            "name": "Text",
+            "type": "class",
+            "useAs": [
+                "object"
+            ]
         }
     ]
 }

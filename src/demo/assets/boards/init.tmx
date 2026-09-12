@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="256" height="256" tilewidth="16" tileheight="16" infinite="0" nextlayerid="3" nextobjectid="17">
+<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="256" height="256" tilewidth="16" tileheight="16" infinite="0" nextlayerid="3" nextobjectid="18">
  <tileset firstgid="1" source="../boarddefs/tiles.tsx"/>
  <tileset firstgid="65" source="../boarddefs/entities.tsx"/>
  <layer id="1" name="Wall" width="256" height="256">
@@ -273,5 +273,13 @@
    </properties>
   </object>
   <object id="5" type="P1" gid="66" x="16" y="16" width="8" height="13"/>
+  <object id="17" type="Text" x="32" y="32" width="64" height="8">
+   <properties>
+    <property name="Layer" type="int" propertytype="Layer" value="2"/>
+    <property name="Pal" type="int" propertytype="Pal" value="5"/>
+    <property name="Z" type="int" propertytype="Z" value="3"/>
+   </properties>
+   <text pixelsize="6">void</text>
+  </object>
  </objectgroup>
 </map>

@@ -29,6 +29,7 @@ type {{$.Name}}{{$className}}Spawn struct {
 	vboards.Spawn
 	{{range $group.Props}}{{if .IsBool}}{{name .Name}} bool
 	{{else if .IsInt}}{{name .Name}} int32
+	{{else if .IsStr}}{{name .Name}} string
 	{{else if .IsXY}}{{name .Name}} vgeo.XY[float32]
 	{{end}}{{end}}}
 
@@ -37,6 +38,7 @@ var {{$.Name}}{{$className}}Spawns = [...]{{$.Name}}{{$className}}Spawn{
 		Spawn: {{template "spawn" $spawn}},
 		{{range $prop := $spawn.Props}}{{if $prop.IsBool}}{{if $prop.Bool}}{{name $prop.Name}}: true,
 		{{end}}{{else if $prop.IsInt}}{{if $prop.Int}}{{name $prop.Name}}: {{$prop.Int}},
+		{{end}}{{else if $prop.IsStr}}{{if $prop.Str}}{{name $prop.Name}}: {{printf "%q" $prop.Str}},
 		{{end}}{{else if $prop.IsXY}}{{if or $prop.XY.X $prop.XY.Y}}{{name $prop.Name}}: vgeo.NewXY[float32]({{$prop.XY.X}}, {{$prop.XY.Y}}),
 		{{end}}{{end}}{{end}}},
 	{{end}}}

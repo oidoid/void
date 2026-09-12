@@ -111,7 +111,7 @@ func TestParseSpawns(t *testing.T) {
 		"shape":         {tmxObject{ID: 1, Class: "item"}, true},
 		"props": {tmxObject{
 			ID: 1, Class: "item", Point: new(tmxPoint),
-			Props: []tsxProp{{Name: "vel"}},
+			Props: []tsxProp{{Name: "vel", Type: "color"}},
 		}, true},
 	}
 	for name, test := range cases {
@@ -136,6 +136,44 @@ func TestParseAppSpawnEnumProp(t *testing.T) {
 	want := []spawnPropSpec{{Name: "Mode", Type: spawnPropInt, Int: 2}}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("props = %#v, want %#v", got, want)
+	}
+}
+
+func TestParseAppSpawnStringProp(t *testing.T) {
+	got, err := parseSpawnProps(1, []tsxProp{
+		{Name: "Text", Type: "string", Value: "hello\nworld"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []spawnPropSpec{
+		{Name: "Text", Type: spawnPropStr, Str: "hello\nworld"},
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("props = %#v, want %#v", got, want)
+	}
+}
+
+func TestParseTextSpawn(t *testing.T) {
+	got, err := parseSpawns([]tmxObjectGroup{{Objs: []tmxObject{{
+		ID: 1, Class: "Text", X: 4, Y: 8, W: 32, H: 16,
+		Text: &tmxText{Val: "hello"},
+	}}}}, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []spawnGroupSpec{{
+		Class: "Text",
+		Props: []spawnPropSpec{{Name: "Text", Type: spawnPropStr}},
+		Spawns: []spawnSpec{{
+			Spawn: vboards.NewSpawn(4, 8, 32, 16, 0),
+			Props: []spawnPropSpec{{
+				Name: "Text", Type: spawnPropStr, Str: "hello",
+			}},
+		}},
+	}}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("spawns = %#v, want %#v", got, want)
 	}
 }
 

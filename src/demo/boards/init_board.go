@@ -45,3 +45,20 @@ var InitP1Spawns = [...]InitP1Spawn{
 		Clockwise: true,
 	},
 }
+
+type InitTextSpawn struct {
+	vboards.Spawn
+	Text string
+}
+
+var InitTextSpawns = [...]InitTextSpawn{
+	{
+		Spawn: vboards.Spawn{
+			XY:  vgeo.NewXY[float32](32, 32),
+			WH:  vgeo.NewWH[float32](64, 8),
+			Z:   35,
+			Pal: 5,
+		},
+		Text: "void",
+	},
+}

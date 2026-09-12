@@ -17,6 +17,23 @@ const (
 	fps                   = 120
 )
 
+func TestNewPopulatesTiledTexts(t *testing.T) {
+	gam := New()
+	if got, want := gam.Texts.Len(), 1; got != want {
+		t.Fatalf("text count = %d, want %d", got, want)
+	}
+	text := gam.Texts.Vals()[0]
+	if got, want := text.Text, "hello from Tiled"; got != want {
+		t.Errorf("text = %q, want %q", got, want)
+	}
+	if got, want := text.XY, vgeo.NewXY[int16](32, 32); got != want {
+		t.Errorf("XY = %v, want %v", got, want)
+	}
+	if text.Z != 35 || text.Pal != 5 {
+		t.Errorf("Z/Pal = %d/%d, want 35/5", text.Z, text.Pal)
+	}
+}
+
 func BenchmarkGameUpdate_Draw(b *testing.B) {
 	gam := newGame(-5000, -5000, superballDrawCount)
 	for b.Loop() {

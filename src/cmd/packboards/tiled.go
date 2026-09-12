@@ -60,12 +60,14 @@ type spawnPropSpec struct {
 	Name string
 	Type spawnPropType
 	Bool bool
+	Str  string
 	XY   vgeo.XY[float32]
 	Int  int32
 }
 
 func (this spawnPropSpec) IsBool() bool { return this.Type == spawnPropBool }
 func (this spawnPropSpec) IsInt() bool  { return this.Type == spawnPropInt }
+func (this spawnPropSpec) IsStr() bool  { return this.Type == spawnPropStr }
 func (this spawnPropSpec) IsXY() bool   { return this.Type == spawnPropXY }
 
 // identifies the Go representation emitted for an app-specific property.
@@ -74,6 +76,7 @@ type spawnPropType uint8
 const (
 	spawnPropBool spawnPropType = iota
 	spawnPropInt
+	spawnPropStr
 	spawnPropXY
 )
 
@@ -188,10 +191,14 @@ type tmxObject struct {
 	Rot     float32   `xml:"rotation,attr"`
 	Visible *bool     `xml:"visible,attr"`
 	Point   *tmxPoint `xml:"point"`
+	Text    *tmxText  `xml:"text"`
 	Props   []tsxProp `xml:"properties>property"`
 }
 
 type tmxPoint struct{}
+type tmxText struct {
+	Val string `xml:",chardata"`
+}
 
 func newTilesetIndex(
 	tilesets []tilesetmanifest.TilesetSpec,
@@ -331,6 +338,11 @@ func parseSpawns(
 			if err != nil {
 				return nil, err
 			}
+			if obj.Text != nil {
+				appProps = append(appProps, tsxProp{
+					Name: "Text", Type: "string", Value: obj.Text.Val,
+				})
+			}
 			props, err := parseSpawnProps(obj.ID, appProps)
 			if err != nil {
 				return nil, err
@@ -357,11 +369,23 @@ func parseSpawns(
 
 func validateSpawnShape(obj *tmxObject, tilesets []tmxTileset) error {
 	if obj.Point != nil {
-		if obj.GID != 0 {
-			return fmt.Errorf("object ID %d is both a point and tile", obj.ID)
+		if obj.GID != 0 || obj.Text != nil {
+			return fmt.Errorf("object ID %d has multiple shapes", obj.ID)
 		}
 		if obj.W != 0 || obj.H != 0 {
 			return fmt.Errorf("point object ID %d has nonzero size", obj.ID)
+		}
+		return nil
+	}
+	if obj.Text != nil {
+		if obj.GID != 0 {
+			return fmt.Errorf("object ID %d has multiple shapes", obj.ID)
+		}
+		if obj.W <= 0 || obj.H <= 0 {
+			return fmt.Errorf(
+				"text object ID %d has non-positive size (%g, %g)",
+				obj.ID, obj.W, obj.H,
+			)
 		}
 		return nil
 	}
@@ -542,6 +566,9 @@ func parseSpawnProps(id uint32, props []tsxProp) ([]spawnPropSpec, error) {
 			}
 			v.Type = spawnPropInt
 			v.Int = int32(intVal)
+		case prop.Type == "string" || prop.Type == "":
+			v.Type = spawnPropStr
+			v.Str = prop.Value
 		case prop.Type == "class" && prop.PropType == "XY":
 			xy, err := parseSpawnXY(id, &prop)
 			if err != nil {

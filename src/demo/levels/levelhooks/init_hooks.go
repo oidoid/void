@@ -22,6 +22,21 @@ func InitInit(gam *engine.Eng) {
 	gam.SetBoard(&boards.InitBoard)
 	gam.RegisterPreupdate(hooks.UpdateCam)
 	gam.RegisterPreupdate(hooks.UpdateLayers)
+	for _, spawn := range boards.InitTextSpawns {
+		if spawn.Hidden {
+			continue
+		}
+		text := ventities.TextEnt{
+			Text: spawn.Text,
+			XY: vgeo.NewXY(
+				int16(vmath.Floor(spawn.XY.X)),
+				int16(vmath.Floor(spawn.XY.Y)),
+			),
+			Z:   spawn.Z,
+			Pal: spawn.Pal,
+		}
+		gam.Texts.Add(text)
+	}
 	anim := gam.Atlas.Anims[int(tags.BackpackerWalkRight)]
 	for _, spawn := range boards.InitP1Spawns {
 		p1 := entities.NewP1Ent(spawn.XY, anim)
