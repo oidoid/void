@@ -14,7 +14,7 @@ never run:
 - `make slow-check` or any performance test. these cannot run consistently without superuser permissions.
 - never modify Git state in the current checkout unless explicitly requested. this includes changing the working tree, index, stash, branches, or references. eg, `git add`, `git rm`, `git stash`, `git restore`, `git reset`, `git checkout`, `git mv`, `git clean`, etc are all forbidden.
 
-## `src/void` and `src/demo`
+## `src/void` and `src/internal/demo`
 
 - minimize compile size. this is important.
 - optimize execution performance.
@@ -69,6 +69,7 @@ never run:
   - random: rnd
   - render box: clipbox
   - render: draw
+  - request: req
   - rotation: rot
   - seconds: sec
   - source(s): src(s)

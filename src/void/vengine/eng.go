@@ -18,32 +18,31 @@ import (
 )
 
 type Eng[Game vgame.Game] struct {
-	BoardData          *vboards.Board
-	Router             vgame.Router[Game]
-	Atlas              vatlas.Atlas
-	Texts              ventities.EntVec[Game, ventities.TextEnt]
-	Cursor             *ventities.CursorEnt
-	font               *vtext.Font
-	poll               vgame.Poll
-	in                 *vin.In
-	cam                vgeo.XY[float32] // to-do: cam always moves in physical space.
-	preupdaters        ventities.Zoo[Game]
-	updaters           ventities.Zoo[Game]
-	rnd                *rand.Rand
-	layers             [vgfx.LayerCount]vgfx.LayerConfig
-	layerConfigExport  [vgfx.LayerCount]vgfx.LayerConfigExport
-	fullscreenRequest  vgame.FullscreenRequest
-	screenshotRequest  bool
-	contextLossRequest bool
-	beeps              [16]vgame.Beep
-	beepCount          uint32
-	updateInMillis     uint64
-	drawAlways         bool
-	drawOnBlur         bool
-	disableFullscreen  bool
-	disableWakelock    bool
-	renderMode         vgfx.RenderMode
-	tick               vgame.Tick
+	BoardData         *vboards.Board
+	Router            vgame.Router[Game]
+	Atlas             vatlas.Atlas
+	Texts             ventities.EntVec[Game, ventities.TextEnt]
+	Cursor            *ventities.CursorEnt
+	font              *vtext.Font
+	poll              vgame.Poll
+	in                *vin.In
+	cam               vgeo.XY[float32] // to-do: cam always moves in physical space.
+	preupdaters       ventities.Zoo[Game]
+	updaters          ventities.Zoo[Game]
+	rnd               *rand.Rand
+	layers            [vgfx.LayerCount]vgfx.LayerConfig
+	layerConfigExport [vgfx.LayerCount]vgfx.LayerConfigExport
+	fullscreenReq     vgame.FullscreenReq
+	screenshotReq     bool
+	contextLossReq    bool
+	beeps             [16]vgame.Beep
+	beepCount         uint32
+	updateInMillis    uint64
+	drawAlways        bool
+	drawOnBlur        bool
+	disableWakelock   bool
+	renderMode        vgfx.RenderMode
+	tick              vgame.Tick
 }
 
 type EngOpts struct {
@@ -70,13 +69,12 @@ func New[Game vgame.Game](opts *EngOpts) *Eng[Game] {
 		opts.Seed2 = rand.Uint64()
 	}
 	this := &Eng[Game]{
-		font:              opts.Font,
-		BoardData:         opts.Board,
-		in:                vin.NewIn(),
-		rnd:               rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
-		fullscreenRequest: vgame.FullscreenRequestEnter,
-		renderMode:        opts.RenderMode,
-		drawOnBlur:        opts.DrawOnBlur,
+		font:       opts.Font,
+		BoardData:  opts.Board,
+		in:         vin.NewIn(),
+		rnd:        rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
+		renderMode: opts.RenderMode,
+		drawOnBlur: opts.DrawOnBlur,
 	}
 	for i := range this.layers {
 		this.layers[i] = vgfx.NewLayerConfig(opts.MaxSprs)
@@ -122,55 +120,49 @@ func (this *Eng[Game]) DeltaMs() float64   { return this.poll.DeltaMillis }
 func (this *Eng[Game]) DeltaSecs() float64 { return this.poll.DeltaSecs() }
 func (this *Eng[Game]) Tick() *vgame.Tick  { return &this.tick }
 
-func (this *Eng[Game]) RequestFullscreen(fullscreen bool) {
-	if fullscreen {
-		this.fullscreenRequest = vgame.FullscreenRequestEnter
-	} else {
-		this.fullscreenRequest = vgame.FullscreenRequestExit
-	}
+func (this *Eng[Game]) ReqFullscreen(req vgame.FullscreenReq) {
+	this.fullscreenReq = req
 }
 
-func (this *Eng[Game]) FullscreenRequest() int32 {
-	request := this.fullscreenRequest
-	this.fullscreenRequest = vgame.FullscreenRequestNone
-	return int32(request)
+func (this *Eng[Game]) FullscreenReq() int32 {
+	return int32(this.fullscreenReq)
 }
 
-func (this *Eng[Game]) RequestScreenshot() {
-	this.screenshotRequest = true
+func (this *Eng[Game]) ReqScreenshot() {
+	this.screenshotReq = true
 }
 
 // to-do: just a big flag API?
-func (this *Eng[Game]) ScreenshotRequest() int32 {
-	if !this.screenshotRequest {
+func (this *Eng[Game]) ScreenshotReq() int32 {
+	if !this.screenshotReq {
 		return 0
 	}
-	this.screenshotRequest = false
+	this.screenshotReq = false
 	return 1
 }
 
-func (this *Eng[Game]) RequestContextLoss() {
-	this.contextLossRequest = true
+func (this *Eng[Game]) ReqContextLoss() {
+	this.contextLossReq = true
 }
 
-// requests an update after millis. zero cancels the pending request. always
+// reqs an update after millis. zero cancels the pending req. always
 // cleared on next frame. to-do: is this right?
-func (this *Eng[Game]) RequestUpdateInMillis(millis uint64) {
+func (this *Eng[Game]) ReqUpdateInMillis(millis uint64) {
 	this.updateInMillis = millis
 }
 
 // returns and clears the pending update delay.
-func (this *Eng[Game]) UpdateInMillisRequest() uint64 {
+func (this *Eng[Game]) UpdateInMillisReq() uint64 {
 	millis := this.updateInMillis
 	this.updateInMillis = 0
 	return millis
 }
 
-func (this *Eng[Game]) ContextLossRequest() int32 {
-	if !this.contextLossRequest {
+func (this *Eng[Game]) ContextLossReq() int32 {
+	if !this.contextLossReq {
 		return 0
 	}
-	this.contextLossRequest = false
+	this.contextLossReq = false
 	return 1
 }
 
@@ -192,13 +184,10 @@ func (this *Eng[Game]) DrawOnBlurFlag() int32 {
 	return 0
 }
 
-func (this *Eng[Game]) FullscreenDisabled() bool {
-	return this.disableFullscreen
-}
-
-func (this *Eng[Game]) DisableFullscreen(disable bool) {
-	this.disableFullscreen = disable
-	this.RequestFullscreen(!disable)
+func (this *Eng[Game]) FullscreenEnabled() bool {
+	return this.fullscreenReq == vgame.FullscreenReqEnter ||
+		this.fullscreenReq == vgame.FullscreenReqPortrait ||
+		this.fullscreenReq == vgame.FullscreenReqLandscape
 }
 
 func (this *Eng[Game]) WakelockDisabled() bool { return this.disableWakelock }
@@ -207,12 +196,12 @@ func (this *Eng[Game]) DisableWakelock(disable bool) {
 	this.disableWakelock = disable
 }
 
-// reports whether the browser currently holds the requested wakelock.
+// reports whether the browser currently holds the desired wakelock.
 func (this *Eng[Game]) Wakelock() bool {
 	return this.poll.Wakelocked
 }
 
-func (this *Eng[Game]) RequestWakelockFlag() int32 {
+func (this *Eng[Game]) ReqWakelockFlag() int32 {
 	if !this.WakelockDisabled() {
 		return 1
 	}
@@ -330,11 +319,13 @@ func (this *Eng[Game]) BeginTick() vgame.Status {
 	)
 	this.tick.DrawCount = this.poll.DrawCount
 	this.drawAlways = this.poll.DrawAlways
-	if this.poll.RequestWakelock == vgame.WakelockRequestOff {
+	if this.poll.ReqWakelock == vgame.WakelockReqOff {
 		this.DisableWakelock(true)
 	}
-	if this.poll.RequestFullscreen == vgame.FullscreenRequestExit {
-		this.DisableFullscreen(true)
+	req := this.poll.FullscreenReq
+	this.poll.FullscreenReq = vgame.FullscreenReqNone
+	if req != vgame.FullscreenReqNone {
+		this.ReqFullscreen(req)
 	}
 	for i := range this.layers {
 		this.layers[i].Sprs = this.layers[i].Sprs[:0]

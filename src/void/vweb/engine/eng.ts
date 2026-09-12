@@ -10,6 +10,7 @@ import {
   setFullscreenParam,
   setWakelockParam
 } from './debug.ts'
+import type {AnyEvent} from './event.ts'
 import {Fullscreen} from './fullscreen.ts'
 import {
   canvasHOffset,
@@ -18,6 +19,7 @@ import {
   devicePixelRatioOffset,
   drawAlwaysOffset,
   drawCountOffset,
+  fullscreenReqOffset,
   isFullscreenOffset,
   type LayerBlendMode,
   type LayerCamMode,
@@ -49,8 +51,7 @@ import {
   localYearOffset,
   nowMsOffset,
   ptrlockedOffset,
-  requestFullscreenOffset,
-  requestWakelockOffset,
+  reqWakelockOffset,
   type Shader,
   shaderOverlay,
   shaderSprs,
@@ -61,7 +62,16 @@ import {
   wakelockedOffset
 } from './layout.ts'
 import {PixelRatioObserver} from './pixel-ratio-observer.ts'
-import {LoopLoop, type Platform, renderModePixel} from './platform.ts'
+import {
+  FullscreenReqEnter,
+  FullscreenReqExit,
+  FullscreenReqLandscape,
+  FullscreenReqNone,
+  FullscreenReqPortrait,
+  LoopLoop,
+  type Platform,
+  RenderModePixel
+} from './platform.ts'
 import {Wakelock} from './wakelock.ts'
 import {WASI} from './wasi.ts'
 
@@ -69,8 +79,10 @@ export class Eng {
   #canvas!: HTMLCanvasElement
   #clearColor: [number, number, number, number] = [0, 0, 0, 1]
   #drawCount: number = 0
+  // waits through pointer/key release so the activating press reaches Go UI.
+  #deferFullscreenReq: boolean = false
   #drawAlways: boolean = false
-  #requestWakelock: boolean = false
+  #reqWakelock: boolean = false
   #updateMs: number = 0
   #poll!: DataView
   #input!: In
@@ -111,7 +123,7 @@ export class Eng {
     this.#wasm = result.instance.exports as Platform
     wasi.link(this.#wasm.memory)
     this.#wasm._start()
-    const pixel = this.#wasm.RenderMode() === renderModePixel
+    const pixel = this.#wasm.RenderMode() === RenderModePixel
     canvas = initCanvas(canvas, pixel ? 'Pixel' : 'Float')
 
     this.#input = new In(canvas)
@@ -121,26 +133,26 @@ export class Eng {
       updateByteLen
     )
     this.#drawAlways = debug?.draw === 'always'
-    this.#requestWakelock = false
-    this.#wakelock.onChange = () => this.#requestUpdate()
-    this.#wakelock.enabled = this.#requestWakelock
+    this.#reqWakelock = false
+    this.#wakelock.enabled = this.#reqWakelock
 
     initMetaViewport(undefined) // to-do: pass description.
     initBody()
 
     this.#canvas = canvas
     this.#fullscreen = new Fullscreen(canvas.parentElement!, canvas)
-    this.#fullscreen.onChange = () => this.#requestUpdate('Force')
-    canvas.addEventListener('webglcontextlost', this.#onCtxLost)
-    canvas.addEventListener('webglcontextrestored', this.#onCtxRestored)
     this.#renderer = this.#newRenderer()
-    this.#pxRatioObserver.onChange = () => this.#requestUpdate('Force')
   }
 
   register(): void {
     if (this.#registered) return
     this.#input.onEvent = this.#onInput
+    this.#wakelock.onChange = () => this.#reqUpdate()
+    this.#pxRatioObserver.onChange = () => this.#reqUpdate('Force')
     this.#input.register('add')
+    this.#canvas.addEventListener('webglcontextlost', this.#onCtxLost)
+    this.#canvas.addEventListener('webglcontextrestored', this.#onCtxRestored)
+    document.addEventListener('fullscreenchange', this.#onFullscreenChange)
     addEventListener('visibilitychange', this.#onVisibility)
     addEventListener('blur', this.#onFocus)
     addEventListener('focus', this.#onFocus)
@@ -173,7 +185,7 @@ export class Eng {
       (!force && this.#paused())
     )
       return
-    this.#requestUpdate()
+    this.#reqUpdate()
     this.#resumeSFX()
     this.#renderer.resize(this.#phyW, this.#phyH)
     const nowMillis = performance.now()
@@ -182,13 +194,13 @@ export class Eng {
     const updateStart = performance.now()
     const loop = this.#wasm.Update()
     this.#playBeeps()
-    this.#applyFullscreenRequest()
+    if (!this.#deferFullscreenReq) this.#applyFullscreenReq()
     this.#applyDrawAlwaysParam()
     this.#applyWakelock()
     if (loop !== LoopLoop || this.#paused()) {
       this.#cancelFrame()
       this.#lastTime = 0
-      if (!this.#paused()) this.#requestDelayedUpdate()
+      if (!this.#paused()) this.#reqDelayedUpdate()
     }
     this.#updateMs = performance.now() - updateStart
     const buffer = this.#wasm.memory.buffer
@@ -231,7 +243,7 @@ export class Eng {
         this.#renderer.drawOverlay(config.blendMode)
       }
     }
-    this.#applyPostDrawRequests(this.#renderer)
+    this.#applyPostDrawReqs(this.#renderer)
   }
 
   #layerConfig(view: DataView, ptr: number, layer: number): LayerConfig {
@@ -283,7 +295,7 @@ export class Eng {
     void this.#sfx.ctx.resume().catch(() => {})
   }
 
-  #requestUpdate(force?: 'Force'): void {
+  #reqUpdate(force?: 'Force'): void {
     if (
       !this.#renderer ||
       this.#renderer.isContextLost() ||
@@ -306,12 +318,12 @@ export class Eng {
     this.#rafId = 0
   }
 
-  #requestDelayedUpdate(): void {
-    const millis = Number(this.#wasm.UpdateInMillisRequest())
+  #reqDelayedUpdate(): void {
+    const millis = Number(this.#wasm.UpdateInMillisReq())
     if (millis === 0) return
     this.#updateTimeoutId = setTimeout(() => {
       this.#updateTimeoutId = 0
-      this.#requestUpdate()
+      this.#reqUpdate()
     }, millis)
   }
 
@@ -323,7 +335,7 @@ export class Eng {
       this.#phyH = size.blockSize
     }
     // resizing needs one frame even when focus loss pauses the loop.
-    this.#requestUpdate('Force')
+    this.#reqUpdate('Force')
   }
 
   #onCtxLost = (ev: Event): void => {
@@ -340,7 +352,7 @@ export class Eng {
 
   #onCtxRestored = (): void => {
     this.#renderer = this.#newRenderer()
-    if (this.#registered) this.#requestUpdate('Force')
+    if (this.#registered) this.#reqUpdate('Force')
   }
 
   #newRenderer(): Renderer {
@@ -352,7 +364,7 @@ export class Eng {
       atlasCelsCount
     )
     const atlasImg = document.getElementById('atlas') as HTMLImageElement
-    const pixel = this.#wasm.RenderMode() === renderModePixel
+    const pixel = this.#wasm.RenderMode() === RenderModePixel
     return new Renderer(
       getWebGL2(this.#canvas, !pixel),
       this.#wasm.memory.buffer,
@@ -370,7 +382,7 @@ export class Eng {
   }
 
   #onVisibility = (): void => {
-    this.#wakelock.enabled = this.#requestWakelock
+    this.#wakelock.enabled = this.#reqWakelock
     this.#onFocus()
   }
 
@@ -380,29 +392,51 @@ export class Eng {
     clearTimeout(this.#updateTimeoutId)
     this.#updateTimeoutId = 0
     if (this.#paused()) this.#lastTime = 0
-    this.#requestUpdate()
+    this.#reqUpdate()
   }
 
-  #onInput = (): void => {
-    this.#fullscreen.onInput()
-    this.#requestUpdate()
+  #onFullscreenChange = (): void => {
+    setFullscreenParam(isFullscreen())
+    this.#reqUpdate('Force')
   }
 
-  #applyFullscreenRequest(): void {
-    const request = this.#wasm.FullscreenRequest()
-    if (request === 1) {
+  #onInput = (ev: AnyEvent): void => {
+    if (ev === 'input-pointerdown' || ev === 'input-keydown') {
+      this.#deferFullscreenReq = true
+      this.update('Force')
+      return
+    }
+    if (
+      ev === 'input-pointerup' ||
+      ev === 'input-pointercancel' ||
+      ev === 'input-keyup'
+    ) {
+      this.#deferFullscreenReq = false
+      this.update('Force')
+      return
+    }
+    this.#reqUpdate()
+  }
+
+  #applyFullscreenReq(): void {
+    const req = this.#wasm.FullscreenReq()
+    if (
+      req === FullscreenReqEnter ||
+      req === FullscreenReqPortrait ||
+      req === FullscreenReqLandscape
+    ) {
       if (debug?.window) setFullscreenParam(true)
-      this.#fullscreen.enabled = true
-    } else if (request === 2) {
+      void this.#fullscreen.enter(req)
+    } else if (req === FullscreenReqExit) {
       if (!debug?.window) setFullscreenParam(false)
-      this.#fullscreen.enabled = false
+      void this.#fullscreen.exit()
     }
   }
 
-  #applyPostDrawRequests(renderer: Renderer): void {
-    if (this.#wasm.ScreenshotRequest())
+  #applyPostDrawReqs(renderer: Renderer): void {
+    if (this.#wasm.ScreenshotReq())
       void downloadScreenshot(this.#canvas, 'void', Date.now())
-    if (this.#wasm.ContextLossRequest()) renderer.loseContext()
+    if (this.#wasm.ContextLossReq()) renderer.loseContext()
   }
 
   #applyDrawAlwaysParam(): void {
@@ -413,11 +447,11 @@ export class Eng {
   }
 
   #applyWakelock(): void {
-    const requestWakelock = this.#wasm.RequestWakelock() !== 0
-    if (requestWakelock === this.#requestWakelock) return
-    this.#requestWakelock = requestWakelock
-    setWakelockParam(requestWakelock)
-    this.#wakelock.enabled = requestWakelock
+    const reqWakelock = this.#wasm.ReqWakelock() !== 0
+    if (reqWakelock === this.#reqWakelock) return
+    this.#reqWakelock = reqWakelock
+    setWakelockParam(reqWakelock)
+    this.#wakelock.enabled = reqWakelock
   }
 
   #writeUpdate(renderer: Renderer, nowMillis: number): void {
@@ -433,10 +467,13 @@ export class Eng {
     this.#poll.setUint16(canvasHOffset, renderer.phyH, true)
     this.#poll.setUint8(isFullscreenOffset, isFullscreen() ? 1 : 0)
     this.#poll.setUint8(drawAlwaysOffset, this.#drawAlways ? 1 : 0)
-    this.#poll.setInt8(requestWakelockOffset, debug?.zzz ? -1 : 0)
+    this.#poll.setInt8(reqWakelockOffset, debug?.zzz ? -1 : 0)
     this.#poll.setUint8(wakelockedOffset, this.#wakelock.locked ? 1 : 0)
     this.#poll.setInt32(drawCountOffset, this.#drawCount, true)
-    this.#poll.setUint8(requestFullscreenOffset, debug?.window ? 2 : 0)
+    this.#poll.setUint8(
+      fullscreenReqOffset,
+      debug?.window ? FullscreenReqExit : FullscreenReqNone
+    )
     this.#poll.setUint8(
       ptrlockedOffset,
       document.pointerLockElement === this.#canvas ? 1 : 0

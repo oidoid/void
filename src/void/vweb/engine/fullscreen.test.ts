@@ -2,40 +2,21 @@ import {test} from 'node:test'
 import {assert} from '../test/assert.ts'
 import {FullscreenMock} from '../test/fullscreen-mock.ts'
 import {Fullscreen} from './fullscreen.ts'
+import {FullscreenReqEnter, FullscreenReqLandscape} from './platform.ts'
 
-// test('Fullscreen retries a rejected request from input', async () => {
-//   using mock = new FullscreenMock()
-//   mock.rejection = Error('requires user activation')
-//   const fullscreen = new Fullscreen(mock.target, mock.canvas)
-//   const changes: number[] = []
-//   let changed!: () => void
-//   const settled = new Promise<void>(resolve => (changed = resolve))
-//   fullscreen.onChange = () => {
-//     changes.push(mock.requests)
-//     changed()
-//   }
-//   fullscreen.enabled = true
-//   await Promise.resolve()
-//   await Promise.resolve()
-//   assert.equal(mock.requests, 1)
-//   mock.rejection = undefined
-//   fullscreen.onInput()
-//   await Promise.resolve()
-//   await settled
-//   assert.equal(mock.requests, 2)
-//   assert.equal(mock.ptrlocks, 1)
-//   assert(changes, [2])
-// })
-
-test('Fullscreen exits when disabled', async () => {
+test('Fullscreen enters without locking orientation', async () => {
   using mock = new FullscreenMock()
   const fullscreen = new Fullscreen(mock.target, mock.canvas)
-  let changed!: () => void
-  const entered = new Promise<void>(resolve => (changed = resolve))
-  fullscreen.onChange = changed
-  fullscreen.enabled = true
-  await entered
-  fullscreen.enabled = false
-  await Promise.resolve()
+  await fullscreen.enter(FullscreenReqEnter)
+  assert(mock.orientationLocks, [])
+})
+
+test('Fullscreen enters and exits', async () => {
+  using mock = new FullscreenMock()
+  const fullscreen = new Fullscreen(mock.target, mock.canvas)
+  await fullscreen.enter(FullscreenReqLandscape)
+  assert(mock.orientationLocks, ['landscape'])
+  await fullscreen.exit()
   assert.equal(mock.exits, 1)
+  assert.equal(mock.orientationUnlocks, 1)
 })

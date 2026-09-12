@@ -39,7 +39,7 @@ type assetData struct {
 
 // unpacked AseFile representation.
 type asset struct {
-	// source filename; e.g. `src/demo/assets/atlas/color.aseprite`.
+	// source filename; e.g. `src/internal/demo/assets/atlas/color.aseprite`.
 	name             string
 	W, H             uint16
 	ColorDepth       vatlas.AseColorDepth

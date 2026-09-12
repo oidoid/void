@@ -39,16 +39,16 @@ export const canvasHOffset: number = canvasWOffset + 2
 export const isFullscreenOffset: number = canvasHOffset + 2
 /** byte offset of DrawAlways field within Update. */
 export const drawAlwaysOffset: number = isFullscreenOffset + 1
-/** byte offset of URL wakelock request within Update. */
-export const requestWakelockOffset: number = drawAlwaysOffset + 1
+/** byte offset of URL wakelock req within Update. */
+export const reqWakelockOffset: number = drawAlwaysOffset + 1
 /** byte offset of browser-confirmed wakelocked field within Update. */
-export const wakelockedOffset: number = requestWakelockOffset + 1
+export const wakelockedOffset: number = reqWakelockOffset + 1
 /** byte offset of DrawCount field (number of renderer clears completed). */
 export const drawCountOffset: number = isFullscreenOffset + 4
-/** byte offset of URL fullscreen request within Update. */
-export const requestFullscreenOffset: number = drawCountOffset + 4
+/** byte offset of URL fullscreen req within Update. */
+export const fullscreenReqOffset: number = drawCountOffset + 4
 /** byte offset of browser-confirmed ptrlock within Update. */
-export const ptrlockedOffset: number = requestFullscreenOffset + 1
+export const ptrlockedOffset: number = fullscreenReqOffset + 1
 /** byte offset of UpdateMs field (duration of the previous Go update call, milliseconds). */
 export const updateMsOffset: number = drawCountOffset + 8
 /** byte offset of DevicePixelRatio field within Update. */

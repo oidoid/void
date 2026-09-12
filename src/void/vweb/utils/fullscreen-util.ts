@@ -18,7 +18,7 @@ export async function exitFullscreen(): Promise<boolean> {
   return true
 }
 
-export async function requestFullscreen(el: Element): Promise<boolean> {
+export async function reqFullscreen(el: Element): Promise<boolean> {
   if (!document.fullscreenEnabled) return false
 
   if (document.fullscreenElement !== el)

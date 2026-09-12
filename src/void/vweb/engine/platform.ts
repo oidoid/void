@@ -7,15 +7,15 @@ export type Platform = {
   PollPtr(): number
   BeepPtr(): number
   BeepCount(): number
-  // consumes a pending fullscreen request: 0 none, 1 enter, 2 exit.
-  FullscreenRequest(): number
-  ScreenshotRequest(): number
-  ContextLossRequest(): number
+  // consumes a pending fullscreen req.
+  FullscreenReq(): number
+  ScreenshotReq(): number
+  ContextLossReq(): number
   DrawAlways(): number
   DrawOnBlur(): number
-  RequestWakelock(): number
+  ReqWakelock(): number
   RenderMode(): number
-  UpdateInMillisRequest(): bigint
+  UpdateInMillisReq(): bigint
   LayerConfigsPtr(): number
   Update(): Loop
   // byte offset into `memory` of the first tile.
@@ -39,5 +39,10 @@ export type Loop = typeof LoopPause | typeof LoopLoop
 export const LoopPause = 0 as const
 export const LoopLoop = 1 as const
 
-export const renderModeFloat = 0 as const
-export const renderModePixel = 1 as const
+export const RenderModeFloat = 0 as const
+export const RenderModePixel = 1 as const
+export const FullscreenReqNone = 0 as const
+export const FullscreenReqExit = 1 as const
+export const FullscreenReqEnter = 2 as const
+export const FullscreenReqPortrait = 3 as const
+export const FullscreenReqLandscape = 4 as const

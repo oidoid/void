@@ -14,11 +14,10 @@ type Game interface {
 	DrawAlways() bool
 	DrawOnBlur() bool
 	SetDrawOnBlur(bool)
-	RequestContextLoss()
-	RequestFullscreen(bool)
-	RequestScreenshot()
+	ReqContextLoss()
+	ReqFullscreen(FullscreenReq)
+	ReqScreenshot()
 	SetDrawAlways(bool)
-	DisableFullscreen(bool)
 	DisableWakelock(bool)
 	CanvasPhy() *vgeo.WH[uint16]
 	CursorPhy() *vgeo.Box[float32]
@@ -26,7 +25,7 @@ type Game interface {
 	DeltaSecs() float64
 	Font() *vtext.Font
 	Fullscreen() bool
-	FullscreenDisabled() bool
+	FullscreenEnabled() bool
 	Wakelock() bool
 	WakelockDisabled() bool
 	In() *vin.In
@@ -39,6 +38,6 @@ type Game interface {
 	CamY() float32
 	Ptrlock() bool
 	Random() float32
-	RequestUpdateInMillis(uint64)
+	ReqUpdateInMillis(uint64)
 	UtcMillis() uint64
 }

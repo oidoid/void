@@ -315,14 +315,14 @@ func TestReadAsepriteErrorNamesFile(t *testing.T) {
 }
 
 func TestReadAsepriteFontPaletteData(t *testing.T) {
-	font, err := readAsset("../../demo/assets/atlas/mem-prop-5x6.aseprite")
+	font, err := readAsset("../../internal/demo/assets/atlas/mem-prop-5x6.aseprite")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if font.Data == nil || font.Data.Pal != "Text" {
 		t.Fatalf("asset data = %#v, want pal Text", font.Data)
 	}
-	pal, err := readAsset("../../demo/assets/atlas/pal.aseprite")
+	pal, err := readAsset("../../internal/demo/assets/atlas/pal.aseprite")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -355,7 +355,7 @@ func TestReadAsepriteFontPaletteData(t *testing.T) {
 }
 
 func TestReadAsepriteNativeTiles(t *testing.T) {
-	file, err := readAsset("../../demo/assets/atlas/tile.aseprite")
+	file, err := readAsset("../../internal/demo/assets/atlas/tile.aseprite")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -469,7 +469,7 @@ func TestNewTilesetManifestRejectsLargeTile(t *testing.T) {
 }
 
 func TestReadAsepriteSprData(t *testing.T) {
-	file, err := readAsset("../../demo/assets/atlas/widget.aseprite")
+	file, err := readAsset("../../internal/demo/assets/atlas/widget.aseprite")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -485,7 +485,7 @@ func TestReadAsepriteSprData(t *testing.T) {
 }
 
 func TestReadAsepritePalettes(t *testing.T) {
-	file, err := readAsset("../../demo/assets/atlas/pal.aseprite")
+	file, err := readAsset("../../internal/demo/assets/atlas/pal.aseprite")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -508,7 +508,7 @@ func TestReadAsepritePalettes(t *testing.T) {
 }
 
 func TestParseAtlasSuperballHitbox(t *testing.T) {
-	file, err := readAsset("../../demo/assets/atlas/superball.aseprite")
+	file, err := readAsset("../../internal/demo/assets/atlas/superball.aseprite")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -3,8 +3,8 @@
   "files": {
     "includes": [
       "!!dist",
-      "!!src/demo/assets/boards/**/*.tsx",
-      "!!src/demo/assets/boarddefs/**/*.tsx"
+      "!!src/internal/demo/assets/boards/**/*.tsx",
+      "!!src/internal/demo/assets/boarddefs/**/*.tsx"
     ]
   }
 }

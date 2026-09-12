@@ -3,7 +3,7 @@ export type WakelockSentinelMock = EventTarget & {
 }
 
 export class WakelockMock {
-  requests: number = 0
+  reqs: number = 0
   releases: number = 0
   rejection?: Error
   sentinel?: WakelockSentinelMock
@@ -14,7 +14,7 @@ export class WakelockMock {
     globalThis.document = {visibilityState: 'visible'} as Document
     ;(navigator as {wakeLock: WakeLock}).wakeLock = {
       request: async (): Promise<WakeLockSentinel> => {
-        this.requests++
+        this.reqs++
         if (this.rejection) throw this.rejection
         const sentinel = Object.assign(new EventTarget(), {
           release: async (): Promise<void> => {

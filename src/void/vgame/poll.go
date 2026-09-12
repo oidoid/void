@@ -18,33 +18,26 @@ type Poll struct {
 	Fullscreen bool
 	DrawAlways bool
 	// URL override: none defers to the engine; off represents `debug=zzz`.
-	RequestWakelock WakelockRequest
-	Wakelocked      bool
+	ReqWakelock WakelockReq
+	Wakelocked  bool
 
 	// number of renderer clears completed.
-	DrawCount         int32
-	RequestFullscreen FullscreenRequest
-	Ptrlocked         bool
-	_                 [2]byte
+	DrawCount int32
+	// one-time URL override.
+	FullscreenReq FullscreenReq
+	Ptrlocked     bool
+	_             [2]byte
 	// duration of the previous Go update call in milliseconds.
 	UpdateMillis     float64
 	DevicePixelRatio float64
 	TimeFormat       TimeFormat
 }
 
-type WakelockRequest int8
+type WakelockReq int8
 
 const (
-	WakelockRequestNone WakelockRequest = iota
-	WakelockRequestOff  WakelockRequest = -1
-)
-
-type FullscreenRequest uint8
-
-const (
-	FullscreenRequestNone FullscreenRequest = iota
-	FullscreenRequestEnter
-	FullscreenRequestExit
+	WakelockReqNone WakelockReq = iota
+	WakelockReqOff  WakelockReq = -1
 )
 
 // reports the time since the last requested frame in sec.

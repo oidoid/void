@@ -1,12 +1,18 @@
 import {
   exitFullscreen,
   isFullscreen,
-  requestFullscreen
+  reqFullscreen
 } from '../utils/fullscreen-util.ts'
 
+const orientationLocks: readonly (OrientationLockType | undefined)[] = [
+  undefined, // FullscreenReqNone.
+  undefined, // FullscreenReqExit.
+  undefined, // FullscreenReqEnter: fullscreen without an orientation lock.
+  'portrait', // FullscreenReqPortrait.
+  'landscape' // FullscreenReqLandscape.
+]
+
 export class Fullscreen {
-  onChange: (() => void) | undefined
-  #enabled: boolean = false
   #changing: boolean = false
   readonly #target: Element
   // readonly #ptrlock: Element
@@ -16,26 +22,36 @@ export class Fullscreen {
     // this.#ptrlock = ptrlock
   }
 
-  set enabled(enabled: boolean) {
-    this.#enabled = enabled
-    void this.#update()
+  enter(orientation: number): Promise<void> {
+    return this.#enter(orientation)
   }
 
-  onInput(): void {
-    void this.#update()
+  exit(): Promise<void> {
+    return this.#exit()
   }
 
-  async #update(): Promise<void> {
-    if (this.#changing || this.#enabled === isFullscreen()) return
+  async #enter(orientation: number): Promise<void> {
+    if (this.#changing || isFullscreen()) return
     this.#changing = true
-    const enabled = this.#enabled
-    const changed = enabled
-      ? await requestFullscreen(this.#target)
-      : await exitFullscreen()
+    const changed = await reqFullscreen(this.#target)
     // to-do: ptr lock.
-    // if (changed && enabled) await requestPtrlock(this.#ptrlock)
+    // if (changed) await reqPtrlock(this.#ptrlock)
+    const lock = orientationLocks[orientation]
+    if (changed && lock)
+      try {
+        await screen.orientation.lock(lock)
+      } catch {}
     this.#changing = false
-    if (changed) this.onChange?.()
-    if (enabled !== this.#enabled) void this.#update()
+  }
+
+  async #exit(): Promise<void> {
+    if (this.#changing || !isFullscreen()) return
+    this.#changing = true
+    const changed = await exitFullscreen()
+    if (changed)
+      try {
+        screen.orientation.unlock()
+      } catch {}
+    this.#changing = false
   }
 }

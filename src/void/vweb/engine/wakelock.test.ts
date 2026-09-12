@@ -12,7 +12,7 @@ test('Wakelock reports acquisition, release, and reacquisition', async () => {
   await Promise.resolve()
   assert.equal(wakelock.locked, true)
   mock.sentinel?.dispatchEvent(new Event('release'))
-  assert.equal(mock.requests, 2)
+  assert.equal(mock.reqs, 2)
   await Promise.resolve()
   assert.equal(wakelock.locked, true)
   assert(locked, [true, false, true])
@@ -24,11 +24,11 @@ test('Wakelock stays unlocked when the browser rejects it', async () => {
   const wakelock = new Wakelock()
   wakelock.enabled = true
   await Promise.resolve()
-  assert.equal(mock.requests, 1)
+  assert.equal(mock.reqs, 1)
   assert.equal(wakelock.locked, false)
   wakelock.enabled = true
   await Promise.resolve()
-  assert.equal(mock.requests, 2)
+  assert.equal(mock.reqs, 2)
 })
 
 test('Wakelock releases before onChange can reacquire', async () => {
@@ -43,6 +43,6 @@ test('Wakelock releases before onChange can reacquire', async () => {
   }
   wakelock.enabled = false
   await Promise.resolve()
-  assert.equal(mock.requests, 2)
+  assert.equal(mock.reqs, 2)
   assert.equal(wakelock.locked, true)
 })

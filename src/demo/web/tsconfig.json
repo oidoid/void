@@ -1,7 +1,0 @@
-{
-  "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "lib": ["DOM", "ES2023", "ESNext.Disposable"]
-  },
-  "references": [{"path": "../../void/vweb"}]
-}

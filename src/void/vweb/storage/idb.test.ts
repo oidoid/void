@@ -52,7 +52,7 @@ class IDBFactoryMock {
       this.#databases[name] = db
     }
 
-    const req = new IDBOpenDBRequestMock(db!)
+    const req = new IDBOpenDBReqMock(db!)
     queueMicrotask(() => {
       if (isNew)
         req.onupgradeneeded?.(
@@ -64,7 +64,7 @@ class IDBFactoryMock {
   }
 }
 
-class IDBOpenDBRequestMock {
+class IDBOpenDBReqMock {
   readonly result: IDBDatabaseMock
   onsuccess: ((ev: Event) => void) | undefined
   onerror: ((ev: Event) => void) | undefined
@@ -116,9 +116,9 @@ class IDBObjectStoreMock {
     queueMicrotask(() => this.#tx.oncomplete?.(new Event('complete')))
   }
 
-  get(k: IDBValidKey): IDBRequestMock {
+  get(k: IDBValidKey): IDBReqMock {
     const result = this.#store.get(k)
-    const req = new IDBRequestMock(result)
+    const req = new IDBReqMock(result)
     queueMicrotask(() => req.onsuccess?.(new Event('success')))
     return req
   }
@@ -129,7 +129,7 @@ class IDBObjectStoreMock {
   }
 }
 
-class IDBRequestMock {
+class IDBReqMock {
   onsuccess: ((ev: Event) => void) | undefined
   onerror: ((ev: Event) => void) | undefined
   result: unknown

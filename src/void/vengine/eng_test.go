@@ -10,29 +10,60 @@ type engineTestGame struct {
 	*Eng[*engineTestGame]
 }
 
+func TestFullscreenReq(t *testing.T) {
+	engine := New[*engineTestGame](nil)
+	engine.ReqFullscreen(vgame.FullscreenReqEnter)
+	want := int32(vgame.FullscreenReqEnter)
+	if got := engine.FullscreenReq(); got != want {
+		t.Errorf("FullscreenReq() = %v, want %v", got, want)
+	}
+
+	engine.ReqFullscreen(vgame.FullscreenReqLandscape)
+	want = int32(vgame.FullscreenReqLandscape)
+	if got := engine.FullscreenReq(); got != want {
+		t.Errorf("FullscreenReq() = %v, want %v", got, want)
+	}
+
+	engine.ReqFullscreen(vgame.FullscreenReqPortrait)
+	want = int32(vgame.FullscreenReqPortrait)
+	if got := engine.FullscreenReq(); got != want {
+		t.Errorf("FullscreenReq() = %v, want %v", got, want)
+	}
+
+	engine.Poll().Fullscreen = true
+	engine.ReqFullscreen(vgame.FullscreenReqExit)
+	if got := engine.FullscreenReq(); got != int32(vgame.FullscreenReqExit) {
+		t.Errorf("FullscreenReq() = %v, want exit", got)
+	}
+}
+
 func (*engineTestGame) Update() vgame.Status { return vgame.Pause }
 
-// starts fullscreen and wakelock enabled until an app disables either.
-func TestFullscreenAndWakelockDefaultOn(t *testing.T) {
-	var engine Eng[*engineTestGame]
-	if engine.FullscreenDisabled() {
-		t.Error("FullscreenDisabled() = true, want false")
+// starts windowed and accepts an explicit override.
+func TestFullscreenPlatformDefault(t *testing.T) {
+	engine := New[*engineTestGame](nil)
+	if engine.FullscreenEnabled() {
+		t.Error("FullscreenEnabled() = true, want false")
 	}
-	if engine.WakelockDisabled() {
-		t.Error("WakelockDisabled() = true, want false")
+	engine.BeginTick()
+	if got := engine.FullscreenReq(); got != int32(vgame.FullscreenReqNone) {
+		t.Errorf("FullscreenReq() = %v, want none", got)
 	}
-	engine.DisableFullscreen(true)
-	if !engine.FullscreenDisabled() {
-		t.Error("FullscreenDisabled() = false, want true")
+
+	engine.Poll().FullscreenReq = vgame.FullscreenReqLandscape
+	engine.BeginTick()
+	if !engine.FullscreenEnabled() {
+		t.Error("FullscreenEnabled() = false, want true")
 	}
-	if got := engine.FullscreenRequest(); got != int32(vgame.FullscreenRequestExit) {
-		t.Errorf("FullscreenRequest() = %v, want exit", got)
+	if got := engine.FullscreenReq(); got != int32(vgame.FullscreenReqLandscape) {
+		t.Errorf("FullscreenReq() = %v, want landscape", got)
 	}
-	engine.DisableWakelock(true)
-	if !engine.WakelockDisabled() {
-		t.Error("WakelockDisabled() = false, want true")
+
+	engine.ReqFullscreen(vgame.FullscreenReqExit)
+	if engine.FullscreenEnabled() {
+		t.Error("FullscreenEnabled() = true, want false")
 	}
-	if got := engine.RequestWakelockFlag(); got != 0 {
-		t.Errorf("RequestWakelockFlag() = %v, want 0", got)
+	if got := engine.FullscreenReq(); got != int32(vgame.FullscreenReqExit) {
+		t.Errorf("FullscreenReq() = %v, want exit", got)
 	}
 }

@@ -1,7 +1,7 @@
 {
   "files": [],
   "references": [
-    {"path": "./src/demo/web/"},
+    {"path": "./src/internal/demo/web/"},
     {"path": "./src/void/vweb/"},
     {"path": "./src/tsconfig.test.json"}
   ]

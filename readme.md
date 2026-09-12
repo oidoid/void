@@ -19,7 +19,7 @@ see the [agent file](AGENTS.md).
 
 - `src/void/`: game engine.
 - `src/cmd/`: command line utils for building void apps.
-- `src/demo/`: engine demonstration.
+- `src/internal/demo/`: engine demonstration.
 
 ### Levels and Boards
 

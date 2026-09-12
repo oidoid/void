@@ -1,7 +1,9 @@
 export class FullscreenMock {
-  requests: number = 0
+  reqs: number = 0
   ptrlocks: number = 0
   exits: number = 0
+  orientationLocks: OrientationLockType[] = []
+  orientationUnlocks: number = 0
   rejection: Error | undefined
   readonly target: Element
   readonly canvas: Element
@@ -23,7 +25,7 @@ export class FullscreenMock {
     }
     this.target = {
       requestFullscreen: async (): Promise<void> => {
-        this.requests++
+        this.reqs++
         if (this.rejection) throw this.rejection
         document.fullscreenElement = this.target
       }
@@ -37,7 +39,16 @@ export class FullscreenMock {
     globalThis.document = document as Document
     globalThis.innerWidth = 0
     globalThis.innerHeight = 0
-    globalThis.screen = {width: 1, height: 1} as Screen
+    globalThis.screen = {
+      width: 1,
+      height: 1,
+      orientation: {
+        lock: async orientation => void this.orientationLocks.push(orientation),
+        unlock: () => {
+          this.orientationUnlocks++
+        }
+      }
+    } as Screen
     globalThis.matchMedia = () => ({matches: false}) as MediaQueryList
   }
 
