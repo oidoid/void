@@ -6,6 +6,7 @@ import (
 	"github.com/oidoid/void/src/internal/demo/engine"
 	"github.com/oidoid/void/src/internal/demo/entities"
 	"github.com/oidoid/void/src/internal/demo/gfx"
+	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 )
@@ -16,6 +17,13 @@ const (
 	benchCanvasSize       = 4096
 	fps                   = 120
 )
+
+func TestNewReqsFullscreen(t *testing.T) {
+	gam := New()
+	if got := gam.FullscreenReq(); got != int32(vgame.FullscreenReqEnter) {
+		t.Errorf("FullscreenReq() = %v, want enter", got)
+	}
+}
 
 func TestNewPopulatesTiledTexts(t *testing.T) {
 	gam := New()

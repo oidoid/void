@@ -61,7 +61,6 @@ func New() *Eng {
 		}),
 		LastBoingMs: -math.MaxFloat64,
 	}
-	this.ReqFullscreen(vgame.FullscreenReqEnter)
 	this.Layer(gfx.LayerTiles).Shader = vgfx.ShaderTiles
 	this.Layer(gfx.LayerTiles).ScaleMode = vgfx.LayerScaleModeManual
 	this.Layer(gfx.LayerP1).ScaleMode = vgfx.LayerScaleModeManual
