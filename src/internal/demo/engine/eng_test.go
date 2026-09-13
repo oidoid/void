@@ -27,21 +27,21 @@ func TestFullscreenURLDisable(t *testing.T) {
 	}
 }
 
-// controls the persistent windowed setting directly.
+// requests windowed mode from the default fullscreen setting.
 func TestFullscreenToggle(t *testing.T) {
 	gam := New()
 	toggle := entities.NewFullscreenToggle(gam)
 	toggle.OnUpdate(toggle)
-	if !toggle.On {
-		t.Error("toggle.On = false, want true")
+	if toggle.On {
+		t.Error("toggle.On = true, want false")
 	}
-	toggle.On = false
+	toggle.On = true
 	toggle.OnClick(toggle)
-	if !gam.FullscreenEnabled() {
-		t.Error("FullscreenEnabled() = false, want true")
+	if gam.FullscreenEnabled() {
+		t.Error("FullscreenEnabled() = true, want false")
 	}
-	if got := gam.FullscreenReq(); got != int32(vgame.FullscreenReqEnter) {
-		t.Errorf("FullscreenReq() = %v, want enter", got)
+	if got := gam.FullscreenReq(); got != int32(vgame.FullscreenReqExit) {
+		t.Errorf("FullscreenReq() = %v, want exit", got)
 	}
 }
 
@@ -168,15 +168,15 @@ func TestAdjustLvlScaleAt(t *testing.T) {
 	}
 }
 
-// starts windowed by default.
+// starts fullscreen by default.
 func TestDefaults(t *testing.T) {
 	gam := New()
 	gam.Router.Update = func(*Eng) vgame.Status { return vgame.Pause }
 	gam.Update()
-	if gam.FullscreenEnabled() {
-		t.Error("FullscreenEnabled() = true, want false")
+	if !gam.FullscreenEnabled() {
+		t.Error("FullscreenEnabled() = false, want true")
 	}
-	if got := gam.FullscreenReq(); got != int32(vgame.FullscreenReqNone) {
-		t.Errorf("FullscreenReq() = %v, want none", got)
+	if got := gam.FullscreenReq(); got != int32(vgame.FullscreenReqEnter) {
+		t.Errorf("FullscreenReq() = %v, want enter", got)
 	}
 }

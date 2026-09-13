@@ -16,6 +16,7 @@ import (
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vgrid"
+	"github.com/oidoid/void/src/void/vhooks"
 	"github.com/oidoid/void/src/void/vmath"
 	"github.com/oidoid/void/src/void/vtext"
 )
@@ -80,6 +81,10 @@ func New() *Eng {
 	this.Layer(gfx.LayerGrid).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerGrid).BlendMode = vgfx.LayerBlendModeMultiply
 	this.Atlas = vatlas.DecodeAtlas(assets.AtlasBin)
+	this.ReqFullscreen(vgame.FullscreenReqEnter)
+	this.In().MapDefaults()
+	this.Texts = *ventities.NewEntVec(vhooks.UpdateTexts[*Eng])
+	this.RegisterUpdate(&this.Texts)
 	return this
 }
 
