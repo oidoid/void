@@ -78,7 +78,7 @@ func InitInit(gam *engine.Eng) {
 	cursors.Add(cursor)
 	gam.RegisterUpdate(cursors)
 
-	buttons := ventities.NewEntVec(vhooks.UpdateButtons[*engine.Eng], 7)
+	buttons := ventities.NewEntVec(vhooks.UpdateButtons[*engine.Eng], 6)
 	gam.RegisterUpdate(buttons)
 
 	drawBtn := entities.NewDrawToggleButton(gam)
@@ -95,11 +95,8 @@ func InitInit(gam *engine.Eng) {
 	fullscreenToggle := entities.NewFullscreenToggle(gam)
 	fullscreenToggle.Anchor.Ref = screenshotBtn
 	buttons.Add(fullscreenToggle)
-	wakelockToggle := entities.NewWakelockToggle(gam)
-	wakelockToggle.Anchor.Ref = fullscreenToggle
-	buttons.Add(wakelockToggle)
 	cursorKeyToggle := entities.NewCursorKeyToggle(cursor)
-	cursorKeyToggle.Anchor.Ref = wakelockToggle
+	cursorKeyToggle.Anchor.Ref = fullscreenToggle
 	buttons.Add(cursorKeyToggle)
 	// to-do: collapse with buttons^?
 	superballButtons := ventities.NewEntVec(hooks.UpdateSuperballButtons, 5)

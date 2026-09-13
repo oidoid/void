@@ -1,6 +1,4 @@
 export class Wakelock {
-  onChange: (() => void) | undefined
-  #enabled: boolean = false
   #locking: boolean = false
   #sentinel?: WakeLockSentinel
 
@@ -8,9 +6,13 @@ export class Wakelock {
     return this.#sentinel != null
   }
 
-  set enabled(enabled: boolean) {
-    this.#enabled = enabled
-    this.#update()
+  update(): void {
+    if (document.visibilityState !== 'visible') {
+      this.#unlock()
+      return
+    }
+    if (this.locked || this.#locking || !navigator.wakeLock) return
+    void this.#lock(navigator.wakeLock)
   }
 
   async #lock(api: WakeLock): Promise<void> {
@@ -23,17 +25,15 @@ export class Wakelock {
       return
     }
     this.#locking = false
-    if (!this.#enabled || document.visibilityState !== 'visible') {
+    if (document.visibilityState !== 'visible') {
       await this.#releaseSentinel(sentinel)
       return
     }
     this.#sentinel = sentinel
-    this.onChange?.()
     sentinel.addEventListener('release', () => {
       if (this.#sentinel !== sentinel) return
       this.#sentinel = undefined
-      this.onChange?.()
-      this.#update()
+      this.update()
     })
   }
 
@@ -41,19 +41,6 @@ export class Wakelock {
     const sentinel = this.#sentinel
     this.#sentinel = undefined
     if (sentinel) void this.#releaseSentinel(sentinel)
-    if (sentinel) this.onChange?.()
-  }
-
-  #update(): void {
-    const lock = this.#enabled && document.visibilityState === 'visible'
-    if (this.locked === lock) return
-    if (!lock) {
-      this.#unlock()
-      return
-    }
-    if (this.#locking) return
-    if (!navigator.wakeLock) return
-    void this.#lock(navigator.wakeLock)
   }
 
   async #releaseSentinel(sentinel: WakeLockSentinel): Promise<void> {

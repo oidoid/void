@@ -4,12 +4,7 @@ import {beep, SFX} from '../sfx/sfx.ts'
 import {downloadScreenshot, initCanvas} from '../utils/canvas-util.ts'
 import {initBody, initMetaViewport} from '../utils/dom-util.ts'
 import {isFullscreen} from '../utils/fullscreen-util.ts'
-import {
-  debug,
-  setDrawAlwaysParam,
-  setFullscreenParam,
-  setWakelockParam
-} from './debug.ts'
+import {debug} from './debug.ts'
 import type {AnyEvent} from './event.ts'
 import {Fullscreen} from './fullscreen.ts'
 import {
@@ -51,15 +46,13 @@ import {
   localYearOffset,
   nowMsOffset,
   ptrlockedOffset,
-  reqWakelockOffset,
   type Shader,
   shaderOverlay,
   shaderSprs,
   shaderTiles,
   updateByteLen,
   updateMsOffset,
-  utcMsOffset,
-  wakelockedOffset
+  utcMsOffset
 } from './layout.ts'
 import {PixelRatioObserver} from './pixel-ratio-observer.ts'
 import {
@@ -82,7 +75,8 @@ export class Eng {
   // waits through pointer/key release so the activating press reaches Go UI.
   #deferFullscreenReq: boolean = false
   #drawAlways: boolean = false
-  #reqWakelock: boolean = false
+  // carries browser-driven exits to Go independently of debug URL state.
+  #fullscreenReq: number = FullscreenReqNone
   #updateMs: number = 0
   #poll!: DataView
   #input!: In
@@ -133,9 +127,6 @@ export class Eng {
       updateByteLen
     )
     this.#drawAlways = debug?.draw === 'always'
-    this.#reqWakelock = false
-    this.#wakelock.enabled = this.#reqWakelock
-
     initMetaViewport(undefined) // to-do: pass description.
     initBody()
 
@@ -147,7 +138,6 @@ export class Eng {
   register(): void {
     if (this.#registered) return
     this.#input.onEvent = this.#onInput
-    this.#wakelock.onChange = () => this.#reqUpdate()
     this.#pxRatioObserver.onChange = () => this.#reqUpdate('Force')
     this.#input.register('add')
     this.#canvas.addEventListener('webglcontextlost', this.#onCtxLost)
@@ -162,6 +152,7 @@ export class Eng {
       box: 'device-pixel-content-box'
     })
     this.#pxRatioObserver.register('add')
+    this.#wakelock.update()
     this.#registered = true
   }
 
@@ -195,8 +186,7 @@ export class Eng {
     const loop = this.#wasm.Update()
     this.#playBeeps()
     if (!this.#deferFullscreenReq) this.#applyFullscreenReq()
-    this.#applyDrawAlwaysParam()
-    this.#applyWakelock()
+    this.#applyDrawAlways()
     if (loop !== LoopLoop || this.#paused()) {
       this.#cancelFrame()
       this.#lastTime = 0
@@ -382,7 +372,7 @@ export class Eng {
   }
 
   #onVisibility = (): void => {
-    this.#wakelock.enabled = this.#reqWakelock
+    this.#wakelock.update()
     this.#onFocus()
   }
 
@@ -396,7 +386,9 @@ export class Eng {
   }
 
   #onFullscreenChange = (): void => {
-    setFullscreenParam(isFullscreen())
+    this.#fullscreenReq = document.fullscreenElement
+      ? FullscreenReqNone
+      : FullscreenReqExit
     this.#reqUpdate('Force')
   }
 
@@ -425,10 +417,8 @@ export class Eng {
       req === FullscreenReqPortrait ||
       req === FullscreenReqLandscape
     ) {
-      if (debug?.window) setFullscreenParam(true)
       void this.#fullscreen.enter(req)
     } else if (req === FullscreenReqExit) {
-      if (!debug?.window) setFullscreenParam(false)
       void this.#fullscreen.exit()
     }
   }
@@ -439,19 +429,10 @@ export class Eng {
     if (this.#wasm.ContextLossReq()) renderer.loseContext()
   }
 
-  #applyDrawAlwaysParam(): void {
+  #applyDrawAlways(): void {
     const drawAlways = this.#wasm.DrawAlways() !== 0
     if (drawAlways === this.#drawAlways) return
     this.#drawAlways = drawAlways
-    setDrawAlwaysParam(drawAlways)
-  }
-
-  #applyWakelock(): void {
-    const reqWakelock = this.#wasm.ReqWakelock() !== 0
-    if (reqWakelock === this.#reqWakelock) return
-    this.#reqWakelock = reqWakelock
-    setWakelockParam(reqWakelock)
-    this.#wakelock.enabled = reqWakelock
   }
 
   #writeUpdate(renderer: Renderer, nowMillis: number): void {
@@ -467,13 +448,15 @@ export class Eng {
     this.#poll.setUint16(canvasHOffset, renderer.phyH, true)
     this.#poll.setUint8(isFullscreenOffset, isFullscreen() ? 1 : 0)
     this.#poll.setUint8(drawAlwaysOffset, this.#drawAlways ? 1 : 0)
-    this.#poll.setInt8(reqWakelockOffset, debug?.zzz ? -1 : 0)
-    this.#poll.setUint8(wakelockedOffset, this.#wakelock.locked ? 1 : 0)
     this.#poll.setInt32(drawCountOffset, this.#drawCount, true)
-    this.#poll.setUint8(
-      fullscreenReqOffset,
-      debug?.window ? FullscreenReqExit : FullscreenReqNone
-    )
+    const fullscreenReq =
+      this.#fullscreenReq !== FullscreenReqNone
+        ? this.#fullscreenReq
+        : this.#drawCount === 0 && debug?.window
+          ? FullscreenReqExit
+          : FullscreenReqNone
+    this.#fullscreenReq = FullscreenReqNone
+    this.#poll.setUint8(fullscreenReqOffset, fullscreenReq)
     this.#poll.setUint8(
       ptrlockedOffset,
       document.pointerLockElement === this.#canvas ? 1 : 0

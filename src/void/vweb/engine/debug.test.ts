@@ -2,6 +2,15 @@ import {test} from 'node:test'
 import {assert} from '../test/assert.ts'
 import {Debug} from './debug.ts'
 
+declare module './debug.ts' {
+  interface Debug {
+    cam?: 'true'
+    input?: string
+    mem?: 'true'
+    zzz?: string
+  }
+}
+
 test('one param', () => {
   const url = 'https://oidoid.com/?debug=draw'
   assert(Debug(url), {draw: 'true'})
@@ -36,18 +45,15 @@ test('multiple vals and params', () => {
 test('no vals', () => {
   const url = 'https://oidoid.com/?debug'
   const debug = Debug(url)
-  assert(debug?.cam, 'true')
-  assert(debug?.input, 'true')
+  assert(debug?.looper, 'true')
   assert(debug?.draw, undefined)
 })
 
 test('all', () => {
   const url = 'https://oidoid.com/?debug=all,abc=def'
   const debug = Debug(url)
-  assert(debug?.cam, 'true')
-  assert(debug?.input, 'true')
   assert(debug?.invalid, 'true')
-  assert(debug?.mem, 'true')
+  assert(debug?.looper, 'true')
   assert(debug?.draw, undefined)
   assert((debug as {abc: string}).abc, 'def')
 })
@@ -55,10 +61,8 @@ test('all', () => {
 test('void', () => {
   const url = 'https://oidoid.com/?debug=nativescale,void,draw=always'
   const debug = Debug(url)
-  assert(debug?.cam, 'true')
-  assert(debug?.input, 'true')
   assert(debug?.invalid, undefined)
-  assert(debug?.mem, 'true')
+  assert(debug?.looper, 'true')
   assert(debug?.draw, 'always')
   assert((debug as {nativescale: string}).nativescale, 'true')
   assert((debug as {unknown?: string}).unknown, undefined)

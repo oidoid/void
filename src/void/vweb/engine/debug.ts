@@ -9,25 +9,18 @@
  * values like `localhost:1234?debug=a=1,b=2&debug=b=3`.
  */
 export interface Debug {
-  cam?: string
+  /** enables WebGL error checks; `always` also draws while idle. */
   draw?: 'always' | string
-  input?: string
   /** debug draw invalidations. */
   invalid?: string
   looper?: string
-  mem?: string
+  /** don't enter fullscreen. */
   window?: string
-  zzz?: string
 }
 
 type DebugParams = {[k: string]: string}
 
-const debugParams: DebugParams = {}
-
-export let debug: Debug | undefined = debugFromURL(
-  globalThis.location?.href,
-  debugParams
-)
+export const debug: Debug | undefined = Debug(globalThis.location?.href)
 
 export function findDebugParam(url: string): string | undefined {
   return [...new URL(url).searchParams].find(
@@ -35,50 +28,8 @@ export function findDebugParam(url: string): string | undefined {
   )?.[1]
 }
 
-export function setDrawAlwaysParam(always: boolean): void {
-  setDebugParam('draw', always ? 'always' : undefined)
-}
-
-export function setWakelockParam(enabled: boolean): void {
-  setDebugParam('zzz', enabled ? undefined : 'true')
-}
-
-export function setFullscreenParam(enabled: boolean): void {
-  setDebugParam('window', enabled ? undefined : 'true')
-}
-
-export function setDebugParam(key: keyof Debug, val: string | undefined): void {
-  if (val) {
-    debug ??= {}
-    debug[key] = val
-    debugParams[key] = val
-  } else {
-    if (debug) delete debug[key]
-    delete debugParams[key]
-  }
-
-  const csv = Object.entries(debugParams)
-    .map(([k, v]) => (v === 'true' ? k : `${k}=${v}`))
-    .join(',')
-
-  const url = new URL(location.href)
-  const keys = [...url.searchParams.keys()].filter(
-    k => k.toLowerCase() === 'debug'
-  )
-  for (const k of keys) url.searchParams.delete(k)
-  if (csv) {
-    url.searchParams.set('debug', csv)
-    const encoded = new URLSearchParams({debug: csv}).toString()
-    url.search = url.search.replace(encoded, `debug=${csv}`)
-  } else debug = undefined
-
-  history.replaceState(history.state, '', url)
-}
-
-function debugFromURL(
-  url: string | undefined,
-  params: DebugParams | undefined
-): Debug | undefined {
+/** @internal */
+export function Debug(url: string | undefined): Debug | undefined {
   if (!url) return
   const csv = findDebugParam(url)
   if (csv == null) return
@@ -90,26 +41,17 @@ function debugFromURL(
       .map(kv => kv.split('=')) // split each pair.
       .map(([k, v]) => [k!.toLowerCase(), v || 'true'])
   )
-  if (params) Object.assign(params, vals)
   const debug: DebugParams = {...vals}
 
   const all = !csv || 'all' in debug
   const v = all || 'void' in debug
   const fallback: {[k in keyof Debug]: boolean} = {
-    cam: v,
     draw: false,
-    input: v,
     invalid: all,
-    looper: v,
-    mem: v
+    looper: v
   }
 
   for (const k in fallback) if (fallback[k as keyof Debug]) debug[k] ??= 'true'
 
   return debug as Debug
-}
-
-/** @internal */
-export function Debug(url: string | undefined): Debug | undefined {
-  return debugFromURL(url, undefined)
 }

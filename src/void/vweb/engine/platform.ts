@@ -13,7 +13,6 @@ export type Platform = {
   ContextLossReq(): number
   DrawAlways(): number
   DrawOnBlur(): number
-  ReqWakelock(): number
   RenderMode(): number
   UpdateInMillisReq(): bigint
   LayerConfigsPtr(): number

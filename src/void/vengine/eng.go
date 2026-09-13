@@ -40,7 +40,6 @@ type Eng[Game vgame.Game] struct {
 	updateInMillis    uint64
 	drawAlways        bool
 	drawOnBlur        bool
-	disableWakelock   bool
 	renderMode        vgfx.RenderMode
 	tick              vgame.Tick
 }
@@ -190,24 +189,6 @@ func (this *Eng[Game]) FullscreenEnabled() bool {
 		this.fullscreenReq == vgame.FullscreenReqLandscape
 }
 
-func (this *Eng[Game]) WakelockDisabled() bool { return this.disableWakelock }
-
-func (this *Eng[Game]) DisableWakelock(disable bool) {
-	this.disableWakelock = disable
-}
-
-// reports whether the browser currently holds the desired wakelock.
-func (this *Eng[Game]) Wakelock() bool {
-	return this.poll.Wakelocked
-}
-
-func (this *Eng[Game]) ReqWakelockFlag() int32 {
-	if !this.WakelockDisabled() {
-		return 1
-	}
-	return 0
-}
-
 func (this *Eng[Game]) RenderMode() vgfx.RenderMode {
 	return this.renderMode
 }
@@ -319,9 +300,6 @@ func (this *Eng[Game]) BeginTick() vgame.Status {
 	)
 	this.tick.DrawCount = this.poll.DrawCount
 	this.drawAlways = this.poll.DrawAlways
-	if this.poll.ReqWakelock == vgame.WakelockReqOff {
-		this.DisableWakelock(true)
-	}
 	req := this.poll.FullscreenReq
 	this.poll.FullscreenReq = vgame.FullscreenReqNone
 	if req != vgame.FullscreenReqNone {

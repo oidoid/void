@@ -42,8 +42,6 @@ func TestPollSerializationRoundTrip(t *testing.T) {
 		CanvasPhy:        vgeo.NewWH[uint16](640, 480),
 		Fullscreen:       true,
 		DrawAlways:       true,
-		ReqWakelock:      WakelockReqOff,
-		Wakelocked:       true,
 		DrawCount:        3,
 		FullscreenReq:    FullscreenReqExit,
 		UpdateMillis:     4.5,
@@ -87,8 +85,6 @@ func TestPollLayout(t *testing.T) {
 	check("CanvasPhy.W", unsafe.Offsetof(poll.CanvasPhy), 4400)
 	check("CanvasPhy.H", unsafe.Offsetof(poll.CanvasPhy)+2, 4402)
 	check("Fullscreen", unsafe.Offsetof(poll.Fullscreen), 4404)
-	check("ReqWakelock", unsafe.Offsetof(poll.ReqWakelock), 4406)
-	check("Wakelocked", unsafe.Offsetof(poll.Wakelocked), 4407)
 	check("DrawCount", unsafe.Offsetof(poll.DrawCount), 4408)
 	check("FullscreenReq", unsafe.Offsetof(poll.FullscreenReq), 4412)
 	check("UpdateMs", unsafe.Offsetof(poll.UpdateMillis), 4416)

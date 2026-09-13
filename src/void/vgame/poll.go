@@ -17,9 +17,7 @@ type Poll struct {
 	CanvasPhy  vgeo.WH[uint16]
 	Fullscreen bool
 	DrawAlways bool
-	// URL override: none defers to the engine; off represents `debug=zzz`.
-	ReqWakelock WakelockReq
-	Wakelocked  bool
+	_          [2]byte
 
 	// number of renderer clears completed.
 	DrawCount int32
@@ -32,13 +30,6 @@ type Poll struct {
 	DevicePixelRatio float64
 	TimeFormat       TimeFormat
 }
-
-type WakelockReq int8
-
-const (
-	WakelockReqNone WakelockReq = iota
-	WakelockReqOff  WakelockReq = -1
-)
 
 // reports the time since the last requested frame in sec.
 func (this *Poll) DeltaSecs() float64 { return this.DeltaMillis / 1000 }

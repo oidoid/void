@@ -13,38 +13,6 @@ import (
 	"github.com/oidoid/void/src/void/vgfx"
 )
 
-func TestWakelock(t *testing.T) {
-	gam := New()
-	if got := gam.ReqWakelockFlag(); got != 1 {
-		t.Errorf("ReqWakelockFlag() = %v, want 1", got)
-	}
-	gam.DisableWakelock(true)
-	if got := gam.ReqWakelockFlag(); got != 0 {
-		t.Errorf("ReqWakelockFlag() = %v, want 0", got)
-	}
-	if gam.Wakelock() {
-		t.Error("Wakelock() = true without browser confirmation")
-	}
-	gam.Poll().Wakelocked = true
-	if !gam.Wakelock() {
-		t.Error("Wakelock() = false, want true")
-	}
-}
-
-// applies the zzz URL override before the demo submits its wakelock req.
-func TestWakelockURLDisable(t *testing.T) {
-	gam := New()
-	gam.Router.Update = func(*Eng) vgame.Status { return vgame.Pause }
-	gam.Poll().ReqWakelock = vgame.WakelockReqOff
-	gam.Update()
-	if !gam.WakelockDisabled() {
-		t.Error("WakelockDisabled() = false, want true")
-	}
-	if got := gam.ReqWakelockFlag(); got != 0 {
-		t.Errorf("ReqWakelockFlag() = %v, want 0", got)
-	}
-}
-
 // applies the window URL override before the demo submits its fullscreen req.
 func TestFullscreenURLDisable(t *testing.T) {
 	gam := New()
@@ -200,7 +168,7 @@ func TestAdjustLvlScaleAt(t *testing.T) {
 	}
 }
 
-// starts windowed and reqs wakelock by default.
+// starts windowed by default.
 func TestDefaults(t *testing.T) {
 	gam := New()
 	gam.Router.Update = func(*Eng) vgame.Status { return vgame.Pause }
@@ -210,14 +178,5 @@ func TestDefaults(t *testing.T) {
 	}
 	if got := gam.FullscreenReq(); got != int32(vgame.FullscreenReqNone) {
 		t.Errorf("FullscreenReq() = %v, want none", got)
-	}
-	if got := gam.ReqWakelockFlag(); got != 1 {
-		t.Errorf("ReqWakelockFlag() = %v, want 1", got)
-	}
-
-	gam.DisableWakelock(true)
-	gam.Update()
-	if got := gam.ReqWakelockFlag(); got != 0 {
-		t.Errorf("ReqWakelockFlag() = %v, want 0", got)
 	}
 }
