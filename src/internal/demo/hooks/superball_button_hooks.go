@@ -17,7 +17,7 @@ func UpdateSuperballButtons(
 	layer := gam.Layer(gfx.LayerUI)
 	in := gam.In()
 	font := gam.Font()
-	cursorPhy := gam.CursorPhy()
+	cursorPhy := gam.Cursor().HitboxPhy()
 	ballsClip := gam.Layer(gfx.LayerSuperballs).Clip
 	spawnCenter := vgeo.NewXY(
 		(ballsClip.Min.X+ballsClip.Max.X)/2,
@@ -35,7 +35,7 @@ func UpdateSuperballButtons(
 	)
 
 	rnd := gam.Random
-	ballRadius := float32(gam.Atlas.Anims[int(tags.SuperballDefault)].W) / 2
+	ballRadius := float32(gam.Atlas().Anims[int(tags.SuperballDefault)].W) / 2
 	ents := vec.Vals()
 	loop := vgame.Pause
 	// to-do: lot of places we actually want an XYWH not a min-max Box.

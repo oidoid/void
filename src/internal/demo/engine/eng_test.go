@@ -16,7 +16,7 @@ import (
 // applies the window URL override before the demo submits its fullscreen req.
 func TestFullscreenURLDisable(t *testing.T) {
 	gam := New()
-	gam.Router.Update = func(*Eng) vgame.Status { return vgame.Pause }
+	gam.Router().Update = func(*Eng) vgame.Status { return vgame.Pause }
 	gam.Poll().FullscreenReq = vgame.FullscreenReqExit
 	gam.Update()
 	if gam.FullscreenEnabled() {
@@ -57,7 +57,7 @@ func TestP1EntDrawsWhenSpriteHitsClip(t *testing.T) {
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			gam := New()
-			gam.BoardData = &vboards.Board{WH: vgeo.NewWH[int32](10, 10)}
+			gam.Eng.SetBoard(&vboards.Board{WH: vgeo.NewWH[int32](10, 10)})
 			gam.Layer(gfx.LayerP1).Clip = clip
 			ent := entities.NewP1Ent(
 				vgeo.NewXY(test.x, float32(0)), vatlas.Anim{W: 8, H: 13},
@@ -171,7 +171,7 @@ func TestAdjustLvlScaleAt(t *testing.T) {
 // starts fullscreen by default.
 func TestDefaults(t *testing.T) {
 	gam := New()
-	gam.Router.Update = func(*Eng) vgame.Status { return vgame.Pause }
+	gam.Router().Update = func(*Eng) vgame.Status { return vgame.Pause }
 	gam.Update()
 	if !gam.FullscreenEnabled() {
 		t.Error("FullscreenEnabled() = false, want true")

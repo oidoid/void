@@ -35,9 +35,9 @@ func InitInit(gam *engine.Eng) {
 			Z:   spawn.Z,
 			Pal: spawn.Pal,
 		}
-		gam.Texts.Add(text)
+		gam.Texts().Add(text)
 	}
-	anim := gam.Atlas.Anims[int(tags.BackpackerWalkRight)]
+	anim := gam.Atlas().Anims[int(tags.BackpackerWalkRight)]
 	for _, spawn := range boards.InitP1Spawns {
 		p1 := entities.NewP1Ent(spawn.XY, anim)
 		p1.Z = spawn.Z
@@ -70,10 +70,10 @@ func InitInit(gam *engine.Eng) {
 		tags.CursorPoint,
 		0,
 		cursorKeyVel,
-		gam.Atlas.Anims[int(tags.CursorPoint)].Hitbox,
+		gam.Atlas().Anims[int(tags.CursorPoint)].Hitbox,
 		gfx.ZCursor,
 	)
-	gam.Cursor = cursor
+	gam.SetCursor(cursor)
 	cursors := ventities.NewEntVec(hooks.UpdateCursors)
 	cursors.Add(cursor)
 	gam.RegisterUpdate(cursors)

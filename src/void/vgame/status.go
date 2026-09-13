@@ -1,8 +1,10 @@
 package vgame
 
-type Status uint8
+import "github.com/oidoid/void/src/void/vtypes"
+
+type Status = vtypes.Status
 
 const (
-	Pause Status = iota
-	Loop
+	Pause = vtypes.Pause
+	Loop  = vtypes.Loop
 )

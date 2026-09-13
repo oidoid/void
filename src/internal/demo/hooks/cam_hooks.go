@@ -20,7 +20,8 @@ func UpdateCam(gam *engine.Eng) vgame.Status {
 	in := gam.In()
 	stat := vgame.Pause
 	anchor := zoomAnchor(gam, in)
-	dirOn := in.DirOn && (gam.Cursor == nil || !gam.Cursor.KbdEnabled)
+	cursor := gam.Cursor()
+	dirOn := in.DirOn && (cursor == nil || !cursor.KbdEnabled)
 	pinch := in.Pinch
 	ptr := in.Ptr
 	tiles := gam.Layer(gfx.LayerTiles)

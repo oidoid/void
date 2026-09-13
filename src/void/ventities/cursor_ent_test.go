@@ -4,10 +4,10 @@ import (
 	"testing"
 
 	"github.com/oidoid/void/src/void/vatlas"
-	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vin"
+	"github.com/oidoid/void/src/void/vtypes"
 )
 
 func testCursorEnt(keyboard float32) CursorEnt {
@@ -278,14 +278,14 @@ func TestUpdate_KeyboardMode(t *testing.T) {
 	layer := vgfx.NewLayerConfig(0)
 	layer.Clip = defaultBounds
 	sprs := []vgfx.Spr{}
-	if got := ent.Update(in, &sprs, .1, &layer); got != vgame.Pause {
+	if got := ent.Update(in, &sprs, .1, &layer); got != vtypes.Pause {
 		t.Errorf("disabled keyboard cursor update = %v, want Pause", got)
 	}
 	if got := ent.XY.X; got != 0 {
 		t.Errorf("disabled keyboard cursor X = %v, want 0", got)
 	}
 	ent.KbdEnabled = true
-	if got := ent.Update(in, &sprs, .1, &layer); got != vgame.Loop {
+	if got := ent.Update(in, &sprs, .1, &layer); got != vtypes.Loop {
 		t.Errorf("moving keyboard cursor update = %v, want Loop", got)
 	}
 	if got := ent.XY.X; got != 1 {
@@ -302,7 +302,7 @@ func TestUpdate_KeyboardModeZeroDeltaLoops(t *testing.T) {
 	layer := vgfx.NewLayerConfig(0)
 	layer.Clip = defaultBounds
 	sprs := []vgfx.Spr{}
-	if got := ent.Update(in, &sprs, 0, &layer); got != vgame.Loop {
+	if got := ent.Update(in, &sprs, 0, &layer); got != vtypes.Loop {
 		t.Errorf("zero-delta keyboard cursor update = %v, want Loop", got)
 	}
 	if got := ent.XY; got != (vgeo.XY[float32]{}) {

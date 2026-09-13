@@ -4,10 +4,10 @@ import (
 	"testing"
 
 	"github.com/oidoid/void/src/void/vatlas"
-	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vin"
+	"github.com/oidoid/void/src/void/vtypes"
 )
 
 // previews a focused toggle's next state while its primary button is held.
@@ -75,7 +75,7 @@ func TestButtonEnt_PressedLoops(t *testing.T) {
 	ent.Update(in, &sprs, &layer, nil, &cursorPhy)
 	in.PrevOn = in.On
 	in.Mask = 0
-	if got := ent.Update(in, &sprs, &layer, nil, &cursorPhy); got != vgame.Loop {
+	if got := ent.Update(in, &sprs, &layer, nil, &cursorPhy); got != vtypes.Loop {
 		t.Errorf("held update = %v, want Loop", got)
 	}
 }

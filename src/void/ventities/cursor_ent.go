@@ -2,11 +2,11 @@ package ventities
 
 import (
 	"github.com/oidoid/void/src/void/vatlas"
-	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vin"
 	"github.com/oidoid/void/src/void/vmath"
+	"github.com/oidoid/void/src/void/vtypes"
 )
 
 // update this ent first. always prefer testing against cursor, not input, in
@@ -60,7 +60,7 @@ func (this *CursorEnt) Update(
 	sprs *[]vgfx.Spr,
 	deltaSecs float64,
 	layer *vgfx.LayerConfig,
-) vgame.Status {
+) vtypes.Status {
 	ptr := in.Ptr
 	ptrMoved := ptr != nil && ptr.Moved
 	if ptrMoved {
@@ -95,7 +95,7 @@ func (this *CursorEnt) Update(
 		this.hitboxPhy = vgeo.Box[float32]{Min: lo, Max: hi}
 	}
 	if !this.Visible {
-		return vgame.Pause
+		return vtypes.Pause
 	}
 	*sprs = append(*sprs, vgfx.Spr{
 		XY:     this.snapXY,
@@ -103,9 +103,9 @@ func (this *CursorEnt) Update(
 		Z:      this.Z,
 	})
 	if this.kbdOn {
-		return vgame.Loop
+		return vtypes.Loop
 	}
-	return vgame.Pause
+	return vtypes.Pause
 }
 
 func (this *CursorEnt) onCursorPoint(

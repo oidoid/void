@@ -11,7 +11,7 @@ func UpdateButtons[Game vgame.Game](
 	gam Game,
 ) vgame.Status {
 	in := gam.In()
-	cursorPhy := gam.CursorPhy()
+	cursorPhy := gam.Cursor().HitboxPhy()
 	ents := vec.Vals()
 	loop := vgame.Pause
 	for i := range ents {

@@ -1,14 +1,14 @@
 package ventities
 
-import "github.com/oidoid/void/src/void/vgame"
+import "github.com/oidoid/void/src/void/vtypes"
 
 type Updater[Game any] interface {
-	Update(Game) vgame.Status
+	Update(Game) vtypes.Status
 }
 
-type UpdaterFunc[Game any] func(Game) vgame.Status
+type UpdaterFunc[Game any] func(Game) vtypes.Status
 
-func (this UpdaterFunc[Game]) Update(gam Game) vgame.Status {
+func (this UpdaterFunc[Game]) Update(gam Game) vtypes.Status {
 	return this(gam)
 }
 
@@ -20,8 +20,8 @@ func (this *Zoo[Game]) Register(updater Updater[Game]) {
 	this.updaters = append(this.updaters, updater)
 }
 
-func (this *Zoo[Game]) Update(gam Game) vgame.Status {
-	var loop vgame.Status
+func (this *Zoo[Game]) Update(gam Game) vtypes.Status {
+	var loop vtypes.Status
 	for _, updater := range this.updaters {
 		loop |= updater.Update(gam)
 	}

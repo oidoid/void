@@ -241,12 +241,13 @@ func TestUpdateCamCursorKeyMode(t *testing.T) {
 	in.Dir = vgeo.NewXY[int8](1, 0)
 	in.DirOn = true
 	in.On = vin.ButtonR
-	gam.Cursor = &ventities.CursorEnt{KbdEnabled: true}
+	cursor := &ventities.CursorEnt{KbdEnabled: true}
+	gam.SetCursor(cursor)
 	UpdateCam(gam)
 	if got := *gam.Cam(); got != (vgeo.XY[float32]{}) {
 		t.Errorf("keyboard cursor cam = %v, want zero", got)
 	}
-	gam.Cursor.KbdEnabled = false
+	cursor.KbdEnabled = false
 	UpdateCam(gam)
 	if got := gam.Cam().X; got != 4 {
 		t.Errorf("camera after keyboard cursor mode X = %v, want 4", got)

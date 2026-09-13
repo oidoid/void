@@ -1,7 +1,9 @@
 package vgame
 
 import (
+	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vboards"
+	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vin"
@@ -9,6 +11,7 @@ import (
 )
 
 type Game interface {
+	Atlas() *vatlas.Atlas
 	Beep(Beep)
 	Platform
 	DrawAlways() bool
@@ -19,7 +22,7 @@ type Game interface {
 	ReqScreenshot()
 	SetDrawAlways(bool)
 	CanvasPhy() *vgeo.WH[uint16]
-	CursorPhy() *vgeo.Box[float32]
+	Cursor() *ventities.CursorEnt
 	DeltaMs() float64
 	DeltaSecs() float64
 	Font() *vtext.Font

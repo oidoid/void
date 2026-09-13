@@ -2,11 +2,11 @@ package ventities
 
 import (
 	"github.com/oidoid/void/src/void/vatlas"
-	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vin"
 	"github.com/oidoid/void/src/void/vtext"
+	"github.com/oidoid/void/src/void/vtypes"
 )
 
 type ButtonType int8
@@ -93,7 +93,7 @@ func (this *ButtonEnt) Update(
 	layer *vgfx.LayerConfig,
 	font *vtext.Font,
 	cursorPhy *vgeo.Box[float32],
-) vgame.Status {
+) vtypes.Status {
 	this.Layout(font, layer.Clip)
 	this.Start = false
 	if this.OnUpdate != nil {
@@ -118,9 +118,9 @@ func (this *ButtonEnt) Update(
 		this.On = pressed
 	}
 	this.Start = wasOn != this.On
-	loop := vgame.Pause
+	loop := vtypes.Pause
 	if pressed {
-		loop = vgame.Loop
+		loop = vtypes.Loop
 	}
 
 	if !layer.Clip.HitsBox(bounds) {
@@ -144,7 +144,7 @@ func (this *ButtonEnt) Update(
 		this.OnClick(this)
 	}
 	if this.Start {
-		loop = vgame.Loop
+		loop = vtypes.Loop
 	}
 	return loop
 }

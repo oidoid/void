@@ -19,10 +19,10 @@ const (
 
 func TestNewPopulatesTiledTexts(t *testing.T) {
 	gam := New()
-	if got, want := gam.Texts.Len(), 1; got != want {
+	if got, want := gam.Texts().Len(), 1; got != want {
 		t.Fatalf("text count = %d, want %d", got, want)
 	}
-	text := gam.Texts.Vals()[0]
+	text := gam.Texts().Vals()[0]
 	if got, want := text.Text, "void"; got != want {
 		t.Errorf("text = %q, want %q", got, want)
 	}

@@ -15,7 +15,7 @@ func UpdateSuperballs(
 	vec *vvec.Vec[entities.SuperballEnt],
 	gam *engine.Eng,
 ) vgame.Status {
-	anim := gam.Atlas.Anims[int(tags.SuperballDefault)]
+	anim := gam.Atlas().Anims[int(tags.SuperballDefault)]
 	hitbox := anim.Hitbox
 	radius := float32(hitbox.Max.X-hitbox.Min.X) / 2
 	diameter := radius * 2

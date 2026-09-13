@@ -2,10 +2,10 @@ package ventities
 
 import (
 	"github.com/oidoid/void/src/void/vatlas"
-	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vtext"
+	"github.com/oidoid/void/src/void/vtypes"
 )
 
 // to-do: hide text?
@@ -23,11 +23,11 @@ var zeroChar = vgeo.Box[int16]{}
 
 func (this *TextEnt) Update(
 	font *vtext.Font, sprs *[]vgfx.Spr, clip vgeo.Box[float32],
-) vgame.Status {
-	loop := vgame.Pause
+) vtypes.Status {
+	loop := vtypes.Pause
 	if this.Layout.Chars == nil {
 		this.LayoutChars(font)
-		loop |= vgame.Loop
+		loop |= vtypes.Loop
 	}
 	for i, ch := range []rune(this.Text) {
 		chBox := this.Layout.Chars[i]

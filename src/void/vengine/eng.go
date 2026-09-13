@@ -18,38 +18,39 @@ import (
 )
 
 type Eng[Game vgame.Game] struct {
-	BoardData         *vboards.Board
-	Router            vgame.Router[Game]
-	Atlas             vatlas.Atlas
-	Texts             ventities.EntVec[Game, ventities.TextEnt]
-	Cursor            *ventities.CursorEnt
-	font              *vtext.Font
-	poll              vgame.Poll
-	in                *vin.In
-	cam               vgeo.XY[float32] // to-do: cam always moves in physical space.
-	preupdaters       ventities.Zoo[Game]
-	updaters          ventities.Zoo[Game]
-	rnd               *rand.Rand
-	layers            [vgfx.LayerCount]vgfx.LayerConfig
-	layerConfigExport [vgfx.LayerCount]vgfx.LayerConfigExport
-	fullscreenReq     vgame.FullscreenReq
-	screenshotReq     bool
-	contextLossReq    bool
-	beeps             [16]vgame.Beep
+	atlas             vatlas.Atlas
 	beepCount         uint32
-	updateInMillis    uint64
+	beeps             [16]vgame.Beep
+	board             *vboards.Board
+	cam               vgeo.XY[float32] // to-do: cam always moves in physical space.
+	contextLossReq    bool
+	cursor            *ventities.CursorEnt
 	drawAlways        bool
 	drawOnBlur        bool
+	font              *vtext.Font
+	fullscreenReq     vgame.FullscreenReq
+	in                *vin.In
+	layerConfigExport [vgfx.LayerCount]vgfx.LayerConfigExport
+	layers            [vgfx.LayerCount]vgfx.LayerConfig
+	poll              vgame.Poll
+	preupdaters       ventities.Zoo[Game]
 	renderMode        vgfx.RenderMode
+	rnd               *rand.Rand
+	router            vgame.Router[Game]
+	screenshotReq     bool
+	texts             ventities.EntVec[Game, ventities.TextEnt]
 	tick              vgame.Tick
+	updateInMillis    uint64
+	updaters          ventities.Zoo[Game]
 }
 
 type EngOpts struct {
-	DrawOnBlur bool // allows updates and drawing without focus; defaults off.
-	RenderMode vgfx.RenderMode
-	Font       *vtext.Font
+	Atlas      vatlas.Atlas
 	Board      *vboards.Board
+	DrawOnBlur bool // allows updates and drawing without focus; defaults off.
+	Font       *vtext.Font
 	MaxSprs    int
+	RenderMode vgfx.RenderMode
 	Seed1      uint64
 	Seed2      uint64
 }
@@ -69,7 +70,8 @@ func New[Game vgame.Game](opts *EngOpts) *Eng[Game] {
 	}
 	this := &Eng[Game]{
 		font:       opts.Font,
-		BoardData:  opts.Board,
+		atlas:      opts.Atlas,
+		board:      opts.Board,
 		in:         vin.NewIn(),
 		rnd:        rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
 		renderMode: opts.RenderMode,
@@ -104,7 +106,23 @@ func (this *Eng[Game]) Font() *vtext.Font {
 	return this.font
 }
 
-func (this *Eng[Game]) Board() *vboards.Board { return this.BoardData }
+func (this *Eng[Game]) Router() *vgame.Router[Game] { return &this.router }
+
+func (this *Eng[Game]) Atlas() *vatlas.Atlas { return &this.atlas }
+
+func (this *Eng[Game]) Texts() *ventities.EntVec[Game, ventities.TextEnt] {
+	return &this.texts
+}
+
+func (this *Eng[Game]) Cursor() *ventities.CursorEnt { return this.cursor }
+
+func (this *Eng[Game]) SetCursor(cursor *ventities.CursorEnt) {
+	this.cursor = cursor
+}
+
+func (this *Eng[Game]) Board() *vboards.Board { return this.board }
+
+func (this *Eng[Game]) SetBoard(board *vboards.Board) { this.board = board }
 
 // to-do: rename to Poll, move props to Engine struct, and don't expose?
 func (this *Eng[Game]) Poll() *vgame.Poll  { return &this.poll }
@@ -225,13 +243,8 @@ func (this *Eng[Game]) In() *vin.In {
 	return this.in
 }
 
-// returns the cursor's phy hitbox when active, else nil.
-func (this *Eng[Game]) CursorPhy() *vgeo.Box[float32] {
-	return this.Cursor.HitboxPhy()
-}
-
-func (this *Eng[Game]) BoardW() int32 { return this.BoardData.W }
-func (this *Eng[Game]) BoardH() int32 { return this.BoardData.H }
+func (this *Eng[Game]) BoardW() int32 { return this.board.W }
+func (this *Eng[Game]) BoardH() int32 { return this.board.H }
 
 func (this *Eng[Game]) LayerConfigsPtr() uintptr {
 	return uintptr(unsafe.Pointer(unsafe.SliceData(this.layerConfigExport[:])))
@@ -241,13 +254,13 @@ func (this *Eng[Game]) Layer(layer vgfx.Layer) *vgfx.LayerConfig {
 }
 
 func (this *Eng[Game]) BoardTilesPtr() uintptr {
-	if this.BoardData == nil || len(this.BoardData.Tiles) == 0 {
+	if this.board == nil || len(this.board.Tiles) == 0 {
 		return 0
 	}
-	return uintptr(unsafe.Pointer(&this.BoardData.Tiles[0]))
+	return uintptr(unsafe.Pointer(&this.board.Tiles[0]))
 }
-func (this *Eng[Game]) BoardTileW() uint8 { return this.BoardData.Tile.W }
-func (this *Eng[Game]) BoardTileH() uint8 { return this.BoardData.Tile.H }
+func (this *Eng[Game]) BoardTileW() uint8 { return this.board.Tile.W }
+func (this *Eng[Game]) BoardTileH() uint8 { return this.board.Tile.H }
 
 func (this *Eng[Game]) EndTick(stat vgame.Status) vgame.Status {
 	if this.drawAlways {
@@ -272,7 +285,7 @@ func (this *Eng[Game]) Ents() *ventities.Zoo[Game] {
 }
 
 func (this *Eng[Game]) AtlasAnimCount() uint32 {
-	return uint32(len(this.Atlas.Anims))
+	return uint32(len(this.atlas.Anims))
 }
 
 func (this *Eng[Game]) AtlasCelsPerAnim() uint32 {
@@ -280,14 +293,14 @@ func (this *Eng[Game]) AtlasCelsPerAnim() uint32 {
 }
 
 func (this *Eng[Game]) AtlasCelsPtr() uintptr {
-	if len(this.Atlas.Cels) == 0 {
+	if len(this.atlas.Cels) == 0 {
 		return 0
 	}
-	return uintptr(unsafe.Pointer(unsafe.SliceData(this.Atlas.Cels)))
+	return uintptr(unsafe.Pointer(unsafe.SliceData(this.atlas.Cels)))
 }
 
 func (this *Eng[Game]) AtlasCelsCount() uint32 {
-	return uint32(len(this.Atlas.Cels))
+	return uint32(len(this.atlas.Cels))
 }
 
 func (this *Eng[Game]) BeginTick() vgame.Status {

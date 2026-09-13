@@ -58,6 +58,7 @@ func New() *Eng {
 	this := &Eng{
 		Eng: vengine.New[*Eng](&vengine.EngOpts{
 			Font:       font,
+			Atlas:      vatlas.DecodeAtlas(assets.AtlasBin),
 			RenderMode: vgfx.RenderModePixel,
 		}),
 		LastBoingMs: -math.MaxFloat64,
@@ -80,17 +81,16 @@ func New() *Eng {
 	this.Layer(gfx.LayerCursor).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerGrid).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerGrid).BlendMode = vgfx.LayerBlendModeMultiply
-	this.Atlas = vatlas.DecodeAtlas(assets.AtlasBin)
 	this.ReqFullscreen(vgame.FullscreenReqEnter)
 	this.In().MapDefaults()
-	this.Texts = *ventities.NewEntVec(vhooks.UpdateTexts[*Eng])
-	this.RegisterUpdate(&this.Texts)
+	*this.Texts() = *ventities.NewEntVec(vhooks.UpdateTexts[*Eng])
+	this.RegisterUpdate(this.Texts())
 	return this
 }
 
 func (this *Eng) SetBoard(board *vboards.Board) {
-	this.BoardData = board
-	anim := this.Atlas.Anims[int(tags.SuperballDefault)]
+	this.Eng.SetBoard(board)
+	anim := this.Atlas().Anims[int(tags.SuperballDefault)]
 	diameter := float32(anim.Hitbox.Max.X - anim.Hitbox.Min.X)
 	// omit board edge.
 	bounds := vgeo.NewBox(
@@ -244,6 +244,6 @@ func (this *Eng) Update() vgame.Status {
 	this.Layer(gfx.LayerCursor).Scale = float32(vmath.Round(2 * dpr))
 	this.Layer(gfx.LayerGrid).Scale = float32(math.Floor(dpr))
 	stat |= this.Eng.Preupdate(this)
-	stat |= this.Router.Update(this)
+	stat |= this.Router().Update(this)
 	return this.Eng.EndTick(stat)
 }
