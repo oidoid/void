@@ -1,4 +1,4 @@
-package engine
+package entities
 
 import (
 	"github.com/oidoid/void/src/internal/demo/gfx"
@@ -32,9 +32,12 @@ func NewP1Ent(xy vgeo.XY[float32], anim vatlas.Anim) P1Ent {
 	}
 }
 
-func (this *P1Ent) Update(gam *Eng) vengine.Status {
-	layer := gam.Layer(this.Z.Layer())
-	this.Move(gam.DeltaSecs(), gam.Board())
+func (this *P1Ent) Update(
+	deltaSecs float64,
+	board *vboards.Board,
+	layer *vgfx.LayerConfig,
+) vengine.Status {
+	this.Move(deltaSecs, board)
 	if layer.Clip.HitsBox(vgeo.XYWH(
 		this.X, this.Y, float32(this.W), float32(this.H),
 	)) {

@@ -3,6 +3,7 @@ package levelhooks
 import (
 	"github.com/oidoid/void/src/internal/demo/boards"
 	"github.com/oidoid/void/src/internal/demo/engine"
+	"github.com/oidoid/void/src/internal/demo/entities"
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/internal/demo/hooks"
 	"github.com/oidoid/void/src/internal/demo/tags"
@@ -10,7 +11,6 @@ import (
 	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
-	"github.com/oidoid/void/src/void/vhooks"
 	"github.com/oidoid/void/src/void/vmath"
 )
 
@@ -38,7 +38,7 @@ func InitInit(gam *engine.Eng) {
 	}
 	anim := gam.Atlas().Anims[int(tags.BackpackerWalkRight)]
 	for _, spawn := range boards.InitP1Spawns {
-		p1 := engine.NewP1Ent(spawn.XY, anim)
+		p1 := entities.NewP1Ent(spawn.XY, anim)
 		p1.Z = spawn.Z
 		p1.SetTag(spawn.Tag)
 		p1.SetCel(spawn.Cel)
@@ -53,12 +53,12 @@ func InitInit(gam *engine.Eng) {
 			uint16(vmath.Ceil(spawn.WH.H)),
 		)
 		p1.Clockwise = spawn.Clockwise
-		gam.Register(&p1)
+		registerEnt(gam, &p1, hooks.UpdateP1)
 	}
 
 	rnd := gam.Random
 	for _, spawn := range boards.InitSuperballSpawns {
-		superball := engine.NewSuperballEnt(rnd, spawn.XY)
+		superball := entities.NewSuperballEnt(rnd, spawn.XY)
 		superball.Vel = spawn.Vel
 		superball.Rot = spawn.Rot
 		_ = gam.Superballs.Add(superball)
@@ -75,84 +75,94 @@ func InitInit(gam *engine.Eng) {
 	gam.SetCursor(cursor)
 	cursors := ventities.NewEntVec(hooks.UpdateCursors)
 	cursors.Add(cursor)
-	gam.RegisterUpdate(cursors)
+	gam.RegisterUpdate(cursors.Update)
 
-	buttons := ventities.NewEntVec(vhooks.UpdateButtons[*engine.Eng], 6)
-	gam.RegisterUpdate(buttons)
+	buttons := ventities.NewEntVec(hooks.UpdateButtons, 6)
+	gam.RegisterUpdate(buttons.Update)
 
-	drawBtn := engine.NewDrawToggleButton(gam)
+	drawBtn := hooks.NewDrawToggleButton(gam)
 	buttons.Add(drawBtn)
-	blurToggle := engine.NewDrawOnBlurToggle(gam)
-	blurToggle.Anchor.Ref = drawBtn
+	blurToggle := hooks.NewDrawOnBlurToggle(gam)
+	blurToggle.Anchor.Ref = drawBtn.AnchorBox
 	buttons.Add(blurToggle)
-	contextLossBtn := engine.NewContextLossButton(gam)
-	contextLossBtn.Anchor.Ref = blurToggle
+	contextLossBtn := hooks.NewContextLossButton(gam)
+	contextLossBtn.Anchor.Ref = blurToggle.AnchorBox
 	buttons.Add(contextLossBtn)
-	screenshotBtn := engine.NewScreenshotButton(gam)
-	screenshotBtn.Anchor.Ref = contextLossBtn
+	screenshotBtn := hooks.NewScreenshotButton(gam)
+	screenshotBtn.Anchor.Ref = contextLossBtn.AnchorBox
 	buttons.Add(screenshotBtn)
-	fullscreenToggle := engine.NewFullscreenToggle(gam)
-	fullscreenToggle.Anchor.Ref = screenshotBtn
+	fullscreenToggle := hooks.NewFullscreenToggle(gam)
+	fullscreenToggle.Anchor.Ref = screenshotBtn.AnchorBox
 	buttons.Add(fullscreenToggle)
-	cursorKeyToggle := engine.NewCursorKeyToggle(cursor)
-	cursorKeyToggle.Anchor.Ref = fullscreenToggle
+	cursorKeyToggle := hooks.NewCursorKeyToggle(cursor)
+	cursorKeyToggle.Anchor.Ref = fullscreenToggle.AnchorBox
 	buttons.Add(cursorKeyToggle)
 	// to-do: collapse with buttons^?
 	superballButtons := ventities.NewEntVec(hooks.UpdateSuperballButtons, 5)
-	gam.RegisterUpdate(superballButtons)
-	beepBtn := engine.NewBeepSuperballButtonEnt()
-	beepBtn.Anchor.Ref = cursorKeyToggle
+	gam.RegisterUpdate(superballButtons.Update)
+	beepBtn := entities.NewBeepSuperballButtonEnt()
+	beepBtn.Anchor.Ref = cursorKeyToggle.AnchorBox
 	superballButtons.Add(beepBtn)
-	hitBtn := engine.NewHitSuperballButtonEnt()
-	hitBtn.Anchor.Ref = beepBtn
+	hitBtn := entities.NewHitSuperballButtonEnt()
+	hitBtn.Anchor.Ref = beepBtn.AnchorBox
 	superballButtons.Add(hitBtn)
-	addManyBtn := engine.NewAddManySuperballButtonEnt()
-	addManyBtn.Anchor.Ref = hitBtn
+	addManyBtn := entities.NewAddManySuperballButtonEnt()
+	addManyBtn.Anchor.Ref = hitBtn.AnchorBox
 	superballButtons.Add(addManyBtn)
-	addSomeBtn := engine.NewAddSomeSuperballButtonEnt()
-	addSomeBtn.Anchor.Ref = addManyBtn
+	addSomeBtn := entities.NewAddSomeSuperballButtonEnt()
+	addSomeBtn.Anchor.Ref = addManyBtn.AnchorBox
 	superballButtons.Add(addSomeBtn)
-	zeroBtn := engine.NewZeroSuperballButtonEnt()
-	zeroBtn.Anchor.Ref = addSomeBtn
+	zeroBtn := entities.NewZeroSuperballButtonEnt()
+	zeroBtn.Anchor.Ref = addSomeBtn.AnchorBox
 	superballButtons.Add(zeroBtn)
 
-	camStatus := engine.NewCamStatusEnt(tags.ColorBlue, gfx.ZUIWidget)
+	camStatus := entities.NewCamStatusEnt(tags.ColorBlue, gfx.ZUIWidget)
 	camStatus.Anchor = ventities.AnchorEnt{
 		Dir:    vgeo.DirW,
 		Margin: vgeo.NewXY[float32](4, 0),
-		Ref:    zeroBtn,
+		Ref:    zeroBtn.AnchorBox,
 	}
-	gam.Register(&camStatus)
+	registerEnt(gam, &camStatus, hooks.UpdateCamStatus)
 
-	drawStatus := engine.NewDrawStatusEnt(
+	drawStatus := entities.NewDrawStatusEnt(
 		tags.ColorBlue,
 		vgeo.DirSE,
 		vgeo.Edge[int16]{E: 4, N: 4, W: 4, S: 4},
 	)
-	gam.Register(&drawStatus)
+	registerEnt(gam, &drawStatus, hooks.UpdateDrawStatus)
 
-	clock := engine.NewClockEnt()
-	gam.Register(&clock)
+	clock := entities.NewClockEnt()
+	registerEnt(gam, &clock, hooks.UpdateClock)
 
-	entStatus := engine.NewEntStatusEnt()
-	gam.Register(&entStatus)
+	entStatus := entities.NewEntStatusEnt()
+	registerEnt(gam, &entStatus, hooks.UpdateEntStatus)
 
-	mouseStatus := engine.NewMouseStatusEnt()
-	gam.Register(&mouseStatus)
+	mouseStatus := entities.NewMouseStatusEnt()
+	registerEnt(gam, &mouseStatus, hooks.UpdateMouseStatus)
 
 	lvlEdges := ventities.NewEntVec(hooks.UpdateLvlEdgeNinePatches)
 	lvlEdges.Add(newEdgeEnt(gfx.ZUILevelEdge, 1, 1))
-	gam.RegisterUpdate(lvlEdges)
+	gam.RegisterUpdate(lvlEdges.Update)
 
 	clipFills := ventities.NewEntVec(hooks.UpdateClipFillNinePatches)
 	clipFills.Add(newCornerEdgeEnt(gfx.ZViewportEdge))
 	clipFills.Add(newFillEnt(gfx.ZGrid))
-	gam.RegisterUpdate(clipFills)
+	gam.RegisterUpdate(clipFills.Update)
 
 }
 
 func UpdateInit(gam *engine.Eng) vengine.Status {
 	return gam.Ents().Update(gam)
+}
+
+func registerEnt[Ent any](
+	gam *engine.Eng,
+	ent *Ent,
+	update func(*Ent, *engine.Eng) vengine.Status,
+) {
+	gam.RegisterUpdate(func(gam *engine.Eng) vengine.Status {
+		return update(ent, gam)
+	})
 }
 
 func newEdgeEnt(z vgfx.Z, w, h uint16) ventities.NinePatchEnt {

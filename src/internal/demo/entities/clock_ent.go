@@ -1,10 +1,11 @@
-package engine
+package entities
 
 import (
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgeo"
+	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vtext"
 )
 
@@ -22,18 +23,20 @@ func NewClockEnt() ClockEnt {
 	return this
 }
 
-func (this *ClockEnt) Update(gam *Eng) vengine.Status {
-	layer := gam.Layer(gfx.LayerUI)
-	font := gam.Font()
+func (this *ClockEnt) Update(
+	font *vtext.Font,
+	layer *vgfx.LayerConfig,
+	time vengine.TimeFormat,
+	utcMillis uint64,
+) (vengine.Status, uint64) {
 	clip := layer.Clip
-	this.SetText(timeString(gam.Time()))
+	this.SetText(timeString(time))
 	this.LayoutChars(font)
 	this.TextEnt.XY = this.HUDEnt.XY(
 		this.Layout.W, this.Layout.TrimLeadForceH, clip,
 	)
 	this.TextEnt.Update(font, &layer.Sprs, clip)
-	gam.ReqUpdateInMillis(millisToNextMin(gam.UtcMillis()))
-	return vengine.Pause
+	return vengine.Pause, millisToNextMin(utcMillis)
 }
 
 func millisToNextMin(millis uint64) uint64 {

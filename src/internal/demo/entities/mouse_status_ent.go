@@ -1,4 +1,4 @@
-package engine
+package entities
 
 import (
 	"github.com/oidoid/void/src/internal/demo/gfx"
@@ -25,10 +25,12 @@ func NewMouseStatusEnt() MouseStatusEnt {
 	return this
 }
 
-func (this *MouseStatusEnt) Update(gam *Eng) vengine.Status {
-	layer := gam.Layer(gfx.LayerUI)
+func (this *MouseStatusEnt) Update(
+	layer *vgfx.LayerConfig,
+	in *vin.In,
+	ptrlocked bool,
+) vengine.Status {
 	sprs := &layer.Sprs
-	in := gam.In()
 	this.visible = this.visible || in.Ptr.Device() == vin.PtrDevMouse
 	if !this.visible {
 		return vengine.Pause
@@ -44,7 +46,7 @@ func (this *MouseStatusEnt) Update(gam *Eng) vengine.Status {
 	this.addOverlay(sprs, tags.MouseStatusPrimary, xy, clicks&vin.ClickPrimary != 0)
 	this.addOverlay(sprs, tags.MouseStatusSecondary, xy, clicks&vin.ClickSecondary != 0)
 	this.addOverlay(sprs, tags.MouseStatusAux, xy, clicks&vin.ClickAux != 0)
-	this.addOverlay(sprs, tags.MouseStatusLocked, xy, gam.Ptrlock())
+	this.addOverlay(sprs, tags.MouseStatusLocked, xy, ptrlocked)
 	if in.Dirty {
 		return vengine.Loop
 	}

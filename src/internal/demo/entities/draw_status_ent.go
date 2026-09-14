@@ -1,4 +1,4 @@
-package engine
+package entities
 
 import (
 	"github.com/oidoid/void/src/internal/demo/gfx"
@@ -48,12 +48,13 @@ func NewDrawStatusEnt(
 	return this
 }
 
-func (this *DrawStatusEnt) Update(gam *Eng) vengine.Status {
-	font := gam.Font()
-	layer := gam.Layer(this.Z.Layer())
+func (this *DrawStatusEnt) Update(
+	font *vtext.Font,
+	layer *vgfx.LayerConfig,
+	nowMillis float64,
+	tick *vengine.Tick,
+) vengine.Status {
 	sprs := &layer.Sprs
-	nowMillis := gam.NowMillis()
-	tick := gam.Tick()
 	clip := layer.Clip
 	this.Next.Frames++
 	if nowMillis-this.Next.Start >= 1000 {

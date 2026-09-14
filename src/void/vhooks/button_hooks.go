@@ -6,9 +6,9 @@ import (
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
-func UpdateButtons[Game vengine.Game](
+func UpdateButtons[Game any](
 	vec *vvec.Vec[*ventities.ButtonEnt],
-	gam Game,
+	gam *vengine.Eng[Game],
 ) vengine.Status {
 	in := gam.In()
 	cursorPhy := gam.Cursor().HitboxPhy()

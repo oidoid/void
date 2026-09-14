@@ -4,6 +4,7 @@ import (
 	"math"
 	"testing"
 
+	"github.com/oidoid/void/src/internal/demo/entities"
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vboards"
@@ -26,24 +27,6 @@ func TestFullscreenURLDisable(t *testing.T) {
 	}
 }
 
-// requests windowed mode from the default fullscreen setting.
-func TestFullscreenToggle(t *testing.T) {
-	gam := New()
-	toggle := NewFullscreenToggle(gam)
-	toggle.OnUpdate(toggle)
-	if toggle.On {
-		t.Error("toggle.On = true, want false")
-	}
-	toggle.On = true
-	toggle.OnClick(toggle)
-	if gam.FullscreenEnabled() {
-		t.Error("FullscreenEnabled() = true, want false")
-	}
-	if got := gam.FullscreenReq(); got != int32(vengine.FullscreenReqExit) {
-		t.Errorf("FullscreenReq() = %v, want exit", got)
-	}
-}
-
 func TestP1EntDrawsWhenSpriteHitsClip(t *testing.T) {
 	clip := vgeo.XYWH[float32](0, 0, 10, 10)
 	for _, test := range []struct {
@@ -58,10 +41,10 @@ func TestP1EntDrawsWhenSpriteHitsClip(t *testing.T) {
 			gam := New()
 			gam.Eng.SetBoard(&vboards.Board{WH: vgeo.NewWH[int32](10, 10)})
 			gam.Layer(gfx.LayerP1).Clip = clip
-			ent := NewP1Ent(
+			ent := entities.NewP1Ent(
 				vgeo.NewXY(test.x, float32(0)), vatlas.Anim{W: 8, H: 13},
 			)
-			ent.Update(gam)
+			ent.Update(gam.DeltaSecs(), gam.Board(), gam.Layer(gfx.LayerP1))
 			if got := len(gam.Layer(gfx.LayerP1).Sprs); got != test.want {
 				t.Fatalf("sprites = %v, want %v", got, test.want)
 			}

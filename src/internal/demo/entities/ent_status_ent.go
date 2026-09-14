@@ -1,4 +1,4 @@
-package engine
+package entities
 
 import (
 	"strings"
@@ -39,13 +39,16 @@ func NewEntStatusEnt() EntStatusEnt {
 	return this
 }
 
-func (this *EntStatusEnt) Update(gam *Eng) vengine.Status {
-	font := gam.Font()
-	layer := gam.Layer(this.Z.Layer())
+func (this *EntStatusEnt) Update(
+	font *vtext.Font,
+	layer *vgfx.LayerConfig,
+	superballCount int,
+	sprCount int,
+) vengine.Status {
 	sprs := &layer.Sprs
 	clip := layer.Clip
-	countText := vtext.Itoa(gam.SuperballCount())
-	sprCountText := vtext.Itoa(len(gam.Layer(gfx.LayerSuperballs).Sprs))
+	countText := vtext.Itoa(superballCount)
+	sprCountText := vtext.Itoa(sprCount)
 	w := max(len(countText), len(sprCountText))
 	// to-do: do we even need PadInt()?
 	this.SetText(

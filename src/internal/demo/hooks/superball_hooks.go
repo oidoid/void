@@ -2,6 +2,7 @@ package hooks
 
 import (
 	"github.com/oidoid/void/src/internal/demo/engine"
+	"github.com/oidoid/void/src/internal/demo/entities"
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/internal/demo/tags"
 	"github.com/oidoid/void/src/void/vengine"
@@ -11,7 +12,7 @@ import (
 )
 
 func UpdateSuperballs(
-	vec *vvec.Vec[engine.SuperballEnt],
+	vec *vvec.Vec[entities.SuperballEnt],
 	gam *engine.Eng,
 ) vengine.Status {
 	anim := gam.Atlas().Anims[int(tags.SuperballDefault)]
@@ -64,7 +65,7 @@ func UpdateSuperballs(
 }
 
 func hitSuperballs(
-	ents []engine.SuperballEnt,
+	ents []entities.SuperballEnt,
 	grid *vgrid.Grid,
 	beep bool,
 	boing func(float32, float32),
@@ -90,7 +91,7 @@ func hitSuperballs(
 }
 
 func moveSuperballs(
-	ents []engine.SuperballEnt,
+	ents []entities.SuperballEnt,
 	beep bool,
 	boing func(float32, float32),
 	nearbox vgeo.Box[float32],

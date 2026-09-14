@@ -6,9 +6,9 @@ import (
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
-func UpdateCursors[Game vengine.Game](
+func UpdateCursors[Game any](
 	vec *vvec.Vec[ventities.CursorEnt],
-	gam Game,
+	gam *vengine.Eng[Game],
 ) vengine.Status {
 	in := gam.In()
 	deltaSecs := gam.DeltaSecs()

@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/oidoid/void/src/internal/demo/engine"
+	"github.com/oidoid/void/src/internal/demo/entities"
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/vgeo"
@@ -14,6 +15,16 @@ import (
 )
 
 const camKeyVel = float32(10) // lvl px / sec.
+
+func UpdateCamStatus(
+	ent *entities.CamStatusEnt,
+	gam *engine.Eng,
+) vengine.Status {
+	return ent.Update(
+		gam.Font(), gam.Layer(ent.Z.Layer()), *gam.CanvasPhy(),
+		gam.Layer(gfx.LayerTiles), *gam.Cam(), gam.Fullscreen(),
+	)
+}
 
 // to-do: update cam last and check click mask state.
 func UpdateCam(gam *engine.Eng) vengine.Status {

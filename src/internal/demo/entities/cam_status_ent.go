@@ -1,7 +1,6 @@
-package engine
+package entities
 
 import (
-	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/ventities"
@@ -38,17 +37,20 @@ func NewCamStatusEnt(fillTag vatlas.Tag, z vgfx.Z) CamStatusEnt {
 	return this
 }
 
-func (this *CamStatusEnt) Update(gam *Eng) vengine.Status {
-	font := gam.Font()
-	layer := gam.Layer(this.Z.Layer())
+func (this *CamStatusEnt) Update(
+	font *vtext.Font,
+	layer *vgfx.LayerConfig,
+	canvasPhy vgeo.WH[uint16],
+	tiles *vgfx.LayerConfig,
+	cam vgeo.XY[float32],
+	fullscreen bool,
+) vengine.Status {
 	sprs := &layer.Sprs
-	canvasPhy := *gam.CanvasPhy()
-	tiles := gam.Layer(gfx.LayerTiles)
-	camLvl := tiles.PhyToLayerScale(vgeo.NewXY(gam.CamX(), gam.CamY()))
+	camLvl := tiles.PhyToLayerScale(cam)
 	clip := layer.Clip
 	text := "(" + vtext.FmtFloat(camLvl.X) + ", " + vtext.FmtFloat(camLvl.Y) + ") " +
 		vtext.Itoa(int(canvasPhy.W)) + "x" + vtext.Itoa(int(canvasPhy.H))
-	if gam.Fullscreen() {
+	if fullscreen {
 		text += "f"
 	}
 	text += "@" + vtext.FmtFloat(tiles.ScaleOrDefault()) + "x"
@@ -59,11 +61,10 @@ func (this *CamStatusEnt) Update(gam *Eng) vengine.Status {
 	const fillMargin = int16(2)
 	w := this.Layout.W + fillMargin*2
 	h := this.Layout.TrimAllForceH + fillMargin*2
-	anchor := this.Anchor
-	if anchor.Ref == nil {
-		anchor.Ref = ventities.BoxAnchorRef{Box: clip}
+	xy := this.Anchor.XY(float32(w), float32(h))
+	if this.Anchor.Ref == nil {
+		xy = this.Anchor.XYIn(float32(w), float32(h), clip)
 	}
-	xy := anchor.XY(float32(w), float32(h))
 	this.TextEnt.XY = vgeo.NewXY(
 		int16(xy.X)+fillMargin, int16(xy.Y)+fillMargin,
 	)

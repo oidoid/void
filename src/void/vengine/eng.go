@@ -13,10 +13,11 @@ import (
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vin"
+	"github.com/oidoid/void/src/void/vmem/vvec"
 	"github.com/oidoid/void/src/void/vtext"
 )
 
-type Eng[App Game] struct {
+type Eng[App any] struct {
 	atlas             vatlas.Atlas
 	beepCount         uint32
 	beeps             [16]Beep
@@ -37,7 +38,7 @@ type Eng[App Game] struct {
 	rnd               *rand.Rand
 	router            Router[App]
 	screenshotReq     bool
-	texts             ventities.EntVec[App, ventities.TextEnt]
+	texts             vvec.Vec[ventities.TextEnt]
 	tick              Tick
 	updateInMillis    uint64
 	updaters          ventities.Zoo[App]
@@ -54,7 +55,7 @@ type EngOpts struct {
 	Seed2      uint64
 }
 
-func New[App Game](opts *EngOpts) *Eng[App] {
+func New[App any](opts *EngOpts) *Eng[App] {
 	if opts == nil {
 		opts = &EngOpts{}
 	}
@@ -94,11 +95,11 @@ func (this *Eng[Game]) Beep(beep Beep) {
 }
 
 func (this *Eng[Game]) RegisterPreupdate(fn func(Game) Status) {
-	this.preupdaters.Register(ventities.UpdaterFunc[Game](fn))
+	this.preupdaters.Register(fn)
 }
 
-func (this *Eng[Game]) RegisterUpdate(updater ventities.Updater[Game]) {
-	this.updaters.Register(updater)
+func (this *Eng[Game]) RegisterUpdate(update func(Game) Status) {
+	this.updaters.Register(update)
 }
 
 func (this *Eng[Game]) Font() *vtext.Font {
@@ -109,7 +110,7 @@ func (this *Eng[Game]) Router() *Router[Game] { return &this.router }
 
 func (this *Eng[Game]) Atlas() *vatlas.Atlas { return &this.atlas }
 
-func (this *Eng[Game]) Texts() *ventities.EntVec[Game, ventities.TextEnt] {
+func (this *Eng[Game]) Texts() *vvec.Vec[ventities.TextEnt] {
 	return &this.texts
 }
 
@@ -262,6 +263,7 @@ func (this *Eng[Game]) BoardTileW() uint8 { return this.board.Tile.W }
 func (this *Eng[Game]) BoardTileH() uint8 { return this.board.Tile.H }
 
 func (this *Eng[Game]) EndTick(stat Status) Status {
+	stat |= this.updateTexts()
 	if this.drawAlways {
 		stat |= Loop
 	}
@@ -276,6 +278,17 @@ func (this *Eng[Game]) Preupdate(gam Game) Status {
 	this.updateLayerScales()
 	stat := this.preupdaters.Update(gam)
 	this.updateLayerClips()
+	return stat
+}
+
+func (this *Eng[Game]) updateTexts() Status {
+	ents := this.texts.Vals()
+	stat := Pause
+	for i := range ents {
+		ent := &ents[i]
+		layer := &this.layers[ent.Z.Layer()]
+		stat |= ent.Update(this.font, &layer.Sprs, layer.Clip)
+	}
 	return stat
 }
 

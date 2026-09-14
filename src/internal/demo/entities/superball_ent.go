@@ -1,5 +1,5 @@
 // to-do: can we rename package?
-package engine
+package entities
 
 import (
 	"github.com/oidoid/void/src/internal/demo/gfx"

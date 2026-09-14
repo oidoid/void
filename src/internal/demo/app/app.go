@@ -10,7 +10,7 @@ import (
 func New() *engine.Eng {
 	this := engine.New()
 	this.Superballs = *ventities.NewEntVec(hooks.UpdateSuperballs)
-	this.RegisterUpdate(&this.Superballs)
+	this.RegisterUpdate(this.Superballs.Update)
 	levelhooks.InitInit(this)
 	this.Router().Update = levelhooks.UpdateInit
 	return this

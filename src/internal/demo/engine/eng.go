@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/oidoid/void/src/internal/demo/assets"
+	"github.com/oidoid/void/src/internal/demo/entities"
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/internal/demo/tags"
 	"github.com/oidoid/void/src/void/vatlas"
@@ -13,14 +14,13 @@ import (
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vgrid"
-	"github.com/oidoid/void/src/void/vhooks"
 	"github.com/oidoid/void/src/void/vmath"
 	"github.com/oidoid/void/src/void/vtext"
 )
 
 type Eng struct {
 	*vengine.Eng[*Eng]
-	Superballs     ventities.EntVec[*Eng, SuperballEnt]
+	Superballs     ventities.EntVec[*Eng, entities.SuperballEnt]
 	HitSuperballs  bool
 	BeepSuperballs bool
 	SuperballGrid  vgrid.Grid
@@ -34,7 +34,6 @@ type Eng struct {
 }
 
 var Version string
-var _ vengine.Game = (*Eng)(nil)
 
 const (
 	lvlScaleMin = float32(1)
@@ -72,8 +71,6 @@ func New() *Eng {
 	this.Layer(gfx.LayerGrid).BlendMode = vgfx.LayerBlendModeMultiply
 	this.ReqFullscreen(vengine.FullscreenReqEnter)
 	this.In().MapDefaults()
-	*this.Texts() = *ventities.NewEntVec(vhooks.UpdateTexts[*Eng])
-	this.RegisterUpdate(this.Texts())
 	return this
 }
 
@@ -89,10 +86,6 @@ func (this *Eng) SetBoard(board *vboards.Board) {
 		float32(board.H-int32(board.Tile.H)),
 	)
 	this.SuperballGrid = vgrid.New(bounds, diameter, 2*1024*1024)
-}
-
-func (this *Eng) Register(ent ventities.Updater[*Eng]) {
-	this.RegisterUpdate(ent)
 }
 
 func (this *Eng) SuperballCount() int { return this.Superballs.Len() }

@@ -2,6 +2,7 @@ package hooks
 
 import (
 	"github.com/oidoid/void/src/internal/demo/engine"
+	"github.com/oidoid/void/src/internal/demo/entities"
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/internal/demo/tags"
 	"github.com/oidoid/void/src/void/vengine"
@@ -10,7 +11,7 @@ import (
 )
 
 func UpdateSuperballButtons(
-	vec *vvec.Vec[*engine.SuperballButtonEnt],
+	vec *vvec.Vec[*entities.SuperballButtonEnt],
 	gam *engine.Eng,
 ) vengine.Status {
 	layer := gam.Layer(gfx.LayerUI)

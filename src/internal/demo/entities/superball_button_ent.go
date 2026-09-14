@@ -1,4 +1,4 @@
-package engine
+package entities
 
 import (
 	"github.com/oidoid/void/src/internal/demo/gfx"
@@ -62,7 +62,7 @@ func newSuperballButtonEnt(
 ) *SuperballButtonEnt {
 	this := SuperballButtonEnt{
 		ButtonEnt: ventities.ButtonEnt{
-			NinePatchEnt: newWidgetNinePatch(),
+			NinePatchEnt: NewWidgetNinePatch(),
 			Pals: ventities.ButtonPals{
 				Base:      tags.PalWidget,
 				Focused:   tags.PalWidgetFocused,
@@ -77,7 +77,7 @@ func newSuperballButtonEnt(
 			},
 			Anchor: ventities.AnchorEnt{
 				Dir:    vgeo.DirW,
-				Margin: vgeo.NewXY(float32(uiButtonGap), 0),
+				Margin: vgeo.NewXY(float32(UIButtonGap), 0),
 			},
 			AnchorMode: ventities.ButtonAnchorRelative,
 			MinW:       16,

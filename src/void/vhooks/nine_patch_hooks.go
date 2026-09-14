@@ -6,9 +6,9 @@ import (
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
-func UpdateNinePatches[Game vengine.Game](
+func UpdateNinePatches[Game any](
 	vec *vvec.Vec[ventities.NinePatchEnt],
-	gam Game,
+	gam *vengine.Eng[Game],
 ) vengine.Status {
 	ents := vec.Vals()
 	for i := range ents {

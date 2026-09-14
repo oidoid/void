@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/oidoid/void/src/internal/demo/engine"
+	"github.com/oidoid/void/src/internal/demo/entities"
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
@@ -63,7 +64,7 @@ func newGame(camX, camY float32, superballCount int) *engine.Eng {
 	gam.Cam().Y = camY
 	gam.Poll().DeltaMillis = 1000. / fps
 	for i := range superballCount {
-		superball := engine.NewSuperballEnt(
+		superball := entities.NewSuperballEnt(
 			gam.Random,
 			vgeo.NewXY(float32(i%benchCanvasSize), float32(i/benchCanvasSize)),
 		)

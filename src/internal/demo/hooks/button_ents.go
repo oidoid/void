@@ -1,20 +1,18 @@
-package engine
+package hooks
 
 import (
+	"github.com/oidoid/void/src/internal/demo/engine"
+	"github.com/oidoid/void/src/internal/demo/entities"
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/internal/demo/tags"
 	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgeo"
-	"github.com/oidoid/void/src/void/vgfx"
 )
 
-const (
-	uiButtonGap = int16(4)
-	buttonMinW  = 16
-)
+const buttonMinW = 16
 
-func NewDrawToggleButton(gam *Eng) *ventities.ButtonEnt {
+func NewDrawToggleButton(gam *engine.Eng) *ventities.ButtonEnt {
 	this := newButtonEnt("draw", ventities.ButtonTypeToggle)
 	this.ClipAnchor = ventities.HUDEnt{
 		Anchor: vgeo.DirNE,
@@ -30,7 +28,7 @@ func NewDrawToggleButton(gam *Eng) *ventities.ButtonEnt {
 	return this
 }
 
-func NewDrawOnBlurToggle(gam *Eng) *ventities.ButtonEnt {
+func NewDrawOnBlurToggle(gam *engine.Eng) *ventities.ButtonEnt {
 	this := newButtonEnt("blur", ventities.ButtonTypeToggle)
 	this.OnUpdate = func(ent *ventities.ButtonEnt) {
 		ent.On = gam.DrawOnBlur()
@@ -41,7 +39,7 @@ func NewDrawOnBlurToggle(gam *Eng) *ventities.ButtonEnt {
 	return this
 }
 
-func NewContextLossButton(gam *Eng) *ventities.ButtonEnt {
+func NewContextLossButton(gam *engine.Eng) *ventities.ButtonEnt {
 	this := newButtonEnt("!gl", ventities.ButtonTypeButton)
 	this.OnClick = func(*ventities.ButtonEnt) {
 		gam.ReqContextLoss()
@@ -49,7 +47,7 @@ func NewContextLossButton(gam *Eng) *ventities.ButtonEnt {
 	return this
 }
 
-func NewScreenshotButton(gam *Eng) *ventities.ButtonEnt {
+func NewScreenshotButton(gam *engine.Eng) *ventities.ButtonEnt {
 	this := newButtonEnt("pic", ventities.ButtonTypeButton)
 	this.OnClick = func(*ventities.ButtonEnt) {
 		gam.ReqScreenshot()
@@ -57,7 +55,7 @@ func NewScreenshotButton(gam *Eng) *ventities.ButtonEnt {
 	return this
 }
 
-func NewFullscreenToggle(gam *Eng) *ventities.ButtonEnt {
+func NewFullscreenToggle(gam *engine.Eng) *ventities.ButtonEnt {
 	this := newButtonEnt("window", ventities.ButtonTypeToggle)
 	this.OnUpdate = func(ent *ventities.ButtonEnt) {
 		ent.On = !gam.FullscreenEnabled()
@@ -88,7 +86,7 @@ func newButtonEnt(
 	buttonType ventities.ButtonType,
 ) *ventities.ButtonEnt {
 	this := ventities.ButtonEnt{
-		NinePatchEnt: newWidgetNinePatch(),
+		NinePatchEnt: entities.NewWidgetNinePatch(),
 		Pals: ventities.ButtonPals{
 			Base:      tags.PalWidget,
 			Focused:   tags.PalWidgetFocused,
@@ -103,7 +101,7 @@ func newButtonEnt(
 		},
 		Anchor: ventities.AnchorEnt{
 			Dir:    vgeo.DirW,
-			Margin: vgeo.NewXY(float32(uiButtonGap), float32(0)),
+			Margin: vgeo.NewXY(float32(entities.UIButtonGap), float32(0)),
 		},
 		AnchorMode: ventities.ButtonAnchorRelative,
 		MinW:       buttonMinW,
@@ -113,19 +111,4 @@ func newButtonEnt(
 	this.Text.Z = gfx.ZUIText
 	this.NinePatchEnt.SetZ(gfx.ZUIWidget)
 	return &this
-}
-
-func newWidgetNinePatch() ventities.NinePatchEnt {
-	edge := vgfx.Spr{TagCel: tags.WidgetEdgeLight.Cel(0)}
-	fill := vgfx.Spr{TagCel: tags.WidgetFill.Cel(0)}
-	return ventities.NinePatchEnt{
-		PatchByDir: [9]vgfx.Spr{
-			vgeo.DirE:      edge,
-			vgeo.DirN:      edge,
-			vgeo.DirW:      edge,
-			vgeo.DirS:      edge,
-			vgeo.DirCenter: fill,
-		},
-		CornerWH: vgeo.NewWH[uint16](1, 1),
-	}
 }

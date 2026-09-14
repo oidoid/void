@@ -6,31 +6,28 @@ import (
 )
 
 // to-do: combine with HUDEnt?
-// to-do: replace ent with functions?
 // to-do: rename file anchor_ent.go.
 // places content relative to another entity box.
-type AnchorRef interface {
-	AnchorBox() vgeo.Box[float32]
-}
-
-type BoxAnchorRef struct {
-	Box vgeo.Box[float32]
-}
-
-func (this BoxAnchorRef) AnchorBox() vgeo.Box[float32] { return this.Box }
-
 type AnchorEnt struct {
 	Dir    vgeo.Dir
 	Margin vgeo.XY[float32]
-	Ref    AnchorRef
+	Ref    func() vgeo.Box[float32]
 }
 
 // computes a position for a w x h rect relative to box.
 func (this AnchorEnt) XY(w, h float32) vgeo.XY[float32] {
 	ref := vgeo.Box[float32]{}
 	if this.Ref != nil {
-		ref = this.Ref.AnchorBox()
+		ref = this.Ref()
 	}
+	return this.XYIn(w, h, ref)
+}
+
+// computes a position for a w x h rect relative to ref.
+func (this AnchorEnt) XYIn(
+	w, h float32,
+	ref vgeo.Box[float32],
+) vgeo.XY[float32] {
 	boxW := ref.W()
 	boxH := ref.H()
 
