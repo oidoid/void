@@ -78,10 +78,16 @@ type LayerConfigExport struct {
 }
 
 func PhyToClipStartPx(phy, phySize, layerSize uint16) uint16 {
+	if phySize == 0 {
+		return 0
+	}
 	return uint16(uint64(phy) * uint64(layerSize) / uint64(phySize))
 }
 
 func PhyToClipEndPx(phy, phySize, layerSize uint16) uint16 {
+	if phySize == 0 {
+		return 0
+	}
 	return uint16(
 		(uint64(phy)*uint64(layerSize) + uint64(phySize) - 1) /
 			uint64(phySize),
@@ -186,9 +192,9 @@ func (this *LayerConfig) UpdateScale(clip vgeo.WH[float32]) {
 		if scale < 1 {
 			scale = 1
 		}
-		if this.AutoscaleMaxScale != 0 && scale > float32(this.AutoscaleMaxScale) {
-			scale = float32(this.AutoscaleMaxScale)
-		}
+	}
+	if this.AutoscaleMaxScale != 0 && scale > float32(this.AutoscaleMaxScale) {
+		scale = float32(this.AutoscaleMaxScale)
 	}
 	this.Scale = scale
 }

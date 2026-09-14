@@ -412,7 +412,7 @@ func parseFrames(
 		return nil, fmt.Errorf("invalid frame range %d..%d", from, to)
 	}
 	period := framePeriod(tagSpan)
-	millis := 0
+	millis := float64(0)
 	for i := 0; i < period &&
 		len(frames) < vatlas.CelsPerAnim &&
 		millis < vatlas.MaxAnimLoopMillis; i++ {
@@ -421,7 +421,8 @@ func parseFrames(
 		if err != nil {
 			return nil, err
 		}
-		for celMillis := 0; celMillis < int(asset.Frames[frameI].Millis) &&
+		frameMillis := float64(asset.Frames[frameI].Millis)
+		for celMillis := float64(0); celMillis < frameMillis &&
 			len(frames) < vatlas.CelsPerAnim &&
 			millis < vatlas.MaxAnimLoopMillis; celMillis += vatlas.CelMillis {
 			millis += vatlas.CelMillis

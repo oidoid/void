@@ -7,7 +7,7 @@ const CelsPerAnim = 16
 const MaxAnimLoopMillis = 1000
 
 // the duration of one cel in milliseconds (62.5).
-const CelMillis = MaxAnimLoopMillis / CelsPerAnim
+const CelMillis = float64(MaxAnimLoopMillis) / CelsPerAnim
 
 type Atlas struct {
 	Anims []Anim

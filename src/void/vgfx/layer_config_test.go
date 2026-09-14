@@ -153,6 +153,7 @@ func TestPhyToClipStartEndPx(t *testing.T) {
 		wantStart, wantEnd     uint16
 	}{
 		{name: "origin", phy: 0, phySize: 2018, clipSize: 673, wantStart: 0, wantEnd: 0},
+		{name: "zero physical size", phy: 1, clipSize: 1},
 		{name: "exact edge", phy: 3, phySize: 12, clipSize: 8, wantStart: 2, wantEnd: 2},
 		{name: "float edge", phy: 241, phySize: 2018, clipSize: 673, wantStart: 80, wantEnd: 81},
 		{name: "one phy px covers a clip px", phy: 1, phySize: 5, clipSize: 3, wantStart: 0, wantEnd: 1},
@@ -224,6 +225,19 @@ func TestLayerConfigAutoscaleInt(t *testing.T) {
 	config.UpdateScale(vgeo.NewWH[float32](160, 90))
 	if config.Scale != 1 {
 		t.Fatalf("Scale clamp mismatch: got %v", config.Scale)
+	}
+}
+
+func TestLayerConfigAutoscaleFloatMax(t *testing.T) {
+	config := LayerConfig{
+		ScaleMode:         LayerScaleModeAutoFloat,
+		AutoscaleMinClip:  vgeo.NewWH[uint16](320, 180),
+		AutoscaleMaxScale: 2,
+	}
+
+	config.UpdateScale(vgeo.NewWH[float32](960, 540))
+	if config.Scale != 2 {
+		t.Fatalf("Scale mismatch: got %v", config.Scale)
 	}
 }
 

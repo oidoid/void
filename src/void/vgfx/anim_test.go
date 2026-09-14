@@ -13,7 +13,8 @@ func TestAnimStartFrame(t *testing.T) {
 		want      uint8
 	}{
 		{name: "first frame", nowMillis: 0},
-		{name: "next frame", nowMillis: float64(vatlas.CelMillis), want: 15},
+		{name: "before next frame", nowMillis: 62.4},
+		{name: "next frame", nowMillis: 62.5, want: 15},
 		{name: "last frame", nowMillis: float64(vatlas.CelMillis * 15), want: 1},
 		{name: "loop", nowMillis: float64(vatlas.MaxAnimLoopMillis)},
 	}
@@ -37,7 +38,11 @@ func TestIsAnimLooped(t *testing.T) {
 		{name: "before start", nowMillis: startMillis - 1},
 		{name: "start", nowMillis: startMillis},
 		{name: "last cel", nowMillis: startMillis + vatlas.CelMillis*2},
-		{name: "loop", nowMillis: startMillis + vatlas.CelMillis*3, want: true},
+		{
+			name:      "before loop",
+			nowMillis: startMillis + 187.4,
+		},
+		{name: "loop", nowMillis: startMillis + 187.5, want: true},
 		{name: "after loop", nowMillis: startMillis + vatlas.CelMillis*4, want: true},
 	}
 	for _, test := range tests {
