@@ -1,19 +1,19 @@
 package vhooks
 
 import (
+	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/ventities"
-	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
-func UpdateButtons[Game vgame.Game](
+func UpdateButtons[Game vengine.Game](
 	vec *vvec.Vec[*ventities.ButtonEnt],
 	gam Game,
-) vgame.Status {
+) vengine.Status {
 	in := gam.In()
 	cursorPhy := gam.Cursor().HitboxPhy()
 	ents := vec.Vals()
-	loop := vgame.Pause
+	loop := vengine.Pause
 	for i := range ents {
 		ent := ents[i]
 		layer := gam.Layer(ent.Z().Layer())

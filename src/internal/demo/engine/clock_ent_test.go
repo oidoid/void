@@ -1,9 +1,9 @@
-package entities
+package engine
 
 import (
 	"testing"
 
-	"github.com/oidoid/void/src/void/vgame"
+	"github.com/oidoid/void/src/void/vengine"
 )
 
 func TestTimeString(t *testing.T) {
@@ -22,7 +22,7 @@ func TestTimeString(t *testing.T) {
 		{"late night", 23, 59, 0, "11:59:00"},
 	} {
 		t.Run(test.name, func(t *testing.T) {
-			time := vgame.TimeFormat{
+			time := vengine.TimeFormat{
 				Hour: uint8(test.hour), Minute: uint8(test.min), Second: uint8(test.sec),
 			}
 			if got := timeString(time); got != test.want {

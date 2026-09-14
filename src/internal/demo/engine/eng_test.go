@@ -4,11 +4,10 @@ import (
 	"math"
 	"testing"
 
-	"github.com/oidoid/void/src/internal/demo/entities"
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vboards"
-	"github.com/oidoid/void/src/void/vgame"
+	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 )
@@ -16,13 +15,13 @@ import (
 // applies the window URL override before the demo submits its fullscreen req.
 func TestFullscreenURLDisable(t *testing.T) {
 	gam := New()
-	gam.Router().Update = func(*Eng) vgame.Status { return vgame.Pause }
-	gam.Poll().FullscreenReq = vgame.FullscreenReqExit
+	gam.Router().Update = func(*Eng) vengine.Status { return vengine.Pause }
+	gam.Poll().FullscreenReq = vengine.FullscreenReqExit
 	gam.Update()
 	if gam.FullscreenEnabled() {
 		t.Error("FullscreenEnabled() = true, want false")
 	}
-	if got := gam.FullscreenReq(); got != int32(vgame.FullscreenReqExit) {
+	if got := gam.FullscreenReq(); got != int32(vengine.FullscreenReqExit) {
 		t.Errorf("FullscreenReq() = %v, want exit", got)
 	}
 }
@@ -30,7 +29,7 @@ func TestFullscreenURLDisable(t *testing.T) {
 // requests windowed mode from the default fullscreen setting.
 func TestFullscreenToggle(t *testing.T) {
 	gam := New()
-	toggle := entities.NewFullscreenToggle(gam)
+	toggle := NewFullscreenToggle(gam)
 	toggle.OnUpdate(toggle)
 	if toggle.On {
 		t.Error("toggle.On = true, want false")
@@ -40,7 +39,7 @@ func TestFullscreenToggle(t *testing.T) {
 	if gam.FullscreenEnabled() {
 		t.Error("FullscreenEnabled() = true, want false")
 	}
-	if got := gam.FullscreenReq(); got != int32(vgame.FullscreenReqExit) {
+	if got := gam.FullscreenReq(); got != int32(vengine.FullscreenReqExit) {
 		t.Errorf("FullscreenReq() = %v, want exit", got)
 	}
 }
@@ -59,7 +58,7 @@ func TestP1EntDrawsWhenSpriteHitsClip(t *testing.T) {
 			gam := New()
 			gam.Eng.SetBoard(&vboards.Board{WH: vgeo.NewWH[int32](10, 10)})
 			gam.Layer(gfx.LayerP1).Clip = clip
-			ent := entities.NewP1Ent(
+			ent := NewP1Ent(
 				vgeo.NewXY(test.x, float32(0)), vatlas.Anim{W: 8, H: 13},
 			)
 			ent.Update(gam)
@@ -171,12 +170,12 @@ func TestAdjustLvlScaleAt(t *testing.T) {
 // starts fullscreen by default.
 func TestDefaults(t *testing.T) {
 	gam := New()
-	gam.Router().Update = func(*Eng) vgame.Status { return vgame.Pause }
+	gam.Router().Update = func(*Eng) vengine.Status { return vengine.Pause }
 	gam.Update()
 	if !gam.FullscreenEnabled() {
 		t.Error("FullscreenEnabled() = false, want true")
 	}
-	if got := gam.FullscreenReq(); got != int32(vgame.FullscreenReqEnter) {
+	if got := gam.FullscreenReq(); got != int32(vengine.FullscreenReqEnter) {
 		t.Errorf("FullscreenReq() = %v, want enter", got)
 	}
 }

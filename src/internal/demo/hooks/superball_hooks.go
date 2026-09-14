@@ -2,19 +2,18 @@ package hooks
 
 import (
 	"github.com/oidoid/void/src/internal/demo/engine"
-	"github.com/oidoid/void/src/internal/demo/entities"
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/internal/demo/tags"
-	"github.com/oidoid/void/src/void/vgame"
+	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgrid"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
 func UpdateSuperballs(
-	vec *vvec.Vec[entities.SuperballEnt],
+	vec *vvec.Vec[engine.SuperballEnt],
 	gam *engine.Eng,
-) vgame.Status {
+) vengine.Status {
 	anim := gam.Atlas().Anims[int(tags.SuperballDefault)]
 	hitbox := anim.Hitbox
 	radius := float32(hitbox.Max.X-hitbox.Min.X) / 2
@@ -55,7 +54,7 @@ func UpdateSuperballs(
 			diameter,
 		)
 	}
-	loop := vgame.Pause
+	loop := vengine.Pause
 	// to-do: always collapse into either move or hit to avoid extra pass?
 	for i := range ents {
 		loop |= ents[i].Draw(sprs, clip)
@@ -65,7 +64,7 @@ func UpdateSuperballs(
 }
 
 func hitSuperballs(
-	ents []entities.SuperballEnt,
+	ents []engine.SuperballEnt,
 	grid *vgrid.Grid,
 	beep bool,
 	boing func(float32, float32),
@@ -91,7 +90,7 @@ func hitSuperballs(
 }
 
 func moveSuperballs(
-	ents []entities.SuperballEnt,
+	ents []engine.SuperballEnt,
 	beep bool,
 	boing func(float32, float32),
 	nearbox vgeo.Box[float32],

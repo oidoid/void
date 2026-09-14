@@ -1,10 +1,10 @@
-package entities
+package engine
 
 import (
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/internal/demo/tags"
+	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/ventities"
-	game "github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 )
@@ -14,7 +14,7 @@ const (
 	buttonMinW  = 16
 )
 
-func NewDrawToggleButton(gam game.Game) *ventities.ButtonEnt {
+func NewDrawToggleButton(gam *Eng) *ventities.ButtonEnt {
 	this := newButtonEnt("draw", ventities.ButtonTypeToggle)
 	this.ClipAnchor = ventities.HUDEnt{
 		Anchor: vgeo.DirNE,
@@ -30,7 +30,7 @@ func NewDrawToggleButton(gam game.Game) *ventities.ButtonEnt {
 	return this
 }
 
-func NewDrawOnBlurToggle(gam game.Game) *ventities.ButtonEnt {
+func NewDrawOnBlurToggle(gam *Eng) *ventities.ButtonEnt {
 	this := newButtonEnt("blur", ventities.ButtonTypeToggle)
 	this.OnUpdate = func(ent *ventities.ButtonEnt) {
 		ent.On = gam.DrawOnBlur()
@@ -41,7 +41,7 @@ func NewDrawOnBlurToggle(gam game.Game) *ventities.ButtonEnt {
 	return this
 }
 
-func NewContextLossButton(gam game.Game) *ventities.ButtonEnt {
+func NewContextLossButton(gam *Eng) *ventities.ButtonEnt {
 	this := newButtonEnt("!gl", ventities.ButtonTypeButton)
 	this.OnClick = func(*ventities.ButtonEnt) {
 		gam.ReqContextLoss()
@@ -49,7 +49,7 @@ func NewContextLossButton(gam game.Game) *ventities.ButtonEnt {
 	return this
 }
 
-func NewScreenshotButton(gam game.Game) *ventities.ButtonEnt {
+func NewScreenshotButton(gam *Eng) *ventities.ButtonEnt {
 	this := newButtonEnt("pic", ventities.ButtonTypeButton)
 	this.OnClick = func(*ventities.ButtonEnt) {
 		gam.ReqScreenshot()
@@ -57,16 +57,16 @@ func NewScreenshotButton(gam game.Game) *ventities.ButtonEnt {
 	return this
 }
 
-func NewFullscreenToggle(gam game.Game) *ventities.ButtonEnt {
+func NewFullscreenToggle(gam *Eng) *ventities.ButtonEnt {
 	this := newButtonEnt("window", ventities.ButtonTypeToggle)
 	this.OnUpdate = func(ent *ventities.ButtonEnt) {
 		ent.On = !gam.FullscreenEnabled()
 	}
 	this.OnClick = func(ent *ventities.ButtonEnt) {
 		if ent.On {
-			gam.ReqFullscreen(game.FullscreenReqExit)
+			gam.ReqFullscreen(vengine.FullscreenReqExit)
 		} else {
-			gam.ReqFullscreen(game.FullscreenReqEnter)
+			gam.ReqFullscreen(vengine.FullscreenReqEnter)
 		}
 	}
 	return this

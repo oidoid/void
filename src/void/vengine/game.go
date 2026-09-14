@@ -1,4 +1,4 @@
-package vgame
+package vengine
 
 import (
 	"github.com/oidoid/void/src/void/vatlas"
@@ -13,7 +13,6 @@ import (
 type Game interface {
 	Atlas() *vatlas.Atlas
 	Beep(Beep)
-	Platform
 	DrawAlways() bool
 	DrawOnBlur() bool
 	SetDrawOnBlur(bool)

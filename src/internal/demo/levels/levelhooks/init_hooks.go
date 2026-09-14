@@ -3,12 +3,11 @@ package levelhooks
 import (
 	"github.com/oidoid/void/src/internal/demo/boards"
 	"github.com/oidoid/void/src/internal/demo/engine"
-	"github.com/oidoid/void/src/internal/demo/entities"
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/internal/demo/hooks"
 	"github.com/oidoid/void/src/internal/demo/tags"
+	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/ventities"
-	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vhooks"
@@ -39,7 +38,7 @@ func InitInit(gam *engine.Eng) {
 	}
 	anim := gam.Atlas().Anims[int(tags.BackpackerWalkRight)]
 	for _, spawn := range boards.InitP1Spawns {
-		p1 := entities.NewP1Ent(spawn.XY, anim)
+		p1 := engine.NewP1Ent(spawn.XY, anim)
 		p1.Z = spawn.Z
 		p1.SetTag(spawn.Tag)
 		p1.SetCel(spawn.Cel)
@@ -59,7 +58,7 @@ func InitInit(gam *engine.Eng) {
 
 	rnd := gam.Random
 	for _, spawn := range boards.InitSuperballSpawns {
-		superball := entities.NewSuperballEnt(rnd, spawn.XY)
+		superball := engine.NewSuperballEnt(rnd, spawn.XY)
 		superball.Vel = spawn.Vel
 		superball.Rot = spawn.Rot
 		_ = gam.Superballs.Add(superball)
@@ -81,43 +80,43 @@ func InitInit(gam *engine.Eng) {
 	buttons := ventities.NewEntVec(vhooks.UpdateButtons[*engine.Eng], 6)
 	gam.RegisterUpdate(buttons)
 
-	drawBtn := entities.NewDrawToggleButton(gam)
+	drawBtn := engine.NewDrawToggleButton(gam)
 	buttons.Add(drawBtn)
-	blurToggle := entities.NewDrawOnBlurToggle(gam)
+	blurToggle := engine.NewDrawOnBlurToggle(gam)
 	blurToggle.Anchor.Ref = drawBtn
 	buttons.Add(blurToggle)
-	contextLossBtn := entities.NewContextLossButton(gam)
+	contextLossBtn := engine.NewContextLossButton(gam)
 	contextLossBtn.Anchor.Ref = blurToggle
 	buttons.Add(contextLossBtn)
-	screenshotBtn := entities.NewScreenshotButton(gam)
+	screenshotBtn := engine.NewScreenshotButton(gam)
 	screenshotBtn.Anchor.Ref = contextLossBtn
 	buttons.Add(screenshotBtn)
-	fullscreenToggle := entities.NewFullscreenToggle(gam)
+	fullscreenToggle := engine.NewFullscreenToggle(gam)
 	fullscreenToggle.Anchor.Ref = screenshotBtn
 	buttons.Add(fullscreenToggle)
-	cursorKeyToggle := entities.NewCursorKeyToggle(cursor)
+	cursorKeyToggle := engine.NewCursorKeyToggle(cursor)
 	cursorKeyToggle.Anchor.Ref = fullscreenToggle
 	buttons.Add(cursorKeyToggle)
 	// to-do: collapse with buttons^?
 	superballButtons := ventities.NewEntVec(hooks.UpdateSuperballButtons, 5)
 	gam.RegisterUpdate(superballButtons)
-	beepBtn := entities.NewBeepSuperballButtonEnt()
+	beepBtn := engine.NewBeepSuperballButtonEnt()
 	beepBtn.Anchor.Ref = cursorKeyToggle
 	superballButtons.Add(beepBtn)
-	hitBtn := entities.NewHitSuperballButtonEnt()
+	hitBtn := engine.NewHitSuperballButtonEnt()
 	hitBtn.Anchor.Ref = beepBtn
 	superballButtons.Add(hitBtn)
-	addManyBtn := entities.NewAddManySuperballButtonEnt()
+	addManyBtn := engine.NewAddManySuperballButtonEnt()
 	addManyBtn.Anchor.Ref = hitBtn
 	superballButtons.Add(addManyBtn)
-	addSomeBtn := entities.NewAddSomeSuperballButtonEnt()
+	addSomeBtn := engine.NewAddSomeSuperballButtonEnt()
 	addSomeBtn.Anchor.Ref = addManyBtn
 	superballButtons.Add(addSomeBtn)
-	zeroBtn := entities.NewZeroSuperballButtonEnt()
+	zeroBtn := engine.NewZeroSuperballButtonEnt()
 	zeroBtn.Anchor.Ref = addSomeBtn
 	superballButtons.Add(zeroBtn)
 
-	camStatus := entities.NewCamStatusEnt(tags.ColorBlue, gfx.ZUIWidget)
+	camStatus := engine.NewCamStatusEnt(tags.ColorBlue, gfx.ZUIWidget)
 	camStatus.Anchor = ventities.AnchorEnt{
 		Dir:    vgeo.DirW,
 		Margin: vgeo.NewXY[float32](4, 0),
@@ -125,20 +124,20 @@ func InitInit(gam *engine.Eng) {
 	}
 	gam.Register(&camStatus)
 
-	drawStatus := entities.NewDrawStatusEnt(
+	drawStatus := engine.NewDrawStatusEnt(
 		tags.ColorBlue,
 		vgeo.DirSE,
 		vgeo.Edge[int16]{E: 4, N: 4, W: 4, S: 4},
 	)
 	gam.Register(&drawStatus)
 
-	clock := entities.NewClockEnt()
+	clock := engine.NewClockEnt()
 	gam.Register(&clock)
 
-	entStatus := entities.NewEntStatusEnt()
+	entStatus := engine.NewEntStatusEnt()
 	gam.Register(&entStatus)
 
-	mouseStatus := entities.NewMouseStatusEnt()
+	mouseStatus := engine.NewMouseStatusEnt()
 	gam.Register(&mouseStatus)
 
 	lvlEdges := ventities.NewEntVec(hooks.UpdateLvlEdgeNinePatches)
@@ -152,7 +151,7 @@ func InitInit(gam *engine.Eng) {
 
 }
 
-func UpdateInit(gam *engine.Eng) vgame.Status {
+func UpdateInit(gam *engine.Eng) vengine.Status {
 	return gam.Ents().Update(gam)
 }
 

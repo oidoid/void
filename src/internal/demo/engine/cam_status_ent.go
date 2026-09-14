@@ -1,11 +1,10 @@
-package entities
+package engine
 
 import (
-	"github.com/oidoid/void/src/internal/demo/game"
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/void/vatlas"
+	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/ventities"
-	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vtext"
@@ -39,7 +38,7 @@ func NewCamStatusEnt(fillTag vatlas.Tag, z vgfx.Z) CamStatusEnt {
 	return this
 }
 
-func (this *CamStatusEnt) Update(gam game.Game) vgame.Status {
+func (this *CamStatusEnt) Update(gam *Eng) vengine.Status {
 	font := gam.Font()
 	layer := gam.Layer(this.Z.Layer())
 	sprs := &layer.Sprs

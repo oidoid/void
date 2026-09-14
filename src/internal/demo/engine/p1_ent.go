@@ -1,12 +1,11 @@
-package entities
+package engine
 
 import (
-	"github.com/oidoid/void/src/internal/demo/game"
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/internal/demo/tags"
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vboards"
-	"github.com/oidoid/void/src/void/vgame"
+	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vmath"
@@ -33,7 +32,7 @@ func NewP1Ent(xy vgeo.XY[float32], anim vatlas.Anim) P1Ent {
 	}
 }
 
-func (this *P1Ent) Update(gam game.Game) vgame.Status {
+func (this *P1Ent) Update(gam *Eng) vengine.Status {
 	layer := gam.Layer(this.Z.Layer())
 	this.Move(gam.DeltaSecs(), gam.Board())
 	if layer.Clip.HitsBox(vgeo.XYWH(
@@ -41,7 +40,7 @@ func (this *P1Ent) Update(gam game.Game) vgame.Status {
 	)) {
 		layer.Sprs = append(layer.Sprs, this.spr())
 	}
-	return vgame.Pause // demo doesn't want p1 to require updates.
+	return vengine.Pause // demo doesn't want p1 to require updates.
 }
 
 func (this *P1Ent) Move(deltaSecs float64, board *vboards.Board) {

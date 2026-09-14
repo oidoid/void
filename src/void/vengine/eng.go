@@ -10,17 +10,16 @@ import (
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vboards"
 	"github.com/oidoid/void/src/void/ventities"
-	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vin"
 	"github.com/oidoid/void/src/void/vtext"
 )
 
-type Eng[Game vgame.Game] struct {
+type Eng[App Game] struct {
 	atlas             vatlas.Atlas
 	beepCount         uint32
-	beeps             [16]vgame.Beep
+	beeps             [16]Beep
 	board             *vboards.Board
 	cam               vgeo.XY[float32] // to-do: cam always moves in physical space.
 	contextLossReq    bool
@@ -28,20 +27,20 @@ type Eng[Game vgame.Game] struct {
 	drawAlways        bool
 	drawOnBlur        bool
 	font              *vtext.Font
-	fullscreenReq     vgame.FullscreenReq
+	fullscreenReq     FullscreenReq
 	in                *vin.In
 	layerConfigExport [vgfx.LayerCount]vgfx.LayerConfigExport
 	layers            [vgfx.LayerCount]vgfx.LayerConfig
-	poll              vgame.Poll
-	preupdaters       ventities.Zoo[Game]
+	poll              Poll
+	preupdaters       ventities.Zoo[App]
 	renderMode        vgfx.RenderMode
 	rnd               *rand.Rand
-	router            vgame.Router[Game]
+	router            Router[App]
 	screenshotReq     bool
-	texts             ventities.EntVec[Game, ventities.TextEnt]
-	tick              vgame.Tick
+	texts             ventities.EntVec[App, ventities.TextEnt]
+	tick              Tick
 	updateInMillis    uint64
-	updaters          ventities.Zoo[Game]
+	updaters          ventities.Zoo[App]
 }
 
 type EngOpts struct {
@@ -55,7 +54,7 @@ type EngOpts struct {
 	Seed2      uint64
 }
 
-func New[Game vgame.Game](opts *EngOpts) *Eng[Game] {
+func New[App Game](opts *EngOpts) *Eng[App] {
 	if opts == nil {
 		opts = &EngOpts{}
 	}
@@ -68,7 +67,7 @@ func New[Game vgame.Game](opts *EngOpts) *Eng[Game] {
 	if opts.Seed2 == 0 {
 		opts.Seed2 = rand.Uint64()
 	}
-	this := &Eng[Game]{
+	this := &Eng[App]{
 		font:       opts.Font,
 		atlas:      opts.Atlas,
 		board:      opts.Board,
@@ -86,7 +85,7 @@ func New[Game vgame.Game](opts *EngOpts) *Eng[Game] {
 
 func (this *Eng[Game]) Random() float32 { return this.rnd.Float32() }
 
-func (this *Eng[Game]) Beep(beep vgame.Beep) {
+func (this *Eng[Game]) Beep(beep Beep) {
 	if this.beepCount == uint32(len(this.beeps)) {
 		return
 	}
@@ -94,7 +93,7 @@ func (this *Eng[Game]) Beep(beep vgame.Beep) {
 	this.beepCount++
 }
 
-func (this *Eng[Game]) RegisterPreupdate(fn func(Game) vgame.Status) {
+func (this *Eng[Game]) RegisterPreupdate(fn func(Game) Status) {
 	this.preupdaters.Register(ventities.UpdaterFunc[Game](fn))
 }
 
@@ -106,7 +105,7 @@ func (this *Eng[Game]) Font() *vtext.Font {
 	return this.font
 }
 
-func (this *Eng[Game]) Router() *vgame.Router[Game] { return &this.router }
+func (this *Eng[Game]) Router() *Router[Game] { return &this.router }
 
 func (this *Eng[Game]) Atlas() *vatlas.Atlas { return &this.atlas }
 
@@ -125,19 +124,19 @@ func (this *Eng[Game]) Board() *vboards.Board { return this.board }
 func (this *Eng[Game]) SetBoard(board *vboards.Board) { this.board = board }
 
 // to-do: rename to Poll, move props to Engine struct, and don't expose?
-func (this *Eng[Game]) Poll() *vgame.Poll  { return &this.poll }
+func (this *Eng[Game]) Poll() *Poll        { return &this.poll }
 func (this *Eng[Game]) Fullscreen() bool   { return this.poll.Fullscreen }
 func (this *Eng[Game]) Ptrlock() bool      { return this.poll.Ptrlocked }
 func (this *Eng[Game]) NowMillis() float64 { return this.poll.NowMillis }
 func (this *Eng[Game]) UtcMillis() uint64  { return this.poll.UtcMillis }
-func (this *Eng[Game]) Time() vgame.TimeFormat {
+func (this *Eng[Game]) Time() TimeFormat {
 	return this.poll.TimeFormat
 }
 func (this *Eng[Game]) DeltaMs() float64   { return this.poll.DeltaMillis }
 func (this *Eng[Game]) DeltaSecs() float64 { return this.poll.DeltaSecs() }
-func (this *Eng[Game]) Tick() *vgame.Tick  { return &this.tick }
+func (this *Eng[Game]) Tick() *Tick        { return &this.tick }
 
-func (this *Eng[Game]) ReqFullscreen(req vgame.FullscreenReq) {
+func (this *Eng[Game]) ReqFullscreen(req FullscreenReq) {
 	this.fullscreenReq = req
 }
 
@@ -202,9 +201,9 @@ func (this *Eng[Game]) DrawOnBlurFlag() int32 {
 }
 
 func (this *Eng[Game]) FullscreenEnabled() bool {
-	return this.fullscreenReq == vgame.FullscreenReqEnter ||
-		this.fullscreenReq == vgame.FullscreenReqPortrait ||
-		this.fullscreenReq == vgame.FullscreenReqLandscape
+	return this.fullscreenReq == FullscreenReqEnter ||
+		this.fullscreenReq == FullscreenReqPortrait ||
+		this.fullscreenReq == FullscreenReqLandscape
 }
 
 func (this *Eng[Game]) RenderMode() vgfx.RenderMode {
@@ -262,9 +261,9 @@ func (this *Eng[Game]) BoardTilesPtr() uintptr {
 func (this *Eng[Game]) BoardTileW() uint8 { return this.board.Tile.W }
 func (this *Eng[Game]) BoardTileH() uint8 { return this.board.Tile.H }
 
-func (this *Eng[Game]) EndTick(stat vgame.Status) vgame.Status {
+func (this *Eng[Game]) EndTick(stat Status) Status {
 	if this.drawAlways {
-		stat |= vgame.Loop
+		stat |= Loop
 	}
 	this.tick.UpdateMs = this.poll.UpdateMillis
 	// to-do: make frame finalization explicit instead of hanging this off
@@ -273,7 +272,7 @@ func (this *Eng[Game]) EndTick(stat vgame.Status) vgame.Status {
 	return stat
 }
 
-func (this *Eng[Game]) Preupdate(gam Game) vgame.Status {
+func (this *Eng[Game]) Preupdate(gam Game) Status {
 	this.updateLayerScales()
 	stat := this.preupdaters.Update(gam)
 	this.updateLayerClips()
@@ -303,7 +302,7 @@ func (this *Eng[Game]) AtlasCelsCount() uint32 {
 	return uint32(len(this.atlas.Cels))
 }
 
-func (this *Eng[Game]) BeginTick() vgame.Status {
+func (this *Eng[Game]) BeginTick() Status {
 	this.beepCount = 0
 	this.in.Update(
 		this.poll.NowMillis,
@@ -314,14 +313,14 @@ func (this *Eng[Game]) BeginTick() vgame.Status {
 	this.tick.DrawCount = this.poll.DrawCount
 	this.drawAlways = this.poll.DrawAlways
 	req := this.poll.FullscreenReq
-	this.poll.FullscreenReq = vgame.FullscreenReqNone
-	if req != vgame.FullscreenReqNone {
+	this.poll.FullscreenReq = FullscreenReqNone
+	if req != FullscreenReqNone {
 		this.ReqFullscreen(req)
 	}
 	for i := range this.layers {
 		this.layers[i].Sprs = this.layers[i].Sprs[:0]
 	}
-	return vgame.Pause
+	return Pause
 }
 
 func (this *Eng[Game]) updateLayerScales() {

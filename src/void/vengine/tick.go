@@ -1,4 +1,4 @@
-package vgame
+package vengine
 
 type Tick struct {
 	// duration of the previous Go update in milliseconds.

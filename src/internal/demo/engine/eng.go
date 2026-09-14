@@ -4,15 +4,12 @@ import (
 	"math"
 
 	"github.com/oidoid/void/src/internal/demo/assets"
-	"github.com/oidoid/void/src/internal/demo/entities"
-	"github.com/oidoid/void/src/internal/demo/game"
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/internal/demo/tags"
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vboards"
 	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/ventities"
-	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vgrid"
@@ -23,7 +20,7 @@ import (
 
 type Eng struct {
 	*vengine.Eng[*Eng]
-	Superballs     ventities.EntVec[*Eng, entities.SuperballEnt]
+	Superballs     ventities.EntVec[*Eng, SuperballEnt]
 	HitSuperballs  bool
 	BeepSuperballs bool
 	SuperballGrid  vgrid.Grid
@@ -36,16 +33,8 @@ type Eng struct {
 	CamZoomOn        bool
 }
 
-type entUpdater struct {
-	ent ventities.Updater[game.Game]
-}
-
-func (this entUpdater) Update(gam *Eng) vgame.Status {
-	return this.ent.Update(gam)
-}
-
 var Version string
-var _ vgame.Game = (*Eng)(nil)
+var _ vengine.Game = (*Eng)(nil)
 
 const (
 	lvlScaleMin = float32(1)
@@ -81,7 +70,7 @@ func New() *Eng {
 	this.Layer(gfx.LayerCursor).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerGrid).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerGrid).BlendMode = vgfx.LayerBlendModeMultiply
-	this.ReqFullscreen(vgame.FullscreenReqEnter)
+	this.ReqFullscreen(vengine.FullscreenReqEnter)
 	this.In().MapDefaults()
 	*this.Texts() = *ventities.NewEntVec(vhooks.UpdateTexts[*Eng])
 	this.RegisterUpdate(this.Texts())
@@ -102,8 +91,8 @@ func (this *Eng) SetBoard(board *vboards.Board) {
 	this.SuperballGrid = vgrid.New(bounds, diameter, 2*1024*1024)
 }
 
-func (this *Eng) Register(ent ventities.Updater[game.Game]) {
-	this.RegisterUpdate(entUpdater{ent})
+func (this *Eng) Register(ent ventities.Updater[*Eng]) {
+	this.RegisterUpdate(ent)
 }
 
 func (this *Eng) SuperballCount() int { return this.Superballs.Len() }
@@ -230,13 +219,13 @@ func (this *Eng) Boing(dx, dy float32) {
 	this.LastBoingMs = this.NowMillis()
 	speed := float32(math.Hypot(float64(dx), float64(dy)))
 	hz := 100 * (0.5 + this.Random()) * min(max(speed/80, 2), 5)
-	this.Beep(vgame.Beep{
+	this.Beep(vengine.Beep{
 		StartHz: hz, EndHz: hz * 0.9, DurationMs: 120,
 	})
 }
 
 // to-do: separate method for resizing cam or whatever.
-func (this *Eng) Update() vgame.Status {
+func (this *Eng) Update() vengine.Status {
 	stat := this.Eng.BeginTick()
 	dpr := this.Poll().DevicePixelRatio
 	this.Layer(gfx.LayerUI).AutoscaleMaxScale = uint8(vmath.Round(3 * dpr))

@@ -1,12 +1,11 @@
-package entities
+package engine
 
 import (
-	"github.com/oidoid/void/src/internal/demo/game"
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/internal/demo/tags"
 	"github.com/oidoid/void/src/void/vatlas"
+	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/ventities"
-	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vin"
@@ -26,13 +25,13 @@ func NewMouseStatusEnt() MouseStatusEnt {
 	return this
 }
 
-func (this *MouseStatusEnt) Update(gam game.Game) vgame.Status {
+func (this *MouseStatusEnt) Update(gam *Eng) vengine.Status {
 	layer := gam.Layer(gfx.LayerUI)
 	sprs := &layer.Sprs
 	in := gam.In()
 	this.visible = this.visible || in.Ptr.Device() == vin.PtrDevMouse
 	if !this.visible {
-		return vgame.Pause
+		return vengine.Pause
 	}
 
 	hudXY := this.HUDEnt.XY(mouseStatusSize, mouseStatusSize, layer.Clip)
@@ -47,9 +46,9 @@ func (this *MouseStatusEnt) Update(gam game.Game) vgame.Status {
 	this.addOverlay(sprs, tags.MouseStatusAux, xy, clicks&vin.ClickAux != 0)
 	this.addOverlay(sprs, tags.MouseStatusLocked, xy, gam.Ptrlock())
 	if in.Dirty {
-		return vgame.Loop
+		return vengine.Loop
 	}
-	return vgame.Pause
+	return vengine.Pause
 }
 
 func (this *MouseStatusEnt) addOverlay(

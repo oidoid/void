@@ -2,18 +2,17 @@ package hooks
 
 import (
 	"github.com/oidoid/void/src/internal/demo/engine"
-	"github.com/oidoid/void/src/internal/demo/entities"
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/internal/demo/tags"
-	"github.com/oidoid/void/src/void/vgame"
+	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
 func UpdateSuperballButtons(
-	vec *vvec.Vec[*entities.SuperballButtonEnt],
+	vec *vvec.Vec[*engine.SuperballButtonEnt],
 	gam *engine.Eng,
-) vgame.Status {
+) vengine.Status {
 	layer := gam.Layer(gfx.LayerUI)
 	in := gam.In()
 	font := gam.Font()
@@ -37,7 +36,7 @@ func UpdateSuperballButtons(
 	rnd := gam.Random
 	ballRadius := float32(gam.Atlas().Anims[int(tags.SuperballDefault)].W) / 2
 	ents := vec.Vals()
-	loop := vgame.Pause
+	loop := vengine.Pause
 	// to-do: lot of places we actually want an XYWH not a min-max Box.
 	for i := range ents {
 		loop |= ents[i].Update(

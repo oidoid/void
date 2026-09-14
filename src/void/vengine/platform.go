@@ -1,9 +1,16 @@
-package vgame
+package vengine
 
 type Platform interface {
+	PollPtr() uintptr
 	BeepPtr() uintptr
 	BeepCount() uint32
-	PollPtr() uintptr
+	FullscreenReq() int32
+	ScreenshotReq() int32
+	ContextLossReq() int32
+	DrawAlways() int32
+	DrawOnBlur() int32
+	RenderMode() int32
+	UpdateInMillisReq() uint64
 	LayerConfigsPtr() uintptr
 	Update() Status
 	BoardTilesPtr() uintptr

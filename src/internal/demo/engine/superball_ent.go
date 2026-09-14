@@ -1,10 +1,10 @@
 // to-do: can we rename package?
-package entities
+package engine
 
 import (
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/internal/demo/tags"
-	"github.com/oidoid/void/src/void/vgame"
+	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 )
@@ -60,7 +60,7 @@ func (this *SuperballEnt) Move(
 func (this *SuperballEnt) Draw(
 	sprs *[]vgfx.Spr,
 	clip vgeo.Box[float32],
-) vgame.Status {
+) vengine.Status {
 	if clip.HitsXY(this.XY) {
 		spr := vgfx.Spr{
 			TagCel: tags.SuperballDefault.Cel(0),
@@ -70,7 +70,7 @@ func (this *SuperballEnt) Draw(
 		spr.SetRot(this.Rot)
 		*sprs = append(*sprs, spr)
 	}
-	return vgame.Pause // demo doesn't want superballs to require updates.
+	return vengine.Pause // demo doesn't want superballs to require updates.
 }
 
 func (this *SuperballEnt) Hit(other *SuperballEnt, diameter float32) bool {

@@ -27,7 +27,7 @@ levels are a higher-level app composition that selects a board and wires gamepla
 
 ### Ents and Hooks
 
-ents are a single data and behavior instance. low-count demo ents implement `Update(game.Game)` and register directly with `gam.Register()`. hooks operate on high-count or coordinated ent vectors efficiently.
+ents are a single data and behavior instance. low-count demo ents implement `Update(*engine.Eng)` and register directly with `gam.Register()`. hooks operate on high-count or coordinated ent vectors efficiently.
 
 ents with an update hook return whether they have been updated and so request a new frame. this is important for lo energy apps.
 

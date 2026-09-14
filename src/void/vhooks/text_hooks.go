@@ -1,19 +1,19 @@
 package vhooks
 
 import (
+	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/ventities"
-	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
-func UpdateTexts[Game vgame.Game](
+func UpdateTexts[Game vengine.Game](
 	vec *vvec.Vec[ventities.TextEnt],
 	gam Game,
-) vgame.Status {
+) vengine.Status {
 	// to-do: move _Layer_ not Z to Vec?
 	font := gam.Font()
 	ents := vec.Vals()
-	loop := vgame.Pause
+	loop := vengine.Pause
 	for i := range ents {
 		ent := &ents[i]
 		layer := gam.Layer(ent.Z.Layer())

@@ -25,7 +25,7 @@ import type {Keyboard} from './keyboard.ts'
 import type {Ptr} from './ptr.ts'
 import type {Wheel} from './wheel.ts'
 
-test('Poll ABI layout matches vgame.Poll', () => {
+test('Poll ABI layout matches vengine.Poll', () => {
   assert(drawCountOffset, 4408)
   assert(fullscreenReqOffset, 4412)
   assert(ptrlockedOffset, 4413)

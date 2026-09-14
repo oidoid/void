@@ -5,7 +5,7 @@ import (
 
 	"github.com/oidoid/void/src/internal/demo/engine"
 	"github.com/oidoid/void/src/internal/demo/gfx"
-	"github.com/oidoid/void/src/void/vgame"
+	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vmath"
@@ -16,9 +16,9 @@ import (
 const camKeyVel = float32(10) // lvl px / sec.
 
 // to-do: update cam last and check click mask state.
-func UpdateCam(gam *engine.Eng) vgame.Status {
+func UpdateCam(gam *engine.Eng) vengine.Status {
 	in := gam.In()
-	stat := vgame.Pause
+	stat := vengine.Pause
 	anchor := zoomAnchor(gam, in)
 	cursor := gam.Cursor()
 	dirOn := in.DirOn && (cursor == nil || !cursor.KbdEnabled)
@@ -41,30 +41,30 @@ func UpdateCam(gam *engine.Eng) vgame.Status {
 	lvlScaleChanged := false
 	if pinch != nil &&
 		gam.ZoomLvlAt(pinch.CenterPhy, pinchZoom(pinch)) {
-		stat |= vgame.Loop
+		stat |= vengine.Loop
 		lvlScaleChanged = true
 	}
 	if wheelZoomOn &&
 		gam.ZoomLvlAt(anchor, wheelZoom(in.Wheel.Delta.Y)) {
-		stat |= vgame.Loop
+		stat |= vengine.Loop
 		lvlScaleChanged = true
 	}
 	if zoomEnd && snapLvlScaleAt(gam, gam.CamZoomAnchorPhy) {
-		stat |= vgame.Loop
+		stat |= vengine.Loop
 		lvlScaleChanged = true
 	}
 	if in.IsOnStart(vin.ButtonScaleReset) && gam.ResetLvlScaleAt(anchor) {
-		stat |= vgame.Loop
+		stat |= vengine.Loop
 		lvlScaleChanged = true
 	}
 	if in.IsOnStart(vin.ButtonScaleDec) &&
 		adjustLvlScaleAtKey(gam, anchor, -keyZoomDelta) {
-		stat |= vgame.Loop
+		stat |= vengine.Loop
 		lvlScaleChanged = true
 	}
 	if in.IsOnStart(vin.ButtonScaleInc) &&
 		adjustLvlScaleAtKey(gam, anchor, keyZoomDelta) {
-		stat |= vgame.Loop
+		stat |= vengine.Loop
 		lvlScaleChanged = true
 	}
 	d := camKeyVel * float32(gam.DeltaSecs()) * tiles.ScaleOrDefault()
@@ -111,7 +111,7 @@ func UpdateCam(gam *engine.Eng) vgame.Status {
 	if by == (vgeo.XY[float32]{}) && !dirOn {
 		if panEnd {
 			snapCam(gam, vgeo.XY[float32]{})
-			return stat | vgame.Loop
+			return stat | vengine.Loop
 		}
 		return stat
 	}
@@ -122,7 +122,7 @@ func UpdateCam(gam *engine.Eng) vgame.Status {
 	if dirOn && (by != (vgeo.XY[float32]{}) || panEnd) {
 		gam.CamKeyPhy = *cam
 	}
-	return stat | vgame.Loop
+	return stat | vengine.Loop
 }
 
 func adjustLvlScaleAtKey(
@@ -176,9 +176,9 @@ func snapCam(gam *engine.Eng, by vgeo.XY[float32]) {
 	*cam = tiles.LayerToPhyScale(xy)
 }
 
-func UpdateLayers(gam *engine.Eng) vgame.Status {
+func UpdateLayers(gam *engine.Eng) vengine.Status {
 	gam.UpdateLvlLayers()
-	return vgame.Pause
+	return vengine.Pause
 }
 
 func pinchZoom(pinch *vin.Pinch) float32 {

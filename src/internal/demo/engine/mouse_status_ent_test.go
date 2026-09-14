@@ -1,10 +1,9 @@
-package entities_test
+package engine_test
 
 import (
 	"testing"
 
 	"github.com/oidoid/void/src/internal/demo/engine"
-	"github.com/oidoid/void/src/internal/demo/entities"
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/internal/demo/tags"
 	"github.com/oidoid/void/src/void/vgeo"
@@ -31,7 +30,7 @@ func TestMouseStatusPtrlocked(t *testing.T) {
 			}
 			gam.In().Update(0, &poll, vgeo.Box[float32]{})
 
-			ent := entities.NewMouseStatusEnt()
+			ent := engine.NewMouseStatusEnt()
 			ent.Update(gam)
 			sprs := gam.Layer(gfx.LayerUI).Sprs
 			if got := len(sprs); got != test.sprsLen {

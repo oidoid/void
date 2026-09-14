@@ -1,10 +1,10 @@
-package entities
+package engine
 
 import (
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/internal/demo/tags"
+	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/ventities"
-	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vin"
@@ -105,7 +105,7 @@ func (this *SuperballButtonEnt) Update(
 	superballRadius float32,
 	hit *bool,
 	beep *bool,
-) vgame.Status {
+) vengine.Status {
 	loop := this.ButtonEnt.Update(in, sprs, layer, font, cursorPhy)
 
 	if this.Action == SuperballActionAddSome && this.On {

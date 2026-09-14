@@ -3,8 +3,8 @@ package hooks
 import (
 	"github.com/oidoid/void/src/internal/demo/engine"
 	"github.com/oidoid/void/src/internal/demo/gfx"
+	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/ventities"
-	"github.com/oidoid/void/src/void/vgame"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
@@ -12,7 +12,7 @@ import (
 func UpdateClipFillNinePatches(
 	vec *vvec.Vec[ventities.NinePatchEnt],
 	gam *engine.Eng,
-) vgame.Status {
+) vengine.Status {
 	ents := vec.Vals()
 	for i := range ents {
 		ent := &ents[i]
@@ -22,13 +22,13 @@ func UpdateClipFillNinePatches(
 		ent.WH = vgeo.NewWH(uint16(clip.W()), uint16(clip.H()))
 		ent.Update(&layer.Sprs)
 	}
-	return vgame.Pause
+	return vengine.Pause
 }
 
 func UpdateLvlEdgeNinePatches(
 	vec *vvec.Vec[ventities.NinePatchEnt],
 	gam *engine.Eng,
-) vgame.Status {
+) vengine.Status {
 	ui := gam.Layer(gfx.LayerUI)
 	lvl := gam.Layer(gfx.LayerTiles)
 	edge := lvlEdge(lvl.ClipPhy, *gam.CanvasPhy(), ui)
@@ -40,5 +40,5 @@ func UpdateLvlEdgeNinePatches(
 		ent.WH = vgeo.NewWH(uint16(edge.W()), uint16(edge.H()))
 		ent.Update(&ui.Sprs)
 	}
-	return vgame.Pause
+	return vengine.Pause
 }
