@@ -12,5 +12,5 @@ func UpdateButtons(
 	vec *vvec.Vec[*ventities.ButtonEnt],
 	gam *engine.Eng,
 ) vengine.Status {
-	return vhooks.UpdateButtons(vec, gam.Eng)
+	return vhooks.UpdateButtons(vec, &gam.Eng)
 }

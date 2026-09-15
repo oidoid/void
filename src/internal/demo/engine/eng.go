@@ -19,7 +19,7 @@ import (
 )
 
 type Eng struct {
-	*vengine.Eng[*Eng]
+	vengine.Eng[*Eng]
 	Superballs     ventities.EntVec[*Eng, entities.SuperballEnt]
 	HitSuperballs  bool
 	BeepSuperballs bool
@@ -44,7 +44,7 @@ func New() *Eng {
 	font := vtext.MemProp5x6
 	font.FirstTag = tags.MemProp5x600
 	this := &Eng{
-		Eng: vengine.New[*Eng](&vengine.EngOpts{
+		Eng: *vengine.New[*Eng](&vengine.EngOpts{
 			Font:       font,
 			Atlas:      vatlas.DecodeAtlas(assets.AtlasBin),
 			RenderMode: vgfx.RenderModePixel,
