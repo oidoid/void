@@ -107,7 +107,7 @@ func newButtonEnt(
 		MinW:       buttonMinW,
 		Type:       buttonType,
 	}
-	this.Text.Text = label
+	this.Text.SetText(label)
 	this.Text.Z = gfx.ZUIText
 	this.NinePatchEnt.SetZ(gfx.ZUIWidget)
 	return &this

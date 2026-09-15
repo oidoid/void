@@ -23,7 +23,7 @@ func TestNewPopulatesTiledTexts(t *testing.T) {
 		t.Fatalf("text count = %d, want %d", got, want)
 	}
 	text := gam.Texts().Vals()[0]
-	if got, want := text.Text, "void"; got != want {
+	if got, want := text.Text(), "void"; got != want {
 		t.Errorf("text = %q, want %q", got, want)
 	}
 	if got, want := text.XY, vgeo.NewXY[int16](32, 32); got != want {

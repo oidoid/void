@@ -54,7 +54,7 @@ type ButtonEnt struct {
 func (this *ButtonEnt) Layout(
 	font *vtext.Font, clip vgeo.Box[float32],
 ) {
-	if this.Text.Text != "" {
+	if this.Text.Text() != "" {
 		this.Text.LayoutChars(font)
 		edge := uint16(this.CornerWH.W)
 		pad2 := 2 * (2 + edge)
@@ -64,7 +64,7 @@ func (this *ButtonEnt) Layout(
 	this.WH.W = max(this.WH.W, this.MinW)
 
 	// require even gap between button and text so integer division centers.
-	if this.Text.Text != "" {
+	if this.Text.Text() != "" {
 		if (this.WH.W-uint16(this.Text.Layout.W))%2 != 0 {
 			this.WH.W++
 		}
@@ -131,7 +131,7 @@ func (this *ButtonEnt) Update(
 	}
 	this.NinePatchEnt.Update(sprs)
 
-	if this.Text.Text != "" {
+	if this.Text.Text() != "" {
 		this.Text.XY = vgeo.NewXY(
 			int16(this.XY.X)+(int16(this.WH.W)-this.Text.Layout.W)/2,
 			int16(this.XY.Y)+(int16(this.WH.H)-this.Text.Layout.TrimAllForceH)/2,

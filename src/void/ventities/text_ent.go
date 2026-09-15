@@ -8,14 +8,13 @@ import (
 	"github.com/oidoid/void/src/void/vtypes"
 )
 
-// to-do: hide text?
 type TextEnt struct {
-	Text      string
 	Layout    vtext.TextLayout // nil `Layout.Chars` to force relayout.
 	XY        vgeo.XY[int16]
 	Z         vgfx.Z
 	Pal       vatlas.Tag
 	Trim      vtext.Trim
+	text      string
 	textScale uint8
 }
 
@@ -29,7 +28,12 @@ func (this *TextEnt) Update(
 		this.LayoutChars(font)
 		loop |= vtypes.Loop
 	}
-	for i, ch := range []rune(this.Text) {
+	scale := this.scale()
+	wh := vgeo.NewWH(
+		uint16(font.CellW)*uint16(scale),
+		uint16(font.CellH)*uint16(scale),
+	)
+	for i, ch := range []rune(this.text) {
 		chBox := this.Layout.Chars[i]
 		if chBox == zeroChar {
 			// to-do: better to just draw instead of testing every char?
@@ -40,18 +44,16 @@ func (this *TextEnt) Update(
 			float32(chBox.Min.Y+this.XY.Y),
 		)
 
-		if xy.Y > clip.Max.Y {
+		if xy.Y >= clip.Max.Y {
 			break
 		}
-		if !clip.HitsXY(xy) {
+		if !clip.HitsBox(vgeo.XYWH(
+			xy.X, xy.Y, float32(wh.W), float32(wh.H),
+		)) {
 			continue
 		}
 		spr := vgfx.Spr{TagCel: font.Tag(ch).Cel(0), XY: xy, Z: this.Z}
-		scale := this.scale()
-		spr.WH = vgeo.NewWH(
-			uint16(font.CellW)*uint16(scale),
-			uint16(font.CellH)*uint16(scale),
-		)
+		spr.WH = wh
 		spr.SetStretch(true)
 		spr.SetPal(this.Pal)
 		*sprs = append(*sprs, spr)
@@ -61,11 +63,15 @@ func (this *TextEnt) Update(
 
 // invalidates layout when text changes.
 func (this *TextEnt) SetText(text string) {
-	if this.Text == text {
+	if this.text == text {
 		return
 	}
-	this.Text = text
+	this.text = text
 	this.Layout.Chars = nil
+}
+
+func (this *TextEnt) Text() string {
+	return this.text
 }
 
 func (this *TextEnt) SetScale(scale uint8) {
@@ -83,7 +89,7 @@ func (this *TextEnt) LayoutChars(font *vtext.Font) {
 	this.Layout = vtext.LayoutText(vtext.TextLayoutOpts{
 		Font:  font,
 		Scale: this.scale(),
-		Text:  this.Text,
+		Text:  this.text,
 	})
 }
 

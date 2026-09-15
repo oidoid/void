@@ -85,7 +85,7 @@ func newSuperballButtonEnt(
 		},
 		Action: action,
 	}
-	this.Text.Text = label
+	this.Text.SetText(label)
 	this.Text.Z = gfx.ZUIText
 	this.NinePatchEnt.SetZ(gfx.ZUIWidget)
 	return &this

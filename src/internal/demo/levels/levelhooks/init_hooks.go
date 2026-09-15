@@ -26,7 +26,6 @@ func InitInit(gam *engine.Eng) {
 			continue
 		}
 		text := ventities.TextEnt{
-			Text: spawn.Text,
 			XY: vgeo.NewXY(
 				int16(vmath.Floor(spawn.XY.X)),
 				int16(vmath.Floor(spawn.XY.Y)),
@@ -34,6 +33,7 @@ func InitInit(gam *engine.Eng) {
 			Z:   spawn.Z,
 			Pal: spawn.Pal,
 		}
+		text.SetText(spawn.Text)
 		gam.Texts().Add(text)
 	}
 	anim := gam.Atlas().Anims[int(tags.BackpackerWalkRight)]
