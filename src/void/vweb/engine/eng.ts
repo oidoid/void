@@ -179,9 +179,9 @@ export class Eng {
     this.#reqUpdate()
     this.#resumeSFX()
     this.#renderer.resize(this.#phyW, this.#phyH)
-    const nowMillis = performance.now()
+    const frameMillis = performance.now()
     if (this.#paused()) this.#lastTime = 0
-    this.#writeUpdate(this.#renderer, nowMillis)
+    const nowMillis = this.#writeUpdate(this.#renderer, frameMillis)
     const updateStart = performance.now()
     const loop = this.#wasm.Update()
     this.#playBeeps()
@@ -435,14 +435,15 @@ export class Eng {
     this.#drawAlways = drawAlways
   }
 
-  #writeUpdate(renderer: Renderer, nowMillis: number): void {
+  #writeUpdate(renderer: Renderer, frameMillis: number): number {
     if (this.#poll.buffer !== this.#wasm.memory.buffer)
       this.#poll = new DataView(
         this.#wasm.memory.buffer,
         this.#wasm.PollPtr(),
         updateByteLen
       )
-    const delta = this.#lastTime === 0 ? 0 : nowMillis - this.#lastTime
+    const delta = this.#lastTime === 0 ? 0 : frameMillis - this.#lastTime
+    const nowMillis = this.#poll.getFloat64(nowMsOffset, true) + delta
     this.#poll.setFloat64(deltaMsOffset, delta, true)
     this.#poll.setUint16(canvasWOffset, renderer.phyW, true)
     this.#poll.setUint16(canvasHOffset, renderer.phyH, true)
@@ -476,6 +477,7 @@ export class Eng {
     this.#poll.setUint16(localMillisOffset, date.getMilliseconds(), true)
     this.#input.update(this.#poll)
     this.#input.postupdate() // to-do: move to postupdate()?
-    this.#lastTime = nowMillis
+    this.#lastTime = frameMillis
+    return nowMillis
   }
 }

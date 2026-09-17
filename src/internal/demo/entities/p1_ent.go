@@ -25,9 +25,7 @@ const (
 
 func NewP1Ent(xy vgeo.XY[float32], anim vatlas.Anim) P1Ent {
 	return P1Ent{
-		Spr: vgfx.Spr{
-			XY: xy, WH: vgeo.NewWH(anim.W, anim.H), Z: gfx.ZP1,
-		},
+		XY: xy, WH: vgeo.NewWH(anim.W, anim.H), Z: gfx.ZP1,
 		Dir: vgeo.DirE, Hurtbox: anim.Hurtbox, Clockwise: true,
 	}
 }

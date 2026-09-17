@@ -9,9 +9,7 @@ type Poll struct {
 	InPoll vin.InPoll
 	// time since the last frame was _requested_ in milliseconds.
 	DeltaMillis float64
-	// millis since the performance time origin.
-	// note: `performance.timeOrigin + performance.now()` is not UTC time when the
-	// OS has been suspended.
+	// time spent requesting frames, excluding time paused between updates.
 	NowMillis  float64
 	UtcMillis  uint64
 	CanvasPhy  vgeo.WH[uint16]
