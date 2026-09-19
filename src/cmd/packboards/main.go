@@ -108,12 +108,14 @@ func packBoards(argv *Argv) error {
 	if err := os.MkdirAll(argv.Out, 0o755); err != nil {
 		return err
 	}
-	for _, path := range paths {
+	for boardI, path := range paths {
 		board, err := readBoard(path, i, manifest.Tags)
 		if err != nil {
 			return fmt.Errorf("%s: %w", path, err)
 		}
-		src, err := genBoard(argv.Pkg, path, &board)
+		src, err := genBoard(
+			argv.Pkg, path, vboards.Level(boardI+1), &board,
+		)
 		if err != nil {
 			return fmt.Errorf("%s: %w", path, err)
 		}
@@ -126,7 +128,11 @@ func packBoards(argv *Argv) error {
 	return nil
 }
 
-func genBoard(pkg, path string, board *spawnBoardSpec) ([]byte, error) {
+func genBoard(
+	pkg, path string,
+	level vboards.Level,
+	board *spawnBoardSpec,
+) ([]byte, error) {
 	name := goName(strings.TrimSuffix(filepath.Base(path), filepath.Ext(path)))
 	firstCh, _ := utf8.DecodeRuneInString(name)
 	if name == "" || !unicode.IsLetter(firstCh) {
@@ -172,9 +178,10 @@ func genBoard(pkg, path string, board *spawnBoardSpec) ([]byte, error) {
 	data := struct {
 		Pkg   string
 		Name  string
+		Level vboards.Level
 		Bin   []byte
 		Board *spawnBoardSpec
-	}{pkg, name, vboards.EncodeBoard(&board.Board), board}
+	}{pkg, name, level, vboards.EncodeBoard(&board.Board), board}
 	if err := boardTempl.Execute(&str, &data); err != nil {
 		return nil, fmt.Errorf("executing board template: %w", err)
 	}

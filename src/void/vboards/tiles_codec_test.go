@@ -35,7 +35,7 @@ func TestBoardRoundTrip(t *testing.T) {
 	}
 	for name, board := range cases {
 		t.Run(name, func(t *testing.T) {
-			got := DecodeBoard(EncodeBoard(&board))
+			got := DecodeBoard(board.Level, EncodeBoard(&board))
 			if len(got.Tiles) == 0 && len(board.Tiles) == 0 {
 				got.Tiles, board.Tiles = nil, nil
 			}

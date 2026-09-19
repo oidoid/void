@@ -1,16 +1,15 @@
+import type {BoardConfig} from '../board-config.ts'
 import {buildProgram} from '../gl.ts'
 import tileFrag from './tile.frag.glsl'
 import tileVert from './tile.vert.glsl'
+
+const emptyTiles = new Uint16Array(1)
 
 /** draws static, single-cel board tiles. */
 export class TileRenderer {
   static new(
     gl: WebGL2RenderingContext,
-    tiles: Uint16Array,
-    tileW: number,
-    tileH: number,
-    boardW: number,
-    boardH: number,
+    board: Readonly<BoardConfig>,
     atlasCelsTex: WebGLTexture,
     sprsheetTex: WebGLTexture
   ): TileRenderer {
@@ -19,9 +18,6 @@ export class TileRenderer {
     const uCamXY = gl.getUniformLocation(pgm, 'uCamXY')!
     const uBoardWH = gl.getUniformLocation(pgm, 'uBoardWH')!
     const uTileWH = gl.getUniformLocation(pgm, 'uTileWH')!
-
-    const gridW = boardW / tileW
-    const gridH = boardH / tileH
 
     const vao = gl.createVertexArray()!
 
@@ -32,54 +28,51 @@ export class TileRenderer {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      0,
-      gl.R16UI,
-      gridW,
-      gridH,
-      0,
-      gl.RED_INTEGER,
-      gl.UNSIGNED_SHORT,
-      tiles
-    )
-    gl.bindTexture(gl.TEXTURE_2D, null)
-
     gl.useProgram(pgm)
-    gl.uniform2f(uBoardWH, boardW, boardH)
-    gl.uniform2f(uTileWH, tileW, tileH)
     gl.uniform1i(gl.getUniformLocation(pgm, 'uTiles')!, 0)
     gl.uniform1i(gl.getUniformLocation(pgm, 'uAtlasCels')!, 1)
     gl.uniform1i(gl.getUniformLocation(pgm, 'uSprsheet')!, 2)
     gl.useProgram(null)
 
-    return new TileRenderer(
+    const renderer = new TileRenderer(
       gl,
       pgm,
       uResolution,
       uCamXY,
+      uBoardWH,
+      uTileWH,
       vao,
       tilesTex,
       atlasCelsTex,
       sprsheetTex
     )
+    renderer.update(board)
+    return renderer
   }
 
   readonly #gl: WebGL2RenderingContext
   readonly #pgm: WebGLProgram
   readonly #uResolution: WebGLUniformLocation
   readonly #uCamXY: WebGLUniformLocation
+  readonly #uBoardWH: WebGLUniformLocation
+  readonly #uTileWH: WebGLUniformLocation
   readonly #vao: WebGLVertexArrayObject
   readonly #tilesTex: WebGLTexture
   // borrowed from SprRenderer and deleted there.
   readonly #atlasCelsTex: WebGLTexture
   readonly #sprsheetTex: WebGLTexture
+  /** allocated tile texture width in cells. */
+  #gridW: number = 0
+  /** allocated tile texture height in cells. */
+  #gridH: number = 0
 
   private constructor(
     gl: WebGL2RenderingContext,
     pgm: WebGLProgram,
     uResolution: WebGLUniformLocation,
     uCamXY: WebGLUniformLocation,
+    uBoardWH: WebGLUniformLocation,
+    uTileWH: WebGLUniformLocation,
     vao: WebGLVertexArrayObject,
     tilesTex: WebGLTexture,
     atlasCelsTex: WebGLTexture,
@@ -89,10 +82,59 @@ export class TileRenderer {
     this.#pgm = pgm
     this.#uResolution = uResolution
     this.#uCamXY = uCamXY
+    this.#uBoardWH = uBoardWH
+    this.#uTileWH = uTileWH
     this.#vao = vao
     this.#tilesTex = tilesTex
     this.#atlasCelsTex = atlasCelsTex
     this.#sprsheetTex = sprsheetTex
+  }
+
+  update(board: Readonly<BoardConfig>): void {
+    const empty = !board.tiles.length
+    const tiles = empty ? emptyTiles : board.tiles
+    const cols = empty ? 1 : board.w / board.tileW
+    const rows = empty ? 1 : board.h / board.tileH
+    const gl = this.#gl
+    gl.activeTexture(gl.TEXTURE0)
+    gl.bindTexture(gl.TEXTURE_2D, this.#tilesTex)
+    if (cols === this.#gridW && rows === this.#gridH) {
+      gl.texSubImage2D(
+        gl.TEXTURE_2D,
+        0,
+        0,
+        0,
+        cols,
+        rows,
+        gl.RED_INTEGER,
+        gl.UNSIGNED_SHORT,
+        tiles
+      )
+    } else {
+      gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.R16UI,
+        cols,
+        rows,
+        0,
+        gl.RED_INTEGER,
+        gl.UNSIGNED_SHORT,
+        tiles
+      )
+      this.#gridW = cols
+      this.#gridH = rows
+    }
+    gl.bindTexture(gl.TEXTURE_2D, null)
+
+    gl.useProgram(this.#pgm)
+    gl.uniform2f(this.#uBoardWH, empty ? 0 : board.w, empty ? 0 : board.h)
+    gl.uniform2f(
+      this.#uTileWH,
+      empty ? 1 : board.tileW,
+      empty ? 1 : board.tileH
+    )
+    gl.useProgram(null)
   }
 
   dispose(): void {

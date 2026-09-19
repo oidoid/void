@@ -2,10 +2,13 @@ const layerBlendModeMultiply = 1
 const layerBlendModeReplace = 2
 
 import type {XYWH} from '../geo/box.ts'
+import type {BoardConfig} from './board-config.ts'
 import {ClipRenderer} from './clip-renderer/clip-renderer.ts'
 import {OverlayRenderer} from './overlay-renderer/overlay-renderer.ts'
 import {SprRenderer} from './spr-renderer/spr-renderer.ts'
 import {TileRenderer} from './tile-renderer/tile-renderer.ts'
+
+export type {BoardConfig as BoardRenderState} from './board-config.ts'
 
 export function getWebGL2(
   canvas: HTMLCanvasElement,
@@ -47,15 +50,11 @@ export class Renderer {
   readonly #clip: ClipRenderer
   readonly #sprs: SprRenderer
   readonly #tiles: TileRenderer
+  #boardLevel: number
 
   constructor(
     gl: WebGL2RenderingContext,
-    buffer: ArrayBuffer,
-    tilePtr: number,
-    boardW: number,
-    boardH: number,
-    tileW: number,
-    tileH: number,
+    board: Readonly<BoardConfig>,
     atlasCels: Uint16Array,
     atlasAnimCount: number,
     atlasCelsPerAnim: number,
@@ -67,11 +66,7 @@ export class Renderer {
     gl.enable(gl.BLEND)
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
-    const tiles = new Uint16Array(
-      buffer,
-      tilePtr,
-      (boardW / tileW) * (boardH / tileH)
-    )
+    this.#boardLevel = board.lvl
     this.#loseContext = gl.getExtension('WEBGL_lose_context')
     this.#gl = gl
     this.#clip = ClipRenderer.new(gl, pixel)
@@ -86,14 +81,19 @@ export class Renderer {
     )
     this.#tiles = TileRenderer.new(
       gl,
-      tiles,
-      tileW,
-      tileH,
-      boardW,
-      boardH,
+      board,
       this.#sprs.atlasCelsTex,
       this.#sprs.sprsheetTex
     )
+  }
+
+  get boardLvl(): number {
+    return this.#boardLevel
+  }
+
+  updateBoard(board: Readonly<BoardConfig>): void {
+    this.#tiles.update(board)
+    this.#boardLevel = board.lvl
   }
 
   // integral width in physical pixels.

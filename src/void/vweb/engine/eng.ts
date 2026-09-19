@@ -1,5 +1,9 @@
 import {In} from '../input/in.ts'
-import {getWebGL2, Renderer} from '../renderer/renderer.ts'
+import {
+  type BoardRenderState,
+  getWebGL2,
+  Renderer
+} from '../renderer/renderer.ts'
 import {beep, SFX} from '../sfx/sfx.ts'
 import {downloadScreenshot, initCanvas} from '../utils/canvas-util.ts'
 import {initBody, initMetaViewport} from '../utils/dom-util.ts'
@@ -194,6 +198,9 @@ export class Eng {
     }
     this.#updateMs = performance.now() - updateStart
     const buffer = this.#wasm.memory.buffer
+    const boardLevel = this.#wasm.BoardLevel()
+    if (boardLevel !== this.#renderer.boardLvl)
+      this.#renderer.updateBoard(this.#boardRenderState(boardLevel))
     const layerConfigPtr = this.#wasm.LayerConfigsPtr()
     const layerConfigView = new DataView(buffer)
     const camX = this.#wasm.CamX()
@@ -357,18 +364,29 @@ export class Eng {
     const pixel = this.#wasm.RenderMode() === RenderModePixel
     return new Renderer(
       getWebGL2(this.#canvas, !pixel),
-      this.#wasm.memory.buffer,
-      this.#wasm.BoardTilesPtr(),
-      this.#wasm.BoardW(),
-      this.#wasm.BoardH(),
-      this.#wasm.BoardTileW(),
-      this.#wasm.BoardTileH(),
+      this.#boardRenderState(this.#wasm.BoardLevel()),
       atlasCels,
       this.#wasm.AtlasAnimCount(),
       this.#wasm.AtlasCelsPerAnim(),
       atlasImg,
       pixel
     )
+  }
+
+  #boardRenderState(level: number): BoardRenderState {
+    const wasm = this.#wasm
+    return {
+      lvl: level,
+      tiles: new Uint16Array(
+        wasm.memory.buffer,
+        wasm.BoardTilesPtr(),
+        wasm.BoardTilesLen()
+      ),
+      w: wasm.BoardW(),
+      h: wasm.BoardH(),
+      tileW: wasm.BoardTileW(),
+      tileH: wasm.BoardTileH()
+    }
   }
 
   #onVisibility = (): void => {

@@ -20,7 +20,9 @@ import (
 	"github.com/oidoid/void/src/void/vgeo"
 )
 
-var {{.Name}}Board = vboards.DecodeBoard([]byte{
+const {{.Name}}Level vboards.Level = {{.Level}}
+
+var {{.Name}}Board = vboards.DecodeBoard({{.Name}}Level, []byte{
 	{{range .Bin}}{{printf "0x%02x, " .}}{{end}}
 })
 {{range $group := .Board.Spawns}}

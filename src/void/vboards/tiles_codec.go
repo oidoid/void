@@ -29,7 +29,7 @@ func EncodeBoard(board *Board) []byte {
 	return bin
 }
 
-func DecodeBoard(bin []byte) Board {
+func DecodeBoard(level Level, bin []byte) Board {
 	w := uint32(bin[0]) | uint32(bin[1])<<8 |
 		uint32(bin[2])<<16 | uint32(bin[3])<<24
 	h := uint32(bin[4]) | uint32(bin[5])<<8 |
@@ -50,7 +50,7 @@ func DecodeBoard(bin []byte) Board {
 		}
 	}
 	return Board{
-		WH:   vgeo.NewWH(int32(w), int32(h)),
+		Level: level, WH: vgeo.NewWH(int32(w), int32(h)),
 		Tile: tile, Tiles: tiles,
 	}
 }

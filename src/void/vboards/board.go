@@ -5,6 +5,7 @@ import (
 )
 
 type Board struct {
+	Level Level
 	// pixel dimensions; divisible by the corresponding Tile dimension.
 	vgeo.WH[int32]
 	// cell dimensions in pixels.
@@ -13,6 +14,8 @@ type Board struct {
 	// leaves a cell empty.
 	Tiles []Tile
 }
+
+type Level uint16
 
 func (this *Board) HitsAt(xy vgeo.XY[int32]) bool {
 	return this.TileAt(xy).Hits()

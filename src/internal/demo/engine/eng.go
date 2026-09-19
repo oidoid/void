@@ -75,7 +75,9 @@ func New() *Eng {
 }
 
 func (this *Eng) SetBoard(board *vboards.Board) {
-	this.Eng.SetBoard(board)
+	if !this.Eng.SetBoard(board) {
+		return
+	}
 	anim := this.Atlas().Anims[int(tags.SuperballDefault)]
 	diameter := float32(anim.Hitbox.Max.X - anim.Hitbox.Min.X)
 	// omit board edge.

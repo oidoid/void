@@ -17,8 +17,10 @@ export type Platform = {
   UpdateInMillisReq(): bigint
   LayerConfigsPtr(): number
   Update(): Loop
+  BoardLevel(): number
   // byte offset into `memory` of the first tile.
   BoardTilesPtr(): number
+  BoardTilesLen(): number
   // board size in pixels. origin is always `(0, 0)`.
   BoardW(): number
   BoardH(): number

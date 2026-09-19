@@ -122,7 +122,14 @@ func (this *Eng[Game]) SetCursor(cursor *ventities.CursorEnt) {
 
 func (this *Eng[Game]) Board() *vboards.Board { return this.board }
 
-func (this *Eng[Game]) SetBoard(board *vboards.Board) { this.board = board }
+func (this *Eng[Game]) SetBoard(board *vboards.Board) bool {
+	if this.board == board || this.board != nil && board != nil &&
+		this.board.Level == board.Level {
+		return false
+	}
+	this.board = board
+	return true
+}
 
 // to-do: rename to Poll, move props to Engine struct, and don't expose?
 func (this *Eng[Game]) Poll() *Poll        { return &this.poll }
@@ -243,8 +250,26 @@ func (this *Eng[Game]) In() *vin.In {
 	return this.in
 }
 
-func (this *Eng[Game]) BoardW() int32 { return this.board.W }
-func (this *Eng[Game]) BoardH() int32 { return this.board.H }
+func (this *Eng[Game]) BoardLevel() uint16 {
+	if this.board == nil {
+		return 0
+	}
+	return uint16(this.board.Level)
+}
+
+func (this *Eng[Game]) BoardW() int32 {
+	if this.board == nil {
+		return 0
+	}
+	return this.board.W
+}
+
+func (this *Eng[Game]) BoardH() int32 {
+	if this.board == nil {
+		return 0
+	}
+	return this.board.H
+}
 
 func (this *Eng[Game]) LayerConfigsPtr() uintptr {
 	return uintptr(unsafe.Pointer(unsafe.SliceData(this.layerConfigExport[:])))
@@ -259,8 +284,27 @@ func (this *Eng[Game]) BoardTilesPtr() uintptr {
 	}
 	return uintptr(unsafe.Pointer(&this.board.Tiles[0]))
 }
-func (this *Eng[Game]) BoardTileW() uint8 { return this.board.Tile.W }
-func (this *Eng[Game]) BoardTileH() uint8 { return this.board.Tile.H }
+
+func (this *Eng[Game]) BoardTilesLen() uint32 {
+	if this.board == nil {
+		return 0
+	}
+	return uint32(len(this.board.Tiles))
+}
+
+func (this *Eng[Game]) BoardTileW() uint8 {
+	if this.board == nil {
+		return 0
+	}
+	return this.board.Tile.W
+}
+
+func (this *Eng[Game]) BoardTileH() uint8 {
+	if this.board == nil {
+		return 0
+	}
+	return this.board.Tile.H
+}
 
 func (this *Eng[Game]) EndTick(stat Status) Status {
 	stat |= this.updateTexts()

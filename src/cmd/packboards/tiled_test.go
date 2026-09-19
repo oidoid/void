@@ -312,9 +312,12 @@ func TestGenBoardSpawns(t *testing.T) {
 			},
 			}}},
 	}
-	src, err := genBoard("maps", "init.tmx", &board)
+	src, err := genBoard("maps", "init.tmx", 1, &board)
 	if err != nil {
 		t.Fatal(err)
+	}
+	if !strings.Contains(string(src), "const InitLevel vboards.Level = 1") {
+		t.Fatalf("generated source lacks level enum:\n%s", src)
 	}
 	want := `type InitSuperballSpawn struct {
 	vboards.Spawn
@@ -353,7 +356,7 @@ func TestGenBoardRejectsSpawnNameCollision(t *testing.T) {
 	board := spawnBoardSpec{Spawns: []spawnGroupSpec{
 		{Class: "super-ball"}, {Class: "super_ball"},
 	}}
-	if _, err := genBoard("maps", "init.tmx", &board); err == nil {
+	if _, err := genBoard("maps", "init.tmx", 1, &board); err == nil {
 		t.Fatal("want object class collision error")
 	}
 }

@@ -63,10 +63,16 @@ func Update() vengine.Status {
 	return gam.Update()
 }
 
+//export BoardLevel
+func BoardLevel() uint16 { return gam.BoardLevel() }
+
 //export BoardTilesPtr
 func BoardTilesPtr() uintptr {
 	return gam.BoardTilesPtr()
 }
+
+//export BoardTilesLen
+func BoardTilesLen() uint32 { return gam.BoardTilesLen() }
 
 //export BoardW
 func BoardW() int32 { return gam.BoardW() }

@@ -13,7 +13,9 @@ type Platform interface {
 	UpdateInMillisReq() uint64
 	LayerConfigsPtr() uintptr
 	Update() Status
+	BoardLevel() uint16
 	BoardTilesPtr() uintptr
+	BoardTilesLen() uint32
 	BoardW() int32
 	BoardH() int32
 	BoardTileW() uint8
