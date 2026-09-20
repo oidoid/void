@@ -56,9 +56,10 @@ type InitCursorSpawn struct {
 var InitCursorSpawns = [...]InitCursorSpawn{
 	{
 		Spawn: vboards.Spawn{
-			WH:  vgeo.NewWH[float32](8, 13),
-			Z:   80,
-			Tag: 16,
+			WH:      vgeo.NewWH[float32](8, 13),
+			Z:       80,
+			Tag:     16,
+			Stretch: true,
 		},
 		KbdVel: 100,
 	},
