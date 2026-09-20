@@ -4,24 +4,13 @@ import (
 	"github.com/oidoid/void/src/internal/demo/engine"
 	"github.com/oidoid/void/src/void/vengine"
 	"github.com/oidoid/void/src/void/ventities"
+	"github.com/oidoid/void/src/void/vhooks"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
-
-// to-do: either pass gam to small ents so their vector hooks do not unpack it
-// OR expose a `Engine.UpdateCursor()`.
 
 func UpdateCursors(
 	vec *vvec.Vec[*ventities.CursorEnt],
 	gam *engine.Eng,
 ) vengine.Status {
-	input := gam.In()
-	deltaSecs := gam.DeltaSecs()
-	ents := vec.Vals()
-	loop := vengine.Pause
-	for i := range ents {
-		ent := ents[i]
-		layer := gam.Layer(ent.Z.Layer())
-		loop |= ent.Update(input, &layer.Sprs, deltaSecs, layer)
-	}
-	return loop
+	return vhooks.UpdateCursors(vec, &gam.Eng)
 }

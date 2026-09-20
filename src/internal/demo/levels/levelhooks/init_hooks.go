@@ -14,8 +14,6 @@ import (
 	"github.com/oidoid/void/src/void/vmath"
 )
 
-const cursorKeyVel = float32(100) // px / sec.
-
 // to-do: collapse with engine init?
 func InitInit(gam *engine.Eng) {
 	gam.SetBoard(&boards.InitBoard)
@@ -64,17 +62,16 @@ func InitInit(gam *engine.Eng) {
 		_ = gam.Superballs.Add(superball)
 	}
 
-	cursor := new(ventities.CursorEnt)
-	*cursor = ventities.NewCursorEnt(
-		tags.CursorPoint,
+	spawn := boards.InitCursorSpawns[0]
+	cursor := ventities.NewCursorEnt(
+		spawn.Spawn,
 		0,
-		cursorKeyVel,
-		gam.Atlas().Anims[int(tags.CursorPoint)].Hitbox,
-		gfx.ZCursor,
+		float32(spawn.KbdVel),
+		gam.Atlas().Anims[int(spawn.Tag)].Hitbox,
 	)
-	gam.SetCursor(cursor)
-	cursors := ventities.NewEntVec(hooks.UpdateCursors)
-	cursors.Add(cursor)
+	gam.SetCursor(&cursor)
+	cursors := ventities.NewEntVec(hooks.UpdateCursors, 1)
+	cursors.Add(&cursor)
 	gam.RegisterUpdate(cursors.Update)
 
 	buttons := ventities.NewEntVec(hooks.UpdateButtons, 6)
@@ -94,7 +91,7 @@ func InitInit(gam *engine.Eng) {
 	fullscreenToggle := hooks.NewFullscreenToggle(gam)
 	fullscreenToggle.Anchor.Ref = screenshotBtn.AnchorBox
 	buttons.Add(fullscreenToggle)
-	cursorKeyToggle := hooks.NewCursorKeyToggle(cursor)
+	cursorKeyToggle := hooks.NewCursorKeyToggle(&cursor)
 	cursorKeyToggle.Anchor.Ref = fullscreenToggle.AnchorBox
 	buttons.Add(cursorKeyToggle)
 	// to-do: collapse with buttons^?

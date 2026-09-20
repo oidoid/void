@@ -48,6 +48,22 @@ var InitP1Spawns = [...]InitP1Spawn{
 	},
 }
 
+type InitCursorSpawn struct {
+	vboards.Spawn
+	KbdVel int32
+}
+
+var InitCursorSpawns = [...]InitCursorSpawn{
+	{
+		Spawn: vboards.Spawn{
+			WH:  vgeo.NewWH[float32](8, 13),
+			Z:   80,
+			Tag: 16,
+		},
+		KbdVel: 100,
+	},
+}
+
 type InitTextSpawn struct {
 	vboards.Spawn
 	Text string

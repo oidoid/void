@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.12.2" name="entities" tilewidth="8" tileheight="13" tilecount="2" columns="0" objectalignment="topleft">
+<tileset version="1.10" tiledversion="1.12.2" name="entities" tilewidth="8" tileheight="13" tilecount="3" columns="0" objectalignment="topleft">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0" type="Superball">
   <properties>
@@ -25,5 +25,16 @@
    <property name="ZTop" type="bool" value="false"/>
    <property name="Clockwise" type="bool" value="true"/>
   </properties>
+ </tile>
+ <tile id="2" type="Cursor">
+  <properties>
+   <property name="Cel" type="int" propertytype="Cel" value="0"/>
+   <property name="Tag" value="CursorPoint"/>
+   <property name="Layer" type="int" propertytype="Layer" value="5"/>
+   <property name="Pal" type="int" propertytype="Pal" value="0"/>
+   <property name="Z" type="int" propertytype="Z" value="0"/>
+   <property name="KbdVel" type="int" value="100"/>
+  </properties>
+  <image source="../atlas/cursor.aseprite" width="8" height="13"/>
  </tile>
 </tileset>

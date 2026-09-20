@@ -260,6 +260,53 @@
             "useAs": [
                 "object"
             ]
+        },
+        {
+            "color": "#ed1c24",
+            "drawFill": true,
+            "id": 9,
+            "members": [
+                {
+                    "name": "Cel",
+                    "propertyType": "Cel",
+                    "type": "int",
+                    "value": 0
+                },
+                {
+                    "name": "Tag",
+                    "type": "string",
+                    "value": "CursorPoint"
+                },
+                {
+                    "name": "Layer",
+                    "propertyType": "Layer",
+                    "type": "int",
+                    "value": 5
+                },
+                {
+                    "name": "Pal",
+                    "propertyType": "Pal",
+                    "type": "int",
+                    "value": 0
+                },
+                {
+                    "name": "Z",
+                    "propertyType": "Z",
+                    "type": "int",
+                    "value": 0
+                },
+                {
+                    "name": "KbdVel",
+                    "type": "int",
+                    "value": 100
+                }
+            ],
+            "name": "Cursor",
+            "type": "class",
+            "useAs": [
+                "object",
+                "tile"
+            ]
         }
     ]
 }

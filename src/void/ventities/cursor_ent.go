@@ -2,6 +2,7 @@ package ventities
 
 import (
 	"github.com/oidoid/void/src/void/vatlas"
+	"github.com/oidoid/void/src/void/vboards"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vin"
@@ -12,22 +13,17 @@ import (
 // update this ent first. always prefer testing against cursor, not input, in
 // other entities. the cursor may be moved by keyboard and has a hitbox.
 type CursorEnt struct {
-	// cursor position in layer coordinates. retains subpixel keyboard movement.
+	Spr vgfx.Spr
+	// keeps subpixel keyboard movement in layer coordinates.
 	XY      vgeo.XY[float32]
 	Hitbox  vgeo.Box[float32]
-	Z       vgfx.Z
 	Visible bool // false until the first pointer or keyboard input.
 	// enables keyboard movement when the app selects keyboard cursor mode.
 	KbdEnabled bool
 	// keyboard cursor velocity in px/sec.
 	KbdVel float32
-	// visible and hitbox position in layer coordinates. stays pixel aligned during
-	// keyboard movement.
-	snapXY vgeo.XY[float32]
-	// reports whether keyboard movement initialized XY and snapXY.
-	kbdOn bool
-	// current tag; toggled between pointTag and pickTag.
-	tag         vatlas.Tag
+	// reports whether keyboard movement initialized XY and Spr.XY.
+	kbdOn       bool
 	hitboxCopy  vgeo.Box[float32]
 	hitboxPhy   vgeo.Box[float32]
 	hitboxPhyOn bool
@@ -38,21 +34,22 @@ type CursorEnt struct {
 }
 
 func NewCursorEnt(
-	pointTag, pickTag vatlas.Tag,
+	spawn vboards.Spawn,
+	pickTag vatlas.Tag,
 	kbdVel float32,
 	hitbox vgeo.Box[uint16],
-	z vgfx.Z,
 ) CursorEnt {
 	hitboxF32 := hitbox.Cast[float32]()
-	return CursorEnt{
+	this := CursorEnt{
+		Spr:        spawn.Spr(),
 		KbdVel:     kbdVel,
-		pointTag:   pointTag,
+		pointTag:   spawn.Tag,
 		pickTag:    pickTag,
+		XY:         spawn.XY,
 		Hitbox:     hitboxF32,
 		hitboxCopy: hitboxF32,
-		tag:        pointTag,
-		Z:          z,
 	}
+	return this
 }
 
 func (this *CursorEnt) Update(
@@ -79,14 +76,8 @@ func (this *CursorEnt) Update(
 		this.kbdOn = false
 	}
 
-	if this.pickTag != 0 && in.IsOn(vin.ButtonA) {
-		this.tag = this.pickTag
-	} else {
-		this.tag = this.pointTag
-	}
-
 	this.Hitbox = this.hitboxCopy
-	this.Hitbox.MoveTo(this.snapXY)
+	this.Hitbox.MoveTo(this.Spr.XY)
 	this.hitboxPhyOn = this.Visible || !this.KbdEnabled && ptr != nil &&
 		ptr.CenterPhy() != nil
 	if this.hitboxPhyOn {
@@ -97,11 +88,11 @@ func (this *CursorEnt) Update(
 	if !this.Visible {
 		return vtypes.Pause
 	}
-	*sprs = append(*sprs, vgfx.Spr{
-		XY:     this.snapXY,
-		TagCel: this.tag.Cel(0),
-		Z:      this.Z,
-	})
+	this.Spr.SetTag(this.pointTag)
+	if this.pickTag != 0 && in.IsOn(vin.ButtonA) {
+		this.Spr.SetTag(this.pickTag)
+	}
+	*sprs = append(*sprs, this.Spr)
 	if this.kbdOn {
 		return vtypes.Loop
 	}
@@ -112,7 +103,7 @@ func (this *CursorEnt) onCursorPoint(
 	phy vgeo.XY[float32], dev vin.PtrDevice, layer *vgfx.LayerConfig,
 ) {
 	this.XY = layer.PhyToLayer(phy)
-	this.snapXY = this.XY
+	this.Spr.XY = this.XY
 	this.kbdOn = false
 	this.Visible = dev == vin.PtrDevMouse
 }
@@ -134,7 +125,7 @@ func (this *CursorEnt) onCursorKey(
 	)
 	xy := &this.XY
 	if by != (vgeo.XY[float32]{}) {
-		snapXY := this.snapXY
+		snapXY := this.Spr.XY
 		if !this.kbdOn || in.PrevDir == (vgeo.XY[int8]{}) {
 			*xy = vgfx.SnapXY(snapXY, by)
 			snapXY = *xy
@@ -158,17 +149,17 @@ func (this *CursorEnt) onCursorKey(
 			snapXY.Y == clip.Max.Y && by.Y > 0 {
 			snapBy.Y = 0
 		}
-		this.snapXY = vgfx.SnapMove(*xy, snapXY, snapBy)
+		this.Spr.XY = vgfx.SnapMove(*xy, snapXY, snapBy)
 	}
 
-	beforeSnapXY := this.snapXY
-	this.snapXY.X = vmath.Clamp(clip.Min.X, clip.Max.X, this.snapXY.X)
-	this.snapXY.Y = vmath.Clamp(clip.Min.Y, clip.Max.Y, this.snapXY.Y)
-	if this.snapXY.X != beforeSnapXY.X {
-		xy.X = this.snapXY.X
+	beforeSnapXY := this.Spr.XY
+	this.Spr.X = vmath.Clamp(clip.Min.X, clip.Max.X, this.Spr.X)
+	this.Spr.Y = vmath.Clamp(clip.Min.Y, clip.Max.Y, this.Spr.Y)
+	if this.Spr.X != beforeSnapXY.X {
+		xy.X = this.Spr.X
 	}
-	if this.snapXY.Y != beforeSnapXY.Y {
-		xy.Y = this.snapXY.Y
+	if this.Spr.Y != beforeSnapXY.Y {
+		xy.Y = this.Spr.Y
 	}
 	this.kbdOn = dirX != 0 || dirY != 0
 	this.Visible = true

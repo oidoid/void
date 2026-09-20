@@ -7,7 +7,7 @@ import (
 )
 
 func UpdateCursors[Game any](
-	vec *vvec.Vec[ventities.CursorEnt],
+	vec *vvec.Vec[*ventities.CursorEnt],
 	gam *vengine.Eng[Game],
 ) vengine.Status {
 	in := gam.In()
@@ -15,8 +15,8 @@ func UpdateCursors[Game any](
 	ents := vec.Vals()
 	loop := vengine.Pause
 	for i := range ents {
-		ent := &ents[i]
-		layer := gam.Layer(ent.Z.Layer())
+		ent := ents[i]
+		layer := gam.Layer(ent.Spr.Z.Layer())
 		loop |= ent.Update(in, &layer.Sprs, deltaSecs, layer)
 	}
 	return loop

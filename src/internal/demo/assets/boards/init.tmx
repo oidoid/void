@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="256" height="256" tilewidth="16" tileheight="16" infinite="0" nextlayerid="3" nextobjectid="19">
+<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="256" height="256" tilewidth="16" tileheight="16" infinite="0" nextlayerid="3" nextobjectid="20">
  <tileset firstgid="1" source="../boarddefs/tiles.tsx"/>
  <tileset firstgid="65" source="../boarddefs/ents.tsx"/>
  <layer id="1" name="Wall" width="256" height="256">
@@ -273,6 +273,7 @@
    </properties>
   </object>
   <object id="5" type="P1" gid="66" x="16" y="16" width="8" height="13"/>
+  <object id="19" type="Cursor" gid="67" x="0" y="0" width="8" height="13"/>
   <object id="17" type="Text" x="32" y="32" width="64" height="8">
    <properties>
     <property name="Layer" type="int" propertytype="Layer" value="2"/>

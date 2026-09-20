@@ -3,7 +3,7 @@ package ventities
 import (
 	"testing"
 
-	"github.com/oidoid/void/src/void/vatlas"
+	"github.com/oidoid/void/src/void/vboards"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vin"
@@ -12,18 +12,18 @@ import (
 
 func testCursorEnt(keyboard float32) CursorEnt {
 	return NewCursorEnt(
-		vatlas.Tag(1), 0, keyboard, vgeo.Box[uint16]{}, vgfx.Z(0),
+		vboards.Spawn{Tag: 1}, 0, keyboard, vgeo.Box[uint16]{},
 	)
 }
 
 func setCursorXY(ent *CursorEnt, xy vgeo.XY[float32]) {
 	ent.XY = xy
-	ent.snapXY = xy
+	ent.Spr.XY = xy
 }
 
 func TestNewCursorEnt_Hitbox(t *testing.T) {
 	hitbox := vgeo.XYWH[uint16](1, 2, 3, 4)
-	ent := NewCursorEnt(vatlas.Tag(1), 0, 0, hitbox, vgfx.Z(0))
+	ent := NewCursorEnt(vboards.Spawn{Tag: 1}, 0, 0, hitbox)
 	want := vgeo.XYWH[float32](1, 2, 3, 4)
 	if ent.Hitbox != want {
 		t.Fatalf("Hitbox = %v, want %v", ent.Hitbox, want)
@@ -32,7 +32,7 @@ func TestNewCursorEnt_Hitbox(t *testing.T) {
 
 func TestUpdate_Hitbox(t *testing.T) {
 	ent := NewCursorEnt(
-		vatlas.Tag(1), 0, 1, vgeo.XYWH[uint16](1, 2, 3, 4), vgfx.Z(0),
+		vboards.Spawn{Tag: 1}, 0, 1, vgeo.XYWH[uint16](1, 2, 3, 4),
 	)
 	setCursorXY(&ent, vgeo.NewXY[float32](10.5, 20.5))
 	ent.Visible = true
@@ -42,6 +42,68 @@ func TestUpdate_Hitbox(t *testing.T) {
 	want := vgeo.NewBox[float32](11.5, 22.5, 14.5, 26.5)
 	if ent.Hitbox != want {
 		t.Fatalf("Hitbox = %v, want %v", ent.Hitbox, want)
+	}
+}
+
+func TestUpdate_DrawSpawn(t *testing.T) {
+	spawn := vboards.Spawn{
+		XY:      vgeo.NewXY[float32](6, 7),
+		WH:      vgeo.NewWH[float32](8.1, 12.1),
+		Rot:     .5,
+		Z:       vgfx.Z(4),
+		Tag:     5,
+		Cel:     2,
+		Pal:     3,
+		Hidden:  true,
+		FlipX:   true,
+		FlipY:   true,
+		Stretch: true,
+		ZTop:    true,
+	}
+	ent := NewCursorEnt(
+		spawn, 0, 0, vgeo.Box[uint16]{},
+	)
+	ent.Visible = true
+	ent.KbdEnabled = true
+	layer := vgfx.NewLayerConfig(0)
+	sprs := []vgfx.Spr{}
+	ent.Update(vin.NewIn(), &sprs, 0, &layer)
+	if len(sprs) != 1 {
+		t.Fatalf("len(sprs) = %d, want 1", len(sprs))
+	}
+	spr := sprs[0]
+	if spr.Tag() != 5 || spr.Cel() != 2 || spr.Pal() != 3 || spr.Z != 4 {
+		t.Errorf("spr = %#v, want tag 5, cel 2, pal 3, Z 4", spr)
+	}
+	if spr.XY != spawn.XY || spr.WH != vgeo.NewWH[uint16](9, 13) {
+		t.Errorf("spr = %#v, want XY (6,7), WH (9,13)", spr)
+	}
+	if !spr.Hidden() || !spr.FlipX() || !spr.FlipY() ||
+		!spr.Stretch() || !spr.ZTop() || spr.Rot() == 0 {
+		t.Errorf("spr flags = %#v, want spawn flags and rotation", spr)
+	}
+}
+
+func TestUpdate_RestoresPointTag(t *testing.T) {
+	ent := NewCursorEnt(
+		vboards.Spawn{Tag: 1}, 2, 0, vgeo.Box[uint16]{},
+	)
+	ent.Visible = true
+	ent.KbdEnabled = true
+	in := vin.NewIn()
+	in.On = vin.ButtonA
+	in.PrevOn = vin.ButtonA
+	layer := vgfx.NewLayerConfig(0)
+	sprs := []vgfx.Spr{}
+	ent.Update(in, &sprs, 0, &layer)
+	if got := sprs[0].Tag(); got != 2 {
+		t.Errorf("picked Tag = %d, want 2", got)
+	}
+	in.On = 0
+	in.Mask = 0
+	ent.Update(in, &sprs, 0, &layer)
+	if got := sprs[1].Tag(); got != 1 {
+		t.Errorf("released Tag = %d, want 1", got)
 	}
 }
 
@@ -64,7 +126,7 @@ func TestNilHitboxPhy(t *testing.T) {
 
 func TestHitboxPhy(t *testing.T) {
 	ent := NewCursorEnt(
-		vatlas.Tag(1), 0, 10, vgeo.XYWH[uint16](4, 8, 2, 3), vgfx.Z(0),
+		vboards.Spawn{Tag: 1}, 0, 10, vgeo.XYWH[uint16](4, 8, 2, 3),
 	)
 	layer := vgfx.NewLayerConfig(0)
 	in := vin.NewIn()
@@ -184,7 +246,7 @@ func TestOnCursorKey_SnapsDiagonal(t *testing.T) {
 	setCursorXY(&ent, vgeo.NewXY[float32](.25, .75))
 	in := vin.NewIn()
 	ent.onCursorKey(in, 1, 1, .01, defaultBounds)
-	if got, want := ent.snapXY, vgeo.NewXY[float32](1, 1); got != want {
+	if got, want := ent.Spr.XY, vgeo.NewXY[float32](1, 1); got != want {
 		t.Errorf("first diagonal snapXY = %v, want %v", got, want)
 	}
 	if got, want := ent.XY, vgeo.NewXY[float32](1.1, 1.1); got != want {
@@ -192,7 +254,7 @@ func TestOnCursorKey_SnapsDiagonal(t *testing.T) {
 	}
 	in.PrevDir = vgeo.NewXY[int8](1, 1)
 	ent.onCursorKey(in, 1, 1, .1, defaultBounds)
-	if got, want := ent.snapXY, vgeo.NewXY[float32](2, 2); got != want {
+	if got, want := ent.Spr.XY, vgeo.NewXY[float32](2, 2); got != want {
 		t.Errorf("second diagonal snapXY = %v, want %v", got, want)
 	}
 	if got, want := ent.XY, vgeo.NewXY[float32](2.1, 2.1); got != want {
@@ -204,14 +266,14 @@ func TestOnCursorKey_AccumulatesSubpixels(t *testing.T) {
 	ent := testCursorEnt(10)
 	in := vin.NewIn()
 	moveCursorKey(&ent, in, vgeo.NewXY[int8](1, 0), .05)
-	if got, want := ent.snapXY, vgeo.NewXY[float32](0, 0); got != want {
+	if got, want := ent.Spr.XY, vgeo.NewXY[float32](0, 0); got != want {
 		t.Errorf("first half-pixel snapXY = %v, want %v", got, want)
 	}
 	if got, want := ent.XY, vgeo.NewXY[float32](.5, 0); got != want {
 		t.Errorf("first half-pixel XY = %v, want %v", got, want)
 	}
 	moveCursorKey(&ent, in, vgeo.NewXY[int8](1, 0), .05)
-	if got, want := ent.snapXY, vgeo.NewXY[float32](1, 0); got != want {
+	if got, want := ent.Spr.XY, vgeo.NewXY[float32](1, 0); got != want {
 		t.Errorf("second half-pixel snapXY = %v, want %v", got, want)
 	}
 }
@@ -243,9 +305,9 @@ func TestOnCursorKey_SlidesAtClipEdge(t *testing.T) {
 	for range 10 {
 		move(vgeo.NewXY[int8](-1, -1))
 	}
-	before := ent.snapXY
+	before := ent.Spr.XY
 	move(vgeo.NewXY[int8](-1, 0))
-	if got, want := ent.snapXY.X, before.X-1; got != want {
+	if got, want := ent.Spr.X, before.X-1; got != want {
 		t.Errorf("left after releasing up = %v, want %v", got, want)
 	}
 }
@@ -263,7 +325,7 @@ func TestOnCursorKey_RestartsAfterPoint(t *testing.T) {
 	in := vin.NewIn()
 	in.PrevDir = vgeo.NewXY[int8](1, 0)
 	ent.onCursorKey(in, 1, 0, .01, defaultBounds)
-	if got, want := ent.snapXY, vgeo.NewXY[float32](1, 1); got != want {
+	if got, want := ent.Spr.XY, vgeo.NewXY[float32](1, 1); got != want {
 		t.Errorf("keyboard restart snapXY = %v, want %v", got, want)
 	}
 	if got, want := ent.XY, vgeo.NewXY[float32](1.1, 1); got != want {
