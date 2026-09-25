@@ -20,7 +20,7 @@ sudo dpkg --install /tmp/tinygo.deb
 
 # wasm-opt.
 curl \
-  --location https://github.com/WebAssembly/binaryen/releases/download/version_132/binaryen-version_132-x86_64-linux.tar.gz |
+  --location https://github.com/WebAssembly/binaryen/releases/download/version_133/binaryen-version_133-x86_64-linux.tar.gz |
 sudo tar --extract --gzip --directory /usr/local/bin/ --strip-components=2 --wildcards '*/bin/wasm-opt'
 
 # watchexec.

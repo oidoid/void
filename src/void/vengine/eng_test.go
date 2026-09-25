@@ -12,7 +12,7 @@ type engineTestGame struct {
 }
 
 func TestFullscreenReq(t *testing.T) {
-	engine := New[*engineTestGame](nil)
+	engine := NewEng[*engineTestGame](nil)
 	engine.ReqFullscreen(FullscreenReqEnter)
 	want := int32(FullscreenReqEnter)
 	if got := engine.FullscreenReq(); got != want {
@@ -39,7 +39,7 @@ func TestFullscreenReq(t *testing.T) {
 }
 
 func TestSetBoardExports(t *testing.T) {
-	engine := New[*engineTestGame](nil)
+	engine := NewEng[*engineTestGame](nil)
 	assertBoardExport(t, engine, nil)
 
 	first := &vboards.Board{
@@ -135,7 +135,7 @@ func (*engineTestGame) Update() Status { return Pause }
 
 // starts windowed and accepts an explicit override.
 func TestFullscreenPlatformDefault(t *testing.T) {
-	engine := New[*engineTestGame](nil)
+	engine := NewEng[*engineTestGame](nil)
 	if engine.FullscreenEnabled() {
 		t.Error("FullscreenEnabled() = true, want false")
 	}

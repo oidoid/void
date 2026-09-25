@@ -9,7 +9,6 @@ import (
 
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vboards"
-	"github.com/oidoid/void/src/void/ventities"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vin"
@@ -24,7 +23,7 @@ type Eng[App any] struct {
 	board             *vboards.Board
 	cam               vgeo.XY[float32] // to-do: cam always moves in physical space.
 	contextLossReq    bool
-	cursor            *ventities.CursorEnt
+	cursor            *CursorEnt
 	drawAlways        bool
 	drawOnBlur        bool
 	font              *vtext.Font
@@ -33,15 +32,15 @@ type Eng[App any] struct {
 	layerConfigExport [vgfx.LayerCount]vgfx.LayerConfigExport
 	layers            [vgfx.LayerCount]vgfx.LayerConfig
 	poll              Poll
-	preupdaters       ventities.Zoo[App]
+	preupdaters       Zoo[App]
 	renderMode        vgfx.RenderMode
 	rnd               *rand.Rand
 	router            Router[App]
 	screenshotReq     bool
-	texts             vvec.Vec[ventities.TextEnt]
+	texts             vvec.Vec[TextEnt]
 	tick              Tick
 	updateInMillis    uint64
-	updaters          ventities.Zoo[App]
+	updaters          Zoo[App]
 }
 
 type EngOpts struct {
@@ -55,7 +54,7 @@ type EngOpts struct {
 	Seed2      uint64
 }
 
-func New[App any](opts *EngOpts) *Eng[App] {
+func NewEng[App any](opts *EngOpts) *Eng[App] {
 	if opts == nil {
 		opts = &EngOpts{}
 	}
@@ -110,13 +109,13 @@ func (this *Eng[Game]) Router() *Router[Game] { return &this.router }
 
 func (this *Eng[Game]) Atlas() *vatlas.Atlas { return &this.atlas }
 
-func (this *Eng[Game]) Texts() *vvec.Vec[ventities.TextEnt] {
+func (this *Eng[Game]) Texts() *vvec.Vec[TextEnt] {
 	return &this.texts
 }
 
-func (this *Eng[Game]) Cursor() *ventities.CursorEnt { return this.cursor }
+func (this *Eng[Game]) Cursor() *CursorEnt { return this.cursor }
 
-func (this *Eng[Game]) SetCursor(cursor *ventities.CursorEnt) {
+func (this *Eng[Game]) SetCursor(cursor *CursorEnt) {
 	this.cursor = cursor
 }
 
@@ -336,7 +335,7 @@ func (this *Eng[Game]) updateTexts() Status {
 	return stat
 }
 
-func (this *Eng[Game]) Ents() *ventities.Zoo[Game] {
+func (this *Eng[Game]) Ents() *Zoo[Game] {
 	return &this.updaters
 }
 

@@ -1,16 +1,15 @@
 package main
 
 import (
-	"github.com/oidoid/void/src/internal/demo/app"
-	"github.com/oidoid/void/src/internal/demo/engine"
+	"github.com/oidoid/void/src/internal/demo/game"
 	"github.com/oidoid/void/src/void/vengine"
 )
 
-var gam *engine.Eng
+var gam *game.Game
 
 func main() {
-	println("void " + engine.Version + " ───oidoid>°──")
-	gam = app.New()
+	println("void " + game.Version + " ───oidoid>°──")
+	gam = game.NewGame()
 }
 
 //export PollPtr

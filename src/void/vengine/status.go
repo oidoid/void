@@ -1,10 +1,8 @@
 package vengine
 
-import "github.com/oidoid/void/src/void/vtypes"
-
-type Status = vtypes.Status
+type Status uint8
 
 const (
-	Pause = vtypes.Pause
-	Loop  = vtypes.Loop
+	Pause Status = iota
+	Loop
 )
