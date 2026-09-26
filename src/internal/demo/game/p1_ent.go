@@ -1,6 +1,7 @@
 package game
 
 import (
+	"github.com/oidoid/void/src/internal/demo/boards"
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/internal/demo/tags"
 	"github.com/oidoid/void/src/void/vatlas"
@@ -28,6 +29,15 @@ func NewP1Ent(xy vgeo.XY[float32], anim vatlas.Anim) P1Ent {
 		XY: xy, WH: vgeo.NewWH(anim.W, anim.H), Z: gfx.ZP1,
 		Dir: vgeo.DirE, Hurtbox: anim.Hurtbox, Clockwise: true,
 	}
+}
+
+func NewP1EntFromSpawn(
+	spawn boards.InitP1Spawn, atlas *vatlas.Atlas,
+) P1Ent {
+	this := NewP1Ent(spawn.XY, atlas.Anims[int(spawn.Tag)])
+	this.Spr = spawn.Spawn.Spr()
+	this.Clockwise = spawn.Clockwise
+	return this
 }
 
 func (this *P1Ent) Update(gam *Game) veng.Status {

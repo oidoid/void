@@ -49,6 +49,11 @@ type spawnGroupSpec struct {
 	Props  []spawnPropSpec
 }
 
+func (this spawnGroupSpec) IsText() bool {
+	return len(this.Props) == 1 && this.Props[0].Name == "Text" &&
+		this.Props[0].Type == spawnPropStr
+}
+
 // combines generic creation data with app-specific properties.
 type spawnSpec struct {
 	vboards.Spawn

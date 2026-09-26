@@ -127,7 +127,7 @@ supporting both modern and pixel games is critical. be very sensitive to roundin
 
 - typecheck Go: `go build ./...`.
 - typecheck TS: `make typecheck-web`.
-- test filesize: `make build && make fat-check`. the bottom line is `dist/demo/index.html` uncompressed size (first numerical column). if size drops 50+ KiB unexpectedly, ask the user if `make watch` is running. analyze filesize with `make fat-analyze`.
+- test filesize: `make build && make fat-check`. do not mix `fat-check` with other unoptimized build commands. the bottom line is `dist/demo/index.html` uncompressed size (first numerical column). if size drops 50+ KiB unexpectedly, ask the user if `make watch` is running. analyze filesize with `make fat-analyze`.
 - `make build` and TinyGo take ~10s; run only when worthwhile. prefer `go build ./...` for typechecking.
 
 ## Development

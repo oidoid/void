@@ -3,6 +3,7 @@ package game
 import (
 	"testing"
 
+	"github.com/oidoid/void/src/internal/demo/boards"
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/internal/demo/tags"
 	"github.com/oidoid/void/src/void/vatlas"
@@ -36,6 +37,32 @@ func TestNewP1Ent(t *testing.T) {
 	spr := ent.spr()
 	if got := spr.Tag(); got != tags.ColorRed {
 		t.Fatalf("Tag = %d, want %d", got, tags.ColorRed)
+	}
+}
+
+func TestNewP1EntFromSpawn(t *testing.T) {
+	spawn := boards.InitP1Spawn{
+		Spawn: vboards.Spawn{
+			XY:      vgeo.NewXY[float32](1.5, 2.5),
+			WH:      vgeo.NewWH[float32](8.5, 13.5),
+			Rot:     .5,
+			Z:       gfx.ZP1,
+			Tag:     1,
+			FlipX:   true,
+			Stretch: true,
+		},
+	}
+	hurtbox := vgeo.XYWH[uint16](1, 2, 3, 4)
+	atlas := vatlas.Atlas{Anims: []vatlas.Anim{
+		{}, {Hurtbox: hurtbox},
+	}}
+	ent := NewP1EntFromSpawn(spawn, &atlas)
+	if got, want := ent.Spr, spawn.Spawn.Spr(); got != want {
+		t.Errorf("spr = %#v, want %#v", got, want)
+	}
+	if ent.Hurtbox != hurtbox || ent.Dir != vgeo.DirE || ent.Clockwise {
+		t.Errorf("behavior = %#v, want hurtbox %v, east, counterclockwise",
+			ent, hurtbox)
 	}
 }
 

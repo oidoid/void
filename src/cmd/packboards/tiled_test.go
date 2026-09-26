@@ -177,6 +177,33 @@ func TestParseTextSpawn(t *testing.T) {
 	}
 }
 
+func TestGenBoardTextSpawn(t *testing.T) {
+	board := spawnBoardSpec{
+		Board: vboards.Board{
+			WH:    vgeo.NewWH[int32](16, 16),
+			Tile:  vgeo.NewWH[uint8](16, 16),
+			Tiles: []vboards.Tile{0},
+		},
+		Spawns: []spawnGroupSpec{{
+			Class: "Text",
+			Props: []spawnPropSpec{{Name: "Text", Type: spawnPropStr}},
+			Spawns: []spawnSpec{{
+				Spawn: vboards.NewSpawn(4, 8, 32, 16, 0),
+				Props: []spawnPropSpec{{
+					Name: "Text", Type: spawnPropStr, Str: "hello",
+				}},
+			}},
+		}},
+	}
+	src, err := genBoard("boards", "init.tmx", 1, &board)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(src), "type InitTextSpawn = vboards.TextSpawn") {
+		t.Fatalf("generated source lacks shared text type:\n%s", src)
+	}
+}
+
 func TestParseGenericSpawnProps(t *testing.T) {
 	visible := false
 	object := tmxObject{

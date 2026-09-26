@@ -2,8 +2,10 @@ package veng
 
 import (
 	"github.com/oidoid/void/src/void/vatlas"
+	"github.com/oidoid/void/src/void/vboards"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
+	"github.com/oidoid/void/src/void/vmath"
 	"github.com/oidoid/void/src/void/vtext"
 )
 
@@ -15,6 +17,18 @@ type TextEnt struct {
 	Trim      vtext.Trim
 	text      string
 	textScale uint8
+}
+
+func NewTextEntFromSpawn(spawn vboards.TextSpawn) TextEnt {
+	this := TextEnt{
+		XY: vgeo.NewXY(
+			int16(vmath.Floor(spawn.XY.X)),
+			int16(vmath.Floor(spawn.XY.Y)),
+		),
+		Z: spawn.Z, Pal: spawn.Pal,
+	}
+	this.SetText(spawn.Text)
+	return this
 }
 
 var zeroChar = vgeo.Box[int16]{}

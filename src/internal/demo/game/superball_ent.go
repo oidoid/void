@@ -1,6 +1,7 @@
 package game
 
 import (
+	"github.com/oidoid/void/src/internal/demo/boards"
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/internal/demo/tags"
 	"github.com/oidoid/void/src/void/veng"
@@ -29,6 +30,15 @@ func NewSuperballEnt(rnd func() float32, xy vgeo.XY[float32]) SuperballEnt {
 	)
 	rotVel := (rnd()*2 - 1) * superballMaxRotVel
 	return SuperballEnt{XY: xy, Vel: vel, RotVel: rotVel}
+}
+
+func NewSuperballEntFromSpawn(
+	rnd func() float32, spawn boards.InitSuperballSpawn,
+) SuperballEnt {
+	this := NewSuperballEnt(rnd, spawn.XY)
+	this.Vel = spawn.Vel
+	this.Rot = spawn.Rot
+	return this
 }
 
 //go:inline

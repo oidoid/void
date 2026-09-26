@@ -27,6 +27,8 @@ var {{.Name}}Board = vboards.DecodeBoard({{.Name}}Level, []byte{
 })
 {{range $group := .Board.Spawns}}
 {{$className := name $group.Class}}{{if $group.Props}}
+{{if $group.IsText}}type {{$.Name}}{{$className}}Spawn = vboards.TextSpawn
+{{else}}
 type {{$.Name}}{{$className}}Spawn struct {
 	vboards.Spawn
 	{{range $group.Props}}{{if .IsBool}}{{name .Name}} bool
@@ -34,6 +36,7 @@ type {{$.Name}}{{$className}}Spawn struct {
 	{{else if .IsStr}}{{name .Name}} string
 	{{else if .IsXY}}{{name .Name}} vgeo.XY[float32]
 	{{end}}{{end}}}
+{{end}}
 
 var {{$.Name}}{{$className}}Spawns = [...]{{$.Name}}{{$className}}Spawn{
 	{{range $spawn := $group.Spawns}}{

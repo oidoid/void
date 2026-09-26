@@ -65,10 +65,7 @@ var InitCursorSpawns = [...]InitCursorSpawn{
 	},
 }
 
-type InitTextSpawn struct {
-	vboards.Spawn
-	Text string
-}
+type InitTextSpawn = vboards.TextSpawn
 
 var InitTextSpawns = [...]InitTextSpawn{
 	{

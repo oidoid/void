@@ -3,10 +3,31 @@ package veng
 import (
 	"testing"
 
+	"github.com/oidoid/void/src/void/vboards"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vtext"
 )
+
+func TestNewTextEntFromSpawn(t *testing.T) {
+	spawn := vboards.TextSpawn{
+		Spawn: vboards.Spawn{
+			XY:  vgeo.NewXY[float32](-.25, 2.75),
+			Z:   35,
+			Pal: 5,
+		},
+		Text: "hello",
+	}
+	ent := NewTextEntFromSpawn(spawn)
+	if got, want := ent.XY, vgeo.NewXY[int16](-1, 2); got != want {
+		t.Errorf("XY = %v, want %v", got, want)
+	}
+	if ent.Z != spawn.Z || ent.Pal != spawn.Pal ||
+		ent.Text() != spawn.Text {
+		t.Errorf("text config = %v/%v/%q, want %v/%v/%q",
+			ent.Z, ent.Pal, ent.Text(), spawn.Z, spawn.Pal, spawn.Text)
+	}
+}
 
 func TestTextEntScale(t *testing.T) {
 	font := vtext.MemProp5x6
