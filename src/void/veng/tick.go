@@ -1,4 +1,4 @@
-package vengine
+package veng
 
 type Tick struct {
 	// duration of the previous Go update in milliseconds.

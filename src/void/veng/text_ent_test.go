@@ -1,4 +1,4 @@
-package vengine
+package veng
 
 import (
 	"testing"

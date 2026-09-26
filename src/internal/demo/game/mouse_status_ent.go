@@ -4,14 +4,14 @@ import (
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/internal/demo/tags"
 	"github.com/oidoid/void/src/void/vatlas"
-	"github.com/oidoid/void/src/void/vengine"
+	"github.com/oidoid/void/src/void/veng"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vin"
 )
 
 type MouseStatusEnt struct {
-	vengine.HUDEnt
+	veng.HUDEnt
 	visible bool
 }
 
@@ -24,13 +24,13 @@ func NewMouseStatusEnt() MouseStatusEnt {
 	return this
 }
 
-func (this *MouseStatusEnt) Update(gam *Game) vengine.Status {
+func (this *MouseStatusEnt) Update(gam *Game) veng.Status {
 	layer := gam.Layer(gfx.LayerUI)
 	in := gam.In()
 	sprs := &layer.Sprs
 	this.visible = this.visible || in.Ptr.Device() == vin.PtrDevMouse
 	if !this.visible {
-		return vengine.Pause
+		return veng.Pause
 	}
 
 	hudXY := this.HUDEnt.XY(mouseStatusSize, mouseStatusSize, layer.Clip)
@@ -45,9 +45,9 @@ func (this *MouseStatusEnt) Update(gam *Game) vengine.Status {
 	this.addOverlay(sprs, tags.MouseStatusAux, xy, clicks&vin.ClickAux != 0)
 	this.addOverlay(sprs, tags.MouseStatusLocked, xy, gam.Ptrlock())
 	if in.Dirty {
-		return vengine.Loop
+		return veng.Loop
 	}
-	return vengine.Pause
+	return veng.Pause
 }
 
 func (this *MouseStatusEnt) addOverlay(

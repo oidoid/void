@@ -4,7 +4,7 @@ import {
   sprTagCelOffset,
   sprWHOffset,
   sprZOffset
-} from '../../engine/layout.ts'
+} from '../../eng/layout.ts'
 import {buildProgram} from '../gl.ts'
 import sprFrag from './spr.frag.glsl'
 import sprVert from './spr.vert.glsl'

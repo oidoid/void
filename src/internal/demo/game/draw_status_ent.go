@@ -3,7 +3,7 @@ package game
 import (
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/void/vatlas"
-	"github.com/oidoid/void/src/void/vengine"
+	"github.com/oidoid/void/src/void/veng"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vtext"
@@ -11,9 +11,9 @@ import (
 
 // to-do: make fields private?
 type DrawStatusEnt struct {
-	vengine.HUDEnt
-	vengine.TextEnt
-	Fill vengine.NinePatchEnt
+	veng.HUDEnt
+	veng.TextEnt
+	Fill veng.NinePatchEnt
 	Next struct {
 		// start of the current one-second FPS counting window in milliseconds.
 		Start float64
@@ -30,7 +30,7 @@ func NewDrawStatusEnt(
 	margin vgeo.Edge[int16],
 ) DrawStatusEnt {
 	this := DrawStatusEnt{}
-	this.Fill = vengine.NinePatchEnt{
+	this.Fill = veng.NinePatchEnt{
 		PatchByDir: [9]vgfx.Spr{
 			vgeo.DirE:      {TagCel: fillTag.Cel(0)},
 			vgeo.DirN:      {TagCel: fillTag.Cel(0)},
@@ -47,7 +47,7 @@ func NewDrawStatusEnt(
 	return this
 }
 
-func (this *DrawStatusEnt) Update(gam *Game) vengine.Status {
+func (this *DrawStatusEnt) Update(gam *Game) veng.Status {
 	font := gam.Font()
 	layer := gam.Layer(this.Z.Layer())
 	nowMillis := gam.NowMillis()

@@ -121,7 +121,7 @@ supporting both modern and pixel games is critical. be very sensitive to roundin
 - prefer ceiling integral sizes. avoid truncation that causes sizes to be unexpectedly short.
 - prefer source data over inverted transforms to avoid accumulation errors.
 - use `vgfx.DiagonalizeXY()` as needed to sync triggered movements.
-- do not bother snapping sprites to integral boundaries. set `vengine.EngOpts.RenderMode` to `vgfx.RenderModePixel` for pixel games. it snaps final sprite origins, disables antialiasing, and selects nearest rendering; retain fractional game coords for movement and collision. use `vgfx.RenderModeFloat` for smooth games.
+- do not bother snapping sprites to integral boundaries. set `veng.EngOpts.RenderMode` to `vgfx.RenderModePixel` for pixel games. it snaps final sprite origins, disables antialiasing, and selects nearest rendering; retain fractional game coords for movement and collision. use `vgfx.RenderModeFloat` for smooth games.
 
 ## Verification
 

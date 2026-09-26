@@ -7,7 +7,7 @@ import (
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vboards"
-	"github.com/oidoid/void/src/void/vengine"
+	"github.com/oidoid/void/src/void/veng"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 )
@@ -15,13 +15,13 @@ import (
 // applies the window URL override before the demo submits its fullscreen req.
 func TestFullscreenURLDisable(t *testing.T) {
 	gam := NewGame()
-	gam.Router().Update = func(*Game) vengine.Status { return vengine.Pause }
-	gam.Poll().FullscreenReq = vengine.FullscreenReqExit
+	gam.Router().Update = func(*Game) veng.Status { return veng.Pause }
+	gam.Poll().FullscreenReq = veng.FullscreenReqExit
 	gam.Update()
 	if gam.FullscreenEnabled() {
 		t.Error("FullscreenEnabled() = true, want false")
 	}
-	if got := gam.FullscreenReq(); got != int32(vengine.FullscreenReqExit) {
+	if got := gam.FullscreenReq(); got != int32(veng.FullscreenReqExit) {
 		t.Errorf("FullscreenReq() = %v, want exit", got)
 	}
 }
@@ -152,12 +152,12 @@ func TestAdjustLvlScaleAt(t *testing.T) {
 // starts fullscreen by default.
 func TestDefaults(t *testing.T) {
 	gam := NewGame()
-	gam.Router().Update = func(*Game) vengine.Status { return vengine.Pause }
+	gam.Router().Update = func(*Game) veng.Status { return veng.Pause }
 	gam.Update()
 	if !gam.FullscreenEnabled() {
 		t.Error("FullscreenEnabled() = false, want true")
 	}
-	if got := gam.FullscreenReq(); got != int32(vengine.FullscreenReqEnter) {
+	if got := gam.FullscreenReq(); got != int32(veng.FullscreenReqEnter) {
 		t.Errorf("FullscreenReq() = %v, want enter", got)
 	}
 }

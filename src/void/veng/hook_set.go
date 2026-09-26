@@ -1,4 +1,4 @@
-package vengine
+package veng
 
 type hookSet[Game any] struct {
 	hooks []func(Game) Status

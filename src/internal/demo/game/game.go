@@ -8,7 +8,7 @@ import (
 	"github.com/oidoid/void/src/internal/demo/tags"
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vboards"
-	"github.com/oidoid/void/src/void/vengine"
+	"github.com/oidoid/void/src/void/veng"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vgrid"
@@ -17,8 +17,8 @@ import (
 )
 
 type Game struct {
-	vengine.Eng[*Game]
-	Superballs     vengine.EntVec[*Game, SuperballEnt]
+	veng.Eng[*Game]
+	Superballs     veng.EntVec[*Game, SuperballEnt]
 	HitSuperballs  bool
 	BeepSuperballs bool
 	SuperballGrid  vgrid.Grid
@@ -42,7 +42,7 @@ func NewGame() *Game {
 	font := vtext.MemProp5x6
 	font.FirstTag = tags.MemProp5x600
 	this := &Game{
-		Eng: *vengine.NewEng[*Game](&vengine.EngOpts{
+		Eng: *veng.NewEng[*Game](&veng.EngOpts{
 			Font:       font,
 			Atlas:      vatlas.DecodeAtlas(assets.AtlasBin),
 			RenderMode: vgfx.RenderModePixel,
@@ -67,9 +67,9 @@ func NewGame() *Game {
 	this.Layer(gfx.LayerCursor).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerGrid).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerGrid).BlendMode = vgfx.LayerBlendModeMultiply
-	this.ReqFullscreen(vengine.FullscreenReqEnter)
+	this.ReqFullscreen(veng.FullscreenReqEnter)
 	this.In().MapDefaults()
-	this.Superballs = *vengine.NewEntVec(UpdateSuperballs)
+	this.Superballs = *veng.NewEntVec(UpdateSuperballs)
 	this.RegisterUpdate(this.Superballs.Update)
 	initGame(this)
 	this.Router().Update = this.Eng.Update
@@ -216,13 +216,13 @@ func (this *Game) Boing(dx, dy float32) {
 	this.LastBoingMs = this.NowMillis()
 	speed := float32(math.Hypot(float64(dx), float64(dy)))
 	hz := 100 * (0.5 + this.Random()) * min(max(speed/80, 2), 5)
-	this.Beep(vengine.Beep{
+	this.Beep(veng.Beep{
 		StartHz: hz, EndHz: hz * 0.9, DurationMs: 120,
 	})
 }
 
 // to-do: separate method for resizing cam or whatever.
-func (this *Game) Update() vengine.Status {
+func (this *Game) Update() veng.Status {
 	stat := this.Eng.BeginTick()
 	dpr := this.Poll().DevicePixelRatio
 	this.Layer(gfx.LayerUI).AutoscaleMaxScale = uint8(vmath.Round(3 * dpr))

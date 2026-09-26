@@ -5,7 +5,7 @@ import (
 
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/internal/demo/tags"
-	"github.com/oidoid/void/src/void/vengine"
+	"github.com/oidoid/void/src/void/veng"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vtext"
@@ -14,14 +14,14 @@ import (
 // to-do: do i want state for composable ents? do i want to end in ent? do i
 // want to do all behavior in hook?
 type EntStatusEnt struct {
-	vengine.HUDEnt
-	vengine.TextEnt
-	Fill vengine.NinePatchEnt
+	veng.HUDEnt
+	veng.TextEnt
+	Fill veng.NinePatchEnt
 }
 
 func NewEntStatusEnt() EntStatusEnt {
 	this := EntStatusEnt{}
-	this.Fill = vengine.NinePatchEnt{
+	this.Fill = veng.NinePatchEnt{
 		PatchByDir: [9]vgfx.Spr{
 			vgeo.DirE:      {TagCel: tags.ColorBlue.Cel(0)},
 			vgeo.DirN:      {TagCel: tags.ColorBlue.Cel(0)},
@@ -38,7 +38,7 @@ func NewEntStatusEnt() EntStatusEnt {
 	return this
 }
 
-func (this *EntStatusEnt) Update(gam *Game) vengine.Status {
+func (this *EntStatusEnt) Update(gam *Game) veng.Status {
 	font := gam.Font()
 	layer := gam.Layer(this.Z.Layer())
 	superballCount := gam.SuperballCount()

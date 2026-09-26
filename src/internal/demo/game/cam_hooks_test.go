@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/oidoid/void/src/internal/demo/gfx"
-	"github.com/oidoid/void/src/void/vengine"
+	"github.com/oidoid/void/src/void/veng"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vin"
@@ -240,7 +240,7 @@ func TestUpdateCamCursorKeyMode(t *testing.T) {
 	in.Dir = vgeo.NewXY[int8](1, 0)
 	in.DirOn = true
 	in.On = vin.ButtonR
-	cursor := &vengine.CursorEnt{KbdEnabled: true}
+	cursor := &veng.CursorEnt{KbdEnabled: true}
 	gam.SetCursor(cursor)
 	UpdateCam(gam)
 	if got := *gam.Cam(); got != (vgeo.XY[float32]{}) {

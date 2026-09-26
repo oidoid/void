@@ -1,4 +1,4 @@
-import type {OnEvent} from '../engine/event.ts'
+import type {OnEvent} from '../eng/event.ts'
 import {
   gamepadPollSize,
   gamepadsLenOffset,
@@ -13,7 +13,7 @@ import {
   pollSize,
   pollsOffset,
   wheelOffset
-} from '../engine/layout.ts'
+} from '../eng/layout.ts'
 import {ContextMenu} from './context-menu.ts'
 import {Gamepad} from './gamepad.ts'
 import {Keyboard} from './keyboard.ts'

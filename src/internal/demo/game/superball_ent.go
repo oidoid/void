@@ -3,7 +3,7 @@ package game
 import (
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/internal/demo/tags"
-	"github.com/oidoid/void/src/void/vengine"
+	"github.com/oidoid/void/src/void/veng"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vgrid"
@@ -61,7 +61,7 @@ func (this *SuperballEnt) Move(
 func (this *SuperballEnt) Draw(
 	sprs *[]vgfx.Spr,
 	clip vgeo.Box[float32],
-) vengine.Status {
+) veng.Status {
 	if clip.HitsXY(this.XY) {
 		spr := vgfx.Spr{
 			TagCel: tags.SuperballDefault.Cel(0),
@@ -71,7 +71,7 @@ func (this *SuperballEnt) Draw(
 		spr.SetRot(this.Rot)
 		*sprs = append(*sprs, spr)
 	}
-	return vengine.Pause // demo doesn't want superballs to require updates.
+	return veng.Pause // demo doesn't want superballs to require updates.
 }
 
 func (this *SuperballEnt) Hit(other *SuperballEnt, diameter float32) bool {
@@ -118,7 +118,7 @@ func (this *SuperballEnt) Hit(other *SuperballEnt, diameter float32) bool {
 func UpdateSuperballs(
 	vec *vvec.Vec[SuperballEnt],
 	gam *Game,
-) vengine.Status {
+) veng.Status {
 	anim := gam.Atlas().Anims[int(tags.SuperballDefault)]
 	hitbox := anim.Hitbox
 	radius := float32(hitbox.Max.X-hitbox.Min.X) / 2
@@ -159,7 +159,7 @@ func UpdateSuperballs(
 			diameter,
 		)
 	}
-	loop := vengine.Pause
+	loop := veng.Pause
 	// to-do: always collapse into either move or hit to avoid extra pass?
 	for i := range ents {
 		loop |= ents[i].Draw(sprs, clip)

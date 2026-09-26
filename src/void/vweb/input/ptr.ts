@@ -1,4 +1,4 @@
-import type {AnyEvent, OnEvent} from '../engine/event.ts'
+import type {AnyEvent, OnEvent} from '../eng/event.ts'
 
 export type PtrDevice = (typeof PtrDevice)[keyof typeof PtrDevice]
 const PtrDevice = {Unknown: 0, Mouse: 1, Pen: 2, Touch: 3} as const

@@ -1,6 +1,6 @@
 // ╭>°╮┬┌─╮╭─╮┬┌─╮
 // ╰──╰┴╯─╯╰─╰┴╯─╯
-package vengine
+package veng
 
 import (
 	"unsafe"

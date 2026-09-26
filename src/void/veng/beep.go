@@ -1,4 +1,4 @@
-package vengine
+package veng
 
 type Beep struct {
 	StartHz    float32

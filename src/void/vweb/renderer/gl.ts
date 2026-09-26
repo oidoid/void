@@ -1,4 +1,4 @@
-import {debug} from '../engine/debug.ts'
+import {debug} from '../eng/debug.ts'
 
 export function buildProgram(
   gl: WebGL2RenderingContext,

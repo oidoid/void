@@ -51,7 +51,7 @@ type LayerConfig struct {
 	// clipbox in this layer's coordinate system derived from `ClipPhy`. always
 	// prefer phy values to converting layer clip to avoid rounding errors.
 	Clip vgeo.Box[float32]
-	// effective camera for this layer after mode is applied. updated by vengine.
+	// effective camera for this layer after mode is applied. updated by veng.
 	Cam               vgeo.XY[float32]
 	CamMode           LayerCamMode
 	Scale             float32

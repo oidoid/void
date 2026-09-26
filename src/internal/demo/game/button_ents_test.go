@@ -3,7 +3,7 @@ package game
 import (
 	"testing"
 
-	"github.com/oidoid/void/src/void/vengine"
+	"github.com/oidoid/void/src/void/veng"
 )
 
 // requests windowed mode from the default fullscreen setting.
@@ -19,7 +19,7 @@ func TestFullscreenToggle(t *testing.T) {
 	if gam.FullscreenEnabled() {
 		t.Error("FullscreenEnabled() = true, want false")
 	}
-	if got := gam.FullscreenReq(); got != int32(vengine.FullscreenReqExit) {
+	if got := gam.FullscreenReq(); got != int32(veng.FullscreenReqExit) {
 		t.Errorf("FullscreenReq() = %v, want exit", got)
 	}
 }

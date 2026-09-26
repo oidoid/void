@@ -2,14 +2,14 @@ package game
 
 import (
 	"github.com/oidoid/void/src/internal/demo/gfx"
-	"github.com/oidoid/void/src/void/vengine"
+	"github.com/oidoid/void/src/void/veng"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vtext"
 )
 
 type ClockEnt struct {
-	vengine.HUDEnt
-	vengine.TextEnt
+	veng.HUDEnt
+	veng.TextEnt
 }
 
 func NewClockEnt() ClockEnt {
@@ -21,7 +21,7 @@ func NewClockEnt() ClockEnt {
 	return this
 }
 
-func (this *ClockEnt) Update(gam *Game) vengine.Status {
+func (this *ClockEnt) Update(gam *Game) veng.Status {
 	font := gam.Font()
 	layer := gam.Layer(gfx.LayerUI)
 	clip := layer.Clip
@@ -32,14 +32,14 @@ func (this *ClockEnt) Update(gam *Game) vengine.Status {
 	)
 	this.TextEnt.Update(font, &layer.Sprs, clip)
 	gam.ReqUpdateInMillis(millisToNextMin(gam.UtcMillis()))
-	return vengine.Pause
+	return veng.Pause
 }
 
 func millisToNextMin(millis uint64) uint64 {
 	return 60_000 - millis%60_000
 }
 
-func timeString(time vengine.TimeFormat) string {
+func timeString(time veng.TimeFormat) string {
 	hour := int(time.Hour) % 12
 	if hour == 0 {
 		hour = 12

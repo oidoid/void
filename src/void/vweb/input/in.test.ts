@@ -17,7 +17,7 @@ import {
   updateByteLen,
   updateMsOffset,
   wheelOffset
-} from '../engine/layout.ts'
+} from '../eng/layout.ts'
 import {assert} from '../test/assert.ts'
 import type {Gamepad} from './gamepad.ts'
 import {writeInPoll} from './in.ts'
@@ -25,7 +25,7 @@ import type {Keyboard} from './keyboard.ts'
 import type {Ptr} from './ptr.ts'
 import type {Wheel} from './wheel.ts'
 
-test('Poll ABI layout matches vengine.Poll', () => {
+test('Poll ABI layout matches veng.Poll', () => {
   assert(drawCountOffset, 4408)
   assert(fullscreenReqOffset, 4412)
   assert(ptrlockedOffset, 4413)

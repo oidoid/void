@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/oidoid/void/src/internal/demo/game"
-	"github.com/oidoid/void/src/void/vengine"
+	"github.com/oidoid/void/src/void/veng"
 )
 
 var gam *game.Game
@@ -58,7 +58,7 @@ func UpdateInMillisReq() uint64 {
 func LayerConfigsPtr() uintptr { return gam.LayerConfigsPtr() }
 
 //export Update
-func Update() vengine.Status {
+func Update() veng.Status {
 	return gam.Update()
 }
 

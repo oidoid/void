@@ -1,4 +1,4 @@
-package vengine
+package veng
 
 type Platform interface {
 	PollPtr() uintptr

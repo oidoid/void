@@ -5,7 +5,7 @@ import (
 	"github.com/oidoid/void/src/internal/demo/tags"
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vboards"
-	"github.com/oidoid/void/src/void/vengine"
+	"github.com/oidoid/void/src/void/veng"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vmath"
@@ -30,7 +30,7 @@ func NewP1Ent(xy vgeo.XY[float32], anim vatlas.Anim) P1Ent {
 	}
 }
 
-func (this *P1Ent) Update(gam *Game) vengine.Status {
+func (this *P1Ent) Update(gam *Game) veng.Status {
 	this.Move(gam.DeltaSecs(), gam.Board())
 	layer := gam.Layer(this.Z.Layer())
 	if layer.Clip.HitsBox(vgeo.XYWH(
@@ -38,7 +38,7 @@ func (this *P1Ent) Update(gam *Game) vengine.Status {
 	)) {
 		layer.Sprs = append(layer.Sprs, this.spr())
 	}
-	return vengine.Pause // demo doesn't want p1 to require updates.
+	return veng.Pause // demo doesn't want p1 to require updates.
 }
 
 func (this *P1Ent) Move(deltaSecs float64, board *vboards.Board) {

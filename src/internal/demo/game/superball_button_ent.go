@@ -3,7 +3,7 @@ package game
 import (
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/internal/demo/tags"
-	"github.com/oidoid/void/src/void/vengine"
+	"github.com/oidoid/void/src/void/veng"
 	"github.com/oidoid/void/src/void/vgeo"
 )
 
@@ -18,63 +18,63 @@ const (
 )
 
 type SuperballButtonEnt struct {
-	vengine.ButtonEnt
+	veng.ButtonEnt
 	Action ballAction
 }
 
 func NewZeroSuperballButtonEnt() *SuperballButtonEnt {
 	return newSuperballButtonEnt(
-		"0", SuperballActionClear, vengine.ButtonTypeButton,
+		"0", SuperballActionClear, veng.ButtonTypeButton,
 	)
 }
 
 func NewAddSomeSuperballButtonEnt() *SuperballButtonEnt {
 	return newSuperballButtonEnt(
-		"+", SuperballActionAddSome, vengine.ButtonTypeButton,
+		"+", SuperballActionAddSome, veng.ButtonTypeButton,
 	)
 }
 
 func NewAddManySuperballButtonEnt() *SuperballButtonEnt {
 	return newSuperballButtonEnt(
-		"++", SuperballActionAddMany, vengine.ButtonTypeButton,
+		"++", SuperballActionAddMany, veng.ButtonTypeButton,
 	)
 }
 
 func NewHitSuperballButtonEnt() *SuperballButtonEnt {
 	return newSuperballButtonEnt(
-		"hit", SuperballActionHit, vengine.ButtonTypeToggle,
+		"hit", SuperballActionHit, veng.ButtonTypeToggle,
 	)
 }
 
 func NewBeepSuperballButtonEnt() *SuperballButtonEnt {
 	return newSuperballButtonEnt(
-		"beep", SuperballActionBeep, vengine.ButtonTypeToggle,
+		"beep", SuperballActionBeep, veng.ButtonTypeToggle,
 	)
 }
 
 func newSuperballButtonEnt(
-	label string, action ballAction, buttonType vengine.ButtonType,
+	label string, action ballAction, buttonType veng.ButtonType,
 ) *SuperballButtonEnt {
 	this := SuperballButtonEnt{
-		ButtonEnt: vengine.ButtonEnt{
+		ButtonEnt: veng.ButtonEnt{
 			NinePatchEnt: NewWidgetNinePatch(),
-			Pals: vengine.ButtonPals{
+			Pals: veng.ButtonPals{
 				Base:      tags.PalWidget,
 				Focused:   tags.PalWidgetFocused,
 				On:        tags.PalWidgetOn,
 				FocusedOn: tags.PalWidgetFocusedOn,
 			},
-			TextPals: vengine.ButtonPals{
+			TextPals: veng.ButtonPals{
 				Base:      tags.PalText,
 				Focused:   tags.PalText,
 				On:        tags.PalTextLight,
 				FocusedOn: tags.PalTextLight,
 			},
-			Anchor: vengine.AnchorEnt{
+			Anchor: veng.AnchorEnt{
 				Dir:    vgeo.DirW,
 				Margin: vgeo.NewXY(float32(UIButtonGap), 0),
 			},
-			AnchorMode: vengine.ButtonAnchorRelative,
+			AnchorMode: veng.ButtonAnchorRelative,
 			MinW:       16,
 			Type:       buttonType,
 		},
@@ -86,7 +86,7 @@ func newSuperballButtonEnt(
 	return &this
 }
 
-func (this *SuperballButtonEnt) Update(gam *Game) vengine.Status {
+func (this *SuperballButtonEnt) Update(gam *Game) veng.Status {
 	layer := gam.Layer(gfx.LayerUI)
 	loop := this.ButtonEnt.Update(
 		gam.In(), &layer.Sprs, layer, gam.Font(), gam.Cursor().HitboxPhy(),

@@ -4,7 +4,7 @@ import (
 	"github.com/oidoid/void/src/internal/demo/boards"
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/internal/demo/tags"
-	"github.com/oidoid/void/src/void/vengine"
+	"github.com/oidoid/void/src/void/veng"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vmath"
@@ -18,7 +18,7 @@ func initGame(gam *Game) {
 		if spawn.Hidden {
 			continue
 		}
-		text := vengine.TextEnt{
+		text := veng.TextEnt{
 			XY: vgeo.NewXY(
 				int16(vmath.Floor(spawn.XY.X)),
 				int16(vmath.Floor(spawn.XY.Y)),
@@ -58,7 +58,7 @@ func initGame(gam *Game) {
 	}
 
 	spawn := boards.InitCursorSpawns[0]
-	cursor := CursorEnt{CursorEnt: vengine.NewCursorEnt(
+	cursor := CursorEnt{CursorEnt: veng.NewCursorEnt(
 		spawn.Spawn,
 		0,
 		float32(spawn.KbdVel),
@@ -67,7 +67,7 @@ func initGame(gam *Game) {
 	gam.SetCursor(&cursor.CursorEnt)
 	gam.RegisterUpdate(cursor.Update)
 
-	buttons := vengine.NewEntVec(UpdateButtons, 6)
+	buttons := veng.NewEntVec(UpdateButtons, 6)
 	gam.RegisterUpdate(buttons.Update)
 
 	drawBtn := NewDrawToggleButton(gam)
@@ -104,7 +104,7 @@ func initGame(gam *Game) {
 	gam.RegisterUpdate(zeroBtn.Update)
 
 	camStatus := NewCamStatusEnt(tags.ColorBlue, gfx.ZUIWidget)
-	camStatus.Anchor = vengine.AnchorEnt{
+	camStatus.Anchor = veng.AnchorEnt{
 		Dir:    vgeo.DirW,
 		Margin: vgeo.NewXY[float32](4, 0),
 		Ref:    zeroBtn.AnchorBox,
@@ -127,30 +127,30 @@ func initGame(gam *Game) {
 	mouseStatus := NewMouseStatusEnt()
 	gam.RegisterUpdate(mouseStatus.Update)
 
-	lvlEdges := vengine.NewEntVec(UpdateLvlEdgeNinePatches)
+	lvlEdges := veng.NewEntVec(UpdateLvlEdgeNinePatches)
 	lvlEdges.Add(newEdgeEnt(gfx.ZUILevelEdge, 1, 1))
 	gam.RegisterUpdate(lvlEdges.Update)
 
-	clipFills := vengine.NewEntVec(UpdateClipFillNinePatches)
+	clipFills := veng.NewEntVec(UpdateClipFillNinePatches)
 	clipFills.Add(newCornerEdgeEnt(gfx.ZViewportEdge))
 	clipFills.Add(newFillEnt(gfx.ZGrid))
 	gam.RegisterUpdate(clipFills.Update)
 }
 
-func newEdgeEnt(z vgfx.Z, w, h uint16) vengine.NinePatchEnt {
+func newEdgeEnt(z vgfx.Z, w, h uint16) veng.NinePatchEnt {
 	var patches [9]vgfx.Spr
 	for i := range patches {
 		patches[i].SetTag(tags.ColorBlack)
 	}
 	patches[vgeo.DirCenter] = vgfx.Spr{}
-	ent := vengine.NinePatchEnt{
+	ent := veng.NinePatchEnt{
 		PatchByDir: patches, CornerWH: vgeo.NewWH(w, h),
 	}
 	ent.SetZ(z)
 	return ent
 }
 
-func newCornerEdgeEnt(z vgfx.Z) vengine.NinePatchEnt {
+func newCornerEdgeEnt(z vgfx.Z) veng.NinePatchEnt {
 	const cornerTopLeftWH = 16
 	ent := newEdgeEnt(z, cornerTopLeftWH, cornerTopLeftWH)
 	ent.PatchByDir[vgeo.DirE].SetTag(tags.ViewportEdgeW)
@@ -170,10 +170,10 @@ func newCornerEdgeEnt(z vgfx.Z) vengine.NinePatchEnt {
 	return ent
 }
 
-func newFillEnt(z vgfx.Z) vengine.NinePatchEnt {
+func newFillEnt(z vgfx.Z) veng.NinePatchEnt {
 	var patches [9]vgfx.Spr
 	patches[vgeo.DirCenter].SetTag(tags.GridCell)
-	ent := vengine.NinePatchEnt{PatchByDir: patches}
+	ent := veng.NinePatchEnt{PatchByDir: patches}
 	ent.SetZ(z)
 	return ent
 }

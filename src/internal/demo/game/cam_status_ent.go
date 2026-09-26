@@ -3,21 +3,21 @@ package game
 import (
 	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/void/vatlas"
-	"github.com/oidoid/void/src/void/vengine"
+	"github.com/oidoid/void/src/void/veng"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vtext"
 )
 
 type CamStatusEnt struct {
-	vengine.TextEnt
-	Fill   vengine.NinePatchEnt
-	Anchor vengine.AnchorEnt
+	veng.TextEnt
+	Fill   veng.NinePatchEnt
+	Anchor veng.AnchorEnt
 }
 
 func NewCamStatusEnt(fillTag vatlas.Tag, z vgfx.Z) CamStatusEnt {
 	this := CamStatusEnt{}
-	this.Fill = vengine.NinePatchEnt{
+	this.Fill = veng.NinePatchEnt{
 		PatchByDir: [9]vgfx.Spr{
 			vgeo.DirE:      {TagCel: fillTag.Cel(0)},
 			vgeo.DirN:      {TagCel: fillTag.Cel(0)},
@@ -28,7 +28,7 @@ func NewCamStatusEnt(fillTag vatlas.Tag, z vgfx.Z) CamStatusEnt {
 		CornerWH: vgeo.NewWH[uint16](1, 1),
 	}
 	this.Fill.SetZ(z - 1)
-	this.Anchor = vengine.AnchorEnt{
+	this.Anchor = veng.AnchorEnt{
 		Dir:    vgeo.DirSE,
 		Margin: vgeo.NewXY[float32](4, 0),
 	}
@@ -37,7 +37,7 @@ func NewCamStatusEnt(fillTag vatlas.Tag, z vgfx.Z) CamStatusEnt {
 	return this
 }
 
-func (this *CamStatusEnt) Update(gam *Game) vengine.Status {
+func (this *CamStatusEnt) Update(gam *Game) veng.Status {
 	font := gam.Font()
 	layer := gam.Layer(this.Z.Layer())
 	canvasPhy := *gam.CanvasPhy()
