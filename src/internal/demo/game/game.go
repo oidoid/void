@@ -72,7 +72,7 @@ func NewGame() *Game {
 	this.Superballs = *vengine.NewEntVec(UpdateSuperballs)
 	this.RegisterUpdate(this.Superballs.Update)
 	initGame(this)
-	this.Router().Update = this.Ents().Update
+	this.Router().Update = this.Eng.Update
 	return this
 }
 

@@ -32,7 +32,7 @@ type Eng[App any] struct {
 	layerConfigExport [vgfx.LayerCount]vgfx.LayerConfigExport
 	layers            [vgfx.LayerCount]vgfx.LayerConfig
 	poll              Poll
-	preupdaters       Zoo[App]
+	preupdaters       hookSet[App]
 	renderMode        vgfx.RenderMode
 	rnd               *rand.Rand
 	router            Router[App]
@@ -40,7 +40,7 @@ type Eng[App any] struct {
 	texts             vvec.Vec[TextEnt]
 	tick              Tick
 	updateInMillis    uint64
-	updaters          Zoo[App]
+	updaters          hookSet[App]
 }
 
 type EngOpts struct {
@@ -319,9 +319,13 @@ func (this *Eng[Game]) EndTick(stat Status) Status {
 
 func (this *Eng[Game]) Preupdate(gam Game) Status {
 	this.updateLayerScales()
-	stat := this.preupdaters.Update(gam)
+	stat := this.preupdaters.Hook(gam)
 	this.updateLayerClips()
 	return stat
+}
+
+func (this *Eng[Game]) Update(gam Game) Status {
+	return this.updaters.Hook(gam)
 }
 
 func (this *Eng[Game]) updateTexts() Status {
@@ -333,10 +337,6 @@ func (this *Eng[Game]) updateTexts() Status {
 		stat |= ent.Update(this.font, &layer.Sprs, layer.Clip)
 	}
 	return stat
-}
-
-func (this *Eng[Game]) Ents() *Zoo[Game] {
-	return &this.updaters
 }
 
 func (this *Eng[Game]) AtlasAnimCount() uint32 {
