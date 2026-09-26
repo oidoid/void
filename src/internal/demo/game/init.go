@@ -58,16 +58,14 @@ func initGame(gam *Game) {
 	}
 
 	spawn := boards.InitCursorSpawns[0]
-	cursor := vengine.NewCursorEnt(
+	cursor := CursorEnt{CursorEnt: vengine.NewCursorEnt(
 		spawn.Spawn,
 		0,
 		float32(spawn.KbdVel),
 		gam.Atlas().Anims[int(spawn.Tag)].Hitbox,
-	)
-	gam.SetCursor(&cursor)
-	cursors := vengine.NewEntVec(UpdateCursors, 1)
-	cursors.Add(&cursor)
-	gam.RegisterUpdate(cursors.Update)
+	)}
+	gam.SetCursor(&cursor.CursorEnt)
+	gam.RegisterUpdate(cursor.Update)
 
 	buttons := vengine.NewEntVec(UpdateButtons, 6)
 	gam.RegisterUpdate(buttons.Update)
@@ -86,7 +84,7 @@ func initGame(gam *Game) {
 	fullscreenToggle := NewFullscreenToggle(gam)
 	fullscreenToggle.Anchor.Ref = screenshotBtn.AnchorBox
 	buttons.Add(fullscreenToggle)
-	cursorKeyToggle := NewCursorKeyToggle(&cursor)
+	cursorKeyToggle := NewCursorKeyToggle(&cursor.CursorEnt)
 	cursorKeyToggle.Anchor.Ref = fullscreenToggle.AnchorBox
 	buttons.Add(cursorKeyToggle)
 	beepBtn := NewBeepSuperballButtonEnt()
