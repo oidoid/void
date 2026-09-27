@@ -33,7 +33,7 @@ func NewSuperballEnt(rnd func() float32, xy vgeo.XY[float32]) SuperballEnt {
 }
 
 func NewSuperballEntFromSpawn(
-	rnd func() float32, spawn boards.InitSuperballSpawn,
+	rnd func() float32, spawn boards.SuperballSpawn,
 ) SuperballEnt {
 	this := NewSuperballEnt(rnd, spawn.XY)
 	this.Vel = spawn.Vel

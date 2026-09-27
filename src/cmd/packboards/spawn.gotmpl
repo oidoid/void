@@ -1,0 +1,22 @@
+// codegen by packboards.
+package {{.Pkg}}
+{{if .Groups}}
+import (
+	"github.com/oidoid/void/src/void/vboards"
+{{if .UsesXY}}	"github.com/oidoid/void/src/void/vgeo"
+{{end}})
+{{range .Groups}}
+{{$className := name .Class}}{{if .IsText}}
+type {{$className}}Spawn = vboards.TextSpawn
+{{else if .Props}}
+type {{$className}}Spawn struct {
+	vboards.Spawn
+	{{range .Props}}{{if .IsBool}}{{name .Name}} bool
+	{{else if .IsInt}}{{name .Name}} int32
+	{{else if .IsStr}}{{name .Name}} string
+	{{else if .IsXY}}{{name .Name}} vgeo.XY[float32]
+	{{end}}{{end}}}
+{{else}}
+type {{$className}}Spawn = vboards.Spawn
+{{end}}{{end}}
+{{end}}

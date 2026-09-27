@@ -17,7 +17,8 @@ package {{.Pkg}}
 
 import (
 	"github.com/oidoid/void/src/void/vboards"
-	"github.com/oidoid/void/src/void/vgeo"
+{{if .Board.UsesGeo}}	"github.com/oidoid/void/src/void/vgeo"
+{{end}}
 )
 
 const {{.Name}}Level vboards.Level = {{.Level}}
@@ -27,18 +28,7 @@ var {{.Name}}Board = vboards.DecodeBoard({{.Name}}Level, []byte{
 })
 {{range $group := .Board.Spawns}}
 {{$className := name $group.Class}}{{if $group.Props}}
-{{if $group.IsText}}type {{$.Name}}{{$className}}Spawn = vboards.TextSpawn
-{{else}}
-type {{$.Name}}{{$className}}Spawn struct {
-	vboards.Spawn
-	{{range $group.Props}}{{if .IsBool}}{{name .Name}} bool
-	{{else if .IsInt}}{{name .Name}} int32
-	{{else if .IsStr}}{{name .Name}} string
-	{{else if .IsXY}}{{name .Name}} vgeo.XY[float32]
-	{{end}}{{end}}}
-{{end}}
-
-var {{$.Name}}{{$className}}Spawns = [...]{{$.Name}}{{$className}}Spawn{
+var {{$.Name}}{{$className}}Spawns = [...]{{$className}}Spawn{
 	{{range $spawn := $group.Spawns}}{
 		Spawn: {{template "spawn" $spawn}},
 		{{range $prop := $spawn.Props}}{{if $prop.IsBool}}{{if $prop.Bool}}{{name $prop.Name}}: true,
@@ -48,7 +38,7 @@ var {{$.Name}}{{$className}}Spawns = [...]{{$.Name}}{{$className}}Spawn{
 		{{end}}{{end}}{{end}}},
 	{{end}}}
 {{else}}
-var {{$.Name}}{{$className}}Spawns = [...]vboards.Spawn{
+var {{$.Name}}{{$className}}Spawns = [...]{{$className}}Spawn{
 	{{range $group.Spawns}}{{template "spawn" .}},
 	{{end}}}
 {{end}}{{end}}

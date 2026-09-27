@@ -41,6 +41,23 @@ type spawnBoardSpec struct {
 	Spawns []spawnGroupSpec
 }
 
+func (this spawnBoardSpec) UsesGeo() bool {
+	for _, group := range this.Spawns {
+		for _, spawn := range group.Spawns {
+			if spawn.XY != (vgeo.XY[float32]{}) ||
+				spawn.WH != (vgeo.WH[float32]{}) {
+				return true
+			}
+			for _, prop := range spawn.Props {
+				if prop.IsXY() && prop.XY != (vgeo.XY[float32]{}) {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
 // groups creation specs sharing a Tiled class and generated Go type.
 type spawnGroupSpec struct {
 	// authored Tiled class shared by every creation spec in the group.

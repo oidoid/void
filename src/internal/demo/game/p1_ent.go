@@ -32,7 +32,7 @@ func NewP1Ent(xy vgeo.XY[float32], anim vatlas.Anim) P1Ent {
 }
 
 func NewP1EntFromSpawn(
-	spawn boards.InitP1Spawn, atlas *vatlas.Atlas,
+	spawn boards.P1Spawn, atlas *vatlas.Atlas,
 ) P1Ent {
 	this := NewP1Ent(spawn.XY, atlas.Anims[int(spawn.Tag)])
 	this.Spr = spawn.Spawn.Spr()

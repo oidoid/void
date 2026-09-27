@@ -195,11 +195,11 @@ func TestGenBoardTextSpawn(t *testing.T) {
 			}},
 		}},
 	}
-	src, err := genBoard("boards", "init.tmx", 1, &board)
+	src, err := genSpawns("boards", board.Spawns)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(string(src), "type InitTextSpawn = vboards.TextSpawn") {
+	if !strings.Contains(string(src), "type TextSpawn = vboards.TextSpawn") {
 		t.Fatalf("generated source lacks shared text type:\n%s", src)
 	}
 }
@@ -346,13 +346,19 @@ func TestGenBoardSpawns(t *testing.T) {
 	if !strings.Contains(string(src), "const InitLevel vboards.Level = 1") {
 		t.Fatalf("generated source lacks level enum:\n%s", src)
 	}
-	want := `type InitSuperballSpawn struct {
+	spawnSrc, err := genSpawns("maps", board.Spawns)
+	if err != nil {
+		t.Fatal(err)
+	}
+	wantType := `type SuperballSpawn struct {
 	vboards.Spawn
 	Vel     vgeo.XY[float32]
 	Enabled bool
-}
-
-var InitSuperballSpawns = [...]InitSuperballSpawn{
+}`
+	if !strings.Contains(string(spawnSrc), wantType) {
+		t.Fatalf("generated source lacks %q:\n%s", wantType, spawnSrc)
+	}
+	want := `var InitSuperballSpawns = [...]SuperballSpawn{
 	{
 		Spawn: vboards.Spawn{
 			XY:      vgeo.NewXY[float32](4.5, 8.25),
@@ -376,6 +382,130 @@ var InitSuperballSpawns = [...]InitSuperballSpawn{
 }`
 	if !strings.Contains(string(src), want) {
 		t.Fatalf("generated source lacks %q:\n%s", want, src)
+	}
+}
+
+func TestGenBoardWithoutSpawns(t *testing.T) {
+	board := spawnBoardSpec{
+		Board: vboards.Board{
+			WH:    vgeo.NewWH[int32](16, 16),
+			Tile:  vgeo.NewWH[uint8](16, 16),
+			Tiles: []vboards.Tile{0},
+		},
+	}
+	src, err := genBoard("boards", "empty.tmx", 1, &board)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(src), "src/void/vgeo") {
+		t.Fatalf("empty board imports unused vgeo:\n%s", src)
+	}
+}
+
+func TestGenBoardSpawnWithoutCustomProps(t *testing.T) {
+	board := spawnBoardSpec{
+		Board: vboards.Board{
+			WH:    vgeo.NewWH[int32](16, 16),
+			Tile:  vgeo.NewWH[uint8](16, 16),
+			Tiles: []vboards.Tile{0},
+		},
+		Spawns: []spawnGroupSpec{{
+			Class:  "Marker",
+			Spawns: []spawnSpec{{Spawn: vboards.NewSpawn(1, 2, 0, 0, 0)}},
+		}},
+	}
+	spawnSrc, err := genSpawns("boards", board.Spawns)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(spawnSrc), "type MarkerSpawn = vboards.Spawn") {
+		t.Fatalf("missing shared marker type:\n%s", spawnSrc)
+	}
+	boardSrc, err := genBoard("boards", "init.tmx", 1, &board)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(boardSrc), "var InitMarkerSpawns = [...]MarkerSpawn{") {
+		t.Fatalf("board does not use shared marker type:\n%s", boardSrc)
+	}
+}
+
+func TestMergeBoardSpawns(t *testing.T) {
+	newBoard := func(group spawnGroupSpec) spawnBoardSpec {
+		return spawnBoardSpec{
+			Board: vboards.Board{
+				WH:    vgeo.NewWH[int32](16, 16),
+				Tile:  vgeo.NewWH[uint8](16, 16),
+				Tiles: []vboards.Tile{0},
+			},
+			Spawns: []spawnGroupSpec{group},
+		}
+	}
+	boards := []spawnBoardSpec{
+		newBoard(spawnGroupSpec{
+			Class: "P1",
+			Props: []spawnPropSpec{{Name: "Clockwise", Type: spawnPropBool}},
+			Spawns: []spawnSpec{{
+				Spawn: vboards.NewSpawn(1, 2, 8, 13, 0),
+				Props: []spawnPropSpec{{
+					Name: "Clockwise", Type: spawnPropBool, Bool: true,
+				}},
+			}},
+		}),
+		newBoard(spawnGroupSpec{
+			Class:  "P1",
+			Spawns: []spawnSpec{{Spawn: vboards.NewSpawn(3, 4, 8, 13, 0)}},
+		}),
+		newBoard(spawnGroupSpec{
+			Class: "P1",
+			Props: []spawnPropSpec{{Name: "Speed", Type: spawnPropInt}},
+			Spawns: []spawnSpec{{
+				Spawn: vboards.NewSpawn(5, 6, 8, 13, 0),
+				Props: []spawnPropSpec{{
+					Name: "Speed", Type: spawnPropInt, Int: 3,
+				}},
+			}},
+		}),
+	}
+	paths := []string{"first.tmx", "second.tmx", "third.tmx"}
+	groups, err := mergeSpawns(paths, boards)
+	if err != nil {
+		t.Fatal(err)
+	}
+	spawnSrc, err := genSpawns("boards", groups)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(spawnSrc), "type P1Spawn struct") ||
+		!strings.Contains(string(spawnSrc), "Clockwise bool") ||
+		!strings.Contains(string(spawnSrc), "Speed     int32") {
+		t.Fatalf("shared type lacks merged property:\n%s", spawnSrc)
+	}
+	for i := range boards {
+		boardSrc, err := genBoard(
+			"boards", paths[i], vboards.Level(i+1), &boards[i],
+		)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !strings.Contains(string(boardSrc), "[...]P1Spawn{") ||
+			!strings.Contains(string(boardSrc), "Spawn: vboards.Spawn{") {
+			t.Fatalf("board %d does not use shared type:\n%s", i, boardSrc)
+		}
+	}
+}
+
+func TestMergeBoardSpawnsRejectsConflictingPropTypes(t *testing.T) {
+	boards := []spawnBoardSpec{
+		{Spawns: []spawnGroupSpec{{
+			Class: "P1", Props: []spawnPropSpec{{Name: "Vel", Type: spawnPropInt}},
+		}}},
+		{Spawns: []spawnGroupSpec{{
+			Class: "P1", Props: []spawnPropSpec{{Name: "Vel", Type: spawnPropXY}},
+		}}},
+	}
+	if _, err := mergeSpawns([]string{"a.tmx", "b.tmx"}, boards); err == nil {
+		t.Fatal("want prop type conflict")
 	}
 }
 

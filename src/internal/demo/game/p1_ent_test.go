@@ -41,7 +41,7 @@ func TestNewP1Ent(t *testing.T) {
 }
 
 func TestNewP1EntFromSpawn(t *testing.T) {
-	spawn := boards.InitP1Spawn{
+	spawn := boards.P1Spawn{
 		Spawn: vboards.Spawn{
 			XY:      vgeo.NewXY[float32](1.5, 2.5),
 			WH:      vgeo.NewWH[float32](8.5, 13.5),
