@@ -1,6 +1,6 @@
 import * as V from '@oidoid/void'
 import wasm from '../../../../dist/demo/index.wasm'
 
-const engine = new V.Eng()
-await engine.load(undefined, wasm, 0xe6e6e6ff)
-engine.register()
+const eng = new V.Eng()
+await eng.load(undefined, wasm, 0xe6e6e6ff)
+eng.register()

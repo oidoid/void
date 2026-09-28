@@ -17,7 +17,8 @@ import (
 )
 
 type Game struct {
-	veng.Eng[*Game]
+	veng.Eng
+	veng.GameHooks[*Game]
 	Superballs     veng.EntVec[*Game, SuperballEnt]
 	HitSuperballs  bool
 	BeepSuperballs bool
@@ -42,7 +43,7 @@ func NewGame() *Game {
 	font := vtext.MemProp5x6
 	font.FirstTag = tags.MemProp5x600
 	this := &Game{
-		Eng: *veng.NewEng[*Game](&veng.EngOpts{
+		Eng: *veng.NewEng(&veng.EngOpts{
 			Font:       font,
 			Atlas:      vatlas.DecodeAtlas(assets.AtlasBin),
 			RenderMode: vgfx.RenderModePixel,
@@ -72,7 +73,7 @@ func NewGame() *Game {
 	this.Superballs = *veng.NewEntVec(UpdateSuperballs)
 	this.RegisterUpdate(this.Superballs.Update)
 	initGame(this)
-	this.Router().Update = this.Eng.Update
+	this.Router().Update = this.GameHooks.Update
 	return this
 }
 
@@ -229,7 +230,7 @@ func (this *Game) Update() veng.Status {
 	this.Layer(gfx.LayerOverlay).Scale = float32(vmath.Round(3 * dpr))
 	this.Layer(gfx.LayerCursor).Scale = float32(vmath.Round(2 * dpr))
 	this.Layer(gfx.LayerGrid).Scale = float32(math.Floor(dpr))
-	stat |= this.Eng.Preupdate(this)
+	stat |= this.GameHooks.Preupdate(&this.Eng, this)
 	stat |= this.Router().Update(this)
 	return this.Eng.EndTick(stat)
 }

@@ -9,23 +9,26 @@ import (
 	"github.com/oidoid/void/src/void/vin"
 )
 
-func testCursorEnt(keyboard float32) CursorEnt {
-	return NewCursorEnt(
-		vboards.Spawn{Tag: 1}, 0, keyboard, vgeo.Box[uint16]{},
-	)
-}
-
-func setCursorXY(ent *CursorEnt, xy vgeo.XY[float32]) {
-	ent.XY = xy
-	ent.Spr.XY = xy
-}
-
 func TestNewCursorEnt_Hitbox(t *testing.T) {
 	hitbox := vgeo.XYWH[uint16](1, 2, 3, 4)
 	ent := NewCursorEnt(vboards.Spawn{Tag: 1}, 0, 0, hitbox)
 	want := vgeo.XYWH[float32](1, 2, 3, 4)
 	if ent.Hitbox != want {
 		t.Fatalf("Hitbox = %v, want %v", ent.Hitbox, want)
+	}
+}
+
+func TestCursorEntUpdateEng(t *testing.T) {
+	eng := NewEng(&EngOpts{MaxSprs: 1})
+	ent := testCursorEnt(0)
+	ent.Visible = true
+	ent.KbdEnabled = true
+	ent.Spr.Z = vgfx.Z(4)
+	if stat := ent.Update(eng); stat != Pause {
+		t.Errorf("Update() = %v, want Pause", stat)
+	}
+	if got := len(eng.Layer(ent.Spr.Z.Layer()).Sprs); got != 1 {
+		t.Errorf("cursor layer sprs = %d, want 1", got)
 	}
 }
 
@@ -37,7 +40,7 @@ func TestUpdate_Hitbox(t *testing.T) {
 	ent.Visible = true
 	layer := vgfx.NewLayerConfig(0)
 	sprs := []vgfx.Spr{}
-	ent.Update(vin.NewIn(), &sprs, 0, &layer)
+	updateCursorEnt(&ent, vin.NewIn(), &sprs, 0, &layer)
 	want := vgeo.NewBox[float32](11.5, 22.5, 14.5, 26.5)
 	if ent.Hitbox != want {
 		t.Fatalf("Hitbox = %v, want %v", ent.Hitbox, want)
@@ -66,7 +69,7 @@ func TestUpdate_DrawSpawn(t *testing.T) {
 	ent.KbdEnabled = true
 	layer := vgfx.NewLayerConfig(0)
 	sprs := []vgfx.Spr{}
-	ent.Update(vin.NewIn(), &sprs, 0, &layer)
+	updateCursorEnt(&ent, vin.NewIn(), &sprs, 0, &layer)
 	if len(sprs) != 1 {
 		t.Fatalf("len(sprs) = %d, want 1", len(sprs))
 	}
@@ -94,13 +97,13 @@ func TestUpdate_RestoresPointTag(t *testing.T) {
 	in.PrevOn = vin.ButtonA
 	layer := vgfx.NewLayerConfig(0)
 	sprs := []vgfx.Spr{}
-	ent.Update(in, &sprs, 0, &layer)
+	updateCursorEnt(&ent, in, &sprs, 0, &layer)
 	if got := sprs[0].Tag(); got != 2 {
 		t.Errorf("picked Tag = %d, want 2", got)
 	}
 	in.On = 0
 	in.Mask = 0
-	ent.Update(in, &sprs, 0, &layer)
+	updateCursorEnt(&ent, in, &sprs, 0, &layer)
 	if got := sprs[1].Tag(); got != 1 {
 		t.Errorf("released Tag = %d, want 1", got)
 	}
@@ -130,19 +133,19 @@ func TestHitboxPhy(t *testing.T) {
 	layer := vgfx.NewLayerConfig(0)
 	in := vin.NewIn()
 	sprs := []vgfx.Spr{}
-	ent.Update(in, &sprs, 0, &layer)
+	updateCursorEnt(&ent, in, &sprs, 0, &layer)
 	if ent.HitboxPhy() != nil {
 		t.Fatal("hidden cursor without a pointer focused")
 	}
 	ent.Visible = true
 	ent.KbdEnabled = true
-	ent.Update(in, &sprs, 0, &layer)
+	updateCursorEnt(&ent, in, &sprs, 0, &layer)
 	if got := ent.HitboxPhy(); got == nil ||
 		*got != vgeo.XYWH[float32](4, 8, 2, 3) {
 		t.Errorf("visible cursor HitboxPhy() = %v, want (4,8,2,3)", got)
 	}
 	ent.Visible = false
-	ent.Update(in, &sprs, 0, &layer)
+	updateCursorEnt(&ent, in, &sprs, 0, &layer)
 	if ent.HitboxPhy() != nil {
 		t.Fatal("hidden keyboard cursor without input focused")
 	}
@@ -153,7 +156,7 @@ func TestHitboxPhy(t *testing.T) {
 		Primary: true,
 	}
 	in.Update(0, poll, vgeo.Box[float32]{})
-	ent.Update(in, &sprs, 0, &layer)
+	updateCursorEnt(&ent, in, &sprs, 0, &layer)
 	if got := ent.HitboxPhy(); got == nil ||
 		*got != vgeo.XYWH[float32](4, 8, 2, 3) {
 		t.Errorf("touch cursor HitboxPhy() = %v, want (4,8,2,3)", got)
@@ -339,14 +342,14 @@ func TestUpdate_KeyboardMode(t *testing.T) {
 	layer := vgfx.NewLayerConfig(0)
 	layer.Clip = defaultBounds
 	sprs := []vgfx.Spr{}
-	if got := ent.Update(in, &sprs, .1, &layer); got != Pause {
+	if got := updateCursorEnt(&ent, in, &sprs, .1, &layer); got != Pause {
 		t.Errorf("disabled keyboard cursor update = %v, want Pause", got)
 	}
 	if got := ent.XY.X; got != 0 {
 		t.Errorf("disabled keyboard cursor X = %v, want 0", got)
 	}
 	ent.KbdEnabled = true
-	if got := ent.Update(in, &sprs, .1, &layer); got != Loop {
+	if got := updateCursorEnt(&ent, in, &sprs, .1, &layer); got != Loop {
 		t.Errorf("moving keyboard cursor update = %v, want Loop", got)
 	}
 	if got := ent.XY.X; got != 1 {
@@ -363,7 +366,7 @@ func TestUpdate_KeyboardModeZeroDeltaLoops(t *testing.T) {
 	layer := vgfx.NewLayerConfig(0)
 	layer.Clip = defaultBounds
 	sprs := []vgfx.Spr{}
-	if got := ent.Update(in, &sprs, 0, &layer); got != Loop {
+	if got := updateCursorEnt(&ent, in, &sprs, 0, &layer); got != Loop {
 		t.Errorf("zero-delta keyboard cursor update = %v, want Loop", got)
 	}
 	if got := ent.XY; got != (vgeo.XY[float32]{}) {
@@ -394,12 +397,12 @@ func TestUpdate_PtrLeaves(t *testing.T) {
 				Primary: true,
 			}
 			in.Update(0, poll, vgeo.Box[float32]{})
-			ent.Update(in, &sprs, 0, &layer)
+			updateCursorEnt(&ent, in, &sprs, 0, &layer)
 			if !ent.Visible {
 				t.Fatal("cursor hidden while mouse is present")
 			}
 			in.Update(1, &vin.InPoll{}, vgeo.Box[float32]{})
-			ent.Update(in, &sprs, 0, &layer)
+			updateCursorEnt(&ent, in, &sprs, 0, &layer)
 			if ent.Visible != test.want {
 				t.Errorf("cursor visible after mouse leaves = %v, want %v",
 					ent.Visible, test.want)
@@ -427,7 +430,7 @@ func TestUpdate_KeyboardModeFollowsMovedPtr(t *testing.T) {
 			Primary: true,
 		}
 		in.Update(now, poll, vgeo.Box[float32]{})
-		ent.Update(in, &sprs, .1, &layer)
+		updateCursorEnt(&ent, in, &sprs, .1, &layer)
 	}
 	update(0, 2, 0)
 	update(1, 2, vin.KeyRight)
@@ -461,11 +464,35 @@ func TestUpdate_KeyboardReleaseKeepsPosition(t *testing.T) {
 	layer := vgfx.NewLayerConfig(0)
 	layer.Clip = defaultBounds
 	sprs := []vgfx.Spr{}
-	ent.Update(in, &sprs, .1, &layer)
+	updateCursorEnt(&ent, in, &sprs, .1, &layer)
 	in.PrevDir = in.Dir
 	in.Dir = vgeo.XY[int8]{}
-	ent.Update(in, &sprs, .1, &layer)
+	updateCursorEnt(&ent, in, &sprs, .1, &layer)
 	if got, want := ent.XY, vgeo.NewXY[float32](1, 0); got != want {
 		t.Errorf("released keyboard cursor XY = %v, want %v", got, want)
 	}
+}
+
+func testCursorEnt(keyboard float32) CursorEnt {
+	return NewCursorEnt(
+		vboards.Spawn{Tag: 1}, 0, keyboard, vgeo.Box[uint16]{},
+	)
+}
+
+func updateCursorEnt(
+	ent *CursorEnt, in *vin.In, sprs *[]vgfx.Spr,
+	deltaSecs float64, layer *vgfx.LayerConfig,
+) Status {
+	eng := &Eng{in: in}
+	eng.poll.DeltaMillis = deltaSecs * 1000
+	eng.layers[ent.Spr.Z.Layer()] = *layer
+	eng.layers[ent.Spr.Z.Layer()].Sprs = *sprs
+	stat := ent.Update(eng)
+	*sprs = eng.layers[ent.Spr.Z.Layer()].Sprs
+	return stat
+}
+
+func setCursorXY(ent *CursorEnt, xy vgeo.XY[float32]) {
+	ent.XY = xy
+	ent.Spr.XY = xy
 }

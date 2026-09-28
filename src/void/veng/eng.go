@@ -16,7 +16,7 @@ import (
 	"github.com/oidoid/void/src/void/vtext"
 )
 
-type Eng[App any] struct {
+type Eng struct {
 	atlas             vatlas.Atlas
 	beepCount         uint32
 	beeps             [16]Beep
@@ -32,15 +32,12 @@ type Eng[App any] struct {
 	layerConfigExport [vgfx.LayerCount]vgfx.LayerConfigExport
 	layers            [vgfx.LayerCount]vgfx.LayerConfig
 	poll              Poll
-	preupdaters       hookSet[App]
 	renderMode        vgfx.RenderMode
 	rnd               *rand.Rand
-	router            Router[App]
 	screenshotReq     bool
 	texts             vvec.Vec[TextEnt]
 	tick              Tick
 	updateInMillis    uint64
-	updaters          hookSet[App]
 }
 
 type EngOpts struct {
@@ -54,7 +51,7 @@ type EngOpts struct {
 	Seed2      uint64
 }
 
-func NewEng[App any](opts *EngOpts) *Eng[App] {
+func NewEng(opts *EngOpts) *Eng {
 	if opts == nil {
 		opts = &EngOpts{}
 	}
@@ -67,7 +64,7 @@ func NewEng[App any](opts *EngOpts) *Eng[App] {
 	if opts.Seed2 == 0 {
 		opts.Seed2 = rand.Uint64()
 	}
-	this := &Eng[App]{
+	this := &Eng{
 		font:       opts.Font,
 		atlas:      opts.Atlas,
 		board:      opts.Board,
@@ -83,9 +80,9 @@ func NewEng[App any](opts *EngOpts) *Eng[App] {
 	return this
 }
 
-func (this *Eng[Game]) Random() float32 { return this.rnd.Float32() }
+func (this *Eng) Random() float32 { return this.rnd.Float32() }
 
-func (this *Eng[Game]) Beep(beep Beep) {
+func (this *Eng) Beep(beep Beep) {
 	if this.beepCount == uint32(len(this.beeps)) {
 		return
 	}
@@ -93,35 +90,25 @@ func (this *Eng[Game]) Beep(beep Beep) {
 	this.beepCount++
 }
 
-func (this *Eng[Game]) RegisterPreupdate(fn func(Game) Status) {
-	this.preupdaters.Register(fn)
-}
-
-func (this *Eng[Game]) RegisterUpdate(update func(Game) Status) {
-	this.updaters.Register(update)
-}
-
-func (this *Eng[Game]) Font() *vtext.Font {
+func (this *Eng) Font() *vtext.Font {
 	return this.font
 }
 
-func (this *Eng[Game]) Router() *Router[Game] { return &this.router }
+func (this *Eng) Atlas() *vatlas.Atlas { return &this.atlas }
 
-func (this *Eng[Game]) Atlas() *vatlas.Atlas { return &this.atlas }
-
-func (this *Eng[Game]) Texts() *vvec.Vec[TextEnt] {
+func (this *Eng) Texts() *vvec.Vec[TextEnt] {
 	return &this.texts
 }
 
-func (this *Eng[Game]) Cursor() *CursorEnt { return this.cursor }
+func (this *Eng) Cursor() *CursorEnt { return this.cursor }
 
-func (this *Eng[Game]) SetCursor(cursor *CursorEnt) {
+func (this *Eng) SetCursor(cursor *CursorEnt) {
 	this.cursor = cursor
 }
 
-func (this *Eng[Game]) Board() *vboards.Board { return this.board }
+func (this *Eng) Board() *vboards.Board { return this.board }
 
-func (this *Eng[Game]) SetBoard(board *vboards.Board) bool {
+func (this *Eng) SetBoard(board *vboards.Board) bool {
 	if this.board == board || this.board != nil && board != nil &&
 		this.board.Level == board.Level {
 		return false
@@ -131,32 +118,32 @@ func (this *Eng[Game]) SetBoard(board *vboards.Board) bool {
 }
 
 // to-do: rename to Poll, move props to Engine struct, and don't expose?
-func (this *Eng[Game]) Poll() *Poll        { return &this.poll }
-func (this *Eng[Game]) Fullscreen() bool   { return this.poll.Fullscreen }
-func (this *Eng[Game]) Ptrlock() bool      { return this.poll.Ptrlocked }
-func (this *Eng[Game]) NowMillis() float64 { return this.poll.NowMillis }
-func (this *Eng[Game]) UtcMillis() uint64  { return this.poll.UtcMillis }
-func (this *Eng[Game]) Time() TimeFormat {
+func (this *Eng) Poll() *Poll        { return &this.poll }
+func (this *Eng) Fullscreen() bool   { return this.poll.Fullscreen }
+func (this *Eng) Ptrlock() bool      { return this.poll.Ptrlocked }
+func (this *Eng) NowMillis() float64 { return this.poll.NowMillis }
+func (this *Eng) UtcMillis() uint64  { return this.poll.UtcMillis }
+func (this *Eng) Time() TimeFormat {
 	return this.poll.TimeFormat
 }
-func (this *Eng[Game]) DeltaMs() float64   { return this.poll.DeltaMillis }
-func (this *Eng[Game]) DeltaSecs() float64 { return this.poll.DeltaSecs() }
-func (this *Eng[Game]) Tick() *Tick        { return &this.tick }
+func (this *Eng) DeltaMs() float64   { return this.poll.DeltaMillis }
+func (this *Eng) DeltaSecs() float64 { return this.poll.DeltaSecs() }
+func (this *Eng) Tick() *Tick        { return &this.tick }
 
-func (this *Eng[Game]) ReqFullscreen(req FullscreenReq) {
+func (this *Eng) ReqFullscreen(req FullscreenReq) {
 	this.fullscreenReq = req
 }
 
-func (this *Eng[Game]) FullscreenReq() int32 {
+func (this *Eng) FullscreenReq() int32 {
 	return int32(this.fullscreenReq)
 }
 
-func (this *Eng[Game]) ReqScreenshot() {
+func (this *Eng) ReqScreenshot() {
 	this.screenshotReq = true
 }
 
 // to-do: just a big flag API?
-func (this *Eng[Game]) ScreenshotReq() int32 {
+func (this *Eng) ScreenshotReq() int32 {
 	if !this.screenshotReq {
 		return 0
 	}
@@ -164,24 +151,24 @@ func (this *Eng[Game]) ScreenshotReq() int32 {
 	return 1
 }
 
-func (this *Eng[Game]) ReqContextLoss() {
+func (this *Eng) ReqContextLoss() {
 	this.contextLossReq = true
 }
 
 // reqs an update after millis. zero cancels the pending req. always
 // cleared on next frame. to-do: is this right?
-func (this *Eng[Game]) ReqUpdateInMillis(millis uint64) {
+func (this *Eng) ReqUpdateInMillis(millis uint64) {
 	this.updateInMillis = millis
 }
 
 // returns and clears the pending update delay.
-func (this *Eng[Game]) UpdateInMillisReq() uint64 {
+func (this *Eng) UpdateInMillisReq() uint64 {
 	millis := this.updateInMillis
 	this.updateInMillis = 0
 	return millis
 }
 
-func (this *Eng[Game]) ContextLossReq() int32 {
+func (this *Eng) ContextLossReq() int32 {
 	if !this.contextLossReq {
 		return 0
 	}
@@ -189,123 +176,123 @@ func (this *Eng[Game]) ContextLossReq() int32 {
 	return 1
 }
 
-func (this *Eng[Game]) SetDrawAlways(always bool) {
+func (this *Eng) SetDrawAlways(always bool) {
 	this.drawAlways = always
 }
 
-func (this *Eng[Game]) DrawAlways() bool { return this.drawAlways }
+func (this *Eng) DrawAlways() bool { return this.drawAlways }
 
 // allow normal updates and drawing while unfocused.
-func (this *Eng[Game]) SetDrawOnBlur(on bool) { this.drawOnBlur = on }
+func (this *Eng) SetDrawOnBlur(on bool) { this.drawOnBlur = on }
 
-func (this *Eng[Game]) DrawOnBlur() bool { return this.drawOnBlur }
+func (this *Eng) DrawOnBlur() bool { return this.drawOnBlur }
 
-func (this *Eng[Game]) DrawOnBlurFlag() int32 {
+func (this *Eng) DrawOnBlurFlag() int32 {
 	if this.drawOnBlur {
 		return 1
 	}
 	return 0
 }
 
-func (this *Eng[Game]) FullscreenEnabled() bool {
+func (this *Eng) FullscreenEnabled() bool {
 	return this.fullscreenReq == FullscreenReqEnter ||
 		this.fullscreenReq == FullscreenReqPortrait ||
 		this.fullscreenReq == FullscreenReqLandscape
 }
 
-func (this *Eng[Game]) RenderMode() vgfx.RenderMode {
+func (this *Eng) RenderMode() vgfx.RenderMode {
 	return this.renderMode
 }
 
-func (this *Eng[Game]) DrawAlwaysFlag() int32 {
+func (this *Eng) DrawAlwaysFlag() int32 {
 	if this.drawAlways {
 		return 1
 	}
 	return 0
 }
 
-func (this *Eng[Game]) RenderModeFlag() int32 {
+func (this *Eng) RenderModeFlag() int32 {
 	return int32(this.renderMode)
 }
 
-func (this *Eng[Game]) PollPtr() uintptr {
+func (this *Eng) PollPtr() uintptr {
 	return uintptr(unsafe.Pointer(&this.poll))
 }
 
-func (this *Eng[Game]) BeepPtr() uintptr {
+func (this *Eng) BeepPtr() uintptr {
 	return uintptr(unsafe.Pointer(&this.beeps[0]))
 }
 
-func (this *Eng[Game]) BeepCount() uint32 { return this.beepCount }
+func (this *Eng) BeepCount() uint32 { return this.beepCount }
 
-func (this *Eng[Game]) Cam() *vgeo.XY[float32] { return &this.cam }
-func (this *Eng[Game]) CamX() float32          { return this.cam.X }
-func (this *Eng[Game]) CamY() float32          { return this.cam.Y }
+func (this *Eng) Cam() *vgeo.XY[float32] { return &this.cam }
+func (this *Eng) CamX() float32          { return this.cam.X }
+func (this *Eng) CamY() float32          { return this.cam.Y }
 
-func (this *Eng[Game]) CanvasPhy() *vgeo.WH[uint16] {
+func (this *Eng) CanvasPhy() *vgeo.WH[uint16] {
 	return &this.poll.CanvasPhy
 }
-func (this *Eng[Game]) In() *vin.In {
+func (this *Eng) In() *vin.In {
 	return this.in
 }
 
-func (this *Eng[Game]) BoardLevel() uint16 {
+func (this *Eng) BoardLevel() uint16 {
 	if this.board == nil {
 		return 0
 	}
 	return uint16(this.board.Level)
 }
 
-func (this *Eng[Game]) BoardW() int32 {
+func (this *Eng) BoardW() int32 {
 	if this.board == nil {
 		return 0
 	}
 	return this.board.W
 }
 
-func (this *Eng[Game]) BoardH() int32 {
+func (this *Eng) BoardH() int32 {
 	if this.board == nil {
 		return 0
 	}
 	return this.board.H
 }
 
-func (this *Eng[Game]) LayerConfigsPtr() uintptr {
+func (this *Eng) LayerConfigsPtr() uintptr {
 	return uintptr(unsafe.Pointer(unsafe.SliceData(this.layerConfigExport[:])))
 }
-func (this *Eng[Game]) Layer(layer vgfx.Layer) *vgfx.LayerConfig {
+func (this *Eng) Layer(layer vgfx.Layer) *vgfx.LayerConfig {
 	return &this.layers[layer]
 }
 
-func (this *Eng[Game]) BoardTilesPtr() uintptr {
+func (this *Eng) BoardTilesPtr() uintptr {
 	if this.board == nil || len(this.board.Tiles) == 0 {
 		return 0
 	}
 	return uintptr(unsafe.Pointer(&this.board.Tiles[0]))
 }
 
-func (this *Eng[Game]) BoardTilesLen() uint32 {
+func (this *Eng) BoardTilesLen() uint32 {
 	if this.board == nil {
 		return 0
 	}
 	return uint32(len(this.board.Tiles))
 }
 
-func (this *Eng[Game]) BoardTileW() uint8 {
+func (this *Eng) BoardTileW() uint8 {
 	if this.board == nil {
 		return 0
 	}
 	return this.board.Tile.W
 }
 
-func (this *Eng[Game]) BoardTileH() uint8 {
+func (this *Eng) BoardTileH() uint8 {
 	if this.board == nil {
 		return 0
 	}
 	return this.board.Tile.H
 }
 
-func (this *Eng[Game]) EndTick(stat Status) Status {
+func (this *Eng) EndTick(stat Status) Status {
 	stat |= this.updateTexts()
 	if this.drawAlways {
 		stat |= Loop
@@ -317,18 +304,7 @@ func (this *Eng[Game]) EndTick(stat Status) Status {
 	return stat
 }
 
-func (this *Eng[Game]) Preupdate(gam Game) Status {
-	this.updateLayerScales()
-	stat := this.preupdaters.Hook(gam)
-	this.updateLayerClips()
-	return stat
-}
-
-func (this *Eng[Game]) Update(gam Game) Status {
-	return this.updaters.Hook(gam)
-}
-
-func (this *Eng[Game]) updateTexts() Status {
+func (this *Eng) updateTexts() Status {
 	ents := this.texts.Vals()
 	stat := Pause
 	for i := range ents {
@@ -339,26 +315,26 @@ func (this *Eng[Game]) updateTexts() Status {
 	return stat
 }
 
-func (this *Eng[Game]) AtlasAnimCount() uint32 {
+func (this *Eng) AtlasAnimCount() uint32 {
 	return uint32(len(this.atlas.Anims))
 }
 
-func (this *Eng[Game]) AtlasCelsPerAnim() uint32 {
+func (this *Eng) AtlasCelsPerAnim() uint32 {
 	return uint32(vatlas.CelsPerAnim)
 }
 
-func (this *Eng[Game]) AtlasCelsPtr() uintptr {
+func (this *Eng) AtlasCelsPtr() uintptr {
 	if len(this.atlas.Cels) == 0 {
 		return 0
 	}
 	return uintptr(unsafe.Pointer(unsafe.SliceData(this.atlas.Cels)))
 }
 
-func (this *Eng[Game]) AtlasCelsCount() uint32 {
+func (this *Eng) AtlasCelsCount() uint32 {
 	return uint32(len(this.atlas.Cels))
 }
 
-func (this *Eng[Game]) BeginTick() Status {
+func (this *Eng) BeginTick() Status {
 	this.beepCount = 0
 	this.in.Update(
 		this.poll.NowMillis,
@@ -379,7 +355,7 @@ func (this *Eng[Game]) BeginTick() Status {
 	return Pause
 }
 
-func (this *Eng[Game]) updateLayerScales() {
+func (this *Eng) updateLayerScales() {
 	for i := range this.layers {
 		config := &this.layers[i]
 		clip := config.ClipPhy
@@ -393,7 +369,7 @@ func (this *Eng[Game]) updateLayerScales() {
 	}
 }
 
-func (this *Eng[Game]) updateLayerClips() {
+func (this *Eng) updateLayerClips() {
 	for i := range this.layers {
 		config := &this.layers[i]
 		config.UpdateCam(this.cam)
@@ -415,7 +391,7 @@ func (this *Eng[Game]) updateLayerClips() {
 	}
 }
 
-func (this *Eng[Game]) updateLayerConfigExport() {
+func (this *Eng) updateLayerConfigExport() {
 	for i := range this.layers {
 		layer := &this.layers[i]
 		sprs := layer.Sprs

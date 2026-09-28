@@ -22,8 +22,5 @@ func NewCursorEntFromSpawn(
 }
 
 func (this *CursorEnt) Update(gam *Game) veng.Status {
-	layer := gam.Layer(this.Spr.Z.Layer())
-	return this.CursorEnt.Update(
-		gam.In(), &layer.Sprs, gam.DeltaSecs(), layer,
-	)
+	return this.CursorEnt.Update(&gam.Eng)
 }

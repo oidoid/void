@@ -45,6 +45,7 @@ never run:
   - column(s): col, cols
   - configuration: config; never cfg
   - context: ctx
+  - engine: eng
   - error: err
   - floating-point: float; never frac
   - for example: eg

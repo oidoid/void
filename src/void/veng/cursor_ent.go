@@ -51,12 +51,9 @@ func NewCursorEnt(
 	return this
 }
 
-func (this *CursorEnt) Update(
-	in *vin.In,
-	sprs *[]vgfx.Spr,
-	deltaSecs float64,
-	layer *vgfx.LayerConfig,
-) Status {
+func (this *CursorEnt) Update(eng *Eng) Status {
+	in := eng.In()
+	layer := eng.Layer(this.Spr.Z.Layer())
 	ptr := in.Ptr
 	ptrMoved := ptr != nil && ptr.Moved
 	if ptrMoved {
@@ -70,7 +67,7 @@ func (this *CursorEnt) Update(
 	dirY := int(in.Dir.Y)
 	if !ptrMoved && this.KbdEnabled && this.KbdVel > 0 &&
 		(dirX != 0 || dirY != 0 || in.IsAnyOnStart(vin.ButtonA)) {
-		this.onCursorKey(in, dirX, dirY, deltaSecs, layer.Clip)
+		this.onCursorKey(in, dirX, dirY, eng.DeltaSecs(), layer.Clip)
 	} else if !this.KbdEnabled || dirX == 0 && dirY == 0 {
 		this.kbdOn = false
 	}
@@ -91,7 +88,7 @@ func (this *CursorEnt) Update(
 	if this.pickTag != 0 && in.IsOn(vin.ButtonA) {
 		this.Spr.SetTag(this.pickTag)
 	}
-	*sprs = append(*sprs, this.Spr)
+	layer.Sprs = append(layer.Sprs, this.Spr)
 	if this.kbdOn {
 		return Loop
 	}
