@@ -9,7 +9,7 @@ import (
 	"github.com/oidoid/void/src/void/vtext"
 )
 
-func TestNewTextEntFromSpawn(t *testing.T) {
+func TestNewTextEnt(t *testing.T) {
 	spawn := vboards.TextSpawn{
 		Spawn: vboards.Spawn{
 			XY:  vgeo.NewXY[float32](-.25, 2.75),
@@ -18,7 +18,7 @@ func TestNewTextEntFromSpawn(t *testing.T) {
 		},
 		Text: "hello",
 	}
-	ent := NewTextEntFromSpawn(spawn)
+	ent := NewTextEnt(spawn)
 	if got, want := ent.XY, vgeo.NewXY[int16](-1, 2); got != want {
 		t.Errorf("XY = %v, want %v", got, want)
 	}

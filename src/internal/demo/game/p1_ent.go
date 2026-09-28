@@ -2,7 +2,6 @@ package game
 
 import (
 	"github.com/oidoid/void/src/internal/demo/boards"
-	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/internal/demo/tags"
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vboards"
@@ -24,20 +23,15 @@ const (
 	p1MaxMove = float32(4)
 )
 
-func NewP1Ent(xy vgeo.XY[float32], anim vatlas.Anim) P1Ent {
-	return P1Ent{
-		XY: xy, WH: vgeo.NewWH(anim.W, anim.H), Z: gfx.ZP1,
-		Dir: vgeo.DirE, Hurtbox: anim.Hurtbox, Clockwise: true,
-	}
-}
-
-func NewP1EntFromSpawn(
+func NewP1Ent(
 	spawn boards.P1Spawn, atlas *vatlas.Atlas,
 ) P1Ent {
-	this := NewP1Ent(spawn.XY, atlas.Anims[int(spawn.Tag)])
-	this.Spr = spawn.Spawn.Spr()
-	this.Clockwise = spawn.Clockwise
-	return this
+	return P1Ent{
+		Spr:       spawn.Spawn.Spr(),
+		Hurtbox:   atlas.Anims[int(spawn.Tag)].Hurtbox,
+		Dir:       vgeo.DirE,
+		Clockwise: spawn.Clockwise,
+	}
 }
 
 func (this *P1Ent) Update(gam *Game) veng.Status {

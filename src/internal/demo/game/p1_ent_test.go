@@ -9,15 +9,23 @@ import (
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vboards"
 	"github.com/oidoid/void/src/void/vgeo"
+	"github.com/oidoid/void/src/void/vgfx"
 )
 
-func TestNewP1Ent(t *testing.T) {
+func TestNewP1EntDefaults(t *testing.T) {
 	anim := vatlas.Anim{
 		W:       8,
 		H:       13,
 		Hurtbox: vgeo.XYWH[uint16](2, 0, 4, 4),
 	}
-	ent := NewP1Ent(vgeo.XY[float32]{}, anim)
+	spawn := boards.P1Spawn{
+		Spawn: vboards.Spawn{
+			WH: vgeo.NewWH[float32](8, 13), Z: gfx.ZP1,
+		},
+		Clockwise: true,
+	}
+	atlas := vatlas.Atlas{Anims: []vatlas.Anim{anim}}
+	ent := NewP1Ent(spawn, &atlas)
 	if got, want := ent.WH, vgeo.NewWH[uint16](8, 13); got != want {
 		t.Fatalf("WH = %v, want %v", got, want)
 	}
@@ -40,7 +48,7 @@ func TestNewP1Ent(t *testing.T) {
 	}
 }
 
-func TestNewP1EntFromSpawn(t *testing.T) {
+func TestNewP1Ent(t *testing.T) {
 	spawn := boards.P1Spawn{
 		Spawn: vboards.Spawn{
 			XY:      vgeo.NewXY[float32](1.5, 2.5),
@@ -56,7 +64,7 @@ func TestNewP1EntFromSpawn(t *testing.T) {
 	atlas := vatlas.Atlas{Anims: []vatlas.Anim{
 		{}, {Hurtbox: hurtbox},
 	}}
-	ent := NewP1EntFromSpawn(spawn, &atlas)
+	ent := NewP1Ent(spawn, &atlas)
 	if got, want := ent.Spr, spawn.Spawn.Spr(); got != want {
 		t.Errorf("spr = %#v, want %#v", got, want)
 	}
@@ -83,10 +91,12 @@ func TestP1EntTurnsRightAtWalls(t *testing.T) {
 		Tile:  vgeo.NewWH[uint8](16, 16),
 		Tiles: tiles,
 	}
-	ent := NewP1Ent(
-		vgeo.NewXY[float32](32, 32),
-		vatlas.Anim{W: 1, H: 1, Hurtbox: vgeo.XYWH[uint16](0, 0, 1, 1)},
-	)
+	ent := P1Ent{
+		Spr:       vgfx.Spr{XY: vgeo.NewXY[float32](32, 32)},
+		Hurtbox:   vgeo.XYWH[uint16](0, 0, 1, 1),
+		Dir:       vgeo.DirE,
+		Clockwise: true,
+	}
 	wants := []struct {
 		xy    vgeo.XY[float32]
 		dir   vgeo.Dir

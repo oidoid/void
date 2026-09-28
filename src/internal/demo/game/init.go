@@ -17,10 +17,10 @@ func initGame(gam *Game) {
 		if spawn.Hidden {
 			continue
 		}
-		gam.Texts().Add(veng.NewTextEntFromSpawn(spawn))
+		gam.Texts().Add(veng.NewTextEnt(spawn))
 	}
 	for _, spawn := range boards.InitP1Spawns {
-		p1 := NewP1EntFromSpawn(spawn, gam.Atlas())
+		p1 := NewP1Ent(spawn, gam.Atlas())
 		gam.RegisterUpdate(p1.Update)
 	}
 
@@ -29,7 +29,7 @@ func initGame(gam *Game) {
 		_ = gam.Superballs.Add(NewSuperballEntFromSpawn(rnd, spawn))
 	}
 
-	cursor := NewCursorEntFromSpawn(boards.InitCursorSpawns[0], gam.Atlas())
+	cursor := NewCursorEnt(boards.InitCursorSpawns[0], gam.Atlas())
 	gam.SetCursor(&cursor.CursorEnt)
 	gam.RegisterUpdate(cursor.Update)
 

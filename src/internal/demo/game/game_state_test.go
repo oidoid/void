@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/oidoid/void/src/internal/demo/gfx"
-	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vboards"
 	"github.com/oidoid/void/src/void/veng"
 	"github.com/oidoid/void/src/void/vgeo"
@@ -40,9 +39,10 @@ func TestP1EntDrawsWhenSpriteHitsClip(t *testing.T) {
 			gam := NewGame()
 			gam.Eng.SetBoard(&vboards.Board{WH: vgeo.NewWH[int32](10, 10)})
 			gam.Layer(gfx.LayerP1).Clip = clip
-			ent := NewP1Ent(
-				vgeo.NewXY(test.x, float32(0)), vatlas.Anim{W: 8, H: 13},
-			)
+			ent := P1Ent{Spr: vgfx.Spr{
+				XY: vgeo.NewXY(test.x, float32(0)),
+				WH: vgeo.NewWH[uint16](8, 13), Z: gfx.ZP1,
+			}}
 			ent.Update(gam)
 			if got := len(gam.Layer(gfx.LayerP1).Sprs); got != test.want {
 				t.Fatalf("sprites = %v, want %v", got, test.want)

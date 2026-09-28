@@ -19,7 +19,7 @@ type TextEnt struct {
 	textScale uint8
 }
 
-func NewTextEntFromSpawn(spawn vboards.TextSpawn) TextEnt {
+func NewTextEnt(spawn vboards.TextSpawn) TextEnt {
 	this := TextEnt{
 		XY: vgeo.NewXY(
 			int16(vmath.Floor(spawn.XY.X)),

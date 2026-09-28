@@ -10,7 +10,7 @@ type CursorEnt struct {
 	veng.CursorEnt
 }
 
-func NewCursorEntFromSpawn(
+func NewCursorEnt(
 	spawn boards.CursorSpawn, atlas *vatlas.Atlas,
 ) CursorEnt {
 	return CursorEnt{CursorEnt: veng.NewCursorEnt(
