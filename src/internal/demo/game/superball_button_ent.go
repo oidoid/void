@@ -87,10 +87,7 @@ func newSuperballButtonEnt(
 }
 
 func (this *SuperballButtonEnt) Update(gam *Game) veng.Status {
-	layer := gam.Layer(gfx.LayerUI)
-	loop := this.ButtonEnt.Update(
-		gam.In(), &layer.Sprs, layer, gam.Font(), gam.Cursor().HitboxPhy(),
-	)
+	loop := this.ButtonEnt.Update(&gam.Eng)
 
 	switch this.Action {
 	case SuperballActionAddSome:

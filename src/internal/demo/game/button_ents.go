@@ -115,16 +115,11 @@ func UpdateButtons(
 	vec *vvec.Vec[*veng.ButtonEnt],
 	gam *Game,
 ) veng.Status {
-	in := gam.In()
-	cursorPhy := gam.Cursor().HitboxPhy()
 	ents := vec.Vals()
 	loop := veng.Pause
 	for i := range ents {
 		ent := ents[i]
-		layer := gam.Layer(ent.Z().Layer())
-		loop |= ent.Update(
-			in, &layer.Sprs, layer, gam.Font(), cursorPhy,
-		)
+		loop |= ent.Update(&gam.Eng)
 	}
 	return loop
 }

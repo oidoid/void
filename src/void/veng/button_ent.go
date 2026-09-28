@@ -3,7 +3,6 @@ package veng
 import (
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vgeo"
-	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vin"
 	"github.com/oidoid/void/src/void/vtext"
 )
@@ -50,50 +49,33 @@ type ButtonEnt struct {
 	OnClick    func(*ButtonEnt)
 }
 
-func (this *ButtonEnt) Layout(
-	font *vtext.Font, clip vgeo.Box[float32],
-) {
-	if this.Text.Text() != "" {
-		this.Text.LayoutChars(font)
-		edge := uint16(this.CornerWH.W)
-		pad2 := 2 * (2 + edge)
-		this.WH.W = uint16(this.Text.Layout.W) + pad2
-		this.WH.H = uint16(this.Text.Layout.TrimAllForceH) + pad2
-	}
-	this.WH.W = max(this.WH.W, this.MinW)
-
-	// require even gap between button and text so integer division centers.
-	if this.Text.Text() != "" {
-		if (this.WH.W-uint16(this.Text.Layout.W))%2 != 0 {
-			this.WH.W++
-		}
-		if (this.WH.H-uint16(this.Text.Layout.TrimAllForceH))%2 != 0 {
-			this.WH.H++
-		}
-	}
-	switch this.AnchorMode {
-	case ButtonAnchorHUD:
-		xy := this.ClipAnchor.XY(int16(this.WH.W), int16(this.WH.H), clip)
-		this.XY = xy.Cast[float32]()
-	case ButtonAnchorRelative:
-		this.XY = this.Anchor.XY(float32(this.WH.W), float32(this.WH.H))
-	}
-}
-
 func (this *ButtonEnt) AnchorBox() vgeo.Box[float32] {
 	return vgeo.XYWH(
 		this.XY.X, this.XY.Y, float32(this.WH.W), float32(this.WH.H),
 	)
 }
 
-func (this *ButtonEnt) Update(
-	in *vin.In,
-	sprs *[]vgfx.Spr,
-	layer *vgfx.LayerConfig,
-	font *vtext.Font,
-	cursorPhy *vgeo.Box[float32],
-) Status {
-	this.Layout(font, layer.Clip)
+func (this *ButtonEnt) Clicked() bool {
+	if this.Type == ButtonTypeToggle {
+		return this.Start
+	}
+	return this.IsOffStart()
+}
+
+func (this *ButtonEnt) OnStart() bool {
+	return this.On && this.Start
+}
+
+func (this *ButtonEnt) IsOffStart() bool {
+	return !this.On && this.Start && this.Focused
+}
+
+func (this *ButtonEnt) Update(eng *Eng) Status {
+	in := eng.In()
+	layer := eng.Layer(this.NinePatchEnt.Z().Layer())
+	font := eng.Font()
+	cursorPhy := eng.Cursor().HitboxPhy()
+	this.layout(font, layer.Clip)
 	this.Start = false
 	if this.OnUpdate != nil {
 		this.OnUpdate(this)
@@ -128,7 +110,7 @@ func (this *ButtonEnt) Update(
 	for i := range this.PatchByDir {
 		this.PatchByDir[i].SetPal(this.pal(this.Pals, pressed))
 	}
-	this.NinePatchEnt.Update(sprs)
+	this.NinePatchEnt.Update(&layer.Sprs)
 
 	if this.Text.Text() != "" {
 		this.Text.XY = vgeo.NewXY(
@@ -136,7 +118,7 @@ func (this *ButtonEnt) Update(
 			int16(this.XY.Y)+(int16(this.WH.H)-this.Text.Layout.TrimAllForceH)/2,
 		)
 		this.Text.Pal = this.pal(this.TextPals, pressed)
-		this.Text.Update(font, sprs, layer.Clip)
+		this.Text.Update(font, &layer.Sprs, layer.Clip)
 	}
 
 	if this.Clicked() && this.OnClick != nil {
@@ -146,6 +128,36 @@ func (this *ButtonEnt) Update(
 		loop = Loop
 	}
 	return loop
+}
+
+func (this *ButtonEnt) layout(
+	font *vtext.Font, clip vgeo.Box[float32],
+) {
+	if this.Text.Text() != "" {
+		this.Text.LayoutChars(font)
+		edge := uint16(this.CornerWH.W)
+		pad2 := 2 * (2 + edge)
+		this.WH.W = uint16(this.Text.Layout.W) + pad2
+		this.WH.H = uint16(this.Text.Layout.TrimAllForceH) + pad2
+	}
+	this.WH.W = max(this.WH.W, this.MinW)
+
+	// require even gap between button and text so integer division centers.
+	if this.Text.Text() != "" {
+		if (this.WH.W-uint16(this.Text.Layout.W))%2 != 0 {
+			this.WH.W++
+		}
+		if (this.WH.H-uint16(this.Text.Layout.TrimAllForceH))%2 != 0 {
+			this.WH.H++
+		}
+	}
+	switch this.AnchorMode {
+	case ButtonAnchorHUD:
+		xy := this.ClipAnchor.XY(int16(this.WH.W), int16(this.WH.H), clip)
+		this.XY = xy.Cast[float32]()
+	case ButtonAnchorRelative:
+		this.XY = this.Anchor.XY(float32(this.WH.W), float32(this.WH.H))
+	}
 }
 
 func (this *ButtonEnt) pal(pals ButtonPals, pressed bool) vatlas.Tag {
@@ -163,19 +175,4 @@ func (this *ButtonEnt) pal(pals ButtonPals, pressed bool) vatlas.Tag {
 		return pals.On
 	}
 	return pals.Base
-}
-
-func (this *ButtonEnt) Clicked() bool {
-	if this.Type == ButtonTypeToggle {
-		return this.Start
-	}
-	return this.IsOffStart()
-}
-
-func (this *ButtonEnt) OnStart() bool {
-	return this.On && this.Start
-}
-
-func (this *ButtonEnt) IsOffStart() bool {
-	return !this.On && this.Start && this.Focused
 }
