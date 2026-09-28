@@ -5,7 +5,6 @@ import (
 
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vgeo"
-	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vin"
 )
 
@@ -49,10 +48,8 @@ func TestButtonEnt_FocusesCursorHitbox(t *testing.T) {
 			ent := ButtonEnt{}
 			ent.XY = vgeo.NewXY[float32](10, 10)
 			ent.WH = vgeo.NewWH[uint16](10, 10)
-			layer := vgfx.NewLayerConfig(0)
-			layer.Clip = vgeo.NewBox[float32](0, 0, 100, 100)
-			sprs := []vgfx.Spr{}
-			ent.Update(vin.NewIn(), &sprs, &layer, nil, &test.cursorPhy)
+			eng := newButtonTestEng(test.cursorPhy)
+			ent.Update(eng)
 			if ent.Focused != test.focused {
 				t.Errorf("Focused = %v, want %v", ent.Focused, test.focused)
 			}
@@ -66,15 +63,13 @@ func TestButtonEnt_PressedLoops(t *testing.T) {
 	ent.XY = vgeo.NewXY[float32](10, 10)
 	ent.WH = vgeo.NewWH[uint16](10, 10)
 	cursorPhy := vgeo.XYWH[float32](12, 12, 1, 1)
-	layer := vgfx.NewLayerConfig(0)
-	layer.Clip = vgeo.NewBox[float32](0, 0, 100, 100)
-	in := vin.NewIn()
+	eng := newButtonTestEng(cursorPhy)
+	in := eng.In()
 	in.On = vin.ButtonA
-	sprs := []vgfx.Spr{}
-	ent.Update(in, &sprs, &layer, nil, &cursorPhy)
+	ent.Update(eng)
 	in.PrevOn = in.On
 	in.Mask = 0
-	if got := ent.Update(in, &sprs, &layer, nil, &cursorPhy); got != Loop {
+	if got := ent.Update(eng); got != Loop {
 		t.Errorf("held update = %v, want Loop", got)
 	}
 }
@@ -87,29 +82,34 @@ func TestButtonEnt_ToggleClicksOnOffStart(t *testing.T) {
 	clicks := 0
 	ent.OnClick = func(*ButtonEnt) { clicks++ }
 	cursorPhy := vgeo.XYWH[float32](12, 12, 1, 1)
-	layer := vgfx.NewLayerConfig(0)
-	layer.Clip = vgeo.NewBox[float32](0, 0, 100, 100)
-	in := vin.NewIn()
-	sprs := []vgfx.Spr{}
+	eng := newButtonTestEng(cursorPhy)
+	in := eng.In()
 
 	in.On = vin.ButtonA
-	ent.Update(in, &sprs, &layer, nil, &cursorPhy)
+	ent.Update(eng)
 	in.PrevOn = in.On
 	in.Mask = 0
-	ent.Update(in, &sprs, &layer, nil, &cursorPhy)
+	ent.Update(eng)
 	if clicks != 0 {
 		t.Errorf("held clicks = %d, want 0", clicks)
 	}
 	in.On = 0
 	in.Mask = 0
-	ent.Update(in, &sprs, &layer, nil, &cursorPhy)
+	ent.Update(eng)
 	if clicks != 1 {
 		t.Errorf("release clicks = %d, want 1", clicks)
 	}
 	in.PrevOn = in.On
 	in.Mask = 0
-	ent.Update(in, &sprs, &layer, nil, &cursorPhy)
+	ent.Update(eng)
 	if clicks != 1 {
 		t.Errorf("off clicks = %d, want 1", clicks)
 	}
+}
+
+func newButtonTestEng(cursorPhy vgeo.Box[float32]) *Eng {
+	eng := NewEng(&EngOpts{MaxSprs: 1})
+	eng.Layer(0).Clip = vgeo.NewBox[float32](0, 0, 100, 100)
+	eng.SetCursor(&CursorEnt{hitboxPhy: cursorPhy, hitboxPhyOn: true})
+	return eng
 }
