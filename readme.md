@@ -38,8 +38,13 @@ see the [agent skill](.agents/skills/add-ent/SKILL.md).
 
 - Aseprite
 - cwebp
+- Go
 - Mono
+- Node.js
 - Shader Minifier
+- TinyGo
+- wasm-opt
+- watchexec
 
 ### Make
 
