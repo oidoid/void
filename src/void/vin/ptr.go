@@ -26,9 +26,9 @@ type Ptr struct {
 // easier to think in terms of on + an edge. do we miss being able to check some
 // conditions?
 type Drag struct {
-	// physical pointer position when pressed.
+	// physical contact center when pressed.
 	StartPhy vgeo.XY[float32]
-	// physical pointer movement since the last update.
+	// physical contact center movement since the last update.
 	DeltaPhy vgeo.XY[float32]
 	On       bool
 	Start    bool // first active frame.

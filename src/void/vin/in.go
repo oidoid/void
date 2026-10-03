@@ -321,14 +321,18 @@ func (this *In) Update(now float64, poll *InPoll, cam vgeo.Box[float32]) {
 		TextOverflow: poll.Kbd.TextOverflow,
 	}
 	this.Wheel = Wheel{WheelPoll: poll.Wheel}
+	primaryI := -1
 	for i := range poll.PtrsLen {
 		ptr := newPtr(
 			poll.Ptrs[i], ptrMoved(poll.Ptrs[i], &this.prevPoll),
 		)
+		if primaryI < 0 && ptr.Primary() {
+			primaryI = len(this.Ptrs)
+		}
 		this.Ptrs = append(this.Ptrs, ptr)
 	}
-	if len(this.Ptrs) > 0 {
-		this.Ptr = &this.Ptrs[0]
+	if primaryI >= 0 {
+		this.Ptr = &this.Ptrs[primaryI]
 	}
 	this.prevPoll = *poll
 	for i := range poll.PadsLen {
@@ -374,7 +378,7 @@ func (this *In) updateGestures() {
 		if ptr.poll.Clicks == 0 {
 			continue
 		}
-		xy := ptr.poll.Phy.Min
+		xy := ptr.centerPhy
 		if ptrs == 0 {
 			lo = xy
 			hi = xy
@@ -390,8 +394,8 @@ func (this *In) updateGestures() {
 				hi.Y = xy.Y
 			}
 		}
-		centerSum.X += ptr.poll.Phy.Min.X + ptr.poll.Phy.W()/2
-		centerSum.Y += ptr.poll.Phy.Min.Y + ptr.poll.Phy.H()/2
+		centerSum.X += xy.X
+		centerSum.Y += xy.Y
 		ptrs++
 	}
 	this.updatePinch(ptrs, lo, hi, centerSum)
@@ -439,13 +443,14 @@ func (this *In) updateDrag(ptr *Ptr) {
 		}
 		return
 	}
+	xy := ptr.centerPhy
 	if state == nil {
 		for i := range this.dragStates {
 			candidate := &this.dragStates[i]
 			if !candidate.used {
 				candidate.id = ptr.poll.ID
-				candidate.startPhy = ptr.poll.Phy.Min
-				candidate.prevPhy = ptr.poll.Phy.Min
+				candidate.startPhy = xy
+				candidate.prevPhy = xy
 				candidate.used = true
 				ptr.Drag.StartPhy = candidate.startPhy
 				return
@@ -453,10 +458,10 @@ func (this *In) updateDrag(ptr *Ptr) {
 		}
 		return
 	}
-	x := ptr.poll.Phy.Min.X - state.startPhy.X
-	y := ptr.poll.Phy.Min.Y - state.startPhy.Y
+	x := xy.X - state.startPhy.X
+	y := xy.Y - state.startPhy.Y
 	dragging := x*x+y*y >= this.DragMinPhy*this.DragMinPhy
-	delta := ptr.poll.Phy.Min.Sub(state.prevPhy)
+	delta := xy.Sub(state.prevPhy)
 	ptr.Drag = Drag{
 		StartPhy: state.startPhy,
 		DeltaPhy: delta,
@@ -466,7 +471,7 @@ func (this *In) updateDrag(ptr *Ptr) {
 	if !dragging {
 		ptr.Drag.DeltaPhy = vgeo.XY[float32]{}
 	}
-	state.prevPhy = ptr.poll.Phy.Min
+	state.prevPhy = xy
 	state.dragging = dragging
 }
 

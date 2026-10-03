@@ -8,12 +8,12 @@ import {Ptr} from './ptr.ts'
 test('Ptr', async ctx => {
   using _doc = new DocumentMock()
   using dpr = new DevicePixelRatioMock()
-  dpr.ratio = 1
+  dpr.ratio = 3
   const target = Object.assign(new EventTarget(), {
     getBoundingClientRect: () => ({left: 0, top: 0, width: 100, height: 100}),
-    height: 100,
+    height: 200,
     setPointerCapture: () => {},
-    width: 100
+    width: 200
   }) as unknown as HTMLCanvasElement
   const ptr = new Ptr(target)
   ptr.register('add')
@@ -24,6 +24,21 @@ test('Ptr', async ctx => {
     target.dispatchEvent(PtrTestEvent('pointermove'))
     assert(events, ['input-pointermove'])
     ptr.onEvent = () => {}
+  })
+
+  await ctx.test('stores contact bounds around the pointer center', () => {
+    target.dispatchEvent(
+      PtrTestEvent('pointermove', {
+        clientX: 40,
+        clientY: 60,
+        height: 8,
+        width: 10
+      })
+    )
+    assert(ptr.polls[1]!.physX, 70)
+    assert(ptr.polls[1]!.physY, 112)
+    assert(ptr.polls[1]!.physW, 20)
+    assert(ptr.polls[1]!.physH, 16)
   })
 
   await ctx.test('retains an end record through postupdate', () => {

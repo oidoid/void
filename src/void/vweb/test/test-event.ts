@@ -1,5 +1,7 @@
 export type PtrTestEventInit = {
   buttons: number
+  clientX: number
+  clientY: number
   ctrlKey: boolean
   isPrimary: boolean
   isTrusted: boolean
@@ -9,6 +11,8 @@ export type PtrTestEventInit = {
   offsetY: number
   pointerId: number
   pointerType: 'mouse' | 'pen' | 'touch'
+  height: number
+  width: number
 }
 
 export function TestEvent(type: string, isTrusted: boolean = true): Event {
@@ -56,6 +60,8 @@ export function PtrTestEvent(
     TestEvent(type),
     {
       buttons: 0,
+      clientX: 0,
+      clientY: 0,
       ctrlKey: false,
       isPrimary: (init?.pointerId ?? 1) === 1,
       isTrusted: true,
@@ -64,7 +70,9 @@ export function PtrTestEvent(
       offsetX: 0,
       offsetY: 0,
       pointerId: 1,
-      pointerType: 'mouse'
+      pointerType: 'mouse',
+      height: 1,
+      width: 1
     } satisfies PtrTestEventInit,
     init
   )

@@ -567,6 +567,29 @@ func TestPtr(t *testing.T) {
 	}
 }
 
+func TestPtrSelectsPrimary(t *testing.T) {
+	in := NewIn()
+	poll := &InPoll{
+		PtrsLen: 2,
+		Ptrs: [MaxPtrs]PtrPoll{
+			{ID: 2, Clicks: ClickPrimary},
+			{ID: 7, Primary: true, Clicks: ClickPrimary},
+		},
+	}
+	in.Update(0, poll, zeroCam)
+	if in.Ptr == nil || in.Ptr.ID() != 7 {
+		t.Fatalf("Ptr = %#v, want primary pointer ID 7", in.Ptr)
+	}
+	if len(in.Ptrs) != 2 {
+		t.Fatalf("Ptrs length = %d, want 2", len(in.Ptrs))
+	}
+	poll.Ptrs[1].Primary = false
+	in.Update(1, poll, zeroCam)
+	if in.Ptr != nil {
+		t.Fatalf("Ptr = %#v without a primary pointer, want nil", in.Ptr)
+	}
+}
+
 func TestWheel(t *testing.T) {
 	in := NewIn()
 	in.Update(
@@ -691,5 +714,131 @@ func TestDrag(t *testing.T) {
 			"held pointer Drag = %#v, want on",
 			in.Ptrs[1].Drag,
 		)
+	}
+}
+
+func TestDragContactCenter(t *testing.T) {
+	in := NewIn()
+	poll := &InPoll{
+		PtrsLen: 1,
+		Ptrs:    [MaxPtrs]PtrPoll{{ID: 1, Primary: true}},
+	}
+	start := vgeo.NewXY[float32](100.25, 100.5)
+	for i, test := range []struct {
+		name   string
+		center vgeo.XY[float32]
+		size   vgeo.WH[float32]
+		clicks Click
+		want   Drag
+	}{
+		{
+			"press", start, vgeo.NewWH[float32](10, 8), ClickPrimary,
+			Drag{StartPhy: start},
+		},
+		{
+			"resize", start, vgeo.NewWH[float32](22, 20), ClickPrimary,
+			Drag{StartPhy: start},
+		},
+		{
+			"move", vgeo.NewXY[float32](106.5, 100.5),
+			vgeo.NewWH[float32](30, 24), ClickPrimary,
+			Drag{
+				StartPhy: start, DeltaPhy: vgeo.NewXY[float32](6.25, 0),
+				On: true, Start: true,
+			},
+		},
+		{
+			"resize while dragging", vgeo.NewXY[float32](106.5, 100.5),
+			vgeo.NewWH[float32](4, 40), ClickPrimary,
+			Drag{StartPhy: start, On: true},
+		},
+		{
+			"release", vgeo.NewXY[float32](106.5, 100.5),
+			vgeo.NewWH[float32](1, 1), 0,
+			Drag{StartPhy: start, End: true},
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			poll.Ptrs[0].Phy = vgeo.XYWH(
+				test.center.X-test.size.W/2, test.center.Y-test.size.H/2,
+				test.size.W, test.size.H,
+			)
+			poll.Ptrs[0].Clicks = test.clicks
+			in.Update(float64(i), poll, zeroCam)
+			if got := in.Ptr.Drag; got != test.want {
+				t.Errorf("Drag = %#v, want %#v", got, test.want)
+			}
+		})
+	}
+}
+
+func TestPinchContactCenters(t *testing.T) {
+	in := NewIn()
+	poll := &InPoll{
+		PtrsLen: 2,
+		Ptrs: [MaxPtrs]PtrPoll{
+			{ID: 1, Primary: true, Clicks: ClickPrimary},
+			{ID: 2, Clicks: ClickPrimary},
+		},
+	}
+	for i, test := range []struct {
+		name        string
+		firstW      float32
+		secondH     float32
+		second      vgeo.XY[float32]
+		span, delta vgeo.XY[float32]
+		center      vgeo.XY[float32]
+		centerDelta vgeo.XY[float32]
+	}{
+		{
+			"press",
+			10,
+			8,
+			vgeo.NewXY[float32](200.75, 140.25),
+			vgeo.NewXY[float32](100.5, 39.75),
+			vgeo.XY[float32]{},
+			vgeo.NewXY[float32](150.5, 120.375),
+			vgeo.XY[float32]{},
+		},
+		{
+			"resize",
+			22,
+			20,
+			vgeo.NewXY[float32](200.75, 140.25),
+			vgeo.NewXY[float32](100.5, 39.75),
+			vgeo.XY[float32]{},
+			vgeo.NewXY[float32](150.5, 120.375),
+			vgeo.XY[float32]{},
+		},
+		{
+			"move and resize",
+			30,
+			24,
+			vgeo.NewXY[float32](204.75, 146.25),
+			vgeo.NewXY[float32](104.5, 45.75),
+			vgeo.NewXY[float32](4, 6),
+			vgeo.NewXY[float32](152.5, 123.375),
+			vgeo.NewXY[float32](2, 3),
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			poll.Ptrs[0].Phy = vgeo.XYWH(
+				100.25-test.firstW/2, float32(96.5), test.firstW, float32(8),
+			)
+			poll.Ptrs[1].Phy = vgeo.XYWH(
+				test.second.X-5, test.second.Y-test.secondH/2,
+				float32(10), test.secondH,
+			)
+			in.Update(float64(i), poll, zeroCam)
+			pinch := in.Pinch
+			if pinch == nil {
+				t.Fatal("Pinch = nil, want active pinch")
+			}
+			if pinch.SpanPhy != test.span || pinch.DeltaPhy != test.delta ||
+				pinch.CenterPhy != test.center ||
+				pinch.DeltaCenterPhy != test.centerDelta {
+				t.Errorf("Pinch = %#v, want %#v", pinch, test)
+			}
+		})
 	}
 }

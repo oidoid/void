@@ -3,7 +3,7 @@ package vin
 import "github.com/oidoid/void/src/void/vgeo"
 
 type Pinch struct {
-	// phy space between active pointers.
+	// phy space between active contact centers.
 	SpanPhy vgeo.XY[float32]
 	// phy center of active contacts.
 	CenterPhy vgeo.XY[float32]

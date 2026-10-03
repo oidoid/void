@@ -92,12 +92,14 @@ export class Ptr {
       const scaleX = bounds.width === 0 ? 0 : this.#target.width / bounds.width
       const scaleY =
         bounds.height === 0 ? 0 : this.#target.height / bounds.height
+      const physW = ev.width * scaleX
+      const physH = ev.height * scaleY
       this.polls[ev.pointerId] = {
         id: ev.pointerId,
-        physX: (ev.clientX - bounds.left) * scaleX,
-        physY: (ev.clientY - bounds.top) * scaleY,
-        physW: ev.width * devicePixelRatio,
-        physH: ev.height * devicePixelRatio,
+        physX: (ev.clientX - bounds.left) * scaleX - physW / 2,
+        physY: (ev.clientY - bounds.top) * scaleY - physH / 2,
+        physW,
+        physH,
         pressure: ev.pressure,
         tiltX: ev.tiltX,
         tiltY: ev.tiltY,
