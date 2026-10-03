@@ -10,7 +10,9 @@ type LayerCamMode uint8
 
 const (
 	// to-do: rename
+	// applies engine camera offset; use for world layers.
 	LayerCamModeApply LayerCamMode = iota
+	// ignores engine camera offset; use for UI and screen overlays.
 	LayerCamModeFixed
 )
 
@@ -34,11 +36,16 @@ const (
 	LayerFlagsBlendModeMask  uint8 = 0x3
 )
 
+// how a layer's scale is set from its physical clipbox size.
 type LayerScaleMode uint8
 
 const (
+	// uses the configured scale without autoscaling.
 	LayerScaleModeManual LayerScaleMode = iota
+	// fits AutoscaleMinClip using a float scale, allowing scales below 1.
 	LayerScaleModeAutoFloat
+	// fits AutoscaleMinClip using a floored scale clamped to at least 1.
+	// clips content if the physical clipbox is too small at scale 1.
 	LayerScaleModeAutoInt
 )
 
@@ -52,10 +59,14 @@ type LayerConfig struct {
 	// prefer phy values to converting layer clip to avoid rounding errors.
 	Clip vgeo.Box[float32]
 	// effective camera for this layer after mode is applied. updated by veng.
-	Cam               vgeo.XY[float32]
-	CamMode           LayerCamMode
-	Scale             float32
-	ScaleMode         LayerScaleMode
+	Cam     vgeo.XY[float32]
+	CamMode LayerCamMode
+	// physical px per layer px. 0 means 1; autoscaling overwrites this value.
+	Scale     float32
+	ScaleMode LayerScaleMode
+	// desired minimum visible size in layer px. autoscaling uses the smaller
+	// phy-to-layer size ratio so both dimensions fit before lauer mode clamping.
+	// a zero dimension is ignored; if both dims are zero, scale is unchanged.
 	AutoscaleMinClip  vgeo.WH[uint16]
 	AutoscaleMaxScale uint8 // caps computed scale; 0 = uncapped.
 	Shader            Shader
