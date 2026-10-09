@@ -20,6 +20,8 @@ var fontTemplSrc string
 
 var fontTempl = templ.Must(templ.New(
 	"font.gotmpl",
+).Option(
+	"missingkey=error",
 ).Parse(fontTemplSrc))
 
 type fontJSON struct {

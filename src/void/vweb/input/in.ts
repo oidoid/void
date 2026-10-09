@@ -1,19 +1,5 @@
+import * as bridge from '../eng/bridge.ts'
 import type {OnEvent} from '../eng/event.ts'
-import {
-  gamepadPollSize,
-  gamepadsLenOffset,
-  gamepadsOffset,
-  keyboardOffset,
-  keyboardTextLenOffset,
-  keyboardTextOffset,
-  keyboardTextOverflowOffset,
-  maxGamepads,
-  maxPtrs,
-  maxTextLen,
-  pollSize,
-  pollsOffset,
-  wheelOffset
-} from '../eng/layout.ts'
 import {ContextMenu} from './context-menu.ts'
 import {Gamepad} from './gamepad.ts'
 import {Keyboard} from './keyboard.ts'
@@ -91,56 +77,70 @@ export function writeInPoll(
   u8: Uint8Array
 ): Uint8Array {
   const polls = Object.values(ptr.polls)
-  const ptrsLen = Math.min(polls.length, maxPtrs)
-  view.setUint8(0, ptrsLen)
+  const ptrsLen = Math.min(polls.length, bridge.maxPtrs)
+  view.setUint8(bridge.ptrsLenOffset, ptrsLen)
   for (let i = 0; i < ptrsLen; i++) {
     const poll = polls[i]!
-    const o = pollsOffset + i * pollSize
-    view.setInt32(o, poll.id, true)
-    view.setFloat32(o + 4, poll.physX, true)
-    view.setFloat32(o + 8, poll.physY, true)
-    view.setFloat32(o + 12, poll.physX + poll.physW, true)
-    view.setFloat32(o + 16, poll.physY + poll.physH, true)
-    view.setFloat32(o + 20, poll.pressure, true)
-    view.setInt8(o + 24, poll.tiltX)
-    view.setInt8(o + 25, poll.tiltY)
-    view.setUint16(o + 26, poll.twist, true)
-    view.setUint8(o + 28, poll.device)
-    view.setUint8(o + 29, poll.primary ? 1 : 0)
-    view.setUint8(o + 30, poll.buttons)
+    const o = bridge.pollsOffset + i * bridge.pollSize
+    view.setInt32(o + bridge.ptrIDOffset, poll.id, true)
+    view.setFloat32(o + bridge.ptrMinXOffset, poll.physX, true)
+    view.setFloat32(o + bridge.ptrMinYOffset, poll.physY, true)
+    view.setFloat32(o + bridge.ptrMaxXOffset, poll.physX + poll.physW, true)
+    view.setFloat32(o + bridge.ptrMaxYOffset, poll.physY + poll.physH, true)
+    view.setFloat32(o + bridge.ptrPressureOffset, poll.pressure, true)
+    view.setInt8(o + bridge.ptrTiltXOffset, poll.tiltX)
+    view.setInt8(o + bridge.ptrTiltYOffset, poll.tiltY)
+    view.setUint16(o + bridge.ptrTwistOffset, poll.twist, true)
+    view.setUint8(o + bridge.ptrDeviceOffset, poll.device)
+    view.setUint8(o + bridge.ptrPrimaryOffset, poll.primary ? 1 : 0)
+    view.setUint8(o + bridge.ptrClicksOffset, poll.buttons)
   }
-  view.setFloat32(wheelOffset, wheel.deltaX, true)
-  view.setFloat32(wheelOffset + 4, wheel.deltaY, true)
-  view.setFloat32(wheelOffset + 8, wheel.deltaZ, true)
-  view.setUint16(keyboardOffset, keyboard.keys, true)
+  view.setFloat32(
+    bridge.wheelOffset + bridge.wheelDeltaXOffset,
+    wheel.deltaX,
+    true
+  )
+  view.setFloat32(
+    bridge.wheelOffset + bridge.wheelDeltaYOffset,
+    wheel.deltaY,
+    true
+  )
+  view.setFloat32(
+    bridge.wheelOffset + bridge.wheelDeltaZOffset,
+    wheel.deltaZ,
+    true
+  )
+  view.setUint16(bridge.keyboardOffset, keyboard.keys, true)
   const textBytes = encoder.encode(keyboard.text)
-  const textLen = Math.min(textBytes.length, maxTextLen)
-  view.setUint16(keyboardTextLenOffset, textLen, true)
+  const textLen = Math.min(textBytes.length, bridge.maxTextLen)
+  view.setUint16(bridge.keyboardTextLenOffset, textLen, true)
   view.setUint8(
-    keyboardTextOverflowOffset,
-    textBytes.length > maxTextLen ? 1 : 0
+    bridge.keyboardTextOverflowOffset,
+    textBytes.length > bridge.maxTextLen ? 1 : 0
   )
   if (u8.buffer !== view.buffer)
     u8 = new Uint8Array(
       view.buffer,
-      view.byteOffset + keyboardTextOffset,
-      maxTextLen
+      view.byteOffset + bridge.keyboardTextOffset,
+      bridge.maxTextLen
     )
   u8.set(textBytes.subarray(0, textLen))
   const pads = Object.values(gamepad.polls)
-  const padsLen = Math.min(pads.length, maxGamepads)
-  view.setUint8(gamepadsLenOffset, padsLen)
+  const padsLen = Math.min(pads.length, bridge.maxGamepads)
+  view.setUint8(bridge.gamepadsLenOffset, padsLen)
   for (let i = 0; i < padsLen; i++) {
     const pad = pads[i]!
-    const o = gamepadsOffset + i * gamepadPollSize
-    view.setUint8(o, pad.index)
-    view.setUint8(o + 1, pad.connected ? 1 : 0)
-    view.setUint8(o + 2, pad.mapping)
-    view.setUint32(o + 4, pad.buttons, true)
-    view.setFloat32(o + 8, pad.axes[0], true)
-    view.setFloat32(o + 12, pad.axes[1], true)
-    view.setFloat32(o + 16, pad.axes[2], true)
-    view.setFloat32(o + 20, pad.axes[3], true)
+    const o = bridge.gamepadsOffset + i * bridge.gamepadPollSize
+    view.setUint8(o + bridge.gamepadIndexOffset, pad.index)
+    view.setUint8(o + bridge.gamepadConnectedOffset, pad.connected ? 1 : 0)
+    view.setUint8(o + bridge.gamepadMappingOffset, pad.mapping)
+    view.setUint16(o + bridge.gamepadButtonsOffset, pad.buttons, true)
+    for (let axis = 0; axis < pad.axes.length; axis++)
+      view.setFloat32(
+        o + bridge.gamepadAxesOffset + axis * bridge.gamepadAxisStride,
+        pad.axes[axis]!,
+        true
+      )
   }
   return u8
 }

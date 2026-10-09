@@ -1,45 +1,46 @@
+import * as bridge from '../eng/bridge.ts'
 import type {AnyEvent, OnEvent} from '../eng/event.ts'
 
 // keyboard button physical location codes on a virtual standard keyboard
 // irrespective of layout and modifiers hashed to bits. use for game bindings.
 // @internal
 export const keyByCode: {readonly [k: string]: number} = {
-  ArrowUp: 1 << 0,
-  KeyW: 1 << 0,
-  Numpad8: 1 << 0,
+  ArrowUp: bridge.keyUp,
+  KeyW: bridge.keyUp,
+  Numpad8: bridge.keyUp,
 
-  ArrowDown: 1 << 1,
-  KeyS: 1 << 1,
-  Numpad2: 1 << 1,
+  ArrowDown: bridge.keyDown,
+  KeyS: bridge.keyDown,
+  Numpad2: bridge.keyDown,
 
-  ArrowLeft: 1 << 2,
-  KeyA: 1 << 2,
-  Numpad4: 1 << 2,
+  ArrowLeft: bridge.keyLeft,
+  KeyA: bridge.keyLeft,
+  Numpad4: bridge.keyLeft,
 
-  ArrowRight: 1 << 3,
-  KeyD: 1 << 3,
-  Numpad6: 1 << 3,
+  ArrowRight: bridge.keyRight,
+  KeyD: bridge.keyRight,
+  Numpad6: bridge.keyRight,
 
   // a.
-  ShiftLeft: 1 << 4,
-  Space: 1 << 4,
-  ShiftRight: 1 << 4,
+  ShiftLeft: bridge.keyA,
+  Space: bridge.keyA,
+  ShiftRight: bridge.keyA,
 
   // b.
-  KeyZ: 1 << 5,
-  ControlLeft: 1 << 5,
-  Slash: 1 << 5,
+  KeyZ: bridge.keyB,
+  ControlLeft: bridge.keyB,
+  Slash: bridge.keyB,
 
   // c.
-  KeyX: 1 << 6,
-  AltLeft: 1 << 6,
-  Period: 1 << 6,
+  KeyX: bridge.keyC,
+  AltLeft: bridge.keyC,
+  Period: bridge.keyC,
 
   // menu.
-  Enter: 1 << 7,
+  Enter: bridge.keyMenu,
 
   // back.
-  Escape: 1 << 8
+  Escape: bridge.keyBack
 }
 
 // to-do: support multiple keyboards distinctly.

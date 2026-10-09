@@ -17,27 +17,17 @@ import (
 )
 
 type Eng struct {
-	atlas             vatlas.Atlas
-	beepCount         uint32
-	beeps             [16]Beep
-	board             *vboards.Board
-	cam               vgeo.XY[float32] // to-do: cam always moves in physical space.
-	contextLossReq    bool
-	cursor            *CursorEnt
-	drawAlways        bool
-	drawOnBlur        bool
-	font              *vtext.Font
-	fullscreenReq     FullscreenReq
-	in                *vin.In
-	layerConfigExport [vgfx.LayerCount]vgfx.LayerConfigExport
-	layers            [vgfx.LayerCount]vgfx.LayerConfig
-	poll              Poll
-	renderMode        vgfx.RenderMode
-	rnd               *rand.Rand
-	screenshotReq     bool
-	texts             vvec.Vec[TextEnt]
-	tick              Tick
-	updateInMillis    uint64
+	atlas  vatlas.Atlas
+	board  *vboards.Board
+	cursor *CursorEnt
+	font   *vtext.Font
+	out    Out
+	in     *vin.In
+	layers [vgfx.LayerCount]vgfx.LayerConfig
+	poll   Poll
+	rnd    *rand.Rand
+	texts  vvec.Vec[TextEnt]
+	tick   Tick
 }
 
 type EngOpts struct {
@@ -65,13 +55,15 @@ func NewEng(opts *EngOpts) *Eng {
 		opts.Seed2 = rand.Uint64()
 	}
 	this := &Eng{
-		font:       opts.Font,
-		atlas:      opts.Atlas,
-		board:      opts.Board,
-		in:         vin.NewIn(),
-		rnd:        rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
-		renderMode: opts.RenderMode,
-		drawOnBlur: opts.DrawOnBlur,
+		font:  opts.Font,
+		atlas: opts.Atlas,
+		board: opts.Board,
+		in:    vin.NewIn(),
+		rnd:   rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
+		out: Out{
+			RenderMode: opts.RenderMode,
+			DrawOnBlur: opts.DrawOnBlur,
+		},
 	}
 	for i := range this.layers {
 		this.layers[i] = vgfx.NewLayerConfig(opts.MaxSprs)
@@ -83,11 +75,11 @@ func NewEng(opts *EngOpts) *Eng {
 func (this *Eng) Random() float32 { return this.rnd.Float32() }
 
 func (this *Eng) Beep(beep Beep) {
-	if this.beepCount == uint32(len(this.beeps)) {
+	if this.out.BeepCount == uint32(len(this.out.Beeps)) {
 		return
 	}
-	this.beeps[this.beepCount] = beep
-	this.beepCount++
+	this.out.Beeps[this.out.BeepCount] = beep
+	this.out.BeepCount++
 }
 
 func (this *Eng) Font() *vtext.Font {
@@ -131,103 +123,59 @@ func (this *Eng) DeltaSecs() float64 { return this.poll.DeltaSecs() }
 func (this *Eng) Tick() *Tick        { return &this.tick }
 
 func (this *Eng) ReqFullscreen(req FullscreenReq) {
-	this.fullscreenReq = req
+	this.out.FullscreenReq = req
 }
 
 func (this *Eng) FullscreenReq() int32 {
-	return int32(this.fullscreenReq)
+	return int32(this.out.FullscreenReq)
 }
 
 func (this *Eng) ReqScreenshot() {
-	this.screenshotReq = true
-}
-
-// to-do: just a big flag API?
-func (this *Eng) ScreenshotReq() int32 {
-	if !this.screenshotReq {
-		return 0
-	}
-	this.screenshotReq = false
-	return 1
+	this.out.Requests |= OutReqMask << OutReqScreenshotShift
 }
 
 func (this *Eng) ReqContextLoss() {
-	this.contextLossReq = true
+	this.out.Requests |= OutReqMask << OutReqContextLossShift
 }
 
-// reqs an update after millis. zero cancels the pending req. always
-// cleared on next frame. to-do: is this right?
+// reqs an update after millis. zero cancels the req. reset by BeginTick().
 func (this *Eng) ReqUpdateInMillis(millis uint64) {
-	this.updateInMillis = millis
-}
-
-// returns and clears the pending update delay.
-func (this *Eng) UpdateInMillisReq() uint64 {
-	millis := this.updateInMillis
-	this.updateInMillis = 0
-	return millis
-}
-
-func (this *Eng) ContextLossReq() int32 {
-	if !this.contextLossReq {
-		return 0
-	}
-	this.contextLossReq = false
-	return 1
+	this.out.UpdateInMillis = millis
 }
 
 func (this *Eng) SetDrawAlways(always bool) {
-	this.drawAlways = always
+	this.out.DrawAlways = always
 }
 
-func (this *Eng) DrawAlways() bool { return this.drawAlways }
+func (this *Eng) DrawAlways() bool { return this.out.DrawAlways }
 
 // allow normal updates and drawing while unfocused.
-func (this *Eng) SetDrawOnBlur(on bool) { this.drawOnBlur = on }
+func (this *Eng) SetDrawOnBlur(on bool) { this.out.DrawOnBlur = on }
 
-func (this *Eng) DrawOnBlur() bool { return this.drawOnBlur }
-
-func (this *Eng) DrawOnBlurFlag() int32 {
-	if this.drawOnBlur {
-		return 1
-	}
-	return 0
-}
+func (this *Eng) DrawOnBlur() bool { return this.out.DrawOnBlur }
 
 func (this *Eng) FullscreenEnabled() bool {
-	return this.fullscreenReq == FullscreenReqEnter ||
-		this.fullscreenReq == FullscreenReqPortrait ||
-		this.fullscreenReq == FullscreenReqLandscape
+	return this.out.FullscreenReq == FullscreenReqEnter ||
+		this.out.FullscreenReq == FullscreenReqPortrait ||
+		this.out.FullscreenReq == FullscreenReqLandscape
 }
 
 func (this *Eng) RenderMode() vgfx.RenderMode {
-	return this.renderMode
-}
-
-func (this *Eng) DrawAlwaysFlag() int32 {
-	if this.drawAlways {
-		return 1
-	}
-	return 0
-}
-
-func (this *Eng) RenderModeFlag() int32 {
-	return int32(this.renderMode)
+	return this.out.RenderMode
 }
 
 func (this *Eng) PollPtr() uintptr {
 	return uintptr(unsafe.Pointer(&this.poll))
 }
 
-func (this *Eng) BeepPtr() uintptr {
-	return uintptr(unsafe.Pointer(&this.beeps[0]))
+func (this *Eng) OutPtr() uintptr {
+	this.updateOut()
+	return uintptr(unsafe.Pointer(&this.out))
 }
 
-func (this *Eng) BeepCount() uint32 { return this.beepCount }
+func (this *Eng) BeepCount() uint32 { return this.out.BeepCount }
 
-func (this *Eng) Cam() *vgeo.XY[float32] { return &this.cam }
-func (this *Eng) CamX() float32          { return this.cam.X }
-func (this *Eng) CamY() float32          { return this.cam.Y }
+func (this *Eng) Cam() *vgeo.XY[float32] { return &this.out.Cam }
 
 func (this *Eng) CanvasPhy() *vgeo.WH[uint16] {
 	return &this.poll.CanvasPhy
@@ -257,25 +205,15 @@ func (this *Eng) BoardH() int32 {
 	return this.board.H
 }
 
-func (this *Eng) LayerConfigsPtr() uintptr {
-	return uintptr(unsafe.Pointer(unsafe.SliceData(this.layerConfigExport[:])))
-}
-func (this *Eng) Layer(layer vgfx.Layer) *vgfx.LayerConfig {
-	return &this.layers[layer]
-}
-
-func (this *Eng) BoardTilesPtr() uintptr {
-	if this.board == nil || len(this.board.Tiles) == 0 {
-		return 0
-	}
-	return uintptr(unsafe.Pointer(&this.board.Tiles[0]))
-}
-
 func (this *Eng) BoardTilesLen() uint32 {
 	if this.board == nil {
 		return 0
 	}
 	return uint32(len(this.board.Tiles))
+}
+
+func (this *Eng) Layer(layer vgfx.Layer) *vgfx.LayerConfig {
+	return &this.layers[layer]
 }
 
 func (this *Eng) BoardTileW() uint8 {
@@ -294,13 +232,13 @@ func (this *Eng) BoardTileH() uint8 {
 
 func (this *Eng) EndTick(stat Status) Status {
 	stat |= this.updateTexts()
-	if this.drawAlways {
+	if this.out.DrawAlways {
 		stat |= Loop
 	}
 	this.tick.UpdateMs = this.poll.UpdateMillis
 	// to-do: make frame finalization explicit instead of hanging this off
 	// EndTick.
-	this.updateLayerConfigExport()
+	this.updateOut()
 	return stat
 }
 
@@ -319,33 +257,19 @@ func (this *Eng) AtlasAnimCount() uint32 {
 	return uint32(len(this.atlas.Anims))
 }
 
-func (this *Eng) AtlasCelsPerAnim() uint32 {
-	return uint32(vatlas.CelsPerAnim)
-}
-
-func (this *Eng) AtlasCelsPtr() uintptr {
-	if len(this.atlas.Cels) == 0 {
-		return 0
-	}
-	return uintptr(unsafe.Pointer(unsafe.SliceData(this.atlas.Cels)))
-}
-
-func (this *Eng) AtlasCelsCount() uint32 {
-	return uint32(len(this.atlas.Cels))
-}
-
 func (this *Eng) BeginTick() Status {
-	this.beepCount = 0
+	this.out.Requests = 0
+	this.out.UpdateInMillis = 0
+	this.out.BeepCount = 0
 	this.in.Update(
 		this.poll.NowMillis,
 		&this.poll.InPoll,
 		vgeo.Box[float32]{
-			Min: this.cam}, // to-do: actual cam box.
+			Min: this.out.Cam}, // to-do: actual cam box.
 	)
 	this.tick.DrawCount = this.poll.DrawCount
-	this.drawAlways = this.poll.DrawAlways
+	this.out.DrawAlways = this.poll.DrawAlways
 	req := this.poll.FullscreenReq
-	this.poll.FullscreenReq = FullscreenReqNone
 	if req != FullscreenReqNone {
 		this.ReqFullscreen(req)
 	}
@@ -353,6 +277,32 @@ func (this *Eng) BeginTick() Status {
 		this.layers[i].Sprs = this.layers[i].Sprs[:0]
 	}
 	return Pause
+}
+
+func (this *Eng) updateOut() {
+	out := &this.out
+	out.BoardLevel = this.BoardLevel()
+	out.BoardW, out.BoardH = this.BoardW(), this.BoardH()
+	out.BoardTileW, out.BoardTileH = this.BoardTileW(), this.BoardTileH()
+	out.BoardTilesPtr, out.BoardTilesLen = 0, 0
+	if this.board != nil {
+		out.BoardTilesLen = uint32(len(this.board.Tiles))
+		if out.BoardTilesLen != 0 {
+			out.BoardTilesPtr = uint32(uintptr(
+				unsafe.Pointer(unsafe.SliceData(this.board.Tiles)),
+			))
+		}
+	}
+	out.AtlasAnimCount = this.AtlasAnimCount()
+	out.AtlasCelsPerAnim = uint32(vatlas.CelsPerAnim)
+	out.AtlasCelsCount = uint32(len(this.atlas.Cels))
+	out.AtlasCelsPtr = 0
+	if out.AtlasCelsCount != 0 {
+		out.AtlasCelsPtr = uint32(uintptr(
+			unsafe.Pointer(unsafe.SliceData(this.atlas.Cels)),
+		))
+	}
+	this.updateLayerConfigExport()
 }
 
 func (this *Eng) updateLayerScales() {
@@ -372,7 +322,7 @@ func (this *Eng) updateLayerScales() {
 func (this *Eng) updateLayerClips() {
 	for i := range this.layers {
 		config := &this.layers[i]
-		config.UpdateCam(this.cam)
+		config.UpdateCam(this.out.Cam)
 		clip := config.ClipPhy
 		clipX := float32(clip.Min.X)
 		clipY := float32(clip.Min.Y)
@@ -404,7 +354,7 @@ func (this *Eng) updateLayerConfigExport() {
 		if layer.Depth {
 			flags |= vgfx.LayerFlagsDepthFlag << vgfx.LayerFlagsDepthShift
 		}
-		this.layerConfigExport[i] = vgfx.LayerConfigExport{
+		this.out.Layers[i] = vgfx.LayerConfigExport{
 			CamMode:  layer.CamMode,
 			Shader:   layer.Shader,
 			Flags:    flags,

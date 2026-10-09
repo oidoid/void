@@ -1,7 +1,13 @@
+import * as bridge from '../eng/bridge.ts'
 import type {AnyEvent, OnEvent} from '../eng/event.ts'
 
 export type PtrDevice = (typeof PtrDevice)[keyof typeof PtrDevice]
-const PtrDevice = {Unknown: 0, Mouse: 1, Pen: 2, Touch: 3} as const
+const PtrDevice = {
+  Unknown: bridge.ptrDevUnknown,
+  Mouse: bridge.ptrDevMouse,
+  Pen: bridge.ptrDevPen,
+  Touch: bridge.ptrDevTouch
+} as const
 const ptrDevice: Record<string, PtrDevice> = {
   mouse: PtrDevice.Mouse,
   pen: PtrDevice.Pen,

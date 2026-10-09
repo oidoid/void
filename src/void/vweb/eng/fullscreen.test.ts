@@ -1,8 +1,8 @@
 import {test} from 'node:test'
 import {assert} from '../test/assert.ts'
 import {FullscreenMock} from '../test/fullscreen-mock.ts'
+import {FullscreenReqEnter, FullscreenReqLandscape} from './bridge.ts'
 import {Fullscreen} from './fullscreen.ts'
-import {FullscreenReqEnter, FullscreenReqLandscape} from './platform.ts'
 
 test('Fullscreen enters without locking orientation', async () => {
   using mock = new FullscreenMock()

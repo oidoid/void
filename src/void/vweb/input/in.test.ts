@@ -1,38 +1,11 @@
 import {test} from 'node:test'
-import {
-  devicePixelRatioOffset,
-  drawCountOffset,
-  fullscreenReqOffset,
-  gamepadPollSize,
-  gamepadsLenOffset,
-  gamepadsOffset,
-  keyboardOffset,
-  keyboardTextLenOffset,
-  keyboardTextOffset,
-  keyboardTextOverflowOffset,
-  maxTextLen,
-  pollSize,
-  pollsOffset,
-  ptrlockedOffset,
-  updateByteLen,
-  updateMsOffset,
-  wheelOffset
-} from '../eng/layout.ts'
+import * as bridge from '../eng/bridge.ts'
 import {assert} from '../test/assert.ts'
 import type {Gamepad} from './gamepad.ts'
 import {writeInPoll} from './in.ts'
 import type {Keyboard} from './keyboard.ts'
 import type {Ptr} from './ptr.ts'
 import type {Wheel} from './wheel.ts'
-
-test('Poll ABI layout matches veng.Poll', () => {
-  assert(drawCountOffset, 4408)
-  assert(fullscreenReqOffset, 4412)
-  assert(ptrlockedOffset, 4413)
-  assert(updateMsOffset, 4416)
-  assert(devicePixelRatioOffset, 4424)
-  assert(updateByteLen, 4448)
-})
 
 const encoder: TextEncoder = new TextEncoder()
 
@@ -41,15 +14,15 @@ test('writeInPoll()', async ctx => {
     const view = newView()
     const {ptr, wheel, keyboard, gamepad} = newInputs('')
     writeInPoll(view, ptr, wheel, keyboard, gamepad, encoder, new Uint8Array(0))
-    assert(view.getUint16(keyboardTextLenOffset, true), 0)
-    assert(view.getUint8(keyboardTextOverflowOffset), 0)
+    assert(view.getUint16(bridge.keyboardTextLenOffset, true), 0)
+    assert(view.getUint8(bridge.keyboardTextOverflowOffset), 0)
   })
 
   await ctx.test('keys written', () => {
     const view = newView()
     const {ptr, wheel, keyboard, gamepad} = newInputs('', 0b101)
     writeInPoll(view, ptr, wheel, keyboard, gamepad, encoder, new Uint8Array(0))
-    assert(view.getUint16(keyboardOffset, true), 0b101)
+    assert(view.getUint16(bridge.keyboardOffset, true), 0b101)
   })
 
   await ctx.test('ptr box writes Go Min and Max', () => {
@@ -72,13 +45,13 @@ test('writeInPoll()', async ctx => {
       }
     }
     writeInPoll(view, ptr, wheel, keyboard, gamepad, encoder, new Uint8Array(0))
-    const o = pollsOffset
-    assert(view.getInt32(o, true), 7)
-    assert(view.getFloat32(o + 4, true), 10)
-    assert(view.getFloat32(o + 8, true), 20)
-    assert(view.getFloat32(o + 12, true), 13)
-    assert(view.getFloat32(o + 16, true), 24)
-    assert(view.getUint8(o + pollSize - 2), 1)
+    const o = bridge.pollsOffset
+    assert(view.getInt32(o + bridge.ptrIDOffset, true), 7)
+    assert(view.getFloat32(o + bridge.ptrMinXOffset, true), 10)
+    assert(view.getFloat32(o + bridge.ptrMinYOffset, true), 20)
+    assert(view.getFloat32(o + bridge.ptrMaxXOffset, true), 13)
+    assert(view.getFloat32(o + bridge.ptrMaxYOffset, true), 24)
+    assert(view.getUint8(o + bridge.ptrClicksOffset), 1)
   })
 
   await ctx.test(
@@ -150,10 +123,10 @@ test('writeInPoll()', async ctx => {
       encoder,
       new Uint8Array(0)
     )
-    assert(view.getUint16(keyboardTextLenOffset, true), 2)
-    assert(view.getUint8(keyboardTextOverflowOffset), 0)
+    assert(view.getUint16(bridge.keyboardTextLenOffset, true), 2)
+    assert(view.getUint8(bridge.keyboardTextOverflowOffset), 0)
     const written = new TextDecoder().decode(
-      new Uint8Array(view.buffer, keyboardTextOffset, 2)
+      new Uint8Array(view.buffer, bridge.keyboardTextOffset, 2)
     )
     assert(written, 'hi')
     assert(u8.buffer, view.buffer)
@@ -161,20 +134,28 @@ test('writeInPoll()', async ctx => {
 
   await ctx.test('text at exact max length, no overflow', () => {
     const view = newView()
-    const {ptr, wheel, keyboard, gamepad} = newInputs('a'.repeat(maxTextLen))
+    const {ptr, wheel, keyboard, gamepad} = newInputs(
+      'a'.repeat(bridge.maxTextLen)
+    )
     writeInPoll(view, ptr, wheel, keyboard, gamepad, encoder, new Uint8Array(0))
-    assert(view.getUint16(keyboardTextLenOffset, true), maxTextLen)
-    assert(view.getUint8(keyboardTextOverflowOffset), 0)
+    assert(
+      view.getUint16(bridge.keyboardTextLenOffset, true),
+      bridge.maxTextLen
+    )
+    assert(view.getUint8(bridge.keyboardTextOverflowOffset), 0)
   })
 
   await ctx.test('text exceeding max length sets overflow', () => {
     const view = newView()
     const {ptr, wheel, keyboard, gamepad} = newInputs(
-      'a'.repeat(maxTextLen + 1)
+      'a'.repeat(bridge.maxTextLen + 1)
     )
     writeInPoll(view, ptr, wheel, keyboard, gamepad, encoder, new Uint8Array(0))
-    assert(view.getUint16(keyboardTextLenOffset, true), maxTextLen)
-    assert(view.getUint8(keyboardTextOverflowOffset), 1)
+    assert(
+      view.getUint16(bridge.keyboardTextLenOffset, true),
+      bridge.maxTextLen
+    )
+    assert(view.getUint8(bridge.keyboardTextOverflowOffset), 1)
   })
 
   await ctx.test('reuses u8 when buffer unchanged', () => {
@@ -213,40 +194,49 @@ test('writeInPoll()', async ctx => {
 })
 function readInPoll(view: DataView): object {
   const ptrs = []
-  for (let i = 0; i < view.getUint8(0); i++) {
-    const o = pollsOffset + i * pollSize
-    const physX = view.getFloat32(o + 4, true)
-    const physY = view.getFloat32(o + 8, true)
+  for (let i = 0; i < view.getUint8(bridge.ptrsLenOffset); i++) {
+    const o = bridge.pollsOffset + i * bridge.pollSize
+    const physX = view.getFloat32(o + bridge.ptrMinXOffset, true)
+    const physY = view.getFloat32(o + bridge.ptrMinYOffset, true)
     ptrs.push({
-      id: view.getInt32(o, true),
+      id: view.getInt32(o + bridge.ptrIDOffset, true),
       physX,
       physY,
-      physW: view.getFloat32(o + 12, true) - physX,
-      physH: view.getFloat32(o + 16, true) - physY,
-      pressure: view.getFloat32(o + 20, true),
-      tiltX: view.getInt8(o + 24),
-      tiltY: view.getInt8(o + 25),
-      twist: view.getUint16(o + 26, true),
-      device: view.getUint8(o + 28),
-      primary: view.getUint8(o + 29) !== 0,
-      buttons: view.getUint8(o + 30)
+      physW: view.getFloat32(o + bridge.ptrMaxXOffset, true) - physX,
+      physH: view.getFloat32(o + bridge.ptrMaxYOffset, true) - physY,
+      pressure: view.getFloat32(o + bridge.ptrPressureOffset, true),
+      tiltX: view.getInt8(o + bridge.ptrTiltXOffset),
+      tiltY: view.getInt8(o + bridge.ptrTiltYOffset),
+      twist: view.getUint16(o + bridge.ptrTwistOffset, true),
+      device: view.getUint8(o + bridge.ptrDeviceOffset),
+      primary: view.getUint8(o + bridge.ptrPrimaryOffset) !== 0,
+      buttons: view.getUint8(o + bridge.ptrClicksOffset)
     })
   }
 
-  const textLen = view.getUint16(keyboardTextLenOffset, true)
+  const textLen = view.getUint16(bridge.keyboardTextLenOffset, true)
   const gamepads = []
-  for (let i = 0; i < view.getUint8(gamepadsLenOffset); i++) {
-    const o = gamepadsOffset + i * gamepadPollSize
+  for (let i = 0; i < view.getUint8(bridge.gamepadsLenOffset); i++) {
+    const o = bridge.gamepadsOffset + i * bridge.gamepadPollSize
     gamepads.push({
-      index: view.getUint8(o),
-      connected: view.getUint8(o + 1) !== 0,
-      mapping: view.getUint8(o + 2),
-      buttons: view.getUint32(o + 4, true),
+      index: view.getUint8(o + bridge.gamepadIndexOffset),
+      connected: view.getUint8(o + bridge.gamepadConnectedOffset) !== 0,
+      mapping: view.getUint8(o + bridge.gamepadMappingOffset),
+      buttons: view.getUint16(o + bridge.gamepadButtonsOffset, true),
       axes: [
-        view.getFloat32(o + 8, true),
-        view.getFloat32(o + 12, true),
-        view.getFloat32(o + 16, true),
-        view.getFloat32(o + 20, true)
+        view.getFloat32(o + bridge.gamepadAxesOffset, true),
+        view.getFloat32(
+          o + bridge.gamepadAxesOffset + bridge.gamepadAxisStride,
+          true
+        ),
+        view.getFloat32(
+          o + bridge.gamepadAxesOffset + 2 * bridge.gamepadAxisStride,
+          true
+        ),
+        view.getFloat32(
+          o + bridge.gamepadAxesOffset + 3 * bridge.gamepadAxisStride,
+          true
+        )
       ]
     })
   }
@@ -254,16 +244,16 @@ function readInPoll(view: DataView): object {
   return {
     ptrs,
     wheel: [
-      view.getFloat32(wheelOffset, true),
-      view.getFloat32(wheelOffset + 4, true),
-      view.getFloat32(wheelOffset + 8, true)
+      view.getFloat32(bridge.wheelOffset + bridge.wheelDeltaXOffset, true),
+      view.getFloat32(bridge.wheelOffset + bridge.wheelDeltaYOffset, true),
+      view.getFloat32(bridge.wheelOffset + bridge.wheelDeltaZOffset, true)
     ],
     keyboard: {
-      keys: view.getUint16(keyboardOffset, true),
+      keys: view.getUint16(bridge.keyboardOffset, true),
       text: new TextDecoder().decode(
-        new Uint8Array(view.buffer, keyboardTextOffset, textLen)
+        new Uint8Array(view.buffer, bridge.keyboardTextOffset, textLen)
       ),
-      textOverflow: view.getUint8(keyboardTextOverflowOffset) !== 0
+      textOverflow: view.getUint8(bridge.keyboardTextOverflowOffset) !== 0
     },
     gamepads
   }
@@ -287,5 +277,5 @@ function newInputs(
 }
 
 function newView(): DataView {
-  return new DataView(new ArrayBuffer(updateByteLen))
+  return new DataView(new ArrayBuffer(bridge.updateByteLen))
 }

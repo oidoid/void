@@ -21,7 +21,9 @@ import (
 
 //go:embed board.gotmpl
 var boardTemplSrc string
-var boardTempl = template.Must(template.New("board.gotmpl").Funcs(
+var boardTempl = template.Must(template.New("board.gotmpl").Option(
+	"missingkey=error",
+).Funcs(
 	template.FuncMap{
 		"name": goName,
 	},
@@ -29,7 +31,9 @@ var boardTempl = template.Must(template.New("board.gotmpl").Funcs(
 
 //go:embed spawn.gotmpl
 var spawnTemplSrc string
-var spawnTempl = template.Must(template.New("spawn.gotmpl").Funcs(
+var spawnTempl = template.Must(template.New("spawn.gotmpl").Option(
+	"missingkey=error",
+).Funcs(
 	template.FuncMap{"name": goName},
 ).Parse(spawnTemplSrc))
 

@@ -2,20 +2,9 @@ package vgfx
 
 import (
 	"testing"
-	"unsafe"
 
 	"github.com/oidoid/void/src/void/vgeo"
 )
-
-func TestLayerConfigExportLayout(t *testing.T) {
-	var config LayerConfigExport
-	if got := unsafe.Sizeof(config); got != 24 {
-		t.Fatalf("LayerConfigExport size = %d, want 24", got)
-	}
-	if got := unsafe.Offsetof(config.SprsPtr); got != 16 {
-		t.Fatalf("SprsPtr offset = %d, want 16", got)
-	}
-}
 
 func TestLayerConfigNearbox(t *testing.T) {
 	config := LayerConfig{Clip: vgeo.NewBox[float32](10, 20, 110, 80)}

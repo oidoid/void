@@ -1,74 +1,22 @@
 import {In} from '../input/in.ts'
-import {
-  type BoardRenderState,
-  getWebGL2,
-  Renderer
-} from '../renderer/renderer.ts'
+import type {BoardConfig} from '../renderer/board-config.ts'
+import {getWebGL2, Renderer} from '../renderer/renderer.ts'
 import {beep, SFX} from '../sfx/sfx.ts'
 import {downloadScreenshot, initCanvas} from '../utils/canvas-util.ts'
 import {initBody, initMetaViewport} from '../utils/dom-util.ts'
 import {isFullscreen} from '../utils/fullscreen-util.ts'
+import * as bridge from './bridge.ts'
 import {debug} from './debug.ts'
 import type {AnyEvent} from './event.ts'
 import {Fullscreen} from './fullscreen.ts'
-import {
-  canvasHOffset,
-  canvasWOffset,
-  deltaMsOffset,
-  devicePixelRatioOffset,
-  drawAlwaysOffset,
-  drawCountOffset,
-  fullscreenReqOffset,
-  isFullscreenOffset,
-  type LayerBlendMode,
-  type LayerCamMode,
-  type LayerConfig,
-  layerCamModeFixed,
-  layerConfigCamModeOffset,
-  layerConfigClipHPhyOffset,
-  layerConfigClipWPhyOffset,
-  layerConfigClipXPhyOffset,
-  layerConfigClipYPhyOffset,
-  layerConfigFlagsOffset,
-  layerConfigScaleOffset,
-  layerConfigShaderOffset,
-  layerConfigSprCountOffset,
-  layerConfigSprsPtrOffset,
-  layerConfigStride,
-  layerCount,
-  layerFlagsBlendModeMask,
-  layerFlagsBlendModeShift,
-  layerFlagsDepthFlag,
-  layerFlagsDepthMask,
-  layerFlagsDepthShift,
-  localDayOffset,
-  localHourOffset,
-  localMillisOffset,
-  localMinuteOffset,
-  localMonthOffset,
-  localSecondOffset,
-  localYearOffset,
-  nowMsOffset,
-  ptrlockedOffset,
-  type Shader,
-  shaderOverlay,
-  shaderSprs,
-  shaderTiles,
-  updateByteLen,
-  updateMsOffset,
-  utcMsOffset
-} from './layout.ts'
+import type {
+  LayerBlendMode,
+  LayerCamMode,
+  LayerConfig,
+  Shader
+} from './layer-config.ts'
 import {PixelRatioObserver} from './pixel-ratio-observer.ts'
-import {
-  FullscreenReqEnter,
-  FullscreenReqExit,
-  FullscreenReqLandscape,
-  FullscreenReqNone,
-  FullscreenReqPortrait,
-  LoopLoop,
-  type Platform,
-  RenderModePixel
-} from './platform.ts'
+import type {Platform} from './platform.ts'
 import {Wakelock} from './wakelock.ts'
 import {WASI} from './wasi.ts'
 
@@ -80,9 +28,12 @@ export class Eng {
   #deferFullscreenReq: boolean = false
   #drawAlways: boolean = false
   // carries browser-driven exits to Go independently of debug URL state.
-  #fullscreenReq: number = FullscreenReqNone
+  #fullscreenReq: number = bridge.FullscreenReqNone
   #updateMs: number = 0
   #poll!: DataView
+  #out!: DataView
+  #pollPtr!: number
+  #outPtr!: number
   #input!: In
   #lastTime: number = 0
   #phyW: number = 0 // don't care if these init later.
@@ -121,15 +72,14 @@ export class Eng {
     this.#wasm = result.instance.exports as Platform
     wasi.link(this.#wasm.memory)
     this.#wasm._start()
-    const pixel = this.#wasm.RenderMode() === RenderModePixel
+    this.#pollPtr = this.#wasm.PollPtr()
+    this.#outPtr = this.#wasm.OutPtr()
+    this.#refreshMemory()
+    const pixel =
+      this.#out.getUint8(bridge.outRenderModeOffset) === bridge.RenderModePixel
     canvas = initCanvas(canvas, pixel ? 'Pixel' : 'Float')
 
     this.#input = new In(canvas)
-    this.#poll = new DataView(
-      this.#wasm.memory.buffer,
-      this.#wasm.PollPtr(),
-      updateByteLen
-    )
     this.#drawAlways = debug?.draw === 'always'
     initMetaViewport(undefined) // to-do: pass description.
     initBody()
@@ -188,30 +138,33 @@ export class Eng {
     const nowMillis = this.#writeUpdate(this.#renderer, frameMillis)
     const updateStart = performance.now()
     const loop = this.#wasm.Update()
+    this.#refreshMemory()
+    const requests = this.#out.getUint8(bridge.outRequestsOffset)
+    const updateInMillis = Number(
+      this.#out.getBigUint64(bridge.outUpdateInMillisOffset, true)
+    )
     this.#playBeeps()
     if (!this.#deferFullscreenReq) this.#applyFullscreenReq()
     this.#applyDrawAlways()
-    if (loop !== LoopLoop || this.#paused()) {
+    if (loop !== bridge.LoopLoop || this.#paused()) {
       this.#cancelFrame()
       this.#lastTime = 0
-      if (!this.#paused()) this.#reqDelayedUpdate()
+      if (!this.#paused()) this.#reqDelayedUpdate(updateInMillis)
     }
     this.#updateMs = performance.now() - updateStart
     const buffer = this.#wasm.memory.buffer
-    const boardLevel = this.#wasm.BoardLevel()
+    const boardLevel = this.#out.getUint16(bridge.outBoardLevelOffset, true)
     if (boardLevel !== this.#renderer.boardLvl)
       this.#renderer.updateBoard(this.#boardRenderState(boardLevel))
-    const layerConfigPtr = this.#wasm.LayerConfigsPtr()
-    const layerConfigView = new DataView(buffer)
-    const camX = this.#wasm.CamX()
-    const camY = this.#wasm.CamY()
+    const camX = this.#out.getFloat32(bridge.outCamXOffset, true)
+    const camY = this.#out.getFloat32(bridge.outCamYOffset, true)
     this.#renderer.clear(...this.#clearColor)
     this.#drawCount++
-    for (let layer = 0; layer < layerCount; layer++) {
-      const config = this.#layerConfig(layerConfigView, layerConfigPtr, layer)
-      const lx = config.camMode === layerCamModeFixed ? 0 : camX
-      const ly = config.camMode === layerCamModeFixed ? 0 : camY
-      if (config.shader === shaderTiles) {
+    for (let layer = 0; layer < bridge.layerCount; layer++) {
+      const config = this.#layerConfig(layer)
+      const lx = config.camMode === bridge.layerCamModeFixed ? 0 : camX
+      const ly = config.camMode === bridge.layerCamModeFixed ? 0 : camY
+      if (config.shader === bridge.shaderTiles) {
         this.#renderer.clearDepth()
         this.#renderer.drawTiles(
           lx,
@@ -221,7 +174,7 @@ export class Eng {
           config.depth,
           config.clipPhy
         )
-      } else if (config.shader === shaderSprs && config.sprCount !== 0) {
+      } else if (config.shader === bridge.shaderSprs && config.sprCount !== 0) {
         this.#renderer.clearDepth()
         this.#renderer.drawLayer(
           buffer,
@@ -235,53 +188,52 @@ export class Eng {
           config.depth,
           config.clipPhy
         )
-      } else if (config.shader === shaderOverlay) {
+      } else if (config.shader === bridge.shaderOverlay) {
         this.#renderer.clearDepth()
         this.#renderer.drawOverlay(config.blendMode)
       }
     }
-    this.#applyPostDrawReqs(this.#renderer)
+    this.#applyPostDrawReqs(this.#renderer, requests)
   }
 
-  #layerConfig(view: DataView, ptr: number, layer: number): LayerConfig {
-    const o = ptr + layer * layerConfigStride
-    const flags = view.getUint8(o + layerConfigFlagsOffset)
+  #layerConfig(layer: number): LayerConfig {
+    const view = this.#out
+    const o = bridge.outLayersOffset + layer * bridge.layerConfigStride
+    const flags = view.getUint8(o + bridge.layerConfigFlagsOffset)
     return {
       clipPhy: {
-        x: view.getUint16(o + layerConfigClipXPhyOffset, true),
-        y: view.getUint16(o + layerConfigClipYPhyOffset, true),
-        w: view.getUint16(o + layerConfigClipWPhyOffset, true),
-        h: view.getUint16(o + layerConfigClipHPhyOffset, true)
+        x: view.getUint16(o + bridge.layerConfigClipXPhyOffset, true),
+        y: view.getUint16(o + bridge.layerConfigClipYPhyOffset, true),
+        w: view.getUint16(o + bridge.layerConfigClipWPhyOffset, true),
+        h: view.getUint16(o + bridge.layerConfigClipHPhyOffset, true)
       },
-      camMode: view.getUint8(o + layerConfigCamModeOffset) as LayerCamMode,
-      scale: view.getFloat32(o + layerConfigScaleOffset, true),
-      shader: view.getUint8(o + layerConfigShaderOffset) as Shader,
+      camMode: view.getUint8(
+        o + bridge.layerConfigCamModeOffset
+      ) as LayerCamMode,
+      scale: view.getFloat32(o + bridge.layerConfigScaleOffset, true),
+      shader: view.getUint8(o + bridge.layerConfigShaderOffset) as Shader,
       depth:
-        ((flags >>> layerFlagsDepthShift) & layerFlagsDepthMask) ===
-        layerFlagsDepthFlag,
-      blendMode: ((flags >>> layerFlagsBlendModeShift) &
-        layerFlagsBlendModeMask) as LayerBlendMode,
-      sprsPtr: view.getUint32(o + layerConfigSprsPtrOffset, true),
-      sprCount: view.getUint32(o + layerConfigSprCountOffset, true)
+        ((flags >>> bridge.layerFlagsDepthShift) &
+          bridge.layerFlagsDepthMask) ===
+        bridge.layerFlagsDepthFlag,
+      blendMode: ((flags >>> bridge.layerFlagsBlendModeShift) &
+        bridge.layerFlagsBlendModeMask) as LayerBlendMode,
+      sprsPtr: view.getUint32(o + bridge.layerConfigSprsPtrOffset, true),
+      sprCount: view.getUint32(o + bridge.layerConfigSprCountOffset, true)
     }
   }
 
   #playBeeps(): void {
-    const count = this.#wasm.BeepCount()
-    if (count === 0) return
-    const view = new DataView(
-      this.#wasm.memory.buffer,
-      this.#wasm.BeepPtr(),
-      count * 16
-    )
+    const view = this.#out
+    const count = view.getUint32(bridge.outBeepCountOffset, true)
     for (let i = 0; i < count; i++) {
-      const o = i * 16
+      const o = bridge.outBeepsOffset + i * bridge.beepStride
       beep(
         this.#sfx,
-        view.getFloat32(o, true),
-        view.getFloat32(o + 4, true),
-        view.getFloat32(o + 8, true),
-        view.getFloat32(o + 12, true)
+        view.getFloat32(o + bridge.beepStartHzOffset, true),
+        view.getFloat32(o + bridge.beepEndHzOffset, true),
+        view.getFloat32(o + bridge.beepDurationMsOffset, true),
+        view.getFloat32(o + bridge.beepDelayMsOffset, true)
       )
     }
   }
@@ -305,8 +257,10 @@ export class Eng {
   }
 
   #paused(): boolean {
+    this.#refreshMemory()
     return (
-      this.#wasm.DrawOnBlur() === 0 && (document.hidden || !document.hasFocus())
+      this.#out.getUint8(bridge.outDrawOnBlurOffset) === 0 &&
+      (document.hidden || !document.hasFocus())
     )
   }
 
@@ -315,8 +269,7 @@ export class Eng {
     this.#rafId = 0
   }
 
-  #reqDelayedUpdate(): void {
-    const millis = Number(this.#wasm.UpdateInMillisReq())
+  #reqDelayedUpdate(millis: number): void {
     if (millis === 0) return
     this.#updateTimeoutId = setTimeout(() => {
       this.#updateTimeoutId = 0
@@ -353,39 +306,42 @@ export class Eng {
   }
 
   #newRenderer(): Renderer {
-    const atlasCelsPtr = this.#wasm.AtlasCelsPtr()
-    const atlasCelsCount = this.#wasm.AtlasCelsCount()
+    this.#refreshMemory()
+    const out = this.#out
+    const atlasCelsPtr = out.getUint32(bridge.outAtlasCelsPtrOffset, true)
+    const atlasCelsCount = out.getUint32(bridge.outAtlasCelsCountOffset, true)
     const atlasCels = new Uint16Array(
       this.#wasm.memory.buffer,
       atlasCelsPtr,
       atlasCelsCount
     )
     const atlasImg = document.getElementById('atlas') as HTMLImageElement
-    const pixel = this.#wasm.RenderMode() === RenderModePixel
+    const pixel =
+      out.getUint8(bridge.outRenderModeOffset) === bridge.RenderModePixel
     return new Renderer(
       getWebGL2(this.#canvas, !pixel),
-      this.#boardRenderState(this.#wasm.BoardLevel()),
+      this.#boardRenderState(out.getUint16(bridge.outBoardLevelOffset, true)),
       atlasCels,
-      this.#wasm.AtlasAnimCount(),
-      this.#wasm.AtlasCelsPerAnim(),
+      out.getUint32(bridge.outAtlasAnimCountOffset, true),
+      out.getUint32(bridge.outAtlasCelsPerAnimOffset, true),
       atlasImg,
       pixel
     )
   }
 
-  #boardRenderState(level: number): BoardRenderState {
-    const wasm = this.#wasm
+  #boardRenderState(level: number): BoardConfig {
+    const out = this.#out
     return {
       lvl: level,
       tiles: new Uint16Array(
-        wasm.memory.buffer,
-        wasm.BoardTilesPtr(),
-        wasm.BoardTilesLen()
+        this.#wasm.memory.buffer,
+        out.getUint32(bridge.outBoardTilesPtrOffset, true),
+        out.getUint32(bridge.outBoardTilesLenOffset, true)
       ),
-      w: wasm.BoardW(),
-      h: wasm.BoardH(),
-      tileW: wasm.BoardTileW(),
-      tileH: wasm.BoardTileH()
+      w: out.getInt32(bridge.outBoardWOffset, true),
+      h: out.getInt32(bridge.outBoardHOffset, true),
+      tileW: out.getUint8(bridge.outBoardTileWOffset),
+      tileH: out.getUint8(bridge.outBoardTileHOffset)
     }
   }
 
@@ -405,8 +361,8 @@ export class Eng {
 
   #onFullscreenChange = (): void => {
     this.#fullscreenReq = document.fullscreenElement
-      ? FullscreenReqNone
-      : FullscreenReqExit
+      ? bridge.FullscreenReqNone
+      : bridge.FullscreenReqExit
     this.#reqUpdate('Force')
   }
 
@@ -429,70 +385,73 @@ export class Eng {
   }
 
   #applyFullscreenReq(): void {
-    const req = this.#wasm.FullscreenReq()
+    const req = this.#out.getUint8(bridge.outFullscreenReqOffset)
     if (
-      req === FullscreenReqEnter ||
-      req === FullscreenReqPortrait ||
-      req === FullscreenReqLandscape
+      req === bridge.FullscreenReqEnter ||
+      req === bridge.FullscreenReqPortrait ||
+      req === bridge.FullscreenReqLandscape
     ) {
       void this.#fullscreen.enter(req)
-    } else if (req === FullscreenReqExit) {
+    } else if (req === bridge.FullscreenReqExit) {
       void this.#fullscreen.exit()
     }
   }
 
-  #applyPostDrawReqs(renderer: Renderer): void {
-    if (this.#wasm.ScreenshotReq())
+  #applyPostDrawReqs(renderer: Renderer, requests: number): void {
+    if ((requests >>> bridge.outReqScreenshotShift) & bridge.outReqMask)
       void downloadScreenshot(this.#canvas, 'void', Date.now())
-    if (this.#wasm.ContextLossReq()) renderer.loseContext()
+    if ((requests >>> bridge.outReqContextLossShift) & bridge.outReqMask)
+      renderer.loseContext()
   }
 
   #applyDrawAlways(): void {
-    const drawAlways = this.#wasm.DrawAlways() !== 0
+    const drawAlways = this.#out.getUint8(bridge.outDrawAlwaysOffset) !== 0
     if (drawAlways === this.#drawAlways) return
     this.#drawAlways = drawAlways
   }
 
+  #refreshMemory(): void {
+    const buffer = this.#wasm.memory.buffer
+    if (this.#poll?.buffer === buffer) return
+    this.#poll = new DataView(buffer, this.#pollPtr, bridge.updateByteLen)
+    this.#out = new DataView(buffer, this.#outPtr, bridge.outByteLen)
+  }
+
   #writeUpdate(renderer: Renderer, frameMillis: number): number {
-    if (this.#poll.buffer !== this.#wasm.memory.buffer)
-      this.#poll = new DataView(
-        this.#wasm.memory.buffer,
-        this.#wasm.PollPtr(),
-        updateByteLen
-      )
+    this.#refreshMemory()
     const delta = this.#lastTime === 0 ? 0 : frameMillis - this.#lastTime
-    const nowMillis = this.#poll.getFloat64(nowMsOffset, true) + delta
-    this.#poll.setFloat64(deltaMsOffset, delta, true)
-    this.#poll.setUint16(canvasWOffset, renderer.phyW, true)
-    this.#poll.setUint16(canvasHOffset, renderer.phyH, true)
-    this.#poll.setUint8(isFullscreenOffset, isFullscreen() ? 1 : 0)
-    this.#poll.setUint8(drawAlwaysOffset, this.#drawAlways ? 1 : 0)
-    this.#poll.setInt32(drawCountOffset, this.#drawCount, true)
+    const nowMillis = this.#poll.getFloat64(bridge.nowMsOffset, true) + delta
+    this.#poll.setFloat64(bridge.deltaMsOffset, delta, true)
+    this.#poll.setUint16(bridge.canvasWOffset, renderer.phyW, true)
+    this.#poll.setUint16(bridge.canvasHOffset, renderer.phyH, true)
+    this.#poll.setUint8(bridge.isFullscreenOffset, isFullscreen() ? 1 : 0)
+    this.#poll.setUint8(bridge.drawAlwaysOffset, this.#drawAlways ? 1 : 0)
+    this.#poll.setInt32(bridge.drawCountOffset, this.#drawCount, true)
     const fullscreenReq =
-      this.#fullscreenReq !== FullscreenReqNone
+      this.#fullscreenReq !== bridge.FullscreenReqNone
         ? this.#fullscreenReq
         : this.#drawCount === 0 && debug?.window
-          ? FullscreenReqExit
-          : FullscreenReqNone
-    this.#fullscreenReq = FullscreenReqNone
-    this.#poll.setUint8(fullscreenReqOffset, fullscreenReq)
+          ? bridge.FullscreenReqExit
+          : bridge.FullscreenReqNone
+    this.#fullscreenReq = bridge.FullscreenReqNone
+    this.#poll.setUint8(bridge.fullscreenReqOffset, fullscreenReq)
     this.#poll.setUint8(
-      ptrlockedOffset,
+      bridge.ptrlockedOffset,
       document.pointerLockElement === this.#canvas ? 1 : 0
     )
-    this.#poll.setFloat64(updateMsOffset, this.#updateMs, true)
-    this.#poll.setFloat64(devicePixelRatioOffset, devicePixelRatio, true)
+    this.#poll.setFloat64(bridge.updateMsOffset, this.#updateMs, true)
+    this.#poll.setFloat64(bridge.devicePixelRatioOffset, devicePixelRatio, true)
     const time = Date.now()
     const date = new Date(time)
-    this.#poll.setFloat64(nowMsOffset, nowMillis, true)
-    this.#poll.setBigUint64(utcMsOffset, BigInt(time), true)
-    this.#poll.setUint16(localYearOffset, date.getFullYear(), true)
-    this.#poll.setUint8(localMonthOffset, date.getMonth() + 1)
-    this.#poll.setUint8(localDayOffset, date.getDate())
-    this.#poll.setUint8(localHourOffset, date.getHours())
-    this.#poll.setUint8(localMinuteOffset, date.getMinutes())
-    this.#poll.setUint8(localSecondOffset, date.getSeconds())
-    this.#poll.setUint16(localMillisOffset, date.getMilliseconds(), true)
+    this.#poll.setFloat64(bridge.nowMsOffset, nowMillis, true)
+    this.#poll.setBigUint64(bridge.utcMsOffset, BigInt(time), true)
+    this.#poll.setUint16(bridge.localYearOffset, date.getFullYear(), true)
+    this.#poll.setUint8(bridge.localMonthOffset, date.getMonth() + 1)
+    this.#poll.setUint8(bridge.localDayOffset, date.getDate())
+    this.#poll.setUint8(bridge.localHourOffset, date.getHours())
+    this.#poll.setUint8(bridge.localMinuteOffset, date.getMinutes())
+    this.#poll.setUint8(bridge.localSecondOffset, date.getSeconds())
+    this.#poll.setUint16(bridge.localMillisOffset, date.getMilliseconds(), true)
     this.#input.update(this.#poll)
     this.#input.postupdate() // to-do: move to postupdate()?
     this.#lastTime = frameMillis

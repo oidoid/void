@@ -8,8 +8,6 @@ import {OverlayRenderer} from './overlay-renderer/overlay-renderer.ts'
 import {SprRenderer} from './spr-renderer/spr-renderer.ts'
 import {TileRenderer} from './tile-renderer/tile-renderer.ts'
 
-export type {BoardConfig as BoardRenderState} from './board-config.ts'
-
 export function getWebGL2(
   canvas: HTMLCanvasElement,
   antialias: boolean

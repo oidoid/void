@@ -2,30 +2,9 @@ package vgfx
 
 import (
 	"testing"
-	"unsafe"
 
 	"github.com/oidoid/void/src/void/vatlas"
 )
-
-func TestSprLayout(t *testing.T) {
-	var spr Spr
-
-	if SprStride != 20 {
-		t.Fatalf("SprStride = %d, want 20", SprStride)
-	}
-	if got := unsafe.Offsetof(spr.TagCel); got != 8 {
-		t.Fatalf("TagCel offset = %d, want 8", got)
-	}
-	if got := unsafe.Offsetof(spr.Z); got != 10 {
-		t.Fatalf("Z offset = %d, want 10", got)
-	}
-	if got := unsafe.Offsetof(spr.WH); got != 12 {
-		t.Fatalf("WH offset = %d, want 12", got)
-	}
-	if got := unsafe.Offsetof(spr.flags); got != 16 {
-		t.Fatalf("flags offset = %d, want 16", got)
-	}
-}
 
 func TestSprPal(t *testing.T) {
 	spr := Spr{flags: sprHiddenMask<<sprHiddenShift |

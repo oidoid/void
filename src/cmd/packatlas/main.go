@@ -23,12 +23,16 @@ var initialisms = map[string]bool{"UI": true}
 var atlasBinTemplSrc string
 var atlasBinTempl = template.Must(template.New(
 	"atlas_bin.gotmpl",
+).Option(
+	"missingkey=error",
 ).Parse(atlasBinTemplSrc))
 
 //go:embed atlas_tags.gotmpl
 var atlasTagsTemplSrc string
 var atlasTagsTempl = template.Must(template.New(
 	"atlas_tags.gotmpl",
+).Option(
+	"missingkey=error",
 ).Funcs(
 	template.FuncMap{
 		"tag": func(tag stemTag) string { return tag.qualifiedTag() },

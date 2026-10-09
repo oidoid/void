@@ -95,35 +95,37 @@ func assertBoardExport(
 	board *vboards.Board,
 ) {
 	t.Helper()
+	eng.OutPtr()
+	out := &eng.out
 	if board == nil {
-		if eng.BoardLevel() != 0 || eng.BoardTilesPtr() != 0 ||
-			eng.BoardTilesLen() != 0 ||
-			eng.BoardW() != 0 || eng.BoardH() != 0 ||
-			eng.BoardTileW() != 0 || eng.BoardTileH() != 0 {
+		if out.BoardLevel != 0 || out.BoardTilesPtr != 0 ||
+			out.BoardTilesLen != 0 ||
+			out.BoardW != 0 || out.BoardH != 0 ||
+			out.BoardTileW != 0 || out.BoardTileH != 0 {
 			t.Error("nil board exports non-zero metadata")
 		}
 		return
 	}
-	if got := eng.BoardLevel(); got != uint16(board.Level) {
-		t.Errorf("BoardLevel() = %v, want %v", got, board.Level)
+	if got := out.BoardLevel; got != uint16(board.Level) {
+		t.Errorf("out.BoardLevel = %v, want %v", got, board.Level)
 	}
-	if eng.BoardTilesPtr() == 0 {
-		t.Error("BoardTilesPtr() = 0, want tile slice pointer")
+	if out.BoardTilesPtr == 0 {
+		t.Error("out.BoardTilesPtr = 0, want tile slice pointer")
 	}
-	if got := eng.BoardTilesLen(); got != uint32(len(board.Tiles)) {
-		t.Errorf("BoardTilesLen() = %v, want %v", got, len(board.Tiles))
+	if got := out.BoardTilesLen; got != uint32(len(board.Tiles)) {
+		t.Errorf("out.BoardTilesLen = %v, want %v", got, len(board.Tiles))
 	}
-	if got := eng.BoardW(); got != board.W {
-		t.Errorf("BoardW() = %v, want %v", got, board.W)
+	if got := out.BoardW; got != board.W {
+		t.Errorf("out.BoardW = %v, want %v", got, board.W)
 	}
-	if got := eng.BoardH(); got != board.H {
-		t.Errorf("BoardH() = %v, want %v", got, board.H)
+	if got := out.BoardH; got != board.H {
+		t.Errorf("out.BoardH = %v, want %v", got, board.H)
 	}
-	if got := eng.BoardTileW(); got != board.Tile.W {
-		t.Errorf("BoardTileW() = %v, want %v", got, board.Tile.W)
+	if got := out.BoardTileW; got != board.Tile.W {
+		t.Errorf("out.BoardTileW = %v, want %v", got, board.Tile.W)
 	}
-	if got := eng.BoardTileH(); got != board.Tile.H {
-		t.Errorf("BoardTileH() = %v, want %v", got, board.Tile.H)
+	if got := out.BoardTileH; got != board.Tile.H {
+		t.Errorf("out.BoardTileH = %v, want %v", got, board.Tile.H)
 	}
 }
 
@@ -140,6 +142,9 @@ func TestFullscreenPlatformDefault(t *testing.T) {
 
 	eng.Poll().FullscreenReq = FullscreenReqLandscape
 	eng.BeginTick()
+	if eng.Poll().FullscreenReq != FullscreenReqLandscape {
+		t.Error("BeginTick() changed browser-owned input")
+	}
 	if !eng.FullscreenEnabled() {
 		t.Error("FullscreenEnabled() = false, want true")
 	}

@@ -1,0 +1,119 @@
+// codegen by genbridge.
+
+export const maxPtrs: number = {{.MaxPtrs}}
+export const maxGamepads: number = {{.MaxGamepads}}
+export const maxTextLen: number = {{.MaxTextLen}}
+
+export const keyUp: number = {{.KeyUp}}
+export const keyDown: number = {{.KeyDown}}
+export const keyLeft: number = {{.KeyLeft}}
+export const keyRight: number = {{.KeyRight}}
+export const keyA: number = {{.KeyA}}
+export const keyB: number = {{.KeyB}}
+export const keyC: number = {{.KeyC}}
+export const keyMenu: number = {{.KeyMenu}}
+export const keyBack: number = {{.KeyBack}}
+export const ptrDevUnknown: {{.PtrDevUnknown}} = {{.PtrDevUnknown}}
+export const ptrDevMouse: {{.PtrDevMouse}} = {{.PtrDevMouse}}
+export const ptrDevPen: {{.PtrDevPen}} = {{.PtrDevPen}}
+export const ptrDevTouch: {{.PtrDevTouch}} = {{.PtrDevTouch}}
+
+export const pollSize: number = {{.PtrPoll.Size}}
+export const gamepadPollSize: number = {{.GamepadPoll.Size}}
+export const updateByteLen: number = {{.Poll.Size}}
+export const ptrsLenOffset: number = {{offset .Poll "InPoll.PtrsLen"}}
+export const pollsOffset: number = {{offset .Poll "InPoll.Ptrs"}}
+export const wheelOffset: number = {{offset .Poll "InPoll.Wheel"}}
+export const keyboardOffset: number = {{offset .Poll "InPoll.Kbd.Keys"}}
+export const keyboardTextLenOffset: number = {{offset .Poll "InPoll.Kbd.TextLen"}}
+export const keyboardTextOffset: number = {{offset .Poll "InPoll.Kbd.Text"}}
+export const keyboardTextOverflowOffset: number = {{offset .Poll "InPoll.Kbd.TextOverflow"}}
+export const gamepadsLenOffset: number = {{offset .Poll "InPoll.PadsLen"}}
+export const gamepadsOffset: number = {{offset .Poll "InPoll.Pads"}}
+export const deltaMsOffset: number = {{offset .Poll "DeltaMillis"}}
+export const nowMsOffset: number = {{offset .Poll "NowMillis"}}
+export const utcMsOffset: number = {{offset .Poll "UtcMillis"}}
+export const canvasWOffset: number = {{offset .Poll "CanvasPhy.W"}}
+export const canvasHOffset: number = {{offset .Poll "CanvasPhy.H"}}
+export const isFullscreenOffset: number = {{offset .Poll "Fullscreen"}}
+export const drawAlwaysOffset: number = {{offset .Poll "DrawAlways"}}
+export const drawCountOffset: number = {{offset .Poll "DrawCount"}}
+export const fullscreenReqOffset: number = {{offset .Poll "FullscreenReq"}}
+export const ptrlockedOffset: number = {{offset .Poll "Ptrlocked"}}
+export const updateMsOffset: number = {{offset .Poll "UpdateMillis"}}
+export const devicePixelRatioOffset: number = {{offset .Poll "DevicePixelRatio"}}
+export const localYearOffset: number = {{offset .Poll "TimeFormat.Year"}}
+export const localMonthOffset: number = {{offset .Poll "TimeFormat.Month"}}
+export const localDayOffset: number = {{offset .Poll "TimeFormat.Day"}}
+export const localHourOffset: number = {{offset .Poll "TimeFormat.Hour"}}
+export const localMinuteOffset: number = {{offset .Poll "TimeFormat.Minute"}}
+export const localSecondOffset: number = {{offset .Poll "TimeFormat.Second"}}
+export const localMillisOffset: number = {{offset .Poll "TimeFormat.Milli"}}
+
+export const ptrIDOffset: number = {{offset .PtrPoll "ID"}}
+export const ptrMinXOffset: number = {{offset .PtrPoll "Phy.Min.X"}}
+export const ptrMinYOffset: number = {{offset .PtrPoll "Phy.Min.Y"}}
+export const ptrMaxXOffset: number = {{offset .PtrPoll "Phy.Max.X"}}
+export const ptrMaxYOffset: number = {{offset .PtrPoll "Phy.Max.Y"}}
+export const ptrPressureOffset: number = {{offset .PtrPoll "Pressure"}}
+export const ptrTiltXOffset: number = {{offset .PtrPoll "Tilt.X"}}
+export const ptrTiltYOffset: number = {{offset .PtrPoll "Tilt.Y"}}
+export const ptrTwistOffset: number = {{offset .PtrPoll "Twist"}}
+export const ptrDeviceOffset: number = {{offset .PtrPoll "Device"}}
+export const ptrPrimaryOffset: number = {{offset .PtrPoll "Primary"}}
+export const ptrClicksOffset: number = {{offset .PtrPoll "Clicks"}}
+
+export const wheelDeltaXOffset: number = {{offset .WheelPoll "Delta.X"}}
+export const wheelDeltaYOffset: number = {{offset .WheelPoll "Delta.Y"}}
+export const wheelDeltaZOffset: number = {{offset .WheelPoll "Delta.Z"}}
+
+{{range fields .GamepadPoll}}export const gamepad{{.Name}}Offset: number = {{.Offset}}
+{{end}}
+export const gamepadAxisStride: number = {{.Float32.Size}}
+
+export const outByteLen: number = {{.Out.Size}}
+{{range fields .Out}}export const out{{.Name}}Offset: number = {{.Offset}}
+{{end}}
+export const outCamXOffset: number = {{offset .Out "Cam.X"}}
+export const outCamYOffset: number = {{offset .Out "Cam.Y"}}
+
+export const outReqMask: number = {{.OutReqMask}}
+export const outReqScreenshotShift: number = {{.OutReqScreenshotShift}}
+export const outReqContextLossShift: number = {{.OutReqContextLossShift}}
+export const beepStride: number = {{.Beep.Size}}
+{{range fields .Beep}}export const beep{{.Name}}Offset: number = {{.Offset}}
+{{end}}
+export const sprStride: number = {{.SprStride}}
+export const sprXYOffset: number = {{offset .Spr "XY"}}
+export const sprTagCelOffset: number = {{offset .Spr "TagCel"}}
+export const sprZOffset: number = {{offset .Spr "Z"}}
+export const sprWHOffset: number = {{offset .Spr "WH"}}
+export const sprFlagsOffset: number = {{offset .Spr "flags"}}
+
+export const layerCount: number = {{.LayerCount}}
+export const layerConfigStride: number = {{.LayerConfigExport.Size}}
+{{range fields .LayerConfigExport}}export const layerConfig{{.Name}}Offset: number = {{.Offset}}
+{{end}}
+export const layerFlagsDepthShift: number = {{.LayerFlagsDepthShift}}
+export const layerFlagsDepthFlag: number = {{.LayerFlagsDepthFlag}}
+export const layerFlagsDepthMask: number = {{.LayerFlagsDepthMask}}
+export const layerFlagsBlendModeShift: number = {{.LayerFlagsBlendModeShift}}
+export const layerFlagsBlendModeMask: number = {{.LayerFlagsBlendModeMask}}
+export const layerCamModeApply: {{.LayerCamModeApply}} = {{.LayerCamModeApply}}
+export const layerCamModeFixed: {{.LayerCamModeFixed}} = {{.LayerCamModeFixed}}
+export const layerBlendModeAlpha: {{.LayerBlendModeAlpha}} = {{.LayerBlendModeAlpha}}
+export const layerBlendModeMultiply: {{.LayerBlendModeMultiply}} = {{.LayerBlendModeMultiply}}
+export const layerBlendModeReplace: {{.LayerBlendModeReplace}} = {{.LayerBlendModeReplace}}
+export const shaderTiles: {{.ShaderTiles}} = {{.ShaderTiles}}
+export const shaderSprs: {{.ShaderSprs}} = {{.ShaderSprs}}
+export const shaderOverlay: {{.ShaderOverlay}} = {{.ShaderOverlay}}
+
+export const LoopPause: {{.Pause}} = {{.Pause}}
+export const LoopLoop: {{.Loop}} = {{.Loop}}
+export const RenderModeFloat: {{.RenderModeFloat}} = {{.RenderModeFloat}}
+export const RenderModePixel: {{.RenderModePixel}} = {{.RenderModePixel}}
+export const FullscreenReqNone: {{.FullscreenReqNone}} = {{.FullscreenReqNone}}
+export const FullscreenReqExit: {{.FullscreenReqExit}} = {{.FullscreenReqExit}}
+export const FullscreenReqEnter: {{.FullscreenReqEnter}} = {{.FullscreenReqEnter}}
+export const FullscreenReqPortrait: {{.FullscreenReqPortrait}} = {{.FullscreenReqPortrait}}
+export const FullscreenReqLandscape: {{.FullscreenReqLandscape}} = {{.FullscreenReqLandscape}}
