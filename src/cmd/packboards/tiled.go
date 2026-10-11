@@ -3,8 +3,13 @@ package main
 // https://doc.mapeditor.org/en/stable/reference/tmx-map-format/
 
 import (
+	"bytes"
+	"compress/zlib"
+	"encoding/base64"
+	"encoding/binary"
 	"encoding/xml"
 	"fmt"
+	"io"
 	"math"
 	"os"
 	"path/filepath"
@@ -192,10 +197,10 @@ type tmxLayer struct {
 
 // encoded contents of a TMX tile layer.
 type tmxData struct {
-	// payload format; only `csv` is accepted.
-	Encoding string `xml:"encoding,attr"`
-	// comma-separated global tile IDs.
-	CSV string `xml:",chardata"`
+	// payload format; `csv` and `base64` are accepted.
+	Encoding    string `xml:"encoding,attr"`
+	Compression string `xml:"compression,attr"`
+	Val         string `xml:",chardata"`
 }
 
 type tmxObjectGroup struct {
@@ -282,7 +287,7 @@ func readBoard(
 	if len(tmx.Tilesets) == 0 {
 		return spawnBoardSpec{}, fmt.Errorf("map has no tileset")
 	}
-	gids, err := parseCSV(layer.Data)
+	gids, err := parseTiles(layer.Data)
 	if err != nil {
 		return spawnBoardSpec{}, err
 	}
@@ -792,11 +797,17 @@ func parseTileHits(tileset *tsxTileset) ([]bool, error) {
 	return hits, nil
 }
 
-func parseCSV(data tmxData) ([]uint32, error) {
-	if data.Encoding != "csv" {
-		return nil, fmt.Errorf("tile data encoding %q is unsupported", data.Encoding)
+func parseTiles(data tmxData) ([]uint32, error) {
+	if data.Encoding == "base64" {
+		return parseB64Tiles(data)
 	}
-	fields := strings.FieldsFunc(data.CSV, func(ch rune) bool {
+	if data.Encoding != "csv" || data.Compression != "" {
+		return nil, fmt.Errorf(
+			"tile data encoding %q compression %q is unsupported",
+			data.Encoding, data.Compression,
+		)
+	}
+	fields := strings.FieldsFunc(data.Val, func(ch rune) bool {
 		return ch == ',' || unicode.IsSpace(ch)
 	})
 	gids := make([]uint32, len(fields))
@@ -806,6 +817,40 @@ func parseCSV(data tmxData) ([]uint32, error) {
 			return nil, fmt.Errorf("tile %d: %w", i, err)
 		}
 		gids[i] = uint32(gid)
+	}
+	return gids, nil
+}
+
+func parseB64Tiles(data tmxData) ([]uint32, error) {
+	if data.Compression != "zlib" {
+		return nil, fmt.Errorf(
+			"tile data encoding %q compression %q is unsupported",
+			data.Encoding, data.Compression,
+		)
+	}
+	encoded := strings.Join(strings.Fields(data.Val), "")
+	compressed, err := base64.StdEncoding.DecodeString(encoded)
+	if err != nil {
+		return nil, fmt.Errorf("decode base64 tiles: %w", err)
+	}
+	reader, err := zlib.NewReader(bytes.NewReader(compressed))
+	if err != nil {
+		return nil, fmt.Errorf("open zlib tiles: %w", err)
+	}
+	bin, readErr := io.ReadAll(reader)
+	closeErr := reader.Close()
+	if readErr != nil {
+		return nil, fmt.Errorf("read zlib tiles: %w", readErr)
+	}
+	if closeErr != nil {
+		return nil, fmt.Errorf("close zlib tiles: %w", closeErr)
+	}
+	if len(bin)%4 != 0 {
+		return nil, fmt.Errorf("decoded tile data length %d is not divisible by 4", len(bin))
+	}
+	gids := make([]uint32, len(bin)/4)
+	for i := range gids {
+		gids[i] = binary.LittleEndian.Uint32(bin[i*4:])
 	}
 	return gids, nil
 }

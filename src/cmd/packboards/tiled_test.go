@@ -99,6 +99,20 @@ func TestReadBoard(t *testing.T) {
 	}
 }
 
+func TestParseB64ZlibTiles(t *testing.T) {
+	got, err := parseTiles(tmxData{
+		Encoding: "base64", Compression: "zlib",
+		Val: "eNpjZGBgYGKAAEYgBgAAPAAF",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []uint32{1, 2, 0, 1}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("tiles = %v, want %v", got, want)
+	}
+}
+
 func TestParseSpawns(t *testing.T) {
 	cases := map[string]struct {
 		in  tmxObject
@@ -633,19 +647,19 @@ func TestParseTileHits(t *testing.T) {
 	}
 }
 
-func TestParseCSV(t *testing.T) {
+func TestParseTiles(t *testing.T) {
 	cases := map[string]struct {
 		in   tmxData
 		want []uint32
 		err  bool
 	}{
-		"csv":      {tmxData{Encoding: "csv", CSV: "1, 2,\n0,"}, []uint32{1, 2, 0}, false},
-		"encoding": {tmxData{Encoding: "base64"}, nil, true},
-		"value":    {tmxData{Encoding: "csv", CSV: "x"}, nil, true},
+		"csv":      {tmxData{Encoding: "csv", Val: "1, 2,\n0,"}, []uint32{1, 2, 0}, false},
+		"encoding": {tmxData{Encoding: "hex"}, nil, true},
+		"value":    {tmxData{Encoding: "csv", Val: "x"}, nil, true},
 	}
 	for name, test := range cases {
 		t.Run(name, func(t *testing.T) {
-			got, err := parseCSV(test.in)
+			got, err := parseTiles(test.in)
 			if (err != nil) != test.err {
 				t.Fatalf("err = %v, want error %t", err, test.err)
 			}
