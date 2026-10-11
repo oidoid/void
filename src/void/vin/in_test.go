@@ -276,14 +276,103 @@ func TestIsAnyStart(t *testing.T) {
 	}
 }
 
-func TestIsAnyStartRespectsMask(t *testing.T) {
+func TestButtonQueriesPure(t *testing.T) {
 	in := NewIn()
-	in.MapKey(KeyA, ButtonA)
-	in.Update(0, &InPoll{}, zeroCam)
-	in.Update(1, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
-	in.Mask |= ButtonA
-	if in.IsAnyStart(ButtonA) {
-		t.Error("IsAnyStart should ignore masked changed buttons")
+	queries := []struct {
+		name  string
+		query func(Button) bool
+	}{
+		{"IsOff", in.IsOff},
+		{"IsOffStart", in.IsOffStart},
+		{"IsOffEnd", in.IsOffEnd},
+		{"IsOn", in.IsOn},
+		{"IsOnStart", in.IsOnStart},
+		{"IsOnEnd", in.IsOnEnd},
+		{"IsAnyOn", in.IsAnyOn},
+		{"IsAnyOnStart", in.IsAnyOnStart},
+		{"IsAnyOnEnd", in.IsAnyOnEnd},
+		{"IsAnyStart", in.IsAnyStart},
+	}
+	states := []Button{0, ButtonA, ButtonB, ButtonA | ButtonB}
+	for _, on := range states {
+		for _, prevOn := range states {
+			in.On, in.PrevOn = on, prevOn
+			for _, query := range queries {
+				for _, mask := range states {
+					in.Mask = mask
+					want := query.query(ButtonA | ButtonB)
+					if mask == ButtonA|ButtonB && want {
+						t.Errorf("%s matched fully masked buttons", query.name)
+					}
+					for range 2 {
+						if got := query.query(ButtonA | ButtonB); got != want {
+							t.Errorf("%s changed result on repeated calls", query.name)
+						}
+						if in.On != on || in.PrevOn != prevOn || in.Mask != mask {
+							t.Fatalf("%s changed input state", query.name)
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+func TestAnyQueriesUseUnmaskedButtons(t *testing.T) {
+	in := NewIn()
+	in.On = ButtonA | ButtonB
+	in.PrevOn = ButtonA
+	in.Mask = ButtonA
+	btns := ButtonA | ButtonB
+	if !in.IsAnyOn(btns) || !in.IsAnyOnStart(btns) || !in.IsAnyStart(btns) {
+		t.Error("masking A hid B's press")
+	}
+	if in.IsOn(btns) || in.IsOnStart(btns) {
+		t.Error("an all-button query matched a partially masked chord")
+	}
+	in.On, in.PrevOn = ButtonA, ButtonA|ButtonB
+	if !in.IsAnyOnEnd(btns) || !in.IsAnyStart(btns) {
+		t.Error("masking A hid B's release")
+	}
+	if in.IsAnyOn(btns) || in.IsAnyOnStart(btns) {
+		t.Error("an any-button query matched masked A")
+	}
+	if in.IsOff(btns) || in.IsOffStart(btns) || in.IsOnEnd(btns) {
+		t.Error("an all-button query matched a partially masked chord")
+	}
+}
+
+func TestButtonChordEdges(t *testing.T) {
+	tests := []struct {
+		name       string
+		on, prevOn Button
+		// OnStart, OffStart, OnEnd, AnyOnStart, AnyOnEnd.
+		want [5]bool
+	}{
+		{"complete", ButtonA | ButtonB, ButtonA,
+			[5]bool{true, false, false, true, false}},
+		{"break", ButtonA, ButtonA | ButtonB,
+			[5]bool{false, false, true, false, true}},
+		{"finish release", 0, ButtonA,
+			[5]bool{false, true, false, false, true}},
+		{"swap", ButtonB, ButtonA,
+			[5]bool{false, false, false, true, true}},
+		{"hold", ButtonA | ButtonB, ButtonA | ButtonB,
+			[5]bool{false, false, false, false, false}},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			in := NewIn()
+			in.On, in.PrevOn = test.on, test.prevOn
+			btns := ButtonA | ButtonB
+			got := [5]bool{
+				in.IsOnStart(btns), in.IsOffStart(btns), in.IsOnEnd(btns),
+				in.IsAnyOnStart(btns), in.IsAnyOnEnd(btns),
+			}
+			if got != test.want {
+				t.Errorf("chord edges = %v, want %v", got, test.want)
+			}
+		})
 	}
 }
 
@@ -402,19 +491,24 @@ func TestMapDefaultText(t *testing.T) {
 	}
 }
 
-func TestMaskBlocksOn(t *testing.T) {
+func TestQueriesDoNotCreateRelease(t *testing.T) {
 	in := NewIn()
 	in.MapKey(KeyA, ButtonA)
-	in.Update(0, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
-	if !in.IsOn(ButtonA) {
-		t.Error("Initial button should be on")
-	}
-	in.Mask |= ButtonA
-	if in.IsOn(ButtonA) {
-		t.Error("Mask button should return false for IsOn")
-	}
-	if in.IsOnStart(ButtonA) {
-		t.Error("Mask button should return false for IsOnStart")
+	for now := range 2 {
+		in.Update(float64(now), &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+		for _, mask := range []Button{0, ButtonA} {
+			in.Mask = mask
+			if got := in.IsOn(ButtonA); got != (mask == 0) {
+				t.Errorf("Mask=%v: IsOn = %v, want %v", mask, got, mask == 0)
+			}
+			if in.IsOff(ButtonA) || in.IsOffStart(ButtonA) ||
+				in.IsOnEnd(ButtonA) || in.IsAnyOnEnd(ButtonA) {
+				t.Error("reading or masking a held button reported a release")
+			}
+			if in.On != ButtonA {
+				t.Error("query changed the held button's state")
+			}
+		}
 	}
 }
 
@@ -422,16 +516,16 @@ func TestMaskResetsOnUpdate(t *testing.T) {
 	in := NewIn()
 	in.MapKey(KeyA, ButtonA)
 	in.Update(0, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
-	if !in.IsOn(ButtonA) {
-		t.Error("Initial button should be on")
-	}
-	in.Mask |= ButtonA
-	if in.IsOn(ButtonA) {
-		t.Error("Mask button should return false for IsOn")
-	}
+	in.Mask |= ButtonA | ButtonB
 	in.Update(1, &InPoll{Kbd: KeyboardPoll{Keys: KeyA}}, zeroCam)
+	if in.Mask != 0 {
+		t.Errorf("Mask = %v, want 0 after Update", in.Mask)
+	}
 	if !in.IsOn(ButtonA) {
-		t.Error("Mask should be reset by Update")
+		t.Error("button should remain on")
+	}
+	if in.IsOnStart(ButtonA) || in.IsOffStart(ButtonA) {
+		t.Error("resetting Mask changed button edges")
 	}
 }
 

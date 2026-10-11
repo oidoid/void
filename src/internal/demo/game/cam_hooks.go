@@ -52,22 +52,30 @@ func UpdateCam(gam *Game) veng.Status {
 		stat |= veng.Loop
 		lvlScaleChanged = true
 	}
-	if in.IsOnStart(vin.ButtonScaleReset) && gam.ResetLvlScaleAt(anchor) {
-		stat |= veng.Loop
-		lvlScaleChanged = true
+	if in.IsOnStart(vin.ButtonScaleReset) {
+		in.Mask |= vin.ButtonScaleReset
+		if gam.ResetLvlScaleAt(anchor) {
+			stat |= veng.Loop
+			lvlScaleChanged = true
+		}
 	}
-	if in.IsOnStart(vin.ButtonScaleDec) &&
-		adjustLvlScaleAtKey(gam, anchor, -keyZoomDelta) {
-		stat |= veng.Loop
-		lvlScaleChanged = true
+	if in.IsOnStart(vin.ButtonScaleDec) {
+		in.Mask |= vin.ButtonScaleDec
+		if adjustLvlScaleAtKey(gam, anchor, -keyZoomDelta) {
+			stat |= veng.Loop
+			lvlScaleChanged = true
+		}
 	}
-	if in.IsOnStart(vin.ButtonScaleInc) &&
-		adjustLvlScaleAtKey(gam, anchor, keyZoomDelta) {
-		stat |= veng.Loop
-		lvlScaleChanged = true
+	if in.IsOnStart(vin.ButtonScaleInc) {
+		in.Mask |= vin.ButtonScaleInc
+		if adjustLvlScaleAtKey(gam, anchor, keyZoomDelta) {
+			stat |= veng.Loop
+			lvlScaleChanged = true
+		}
 	}
 	d := camKeyVel * float32(gam.DeltaSecs()) * tiles.ScaleOrDefault()
-	if in.IsOn(vin.ButtonC) {
+	if dirOn && in.IsOn(vin.ButtonC) {
+		in.Mask |= vin.ButtonC
 		d *= 10
 	}
 	keyBy := vgeo.NewXY(float32(in.Dir.X)*d, float32(in.Dir.Y)*d)

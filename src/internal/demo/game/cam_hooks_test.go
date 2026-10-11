@@ -94,6 +94,84 @@ func TestKeyZoomTarget(t *testing.T) {
 	}
 }
 
+func TestUpdateCamScaleMask(t *testing.T) {
+	for _, test := range []struct {
+		name        string
+		btn         vin.Button
+		scale, want float32
+	}{
+		{"reset", vin.ButtonScaleReset, 3, 4},
+		{"decrease", vin.ButtonScaleDec, 3, 2.75},
+		{"increase", vin.ButtonScaleInc, 3, 3.25},
+		{"at limit", vin.ButtonScaleInc, lvlScaleMax, lvlScaleMax},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			for _, masked := range []bool{false, true} {
+				gam := NewGame()
+				*gam.CanvasPhy() = vgeo.NewWH[uint16](2048, 1280)
+				gam.LvlZoom = test.scale
+				gam.UpdateLvlLayers()
+				in := gam.In()
+				in.On = test.btn | vin.ButtonA
+				in.Mask = vin.ButtonB
+				want := test.want
+				if masked {
+					in.Mask |= test.btn
+					want = test.scale
+				}
+				for range 2 {
+					UpdateCam(gam)
+					if got := gam.LvlZoom; got != want {
+						t.Errorf("masked=%v: scale = %v, want %v", masked, got, want)
+					}
+					if in.Mask != vin.ButtonB|test.btn {
+						t.Errorf("masked=%v: Mask = %v, want only used buttons",
+							masked, in.Mask)
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestUpdateCamBoostMask(t *testing.T) {
+	for _, test := range []struct {
+		name    string
+		mask    vin.Button
+		kbdMode bool
+		wantX   float32
+		claimed bool
+	}{
+		{"boost", vin.ButtonB, false, 40, true},
+		{"masked", vin.ButtonC, false, 4, true},
+		{"cursor keys", vin.ButtonB, true, 0, false},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			gam := NewGame()
+			*gam.Cam() = vgeo.XY[float32]{}
+			gam.Layer(gfx.LayerTiles).Scale = 4
+			gam.Poll().DeltaMillis = camKeyStepMillis()
+			gam.SetCursor(&veng.CursorEnt{KbdEnabled: test.kbdMode})
+			in := gam.In()
+			in.Dir = vgeo.NewXY[int8](1, 0)
+			in.DirOn = true
+			in.On = vin.ButtonR | vin.ButtonC | vin.ButtonA
+			in.Mask = test.mask
+			UpdateCam(gam)
+			if got := gam.Cam().X; got != test.wantX {
+				t.Errorf("cam X = %v, want %v", got, test.wantX)
+			}
+			wantMask := test.mask
+			if test.claimed {
+				wantMask |= vin.ButtonC
+			}
+			if in.Mask != wantMask {
+				t.Errorf("Mask = %v, want %v", in.Mask, wantMask)
+			}
+		})
+	}
+}
+
 func TestUpdateCamZoomEndSnapsNearInteger(t *testing.T) {
 	tests := []struct {
 		name        string

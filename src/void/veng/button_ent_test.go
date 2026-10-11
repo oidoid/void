@@ -107,6 +107,96 @@ func TestButtonEnt_ToggleClicksOnOffStart(t *testing.T) {
 	}
 }
 
+func TestButtonEnt_MasksPrimary(t *testing.T) {
+	for _, test := range []struct {
+		name string
+		typ  ButtonType
+	}{
+		{"button", ButtonTypeButton},
+		{"toggle", ButtonTypeToggle},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			eng := newButtonTestEng(vgeo.XYWH[float32](12, 12, 1, 1))
+			in := eng.In()
+			in.MapKey(vin.KeyA, vin.ButtonA)
+			ents := [2]ButtonEnt{{Type: test.typ}, {Type: test.typ}}
+			clicks := [2]int{}
+			for i := range ents {
+				ents[i].XY = vgeo.NewXY[float32](10, 10)
+				ents[i].WH = vgeo.NewWH[uint16](10, 10)
+				ents[i].OnClick = func(*ButtonEnt) {
+					if in.Mask&vin.ButtonA == 0 {
+						t.Error("callback ran before claiming ButtonA")
+					}
+					clicks[i]++
+				}
+			}
+			for now, keys := range []vin.Key{vin.KeyA, vin.KeyA, 0, 0} {
+				in.Update(float64(now), &vin.InPoll{
+					Kbd: vin.KeyboardPoll{Keys: keys},
+				}, vgeo.Box[float32]{})
+				for i := range ents {
+					ents[i].Update(eng)
+				}
+				wantMask := vin.ButtonA
+				if now == 3 {
+					wantMask = 0
+				}
+				if in.Mask != wantMask {
+					t.Errorf("update %d: Mask = %v, want %v", now, in.Mask, wantMask)
+				}
+				if ents[1].On || ents[1].Start {
+					t.Errorf("update %d: second button acted on claimed input", now)
+				}
+			}
+			if clicks != [2]int{1, 0} {
+				t.Errorf("clicks = %v, want [1 0]", clicks)
+			}
+		})
+	}
+}
+
+func TestButtonEnt_MaskedInput(t *testing.T) {
+	for _, typ := range []ButtonType{ButtonTypeButton, ButtonTypeToggle} {
+		for _, test := range []struct {
+			name string
+			on   bool
+			held bool
+		}{
+			{"press", false, true},
+			{"hold", true, true},
+			{"release", true, false},
+		} {
+			t.Run(test.name, func(t *testing.T) {
+				eng := newButtonTestEng(vgeo.XYWH[float32](12, 12, 1, 1))
+				ent := ButtonEnt{Type: typ, On: test.on}
+				ent.XY = vgeo.NewXY[float32](10, 10)
+				ent.WH = vgeo.NewWH[uint16](10, 10)
+				ent.OnClick = func(*ButtonEnt) { t.Error("masked input clicked") }
+				in := eng.In()
+				in.PrevOn = vin.ButtonA
+				if test.held {
+					in.On = vin.ButtonA
+				}
+				in.Mask = vin.ButtonA | vin.ButtonB
+				stat := ent.Update(eng)
+				if ent.Start || ent.Clicked() {
+					t.Error("masked input reported a transition")
+				}
+				if typ == ButtonTypeButton && (ent.On || test.on && stat != Loop) {
+					t.Error("masked input did not redraw the cancelled press")
+				}
+				if typ == ButtonTypeToggle && ent.On != test.on {
+					t.Error("masked input changed toggle state")
+				}
+				if in.Mask != vin.ButtonA|vin.ButtonB {
+					t.Errorf("Mask = %v, want ButtonA|ButtonB", in.Mask)
+				}
+			})
+		}
+	}
+}
+
 func newButtonTestEng(cursorPhy vgeo.Box[float32]) *Eng {
 	eng := NewEng(&EngOpts{MaxSprs: 1})
 	eng.Layer(0).Clip = vgeo.NewBox[float32](0, 0, 100, 100)

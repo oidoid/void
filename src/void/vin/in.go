@@ -67,105 +67,67 @@ func (this *In) IsHeld() bool {
 }
 
 // true if all unmasked buttons are off inclusively. eg, `IsOff(ButtonU)` is
-// true when up is released or when up and down are released. masks if true.
+// true when up is released or when up and down are released.
 func (this *In) IsOff(btns Button) bool {
-	if this.On&^this.Mask&btns == 0 {
-		this.Mask |= btns
-		return true
-	}
-	return false
+	return this.Mask&btns == 0 && this.On&btns == 0
 }
 
 // true if all unmasked buttons are off inclusively and at least one of those
 // buttons just turned off. eg, `IsOffStart(ButtonU)` is true when up is just
-// released or when up is just released and down is released. masks if true.
+// released or when up is just released and down is released.
 func (this *In) IsOffStart(btns Button) bool {
-	if this.On&^this.Mask&btns == 0 && this.PrevOn&btns != 0 {
-		this.Mask |= btns
-		return true
-	}
-	return false
+	return this.Mask&btns == 0 &&
+		this.On&btns == 0 && this.PrevOn&btns != 0
 }
 
-// true if all unmasked buttons just became on from a fully off state. masks if
-// true.
+// true if all unmasked buttons just became on from a fully off state.
 func (this *In) IsOffEnd(btns Button) bool {
-	if this.On&^this.Mask&btns == btns && this.PrevOn&btns == 0 {
-		this.Mask |= btns
-		return true
-	}
-	return false
+	return this.Mask&btns == 0 &&
+		this.On&btns == btns && this.PrevOn&btns == 0
 }
 
 // true if all unmasked buttons are on inclusively. eg, `IsOn(ButtonU)` is true
-// when up is pressed or when up and down are pressed.  masks if true.
+// when up is pressed or when up and down are pressed.
 func (this *In) IsOn(btns Button) bool {
-	if this.On&^this.Mask&btns == btns {
-		this.Mask |= btns
-		return true
-	}
-	return false
+	return this.On&^this.Mask&btns == btns
 }
 
 // true if all unmasked buttons are on inclusively and at least one of those
 // buttons just turned on. eg, `IsOnStart(ButtonU)` is true when up is just
-// pressed or when up is just pressed and down is pressed. masks if true.
+// pressed or when up is just pressed and down is pressed.
 func (this *In) IsOnStart(btns Button) bool {
-	if this.On&^this.Mask&btns == btns && this.PrevOn&btns != btns {
-		this.Mask |= btns
-		return true
-	}
-	return false
+	return this.On&^this.Mask&btns == btns && this.PrevOn&btns != btns
 }
 
 // true if any unmasked button is off and all buttons were previously on
 // inclusively. eg, `IsOnEnd(ButtonU)` is true when up is just released or when
-// up is just released and down is released. masks if true.
+// up is just released and down is released.
 func (this *In) IsOnEnd(btns Button) bool {
-	if this.On&^this.Mask&btns != btns && this.PrevOn&btns == btns {
-		this.Mask |= btns
-		return true
-	}
-	return false
+	return this.Mask&btns == 0 &&
+		this.On&btns != btns && this.PrevOn&btns == btns
 }
 
 // true if any unmasked button is on inclusively. eg, `IsAnyOn(ButtonU)` is true
-// when up is pressed or when up and down are pressed. masks if true.
+// when up is pressed or when up and down are pressed.
 func (this *In) IsAnyOn(btns Button) bool {
-	if this.On&^this.Mask&btns != 0 {
-		this.Mask |= btns
-		return true
-	}
-	return false
+	return this.On&^this.Mask&btns != 0
 }
 
 // true if any unmasked button is on inclusively and at least one of those
 // buttons just turned on. eg, `IsAnyOnStart(ButtonU)` is true when up is just
-// pressed or when up is just pressed and down is pressed. masks if true.
+// pressed or when up is just pressed and down is pressed.
 func (this *In) IsAnyOnStart(btns Button) bool {
-	if this.On&^this.Mask&^this.PrevOn&btns != 0 {
-		this.Mask |= btns
-		return true
-	}
-	return false
+	return this.On&^this.PrevOn&^this.Mask&btns != 0
 }
 
-// true if any button just turned off this frame. masks if true.
+// true if any button just turned off this frame.
 func (this *In) IsAnyOnEnd(btns Button) bool {
-	if this.PrevOn&^this.On&btns != 0 {
-		this.Mask |= btns
-		return true
-	}
-	return false
+	return this.PrevOn&^this.On&^this.Mask&btns != 0
 }
 
-// true if any unmasked button just changed. masks if true.
+// true if any unmasked button just changed.
 func (this *In) IsAnyStart(btns Button) bool {
-	if (this.On^this.PrevOn)&^this.Mask&btns != 0 {
-		this.Mask |= btns
-		return true
-	}
-	return false
+	return (this.On^this.PrevOn)&^this.Mask&btns != 0
 }
 
 // reports when any directional button becomes active.

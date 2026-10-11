@@ -87,8 +87,7 @@ func (this *ButtonEnt) Update(eng *Eng) Status {
 		hi := layer.PhyToLayer(cursorPhy.Max)
 		this.Focused = bounds.HitsBox(vgeo.Box[float32]{Min: lo, Max: hi})
 	}
-	offStart := this.Type == ButtonTypeToggle && this.Focused &&
-		in.IsOffStart(vin.ButtonA)
+	offStart := this.Focused && in.IsOffStart(vin.ButtonA)
 	pressed := this.Focused && in.IsOn(vin.ButtonA)
 	wasOn := this.On
 	if this.Type == ButtonTypeToggle {
@@ -98,9 +97,12 @@ func (this *ButtonEnt) Update(eng *Eng) Status {
 	} else {
 		this.On = pressed
 	}
-	this.Start = wasOn != this.On
+	this.Start = wasOn != this.On && (pressed || offStart)
+	if pressed || this.Clicked() {
+		in.Mask |= vin.ButtonA
+	}
 	loop := Pause
-	if pressed {
+	if pressed || wasOn != this.On {
 		loop = Loop
 	}
 

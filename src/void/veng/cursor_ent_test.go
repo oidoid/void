@@ -102,10 +102,34 @@ func TestUpdate_RestoresPointTag(t *testing.T) {
 		t.Errorf("picked Tag = %d, want 2", got)
 	}
 	in.On = 0
-	in.Mask = 0
 	updateCursorEnt(&ent, in, &sprs, 0, &layer)
 	if got := sprs[1].Tag(); got != 1 {
 		t.Errorf("released Tag = %d, want 1", got)
+	}
+}
+
+func TestCursorEnt_DoesNotMaskInput(t *testing.T) {
+	for _, mask := range []vin.Button{0, vin.ButtonA, vin.ButtonB} {
+		eng := NewEng(&EngOpts{MaxSprs: 1})
+		ent := NewCursorEnt(
+			vboards.Spawn{Tag: 1}, 2, 10, vgeo.XYWH[uint16](0, 0, 1, 1),
+		)
+		ent.KbdEnabled = true
+		in := eng.In()
+		in.On = vin.ButtonA
+		in.Mask = mask
+		pressed := in.IsOnStart(vin.ButtonA)
+		ent.Update(eng)
+		wantTag := ent.pointTag
+		if pressed {
+			wantTag = ent.pickTag
+		}
+		if ent.Visible != pressed || ent.Spr.Tag() != wantTag {
+			t.Errorf("Mask=%v: cursor did not reflect the available press", mask)
+		}
+		if in.Mask != mask || in.IsOnStart(vin.ButtonA) != pressed {
+			t.Errorf("Mask=%v: cursor changed input state", mask)
+		}
 	}
 }
 
