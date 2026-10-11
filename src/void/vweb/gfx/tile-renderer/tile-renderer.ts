@@ -1,4 +1,4 @@
-import type {BoardConfig} from '../board-config.ts'
+import type {BoardConfig} from '../../boards/board-config.ts'
 import {buildProgram} from '../gl.ts'
 import tileFrag from './tile.frag.glsl'
 import tileVert from './tile.vert.glsl'

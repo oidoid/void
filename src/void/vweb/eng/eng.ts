@@ -1,6 +1,12 @@
-import {In} from '../input/in.ts'
-import type {BoardConfig} from '../renderer/board-config.ts'
-import {getWebGL2, Renderer} from '../renderer/renderer.ts'
+import type {BoardConfig} from '../boards/board-config.ts'
+import type {
+  LayerBlendMode,
+  LayerCamMode,
+  LayerConfig,
+  Shader
+} from '../gfx/layer-config.ts'
+import {getWebGL2, Renderer} from '../gfx/renderer.ts'
+import {In} from '../in/in.ts'
 import {beep, SFX} from '../sfx/sfx.ts'
 import {downloadScreenshot, initCanvas} from '../utils/canvas-util.ts'
 import {initBody, initMetaViewport} from '../utils/dom-util.ts'
@@ -9,12 +15,6 @@ import * as bridge from './bridge.ts'
 import {debug} from './debug.ts'
 import type {AnyEvent} from './event.ts'
 import {Fullscreen} from './fullscreen.ts'
-import type {
-  LayerBlendMode,
-  LayerCamMode,
-  LayerConfig,
-  Shader
-} from './layer-config.ts'
 import {PixelRatioObserver} from './pixel-ratio-observer.ts'
 import type {Platform} from './platform.ts'
 import {Wakelock} from './wakelock.ts'

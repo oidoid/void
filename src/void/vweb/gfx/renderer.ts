@@ -1,8 +1,8 @@
 const layerBlendModeMultiply = 1
 const layerBlendModeReplace = 2
 
+import type {BoardConfig} from '../boards/board-config.ts'
 import type {XYWH} from '../geo/box.ts'
-import type {BoardConfig} from './board-config.ts'
 import {ClipRenderer} from './clip-renderer/clip-renderer.ts'
 import {OverlayRenderer} from './overlay-renderer/overlay-renderer.ts'
 import {SprRenderer} from './spr-renderer/spr-renderer.ts'

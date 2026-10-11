@@ -7,7 +7,7 @@ import type {
   shaderOverlay,
   shaderSprs,
   shaderTiles
-} from './bridge.ts'
+} from '../eng/bridge.ts'
 
 export type LayerCamMode = typeof layerCamModeApply | typeof layerCamModeFixed
 export type LayerBlendMode =
