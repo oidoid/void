@@ -369,7 +369,7 @@ export class Eng {
   #onInput = (ev: AnyEvent): void => {
     if (ev === 'input-pointerdown' || ev === 'input-keydown') {
       this.#deferFullscreenReq = true
-      this.update('Force')
+      this.#reqUpdate('Force')
       return
     }
     if (
@@ -378,7 +378,7 @@ export class Eng {
       ev === 'input-keyup'
     ) {
       this.#deferFullscreenReq = false
-      this.update('Force')
+      this.#reqUpdate('Force')
       return
     }
     this.#reqUpdate()
