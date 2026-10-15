@@ -614,10 +614,13 @@ func parseBoxes(
 				)
 			}
 		}
-		box := vgeo.XYWH(
-			uint16(first.X), uint16(first.Y),
-			uint16(first.W), uint16(first.H),
-		)
+		var box vgeo.Box[uint16]
+		if first.W != 0 && first.H != 0 {
+			box = vgeo.XYWH(
+				uint16(first.X), uint16(first.Y),
+				uint16(first.W), uint16(first.H),
+			)
+		}
 		switch assetSlice.RGBA {
 		case vatlas.AseRGBA{R: 255, A: 255}:
 			hit = box

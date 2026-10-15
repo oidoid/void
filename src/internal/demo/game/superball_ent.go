@@ -90,7 +90,7 @@ func (this *SuperballEnt) Hit(other *SuperballEnt, diameter float32) bool {
 		dx = -dx
 	}
 	dx = diameter - dx
-	if dx <= 0 {
+	if dx < 0 {
 		return false
 	}
 	dy := other.Y - this.Y
@@ -98,7 +98,7 @@ func (this *SuperballEnt) Hit(other *SuperballEnt, diameter float32) bool {
 		dy = -dy
 	}
 	dy = diameter - dy
-	if dy <= 0 {
+	if dy < 0 {
 		return false
 	}
 	if dx < dy {

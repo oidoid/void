@@ -270,6 +270,24 @@ func TestParseHitboxes(t *testing.T) {
 			hurt:   vgeo.XYWH[uint16](1, 2, 3, 4),
 		},
 		{
+			name:   "one pixel",
+			slices: []assetSlice{makeSlice("run", blue, box(2, 3, 1, 1))},
+			hit:    vgeo.XYWH[uint16](2, 3, 1, 1),
+			hurt:   vgeo.XYWH[uint16](2, 3, 1, 1),
+		},
+		{
+			name:   "zero width",
+			slices: []assetSlice{makeSlice("run", green, box(4, 5, 0, 1))},
+		},
+		{
+			name:   "zero height",
+			slices: []assetSlice{makeSlice("run", red, box(4, 5, 1, 0))},
+		},
+		{
+			name:   "empty shared",
+			slices: []assetSlice{makeSlice("run", blue, box(4, 5, 0, 0))},
+		},
+		{
 			name:   "different tag",
 			slices: []assetSlice{makeSlice("idle", red, box(1, 2, 3, 4))},
 		},

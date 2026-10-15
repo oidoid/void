@@ -11,8 +11,8 @@ type Anim struct {
 	Cels uint8
 	// clipbox / source area.
 	W, H uint16
-	// outgoing collision rectangle (red / blue). may be zero.
+	// inclusive outgoing collision bounds (red / blue). zero disables.
 	Hitbox vgeo.Box[uint16]
-	// incoming collision rectangle (green / blue). may be zero.
+	// inclusive incoming collision bounds (green / blue). zero disables.
 	Hurtbox vgeo.Box[uint16]
 }

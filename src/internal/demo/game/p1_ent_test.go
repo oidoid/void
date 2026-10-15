@@ -102,13 +102,13 @@ func TestP1EntTurnsRightAtWalls(t *testing.T) {
 		dir   vgeo.Dir
 		moves int
 	}{
-		{xy: vgeo.NewXY(112-wallGap, 32), dir: vgeo.DirS, moves: 20},
+		{xy: vgeo.NewXY(111-wallGap, 32), dir: vgeo.DirS, moves: 20},
 		{
-			xy:    vgeo.NewXY(112-wallGap, 112-wallGap),
+			xy:    vgeo.NewXY(111-wallGap, 111-wallGap),
 			dir:   vgeo.DirW,
 			moves: 20,
 		},
-		{xy: vgeo.NewXY(16, 112-wallGap), dir: vgeo.DirN, moves: 24},
+		{xy: vgeo.NewXY(16, 111-wallGap), dir: vgeo.DirN, moves: 24},
 		{xy: vgeo.NewXY[float32](16, 16), dir: vgeo.DirE, moves: 24},
 	}
 	for _, want := range wants {
