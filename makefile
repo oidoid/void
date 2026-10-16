@@ -19,6 +19,8 @@ go_test_filter = \
 # precise GC lets the collector skip scanning pointer-free heap objects instead
 # of conservatively treating every word as a possible pointer.
 tinygo_flags += --trimpath $(go_tags) --ldflags="-X github.com/oidoid/void/src/internal/demo/game.Version=$(bundle_id)" --scheduler=none --gc=precise $(if $(value DEBUG),,$(tinygo_nodebug) --panic=trap) $(if $(value V),--print-allocs=.,)
+# defer initializer loops to runtime in debug builds for faster rebuilds.
+tinygo_flags += $(if $(value DEBUG),--interp-loop-limit=1,)
 # $(1) flags
 pack_demo = go run ./src/cmd/pack --out=dist/demo/ --tsconfig=src/internal/demo/web/tsconfig.json $(1) src/internal/demo/web/assets/index.html
 # $(1) flags
