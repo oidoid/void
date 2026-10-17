@@ -63,6 +63,11 @@ func (this *Spr) SetCel(cel uint8) {
 	)
 }
 
+// pause on the current cel. must be called every update to retain.
+func (this *Spr) Pause(nowMillis float64) {
+	this.SetCel(this.Cel() + AnimStartCel(nowMillis))
+}
+
 func (this *Spr) Hidden() bool {
 	return this.flags>>sprHiddenShift&sprHiddenMask != 0
 }

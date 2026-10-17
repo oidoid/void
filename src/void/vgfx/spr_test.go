@@ -6,6 +6,39 @@ import (
 	"github.com/oidoid/void/src/void/vatlas"
 )
 
+func TestSprPauseRecordedCel(t *testing.T) {
+	tests := []struct {
+		name      string
+		cel       uint8
+		nowMillis float64
+	}{
+		{name: "zero cel", nowMillis: 312.5},
+		{name: "recorded cel", cel: 5, nowMillis: 312.5},
+		{name: "before tick", cel: 5, nowMillis: 62.4},
+		{name: "tick", cel: 5, nowMillis: 62.5},
+		{name: "offset wrap", cel: 15, nowMillis: 62.5},
+		{name: "before clock wrap", cel: 5, nowMillis: 999},
+		{name: "clock wrap", cel: 5, nowMillis: 1000},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			const tag = vatlas.Tag(0xabc)
+			spr := Spr{TagCel: tag.Cel(test.cel)}
+			spr.Pause(test.nowMillis)
+			// resolve the cel with the unchanged sprite shader's clock.
+			cel := (uint64(spr.TagCel) +
+				uint64(test.nowMillis/vatlas.CelMillis)) &
+				uint64(vatlas.TagCelMask)
+			if cel != uint64(test.cel) {
+				t.Fatalf("rendered cel = %d, want %d", cel, test.cel)
+			}
+			if spr.Tag() != tag {
+				t.Fatalf("tag = %d, want %d", spr.Tag(), tag)
+			}
+		})
+	}
+}
+
 func TestSprPal(t *testing.T) {
 	spr := Spr{flags: sprHiddenMask<<sprHiddenShift |
 		sprFlipYMask<<sprFlipYShift |
