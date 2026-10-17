@@ -39,8 +39,47 @@ func TestBoardTileAt(t *testing.T) {
 			if got := board.TileAt(test.xy).Tag(); got != test.wantTag {
 				t.Fatalf("TileAt(%v) = %v, want %v", test.xy, got, test.wantTag)
 			}
-			if got := board.HitsAt(test.xy); got != test.wantHits {
+			if got := board.HitsXY(test.xy); got != test.wantHits {
 				t.Fatalf("HitsAt(%v) = %v, want %v", test.xy, got, test.wantHits)
+			}
+		})
+	}
+}
+
+func TestBoardHitsBox(t *testing.T) {
+	board := Board{
+		WH:    vgeo.NewWH[int32](20, 15),
+		Tile:  vgeo.NewWH[uint8](4, 3),
+		Tiles: make([]Tile, 25),
+	}
+	board.Tiles[0] = NewTile(2, false)
+	board.Tiles[2*5+2] = NewTile(1, true)
+	for _, test := range []struct {
+		name string
+		box  vgeo.Box[float32]
+		want bool
+	}{
+		{"non-solid tile", vgeo.XYWH[float32](0, 0, 3, 2), false},
+		{"inside solid tile", vgeo.XYWH[float32](8.25, 6.25, 0.5, 0.5), true},
+		{"right endpoint", vgeo.XYWH[float32](4, 6, 4, 0), true},
+		{"bottom endpoint", vgeo.XYWH[float32](8, 3, 0, 3), true},
+		{"before solid tile", vgeo.XYWH[float32](4, 6, 3.75, 0), false},
+		{"above solid tile", vgeo.XYWH[float32](8, 3, 0, 2.75), false},
+		{"after solid tile", vgeo.XYWH[float32](12, 6, 0, 0), false},
+		{"below solid tile", vgeo.XYWH[float32](8, 9, 0, 0), false},
+		{"solid tile inside box", vgeo.XYWH[float32](0, 0, 19, 14), true},
+		{"solid tile along edge", vgeo.XYWH[float32](0, 6, 19, 0), true},
+		{"crossing tile corner", vgeo.XYWH[float32](7.5, 5.5, 1, 1), true},
+		{"outside left edge", vgeo.XYWH[float32](-0.25, 0, 0, 0), true},
+		{"outside top edge", vgeo.XYWH[float32](0, -0.25, 0, 0), true},
+		{"inside right edge", vgeo.XYWH[float32](19.75, 0, 0, 0), false},
+		{"inside bottom edge", vgeo.XYWH[float32](0, 14.75, 0, 0), false},
+		{"right board edge", vgeo.XYWH[float32](20, 0, 0, 0), true},
+		{"bottom board edge", vgeo.XYWH[float32](0, 15, 0, 0), true},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			if got := board.HitsBox(test.box); got != test.want {
+				t.Fatalf("HitsBox(%v) = %v, want %v", test.box, got, test.want)
 			}
 		})
 	}

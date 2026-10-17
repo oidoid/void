@@ -99,19 +99,19 @@ func (this *P1Ent) hitsWall(
 		if this.Dir == vgeo.DirE {
 			tileX = maxX
 		}
-		if board.HitsAt(vgeo.NewXY(tileX, minY)) {
+		if board.HitsXY(vgeo.NewXY(tileX, minY)) {
 			return true
 		}
-		return board.HitsAt(vgeo.NewXY(tileX, maxY))
+		return board.HitsXY(vgeo.NewXY(tileX, maxY))
 	case vgeo.DirN, vgeo.DirS:
 		tileY := minY
 		if this.Dir == vgeo.DirS {
 			tileY = maxY
 		}
-		if board.HitsAt(vgeo.NewXY(minX, tileY)) {
+		if board.HitsXY(vgeo.NewXY(minX, tileY)) {
 			return true
 		}
-		return board.HitsAt(vgeo.NewXY(maxX, tileY))
+		return board.HitsXY(vgeo.NewXY(maxX, tileY))
 	}
 	return false
 }
