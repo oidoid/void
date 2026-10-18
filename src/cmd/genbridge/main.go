@@ -10,6 +10,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/veng"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vin"
@@ -35,6 +36,8 @@ func main() {
 
 func generate() []byte {
 	data := map[string]any{
+		"TagMeta":                  reflect.TypeFor[vatlas.TagMeta](),
+		"AtlasCel":                 reflect.TypeFor[vatlas.Cel](),
 		"PtrPoll":                  reflect.TypeFor[vin.PtrPoll](),
 		"GamepadPoll":              reflect.TypeFor[vin.GamepadPoll](),
 		"Poll":                     reflect.TypeFor[veng.Poll](),

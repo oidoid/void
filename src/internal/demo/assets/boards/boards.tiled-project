@@ -31,31 +31,6 @@
             ]
         },
         {
-            "id": 7,
-            "name": "Cel",
-            "storageType": "int",
-            "type": "enum",
-            "values": [
-                "0",
-                "1",
-                "2",
-                "3",
-                "4",
-                "5",
-                "6",
-                "7",
-                "8",
-                "9",
-                "10",
-                "11",
-                "12",
-                "13",
-                "14",
-                "15"
-            ],
-            "valuesAsFlags": false
-        },
-        {
             "id": 4,
             "name": "Layer",
             "storageType": "int",
@@ -120,7 +95,6 @@
             "members": [
                 {
                     "name": "Cel",
-                    "propertyType": "Cel",
                     "type": "int",
                     "value": 0
                 },
@@ -186,7 +160,6 @@
                 },
                 {
                     "name": "Cel",
-                    "propertyType": "Cel",
                     "type": "int",
                     "value": 0
                 },
@@ -268,7 +241,6 @@
             "members": [
                 {
                     "name": "Cel",
-                    "propertyType": "Cel",
                     "type": "int",
                     "value": 0
                 },

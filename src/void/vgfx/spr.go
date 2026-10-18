@@ -7,14 +7,11 @@ import (
 	"github.com/oidoid/void/src/void/vgeo"
 )
 
-// to-do: how much do we care about sprite size with culling?
-// to-do: rename Spr or Bmp or Anim. Anim is better aligned to parsing but Spr
-// is a better fit for games.
 type Spr struct {
 	vgeo.XY[float32]
-	TagCel vatlas.TagCel
-	Z      Z // to-do: bake into flags and expose setter?
-	_      [1]byte
+	Tag vatlas.Tag
+	Cel uint8
+	Z   Z
 	vgeo.WH[uint16]
 	flags uint32
 }
@@ -40,33 +37,6 @@ const (
 
 	sprRotRadians = float32(2 * 3.141592653589793 / 4096)
 )
-
-func (this *Spr) Tag() vatlas.Tag {
-	return vatlas.Tag(this.TagCel >> vatlas.TagCelShift)
-}
-
-func (this *Spr) SetTag(tag vatlas.Tag) {
-	this.TagCel = vatlas.TagCel(
-		uint16(tag)<<vatlas.TagCelShift |
-			uint16(this.TagCel)&uint16(vatlas.TagCelMask),
-	)
-}
-
-func (this *Spr) Cel() uint8 {
-	return uint8(this.TagCel & vatlas.TagCelMask)
-}
-
-func (this *Spr) SetCel(cel uint8) {
-	this.TagCel = vatlas.TagCel(
-		uint16(this.TagCel)&^uint16(vatlas.TagCelMask) |
-			uint16(cel&uint8(vatlas.TagCelMask)),
-	)
-}
-
-// pause on the current cel. must be called every update to retain.
-func (this *Spr) Pause(nowMillis float64) {
-	this.SetCel(this.Cel() + AnimStartCel(nowMillis))
-}
 
 func (this *Spr) Hidden() bool {
 	return this.flags>>sprHiddenShift&sprHiddenMask != 0

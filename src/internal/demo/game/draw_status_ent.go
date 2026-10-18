@@ -32,11 +32,11 @@ func NewDrawStatusEnt(
 	this := DrawStatusEnt{}
 	this.Fill = veng.NinePatchEnt{
 		PatchByDir: [9]vgfx.Spr{
-			vgeo.DirE:      {TagCel: fillTag.Cel(0)},
-			vgeo.DirN:      {TagCel: fillTag.Cel(0)},
-			vgeo.DirW:      {TagCel: fillTag.Cel(0)},
-			vgeo.DirS:      {TagCel: fillTag.Cel(0)},
-			vgeo.DirCenter: {TagCel: fillTag.Cel(0)},
+			vgeo.DirE:      {Tag: fillTag},
+			vgeo.DirN:      {Tag: fillTag},
+			vgeo.DirW:      {Tag: fillTag},
+			vgeo.DirS:      {Tag: fillTag},
+			vgeo.DirCenter: {Tag: fillTag},
 		},
 		CornerWH: vgeo.NewWH[uint16](1, 1),
 	}

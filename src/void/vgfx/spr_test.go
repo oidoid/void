@@ -6,54 +6,34 @@ import (
 	"github.com/oidoid/void/src/void/vatlas"
 )
 
-func TestSprPauseRecordedCel(t *testing.T) {
-	tests := []struct {
-		name      string
-		cel       uint8
-		nowMillis float64
-	}{
-		{name: "zero cel", nowMillis: 312.5},
-		{name: "recorded cel", cel: 5, nowMillis: 312.5},
-		{name: "before tick", cel: 5, nowMillis: 62.4},
-		{name: "tick", cel: 5, nowMillis: 62.5},
-		{name: "offset wrap", cel: 15, nowMillis: 62.5},
-		{name: "before clock wrap", cel: 5, nowMillis: 999},
-		{name: "clock wrap", cel: 5, nowMillis: 1000},
+func TestSprLayout(t *testing.T) {
+	if SprStride != 20 {
+		t.Fatalf("sprite stride = %d, want 20", SprStride)
 	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			const tag = vatlas.Tag(0xabc)
-			spr := Spr{TagCel: tag.Cel(test.cel)}
-			spr.Pause(test.nowMillis)
-			// resolve the cel with the unchanged sprite shader's clock.
-			cel := (uint64(spr.TagCel) +
-				uint64(test.nowMillis/vatlas.CelMillis)) &
-				uint64(vatlas.TagCelMask)
-			if cel != uint64(test.cel) {
-				t.Fatalf("rendered cel = %d, want %d", cel, test.cel)
-			}
-			if spr.Tag() != tag {
-				t.Fatalf("tag = %d, want %d", spr.Tag(), tag)
-			}
-		})
+	spr := Spr{Tag: 4095, Cel: 255, Z: Layer(7).Z(15)}
+	spr.SetRot(sprRotRadians * 4095)
+	spr.SetPal(255)
+	spr.Hide(true)
+	spr.SetFlipX(true)
+	spr.SetFlipY(true)
+	spr.SetStretch(true)
+	spr.SetZTop(true)
+	if spr.Tag != 4095 || spr.Cel != 255 || spr.Z != Layer(7).Z(15) {
+		t.Fatal("flags changed tag, cel, or draw order")
 	}
 }
 
 func TestSprPal(t *testing.T) {
-	spr := Spr{flags: sprHiddenMask<<sprHiddenShift |
-		sprFlipYMask<<sprFlipYShift |
-		sprStretchMask<<sprStretchShift}
+	spr := Spr{Tag: 4095}
+	spr.Hide(true)
+	spr.SetFlipY(true)
+	spr.SetStretch(true)
 	spr.SetPal(vatlas.Tag(0xff))
 	if got := spr.Pal(); got != 0xff {
 		t.Fatalf("Pal() = %d, want %d", got, 0xff)
 	}
-	if spr.flags&(sprHiddenMask<<sprHiddenShift|
-		sprFlipYMask<<sprFlipYShift|
-		sprStretchMask<<sprStretchShift) !=
-		sprHiddenMask<<sprHiddenShift|
-			sprFlipYMask<<sprFlipYShift|
-			sprStretchMask<<sprStretchShift {
-		t.Fatalf("SetPal() changed unrelated flags: %b", spr.flags)
+	if !spr.Hidden() || !spr.FlipY() || !spr.Stretch() || spr.Tag != 4095 {
+		t.Fatal("SetPal() changed unrelated fields")
 	}
 	spr.SetPal(0)
 	if got := spr.Pal(); got != 0 {
@@ -62,8 +42,9 @@ func TestSprPal(t *testing.T) {
 }
 
 func TestSprZTop(t *testing.T) {
-	spr := Spr{flags: sprHiddenMask<<sprHiddenShift |
-		sprPalTagMask<<sprPalTagShift}
+	spr := Spr{Tag: 4095}
+	spr.Hide(true)
+	spr.SetPal(255)
 
 	if spr.ZTop() {
 		t.Fatal("ZTop() = true, want false")
@@ -73,11 +54,8 @@ func TestSprZTop(t *testing.T) {
 	if !spr.ZTop() {
 		t.Fatal("ZTop() = false, want true")
 	}
-	if spr.flags&(sprHiddenMask<<sprHiddenShift|
-		sprPalTagMask<<sprPalTagShift) !=
-		sprHiddenMask<<sprHiddenShift|
-			sprPalTagMask<<sprPalTagShift {
-		t.Fatalf("SetZTop(true) changed unrelated flags: %b", spr.flags)
+	if !spr.Hidden() || spr.Pal() != 255 || spr.Tag != 4095 {
+		t.Fatal("SetZTop(true) changed unrelated fields")
 	}
 
 	spr.SetZTop(false)
@@ -87,12 +65,13 @@ func TestSprZTop(t *testing.T) {
 }
 
 func TestSprRot(t *testing.T) {
-	spr := Spr{flags: sprHiddenMask << sprHiddenShift}
+	spr := Spr{Tag: 4095}
+	spr.Hide(true)
 	spr.SetRot(sprRotRadians * 1024)
 	if got, want := spr.Rot(), sprRotRadians*1024; got != want {
 		t.Fatalf("Rot() = %f, want %f", got, want)
 	}
-	if spr.flags&sprHiddenMask<<sprHiddenShift == 0 {
+	if !spr.Hidden() || spr.Tag != 4095 {
 		t.Fatal("SetRot() cleared Hidden")
 	}
 	spr.SetRot(-sprRotRadians)

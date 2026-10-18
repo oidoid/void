@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/json"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -61,38 +62,43 @@ func TestNameToIdent(t *testing.T) {
 	}
 }
 
-func TestTagFrameI(t *testing.T) {
-	for _, test := range []struct {
-		name string
-		dir  vatlas.AseDir
-		want []int
-	}{
-		{"forward", vatlas.AseDirForward, []int{2, 3, 4}},
-		{"reverse", vatlas.AseDirReverse, []int{4, 3, 2}},
-		{"ping pong", vatlas.AseDirPingPong, []int{2, 3, 4, 3}},
-		{
-			"reverse ping pong",
-			vatlas.AseDirPingPongReverse,
-			[]int{4, 3, 2, 3},
-		},
+func TestParseFramesKeepsCels(t *testing.T) {
+	// duration, direction, and repeat do not duplicate, omit, or reorder cels.
+	for _, dir := range []vatlas.AnimDir{
+		vatlas.AnimDirForward, vatlas.AnimDirReverse,
+		vatlas.AnimDirPingPong, vatlas.AnimDirPingPongReverse,
 	} {
-		t.Run(test.name, func(t *testing.T) {
-			tag := assetTagSpan{AseTagSpan: vatlas.AseTagSpan{
-				Header: vatlas.AseTagSpanHeader{
-					From:      2,
-					To:        4,
-					Direction: test.dir,
-				},
+		file := &asset{
+			W: 1, H: 1, ColorDepth: vatlas.AseColorRGBA,
+			Frames: make([]assetFrame, 255),
+			Layers: []assetLayer{{AseLayer: vatlas.AseLayer{
+				Header: vatlas.AseLayerHeader{Flags: 1, Opacity: 255},
+			}}},
+		}
+		for i := range file.Frames {
+			file.Frames[i] = assetFrame{Millis: uint16(i * 100), Cels: map[uint16]assetCel{
+				0: {LinkedFrame: -1, AseCel: vatlas.AseCel{
+					Header: vatlas.AseCelHeader{Opacity: 255},
+					Image:  vatlas.AseCelImageHeader{W: 1, H: 1},
+					Pxs:    []byte{byte(i), byte(i >> 8), 0, 255},
+				}},
 			}}
-			if got := framePeriod(tag); got != len(test.want) {
-				t.Errorf("framePeriod(_) = %d, want %d", got, len(test.want))
+		}
+		span := assetTagSpan{AseTagSpan: vatlas.AseTagSpan{
+			Header: vatlas.AseTagSpanHeader{To: 254, Direction: dir, Repeat: 3},
+		}}
+		frames, err := parseFrames(file, span)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(frames) != 255 {
+			t.Fatalf("frame count = %d, want 255", len(frames))
+		}
+		for i, frame := range frames {
+			if !bytes.Equal(frame.pxs, []byte{byte(i), byte(i >> 8), 0, 255}) {
+				t.Fatalf("direction %d frame %d = %v", dir, i, frame.pxs)
 			}
-			for i, want := range test.want {
-				if got := frameIndex(tag, i); got != want {
-					t.Errorf("frameIndex(_, %d) = %d, want %d", i, got, want)
-				}
-			}
-		})
+		}
 	}
 }
 
@@ -140,15 +146,15 @@ func TestBaseColorSlots(t *testing.T) {
 func TestPlaceCelsDeduplicates(t *testing.T) {
 	anims := []swappedAnim{
 		{
-			Anim:   vatlas.Anim{Cels: 1, W: 1, H: 1},
+			meta:   vatlas.TagMeta{Cels: 1, WH: vgeo.NewWH[uint16](1, 1)},
 			frames: []swappedFrame{{1, 2, 3, 4}},
 		},
 		{
-			Anim:   vatlas.Anim{Cels: 1, W: 1, H: 1},
+			meta:   vatlas.TagMeta{Cels: 1, WH: vgeo.NewWH[uint16](1, 1)},
 			frames: []swappedFrame{{1, 2, 3, 4}},
 		},
 		{
-			Anim:   vatlas.Anim{Cels: 1, W: 1, H: 1},
+			meta:   vatlas.TagMeta{Cels: 1, WH: vgeo.NewWH[uint16](1, 1)},
 			frames: []swappedFrame{{5, 6, 7, 8}},
 		},
 	}
@@ -188,19 +194,25 @@ func TestParseAtlasNativeTiles(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(atlas.Anims) != 4 || len(keys) != 1 {
+	if len(atlas.Meta) != 4 || len(keys) != 1 {
 		t.Fatalf("got %d anims and %d keys, want 4 and 1",
-			len(atlas.Anims), len(keys))
+			len(atlas.Meta), len(keys))
+	}
+	decoded := vatlas.DecodeAtlas(vatlas.EncodeAtlas(atlas))
+	for i, cel := range decoded.Cels {
+		if cel.Millis != 1 {
+			t.Errorf("generated cel %d duration = %d, want 1 ms", i, cel.Millis)
+		}
 	}
 	for tileID := range 3 {
 		tag := tileID + len(keys)
-		if got := atlas.Anims[tag]; got.Cels != 1 || got.W != 1 || got.H != 1 {
-			t.Errorf("tile %d anim = %#v", tileID, got)
+		if meta := atlas.Meta[tag]; meta.Cels != 1 || meta.W != 1 || meta.H != 1 {
+			t.Errorf("tile %d meta = %#v", tileID, meta)
 		}
 	}
 	for tag, want := range []vatlas.AseRGBA{{}, red, green} {
-		cel := atlas.Cels[((tag+1)*vatlas.CelsPerAnim)*4:]
-		px := img.Pix[int(cel[1])*img.Stride+int(cel[0])*4:]
+		cel := atlas.Cel(vatlas.Tag(tag+1), 0)
+		px := img.Pix[int(cel.Y)*img.Stride+int(cel.X)*4:]
 		if got := (vatlas.AseRGBA{R: px[0], G: px[1], B: px[2], A: px[3]}); got != want {
 			t.Errorf("tile %d pixel = %#v, want %#v", tag, got, want)
 		}
@@ -352,12 +364,12 @@ func TestReadAsepriteFontPaletteData(t *testing.T) {
 		if key.stem != "mem-prop-5x6" {
 			continue
 		}
-		anim := atlas.Anims[tag]
-		for celI := 0; celI < int(anim.Cels); celI++ {
-			cel := atlas.Cels[(tag*vatlas.CelsPerAnim+celI)*4:]
-			for y := range int(anim.H) {
-				for x := range int(anim.W) {
-					px := img.Pix[(int(cel[1])+y)*img.Stride+(int(cel[0])+x)*4:]
+		meta := atlas.Meta[tag]
+		for celI := 0; celI < int(meta.Cels); celI++ {
+			cel := atlas.Cel(vatlas.Tag(tag), uint8(celI))
+			for y := range int(meta.H) {
+				for x := range int(meta.W) {
+					px := img.Pix[(int(cel.Y)+y)*img.Stride+(int(cel.X)+x)*4:]
 					if px[3] == 0 {
 						continue
 					}
@@ -385,14 +397,14 @@ func TestReadAsepriteNativeTiles(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := int(file.Tilesets[0].Header.Count) + 1
-	if len(atlas.Anims) != want || len(keys) != 1 {
+	if len(atlas.Meta) != want || len(keys) != 1 {
 		t.Fatalf("got %d anims and %d keys, want %d and 1",
-			len(atlas.Anims), len(keys), want)
+			len(atlas.Meta), len(keys), want)
 	}
 	for tileID := range file.Tilesets[0].Header.Count {
-		anim := &atlas.Anims[int(tileID)+len(keys)]
-		if anim.Cels != 1 {
-			t.Errorf("tile %d has %d cels, want 1", tileID, anim.Cels)
+		meta := &atlas.Meta[int(tileID)+len(keys)]
+		if meta.Cels != 1 {
+			t.Errorf("tile %d has %d cels, want 1", tileID, meta.Cels)
 		}
 	}
 	manifest, err := genTilesetManifest([]*asset{file}, keys)
@@ -414,7 +426,7 @@ func TestReadAsepriteNativeTiles(t *testing.T) {
 	wantTags := map[int]vatlas.Tag{0: 11, 1: 12, 8: 12, 9: 16}
 	for cell, want := range wantTags {
 		if got := got.Tilesets[0].Tags[cell]; got != want {
-			t.Errorf("cell %d anim = %d, want %d", cell, got, want)
+			t.Errorf("cell %d meta = %d, want %d", cell, got, want)
 		}
 	}
 }
@@ -538,10 +550,98 @@ func TestParseAtlasSuperballHitbox(t *testing.T) {
 		if key.qualifiedTag() != "SuperballDefault" {
 			continue
 		}
-		if got, want := atlas.Anims[i].Hitbox, vgeo.XYWH[uint16](1, 1, 6, 6); got != want {
+		if got, want := atlas.Meta[i].Hitbox, vgeo.XYWH[uint16](1, 1, 6, 6); got != want {
 			t.Fatalf("Superball hitbox = %v, want %v", got, want)
 		}
 		return
 	}
 	t.Fatal("missing SuperballDefault")
+}
+
+func TestParseAtlasKeepsPlayback(t *testing.T) {
+	file, err := readAsset("../../internal/demo/assets/atlas/backpacker.aseprite")
+	if err != nil {
+		t.Fatal(err)
+	}
+	file.TagSpans[0].Header.Direction = vatlas.AnimDirPingPongReverse
+	file.TagSpans[0].Header.Repeat = 3
+	from := file.TagSpans[0].Header.From
+	file.Frames[from].Millis = 17
+	file.Frames[from+1].Millis = 249
+	_, atlas, _, err := parseAtlas([]*asset{file})
+	if err != nil {
+		t.Fatal(err)
+	}
+	decoded := vatlas.DecodeAtlas(vatlas.EncodeAtlas(atlas))
+	meta := decoded.Meta[1]
+	if meta.Cels != 8 || meta.Dir != vatlas.AnimDirPingPongReverse || meta.Repeat != 3 ||
+		decoded.Cel(1, 0).Millis != 17 || decoded.Cel(1, 1).Millis != 249 {
+		t.Fatalf("playback settings changed: %+v", meta)
+	}
+}
+
+func TestParseFramesRejectsCelOverflow(t *testing.T) {
+	file := &asset{Frames: make([]assetFrame, 256)}
+	span := assetTagSpan{AseTagSpan: vatlas.AseTagSpan{
+		Header: vatlas.AseTagSpanHeader{To: 255},
+	}}
+	if _, err := parseFrames(file, span); err == nil {
+		t.Fatal("256 authored frames were truncated into uint8")
+	}
+}
+
+func TestParseAtlasRejectsZeroDuration(t *testing.T) {
+	file, err := readAsset("../../internal/demo/assets/atlas/backpacker.aseprite")
+	if err != nil {
+		t.Fatal(err)
+	}
+	file.Frames[file.TagSpans[0].Header.From].Millis = 0
+	_, _, _, err = parseAtlas([]*asset{file})
+	if err == nil || !strings.Contains(err.Error(), "has zero duration") {
+		t.Fatalf("zero duration error = %v", err)
+	}
+}
+
+func TestParseAtlasRejectsTotalCelOverflow(t *testing.T) {
+	file := &asset{
+		name: "limit.aseprite", W: 1, H: 1,
+		ColorDepth: vatlas.AseColorRGBA,
+		Frames:     make([]assetFrame, 255),
+	}
+	for i := range file.Frames {
+		file.Frames[i].Millis = 1
+	}
+	// 257 * 255 authored cels plus the nil cel exceed the total by one.
+	for i := range 257 {
+		file.TagSpans = append(file.TagSpans, assetTagSpan{
+			AseTagSpan: vatlas.AseTagSpan{
+				Name:   "Tag" + strconv.Itoa(i),
+				Header: vatlas.AseTagSpanHeader{To: 254},
+			},
+		})
+	}
+	_, _, _, err := parseAtlas([]*asset{file})
+	if err == nil || !strings.Contains(err.Error(), "atlas has 65536 cels; maximum is 65535") {
+		t.Fatalf("overflow error = %v", err)
+	}
+}
+
+func TestParseAtlasRepeatLimit(t *testing.T) {
+	for _, repeat := range []uint16{0, 255, 256} {
+		file := &asset{
+			name: "repeat.aseprite", W: 1, H: 1,
+			ColorDepth: vatlas.AseColorRGBA, Frames: []assetFrame{{Millis: 1}},
+			TagSpans: []assetTagSpan{{AseTagSpan: vatlas.AseTagSpan{
+				Name: "Test", Header: vatlas.AseTagSpanHeader{Repeat: repeat},
+			}}},
+		}
+		_, atlas, _, err := parseAtlas([]*asset{file})
+		if repeat == 256 {
+			if err == nil || !strings.Contains(err.Error(), "repeat count 256 exceeds 255") {
+				t.Fatalf("repeat overflow error = %v", err)
+			}
+		} else if err != nil || uint16(atlas.Meta[1].Repeat) != repeat {
+			t.Fatalf("repeat %d: atlas %v, error %v", repeat, atlas, err)
+		}
+	}
 }

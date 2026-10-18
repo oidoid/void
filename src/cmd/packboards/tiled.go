@@ -513,11 +513,10 @@ func parseGenericSpawnProps(
 			spawn.Tag = tag
 		case "Cel":
 			val, err := strconv.ParseUint(prop.Value, 10, 8)
-			if err != nil || prop.Type != "int" ||
-				prop.PropType != "Cel" || val > uint64(vatlas.TagCelMask) {
+			if err != nil || prop.Type != "int" || prop.PropType != "" {
 				return nil, fmt.Errorf(
-					"object ID %d prop %q must use the Cel enum from 0 to %d",
-					obj.ID, prop.Name, vatlas.TagCelMask,
+					"object ID %d prop %q must be an integer from 0 to 255",
+					obj.ID, prop.Name,
 				)
 			}
 			spawn.Cel = uint8(val)

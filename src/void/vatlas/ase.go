@@ -155,7 +155,7 @@ type AseTagsHeader struct {
 
 type AseTagSpanHeader struct {
 	From, To  uint16   // inclusive frame range.
-	Direction AseDir   // loop direction.
+	Direction AnimDir  // loop direction.
 	Repeat    uint16   // repetitions; 0 is unspecified.
 	_         [10]byte // reserved and deprecated tag color.
 }
@@ -267,15 +267,6 @@ type AseTileset struct {
 type AseRGBA struct{ R, G, B, A uint8 }
 type AseRGB struct{ R, G, B uint8 }
 type AseUUID [16]byte
-
-type AseDir uint8
-
-const (
-	AseDirForward AseDir = iota
-	AseDirReverse
-	AseDirPingPong
-	AseDirPingPongReverse
-)
 
 type AseTagSpan struct {
 	Header AseTagSpanHeader

@@ -81,8 +81,8 @@ func (this *Game) SetBoard(board *vboards.Board) {
 	if !this.Eng.SetBoard(board) {
 		return
 	}
-	anim := this.Atlas().Anims[int(tags.SuperballDefault)]
-	diameter := float32(anim.Hitbox.Max.X - anim.Hitbox.Min.X)
+	meta := this.Atlas().Meta[tags.SuperballDefault]
+	diameter := float32(meta.Hitbox.W())
 	// omit board edge.
 	bounds := vgeo.NewBox(
 		float32(board.Tile.W),

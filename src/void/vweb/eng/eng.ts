@@ -1,4 +1,5 @@
 import type {BoardConfig} from '../boards/board-config.ts'
+import {packAtlasTexels} from '../gfx/atlas.ts'
 import type {
   LayerBlendMode,
   LayerCamMode,
@@ -135,7 +136,7 @@ export class Eng {
     this.#renderer.resize(this.#phyW, this.#phyH)
     const frameMillis = performance.now()
     if (this.#paused()) this.#lastTime = 0
-    const nowMillis = this.#writeUpdate(this.#renderer, frameMillis)
+    this.#writeUpdate(this.#renderer, frameMillis)
     const updateStart = performance.now()
     const loop = this.#wasm.Update()
     this.#refreshMemory()
@@ -180,7 +181,6 @@ export class Eng {
           buffer,
           config.sprsPtr,
           config.sprCount,
-          nowMillis,
           lx,
           ly,
           config.scale,
@@ -308,12 +308,20 @@ export class Eng {
   #newRenderer(): Renderer {
     this.#refreshMemory()
     const out = this.#out
-    const atlasCelsPtr = out.getUint32(bridge.outAtlasCelsPtrOffset, true)
-    const atlasCelsCount = out.getUint32(bridge.outAtlasCelsCountOffset, true)
-    const atlasCels = new Uint16Array(
-      this.#wasm.memory.buffer,
-      atlasCelsPtr,
-      atlasCelsCount
+    const buffer = this.#wasm.memory.buffer
+    const atlasTexels = packAtlasTexels(
+      new DataView(
+        buffer,
+        out.getUint32(bridge.outAtlasMetaPtrOffset, true),
+        out.getUint32(bridge.outAtlasMetaCountOffset, true) *
+          bridge.tagMetaStride
+      ),
+      new DataView(
+        buffer,
+        out.getUint32(bridge.outAtlasCelsPtrOffset, true),
+        out.getUint32(bridge.outAtlasCelsCountOffset, true) *
+          bridge.atlasCelStride
+      )
     )
     const atlasImg = document.getElementById('atlas') as HTMLImageElement
     const pixel =
@@ -321,9 +329,7 @@ export class Eng {
     return new Renderer(
       getWebGL2(this.#canvas, !pixel),
       this.#boardRenderState(out.getUint16(bridge.outBoardLevelOffset, true)),
-      atlasCels,
-      out.getUint32(bridge.outAtlasAnimCountOffset, true),
-      out.getUint32(bridge.outAtlasCelsPerAnimOffset, true),
+      atlasTexels,
       atlasImg,
       pixel
     )
@@ -417,7 +423,7 @@ export class Eng {
     this.#out = new DataView(buffer, this.#outPtr, bridge.outByteLen)
   }
 
-  #writeUpdate(renderer: Renderer, frameMillis: number): number {
+  #writeUpdate(renderer: Renderer, frameMillis: number): void {
     this.#refreshMemory()
     const delta = this.#lastTime === 0 ? 0 : frameMillis - this.#lastTime
     const nowMillis = this.#poll.getFloat64(bridge.nowMsOffset, true) + delta
@@ -455,6 +461,5 @@ export class Eng {
     this.#input.update(this.#poll)
     this.#input.postupdate() // to-do: move to postupdate()?
     this.#lastTime = frameMillis
-    return nowMillis
   }
 }

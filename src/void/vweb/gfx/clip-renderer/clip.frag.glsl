@@ -1,14 +1,14 @@
 #version 300 es
 precision highp float;
 
-uniform highp sampler2D uTex;
+uniform mediump sampler2D uTex; // RGBA8 color.
 uniform bool uDiscardTransparent;
 
 in highp vec2 vUV;
-out highp vec4 fragColor;
+out mediump vec4 fragColor;
 
 void main() {
-  highp vec4 color = texture(uTex, vUV);
+  mediump vec4 color = texture(uTex, vUV);
   if (uDiscardTransparent && color.a == 0.) discard;
   fragColor = color;
 }

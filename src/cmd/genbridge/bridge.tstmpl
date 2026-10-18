@@ -85,7 +85,8 @@ export const beepStride: number = {{.Beep.Size}}
 {{end}}
 export const sprStride: number = {{.SprStride}}
 export const sprXYOffset: number = {{offset .Spr "XY"}}
-export const sprTagCelOffset: number = {{offset .Spr "TagCel"}}
+export const sprTagOffset: number = {{offset .Spr "Tag"}}
+export const sprCelOffset: number = {{offset .Spr "Cel"}}
 export const sprZOffset: number = {{offset .Spr "Z"}}
 export const sprWHOffset: number = {{offset .Spr "WH"}}
 export const sprFlagsOffset: number = {{offset .Spr "flags"}}
@@ -117,3 +118,12 @@ export const FullscreenReqExit: {{.FullscreenReqExit}} = {{.FullscreenReqExit}}
 export const FullscreenReqEnter: {{.FullscreenReqEnter}} = {{.FullscreenReqEnter}}
 export const FullscreenReqPortrait: {{.FullscreenReqPortrait}} = {{.FullscreenReqPortrait}}
 export const FullscreenReqLandscape: {{.FullscreenReqLandscape}} = {{.FullscreenReqLandscape}}
+
+export const tagMetaStride: number = {{.TagMeta.Size}}
+export const tagMetaCelIndexOffset: number = {{offset .TagMeta "CelIndex"}}
+export const tagMetaCelsOffset: number = {{offset .TagMeta "Cels"}}
+export const tagMetaWOffset: number = {{offset .TagMeta "WH.W"}}
+export const tagMetaHOffset: number = {{offset .TagMeta "WH.H"}}
+export const atlasCelStride: number = {{.AtlasCel.Size}}
+export const atlasCelXOffset: number = {{offset .AtlasCel "XY.X"}}
+export const atlasCelYOffset: number = {{offset .AtlasCel "XY.Y"}}

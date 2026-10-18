@@ -106,7 +106,7 @@ func initGame(gam *Game) {
 func newEdgeEnt(z vgfx.Z, w, h uint16) veng.NinePatchEnt {
 	var patches [9]vgfx.Spr
 	for i := range patches {
-		patches[i].SetTag(tags.ColorBlack)
+		patches[i].Tag = tags.ColorBlack
 	}
 	patches[vgeo.DirCenter] = vgfx.Spr{}
 	ent := veng.NinePatchEnt{
@@ -119,18 +119,18 @@ func newEdgeEnt(z vgfx.Z, w, h uint16) veng.NinePatchEnt {
 func newCornerEdgeEnt(z vgfx.Z) veng.NinePatchEnt {
 	const cornerTopLeftWH = 16
 	ent := newEdgeEnt(z, cornerTopLeftWH, cornerTopLeftWH)
-	ent.PatchByDir[vgeo.DirE].SetTag(tags.ViewportEdgeW)
+	ent.PatchByDir[vgeo.DirE].Tag = tags.ViewportEdgeW
 	ent.PatchByDir[vgeo.DirE].SetFlipX(true)
-	ent.PatchByDir[vgeo.DirNE].SetTag(tags.ViewportEdgeNW)
+	ent.PatchByDir[vgeo.DirNE].Tag = tags.ViewportEdgeNW
 	ent.PatchByDir[vgeo.DirNE].SetFlipX(true)
-	ent.PatchByDir[vgeo.DirN].SetTag(tags.ViewportEdgeN)
-	ent.PatchByDir[vgeo.DirNW].SetTag(tags.ViewportEdgeNW)
-	ent.PatchByDir[vgeo.DirW].SetTag(tags.ViewportEdgeW)
-	ent.PatchByDir[vgeo.DirSW].SetTag(tags.ViewportEdgeNW)
+	ent.PatchByDir[vgeo.DirN].Tag = tags.ViewportEdgeN
+	ent.PatchByDir[vgeo.DirNW].Tag = tags.ViewportEdgeNW
+	ent.PatchByDir[vgeo.DirW].Tag = tags.ViewportEdgeW
+	ent.PatchByDir[vgeo.DirSW].Tag = tags.ViewportEdgeNW
 	ent.PatchByDir[vgeo.DirSW].SetFlipY(true)
-	ent.PatchByDir[vgeo.DirS].SetTag(tags.ViewportEdgeN)
+	ent.PatchByDir[vgeo.DirS].Tag = tags.ViewportEdgeN
 	ent.PatchByDir[vgeo.DirS].SetFlipY(true)
-	ent.PatchByDir[vgeo.DirSE].SetTag(tags.ViewportEdgeNW)
+	ent.PatchByDir[vgeo.DirSE].Tag = tags.ViewportEdgeNW
 	ent.PatchByDir[vgeo.DirSE].SetFlipX(true)
 	ent.PatchByDir[vgeo.DirSE].SetFlipY(true)
 	return ent
@@ -138,7 +138,7 @@ func newCornerEdgeEnt(z vgfx.Z) veng.NinePatchEnt {
 
 func newFillEnt(z vgfx.Z) veng.NinePatchEnt {
 	var patches [9]vgfx.Spr
-	patches[vgeo.DirCenter].SetTag(tags.GridCell)
+	patches[vgeo.DirCenter].Tag = tags.GridCell
 	ent := veng.NinePatchEnt{PatchByDir: patches}
 	ent.SetZ(z)
 	return ent

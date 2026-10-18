@@ -35,10 +35,8 @@ func (this *MouseStatusEnt) Update(gam *Game) veng.Status {
 
 	hudXY := this.HUDEnt.XY(mouseStatusSize, mouseStatusSize, layer.Clip)
 	xy := hudXY.Cast[float32]()
-	*sprs = append(
-		*sprs,
-		vgfx.Spr{XY: xy, TagCel: tags.MouseStatusBase.Cel(0), Z: gfx.ZUIWidget},
-	)
+	spr := vgfx.Spr{XY: xy, Tag: tags.MouseStatusBase, Z: gfx.ZUIWidget}
+	*sprs = append(*sprs, spr)
 	clicks := in.Ptr.Clicks()
 	this.addOverlay(sprs, tags.MouseStatusPrimary, xy, clicks&vin.ClickPrimary != 0)
 	this.addOverlay(sprs, tags.MouseStatusSecondary, xy, clicks&vin.ClickSecondary != 0)
@@ -59,7 +57,6 @@ func (this *MouseStatusEnt) addOverlay(
 	if !on {
 		return
 	}
-	*sprs = append(
-		*sprs, vgfx.Spr{XY: xy, TagCel: tag.Cel(0), Z: gfx.ZUIWidget},
-	)
+	spr := vgfx.Spr{XY: xy, Tag: tag, Z: gfx.ZUIWidget}
+	*sprs = append(*sprs, spr)
 }

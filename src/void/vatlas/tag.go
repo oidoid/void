@@ -1,10 +1,6 @@
 package vatlas
 
-// identifies an animation in an Atlas; TagCel stores it in 12 bits.
+// 12b atlas animation ID (0..4095); upper four bits are reserved.
 type Tag uint16
 
 const MaxTags = 1 << 12
-
-func (this Tag) Cel(cel uint8) TagCel {
-	return TagCel(uint16(this)<<TagCelShift | uint16(cel&uint8(TagCelMask)))
-}

@@ -9,7 +9,6 @@ import (
 
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vgeo"
-	"github.com/oidoid/void/src/void/vmath"
 )
 
 // max width of palette.
@@ -58,9 +57,10 @@ type anim struct {
 type swappedFrame = []byte
 
 type swappedAnim struct {
-	vatlas.Anim
+	meta    vatlas.TagMeta
 	stemTag stemTag
 	frames  []swappedFrame
+	millis  []uint16
 }
 
 type placedCel struct {
@@ -82,15 +82,15 @@ func placeCels(
 	x, y, rowH := 0, 0, 0
 	for _, anim := range anims {
 		for _, frame := range anim.frames {
-			k := celKey{w: anim.W, h: anim.H, px: string(frame)}
+			k := celKey{w: anim.meta.W, h: anim.meta.H, px: string(frame)}
 			xy, ok := places[k]
 			if !ok {
-				if int(anim.W) > atlasRowWidth {
+				if int(anim.meta.W) > atlasRowWidth {
 					return nil, nil, 0, fmt.Errorf(
-						"cel width %d exceeds atlas row width", anim.W,
+						"cel width %d exceeds atlas row width", anim.meta.W,
 					)
 				}
-				if x+int(anim.W) > atlasRowWidth {
+				if x+int(anim.meta.W) > atlasRowWidth {
 					x = 0
 					y += rowH
 					rowH = 0
@@ -98,10 +98,10 @@ func placeCels(
 				xy = vgeo.NewXY(uint16(x), uint16(y))
 				places[k] = xy
 				cels = append(cels, placedCel{
-					pxs: frame, w: anim.W, h: anim.H, xy: xy,
+					pxs: frame, w: anim.meta.W, h: anim.meta.H, xy: xy,
 				})
-				x += int(anim.W)
-				rowH = max(rowH, int(anim.H))
+				x += int(anim.meta.W)
+				rowH = max(rowH, int(anim.meta.H))
 			}
 			celXY = append(celXY, xy.X, xy.Y)
 		}
@@ -200,9 +200,10 @@ func swapAnims(
 	slotsByAsset slotsByAsset,
 ) ([]swappedAnim, error) {
 	swappedAnims := []swappedAnim{{
-		Anim:    vatlas.Anim{Cels: 1, W: 1, H: 1},
+		meta:    vatlas.TagMeta{Cels: 1, WH: vgeo.NewWH[uint16](1, 1)},
 		stemTag: nilKey,
 		frames:  []swappedFrame{make([]byte, 4)},
+		millis:  []uint16{1},
 	}}
 	for _, anim := range anims {
 		frames, err := parseFrames(anim.asset, anim.tagSpan)
@@ -213,6 +214,26 @@ func swapAnims(
 		hitbox, hurtbox, err := parseBoxes(anim.asset, anim.tagSpan.Name)
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", anim.asset.name, err)
+		}
+		millis := make([]uint16, len(frames))
+		for i := range millis {
+			millis[i] = anim.asset.Frames[int(anim.tagSpan.Header.From)+i].Millis
+			if millis[i] == 0 {
+				return nil, fmt.Errorf(
+					"%s tag %q: frame %d has zero duration",
+					anim.asset.name, anim.tagSpan.Name,
+					int(anim.tagSpan.Header.From)+i+1,
+				)
+			}
+		}
+		if anim.tagSpan.Header.Direction > vatlas.AnimDirPingPongReverse {
+			return nil, fmt.Errorf("%s: invalid animation direction %d",
+				anim.asset.name, anim.tagSpan.Header.Direction)
+		}
+		if anim.tagSpan.Header.Repeat > uint16(vatlas.MaxRepeat) {
+			return nil, fmt.Errorf("%s tag %q: repeat count %d exceeds %d",
+				anim.asset.name, anim.tagSpan.Name,
+				anim.tagSpan.Header.Repeat, vatlas.MaxRepeat)
 		}
 		w, h := anim.asset.W, anim.asset.H
 		slots, swapped := slotsByAsset[anim.asset]
@@ -230,15 +251,17 @@ func swapAnims(
 			}
 		}
 		swappedAnims = append(swappedAnims, swappedAnim{
-			Anim: vatlas.Anim{
+			meta: vatlas.TagMeta{
 				Cels:    uint8(len(swappedFrames)),
-				W:       w,
-				H:       h,
+				Dir:     anim.tagSpan.Header.Direction,
+				Repeat:  uint8(anim.tagSpan.Header.Repeat),
+				WH:      vgeo.NewWH(w, h),
 				Hitbox:  hitbox,
 				Hurtbox: hurtbox,
 			},
 			stemTag: anim.stemTag,
 			frames:  swappedFrames,
+			millis:  millis,
 		})
 	}
 	return swappedAnims, nil
@@ -283,10 +306,11 @@ func packTiles(
 				from := int(tileID) * tileLen
 				frame := rawFrame{pxs: tileset.Pxs[from : from+tileLen], pal: pal}
 				packed = append(packed, swappedAnim{
-					Anim: vatlas.Anim{
-						Cels: 1, W: tileset.Header.W, H: tileset.Header.H,
+					meta: vatlas.TagMeta{
+						Cels: 1, WH: vgeo.NewWH(tileset.Header.W, tileset.Header.H),
 					},
 					frames: []swappedFrame{serializeFrame(asset, frame)},
+					millis: []uint16{1},
 				})
 			}
 		}
@@ -399,10 +423,6 @@ func serializeFrame(asset *asset, frame rawFrame) []byte {
 	return rgba
 }
 
-// expands a tag to one animation period. each nonzero duration frame is
-// guaranteed to appear for at least `CelMillis`. cels are duplicated until cel
-// duration is at least met; cels are unpacked until a full period is defined
-// for the dir. no warns for overflowing past.
 func parseFrames(
 	asset *asset,
 	tagSpan assetTagSpan,
@@ -411,31 +431,19 @@ func parseFrames(
 	if from > to || to >= len(asset.Frames) {
 		return nil, fmt.Errorf("invalid frame range %d..%d", from, to)
 	}
-	period := framePeriod(tagSpan)
-	millis := float64(0)
-	for i := 0; i < period &&
-		len(frames) < vatlas.CelsPerAnim &&
-		millis < vatlas.MaxAnimLoopMillis; i++ {
-		frameI := frameIndex(tagSpan, i)
+	if count := to - from + 1; count > int(vatlas.MaxCels) {
+		return nil, fmt.Errorf("tag has %d frames; maximum is %d",
+			count, vatlas.MaxCels)
+	}
+	frames = make([]rawFrame, 0, to-from+1)
+	for frameI := from; frameI <= to; frameI++ {
 		raw, err := composeFrame(asset, frameI)
 		if err != nil {
 			return nil, err
 		}
-		frameMillis := float64(asset.Frames[frameI].Millis)
-		for celMillis := float64(0); celMillis < frameMillis &&
-			len(frames) < vatlas.CelsPerAnim &&
-			millis < vatlas.MaxAnimLoopMillis; celMillis += vatlas.CelMillis {
-			millis += vatlas.CelMillis
-			frames = append(frames, rawFrame{pxs: raw, pal: asset.Frames[frameI].Pal})
-			if from == to {
-				return frames, nil
-			}
-		}
+		frames = append(frames, rawFrame{pxs: raw, pal: asset.Frames[frameI].Pal})
 	}
-	if len(frames) == 0 {
-		return nil, fmt.Errorf("animation has no cels")
-	}
-	return
+	return frames, nil
 }
 
 // renders visible normal layers into one asset frame.
@@ -521,20 +529,38 @@ func parseAtlas(
 			len(packed), vatlas.MaxTags,
 		)
 	}
-	cels, celXY, height, err := placeCels(packed)
+	totalCels := 0
+	for _, anim := range packed {
+		totalCels += int(anim.meta.Cels)
+	}
+	if totalCels > vatlas.MaxAtlasCels {
+		return nil, nil, nil, fmt.Errorf(
+			"atlas has %d cels; maximum is %d", totalCels, vatlas.MaxAtlasCels,
+		)
+	}
+	placedCels, celXY, height, err := placeCels(packed)
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	img := draw(cels, height)
-	anims := make([]vatlas.Anim, len(packed))
+	img := draw(placedCels, height)
+	metas := make([]vatlas.TagMeta, len(packed))
 	tags := make([]stemTag, tagCount)
 	for i := range packed {
-		anims[i] = packed[i].Anim
+		metas[i] = packed[i].meta
 	}
 	for i := range tags {
 		tags[i] = packed[i].stemTag
 	}
-	atlas := vatlas.NewAtlas(anims, celXY)
+	cels := make([]vatlas.Cel, len(celXY)/2)
+	celI := 0
+	for _, anim := range packed {
+		for i := range anim.meta.Cels {
+			cels[celI].X, cels[celI].Y = celXY[celI*2], celXY[celI*2+1]
+			cels[celI].Millis = anim.millis[i]
+			celI++
+		}
+	}
+	atlas := vatlas.NewAtlas(metas, cels)
 	return img, &atlas, tags, nil
 }
 
@@ -549,33 +575,6 @@ func draw(cels []placedCel, height int) *image.NRGBA {
 		}
 	}
 	return img
-}
-
-// returns the number of source-frame positions in one tag loop.
-func framePeriod(tagSpan assetTagSpan) int {
-	frameLen := int(tagSpan.Header.To) - int(tagSpan.Header.From) + 1
-	if tagSpan.Header.Direction == vatlas.AseDirPingPong ||
-		tagSpan.Header.Direction == vatlas.AseDirPingPongReverse {
-		return max(1, 2*(frameLen-1))
-	}
-	return frameLen
-}
-
-// returns the source frame for a tag cycle position.
-func frameIndex(tagSpan assetTagSpan, i int) int {
-	from, to := int(tagSpan.Header.From), int(tagSpan.Header.To)
-	peak := to - from
-	i %= framePeriod(tagSpan)
-	switch tagSpan.Header.Direction {
-	case vatlas.AseDirReverse:
-		return to - i
-	case vatlas.AseDirPingPong:
-		return from + peak - vmath.Abs(i-peak)
-	case vatlas.AseDirPingPongReverse:
-		return to - (peak - vmath.Abs(i-peak))
-	default:
-		return from + i
-	}
 }
 
 // returns a assetLayer cel through linked source frames. false if the cel is absent

@@ -11,8 +11,8 @@ import (
 
 func TestOutSnapshot(t *testing.T) {
 	eng := NewEng(&EngOpts{MaxSprs: 1, RenderMode: vgfx.RenderModePixel})
-	eng.Atlas().Cels = []uint16{7, 8}
-	eng.Atlas().Anims = make([]vatlas.Anim, 1)
+	eng.Atlas().Cels = []vatlas.Cel{{Millis: 7}, {Millis: 8}}
+	eng.Atlas().Meta = make([]vatlas.TagMeta, 1)
 	*eng.Cam() = vgeo.NewXY[float32](-1.25, 2.5)
 	layer := eng.Layer(0)
 	layer.CamMode = vgfx.LayerCamModeFixed
@@ -28,8 +28,7 @@ func TestOutSnapshot(t *testing.T) {
 	if out.Cam != *eng.Cam() || out.RenderMode != vgfx.RenderModePixel {
 		t.Error("initial output lost camera or render mode")
 	}
-	if out.AtlasCelsCount != 2 || out.AtlasAnimCount != 1 ||
-		out.AtlasCelsPerAnim != vatlas.CelsPerAnim ||
+	if out.AtlasMetaCount != 1 || out.AtlasMetaPtr == 0 || out.AtlasCelsCount != 2 ||
 		out.AtlasCelsPtr != uint32(uintptr(unsafe.Pointer(&eng.atlas.Cels[0]))) {
 		t.Error("initial output lost atlas metadata")
 	}
@@ -43,11 +42,11 @@ func TestOutSnapshot(t *testing.T) {
 
 	eng.BeginTick()
 	eng.Atlas().Cels = nil
-	eng.Atlas().Anims = nil
+	eng.Atlas().Meta = nil
 	layer.Scale = 2.25
 	eng.EndTick(Pause)
-	if out.AtlasCelsCount != 0 || out.AtlasCelsPtr != 0 ||
-		out.AtlasAnimCount != 0 || out.Layers[0].SprCount != 0 ||
+	if out.AtlasMetaCount != 0 || out.AtlasMetaPtr != 0 || out.AtlasCelsCount != 0 || out.AtlasCelsPtr != 0 ||
+		out.Layers[0].SprCount != 0 ||
 		out.Layers[0].SprsPtr != 0 || out.Layers[0].Scale != 2.25 {
 		t.Error("EndTick() did not refresh the shared snapshot")
 	}

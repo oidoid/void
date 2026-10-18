@@ -3,7 +3,7 @@
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0" type="Superball">
   <properties>
-   <property name="Cel" type="int" propertytype="Cel" value="0"/>
+   <property name="Cel" type="int" value="0"/>
    <property name="Layer" type="int" propertytype="Layer" value="2"/>
    <property name="Pal" type="int" propertytype="Pal" value="0"/>
    <property name="Stretch" type="bool" value="true"/>
@@ -15,7 +15,7 @@
  </tile>
  <tile id="1" type="P1">
   <properties>
-   <property name="Cel" type="int" propertytype="Cel" value="0"/>
+   <property name="Cel" type="int" value="0"/>
    <property name="Clockwise" type="bool" value="true"/>
    <property name="Layer" type="int" propertytype="Layer" value="1"/>
    <property name="Pal" type="int" propertytype="Pal" value="0"/>
@@ -28,7 +28,7 @@
  </tile>
  <tile id="2" type="Cursor">
   <properties>
-   <property name="Cel" type="int" propertytype="Cel" value="0"/>
+   <property name="Cel" type="int" value="0"/>
    <property name="KbdVel" type="int" value="100"/>
    <property name="Layer" type="int" propertytype="Layer" value="5"/>
    <property name="Pal" type="int" propertytype="Pal" value="0"/>

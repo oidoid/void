@@ -13,23 +13,20 @@ import (
 )
 
 func TestNewP1EntDefaults(t *testing.T) {
-	anim := vatlas.Anim{
-		W:       8,
-		H:       13,
+	meta := vatlas.TagMeta{
+		WH:      vgeo.NewWH[uint16](8, 13),
 		Hurtbox: vgeo.XYWH[uint16](2, 0, 4, 4),
 	}
 	spawn := boards.P1Spawn{
-		Spawn: vboards.Spawn{
-			WH: vgeo.NewWH[float32](8, 13), Z: gfx.ZP1,
-		},
+		Spawn:     vboards.Spawn{WH: vgeo.NewWH[float32](8, 13), Z: gfx.ZP1},
 		Clockwise: true,
 	}
-	atlas := vatlas.Atlas{Anims: []vatlas.Anim{anim}}
+	atlas := vatlas.Atlas{Meta: []vatlas.TagMeta{meta}}
 	ent := NewP1Ent(spawn, &atlas)
 	if got, want := ent.WH, vgeo.NewWH[uint16](8, 13); got != want {
 		t.Fatalf("WH = %v, want %v", got, want)
 	}
-	if got, want := ent.Hurtbox, anim.Hurtbox; got != want {
+	if got, want := ent.Hurtbox, meta.Hurtbox; got != want {
 		t.Fatalf("Hurtbox = %v, want %v", got, want)
 	}
 	if got, want := ent.Dir, vgeo.DirE; got != want {
@@ -40,11 +37,6 @@ func TestNewP1EntDefaults(t *testing.T) {
 	}
 	if ent.Z != gfx.ZP1 {
 		t.Fatalf("Z = %d, want %d", ent.Z, gfx.ZP1)
-	}
-	ent.SetTag(tags.ColorRed)
-	spr := ent.spr()
-	if got := spr.Tag(); got != tags.ColorRed {
-		t.Fatalf("Tag = %d, want %d", got, tags.ColorRed)
 	}
 }
 
@@ -61,7 +53,7 @@ func TestNewP1Ent(t *testing.T) {
 		},
 	}
 	hurtbox := vgeo.XYWH[uint16](1, 2, 3, 4)
-	atlas := vatlas.Atlas{Anims: []vatlas.Anim{
+	atlas := vatlas.Atlas{Meta: []vatlas.TagMeta{
 		{}, {Hurtbox: hurtbox},
 	}}
 	ent := NewP1Ent(spawn, &atlas)
@@ -92,7 +84,7 @@ func TestP1EntTurnsRightAtWalls(t *testing.T) {
 		Tiles: tiles,
 	}
 	ent := P1Ent{
-		Spr:       vgfx.Spr{XY: vgeo.NewXY[float32](32, 32)},
+		Anim:      vgfx.Anim{Spr: vgfx.Spr{XY: vgeo.NewXY[float32](32, 32)}},
 		Hurtbox:   vgeo.XYWH[uint16](0, 0, 1, 1),
 		Dir:       vgeo.DirE,
 		Clockwise: true,
@@ -117,6 +109,42 @@ func TestP1EntTurnsRightAtWalls(t *testing.T) {
 		}
 		if ent.XY != want.xy || ent.Dir != want.dir {
 			t.Fatalf("P1 = (%v, %v), want (%v, %v)", ent.XY, ent.Dir, want.xy, want.dir)
+		}
+	}
+}
+
+func TestP1EntAnimatesAndDrawsItsDirectionalSprite(t *testing.T) {
+	gam := NewGame()
+	gam.Eng.SetBoard(&vboards.Board{
+		WH: vgeo.NewWH[int32](64, 64), Tile: vgeo.NewWH[uint8](8, 8),
+		Tiles: make([]vboards.Tile, 64),
+	})
+	layer := gam.Layer(gfx.LayerP1)
+	layer.Clip = vgeo.XYWH[float32](0, 0, 64, 64)
+	ent := NewP1Ent(boards.P1Spawn{Spawn: vboards.Spawn{
+		XY: vgeo.NewXY[float32](16, 16), WH: vgeo.NewWH[float32](8, 13),
+		Z: gfx.ZP1, Tag: tags.BackpackerWalkRight,
+	}}, gam.Atlas())
+	for _, test := range []struct {
+		dir  vgeo.Dir
+		tag  vatlas.Tag
+		flip bool
+	}{
+		{vgeo.DirN, tags.BackpackerWalkUp, false},
+		{vgeo.DirE, tags.BackpackerWalkRight, false},
+		{vgeo.DirW, tags.BackpackerWalkRight, true},
+		{vgeo.DirW, tags.BackpackerWalkRight, true},
+		{vgeo.DirS, tags.BackpackerWalkDown, false},
+		{vgeo.DirE, tags.BackpackerWalkRight, false},
+	} {
+		layer.Sprs = layer.Sprs[:0]
+		ent.Dir = test.dir
+		ent.Update(gam)
+		if ent.Tag != test.tag || ent.FlipX() != test.flip {
+			t.Fatalf("dir %d: tag %d, flip %v", test.dir, ent.Tag, ent.FlipX())
+		}
+		if len(layer.Sprs) != 1 || layer.Sprs[0] != ent.Spr {
+			t.Fatal("did not draw the entity's animated sprite")
 		}
 	}
 }

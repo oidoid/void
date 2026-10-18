@@ -100,7 +100,7 @@ func (this *SuperballButtonEnt) Update(gam *Game) veng.Status {
 			(ballsClip.Min.Y+ballsClip.Max.Y)/2,
 		)
 		superballRadius := float32(
-			gam.Atlas().Anims[int(tags.SuperballDefault)].W,
+			gam.Atlas().Meta[tags.SuperballDefault].W,
 		) / 2
 		spawnXY := vgeo.NewXY(
 			spawnCenter.X-superballRadius,
@@ -122,7 +122,7 @@ func (this *SuperballButtonEnt) Update(gam *Game) veng.Status {
 			gam.Superballs.Clear()
 		case SuperballActionAddMany:
 			superballRadius := float32(
-				gam.Atlas().Anims[int(tags.SuperballDefault)].W,
+				gam.Atlas().Meta[tags.SuperballDefault].W,
 			) / 2
 			tileW := float32(gam.BoardTileW())
 			tileH := float32(gam.BoardTileH())

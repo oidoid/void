@@ -17,7 +17,8 @@ type Board struct {
 
 type Level uint16
 
-// checks inclusive pixel bounds; outside the board counts as a hit.
+// checks inclusive pixel bounds; outside the board counts as a hit. check if
+// box is empty if you care.
 func (this *Board) HitsBox(box vgeo.Box[float32]) bool {
 	if box.Min.X < 0 ||
 		box.Min.Y < 0 ||

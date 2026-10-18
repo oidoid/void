@@ -1,7 +1,8 @@
 import {
+  sprCelOffset,
   sprFlagsOffset,
   sprStride,
-  sprTagCelOffset,
+  sprTagOffset,
   sprWHOffset,
   sprZOffset
 } from '../../eng/bridge.ts'
@@ -12,37 +13,44 @@ import sprVert from './spr.vert.glsl'
 export class SprRenderer {
   static new(
     gl: WebGL2RenderingContext,
-    atlasCels: Uint16Array,
-    atlasAnimCount: number,
-    atlasCelsPerAnim: number,
+    atlasTexels: Uint16Array,
     atlasImg: HTMLImageElement,
     pixel: boolean
   ): SprRenderer {
     const pgm = buildProgram(gl, sprVert, sprFrag)
     const uResolution = gl.getUniformLocation(pgm, 'uResolution')!
     const uCamXY = gl.getUniformLocation(pgm, 'uCamXY')!
-    const uNowMillis = gl.getUniformLocation(pgm, 'uNowMillis')!
     const uBlendMode = gl.getUniformLocation(pgm, 'uBlendMode')!
 
     gl.useProgram(pgm)
 
-    gl.uniform1i(gl.getUniformLocation(pgm, 'uAtlasCels'), 0)
+    gl.uniform1i(gl.getUniformLocation(pgm, 'uAtlas'), 0)
     gl.uniform1i(gl.getUniformLocation(pgm, 'uSprsheet'), 1)
     gl.uniform1i(gl.getUniformLocation(pgm, 'uPixel')!, pixel ? 1 : 0)
 
-    const atlasCelsTex = gl.createTexture()!
+    const maxSize = gl.getParameter(gl.MAX_TEXTURE_SIZE) as number
+    const count = Math.max(1, atlasTexels.length / 4)
+    const w = Math.min(count, maxSize)
+    const h = Math.ceil(count / w)
+    if (h > maxSize) throw Error('atlas lookup exceeds texture limits')
+    let texels = atlasTexels
+    if (texels.length !== w * h * 4) {
+      texels = new Uint16Array(w * h * 4)
+      texels.set(atlasTexels)
+    }
+    const atlasTex = gl.createTexture()!
     gl.activeTexture(gl.TEXTURE0)
-    gl.bindTexture(gl.TEXTURE_2D, atlasCelsTex)
+    gl.bindTexture(gl.TEXTURE_2D, atlasTex)
     gl.texImage2D(
       gl.TEXTURE_2D,
       0,
       gl.RGBA16UI,
-      atlasCelsPerAnim,
-      atlasAnimCount,
+      w,
+      h,
       0,
       gl.RGBA_INTEGER,
       gl.UNSIGNED_SHORT,
-      atlasCels
+      texels
     )
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
@@ -87,15 +95,20 @@ export class SprRenderer {
     gl.vertexAttribPointer(0, 2, gl.FLOAT, false, sprStride, 0)
     gl.vertexAttribDivisor(0, 1)
 
-    // aTagCel (uint16): hi 12 bits = Tag, lo 4 bits = Cel.
+    // aTag: 12b atlas ID in a uint16 field.
     gl.enableVertexAttribArray(1)
-    gl.vertexAttribIPointer(1, 1, gl.UNSIGNED_SHORT, sprStride, sprTagCelOffset)
+    gl.vertexAttribIPointer(1, 1, gl.UNSIGNED_SHORT, sprStride, sprTagOffset)
     gl.vertexAttribDivisor(1, 1)
 
-    // aZ as uint8.
+    // aCel (uint8): authored frame within the tag.
     gl.enableVertexAttribArray(2)
-    gl.vertexAttribIPointer(2, 1, gl.UNSIGNED_BYTE, sprStride, sprZOffset)
+    gl.vertexAttribIPointer(2, 1, gl.UNSIGNED_BYTE, sprStride, sprCelOffset)
     gl.vertexAttribDivisor(2, 1)
+
+    // aZ (uint8): layer and sublayer.
+    gl.enableVertexAttribArray(5)
+    gl.vertexAttribIPointer(5, 1, gl.UNSIGNED_BYTE, sprStride, sprZOffset)
+    gl.vertexAttribDivisor(5, 1)
 
     // aWH (uvec2 of uint16): destination size; zero uses source cel size.
     gl.enableVertexAttribArray(3)
@@ -114,11 +127,10 @@ export class SprRenderer {
       pgm,
       uResolution,
       uCamXY,
-      uNowMillis,
       uBlendMode,
       vao,
       instanceVBO,
-      atlasCelsTex,
+      atlasTex,
       sprsheetTex
     )
   }
@@ -127,11 +139,10 @@ export class SprRenderer {
   readonly #pgm: WebGLProgram
   readonly #uResolution: WebGLUniformLocation
   readonly #uCamXY: WebGLUniformLocation
-  readonly #uNowMillis: WebGLUniformLocation
   readonly #uBlendMode: WebGLUniformLocation
   readonly #vao: WebGLVertexArrayObject
   readonly #instanceVBO: WebGLBuffer
-  readonly #atlasCelsTex: WebGLTexture
+  readonly #atlasTex: WebGLTexture
   readonly #sprsheetTex: WebGLTexture
 
   private constructor(
@@ -139,22 +150,20 @@ export class SprRenderer {
     pgm: WebGLProgram,
     uResolution: WebGLUniformLocation,
     uCamXY: WebGLUniformLocation,
-    uNowMillis: WebGLUniformLocation,
     uBlendMode: WebGLUniformLocation,
     vao: WebGLVertexArrayObject,
     instanceVBO: WebGLBuffer,
-    atlasCelsTex: WebGLTexture,
+    atlasTex: WebGLTexture,
     sprsheetTex: WebGLTexture
   ) {
     this.#gl = gl
     this.#pgm = pgm
     this.#uResolution = uResolution
     this.#uCamXY = uCamXY
-    this.#uNowMillis = uNowMillis
     this.#uBlendMode = uBlendMode
     this.#vao = vao
     this.#instanceVBO = instanceVBO
-    this.#atlasCelsTex = atlasCelsTex
+    this.#atlasTex = atlasTex
     this.#sprsheetTex = sprsheetTex
   }
 
@@ -162,8 +171,8 @@ export class SprRenderer {
     return this.#sprsheetTex
   }
 
-  get atlasCelsTex(): WebGLTexture {
-    return this.#atlasCelsTex
+  get atlasTex(): WebGLTexture {
+    return this.#atlasTex
   }
 
   dispose(): void {
@@ -171,7 +180,7 @@ export class SprRenderer {
     gl.deleteProgram(this.#pgm)
     gl.deleteVertexArray(this.#vao)
     gl.deleteBuffer(this.#instanceVBO)
-    gl.deleteTexture(this.#atlasCelsTex)
+    gl.deleteTexture(this.#atlasTex)
     gl.deleteTexture(this.#sprsheetTex)
   }
 
@@ -179,7 +188,6 @@ export class SprRenderer {
     buffer: ArrayBuffer,
     sprPtr: number,
     count: number,
-    nowMillis: number,
     camX: number,
     camY: number,
     blendMode: number,
@@ -189,13 +197,12 @@ export class SprRenderer {
     if (!count) return
     const gl = this.#gl
     gl.useProgram(this.#pgm)
-    gl.uniform1f(this.#uNowMillis, nowMillis)
     gl.uniform2f(this.#uCamXY, camX, camY)
     gl.uniform1i(this.#uBlendMode, blendMode)
     gl.uniform2i(this.#uResolution, resolutionW, resolutionH)
 
     gl.activeTexture(gl.TEXTURE0)
-    gl.bindTexture(gl.TEXTURE_2D, this.#atlasCelsTex)
+    gl.bindTexture(gl.TEXTURE_2D, this.#atlasTex)
     gl.activeTexture(gl.TEXTURE1)
     gl.bindTexture(gl.TEXTURE_2D, this.#sprsheetTex)
 

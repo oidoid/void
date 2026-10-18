@@ -1,8 +1,9 @@
 #version 300 es
 precision highp float;
 
+// red encodes a palette index or 0.
 uniform highp sampler2D uSprsheet;
-uniform highp usampler2D uAtlasCels;
+uniform highp usampler2D uAtlas;
 uniform highp vec2 uAtlasSize;
 uniform mediump int uBlendMode;
 
@@ -11,7 +12,7 @@ flat in highp vec2 vDstWH;
 flat in highp vec4 vCelXYWH; // in atlas pixels.
 flat in highp uint vFlags;
 
-out highp vec4 fragColor;
+out mediump vec4 fragColor; // RGBA8 color.
 
 const mediump int layerBlendModeMultiply = 1;
 const highp uint sprHiddenMask = 1u;
@@ -33,6 +34,18 @@ highp vec4 palColor(highp uvec4 cel, mediump int slot) {
   );
 }
 
+// a texel is four uint16 channels: two tag offsets or one cel's XYWH.
+highp uvec4 atlasTexel(highp uint i) {
+  highp uint w = uint(textureSize(uAtlas, 0).x);
+  return texelFetch(uAtlas, ivec2(int(i % w), int(i / w)), 0);
+}
+
+highp uvec4 atlasCel(highp uint tag, highp uint cel) {
+  highp uvec4 offsets = atlasTexel(tag / 2u);
+  highp uvec2 offset = (tag & 1u) == 0u ? offsets.xy : offsets.zw;
+  return atlasTexel((offset.x | (offset.y << 16u)) + cel);
+}
+
 void main() {
   bool hidden = (vFlags >> sprHiddenShift & sprHiddenMask) != 0u;
   if (hidden) discard;
@@ -47,7 +60,7 @@ void main() {
   if (tex.a == 0.) discard;
   highp uint palTag = (vFlags >> sprPalTagShift) & sprPalTagMask;
   if (palTag != 0u) {
-    highp uvec4 palCel = texelFetch(uAtlasCels, ivec2(0, int(palTag)), 0);
+    highp uvec4 palCel = atlasCel(palTag, 0u);
     mediump uint palSlot = uint(round(tex.r * 255.));
     if (palSlot < palCel.z) {
       tex = palColor(palCel, int(palSlot));

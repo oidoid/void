@@ -37,11 +37,11 @@ func TestMouseStatusPtrlocked(t *testing.T) {
 				t.Errorf("sprites = %v, want %v", got, test.sprsLen)
 				return
 			}
-			if test.locked && sprs[1].TagCel != tags.MouseStatusLocked.Cel(0) {
+			if test.locked && sprs[1].Tag != tags.MouseStatusLocked {
 				t.Errorf(
-					"lock TagCel = %v, want %v",
-					sprs[1].TagCel,
-					tags.MouseStatusLocked.Cel(0),
+					"lock Tag = %v, want %v",
+					sprs[1].Tag,
+					tags.MouseStatusLocked,
 				)
 			}
 		})

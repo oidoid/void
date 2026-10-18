@@ -31,9 +31,10 @@ func NewSpawn(x, y, w, h, rot float32) Spawn {
 
 func (this Spawn) Spr() vgfx.Spr {
 	spr := vgfx.Spr{
-		XY:     this.XY,
-		TagCel: this.Tag.Cel(this.Cel),
-		Z:      this.Z,
+		XY:  this.XY,
+		Tag: this.Tag,
+		Cel: this.Cel,
+		Z:   this.Z,
 		WH: vgeo.NewWH(
 			uint16(vmath.Ceil(this.WH.W)),
 			uint16(vmath.Ceil(this.WH.H)),

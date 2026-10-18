@@ -10,7 +10,7 @@ export class TileRenderer {
   static new(
     gl: WebGL2RenderingContext,
     board: Readonly<BoardConfig>,
-    atlasCelsTex: WebGLTexture,
+    atlasTex: WebGLTexture,
     sprsheetTex: WebGLTexture
   ): TileRenderer {
     const pgm = buildProgram(gl, tileVert, tileFrag)
@@ -30,7 +30,7 @@ export class TileRenderer {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
     gl.useProgram(pgm)
     gl.uniform1i(gl.getUniformLocation(pgm, 'uTiles')!, 0)
-    gl.uniform1i(gl.getUniformLocation(pgm, 'uAtlasCels')!, 1)
+    gl.uniform1i(gl.getUniformLocation(pgm, 'uAtlas')!, 1)
     gl.uniform1i(gl.getUniformLocation(pgm, 'uSprsheet')!, 2)
     gl.useProgram(null)
 
@@ -43,7 +43,7 @@ export class TileRenderer {
       uTileWH,
       vao,
       tilesTex,
-      atlasCelsTex,
+      atlasTex,
       sprsheetTex
     )
     renderer.update(board)
@@ -59,7 +59,7 @@ export class TileRenderer {
   readonly #vao: WebGLVertexArrayObject
   readonly #tilesTex: WebGLTexture
   // borrowed from SprRenderer and deleted there.
-  readonly #atlasCelsTex: WebGLTexture
+  readonly #atlasTex: WebGLTexture
   readonly #sprsheetTex: WebGLTexture
   /** allocated tile texture width in cells. */
   #gridW: number = 0
@@ -75,7 +75,7 @@ export class TileRenderer {
     uTileWH: WebGLUniformLocation,
     vao: WebGLVertexArrayObject,
     tilesTex: WebGLTexture,
-    atlasCelsTex: WebGLTexture,
+    atlasTex: WebGLTexture,
     sprsheetTex: WebGLTexture
   ) {
     this.#gl = gl
@@ -86,7 +86,7 @@ export class TileRenderer {
     this.#uTileWH = uTileWH
     this.#vao = vao
     this.#tilesTex = tilesTex
-    this.#atlasCelsTex = atlasCelsTex
+    this.#atlasTex = atlasTex
     this.#sprsheetTex = sprsheetTex
   }
 
@@ -157,7 +157,7 @@ export class TileRenderer {
     gl.activeTexture(gl.TEXTURE0)
     gl.bindTexture(gl.TEXTURE_2D, this.#tilesTex)
     gl.activeTexture(gl.TEXTURE1)
-    gl.bindTexture(gl.TEXTURE_2D, this.#atlasCelsTex)
+    gl.bindTexture(gl.TEXTURE_2D, this.#atlasTex)
     gl.activeTexture(gl.TEXTURE2)
     gl.bindTexture(gl.TEXTURE_2D, this.#sprsheetTex)
     gl.bindVertexArray(this.#vao)

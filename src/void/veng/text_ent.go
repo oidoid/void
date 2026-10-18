@@ -65,8 +65,7 @@ func (this *TextEnt) Update(
 		)) {
 			continue
 		}
-		spr := vgfx.Spr{TagCel: font.Tag(ch).Cel(0), XY: xy, Z: this.Z}
-		spr.WH = wh
+		spr := vgfx.Spr{Tag: font.Tag(ch), XY: xy, Z: this.Z, WH: wh}
 		spr.SetStretch(true)
 		spr.SetPal(this.Pal)
 		*sprs = append(*sprs, spr)

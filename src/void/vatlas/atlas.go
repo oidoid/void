@@ -1,34 +1,26 @@
 package vatlas
 
-// the number of cels every animation is padded to by repeating the sequence.
-const CelsPerAnim = 16
-
-// max animation loop duration in milliseconds.
-const MaxAnimLoopMillis = 1000
-
-// the duration of one cel in milliseconds (62.5).
-const CelMillis = float64(MaxAnimLoopMillis) / CelsPerAnim
+// maximum total cels across all tags, including the nil cel.
+const MaxAtlasCels = 65535
 
 type Atlas struct {
-	Anims []Anim
-	Cels  []uint16 // cel subimages as XYWH.
+	Meta []TagMeta // indexed by Tag.
+	Cels []Cel
 }
 
-// builds an Atlas from the compact [srcX, srcY] pairs produced by the atlas
-// packer.
-func NewAtlas(anims []Anim, celXY []uint16) Atlas {
-	cels := make([]uint16, len(anims)*CelsPerAnim*4)
-	cellI := 0
-	for tag, anim := range anims {
-		for cel := 0; cel < CelsPerAnim; cel++ {
-			wrap := cel % int(anim.Cels)
-			u16 := (tag*CelsPerAnim + cel) * 4
-			cels[u16+0] = celXY[cellI+wrap*2]
-			cels[u16+1] = celXY[cellI+wrap*2+1]
-			cels[u16+2] = anim.W
-			cels[u16+3] = anim.H
-		}
-		cellI += int(anim.Cels) * 2
+// assigns each tag its contiguous range of cels.
+func NewAtlas(metas []TagMeta, cels []Cel) Atlas {
+	if len(cels) > MaxAtlasCels {
+		panic("atlas exceeds 65535 cels")
 	}
-	return Atlas{Anims: anims, Cels: cels}
+	first := uint16(0)
+	for i := range metas {
+		metas[i].CelIndex = first
+		first += uint16(metas[i].Cels)
+	}
+	return Atlas{Meta: metas, Cels: cels}
+}
+
+func (this *Atlas) Cel(tag Tag, cel uint8) Cel {
+	return this.Cels[int(this.Meta[tag].CelIndex)+int(cel)]
 }

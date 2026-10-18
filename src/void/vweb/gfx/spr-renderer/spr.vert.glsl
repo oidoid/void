@@ -2,16 +2,14 @@
 
 uniform highp ivec2 uResolution;
 uniform highp vec2 uCamXY;
-uniform highp float uNowMillis;
 uniform bool uPixel;
-uniform highp usampler2D uAtlasCels;
-uniform highp vec2 uAtlasSize;
+// highp keeps 32b offsets reconstructed from RGBA16UI channels.
+uniform highp usampler2D uAtlas;
 
-const highp uint tagCelMask = 0xfu;
-const highp uint tagCelShift = 4u;
-const highp float celsPerAnim = 16.;
 const highp uint sprHiddenMask = 1u;
 const highp uint sprHiddenShift = 0u;
+const mediump uint sprTagMask = 0xfffu;
+const mediump uint sprTagShift = 0u;
 const highp uint sprZTopMask = 1u;
 const highp uint sprZTopShift = 12u;
 const highp uint sprRotMask = 0xfffu;
@@ -23,11 +21,13 @@ const highp float sprDepthYRanks = 4096.;
 const highp float sprDepthRange = 65536.;
 
 layout(location = 0) in highp vec2 aXY; // spr origin.
-layout(location = 1) in highp uint aTagCel; // hi 12 bits = Tag, lo 4 bits = Cel.
-layout(location = 2) in highp uint aZ;
+layout(location = 1) in mediump uint aTag; // 12b atlas ID.
+layout(location = 2) in lowp uint aCel; // uint8.
+layout(location = 5) in lowp uint aZ; // uint8.
 layout(location = 3) in highp uvec2 aWH; // destination size; zero uses source cel size.
 layout(location = 4) in highp uint aFlags;
 
+// highp keeps subpixel coordinates at large atlas sizes and 16b depth ranks.
 out highp vec2 vTexUV; // local pixel position within destination box.
 flat out highp vec2 vDstWH;
 flat out highp vec4 vCelXYWH; // in atlas pixels.
@@ -43,17 +43,27 @@ const highp vec2 corners[6] = vec2[6](
   vec2(0., 1.)
 );
 
+// a texel is four uint16 channels: two tag offsets, or one cel's `XYWH`.
+highp uvec4 atlasTexel(highp uint i) {
+  highp uint w = uint(textureSize(uAtlas, 0).x);
+  return texelFetch(uAtlas, ivec2(int(i % w), int(i / w)), 0);
+}
+
+highp uvec4 atlasCel(highp uint tag, highp uint cel) {
+  highp uvec4 offsets = atlasTexel(tag / 2u);
+  highp uvec2 offset = (tag & 1u) == 0u ? offsets.xy : offsets.zw;
+  return atlasTexel((offset.x | (offset.y << 16u)) + cel);
+}
+
 void main() {
-  highp uint tag = aTagCel >> tagCelShift;
   bool hidden = (aFlags >> sprHiddenShift & sprHiddenMask) != 0u;
+  mediump uint tag = aTag >> sprTagShift & sprTagMask;
   if (tag == 0u || hidden) {
     gl_Position = vec4(2., 0., 0., 1.);
     return;
   }
 
-  highp uint celI =
-    (aTagCel + uint(floor(uNowMillis * celsPerAnim / 1000.))) & tagCelMask;
-  highp uvec4 cel = texelFetch(uAtlasCels, ivec2(int(celI), int(tag)), 0);
+  highp uvec4 cel = atlasCel(tag, aCel);
   highp vec2 celMin = vec2(float(cel.x), float(cel.y));
   highp vec2 celWH = vec2(float(cel.z), float(cel.w));
   highp vec2 wh = aWH.x != sprWHSource ? vec2(float(aWH.x), float(aWH.y)) : celWH;

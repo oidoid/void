@@ -17,7 +17,7 @@ func NewCursorEnt(
 		spawn.Spawn,
 		0,
 		float32(spawn.KbdVel),
-		atlas.Anims[int(spawn.Tag)].Hitbox,
+		atlas.Meta[spawn.Tag].Hitbox,
 	)}
 }
 

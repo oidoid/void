@@ -10,8 +10,8 @@ import (
 const UIButtonGap = int16(4)
 
 func NewWidgetNinePatch() veng.NinePatchEnt {
-	edge := vgfx.Spr{TagCel: tags.WidgetEdgeLight.Cel(0)}
-	fill := vgfx.Spr{TagCel: tags.WidgetFill.Cel(0)}
+	edge := vgfx.Spr{Tag: tags.WidgetEdgeLight}
+	fill := vgfx.Spr{Tag: tags.WidgetFill}
 	return veng.NinePatchEnt{
 		PatchByDir: [9]vgfx.Spr{
 			vgeo.DirE:      edge,

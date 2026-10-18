@@ -84,9 +84,9 @@ func (this *CursorEnt) Update(eng *Eng) Status {
 	if !this.Visible {
 		return Pause
 	}
-	this.Spr.SetTag(this.pointTag)
+	this.Spr.Tag = this.pointTag
 	if this.pickTag != 0 && in.IsOn(vin.ButtonA) {
-		this.Spr.SetTag(this.pickTag)
+		this.Spr.Tag = this.pickTag
 	}
 	layer.Sprs = append(layer.Sprs, this.Spr)
 	if this.kbdOn {

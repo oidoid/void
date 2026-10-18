@@ -53,9 +53,7 @@ export class Renderer {
   constructor(
     gl: WebGL2RenderingContext,
     board: Readonly<BoardConfig>,
-    atlasCels: Uint16Array,
-    atlasAnimCount: number,
-    atlasCelsPerAnim: number,
+    atlasTexels: Uint16Array,
     atlasImg: HTMLImageElement,
     pixel: boolean
   ) {
@@ -69,18 +67,11 @@ export class Renderer {
     this.#gl = gl
     this.#clip = ClipRenderer.new(gl, pixel)
     this.#overlay = OverlayRenderer.new(gl, pixel)
-    this.#sprs = SprRenderer.new(
-      gl,
-      atlasCels,
-      atlasAnimCount,
-      atlasCelsPerAnim,
-      atlasImg,
-      pixel
-    )
+    this.#sprs = SprRenderer.new(gl, atlasTexels, atlasImg, pixel)
     this.#tiles = TileRenderer.new(
       gl,
       board,
-      this.#sprs.atlasCelsTex,
+      this.#sprs.atlasTex,
       this.#sprs.sprsheetTex
     )
   }
@@ -171,7 +162,6 @@ export class Renderer {
     buffer: ArrayBuffer,
     sprPtr: number,
     sprCount: number,
-    nowMillis: number,
     camX: number,
     camY: number,
     layerScale: number,
@@ -191,7 +181,6 @@ export class Renderer {
       buffer,
       sprPtr,
       sprCount,
-      nowMillis,
       clipTarget.camX,
       clipTarget.camY,
       blendMode,

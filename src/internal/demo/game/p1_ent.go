@@ -12,7 +12,7 @@ import (
 )
 
 type P1Ent struct {
-	vgfx.Spr
+	vgfx.Anim
 	Hurtbox   vgeo.Box[uint16]
 	Dir       vgeo.Dir
 	Clockwise bool
@@ -23,12 +23,10 @@ const (
 	p1MaxMove = float32(4)
 )
 
-func NewP1Ent(
-	spawn boards.P1Spawn, atlas *vatlas.Atlas,
-) P1Ent {
+func NewP1Ent(spawn boards.P1Spawn, atlas *vatlas.Atlas) P1Ent {
 	return P1Ent{
-		Spr:       spawn.Spawn.Spr(),
-		Hurtbox:   atlas.Anims[int(spawn.Tag)].Hurtbox,
+		Anim:      vgfx.Anim{Spr: spawn.Spawn.Spr()},
+		Hurtbox:   atlas.Meta[spawn.Tag].Hurtbox,
 		Dir:       vgeo.DirE,
 		Clockwise: spawn.Clockwise,
 	}
@@ -36,11 +34,21 @@ func NewP1Ent(
 
 func (this *P1Ent) Update(gam *Game) veng.Status {
 	this.Move(gam.DeltaSecs(), gam.Board())
+	tag := tags.BackpackerWalkRight
+	switch this.Dir {
+	case vgeo.DirN:
+		tag = tags.BackpackerWalkUp
+	case vgeo.DirS:
+		tag = tags.BackpackerWalkDown
+	}
+	this.SetTag(tag)
+	this.SetFlipX(this.Dir == vgeo.DirW)
+	this.Anim.Update(gam.Atlas(), gam.DeltaMs())
 	layer := gam.Layer(this.Z.Layer())
 	if layer.Clip.HitsBox(vgeo.XYWH(
 		this.X, this.Y, float32(this.W), float32(this.H),
 	)) {
-		layer.Sprs = append(layer.Sprs, this.spr())
+		layer.Sprs = append(layer.Sprs, this.Spr)
 	}
 	return veng.Pause // demo doesn't want p1 to require updates.
 }
@@ -122,21 +130,4 @@ func (this *P1Ent) turn() {
 		by = vgeo.DirS
 	}
 	this.Dir = (this.Dir + by) % vgeo.DirCenter
-}
-
-func (this *P1Ent) spr() vgfx.Spr {
-	spr := this.Spr
-	switch this.Dir {
-	case vgeo.DirN:
-		spr.SetTag(tags.BackpackerWalkUp)
-	case vgeo.DirW:
-		spr.SetFlipX(!spr.FlipX())
-	case vgeo.DirS:
-		spr.SetTag(tags.BackpackerWalkDown)
-	default:
-		if spr.Tag() == 0 {
-			spr.SetTag(tags.BackpackerWalkRight)
-		}
-	}
-	return spr
 }

@@ -14,27 +14,27 @@ import (
 // `FullscreenReq` persists so requests can be retried during user activation.
 // to-do: should `FullscreenReq` be limited?
 type Out struct {
-	UpdateInMillis   uint64
-	Cam              vgeo.XY[float32]
-	BoardTilesPtr    uint32
-	BoardTilesLen    uint32
-	BoardW           int32
-	BoardH           int32
-	BoardLevel       uint16
-	BoardTileW       uint8
-	BoardTileH       uint8
-	AtlasCelsPtr     uint32
-	AtlasCelsCount   uint32
-	AtlasAnimCount   uint32
-	AtlasCelsPerAnim uint32
-	FullscreenReq    FullscreenReq
-	DrawAlways       bool
-	DrawOnBlur       bool
-	RenderMode       vgfx.RenderMode
-	Requests         uint8
-	BeepCount        uint32
-	Beeps            [16]Beep
-	Layers           [vgfx.LayerCount]vgfx.LayerConfigExport
+	UpdateInMillis uint64
+	Cam            vgeo.XY[float32]
+	BoardTilesPtr  uint32
+	BoardTilesLen  uint32
+	BoardW         int32
+	BoardH         int32
+	BoardLevel     uint16
+	BoardTileW     uint8
+	BoardTileH     uint8
+	AtlasMetaPtr   uint32
+	AtlasMetaCount uint32
+	AtlasCelsPtr   uint32
+	AtlasCelsCount uint32
+	FullscreenReq  FullscreenReq
+	DrawAlways     bool
+	DrawOnBlur     bool
+	RenderMode     vgfx.RenderMode
+	Requests       uint8
+	BeepCount      uint32
+	Beeps          [16]Beep
+	Layers         [vgfx.LayerCount]vgfx.LayerConfigExport
 }
 
 const (

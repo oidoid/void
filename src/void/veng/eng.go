@@ -253,10 +253,6 @@ func (this *Eng) updateTexts() Status {
 	return stat
 }
 
-func (this *Eng) AtlasAnimCount() uint32 {
-	return uint32(len(this.atlas.Anims))
-}
-
 func (this *Eng) BeginTick() Status {
 	this.out.Requests = 0
 	this.out.UpdateInMillis = 0
@@ -293,8 +289,10 @@ func (this *Eng) updateOut() {
 			))
 		}
 	}
-	out.AtlasAnimCount = this.AtlasAnimCount()
-	out.AtlasCelsPerAnim = uint32(vatlas.CelsPerAnim)
+	out.AtlasMetaCount = uint32(len(this.atlas.Meta))
+	out.AtlasMetaPtr = uint32(uintptr(
+		unsafe.Pointer(unsafe.SliceData(this.atlas.Meta)),
+	))
 	out.AtlasCelsCount = uint32(len(this.atlas.Cels))
 	out.AtlasCelsPtr = 0
 	if out.AtlasCelsCount != 0 {

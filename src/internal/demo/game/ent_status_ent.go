@@ -23,11 +23,11 @@ func NewEntStatusEnt() EntStatusEnt {
 	this := EntStatusEnt{}
 	this.Fill = veng.NinePatchEnt{
 		PatchByDir: [9]vgfx.Spr{
-			vgeo.DirE:      {TagCel: tags.ColorBlue.Cel(0)},
-			vgeo.DirN:      {TagCel: tags.ColorBlue.Cel(0)},
-			vgeo.DirW:      {TagCel: tags.ColorBlue.Cel(0)},
-			vgeo.DirS:      {TagCel: tags.ColorBlue.Cel(0)},
-			vgeo.DirCenter: {TagCel: tags.ColorBlue.Cel(0)},
+			vgeo.DirE:      {Tag: tags.ColorBlue},
+			vgeo.DirN:      {Tag: tags.ColorBlue},
+			vgeo.DirW:      {Tag: tags.ColorBlue},
+			vgeo.DirS:      {Tag: tags.ColorBlue},
+			vgeo.DirCenter: {Tag: tags.ColorBlue},
 		},
 		CornerWH: vgeo.NewWH[uint16](1, 1),
 	}

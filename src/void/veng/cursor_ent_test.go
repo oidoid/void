@@ -23,7 +23,7 @@ func TestCursorEntUpdateEng(t *testing.T) {
 	ent := testCursorEnt(0)
 	ent.Visible = true
 	ent.KbdEnabled = true
-	ent.Spr.Z = vgfx.Z(4)
+	ent.Spr.Z = 4
 	if stat := ent.Update(eng); stat != Pause {
 		t.Errorf("Update() = %v, want Pause", stat)
 	}
@@ -74,7 +74,7 @@ func TestUpdate_DrawSpawn(t *testing.T) {
 		t.Fatalf("len(sprs) = %d, want 1", len(sprs))
 	}
 	spr := sprs[0]
-	if spr.Tag() != 5 || spr.Cel() != 2 || spr.Pal() != 3 || spr.Z != 4 {
+	if spr.Tag != 5 || spr.Cel != 2 || spr.Pal() != 3 || spr.Z != 4 {
 		t.Errorf("spr = %#v, want tag 5, cel 2, pal 3, Z 4", spr)
 	}
 	if spr.XY != spawn.XY || spr.WH != vgeo.NewWH[uint16](9, 13) {
@@ -98,12 +98,12 @@ func TestUpdate_RestoresPointTag(t *testing.T) {
 	layer := vgfx.NewLayerConfig(0)
 	sprs := []vgfx.Spr{}
 	updateCursorEnt(&ent, in, &sprs, 0, &layer)
-	if got := sprs[0].Tag(); got != 2 {
+	if got := sprs[0].Tag; got != 2 {
 		t.Errorf("picked Tag = %d, want 2", got)
 	}
 	in.On = 0
 	updateCursorEnt(&ent, in, &sprs, 0, &layer)
-	if got := sprs[1].Tag(); got != 1 {
+	if got := sprs[1].Tag; got != 1 {
 		t.Errorf("released Tag = %d, want 1", got)
 	}
 }
@@ -124,7 +124,7 @@ func TestCursorEnt_DoesNotMaskInput(t *testing.T) {
 		if pressed {
 			wantTag = ent.pickTag
 		}
-		if ent.Visible != pressed || ent.Spr.Tag() != wantTag {
+		if ent.Visible != pressed || ent.Spr.Tag != wantTag {
 			t.Errorf("Mask=%v: cursor did not reflect the available press", mask)
 		}
 		if in.Mask != mask || in.IsOnStart(vin.ButtonA) != pressed {

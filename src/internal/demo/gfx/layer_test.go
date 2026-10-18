@@ -34,14 +34,13 @@ func TestTiledSpawnEnums(t *testing.T) {
 			"Tiles", "P1", "Superballs", "UI", "ViewportEdge", "Cursor",
 			"Overlay", "Grid",
 		},
-		"Cel": make([]string, int(vatlas.TagCelMask)+1),
-		"Z":   make([]string, vgfx.SublayerCount),
+		"Z": make([]string, vgfx.SublayerCount),
 		"Pal": {
 			"Default", "Widget", "WidgetFocused", "WidgetOn",
 			"WidgetFocusedOn", "Text", "TextLight",
 		},
 	}
-	for _, name := range [...]string{"Cel", "Z"} {
+	for _, name := range [...]string{"Z"} {
 		for i := range want[name] {
 			want[name][i] = strconv.Itoa(i)
 		}

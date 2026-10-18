@@ -74,9 +74,9 @@ func (this *SuperballEnt) Draw(
 ) veng.Status {
 	if clip.HitsXY(this.XY) {
 		spr := vgfx.Spr{
-			TagCel: tags.SuperballDefault.Cel(0),
-			XY:     this.XY,
-			Z:      gfx.ZSuperball,
+			Tag: tags.SuperballDefault,
+			XY:  this.XY,
+			Z:   gfx.ZSuperball,
 		}
 		spr.SetRot(this.Rot)
 		*sprs = append(*sprs, spr)
@@ -129,9 +129,9 @@ func UpdateSuperballs(
 	vec *vvec.Vec[SuperballEnt],
 	gam *Game,
 ) veng.Status {
-	anim := gam.Atlas().Anims[int(tags.SuperballDefault)]
-	hitbox := anim.Hitbox
-	radius := float32(hitbox.Max.X-hitbox.Min.X) / 2
+	meta := gam.Atlas().Meta[tags.SuperballDefault]
+	hitbox := meta.Hitbox
+	radius := float32(hitbox.W()) / 2
 	diameter := radius * 2
 	layer := gam.Layer(gfx.LayerSuperballs)
 	sprs := &layer.Sprs

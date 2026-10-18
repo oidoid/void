@@ -226,7 +226,7 @@ func TestParseGenericSpawnProps(t *testing.T) {
 	var got vboards.Spawn
 	appProps, err := parseGenericSpawnProps(&object, &got, []tsxProp{
 		{Name: "Stretch", Type: "bool", Value: "true"},
-		{Name: "Cel", Type: "int", PropType: "Cel", Value: "15"},
+		{Name: "Cel", Type: "int", Value: "255"},
 		{Name: "Tag", Type: "string", PropType: "Tag", Value: "SuperballDefault"},
 		{Name: "Pal", Type: "int", PropType: "Pal", Value: "7"},
 		{Name: "Layer", Type: "int", PropType: "Layer", Value: "2"},
@@ -238,7 +238,7 @@ func TestParseGenericSpawnProps(t *testing.T) {
 		t.Fatal(err)
 	}
 	if !got.Hidden || !got.FlipX || !got.FlipY ||
-		!got.Stretch || got.Tag != 9 || got.Cel != 15 || got.Pal != 7 || got.Z != vgfx.Layer(2).Z(15) ||
+		!got.Stretch || got.Tag != 9 || got.Cel != 255 || got.Pal != 7 || got.Z != vgfx.Layer(2).Z(15) ||
 		!got.ZTop {
 		t.Fatalf("spawn props = %#v", got)
 	}
@@ -257,11 +257,11 @@ func TestParseGenericSpawnZRejectsInvalid(t *testing.T) {
 			Name: "Z", Type: "int", PropType: "Z", Value: "16",
 		},
 		"cel range": {
-			Name: "Cel", Type: "int", PropType: "Cel", Value: "16",
+			Name: "Cel", Type: "int", Value: "256",
 		},
 		"layer enum":    {Name: "Layer", Type: "int", Value: "2"},
 		"sublayer enum": {Name: "Z", Type: "int", Value: "3"},
-		"cel enum":      {Name: "Cel", Type: "int", Value: "1"},
+		"cel enum":      {Name: "Cel", Type: "int", PropType: "Cel", Value: "1"},
 		"pal enum":      {Name: "Pal", Type: "int", Value: "1"},
 		"tag type":      {Name: "Tag", Type: "int", Value: "1"},
 		"tag unknown":   {Name: "Tag", Value: "Missing"},

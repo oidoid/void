@@ -26,7 +26,7 @@ func TestSpawnSpr(t *testing.T) {
 	if spr.XY != spawn.XY || spr.WH != vgeo.NewWH[uint16](4, 5) {
 		t.Errorf("spr = %#v, want XY (1,2), WH (4,5)", spr)
 	}
-	if spr.Tag() != 6 || spr.Cel() != 7 || spr.Pal() != 8 || spr.Z != 5 {
+	if spr.Tag != 6 || spr.Cel != 7 || spr.Pal() != 8 || spr.Z != 5 {
 		t.Errorf("spr = %#v, want tag 6, cel 7, pal 8, Z 5", spr)
 	}
 	if !spr.Hidden() || !spr.FlipX() || !spr.FlipY() ||
