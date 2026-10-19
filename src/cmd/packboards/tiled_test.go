@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/xml"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -169,25 +170,46 @@ func TestParseAppSpawnStringProp(t *testing.T) {
 }
 
 func TestParseTextSpawn(t *testing.T) {
-	got, err := parseSpawns([]tmxObjectGroup{{Objs: []tmxObject{{
-		ID: 1, Class: "Text", X: 4, Y: 8, W: 32, H: 16,
-		Text: &tmxText{Val: "hello"},
-	}}}}, nil, nil)
+	var obj tmxObject
+	if err := xml.Unmarshal([]byte(`<object id="1" type="Text" x="4" y="8"
+ width="32" height="16"><text pixelsize="12">hello</text></object>`), &obj); err != nil {
+		t.Fatal(err)
+	}
+	got, err := parseSpawns([]tmxObjectGroup{{Objs: []tmxObject{obj}}}, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	want := []spawnGroupSpec{{
 		Class: "Text",
-		Props: []spawnPropSpec{{Name: "Text", Type: spawnPropStr}},
+		Props: []spawnPropSpec{
+			{Name: "Text", Type: spawnPropStr},
+			{Name: "SizePx", Type: spawnPropInt},
+		},
 		Spawns: []spawnSpec{{
 			Spawn: vboards.NewSpawn(4, 8, 32, 16, 0),
-			Props: []spawnPropSpec{{
-				Name: "Text", Type: spawnPropStr, Str: "hello",
-			}},
+			Props: []spawnPropSpec{
+				{Name: "Text", Type: spawnPropStr, Str: "hello"},
+				{Name: "SizePx", Type: spawnPropInt, Int: 12},
+			},
 		}},
 	}}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("spawns = %#v, want %#v", got, want)
+	}
+	board := spawnBoardSpec{Spawns: got}
+	src, err := genBoard("boards", "title.tmx", 1, &board)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(src), "SizePx: 12") {
+		t.Fatalf("generated board lacks text size:\n%s", src)
+	}
+	spawnSrc, err := genSpawns("boards", got)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(spawnSrc), "type TextSpawn = vboards.TextSpawn") {
+		t.Fatalf("generated spawns lack shared text type:\n%s", spawnSrc)
 	}
 }
 

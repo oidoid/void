@@ -72,8 +72,14 @@ type spawnGroupSpec struct {
 }
 
 func (this spawnGroupSpec) IsText() bool {
-	return len(this.Props) == 1 && this.Props[0].Name == "Text" &&
-		this.Props[0].Type == spawnPropStr
+	if len(this.Props) < 1 || len(this.Props) > 2 ||
+		this.Props[0].Name != "Text" ||
+		this.Props[0].Type != spawnPropStr {
+		return false
+	}
+	return len(this.Props) == 1 ||
+		this.Props[1].Name == "SizePx" &&
+			this.Props[1].Type == spawnPropInt
 }
 
 // combines generic creation data with app-specific properties.
@@ -224,7 +230,8 @@ type tmxObject struct {
 
 type tmxPoint struct{}
 type tmxText struct {
-	Val string `xml:",chardata"`
+	SizePx *int32 `xml:"pixelsize,attr"`
+	Val    string `xml:",chardata"`
 }
 
 func newTilesetIndex(
@@ -369,6 +376,18 @@ func parseSpawns(
 				appProps = append(appProps, tsxProp{
 					Name: "Text", Type: "string", Value: obj.Text.Val,
 				})
+				if obj.Text.SizePx != nil {
+					if *obj.Text.SizePx < 1 || *obj.Text.SizePx > 255 {
+						return nil, fmt.Errorf(
+							"text object ID %d pixel size must be from 1 to 255",
+							obj.ID,
+						)
+					}
+					appProps = append(appProps, tsxProp{
+						Name: "SizePx", Type: "int",
+						Value: strconv.FormatInt(int64(*obj.Text.SizePx), 10),
+					})
+				}
 			}
 			props, err := parseSpawnProps(obj.ID, appProps)
 			if err != nil {

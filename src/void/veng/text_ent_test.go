@@ -18,7 +18,7 @@ func TestNewTextEnt(t *testing.T) {
 		},
 		Text: "hello",
 	}
-	ent := NewTextEnt(spawn)
+	ent := NewTextEnt(spawn, vtext.MemProp5x6)
 	if got, want := ent.XY, vgeo.NewXY[int16](-1, 2); got != want {
 		t.Errorf("XY = %v, want %v", got, want)
 	}
@@ -58,6 +58,42 @@ func TestTextEntScale(t *testing.T) {
 	}
 	if got := sprs[0].Pal(); got != 7 {
 		t.Errorf("spr palette = %d, want 7", got)
+	}
+}
+
+func TestNewTextEntRoundsTiledSizeToScale(t *testing.T) {
+	font := vtext.MemProp5x6
+	for _, test := range []struct {
+		name      string
+		sizePx    uint8
+		wantScale uint8
+	}{
+		{"unspecified", 0, 1},
+		{"below half", 8, 1},
+		{"half rounds up", 9, 2},
+		{"integer multiple", 12, 2},
+		{"next half", 15, 3},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			ent := NewTextEnt(vboards.TextSpawn{
+				Text: "1", SizePx: test.sizePx,
+			}, font)
+			var sprs []vgfx.Spr
+			ent.Update(font, &sprs, vgeo.NewBox[float32](0, 0, 100, 100))
+			if len(sprs) != 1 {
+				t.Fatalf("spr count = %d, want 1", len(sprs))
+			}
+			want := vgeo.NewWH(
+				uint16(font.CellW)*uint16(test.wantScale),
+				uint16(font.CellH)*uint16(test.wantScale),
+			)
+			if got := sprs[0].WH; got != want {
+				t.Errorf("spr size = %+v, want %+v", got, want)
+			}
+			if got := ent.Layout.TrimLeadForceH; got != int16(want.H) {
+				t.Errorf("layout height = %d, want %d", got, want.H)
+			}
+		})
 	}
 }
 

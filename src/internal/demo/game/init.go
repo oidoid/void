@@ -17,7 +17,7 @@ func initGame(gam *Game) {
 		if spawn.Hidden {
 			continue
 		}
-		gam.Texts().Add(veng.NewTextEnt(spawn))
+		gam.Texts().Add(veng.NewTextEnt(spawn, gam.Font()))
 	}
 	for _, spawn := range boards.InitP1Spawns {
 		p1 := NewP1Ent(spawn, gam.Atlas())

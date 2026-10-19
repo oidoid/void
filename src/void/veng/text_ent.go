@@ -19,7 +19,7 @@ type TextEnt struct {
 	textScale uint8
 }
 
-func NewTextEnt(spawn vboards.TextSpawn) TextEnt {
+func NewTextEnt(spawn vboards.TextSpawn, font *vtext.Font) TextEnt {
 	this := TextEnt{
 		XY: vgeo.NewXY(
 			int16(vmath.Floor(spawn.XY.X)),
@@ -28,6 +28,10 @@ func NewTextEnt(spawn vboards.TextSpawn) TextEnt {
 		Z: spawn.Z, Pal: spawn.Pal,
 	}
 	this.SetText(spawn.Text)
+	if spawn.SizePx != 0 && font.CellH != 0 {
+		scale := (uint16(spawn.SizePx) + uint16(font.CellH)/2) / uint16(font.CellH)
+		this.SetScale(uint8(max(1, scale)))
+	}
 	return this
 }
 

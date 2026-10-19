@@ -58,6 +58,7 @@ var InitTextSpawns = [...]TextSpawn{
 			Z:   35,
 			Pal: 5,
 		},
-		Text: "void",
+		Text:   "void",
+		SizePx: 6,
 	},
 }
