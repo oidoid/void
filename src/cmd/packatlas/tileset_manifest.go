@@ -145,6 +145,16 @@ func mapTileCel(
 	if cel.Tilemap.Bits != 8 && cel.Tilemap.Bits != 16 && cel.Tilemap.Bits != 32 {
 		return fmt.Errorf("%d-bit tile IDs are unsupported", cel.Tilemap.Bits)
 	}
+	offsetX, offsetY := int(cel.Header.X), int(cel.Header.Y)
+	tileW, tileH := int(tileset.Header.W), int(tileset.Header.H)
+	if offsetX%tileW != 0 || offsetY%tileH != 0 {
+		return fmt.Errorf(
+			"cel position %d,%d is not aligned to tile size %dx%d",
+			offsetX, offsetY, tileW, tileH,
+		)
+	}
+	// cel positions are pixels; manifest positions are whole tiles.
+	col, row := offsetX/tileW, offsetY/tileH
 	byteLen := int(cel.Tilemap.Bits / 8)
 	flips := cel.Tilemap.XFlip | cel.Tilemap.YFlip | cel.Tilemap.DiagonalFlip
 	for y := range int(cel.Tilemap.H) {
@@ -164,8 +174,7 @@ func mapTileCel(
 			if tileID >= tileset.Header.Count {
 				return fmt.Errorf("tile ID %d exceeds count %d", tileID, tileset.Header.Count)
 			}
-			dstX := int(cel.Header.X) + x
-			dstY := int(cel.Header.Y) + y
+			dstX, dstY := col+x, row+y
 			if dstX < 0 || dstX >= cols || dstY < 0 || dstY >= rows {
 				return fmt.Errorf("tile at %d,%d exceeds image bounds", dstX, dstY)
 			}

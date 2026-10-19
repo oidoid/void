@@ -447,9 +447,9 @@ func TestNewTilesetManifestMultipleNativeTilesets(t *testing.T) {
 		}}
 	}
 	file := &asset{
-		name: "tiles.aseprite", W: 2, H: 1,
+		name: "tiles.aseprite", W: 32, H: 8,
 		Frames: []assetFrame{{Cels: map[uint16]assetCel{
-			0: tilemap(0, 1), 1: tilemap(1, 2),
+			0: tilemap(0, 1), 1: tilemap(16, 2),
 		}}},
 		Layers: []assetLayer{
 			{AseLayer: vatlas.AseLayer{
@@ -467,10 +467,10 @@ func TestNewTilesetManifestMultipleNativeTilesets(t *testing.T) {
 		},
 		Tilesets: []vatlas.AseTileset{
 			{Header: vatlas.AseTilesetHeader{
-				Flags: embedded, Count: 2, W: 1, H: 1,
+				Flags: embedded, Count: 2, W: 16, H: 8,
 			}},
 			{Header: vatlas.AseTilesetHeader{
-				Flags: embedded, Count: 3, W: 1, H: 1,
+				Flags: embedded, Count: 3, W: 16, H: 8,
 			}},
 		},
 	}
@@ -481,6 +481,65 @@ func TestNewTilesetManifestMultipleNativeTilesets(t *testing.T) {
 	got := manifests[0].Tags
 	if len(got) != 2 || got[0] != 11 || got[1] != 14 {
 		t.Fatalf("tags = %v, want [11 14]", got)
+	}
+}
+
+func TestMapTileCelOffsets(t *testing.T) {
+	for _, test := range []struct {
+		name string
+		x, y int16
+		cell int
+		err  string
+	}{
+		{"origin", 0, 0, 0, ""},
+		{"x", 16, 0, 1, ""},
+		{"y", 0, 8, 4, ""},
+		{"xy", 16, 8, 5, ""},
+		{"last", 32, 16, 10, ""},
+		{"unaligned x", 1, 0, 0, "not aligned"},
+		{"unaligned y", 0, 1, 0, "not aligned"},
+		{"negative unaligned x", -1, 0, 0, "not aligned"},
+		{"negative unaligned y", 0, -1, 0, "not aligned"},
+		{"before x", -16, 0, 0, "exceeds image bounds"},
+		{"before y", 0, -8, 0, "exceeds image bounds"},
+		{"after x", 48, 0, 0, "exceeds image bounds"},
+		{"after y", 0, 24, 0, "exceeds image bounds"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			manifest := tilesetmanifest.TilesetSpec{
+				Tags: make([]vatlas.Tag, 16),
+			}
+			tileset := vatlas.AseTileset{Header: vatlas.AseTilesetHeader{
+				W: 16, H: 8, Count: 5,
+			}}
+			cel := assetCel{AseCel: vatlas.AseCel{
+				Header: vatlas.AseCelHeader{
+					X: test.x, Y: test.y, Type: vatlas.AseCelTilemap,
+				},
+				Tilemap: vatlas.AseCelTilemapHeader{
+					W: 2, H: 2, Bits: 8, ID: 0xff,
+				},
+				Pxs: []byte{1, 2, 3, 4},
+			}}
+			err := mapTileCel(&manifest, 4, 4, &tileset, &cel, 10)
+			if test.err != "" {
+				if err == nil || !strings.Contains(err.Error(), test.err) {
+					t.Fatalf("err = %v, want %q", err, test.err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			want := make([]vatlas.Tag, 16)
+			want[test.cell], want[test.cell+1] = 11, 12
+			want[test.cell+4], want[test.cell+5] = 13, 14
+			for i, tag := range manifest.Tags {
+				if tag != want[i] {
+					t.Fatalf("tags = %v, want %v", manifest.Tags, want)
+				}
+			}
+		})
 	}
 }
 
