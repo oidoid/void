@@ -86,6 +86,7 @@ export class Eng {
     initBody()
 
     this.#canvas = canvas
+    canvas.style.cursor = this.#paused() ? 'auto' : 'none'
     this.#fullscreen = new Fullscreen(canvas.parentElement!, canvas)
     this.#renderer = this.#newRenderer()
   }
@@ -361,6 +362,7 @@ export class Eng {
     this.#cancelFrame()
     clearTimeout(this.#updateTimeoutId)
     this.#updateTimeoutId = 0
+    this.#canvas.style.cursor = this.#paused() ? 'auto' : 'none'
     if (this.#paused()) this.#lastTime = 0
     this.#reqUpdate()
   }
