@@ -353,11 +353,11 @@ export class Eng {
   }
 
   #onVisibility = (): void => {
-    this.#wakelock.update()
     this.#onFocus()
   }
 
   #onFocus = (): void => {
+    this.#wakelock.update()
     this.#input.reset()
     this.#cancelFrame()
     clearTimeout(this.#updateTimeoutId)

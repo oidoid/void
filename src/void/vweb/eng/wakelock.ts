@@ -7,7 +7,7 @@ export class Wakelock {
   }
 
   update(): void {
-    if (document.visibilityState !== 'visible') {
+    if (document.visibilityState !== 'visible' || !document.hasFocus()) {
       this.#unlock()
       return
     }
@@ -25,7 +25,7 @@ export class Wakelock {
       return
     }
     this.#locking = false
-    if (document.visibilityState !== 'visible') {
+    if (document.visibilityState !== 'visible' || !document.hasFocus()) {
       await this.#releaseSentinel(sentinel)
       return
     }
