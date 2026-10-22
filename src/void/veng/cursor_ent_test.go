@@ -187,6 +187,56 @@ func TestHitboxPhy(t *testing.T) {
 	}
 }
 
+// to-do: fix test naming.
+func TestCursorEnt_HitsPhy(t *testing.T) {
+	for _, test := range []struct {
+		name   string
+		circle bool
+		box    vgeo.Box[float32]
+		want   bool
+	}{
+		{"box overlap", false, vgeo.XYWH[float32](4, 4, 2, 2), true},
+		{"box edge contact", false, vgeo.XYWH[float32](5, -1, 2, 2), false},
+		{"inside", true, vgeo.XYWH[float32](-1, -1, 2, 2), true},
+		{"encloses", true, vgeo.XYWH[float32](-8, -8, 16, 16), true},
+		{"left contact", true, vgeo.XYWH[float32](-7, -1, 2, 2), true},
+		{"right contact", true, vgeo.XYWH[float32](5, -1, 2, 2), true},
+		{"top contact", true, vgeo.XYWH[float32](-1, -7, 2, 2), true},
+		{"bottom contact", true, vgeo.XYWH[float32](-1, 5, 2, 2), true},
+		{"corner contact", true, vgeo.XYWH[float32](3, 4, 2, 2), true},
+		{"negative corner contact", true,
+			vgeo.XYWH[float32](-5, -6, 2, 2), true},
+		{"corner miss", true, vgeo.XYWH[float32](4, 4, 2, 2), false},
+		{"just outside", true, vgeo.XYWH[float32](5.125, -1, 2, 2), false},
+		{"negative outside", true,
+			vgeo.XYWH[float32](-7.125, -1, 2, 2), false},
+		{"point contact", true, vgeo.XYWH[float32](3, 4, 0, 0), true},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			cursor := &CursorEnt{
+				HitCircle:   test.circle,
+				hitboxPhy:   vgeo.XYWH[float32](-5, -5, 10, 10),
+				hitboxPhyOn: true,
+			}
+			if got := cursor.HitsPhy(test.box); got != test.want {
+				t.Errorf("HitsBoxPhy(%v) = %v, want %v", test.box, got, test.want)
+			}
+		})
+	}
+}
+
+func TestCursorEnt_HitsPhyInactive(t *testing.T) {
+	for _, cursor := range []*CursorEnt{
+		nil,
+		{HitCircle: true},
+		{HitCircle: true, hitboxPhyOn: true},
+	} {
+		if cursor.HitsPhy(vgeo.XYWH[float32](-1, -1, 2, 2)) {
+			t.Errorf("inactive or empty cursor hit: %+v", cursor)
+		}
+	}
+}
+
 func TestOnCursorPoint_SetsPosition(t *testing.T) {
 	ent := testCursorEnt(0)
 	layer := vgfx.NewLayerConfig(0)

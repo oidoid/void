@@ -74,19 +74,15 @@ func (this *ButtonEnt) Update(eng *Eng) Status {
 	in := eng.In()
 	layer := eng.Layer(this.NinePatchEnt.Z().Layer())
 	font := eng.Font()
-	cursorPhy := eng.Cursor().HitboxPhy()
 	this.layout(font, layer.Clip)
 	this.Start = false
 	if this.OnUpdate != nil {
 		this.OnUpdate(this)
 	}
 	bounds := this.AnchorBox()
-	this.Focused = false
-	if cursorPhy != nil {
-		lo := layer.PhyToLayer(cursorPhy.Min)
-		hi := layer.PhyToLayer(cursorPhy.Max)
-		this.Focused = bounds.HitsBox(vgeo.Box[float32]{Min: lo, Max: hi})
-	}
+	this.Focused = eng.Cursor().HitsPhy(vgeo.Box[float32]{
+		Min: layer.LayerToPhy(bounds.Min), Max: layer.LayerToPhy(bounds.Max),
+	})
 	offStart := this.Focused && in.IsOffStart(vin.ButtonA)
 	pressed := this.Focused && in.IsOn(vin.ButtonA)
 	wasOn := this.On

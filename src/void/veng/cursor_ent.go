@@ -14,9 +14,10 @@ import (
 type CursorEnt struct {
 	Spr vgfx.Spr
 	// keeps subpixel keyboard movement in layer coordinates.
-	XY      vgeo.XY[float32]
-	Hitbox  vgeo.Box[float32]
-	Visible bool // false until the first pointer or keyboard input.
+	XY        vgeo.XY[float32]
+	Hitbox    vgeo.Box[float32] // in layer coordinates.
+	HitCircle bool              // inscribes the hitbox as a circle's diameter centered in it.
+	Visible   bool              // false until the first pointer or keyboard input.
 	// enables keyboard movement when the app selects keyboard cursor mode.
 	KbdEnabled bool
 	// keyboard cursor velocity in px/sec.
@@ -104,12 +105,32 @@ func (this *CursorEnt) onCursorPoint(
 	this.Visible = dev == vin.PtrDevMouse
 }
 
-// returns the physical hitbox computed by Update, or nil when inactive.
+// returns phy bounds computed by `Update()` or nil when inactive. use
+// `HitsPhy()` for collision checks which considers cursor shape.
 func (this *CursorEnt) HitboxPhy() *vgeo.Box[float32] {
 	if this == nil || !this.hitboxPhyOn {
 		return nil
 	}
 	return &this.hitboxPhy
+}
+
+func (this *CursorEnt) HitsPhy(box vgeo.Box[float32]) bool {
+	hitbox := this.HitboxPhy()
+	if hitbox == nil {
+		return false
+	}
+	if !this.HitCircle {
+		return hitbox.HitsBox(box)
+	}
+	w, h := hitbox.W(), hitbox.H()
+	if w <= 0 || h <= 0 {
+		return false
+	}
+	radius := min(w, h) / 2
+	center := vgeo.NewXY(hitbox.Min.X+w/2, hitbox.Min.Y+h/2)
+	x := center.X - vmath.Clamp(box.Min.X, box.Max.X, center.X)
+	y := center.Y - vmath.Clamp(box.Min.Y, box.Max.Y, center.Y)
+	return x*x+y*y <= radius*radius
 }
 
 func (this *CursorEnt) onCursorKey(

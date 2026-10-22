@@ -39,6 +39,7 @@ func (this Box[T]) HitsXY(xy XY[T]) bool {
 	return this.HitsPoint(xy.X, xy.Y)
 }
 
+// to-do: inclusive for all of these?
 func (this Box[T]) HitsBox(box Box[T]) bool {
 	return this.Min.X < box.Max.X && this.Max.X > box.Min.X &&
 		this.Min.Y < box.Max.Y && this.Max.Y > box.Min.Y
