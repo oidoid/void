@@ -5,7 +5,7 @@ import tileVert from './tile.vert.glsl'
 
 const emptyTiles = new Uint16Array(1)
 
-/** draws static, single-cel board tiles. */
+/** draws single-cel board tiles. */
 export class TileRenderer {
   static new(
     gl: WebGL2RenderingContext,
@@ -90,26 +90,35 @@ export class TileRenderer {
     this.#sprsheetTex = sprsheetTex
   }
 
+  // new textures receive the full board; existing textures use dirty bounds.
   update(board: Readonly<BoardConfig>): void {
     const empty = !board.tiles.length
     const tiles = empty ? emptyTiles : board.tiles
     const cols = empty ? 1 : board.w / board.tileW
     const rows = empty ? 1 : board.h / board.tileH
+    const resize = cols !== this.#gridW || rows !== this.#gridH
+    const dirty = board.dirty
+    if (!resize && !dirty.w) return
     const gl = this.#gl
     gl.activeTexture(gl.TEXTURE0)
     gl.bindTexture(gl.TEXTURE_2D, this.#tilesTex)
-    if (cols === this.#gridW && rows === this.#gridH) {
+    // packed uint16 rows can have odd cell counts.
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1)
+    if (!resize) {
+      gl.pixelStorei(gl.UNPACK_ROW_LENGTH, cols)
       gl.texSubImage2D(
         gl.TEXTURE_2D,
         0,
-        0,
-        0,
-        cols,
-        rows,
+        dirty.x,
+        dirty.y,
+        dirty.w,
+        dirty.h,
         gl.RED_INTEGER,
         gl.UNSIGNED_SHORT,
-        tiles
+        tiles,
+        dirty.y * cols + dirty.x
       )
+      gl.pixelStorei(gl.UNPACK_ROW_LENGTH, 0)
     } else {
       gl.texImage2D(
         gl.TEXTURE_2D,
@@ -125,6 +134,7 @@ export class TileRenderer {
       this.#gridW = cols
       this.#gridH = rows
     }
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4)
     gl.bindTexture(gl.TEXTURE_2D, null)
 
     gl.useProgram(this.#pgm)

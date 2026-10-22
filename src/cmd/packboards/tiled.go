@@ -46,7 +46,7 @@ type spawnBoardSpec struct {
 	Spawns []spawnGroupSpec
 }
 
-func (this spawnBoardSpec) UsesGeo() bool {
+func (this *spawnBoardSpec) UsesGeo() bool {
 	for _, group := range this.Spawns {
 		for _, spawn := range group.Spawns {
 			if spawn.XY != (vgeo.XY[float32]{}) ||

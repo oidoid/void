@@ -10,7 +10,6 @@ import (
 // all Go outputs and bookkeeping consumed by web. written by Go, read by web.
 // pointers are just byte offsets into the single linear chunk of Wasm memory
 // (not `Out` itself).
-// `BeginTick()` clears one-shot requests, update delays, and beep count.
 // `FullscreenReq` persists so requests can be retried during user activation.
 // to-do: should `FullscreenReq` be limited?
 type Out struct {
@@ -18,6 +17,7 @@ type Out struct {
 	Cam            vgeo.XY[float32]
 	BoardTilesPtr  uint32
 	BoardTilesLen  uint32
+	BoardDirty     vgeo.Box[int32]
 	BoardW         int32
 	BoardH         int32
 	BoardLevel     uint16

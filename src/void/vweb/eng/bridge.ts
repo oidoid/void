@@ -75,31 +75,37 @@ export const gamepadAxesOffset: number = 8
 
 export const gamepadAxisStride: number = 4
 
-export const outByteLen: number = 512
+export const outByteLen: number = 528
 export const outUpdateInMillisOffset: number = 0
 export const outCamOffset: number = 8
 export const outBoardTilesPtrOffset: number = 16
 export const outBoardTilesLenOffset: number = 20
-export const outBoardWOffset: number = 24
-export const outBoardHOffset: number = 28
-export const outBoardLevelOffset: number = 32
-export const outBoardTileWOffset: number = 34
-export const outBoardTileHOffset: number = 35
-export const outAtlasMetaPtrOffset: number = 36
-export const outAtlasMetaCountOffset: number = 40
-export const outAtlasCelsPtrOffset: number = 44
-export const outAtlasCelsCountOffset: number = 48
-export const outFullscreenReqOffset: number = 52
-export const outDrawAlwaysOffset: number = 53
-export const outDrawOnBlurOffset: number = 54
-export const outRenderModeOffset: number = 55
-export const outRequestsOffset: number = 56
-export const outBeepCountOffset: number = 60
-export const outBeepsOffset: number = 64
-export const outLayersOffset: number = 320
+export const outBoardDirtyOffset: number = 24
+export const outBoardWOffset: number = 40
+export const outBoardHOffset: number = 44
+export const outBoardLevelOffset: number = 48
+export const outBoardTileWOffset: number = 50
+export const outBoardTileHOffset: number = 51
+export const outAtlasMetaPtrOffset: number = 52
+export const outAtlasMetaCountOffset: number = 56
+export const outAtlasCelsPtrOffset: number = 60
+export const outAtlasCelsCountOffset: number = 64
+export const outFullscreenReqOffset: number = 68
+export const outDrawAlwaysOffset: number = 69
+export const outDrawOnBlurOffset: number = 70
+export const outRenderModeOffset: number = 71
+export const outRequestsOffset: number = 72
+export const outBeepCountOffset: number = 76
+export const outBeepsOffset: number = 80
+export const outLayersOffset: number = 336
 
 export const outCamXOffset: number = 8
 export const outCamYOffset: number = 12
+
+export const outBoardDirtyMinXOffset: number = 24
+export const outBoardDirtyMinYOffset: number = 28
+export const outBoardDirtyMaxXOffset: number = 32
+export const outBoardDirtyMaxYOffset: number = 36
 
 export const outReqMask: number = 1
 export const outReqScreenshotShift: number = 0

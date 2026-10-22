@@ -48,7 +48,6 @@ export class Renderer {
   readonly #clip: ClipRenderer
   readonly #sprs: SprRenderer
   readonly #tiles: TileRenderer
-  #boardLevel: number
 
   constructor(
     gl: WebGL2RenderingContext,
@@ -62,7 +61,6 @@ export class Renderer {
     gl.enable(gl.BLEND)
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
-    this.#boardLevel = board.lvl
     this.#loseContext = gl.getExtension('WEBGL_lose_context')
     this.#gl = gl
     this.#clip = ClipRenderer.new(gl, pixel)
@@ -76,13 +74,8 @@ export class Renderer {
     )
   }
 
-  get boardLvl(): number {
-    return this.#boardLevel
-  }
-
   updateBoard(board: Readonly<BoardConfig>): void {
     this.#tiles.update(board)
-    this.#boardLevel = board.lvl
   }
 
   // integral width in physical pixels.

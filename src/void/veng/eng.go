@@ -57,7 +57,6 @@ func NewEng(opts *EngOpts) *Eng {
 	this := &Eng{
 		font:  opts.Font,
 		atlas: opts.Atlas,
-		board: opts.Board,
 		in:    vin.NewIn(),
 		rnd:   rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
 		out: Out{
@@ -68,6 +67,7 @@ func NewEng(opts *EngOpts) *Eng {
 	for i := range this.layers {
 		this.layers[i] = vgfx.NewLayerConfig(opts.MaxSprs)
 	}
+	this.SetBoard(opts.Board)
 
 	return this
 }
@@ -100,12 +100,24 @@ func (this *Eng) SetCursor(cursor *CursorEnt) {
 
 func (this *Eng) Board() *vboards.Board { return this.board }
 
+// selects a board and invalidates its full tile bounds for this tick.
 func (this *Eng) SetBoard(board *vboards.Board) bool {
 	if this.board == board || this.board != nil && board != nil &&
 		this.board.Level == board.Level {
 		return false
 	}
 	this.board = board
+	// empty boards invalidate the renderer's 1x1 empty texture.
+	dirty := vgeo.XYWH[int32](0, 0, 1, 1)
+	if board != nil {
+		if len(board.Tiles) != 0 {
+			dirty.Max = vgeo.NewXY(
+				board.W/int32(board.Tile.W), board.H/int32(board.Tile.H),
+			)
+		}
+		board.Dirty = dirty
+	}
+	this.out.BoardDirty = dirty
 	return true
 }
 
@@ -253,7 +265,12 @@ func (this *Eng) updateTexts() Status {
 	return stat
 }
 
+// starts a tick after web has consumed the previous output.
 func (this *Eng) BeginTick() Status {
+	if this.board != nil {
+		this.board.Dirty = vgeo.Box[int32]{}
+	}
+	this.out.BoardDirty = vgeo.Box[int32]{}
 	this.out.Requests = 0
 	this.out.UpdateInMillis = 0
 	this.out.BeepCount = 0
@@ -277,17 +294,20 @@ func (this *Eng) BeginTick() Status {
 
 func (this *Eng) updateOut() {
 	out := &this.out
-	out.BoardLevel = this.BoardLevel()
-	out.BoardW, out.BoardH = this.BoardW(), this.BoardH()
-	out.BoardTileW, out.BoardTileH = this.BoardTileW(), this.BoardTileH()
-	out.BoardTilesPtr, out.BoardTilesLen = 0, 0
-	if this.board != nil {
-		out.BoardTilesLen = uint32(len(this.board.Tiles))
-		if out.BoardTilesLen != 0 {
-			out.BoardTilesPtr = uint32(uintptr(
-				unsafe.Pointer(unsafe.SliceData(this.board.Tiles)),
-			))
-		}
+	if board := this.board; board != nil {
+		out.BoardLevel = uint16(board.Level)
+		out.BoardW, out.BoardH = board.W, board.H
+		out.BoardTileW, out.BoardTileH = board.Tile.W, board.Tile.H
+		out.BoardDirty = board.Dirty
+		out.BoardTilesLen = uint32(len(board.Tiles))
+		out.BoardTilesPtr = uint32(uintptr(
+			unsafe.Pointer(unsafe.SliceData(board.Tiles)),
+		))
+	} else {
+		out.BoardTilesPtr = 0
+		out.BoardLevel, out.BoardTilesLen = 0, 0
+		out.BoardW, out.BoardH = 0, 0
+		out.BoardTileW, out.BoardTileH = 0, 0
 	}
 	out.AtlasMetaCount = uint32(len(this.atlas.Meta))
 	out.AtlasMetaPtr = uint32(uintptr(

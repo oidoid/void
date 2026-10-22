@@ -77,6 +77,11 @@ export const outByteLen: number = {{.Out.Size}}
 export const outCamXOffset: number = {{offset .Out "Cam.X"}}
 export const outCamYOffset: number = {{offset .Out "Cam.Y"}}
 
+export const outBoardDirtyMinXOffset: number = {{offset .Out "BoardDirty.Min.X"}}
+export const outBoardDirtyMinYOffset: number = {{offset .Out "BoardDirty.Min.Y"}}
+export const outBoardDirtyMaxXOffset: number = {{offset .Out "BoardDirty.Max.X"}}
+export const outBoardDirtyMaxYOffset: number = {{offset .Out "BoardDirty.Max.Y"}}
+
 export const outReqMask: number = {{.OutReqMask}}
 export const outReqScreenshotShift: number = {{.OutReqScreenshotShift}}
 export const outReqContextLossShift: number = {{.OutReqContextLossShift}}

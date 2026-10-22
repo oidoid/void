@@ -155,9 +155,8 @@ export class Eng {
     }
     this.#updateMs = performance.now() - updateStart
     const buffer = this.#wasm.memory.buffer
-    const boardLevel = this.#out.getUint16(bridge.outBoardLevelOffset, true)
-    if (boardLevel !== this.#renderer.boardLvl)
-      this.#renderer.updateBoard(this.#boardRenderState(boardLevel))
+    if (this.#out.getInt32(bridge.outBoardDirtyMaxXOffset, true))
+      this.#renderer.updateBoard(this.#boardRenderState())
     const camX = this.#out.getFloat32(bridge.outCamXOffset, true)
     const camY = this.#out.getFloat32(bridge.outCamYOffset, true)
     this.#renderer.clear(...this.#clearColor)
@@ -329,17 +328,24 @@ export class Eng {
       out.getUint8(bridge.outRenderModeOffset) === bridge.RenderModePixel
     return new Renderer(
       getWebGL2(this.#canvas, !pixel),
-      this.#boardRenderState(out.getUint16(bridge.outBoardLevelOffset, true)),
+      this.#boardRenderState(),
       atlasTexels,
       atlasImg,
       pixel
     )
   }
 
-  #boardRenderState(level: number): BoardConfig {
+  #boardRenderState(): BoardConfig {
     const out = this.#out
+    const x = out.getInt32(bridge.outBoardDirtyMinXOffset, true)
+    const y = out.getInt32(bridge.outBoardDirtyMinYOffset, true)
     return {
-      lvl: level,
+      dirty: {
+        x,
+        y,
+        w: out.getInt32(bridge.outBoardDirtyMaxXOffset, true) - x,
+        h: out.getInt32(bridge.outBoardDirtyMaxYOffset, true) - y
+      },
       tiles: new Uint16Array(
         this.#wasm.memory.buffer,
         out.getUint32(bridge.outBoardTilesPtrOffset, true),
