@@ -8,7 +8,6 @@
 ## Forbidden
 
 never run:
-
 - `make` (default target), `make watch`, or any daemon / forked / background process but you can ask the user to run.
 - `make fat-save` or `make slow-save`. do not edit `.fat` or `.slow`.
 - `make slow-check` or any performance test. these cannot run consistently without superuser permissions.
@@ -103,11 +102,12 @@ never run:
 - wrap to 80 chars and pack cols to minimize lines. if all args / props can't fit on one line, do one arg / group per line. don't chop long strings.
 - comments must not restate the subject name, must not start with "is the",
   and avoid starting with "the".
-    ```go
-    // ng: PadInt pads a non-negative integer to at least width digits with spaces.
-    // ok: pads a non-negative integer to at least width digits with spaces.
-    func PadInt(n, w int) string {
-    ```
+
+  ```go
+  // ng: PadInt pads a non-negative integer to at least width digits with spaces.
+  // ok: pads a non-negative integer to at least width digits with spaces.
+  func PadInt(n, w int) string {
+  ```
 - remove excess parens.
 
 ### TS
@@ -117,7 +117,6 @@ never run:
 ## Fractional Values
 
 supporting both modern and pixel games is critical. be very sensitive to rounding errors.
-
 - prefer flooring integral coords. avoid truncation that causes the range (-1, 1) to snap to 0.
 - prefer ceiling integral sizes. avoid truncation that causes sizes to be unexpectedly short.
 - prefer source data over inverted transforms to avoid accumulation errors.

@@ -1,7 +1,7 @@
 import type {BoardConfig} from '../../boards/board-config.ts'
 import {buildProgram} from '../gl.ts'
-import tileFrag from './tile.frag.glsl'
-import tileVert from './tile.vert.glsl'
+import tileFrag from './tile.frag.glsl' with {type: 'text'}
+import tileVert from './tile.vert.glsl' with {type: 'text'}
 
 const emptyTiles = new Uint16Array(1)
 

@@ -1,7 +1,7 @@
 import type {XYWH} from '../../geo/box.ts'
 import {buildProgram} from '../gl.ts'
-import clipFrag from './clip.frag.glsl'
-import clipVert from './clip.vert.glsl'
+import clipFrag from './clip.frag.glsl' with {type: 'text'}
+import clipVert from './clip.vert.glsl' with {type: 'text'}
 
 const layerBlendModeAlpha: number = 0
 const layerBlendModeMultiply: number = 1

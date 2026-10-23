@@ -25,7 +25,7 @@ sudo tar --extract --gzip --directory /usr/local/bin/ --strip-components=2 --wil
 
 # watchexec.
 curl \
-  --location https://github.com/watchexec/watchexec/releases/download/v2.6.1/watchexec-2.6.1-x86_64-unknown-linux-musl.deb \
+  --location https://github.com/watchexec/watchexec/releases/download/v2.8.0/watchexec-2.8.0-x86_64-unknown-linux-musl.deb \
   --output /tmp/watchexec.deb
 sudo dpkg --install /tmp/watchexec.deb
 
@@ -46,5 +46,5 @@ sudo apt install --no-install-recommends --yes xauth xvfb
 
 make install
 
-npm install --global playwright @playwright/test
+npm install --global playwright@1.64.1 @playwright/test@1.64.1
 npx playwright install --with-deps

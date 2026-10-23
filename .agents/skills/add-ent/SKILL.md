@@ -1,4 +1,5 @@
 ---
+
 name: add-ent
 description: add a new direct ent or batch hook to void or a void app.
 ---

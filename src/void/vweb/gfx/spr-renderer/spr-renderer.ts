@@ -7,8 +7,8 @@ import {
   sprZOffset
 } from '../../eng/bridge.ts'
 import {buildProgram} from '../gl.ts'
-import sprFrag from './spr.frag.glsl'
-import sprVert from './spr.vert.glsl'
+import sprFrag from './spr.frag.glsl' with {type: 'text'}
+import sprVert from './spr.vert.glsl' with {type: 'text'}
 
 export class SprRenderer {
   static new(

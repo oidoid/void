@@ -21,7 +21,7 @@ jobs:
               go-version-file: go.mod
               cache-dependency-path: go.sum
           - name: Set Up Node.js
-            uses: actions/setup-node@v7.0.0
+            uses: actions/setup-node@v7.1.0
             with:
               node-version-file: .nvmrc
               cache: npm
