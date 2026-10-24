@@ -1,6 +1,7 @@
 package veng
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/oidoid/void/src/void/vboards"
@@ -141,6 +142,97 @@ func TestUpdate_CircleCenteredOnPointer(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestButtonEnt_CircleCursorInteractions(t *testing.T) {
+	for _, scales := range []struct{ cursor, button float32 }{
+		{1, 1}, {4, 3}, {4, 4}, {4, 5}, {2.5, 1.25},
+	} {
+		for _, device := range []vin.PtrDevice{
+			vin.PtrDevMouse, vin.PtrDevTouch, vin.PtrDevPen,
+		} {
+			for _, test := range []struct {
+				name string
+				x, y float32 // distance from the button's top-left in cursor radii.
+				want bool
+			}{
+				{"inside", 0, 0, true},
+				{"left contact", -1, 0, true},
+				{"top contact", 0, -1, true},
+				{"corner miss", -1, -1, false},
+				{"just outside", -1.125, 0, false},
+			} {
+				t.Run(fmt.Sprintf("%s/cursor%g/button%g/device%d",
+					test.name, scales.cursor, scales.button, device,
+				), func(t *testing.T) {
+					eng := NewEng(&EngOpts{MaxSprs: 10})
+					eng.In().MapDefaults()
+					poll := eng.Poll()
+					poll.CanvasPhy = vgeo.NewWH[uint16](1408, 768)
+					ui := eng.Layer(0)
+					ui.Scale = scales.button
+					ui.ClipPhy = vgeo.XYWH[uint16](20, 30, 1200, 700)
+					eng.Layer(1).Scale = scales.cursor
+					cursor := NewCursorEnt(
+						vboards.Spawn{
+							WH: vgeo.NewWH[float32](16, 16), Z: vgfx.Layer(1).Z(0),
+						}, 0, 0, vgeo.XYWH[uint16](2, 2, 12, 12),
+					)
+					cursor.Circle = true
+					eng.SetCursor(&cursor)
+					button := ButtonEnt{}
+					button.XY = vgeo.NewXY[float32](30, 30)
+					button.WH = vgeo.NewWH[uint16](20, 10)
+					clicks := 0
+					button.OnClick = func(*ButtonEnt) { clicks++ }
+					var hooks GameHooks[*Eng]
+					hooks.RegisterUpdate(cursor.Update)
+					hooks.RegisterUpdate(button.Update)
+					update := func() {
+						stat := eng.BeginTick()
+						stat |= hooks.Preupdate(eng, eng)
+						stat |= hooks.Update(eng)
+						eng.EndTick(stat)
+					}
+					lo := ui.LayerToPhy(button.XY)
+					radius := 6 * scales.cursor
+					point := vgeo.NewXY(lo.X+test.x*radius, lo.Y+test.y*radius)
+					poll.InPoll.PtrsLen = 1
+					poll.InPoll.Ptrs[0] = vin.PtrPoll{
+						ID: 1, Device: device, Primary: true,
+						Phy: vgeo.XYWH(point.X, point.Y, float32(0), float32(0)),
+					}
+					for range 2 {
+						update()
+						if button.Focused != test.want {
+							t.Fatalf("focused = %v, want %v", button.Focused, test.want)
+						}
+					}
+					poll.InPoll.Ptrs[0].Clicks = vin.ClickPrimary
+					update()
+					if button.On != test.want {
+						t.Fatalf("pressed = %v, want %v", button.On, test.want)
+					}
+					if got := eng.In().Mask&vin.ButtonA != 0; got != test.want {
+						t.Fatalf("claimed input = %v, want %v", got, test.want)
+					}
+					if clicks != 0 {
+						t.Fatal("button clicked before release")
+					}
+					poll.InPoll.Ptrs[0].Clicks = 0
+					update()
+					update()
+					wantClicks := 0
+					if test.want {
+						wantClicks = 1
+					}
+					if clicks != wantClicks {
+						t.Fatalf("clicks = %d, want %d", clicks, wantClicks)
+					}
+				})
+			}
+		}
 	}
 }
 
