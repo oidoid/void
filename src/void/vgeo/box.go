@@ -40,8 +40,8 @@ func (this Box[T]) HitsXY(xy XY[T]) bool {
 }
 
 func (this Box[T]) HitsBox(box Box[T]) bool {
-	return this.Min.X < box.Max.X && this.Max.X > box.Min.X &&
-		this.Min.Y < box.Max.Y && this.Max.Y > box.Min.Y
+	return max(this.Min.X, box.Min.X) < min(this.Max.X, box.Max.X) &&
+		max(this.Min.Y, box.Min.Y) < min(this.Max.Y, box.Max.Y)
 }
 
 func (this Box[T]) W() T { return this.Max.X - this.Min.X }

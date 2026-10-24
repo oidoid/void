@@ -131,14 +131,14 @@ func (this *CursorEnt) HitsPhy(box vgeo.Box[float32]) bool {
 		return hitbox.HitsBox(box)
 	}
 	w, h := hitbox.W(), hitbox.H()
-	if w <= 0 || h <= 0 {
+	if w <= 0 || h <= 0 || box.Min.X >= box.Max.X || box.Min.Y >= box.Max.Y {
 		return false
 	}
 	radius := min(w, h) / 2
 	center := vgeo.NewXY(hitbox.Min.X+w/2, hitbox.Min.Y+h/2)
 	x := center.X - vmath.Clamp(box.Min.X, box.Max.X, center.X)
 	y := center.Y - vmath.Clamp(box.Min.Y, box.Max.Y, center.Y)
-	return x*x+y*y <= radius*radius
+	return x*x+y*y < radius*radius
 }
 
 func (this *CursorEnt) onCursorKey(

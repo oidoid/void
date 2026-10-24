@@ -158,8 +158,10 @@ func TestButtonEnt_CircleCursorInteractions(t *testing.T) {
 				want bool
 			}{
 				{"inside", 0, 0, true},
-				{"left contact", -1, 0, true},
-				{"top contact", 0, -1, true},
+				{"left contact", -1, 0, false},
+				{"top contact", 0, -1, false},
+				{"left overlap", -0.875, 0, true},
+				{"top overlap", 0, -0.875, true},
 				{"corner miss", -1, -1, false},
 				{"just outside", -1.125, 0, false},
 			} {
@@ -378,20 +380,31 @@ func TestCursorEnt_HitsPhy(t *testing.T) {
 	}{
 		{"box overlap", false, vgeo.XYWH[float32](4, 4, 2, 2), true},
 		{"box edge contact", false, vgeo.XYWH[float32](5, -1, 2, 2), false},
+		{"box empty target", false, vgeo.Box[float32]{}, false},
 		{"inside", true, vgeo.XYWH[float32](-1, -1, 2, 2), true},
 		{"encloses", true, vgeo.XYWH[float32](-8, -8, 16, 16), true},
-		{"left contact", true, vgeo.XYWH[float32](-7, -1, 2, 2), true},
-		{"right contact", true, vgeo.XYWH[float32](5, -1, 2, 2), true},
-		{"top contact", true, vgeo.XYWH[float32](-1, -7, 2, 2), true},
-		{"bottom contact", true, vgeo.XYWH[float32](-1, 5, 2, 2), true},
-		{"corner contact", true, vgeo.XYWH[float32](3, 4, 2, 2), true},
+		{"left contact", true, vgeo.XYWH[float32](-7, -1, 2, 2), false},
+		{"right contact", true, vgeo.XYWH[float32](5, -1, 2, 2), false},
+		{"top contact", true, vgeo.XYWH[float32](-1, -7, 2, 2), false},
+		{"bottom contact", true, vgeo.XYWH[float32](-1, 5, 2, 2), false},
+		{"left overlap", true, vgeo.XYWH[float32](-6.875, -1, 2, 2), true},
+		{"right overlap", true, vgeo.XYWH[float32](4.875, -1, 2, 2), true},
+		{"top overlap", true, vgeo.XYWH[float32](-1, -6.875, 2, 2), true},
+		{"bottom overlap", true, vgeo.XYWH[float32](-1, 4.875, 2, 2), true},
+		{"corner contact", true, vgeo.XYWH[float32](3, 4, 2, 2), false},
 		{"negative corner contact", true,
-			vgeo.XYWH[float32](-5, -6, 2, 2), true},
+			vgeo.XYWH[float32](-5, -6, 2, 2), false},
+		{"corner overlap", true, vgeo.XYWH[float32](3, 3.875, 2, 2), true},
 		{"corner miss", true, vgeo.XYWH[float32](4, 4, 2, 2), false},
 		{"just outside", true, vgeo.XYWH[float32](5.125, -1, 2, 2), false},
 		{"negative outside", true,
 			vgeo.XYWH[float32](-7.125, -1, 2, 2), false},
-		{"point contact", true, vgeo.XYWH[float32](3, 4, 0, 0), true},
+		{"point contact", true, vgeo.XYWH[float32](3, 4, 0, 0), false},
+		{"empty point inside", true, vgeo.Box[float32]{}, false},
+		{"empty width", true, vgeo.XYWH[float32](0, -1, 0, 2), false},
+		{"empty height", true, vgeo.XYWH[float32](-1, 0, 2, 0), false},
+		{"inverted width", true, vgeo.NewBox[float32](1, -1, -1, 1), false},
+		{"inverted height", true, vgeo.NewBox[float32](-1, 1, 1, -1), false},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			cursor := &CursorEnt{
@@ -409,6 +422,7 @@ func TestCursorEnt_HitsPhy(t *testing.T) {
 func TestCursorEnt_HitsPhyInactive(t *testing.T) {
 	for _, cursor := range []*CursorEnt{
 		nil,
+		{hitboxPhyOn: true},
 		{Circle: true},
 		{Circle: true, hitboxPhyOn: true},
 	} {
