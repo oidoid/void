@@ -1,12 +1,16 @@
 package plugins
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"mime"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
+	"time"
 
 	"github.com/evanw/esbuild/pkg/api"
 	"github.com/oidoid/void/src/cmd/pack/cliconfig"
@@ -18,6 +22,43 @@ func HTMLPlugin(config *cliconfig.CLIConfig) api.Plugin {
 	return api.Plugin{
 		Name: "HTMLPlugin",
 		Setup: func(build api.PluginBuild) {
+			if config.WatchPort != 0 {
+				for _, entry := range config.Entries {
+					if filepath.Ext(entry) == ".html" {
+						build.InitialOptions.Inject = append(build.InitialOptions.Inject, entry)
+					}
+				}
+				build.OnLoad(api.OnLoadOptions{Filter: `\.html$`},
+					func(args api.OnLoadArgs) (api.OnLoadResult, error) {
+						outDir, err := filepath.Abs(config.OutDir)
+						if err != nil {
+							return errorLoadResult(err), nil
+						}
+						_, files, err := htmlparser.ParseEntries(args.Path)
+						result := api.OnLoadResult{Loader: api.LoaderJS, WatchFiles: files}
+						for _, file := range files {
+							dir := filepath.Dir(file)
+							rel, err := filepath.Rel(outDir, dir)
+							// out files remain individually watched. dir watches must not
+							// react to our own generated files.
+							if err == nil && rel != ".." &&
+								!strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+								continue
+							}
+							if !slices.Contains(result.WatchDirs, dir) {
+								result.WatchDirs = append(result.WatchDirs, dir)
+							}
+						}
+						if err != nil {
+							result.Errors = []api.Message{{Text: err.Error()}}
+							return result, nil
+						}
+						// esbuild sends reload events only when its outputs change.
+						contents := fmt.Sprintf("/*! build %d */", time.Now().UnixNano())
+						result.Contents = &contents
+						return result, nil
+					})
+			}
 			build.OnEnd(func(result *api.BuildResult) (api.OnEndResult, error) {
 				if len(result.Errors) > 0 {
 					return api.OnEndResult{}, nil
@@ -138,11 +179,13 @@ func transformImageSrc(
 		return "data:" + mimeType + ";base64," +
 			base64.StdEncoding.EncodeToString(bin), nil
 	}
-	if err := os.WriteFile(
-		filepath.Join(config.OutDir, filename),
-		bin,
-		0o644,
-	); err != nil {
+	out := filepath.Join(config.OutDir, filename)
+	// generated images can already be in the out dir. avoid writing watched
+	// files back to themselves, or unchanged copies, on every rebuild.
+	if existing, err := os.ReadFile(out); err == nil && bytes.Equal(existing, bin) {
+		return filename, nil
+	}
+	if err := os.WriteFile(out, bin, 0o644); err != nil {
 		return "", err
 	}
 	return filename, nil

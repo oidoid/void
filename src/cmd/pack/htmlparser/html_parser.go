@@ -1,7 +1,10 @@
 package htmlparser
 
 import (
+	"encoding/json"
+	"net/url"
 	"os"
+	"path/filepath"
 
 	"golang.org/x/net/html"
 )
@@ -24,13 +27,64 @@ func ParseDoc(filename string) (*html.Node, error) {
 	return html.Parse(file)
 }
 
+// returns discovered files even on error.
+func ParseEntries(filename string) (entries, files []string, err error) {
+	files = []string{filename}
+	doc, err := ParseDoc(filename)
+	if err != nil {
+		return entries, files, err
+	}
+	dir := filepath.Dir(filename)
+	for _, node := range QueryTag(doc, "") {
+		for _, attr := range node.Attr {
+			if attr.Key != "src" && attr.Key != "poster" &&
+				!(attr.Key == "href" && node.Data == "link") &&
+				!(attr.Key == "data" && node.Data == "object") {
+				continue
+			}
+			ref, err := url.Parse(attr.Val)
+			if err != nil {
+				return entries, files, err
+			}
+			if ref.IsAbs() || ref.Host != "" || ref.Path == "" {
+				continue
+			}
+			path := filepath.Join(dir, ref.Path)
+			files = append(files, path)
+			rel := NodeAttr(node, "rel")
+			if node.Data == "script" && NodeAttr(node, "type") == "module" ||
+				node.Data == "link" && rel == "stylesheet" {
+				entries = append(entries, path)
+			}
+			if node.Data != "link" || rel != "manifest" {
+				continue
+			}
+			bin, err := os.ReadFile(path)
+			if err != nil {
+				return entries, files, err
+			}
+			var manifest struct{ Icons []struct{ Src string } }
+			if err := json.Unmarshal(bin, &manifest); err != nil {
+				return entries, files, err
+			}
+			for _, icon := range manifest.Icons {
+				if icon.Src != "" {
+					files = append(files, filepath.Join(dir, icon.Src))
+				}
+			}
+		}
+	}
+	return entries, files, nil
+}
+
+// an empty tag matches every element.
 func QueryTag(root *html.Node, tag string) []*html.Node {
 	var nodes []*html.Node
 	stack := []*html.Node{root}
 	for len(stack) > 0 {
 		node := stack[len(stack)-1]
 		stack = stack[:len(stack)-1]
-		if node.Type == html.ElementNode && node.Data == tag {
+		if node.Type == html.ElementNode && (tag == "" || node.Data == tag) {
 			nodes = append(nodes, node)
 		}
 		for child := node.FirstChild; child != nil; child = child.NextSibling {

@@ -108,7 +108,7 @@ func parseEntries(entries []string) ([]string, error) {
 	var all []string
 	for _, entry := range entries {
 		if filepath.Ext(entry) == ".html" {
-			htmlEntries, err := parseHTMLEntries(entry)
+			htmlEntries, _, err := htmlparser.ParseEntries(entry)
 			if err != nil {
 				return nil, err
 			}
@@ -118,27 +118,4 @@ func parseEntries(entries []string) ([]string, error) {
 		}
 	}
 	return all, nil
-}
-
-func parseHTMLEntries(filename string) ([]string, error) {
-	doc, err := htmlparser.ParseDoc(filename)
-	if err != nil {
-		return nil, err
-	}
-	dir := filepath.Dir(filename)
-	var entries []string
-	for _, node := range htmlparser.QueryTag(doc, "script") {
-		src := htmlparser.NodeAttr(node, "src")
-		if src != "" && htmlparser.NodeAttr(node, "type") == "module" {
-			entries = append(entries, filepath.Join(dir, src))
-		}
-	}
-	for _, node := range htmlparser.QueryTag(doc, "link") {
-		if htmlparser.NodeAttr(node, "rel") == "stylesheet" {
-			if href := htmlparser.NodeAttr(node, "href"); href != "" {
-				entries = append(entries, filepath.Join(dir, href))
-			}
-		}
-	}
-	return entries, nil
 }
