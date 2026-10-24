@@ -17,8 +17,112 @@ see the [agent file](AGENTS.md).
 ### Project Layout
 
 - `src/void/`: game engine.
+- `src/void/vweb/`: web platform.
 - `src/cmd/`: command line utils for building void apps.
 - `src/internal/demo/`: engine demonstration.
+
+### Architecture
+
+```mermaid
+---
+config:
+  look: classic
+  htmlLabels: true
+  flowchart:
+    inheritDir: true
+    padding: 5
+    nodeSpacing: 14.5
+    # offsets the 25 px Dagre adds inside groups.
+    rankSpacing: -10.5
+    subGraphTitleMargin: {top: 6, bottom: 30}
+  themeVariables:
+    lineColor: "#000000"
+    textColor: "#000000"
+    nodeTextColor: "#000000"
+  themeCSS: |
+    & { display: block; margin: 0; }
+    .cluster-label { font-size: 18px; font-weight: bold; }
+    .cluster-label p { padding: 0 12px; }
+    .edgeLabel p { padding: 25.25px 0; background: none; }
+    .labelBkg { background: none; }
+---
+flowchart TB
+  subgraph demoTS["demo/web (TS)"]
+    entryTS["<b>web</b><br/>entry"]:::demoCode
+  end
+
+  subgraph web["void/vweb (TS)"]
+    webEng["<b>eng</b><br/>engine and IPC"]:::voidCode
+    webIn["<b>in</b><br/>input"]:::voidCode
+    webGfx["<b>gfx</b><br/>graphics"]:::voidCode
+    webSfx["<b>sfx</b><br/>audio"]:::voidCode
+
+    webBoards["<b>boards</b><br/>map config"]:::voidCode
+    webGeo["<b>geo</b><br/>box types"]:::voidCode
+    webUtils["<b>utils</b><br/>DOM utils"]:::voidCode
+    webStorage["<b>storage</b><br/>file I/O"]:::voidCode
+
+    webTypes["<b>types</b><br/>misc types"]:::voidCode
+
+    %% invisible links arrange packages in four-column rows.
+    webEng ~~~ webBoards
+    webIn ~~~ webGeo
+    webGfx ~~~ webUtils
+    webSfx ~~~ webStorage
+    webEng ~~~ webGeo
+    webIn ~~~ webUtils
+    webGfx ~~~ webStorage
+    webBoards & webGeo & webUtils & webStorage ~~~ webTypes
+  end
+
+  subgraph demo["demo (Go)"]
+    entryGo["<b>web</b><br/>Wasm exports"]:::demoCode
+    game["<b>game</b><br/>ents, hooks, cam"]:::demoCode
+    demoBoards["<b>boards</b><br/>map gencode"]:::demoCode
+    demoAssets["<b>assets</b><br/>data"]:::demoCode
+    demoTags["<b>tags</b><br/>sprite tags"]:::demoCode
+
+    entryGo & game & demoBoards & demoAssets ~~~ demoTags
+  end
+
+  subgraph voidGo["void (Go)"]
+    veng["<b>veng</b><br/>engine, ents, hooks"]:::voidCode
+    vin["<b>vin</b><br/>input"]:::voidCode
+    vgfx["<b>vgfx</b><br/>graphics"]:::voidCode
+    vboards["<b>vboards</b><br/>maps"]:::voidCode
+
+    vatlas["<b>vatlas</b><br/>spritesheet"]:::voidCode
+    vtext["<b>vtext</b><br/>font and layout"]:::voidCode
+    vgeo["<b>vgeo</b><br/>2d types and utils"]:::voidCode
+    vgrid["<b>vgrid</b><br/>spatial grid"]:::voidCode
+
+    vmath["<b>vmath</b><br/>math utils"]:::voidCode
+    vvec["<b>vmem/vvec</b><br/>memory"]:::voidCode
+    vrle["<b>vrle</b><br/>run-length encoding"]:::voidCode
+    vtypes["<b>vtypes</b><br/>util types"]:::voidCode
+
+    veng ~~~ vatlas ~~~ vmath
+    vin ~~~ vtext ~~~ vvec
+    vgfx ~~~ vgeo ~~~ vrle
+    vboards ~~~ vgrid ~~~ vtypes
+    veng ~~~ vtext
+    vin ~~~ vgeo
+    vgfx ~~~ vgrid
+  end
+
+  webAPIs["<b>web APIs</b><br/>DOM, WebGL, I/O, storage"]
+
+  %% blank edge labels reserve spacing between areas.
+  demoTS ==>|"&nbsp;"| web
+  web ==>|"&nbsp;<br/><span style='background:#fff'>PollPtr, OutPtr, Update</span><br/>&nbsp;"| demo
+  demo ==>|"&nbsp;"| voidGo
+  web <==>|"&nbsp;"| webAPIs
+
+  classDef area fill:#eeeeee,stroke:#eeeeee,color:#000000
+  classDef demoCode fill:#dcfce7,stroke:#15803d,color:#000000
+  classDef voidCode fill:#dbeafe,stroke:#1d4ed8,color:#000000
+  class demoTS,web,demo,voidGo,webAPIs area
+```
 
 ### Levels and Boards
 
