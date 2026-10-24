@@ -126,19 +126,33 @@ func TestRound(t *testing.T) {
 		want float32
 	}{
 		{"zero", 0, 0},
+		{"positive whole", 3, 3},
 		{"positive down", 1.4, 1},
 		{"positive half", 1.5, 2},
+		{"positive up", 1.6, 2},
+		{"negative whole", -3, -3},
 		{"negative up", -1.4, -1},
-		{"negative half", -1.5, -2},
+		{"negative half", -1.5, -1},
+		{"negative down", -1.6, -2},
+		{"negative half to zero", -0.5, 0},
+		{"below negative half", -0.501, -1},
+		{"above negative half", -0.499, 0},
 	}
 	for _, test := range cases {
 		t.Run(test.name, func(t *testing.T) {
 			if got := Round(test.in); got != test.want {
 				t.Fatalf("Round(%v) = %v, want %v", test.in, got, test.want)
 			}
+			if got := Round(float64(test.in)); got != float64(test.want) {
+				t.Fatalf("Round(float64(%v)) = %v, want %v",
+					test.in, got, test.want)
+			}
 		})
 	}
 	if got := Round(2); got != 2 {
 		t.Fatalf("Round(2) = %v, want 2", got)
+	}
+	if got := Round(-2); got != -2 {
+		t.Fatalf("Round(-2) = %v, want -2", got)
 	}
 }

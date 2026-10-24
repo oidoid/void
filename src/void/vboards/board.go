@@ -2,6 +2,7 @@ package vboards
 
 import (
 	"github.com/oidoid/void/src/void/vgeo"
+	"github.com/oidoid/void/src/void/vmath"
 )
 
 type Board struct {
@@ -20,18 +21,22 @@ type Board struct {
 
 type Level uint16
 
-// checks inclusive pixel bounds; outside the board counts as a hit. check if
-// box is empty if you care.
+// checks bounds with an exclusive max; outside the board counts as a hit.
+// empty boxes do not hit.
 func (this *Board) HitsBox(box vgeo.Box[float32]) bool {
+	if box.Min.X >= box.Max.X || box.Min.Y >= box.Max.Y {
+		return false
+	}
 	if box.Min.X < 0 ||
 		box.Min.Y < 0 ||
-		box.Max.X >= float32(this.W) ||
-		box.Max.Y >= float32(this.H) {
+		box.Max.X > float32(this.W) ||
+		box.Max.Y > float32(this.H) {
 		return true
 	}
 	tileW, tileH := int32(this.Tile.W), int32(this.Tile.H)
-	minX, maxX := int32(box.Min.X)/tileW, int32(box.Max.X)/tileW
-	minY, maxY := int32(box.Min.Y)/tileH, int32(box.Max.Y)/tileH
+	minX, minY := int32(box.Min.X)/tileW, int32(box.Min.Y)/tileH
+	maxX := (int32(vmath.Ceil(box.Max.X)) - 1) / tileW
+	maxY := (int32(vmath.Ceil(box.Max.Y)) - 1) / tileH
 	cols := this.W / tileW
 	for y := minY; y <= maxY; y++ {
 		for x := minX; x <= maxX; x++ {

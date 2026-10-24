@@ -16,8 +16,8 @@ type TagMeta struct {
 	// 0 loops indefinitely; 1..255 counts repeats (each ping-pong leg).
 	Repeat uint8
 	vgeo.WH[uint16]
-	// inclusive outgoing collision bounds (red / blue). zero disables.
+	// outgoing collision bounds (red / blue), exclusive max. zero disables.
 	Hitbox vgeo.Box[uint16]
-	// inclusive incoming collision bounds (green / blue). zero disables.
+	// incoming collision bounds (green / blue), exclusive max. zero disables.
 	Hurtbox vgeo.Box[uint16]
 }

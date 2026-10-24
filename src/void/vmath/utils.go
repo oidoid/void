@@ -43,10 +43,8 @@ func Floor[T vtypes.Num](v T) T {
 	return i
 }
 
+// rounds to the nearest integer, with ties toward positive infinity.
 func Round[T vtypes.Num](v T) T {
 	half := T(1) / 2
-	if v < 0 {
-		return Ceil(v - half)
-	}
 	return Floor(v + half)
 }

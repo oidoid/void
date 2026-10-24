@@ -67,7 +67,6 @@ func TestNewP1Ent(t *testing.T) {
 }
 
 func TestP1EntTurnsRightAtWalls(t *testing.T) {
-	const wallGap = p1MaxMove / 256 // eight collision bisections.
 	tiles := make([]vboards.Tile, 64)
 	wall := vboards.NewTile(tags.BlockStripesGrey, true)
 	for x := range 8 {
@@ -94,13 +93,13 @@ func TestP1EntTurnsRightAtWalls(t *testing.T) {
 		dir   vgeo.Dir
 		moves int
 	}{
-		{xy: vgeo.NewXY(111-wallGap, 32), dir: vgeo.DirS, moves: 20},
+		{xy: vgeo.NewXY[float32](111, 32), dir: vgeo.DirS, moves: 20},
 		{
-			xy:    vgeo.NewXY(111-wallGap, 111-wallGap),
+			xy:    vgeo.NewXY[float32](111, 111),
 			dir:   vgeo.DirW,
 			moves: 20,
 		},
-		{xy: vgeo.NewXY(16, 111-wallGap), dir: vgeo.DirN, moves: 24},
+		{xy: vgeo.NewXY[float32](16, 111), dir: vgeo.DirN, moves: 24},
 		{xy: vgeo.NewXY[float32](16, 16), dir: vgeo.DirE, moves: 24},
 	}
 	for _, want := range wants {
@@ -110,6 +109,49 @@ func TestP1EntTurnsRightAtWalls(t *testing.T) {
 		if ent.XY != want.xy || ent.Dir != want.dir {
 			t.Fatalf("P1 = (%v, %v), want (%v, %v)", ent.XY, ent.Dir, want.xy, want.dir)
 		}
+	}
+}
+
+func TestP1EntHitsWallEdges(t *testing.T) {
+	board := vboards.Board{
+		WH: vgeo.NewWH[int32](48, 48), Tile: vgeo.NewWH[uint8](16, 16),
+		Tiles: make([]vboards.Tile, 9),
+	}
+	board.Tiles[4] = vboards.NewTile(1, true)
+	for _, test := range []struct {
+		name string
+		x, y float32
+		dir  vgeo.Dir
+		want bool
+	}{
+		{"east contact", 15, 16, vgeo.DirE, false},
+		{"west contact", 32, 16, vgeo.DirW, false},
+		{"north contact", 16, 32, vgeo.DirN, false},
+		{"south contact", 16, 15, vgeo.DirS, false},
+		{"east overlap", 15.25, 16, vgeo.DirE, true},
+		{"west overlap", 31.75, 16, vgeo.DirW, true},
+		{"north overlap", 16, 31.75, vgeo.DirN, true},
+		{"south overlap", 16, 15.25, vgeo.DirS, true},
+		{"east corner contact", 15, 15, vgeo.DirE, false},
+		{"south corner contact", 15, 15, vgeo.DirS, false},
+		{"east board contact", 47, 0, vgeo.DirE, false},
+		{"west board contact", 0, 0, vgeo.DirW, false},
+		{"north board contact", 0, 0, vgeo.DirN, false},
+		{"south board contact", 0, 47, vgeo.DirS, false},
+		{"east board overlap", 47.25, 0, vgeo.DirE, true},
+		{"west board overlap", -0.25, 0, vgeo.DirW, true},
+		{"north board overlap", 0, -0.25, vgeo.DirN, true},
+		{"south board overlap", 0, 47.25, vgeo.DirS, true},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			ent := P1Ent{
+				Hurtbox: vgeo.XYWH[uint16](0, 0, 1, 1), Dir: test.dir,
+			}
+			if got := ent.hitsWall(vgeo.NewXY(test.x, test.y), &board); got != test.want {
+				t.Fatalf("hitsWall(%v, %v) = %v, want %v",
+					test.x, test.y, got, test.want)
+			}
+		})
 	}
 }
 

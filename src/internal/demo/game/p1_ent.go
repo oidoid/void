@@ -95,9 +95,9 @@ func (this *P1Ent) hitsWall(
 	board *vboards.Board,
 ) bool {
 	minX := int32(vmath.Floor(xy.X + float32(this.Hurtbox.Min.X)))
-	maxX := int32(vmath.Floor(xy.X + float32(this.Hurtbox.Max.X)))
+	maxX := int32(vmath.Ceil(xy.X+float32(this.Hurtbox.Max.X))) - 1
 	minY := int32(vmath.Floor(xy.Y + float32(this.Hurtbox.Min.Y)))
-	maxY := int32(vmath.Floor(xy.Y + float32(this.Hurtbox.Max.Y)))
+	maxY := int32(vmath.Ceil(xy.Y+float32(this.Hurtbox.Max.Y))) - 1
 	if minX < 0 || maxX >= board.W || minY < 0 || maxY >= board.H {
 		return true
 	}

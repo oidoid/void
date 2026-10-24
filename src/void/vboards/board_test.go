@@ -1,6 +1,7 @@
 package vboards
 
 import (
+	"math"
 	"testing"
 
 	"github.com/oidoid/void/src/void/vatlas"
@@ -97,7 +98,7 @@ func TestBoardSetTileAt(t *testing.T) {
 			if got := board.TileAt(test.xy); got != test.tile {
 				t.Errorf("TileAt(%v) = %v, want %v", test.xy, got, test.tile)
 			}
-			box := vgeo.XYWH(float32(test.xy.X), float32(test.xy.Y), 0, 0)
+			box := vgeo.XYWH(float32(test.xy.X), float32(test.xy.Y), 1, 1)
 			if board.HitsXY(test.xy) != test.tile.Hits() ||
 				board.HitsBox(box) != test.tile.Hits() {
 				t.Error("collision queries did not reflect the new tile")
@@ -148,21 +149,40 @@ func TestBoardHitsBox(t *testing.T) {
 	}{
 		{"non-solid tile", vgeo.XYWH[float32](0, 0, 3, 2), false},
 		{"inside solid tile", vgeo.XYWH[float32](8.25, 6.25, 0.5, 0.5), true},
-		{"right endpoint", vgeo.XYWH[float32](4, 6, 4, 0), true},
-		{"bottom endpoint", vgeo.XYWH[float32](8, 3, 0, 3), true},
-		{"before solid tile", vgeo.XYWH[float32](4, 6, 3.75, 0), false},
-		{"above solid tile", vgeo.XYWH[float32](8, 3, 0, 2.75), false},
-		{"after solid tile", vgeo.XYWH[float32](12, 6, 0, 0), false},
-		{"below solid tile", vgeo.XYWH[float32](8, 9, 0, 0), false},
-		{"solid tile inside box", vgeo.XYWH[float32](0, 0, 19, 14), true},
-		{"solid tile along edge", vgeo.XYWH[float32](0, 6, 19, 0), true},
+		{"right edge contact", vgeo.XYWH[float32](4, 6, 4, 3), false},
+		{"bottom edge contact", vgeo.XYWH[float32](8, 3, 4, 3), false},
+		{"left edge contact", vgeo.XYWH[float32](12, 6, 4, 3), false},
+		{"top edge contact", vgeo.XYWH[float32](8, 9, 4, 3), false},
+		{"before solid tile", vgeo.XYWH[float32](4, 6, 3.75, 1), false},
+		{"above solid tile", vgeo.XYWH[float32](8, 3, 1, 2.75), false},
+		{"right edge overlap", vgeo.NewBox[float32](4, 6,
+			math.Nextafter32(8, 9), 7), true},
+		{"bottom edge overlap", vgeo.NewBox[float32](8, 3,
+			9, math.Nextafter32(6, 7)), true},
+		{"right edge gap", vgeo.NewBox[float32](4, 6,
+			math.Nextafter32(8, 7), 7), false},
+		{"bottom edge gap", vgeo.NewBox[float32](8, 3,
+			9, math.Nextafter32(6, 5)), false},
+		{"exact solid tile", vgeo.XYWH[float32](8, 6, 4, 3), true},
+		{"last solid pixel", vgeo.XYWH[float32](11, 8, 1, 1), true},
+		{"solid tile inside box", vgeo.XYWH[float32](0, 0, 20, 15), true},
+		{"solid tile along edge", vgeo.XYWH[float32](0, 6, 20, 1), true},
 		{"crossing tile corner", vgeo.XYWH[float32](7.5, 5.5, 1, 1), true},
-		{"outside left edge", vgeo.XYWH[float32](-0.25, 0, 0, 0), true},
-		{"outside top edge", vgeo.XYWH[float32](0, -0.25, 0, 0), true},
-		{"inside right edge", vgeo.XYWH[float32](19.75, 0, 0, 0), false},
-		{"inside bottom edge", vgeo.XYWH[float32](0, 14.75, 0, 0), false},
-		{"right board edge", vgeo.XYWH[float32](20, 0, 0, 0), true},
-		{"bottom board edge", vgeo.XYWH[float32](0, 15, 0, 0), true},
+		{"outside left edge", vgeo.XYWH[float32](-0.25, 0, 1, 1), true},
+		{"outside top edge", vgeo.XYWH[float32](0, -0.25, 1, 1), true},
+		{"inside right edge", vgeo.XYWH[float32](19.75, 0, 0.25, 1), false},
+		{"inside bottom edge", vgeo.XYWH[float32](0, 14.75, 1, 0.25), false},
+		{"outside right edge", vgeo.XYWH[float32](19.75, 0, 0.5, 1), true},
+		{"outside bottom edge", vgeo.XYWH[float32](0, 14.75, 1, 0.5), true},
+		{"right board edge", vgeo.XYWH[float32](20, 0, 1, 1), true},
+		{"bottom board edge", vgeo.XYWH[float32](0, 15, 1, 1), true},
+		{"empty point", vgeo.XYWH[float32](8, 6, 0, 0), false},
+		{"empty width", vgeo.XYWH[float32](8, 6, 0, 1), false},
+		{"empty height", vgeo.XYWH[float32](8, 6, 1, 0), false},
+		{"inverted width", vgeo.NewBox[float32](9, 6, 8, 7), false},
+		{"inverted height", vgeo.NewBox[float32](8, 7, 9, 6), false},
+		{"empty outside", vgeo.XYWH[float32](-1, 0, 0, 1), false},
+		{"empty board edge", vgeo.XYWH[float32](20, 0, 0, 1), false},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			if got := board.HitsBox(test.box); got != test.want {
