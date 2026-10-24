@@ -10,7 +10,7 @@
   ],
   "devDependencies": {
     "@biomejs/biome": "2.6.2",
-    "@oidoid/config": "0.0.15",
+    "@oidoid/config": "0.0.16",
     "@types/node": "24.13.3",
     "typescript": "7.1.0-beta"
   }
