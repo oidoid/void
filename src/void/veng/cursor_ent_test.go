@@ -86,6 +86,95 @@ func TestUpdate_DrawSpawn(t *testing.T) {
 	}
 }
 
+func TestUpdate_CircleCenteredOnPointer(t *testing.T) {
+	for _, test := range []struct {
+		name   string
+		device vin.PtrDevice
+	}{
+		{"mouse", vin.PtrDevMouse},
+		{"touch", vin.PtrDevTouch},
+		{"pen", vin.PtrDevPen},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			ent := NewCursorEnt(
+				vboards.Spawn{WH: vgeo.NewWH[float32](16, 16)},
+				0, 10, vgeo.XYWH[uint16](2, 2, 12, 12),
+			)
+			ent.Circle = true
+			point := vgeo.NewXY[float32](100, 78)
+			poll := &vin.InPoll{PtrsLen: 1}
+			poll.Ptrs[0] = vin.PtrPoll{
+				ID: 1, Device: test.device, Primary: true,
+				Phy: vgeo.XYWH(point.X, point.Y, float32(0), float32(0)),
+			}
+			in := vin.NewIn()
+			layer := vgfx.NewLayerConfig(0)
+			layer.ClipPhy = vgeo.XYWH[uint16](20, 30, 320, 240)
+			layer.Cam = vgeo.NewXY[float32](4, 6)
+			sprs := []vgfx.Spr{}
+			for frame, scale := range []float32{2, 3, 3} {
+				layer.Scale = scale
+				sprs = sprs[:0]
+				in.Update(float64(frame), poll, vgeo.Box[float32]{})
+				updateCursorEnt(&ent, in, &sprs, 0, &layer)
+				if got, want := ent.XY, layer.PhyToLayer(point); got != want {
+					t.Fatalf("frame %d: input = %v, want %v", frame, got, want)
+				}
+				wantHitbox := vgeo.XYWH(
+					point.X-6*scale, point.Y-6*scale, 12*scale, 12*scale,
+				)
+				if got := ent.HitboxPhy(); got == nil || *got != wantHitbox {
+					t.Fatalf("frame %d: hitbox = %v, want %v", frame, got, wantHitbox)
+				}
+				if test.device != vin.PtrDevMouse {
+					if len(sprs) != 0 {
+						t.Fatal("touch or pen cursor was drawn")
+					}
+					continue
+				}
+				if len(sprs) != 1 {
+					t.Fatalf("sprite count = %d, want 1", len(sprs))
+				}
+				center := sprs[0].XY.Add(vgeo.NewXY[float32](8, 8))
+				if got := layer.LayerToPhy(center); got != point {
+					t.Fatalf("frame %d: sprite center = %v, want %v", frame, got, point)
+				}
+			}
+		})
+	}
+}
+
+func TestUpdate_CircleKeyboardDoesNotDrift(t *testing.T) {
+	ent := NewCursorEnt(
+		vboards.Spawn{
+			XY: vgeo.NewXY[float32](20, 30), WH: vgeo.NewWH[float32](16, 16),
+		}, 0, 10, vgeo.XYWH[uint16](0, 0, 16, 16),
+	)
+	ent.Circle = true
+	ent.KbdEnabled = true
+	in := vin.NewIn()
+	in.Dir = vgeo.NewXY[int8](1, 0)
+	layer := vgfx.NewLayerConfig(0)
+	layer.Clip = defaultBounds
+	sprs := []vgfx.Spr{}
+	for frame := range 5 {
+		if frame == 3 {
+			in.Dir = vgeo.XY[int8]{}
+		}
+		sprs = sprs[:0]
+		updateCursorEnt(&ent, in, &sprs, .1, &layer)
+		want := vgeo.NewXY(float32(20+min(frame+1, 3)), float32(30))
+		if ent.XY != want || len(sprs) != 1 {
+			t.Fatalf("frame %d: input = %v, want %v; sprites = %d",
+				frame, ent.XY, want, len(sprs))
+		}
+		if got := sprs[0].XY.Add(vgeo.NewXY[float32](8, 8)); got != want {
+			t.Fatalf("frame %d: sprite center = %v, want %v", frame, got, want)
+		}
+		in.PrevDir = in.Dir
+	}
+}
+
 func TestUpdate_RestoresPointTag(t *testing.T) {
 	ent := NewCursorEnt(
 		vboards.Spawn{Tag: 1}, 2, 0, vgeo.Box[uint16]{},
@@ -214,7 +303,7 @@ func TestCursorEnt_HitsPhy(t *testing.T) {
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			cursor := &CursorEnt{
-				HitCircle:   test.circle,
+				Circle:      test.circle,
 				hitboxPhy:   vgeo.XYWH[float32](-5, -5, 10, 10),
 				hitboxPhyOn: true,
 			}
@@ -228,8 +317,8 @@ func TestCursorEnt_HitsPhy(t *testing.T) {
 func TestCursorEnt_HitsPhyInactive(t *testing.T) {
 	for _, cursor := range []*CursorEnt{
 		nil,
-		{HitCircle: true},
-		{HitCircle: true, hitboxPhyOn: true},
+		{Circle: true},
+		{Circle: true, hitboxPhyOn: true},
 	} {
 		if cursor.HitsPhy(vgeo.XYWH[float32](-1, -1, 2, 2)) {
 			t.Errorf("inactive or empty cursor hit: %+v", cursor)

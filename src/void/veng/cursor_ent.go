@@ -14,10 +14,11 @@ import (
 type CursorEnt struct {
 	Spr vgfx.Spr
 	// keeps subpixel keyboard movement in layer coordinates.
-	XY        vgeo.XY[float32]
-	Hitbox    vgeo.Box[float32] // in layer coordinates.
-	HitCircle bool              // inscribes the hitbox as a circle's diameter centered in it.
-	Visible   bool              // false until the first pointer or keyboard input.
+	XY     vgeo.XY[float32]
+	Hitbox vgeo.Box[float32] // in layer coordinates.
+	// centers the sprite on input and uses the hitbox as a circle's diameter.
+	Circle  bool
+	Visible bool // false until the first pointer or keyboard input.
 	// enables keyboard movement when the app selects keyboard cursor mode.
 	KbdEnabled bool
 	// keyboard cursor velocity in px/sec.
@@ -57,7 +58,7 @@ func (this *CursorEnt) Update(eng *Eng) Status {
 	layer := eng.Layer(this.Spr.Z.Layer())
 	ptr := in.Ptr
 	ptrMoved := ptr != nil && ptr.Moved
-	if ptrMoved {
+	if ptr != nil && (ptrMoved || this.Circle && !this.KbdEnabled) {
 		this.onCursorPoint(*ptr.CenterPhy(), ptr.Device(), layer)
 	}
 	if ptr == nil && !this.KbdEnabled {
@@ -73,8 +74,13 @@ func (this *CursorEnt) Update(eng *Eng) Status {
 		this.kbdOn = false
 	}
 
+	xy := this.Spr.XY
+	if this.Circle {
+		xy.X -= float32(this.Spr.W) / 2
+		xy.Y -= float32(this.Spr.H) / 2
+	}
 	this.Hitbox = this.hitboxCopy
-	this.Hitbox.MoveTo(this.Spr.XY)
+	this.Hitbox.MoveTo(xy)
 	this.hitboxPhyOn = this.Visible || !this.KbdEnabled && ptr != nil &&
 		ptr.CenterPhy() != nil
 	if this.hitboxPhyOn {
@@ -89,7 +95,9 @@ func (this *CursorEnt) Update(eng *Eng) Status {
 	if this.pickTag != 0 && in.IsOn(vin.ButtonA) {
 		this.Spr.Tag = this.pickTag
 	}
-	layer.Sprs = append(layer.Sprs, this.Spr)
+	spr := this.Spr
+	spr.XY = xy
+	layer.Sprs = append(layer.Sprs, spr)
 	if this.kbdOn {
 		return Loop
 	}
@@ -119,7 +127,7 @@ func (this *CursorEnt) HitsPhy(box vgeo.Box[float32]) bool {
 	if hitbox == nil {
 		return false
 	}
-	if !this.HitCircle {
+	if !this.Circle {
 		return hitbox.HitsBox(box)
 	}
 	w, h := hitbox.W(), hitbox.H()
