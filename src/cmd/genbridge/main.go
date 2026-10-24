@@ -80,7 +80,6 @@ func generate() []byte {
 		"LayerBlendModeReplace":    vgfx.LayerBlendModeReplace,
 		"ShaderTiles":              vgfx.ShaderTiles,
 		"ShaderSprs":               vgfx.ShaderSprs,
-		"ShaderOverlay":            vgfx.ShaderOverlay,
 		"Pause":                    veng.Pause,
 		"Loop":                     veng.Loop,
 		"RenderModeFloat":          vgfx.RenderModeFloat,

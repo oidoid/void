@@ -1,10 +1,6 @@
-const layerBlendModeMultiply = 1
-const layerBlendModeReplace = 2
-
 import type {BoardConfig} from '../boards/board-config.ts'
 import type {XYWH} from '../geo/box.ts'
 import {ClipRenderer} from './clip-renderer/clip-renderer.ts'
-import {OverlayRenderer} from './overlay-renderer/overlay-renderer.ts'
 import {SprRenderer} from './spr-renderer/spr-renderer.ts'
 import {TileRenderer} from './tile-renderer/tile-renderer.ts'
 
@@ -44,7 +40,6 @@ export function getWebGL2(
 export class Renderer {
   readonly #gl: WebGL2RenderingContext
   readonly #loseContext: WEBGL_lose_context | null
-  readonly #overlay: OverlayRenderer
   readonly #clip: ClipRenderer
   readonly #sprs: SprRenderer
   readonly #tiles: TileRenderer
@@ -64,7 +59,6 @@ export class Renderer {
     this.#loseContext = gl.getExtension('WEBGL_lose_context')
     this.#gl = gl
     this.#clip = ClipRenderer.new(gl, pixel)
-    this.#overlay = OverlayRenderer.new(gl, pixel)
     this.#sprs = SprRenderer.new(gl, atlasTexels, atlasImg, pixel)
     this.#tiles = TileRenderer.new(
       gl,
@@ -94,7 +88,6 @@ export class Renderer {
 
   dispose(): void {
     if (this.#gl.isContextLost()) return
-    this.#overlay.dispose()
     this.#clip.dispose()
     this.#tiles.dispose()
     this.#sprs.dispose()
@@ -118,12 +111,6 @@ export class Renderer {
   clearDepth(): void {
     this.#gl.clearDepth(1)
     this.#gl.clear(this.#gl.DEPTH_BUFFER_BIT)
-  }
-
-  drawOverlay(blendMode: number): void {
-    this.#beginLayer(false, blendMode)
-    this.#overlay.draw()
-    this.#endLayer(false, blendMode)
   }
 
   drawTiles(
@@ -181,33 +168,6 @@ export class Renderer {
       clipTarget.h
     )
     this.#clip.end(clipTarget, blendMode)
-  }
-
-  #beginLayer(depth: boolean, blendMode: number): void {
-    this.#setSourceBlend(blendMode)
-    this.#setDepth(depth)
-  }
-
-  #setSourceBlend(blendMode: number): void {
-    if (blendMode === layerBlendModeMultiply)
-      this.#gl.blendFunc(this.#gl.DST_COLOR, this.#gl.ZERO)
-    else if (blendMode === layerBlendModeReplace)
-      this.#gl.blendFunc(this.#gl.ONE, this.#gl.ZERO)
-    else this.#gl.blendFunc(this.#gl.SRC_ALPHA, this.#gl.ONE_MINUS_SRC_ALPHA)
-  }
-
-  #setDepth(depth: boolean): void {
-    if (depth) this.#gl.enable(this.#gl.DEPTH_TEST)
-    else this.#gl.disable(this.#gl.DEPTH_TEST)
-  }
-
-  #endLayer(depth: boolean, blendMode: number): void {
-    if (
-      blendMode === layerBlendModeMultiply ||
-      blendMode === layerBlendModeReplace
-    )
-      this.#setSourceBlend(0)
-    if (!depth) this.#gl.enable(this.#gl.DEPTH_TEST)
   }
 
   // https://webgl2fundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html

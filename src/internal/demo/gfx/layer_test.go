@@ -32,7 +32,7 @@ func TestTiledSpawnEnums(t *testing.T) {
 	want := map[string][]string{
 		"Layer": {
 			"Tiles", "P1", "Superballs", "UI", "ViewportEdge", "Cursor",
-			"Overlay", "Grid",
+			"Grid",
 		},
 		"Z": make([]string, vgfx.SublayerCount),
 		"Pal": {
@@ -45,9 +45,9 @@ func TestTiledSpawnEnums(t *testing.T) {
 			want[name][i] = strconv.Itoa(i)
 		}
 	}
-	if len(want["Layer"]) != vgfx.LayerCount {
-		t.Fatalf("Layer enum has %d values, engine has %d layers",
-			len(want["Layer"]), vgfx.LayerCount)
+	if len(want["Layer"]) != int(LayerGrid)+1 {
+		t.Fatalf("Layer enum has %d values, demo has %d layers",
+			len(want["Layer"]), int(LayerGrid)+1)
 	}
 	palTags := [...]vatlas.Tag{
 		0, tags.PalWidget, tags.PalWidgetFocused, tags.PalWidgetOn,

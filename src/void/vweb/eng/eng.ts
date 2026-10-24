@@ -188,9 +188,6 @@ export class Eng {
           config.depth,
           config.clipPhy
         )
-      } else if (config.shader === bridge.shaderOverlay) {
-        this.#renderer.clearDepth()
-        this.#renderer.drawOverlay(config.blendMode)
       }
     }
     this.#applyPostDrawReqs(this.#renderer, requests)

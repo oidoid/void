@@ -9,7 +9,6 @@ const (
 	LayerUI
 	LayerViewportEdge
 	LayerCursor
-	LayerOverlay
 	LayerGrid
 )
 
@@ -22,7 +21,6 @@ var (
 	ZUIText       vgfx.Z = LayerUI.Z(3)
 	ZViewportEdge vgfx.Z = LayerViewportEdge.Z(0)
 	ZCursor       vgfx.Z = LayerCursor.Z(0)
-	ZOverlay      vgfx.Z = LayerOverlay.Z(0)
 	ZGrid         vgfx.Z = LayerGrid.Z(0)
 )
 

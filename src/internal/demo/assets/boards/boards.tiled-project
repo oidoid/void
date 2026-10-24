@@ -42,7 +42,6 @@
                 "UI",
                 "ViewportEdge",
                 "Cursor",
-                "Overlay",
                 "Grid"
             ],
             "valuesAsFlags": false

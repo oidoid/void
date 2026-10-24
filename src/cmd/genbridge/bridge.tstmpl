@@ -112,7 +112,6 @@ export const layerBlendModeMultiply: {{.LayerBlendModeMultiply}} = {{.LayerBlend
 export const layerBlendModeReplace: {{.LayerBlendModeReplace}} = {{.LayerBlendModeReplace}}
 export const shaderTiles: {{.ShaderTiles}} = {{.ShaderTiles}}
 export const shaderSprs: {{.ShaderSprs}} = {{.ShaderSprs}}
-export const shaderOverlay: {{.ShaderOverlay}} = {{.ShaderOverlay}}
 
 export const LoopPause: {{.Pause}} = {{.Pause}}
 export const LoopLoop: {{.Loop}} = {{.Loop}}

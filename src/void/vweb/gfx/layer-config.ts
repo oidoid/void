@@ -4,7 +4,6 @@ import type {
   layerBlendModeReplace,
   layerCamModeApply,
   layerCamModeFixed,
-  shaderOverlay,
   shaderSprs,
   shaderTiles
 } from '../eng/bridge.ts'
@@ -14,10 +13,7 @@ export type LayerBlendMode =
   | typeof layerBlendModeAlpha
   | typeof layerBlendModeMultiply
   | typeof layerBlendModeReplace
-export type Shader =
-  | typeof shaderTiles
-  | typeof shaderSprs
-  | typeof shaderOverlay
+export type Shader = typeof shaderTiles | typeof shaderSprs
 
 export type LayerConfig = {
   clipPhy: {x: number; y: number; w: number; h: number}

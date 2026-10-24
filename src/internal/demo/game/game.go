@@ -61,9 +61,6 @@ func NewGame() *Game {
 	this.Layer(gfx.LayerUI).Depth = true
 	this.Layer(gfx.LayerUI).ScaleMode = vgfx.LayerScaleModeAutoInt
 	this.Layer(gfx.LayerUI).AutoscaleMinClip = vgeo.NewWH[uint16](256, 48)
-	this.Layer(gfx.LayerOverlay).CamMode = vgfx.LayerCamModeFixed
-	this.Layer(gfx.LayerOverlay).Shader = vgfx.ShaderOverlay
-	this.Layer(gfx.LayerOverlay).BlendMode = vgfx.LayerBlendModeReplace
 	this.Layer(gfx.LayerViewportEdge).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerCursor).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerGrid).CamMode = vgfx.LayerCamModeFixed
@@ -227,7 +224,6 @@ func (this *Game) Update() veng.Status {
 	stat := this.Eng.BeginTick()
 	dpr := this.Poll().DevicePixelRatio
 	this.Layer(gfx.LayerUI).AutoscaleMaxScale = uint8(vmath.Round(3 * dpr))
-	this.Layer(gfx.LayerOverlay).Scale = float32(vmath.Round(3 * dpr))
 	this.Layer(gfx.LayerCursor).Scale = float32(vmath.Round(2 * dpr))
 	this.Layer(gfx.LayerGrid).Scale = float32(math.Floor(dpr))
 	stat |= this.GameHooks.Preupdate(&this.Eng, this)

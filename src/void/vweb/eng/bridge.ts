@@ -149,7 +149,6 @@ export const layerBlendModeMultiply: 1 = 1
 export const layerBlendModeReplace: 2 = 2
 export const shaderTiles: 0 = 0
 export const shaderSprs: 1 = 1
-export const shaderOverlay: 2 = 2
 
 export const LoopPause: 0 = 0
 export const LoopLoop: 1 = 1
