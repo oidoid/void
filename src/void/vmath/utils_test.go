@@ -149,10 +149,40 @@ func TestRound(t *testing.T) {
 			}
 		})
 	}
-	if got := Round(2); got != 2 {
-		t.Fatalf("Round(2) = %v, want 2", got)
+}
+
+func TestRoundingFloatRange(t *testing.T) {
+	for _, test := range []struct {
+		name            string
+		in, floor, ceil float64
+	}{
+		{"positive beyond int64", 1 << 64, 1 << 64, 1 << 64},
+		{"negative beyond int64", -1 << 64, -1 << 64, -1 << 64},
+		{"positive infinity", math.Inf(1), math.Inf(1), math.Inf(1)},
+		{"negative infinity", math.Inf(-1), math.Inf(-1), math.Inf(-1)},
+		{"negative zero", math.Copysign(0, -1),
+			math.Copysign(0, -1), math.Copysign(0, -1)},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			if got := Floor(test.in); math.Float64bits(got) !=
+				math.Float64bits(test.floor) {
+				t.Fatalf("Floor(%v) = %v, want %v", test.in, got, test.floor)
+			}
+			if got := Ceil(test.in); math.Float64bits(got) !=
+				math.Float64bits(test.ceil) {
+				t.Fatalf("Ceil(%v) = %v, want %v", test.in, got, test.ceil)
+			}
+		})
 	}
-	if got := Round(-2); got != -2 {
-		t.Fatalf("Round(-2) = %v, want -2", got)
+	if !math.IsNaN(Floor(math.NaN())) || !math.IsNaN(Ceil(math.NaN())) {
+		t.Fatal("rounding did not preserve NaN")
+	}
+}
+
+func TestRoundingNamedFloat(t *testing.T) {
+	type coord float32
+	if Floor(coord(-1.6)) != -2 || Ceil(coord(-1.6)) != -1 ||
+		Round(coord(-1.5)) != -1 {
+		t.Fatal("named float rounding changed")
 	}
 }

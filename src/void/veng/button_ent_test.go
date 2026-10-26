@@ -95,7 +95,7 @@ func TestButtonEntPixelPiecesShareOrigin(t *testing.T) {
 	ent.WH = vgeo.NewWH[uint16](10, 10)
 	ent.CornerWH = vgeo.NewWH[uint16](1, 1)
 	ent.Update(eng)
-	if got := layer.Sprs[0].XY.Round(); got != vgeo.NewXY[float32](8, 11) {
+	if got := vgeo.RoundXY(layer.Sprs[0].XY); got != vgeo.NewXY[float32](8, 11) {
 		t.Fatalf("right edge origin = %v, want (8, 11)", got)
 	}
 }

@@ -161,7 +161,7 @@ func (this *CursorEnt) onCursorKey(
 				snapXY.X -= float32(this.Spr.W%2) / 2
 				snapXY.Y -= float32(this.Spr.H%2) / 2
 			}
-			*xy = snapXY.Round()
+			*xy = vgeo.RoundXY(snapXY)
 			snapXY = *xy
 		} else {
 			if in.PrevDir.X != int8(dirX) {

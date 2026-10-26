@@ -19,14 +19,14 @@ func NewXY[T vtypes.Num](x, y T) XY[T] {
 	return XY[T]{X: x, Y: y}
 }
 
+// rounds each axis to the nearest integer, with ties toward positive infinity.
+func RoundXY[T ~float32 | ~float64](xy XY[T]) XY[T] {
+	return NewXY(vmath.Round(xy.X), vmath.Round(xy.Y))
+}
+
 //go:inline
 func (this XY[T]) Cast[To vtypes.Num]() XY[To] {
 	return NewXY(To(this.X), To(this.Y))
-}
-
-// rounds each axis to the nearest integer, with ties toward positive infinity.
-func (this XY[T]) Round() XY[T] {
-	return NewXY(vmath.Round(this.X), vmath.Round(this.Y))
 }
 
 //go:inline

@@ -106,7 +106,7 @@ func TestP1EntTurnsRightAtWalls(t *testing.T) {
 		for range want.moves {
 			ent.Move(.5, &board)
 		}
-		if ent.XY.Round() != want.xy || ent.Dir != want.dir {
+		if vgeo.RoundXY(ent.XY) != want.xy || ent.Dir != want.dir {
 			t.Fatalf("P1 = (%v, %v), want (%v, %v)", ent.XY, ent.Dir, want.xy, want.dir)
 		}
 	}
@@ -139,7 +139,7 @@ func TestP1EntReachesWall(t *testing.T) {
 				Hurtbox: vgeo.XYWH[uint16](0, 0, 1, 1), Dir: test.dir,
 			}
 			ent.Move(.5, &board)
-			if ent.XY.Round() != test.wantXY {
+			if vgeo.RoundXY(ent.XY) != test.wantXY {
 				t.Fatalf("position = %v, want %v", ent.XY, test.wantXY)
 			}
 		})

@@ -14,7 +14,7 @@ const (
 // matches the sprite shader's `floor(x + .5)` in pixel mode.
 func (this RenderMode) SnapXY(xy vgeo.XY[float32]) vgeo.XY[float32] {
 	if this == RenderModePixel {
-		return xy.Round()
+		return vgeo.RoundXY(xy)
 	}
 	return xy
 }

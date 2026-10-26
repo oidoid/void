@@ -44,7 +44,7 @@ func (this *P1Ent) Update(gam *Game) veng.Status {
 	this.SetFlipX(this.Dir == vgeo.DirW)
 	this.Anim.Update(gam.Atlas(), gam.DeltaMs())
 	layer := gam.Layer(this.Z.Layer())
-	xy := this.XY.Round()
+	xy := vgeo.RoundXY(this.XY)
 	if layer.Clip.HitsBox(vgeo.XYWH(
 		xy.X, xy.Y, float32(this.W), float32(this.H),
 	)) {
@@ -94,7 +94,7 @@ func (this *P1Ent) hitsWall(
 	xy vgeo.XY[float32], board *vboards.Board,
 ) bool {
 	box := this.Hurtbox.Cast[float32]()
-	box.MoveTo(xy.Round())
+	box.MoveTo(vgeo.RoundXY(xy))
 	return board.HitsBox(box)
 }
 
