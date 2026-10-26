@@ -17,7 +17,7 @@ import (
 	"github.com/oidoid/void/src/void/vatlas"
 )
 
-var initialisms = map[string]bool{"UI": true}
+var initialisms = map[string]bool{"HP": true, "UI": true}
 
 //go:embed atlas_bin.gotmpl
 var atlasBinTemplSrc string
