@@ -5,53 +5,36 @@ import (
 	"github.com/oidoid/void/src/void/vmath"
 )
 
-// snaps xy toward by, or to the nearest grid point when an axis is still. use
-// to align a stationary coord or start directional movement.
-func SnapXY(xy, by vgeo.XY[float32]) vgeo.XY[float32] {
-	xy.X = snapAxis(xy.X, by.X)
-	xy.Y = snapAxis(xy.Y, by.Y)
-	return xy
-}
-
-func snapAxis(x, by float32) float32 {
-	if by > 0 {
-		return vmath.Ceil(x)
-	}
-	if by < 0 {
-		return vmath.Floor(x)
-	}
-	return vmath.Floor(x + .5)
-}
-
-// snaps snapXY to the grid points reached by xy. xy accumulates unsnapped
-// movement, snapXY is the last snapped position, and by gives the movement
-// direction. synchronizes diagonal axes by their completed amount.
-func SnapMove(xy, snapXY, by vgeo.XY[float32]) vgeo.XY[float32] {
+// returns the next position on the pixel grid. xy includes fractional movement,
+// snap is the previous grid position, and by gives the movement direction.
+// diagonal movement advances both axes together by the smaller number of whole
+// pixels reached on either axis. only for use with equal diagonal movements.
+func SnapMove(xy, snap, by vgeo.XY[float32]) vgeo.XY[float32] {
 	if by.X == 0 || by.Y == 0 {
 		if by.X != 0 {
-			snapXY.X = snapMoveAxis(xy.X, by.X)
+			snap.X = snapMoveAxis(xy.X, by.X)
 		}
 		if by.Y != 0 {
-			snapXY.Y = snapMoveAxis(xy.Y, by.Y)
+			snap.Y = snapMoveAxis(xy.Y, by.Y)
 		}
-		return snapXY
+		return snap
 	}
-	x := vmath.Abs(snapMoveAxis(xy.X, by.X) - snapXY.X)
-	y := vmath.Abs(snapMoveAxis(xy.Y, by.Y) - snapXY.Y)
+	x := vmath.Abs(snapMoveAxis(xy.X, by.X) - snap.X)
+	y := vmath.Abs(snapMoveAxis(xy.Y, by.Y) - snap.Y)
 	if y < x {
 		x = y
 	}
 	if by.X > 0 {
-		snapXY.X += x
+		snap.X += x
 	} else {
-		snapXY.X -= x
+		snap.X -= x
 	}
 	if by.Y > 0 {
-		snapXY.Y += x
+		snap.Y += x
 	} else {
-		snapXY.Y -= x
+		snap.Y -= x
 	}
-	return snapXY
+	return snap
 }
 
 // snaps x to the latest grid point fully reached while moving by. floors
@@ -65,5 +48,5 @@ func snapMoveAxis(x, by float32) float32 {
 	if by < 0 {
 		return vmath.Ceil(x)
 	}
-	return vmath.Floor(x + .5)
+	return vmath.Round(x)
 }

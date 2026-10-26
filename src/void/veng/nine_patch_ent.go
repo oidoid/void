@@ -24,7 +24,11 @@ func (this *NinePatchEnt) SetZ(z vgfx.Z) {
 }
 
 func (this *NinePatchEnt) Update(sprs *[]vgfx.Spr) {
-	x, y := this.XY.X, this.XY.Y
+	this.updateAt(sprs, this.XY)
+}
+
+func (this *NinePatchEnt) updateAt(sprs *[]vgfx.Spr, xy vgeo.XY[float32]) {
+	x, y := xy.X, xy.Y
 	w, h := float32(this.WH.W), float32(this.WH.H)
 	cornerW, cornerH := float32(this.CornerWH.W), float32(this.CornerWH.H)
 	midW, midH := uint16(w-2*cornerW), uint16(h-2*cornerH)

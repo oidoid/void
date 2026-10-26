@@ -108,7 +108,7 @@ func TestUpdateCamScaleMask(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			for _, masked := range []bool{false, true} {
 				gam := NewGame()
-				*gam.CanvasPhy() = vgeo.NewWH[uint16](2048, 1280)
+				gam.Poll().CanvasPhy = vgeo.NewWH[uint16](2048, 1280)
 				gam.LvlZoom = test.scale
 				gam.UpdateLvlLayers()
 				in := gam.In()
@@ -148,7 +148,7 @@ func TestUpdateCamBoostMask(t *testing.T) {
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			gam := NewGame()
-			*gam.Cam() = vgeo.XY[float32]{}
+			gam.SetCam(vgeo.XY[float32]{})
 			gam.Layer(gfx.LayerTiles).Scale = 4
 			gam.Poll().DeltaMillis = camKeyStepMillis()
 			gam.SetCursor(&veng.CursorEnt{KbdEnabled: test.kbdMode})
@@ -184,8 +184,7 @@ func TestUpdateCamZoomEndSnapsNearInteger(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			gam := NewGame()
-			gam.CanvasPhy().W = 1024
-			gam.CanvasPhy().H = 640
+			gam.Poll().CanvasPhy = vgeo.NewWH[uint16](1024, 640)
 			gam.LvlZoom = test.scale
 			gam.UpdateLvlLayers()
 			gam.CamZoomOn = true
@@ -269,7 +268,7 @@ func TestLvlEdge(t *testing.T) {
 // keeps diagonal key motion synchronized on both whole lvl-px axes.
 func TestUpdateCamDiagonal(t *testing.T) {
 	gam := NewGame()
-	*gam.Cam() = vgeo.XY[float32]{}
+	gam.SetCam(vgeo.XY[float32]{})
 	gam.Layer(gfx.LayerTiles).Scale = 4
 	gam.Poll().DeltaMillis = camKeyStepMillis()
 	in := gam.In()
@@ -277,14 +276,14 @@ func TestUpdateCamDiagonal(t *testing.T) {
 	in.DirOn = true
 	in.On = vin.ButtonR | vin.ButtonD
 	UpdateCam(gam)
-	if got := *gam.Cam(); got != vgeo.NewXY[float32](4, 4) {
+	if got := gam.Cam(); got != vgeo.NewXY[float32](4, 4) {
 		t.Errorf("first diagonal cam = %v, want (4,4)", got)
 	}
 	in.PrevDir = in.Dir
 	in.PrevOn = in.On
 	in.Mask = 0
 	UpdateCam(gam)
-	if got := *gam.Cam(); got != vgeo.NewXY[float32](8, 8) {
+	if got := gam.Cam(); got != vgeo.NewXY[float32](8, 8) {
 		t.Errorf("second diagonal cam = %v, want (8,8)", got)
 	}
 }
@@ -293,7 +292,7 @@ func TestUpdateCamDiagonal(t *testing.T) {
 func TestUpdateCamKeyVel(t *testing.T) {
 	for _, scale := range []float32{4, 80} {
 		gam := NewGame()
-		*gam.Cam() = vgeo.XY[float32]{}
+		gam.SetCam(vgeo.XY[float32]{})
 		tiles := gam.Layer(gfx.LayerTiles)
 		tiles.Scale = scale
 		gam.Poll().DeltaMillis = camKeyStepMillis()
@@ -302,7 +301,7 @@ func TestUpdateCamKeyVel(t *testing.T) {
 		in.DirOn = true
 		in.On = vin.ButtonR
 		UpdateCam(gam)
-		if got := tiles.PhyToLayerScale(*gam.Cam()); got != vgeo.NewXY[float32](1, 0) {
+		if got := tiles.PhyToLayerScale(gam.Cam()); got != vgeo.NewXY[float32](1, 0) {
 			t.Errorf("scale %v key cam = %v, want (1,0)", scale, got)
 		}
 	}
@@ -311,7 +310,7 @@ func TestUpdateCamKeyVel(t *testing.T) {
 // keeps directional input out of the camera while keyboard cursor mode is on.
 func TestUpdateCamCursorKeyMode(t *testing.T) {
 	gam := NewGame()
-	*gam.Cam() = vgeo.XY[float32]{}
+	gam.SetCam(vgeo.XY[float32]{})
 	gam.Layer(gfx.LayerTiles).Scale = 4
 	gam.Poll().DeltaMillis = camKeyStepMillis()
 	in := gam.In()
@@ -321,7 +320,7 @@ func TestUpdateCamCursorKeyMode(t *testing.T) {
 	cursor := &veng.CursorEnt{KbdEnabled: true}
 	gam.SetCursor(cursor)
 	UpdateCam(gam)
-	if got := *gam.Cam(); got != (vgeo.XY[float32]{}) {
+	if got := gam.Cam(); got != (vgeo.XY[float32]{}) {
 		t.Errorf("keyboard cursor cam = %v, want zero", got)
 	}
 	cursor.KbdEnabled = false
@@ -334,7 +333,7 @@ func TestUpdateCamCursorKeyMode(t *testing.T) {
 // limits a multi-key direction transition to one lvl-px step per axis.
 func TestUpdateCamDirChange(t *testing.T) {
 	gam := NewGame()
-	*gam.Cam() = vgeo.XY[float32]{}
+	gam.SetCam(vgeo.XY[float32]{})
 	gam.Layer(gfx.LayerTiles).Scale = 4
 	gam.Poll().DeltaMillis = camKeyStepMillis()
 	in := gam.In()
@@ -368,13 +367,13 @@ func TestUpdateCamDirChange(t *testing.T) {
 		}
 		update(vgeo.NewXY[int8](0, 1), prevOn, vin.ButtonR|vin.ButtonD|vin.ButtonL)
 	}
-	before := *gam.Cam()
+	before := gam.Cam()
 	update(
 		vgeo.NewXY[int8](-1, 1),
 		vin.ButtonR|vin.ButtonD|vin.ButtonL,
 		vin.ButtonD|vin.ButtonL,
 	)
-	if got := *gam.Cam(); got != vgeo.NewXY[float32](92, 100) {
+	if got := gam.Cam(); got != vgeo.NewXY[float32](92, 100) {
 		t.Errorf("released right cam = %v, want (92,100)", got)
 	}
 	if dx, dy := gam.Cam().X-before.X, gam.Cam().Y-before.Y; dx < -4 || dx > 4 || dy < -4 || dy > 4 {
@@ -394,7 +393,7 @@ func TestUpdateCamOpposingKeysReleaseKeepsCam(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			gam := NewGame()
-			*gam.Cam() = vgeo.XY[float32]{}
+			gam.SetCam(vgeo.XY[float32]{})
 			gam.Layer(gfx.LayerTiles).Scale = 4
 			gam.Poll().DeltaMillis = 1000.0 / 60
 			in := gam.In()
@@ -431,9 +430,9 @@ func TestUpdateCamOpposingKeysReleaseKeepsCam(t *testing.T) {
 			hold(vin.ButtonL | vin.ButtonU | vin.ButtonR)
 			hold(vin.ButtonU | vin.ButtonR)
 			for _, on := range test.releases {
-				before := *gam.Cam()
+				before := gam.Cam()
 				update(on)
-				got := *gam.Cam()
+				got := gam.Cam()
 				if on == vin.ButtonU || on == 0 {
 					if got.X != before.X {
 						t.Errorf("released cam X = %v, want %v", got.X, before.X)
@@ -450,7 +449,7 @@ func TestUpdateCamOpposingKeysReleaseKeepsCam(t *testing.T) {
 func TestUpdateCamRapidDirChange(t *testing.T) {
 	newGam := func(scale float32) *Game {
 		gam := NewGame()
-		*gam.Cam() = vgeo.XY[float32]{}
+		gam.SetCam(vgeo.XY[float32]{})
 		gam.Layer(gfx.LayerTiles).Scale = scale
 		gam.Poll().DeltaMillis = camKeyStepMillis()
 		return gam
@@ -503,7 +502,7 @@ func TestUpdateCamRapidDirChange(t *testing.T) {
 // resumes key movement from the panned camera, not the prior key accumulator.
 func TestUpdateCamKeyPans(t *testing.T) {
 	gam := NewGame()
-	*gam.Cam() = vgeo.XY[float32]{}
+	gam.SetCam(vgeo.XY[float32]{})
 	gam.Layer(gfx.LayerTiles).Scale = 4
 	gam.Poll().DeltaMillis = camKeyStepMillis()
 	in := gam.In()
@@ -528,9 +527,8 @@ func TestUpdateCamKeyPans(t *testing.T) {
 func TestUpdateCamKeyZooms(t *testing.T) {
 	newGam := func() *Game {
 		gam := NewGame()
-		gam.CanvasPhy().W = 1024
-		gam.CanvasPhy().H = 640
-		*gam.Cam() = vgeo.NewXY[float32](100, 40)
+		gam.Poll().CanvasPhy = vgeo.NewWH[uint16](1024, 640)
+		gam.SetCam(vgeo.NewXY[float32](100, 40))
 		gam.UpdateLvlLayers()
 		in := gam.In()
 		in.Dir = vgeo.NewXY[int8](1, 0)
@@ -544,15 +542,15 @@ func TestUpdateCamKeyZooms(t *testing.T) {
 	stale := newGam()
 	stale.CamKeyPhy = vgeo.NewXY[float32](-1000, -1000)
 	UpdateCam(stale)
-	if got := *stale.Cam(); got != *control.Cam() {
-		t.Errorf("key cam after zoom = %v, want %v", got, *control.Cam())
+	if got := stale.Cam(); got != control.Cam() {
+		t.Errorf("key cam after zoom = %v, want %v", got, control.Cam())
 	}
 }
 
 // accumulates partial key movement without an initial or reversal snap jump.
 func TestUpdateCamKeySnap(t *testing.T) {
 	gam := NewGame()
-	*gam.Cam() = vgeo.XY[float32]{}
+	gam.SetCam(vgeo.NewXY[float32](1, 0))
 	gam.Layer(gfx.LayerTiles).Scale = 4
 	gam.Poll().DeltaMillis = 10
 	in := gam.In()
@@ -587,12 +585,12 @@ func TestUpdateCamKeySnap(t *testing.T) {
 // leaves a stopped camera at its rendered position rather than rounding it.
 func TestUpdateCamKeyReleaseKeepsCam(t *testing.T) {
 	gam := NewGame()
-	*gam.Cam() = vgeo.NewXY[float32](1.5, 0)
+	gam.SetCam(vgeo.NewXY[float32](1.5, 0))
 	gam.Layer(gfx.LayerTiles).Scale = 4
 	in := gam.In()
 	in.PrevOn = vin.ButtonR
 	UpdateCam(gam)
-	if got := *gam.Cam(); got != vgeo.NewXY[float32](1.5, 0) {
+	if got := gam.Cam(); got != vgeo.NewXY[float32](1.5, 0) {
 		t.Errorf("key release cam = %v, want (1.5,0)", got)
 	}
 }
@@ -600,7 +598,7 @@ func TestUpdateCamKeyReleaseKeepsCam(t *testing.T) {
 // preserves an inactive axis when a diagonal key is released.
 func TestUpdateCamKeyReleaseAxisKeepsCam(t *testing.T) {
 	gam := NewGame()
-	*gam.Cam() = vgeo.NewXY[float32](4, 4)
+	gam.SetCam(vgeo.NewXY[float32](4, 4))
 	gam.Layer(gfx.LayerTiles).Scale = 4
 	gam.Poll().DeltaMillis = 10
 	gam.CamKeyPhy = vgeo.NewXY[float32](1, 4)
@@ -618,7 +616,7 @@ func TestUpdateCamKeyReleaseAxisKeepsCam(t *testing.T) {
 // snaps a pointer-panned camera to the lvl-px grid when dragging ends.
 func TestUpdateCamDragReleaseSnap(t *testing.T) {
 	gam := NewGame()
-	*gam.Cam() = vgeo.XY[float32]{}
+	gam.SetCam(vgeo.XY[float32]{})
 	gam.Layer(gfx.LayerTiles).Scale = 4
 	in := gam.In()
 	in.Ptr = &vin.Ptr{
@@ -648,7 +646,7 @@ func TestUpdateCamDragStartsInLvlClip(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			gam := NewGame()
-			*gam.Cam() = vgeo.XY[float32]{}
+			gam.SetCam(vgeo.XY[float32]{})
 			tiles := gam.Layer(gfx.LayerTiles)
 			tiles.ClipPhy = vgeo.XYWH[uint16](100, 100, 200, 100)
 			gam.In().Ptr = &vin.Ptr{

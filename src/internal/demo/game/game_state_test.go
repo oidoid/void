@@ -54,16 +54,15 @@ func TestP1EntDrawsWhenSpriteHitsClip(t *testing.T) {
 
 func TestZoomLvlAt(t *testing.T) {
 	gam := NewGame()
-	gam.CanvasPhy().W = 1024
-	gam.CanvasPhy().H = 640
-	*gam.Cam() = vgeo.NewXY[float32](100, 40)
+	gam.Poll().CanvasPhy = vgeo.NewWH[uint16](1024, 640)
+	gam.SetCam(vgeo.NewXY[float32](100, 40))
 	gam.UpdateLvlLayers()
 	for _, layer := range []vgfx.Layer{
 		gfx.LayerTiles,
 		gfx.LayerP1,
 		gfx.LayerSuperballs,
 	} {
-		gam.Layer(layer).UpdateCam(*gam.Cam())
+		gam.Layer(layer).UpdateCam(gam.Cam())
 	}
 	anchor := vgeo.NewXY[float32](256, 160)
 	tiles := gam.Layer(gfx.LayerTiles)
@@ -71,7 +70,7 @@ func TestZoomLvlAt(t *testing.T) {
 	if !gam.ZoomLvlAt(anchor, 2) {
 		t.Fatal("ZoomLvlAt() = false, want true")
 	}
-	tiles.UpdateCam(*gam.Cam())
+	tiles.UpdateCam(gam.Cam())
 	gotXY := tiles.PhyToLayer(anchor)
 	if math.Abs(float64(gotXY.X-wantXY.X)) > .0001 ||
 		math.Abs(float64(gotXY.Y-wantXY.Y)) > .0001 {
@@ -93,20 +92,19 @@ func TestZoomLvlAt(t *testing.T) {
 
 func TestZoomLvlAtKeepsStationaryAnchor(t *testing.T) {
 	gam := NewGame()
-	gam.CanvasPhy().W = 1024
-	gam.CanvasPhy().H = 640
+	gam.Poll().CanvasPhy = vgeo.NewWH[uint16](1024, 640)
 	gam.LvlZoom = 40
-	*gam.Cam() = vgeo.NewXY[float32](100, 40)
+	gam.SetCam(vgeo.NewXY[float32](100, 40))
 	gam.UpdateLvlLayers()
 	tiles := gam.Layer(gfx.LayerTiles)
-	tiles.UpdateCam(*gam.Cam())
+	tiles.UpdateCam(gam.Cam())
 	anchor := vgeo.NewXY[float32](256, 160)
 	want := tiles.PhyToLayer(anchor)
 	for range 10 {
 		if !gam.ZoomLvlAt(anchor, 1.01) {
 			t.Fatal("ZoomLvlAt() = false, want true")
 		}
-		tiles.UpdateCam(*gam.Cam())
+		tiles.UpdateCam(gam.Cam())
 		got := tiles.PhyToLayer(anchor)
 		if math.Abs(float64(got.X-want.X)) > .00001 ||
 			math.Abs(float64(got.Y-want.Y)) > .00001 {
@@ -136,8 +134,7 @@ func TestClampLvlScale(t *testing.T) {
 
 func TestAdjustLvlScaleAt(t *testing.T) {
 	gam := NewGame()
-	gam.CanvasPhy().W = 1024
-	gam.CanvasPhy().H = 640
+	gam.Poll().CanvasPhy = vgeo.NewWH[uint16](1024, 640)
 	gam.UpdateLvlLayers()
 	if !gam.AdjustLvlScaleAt(vgeo.XY[float32]{}, .25) {
 		t.Fatal("AdjustLvlScaleAt() = false, want true")

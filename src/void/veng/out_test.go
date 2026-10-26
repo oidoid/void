@@ -13,7 +13,7 @@ func TestOutSnapshot(t *testing.T) {
 	eng := NewEng(&EngOpts{MaxSprs: 1, RenderMode: vgfx.RenderModePixel})
 	eng.Atlas().Cels = []vatlas.Cel{{Millis: 7}, {Millis: 8}}
 	eng.Atlas().Meta = make([]vatlas.TagMeta, 1)
-	*eng.Cam() = vgeo.NewXY[float32](-1.25, 2.5)
+	eng.SetCam(vgeo.NewXY[float32](-1.25, 2.5))
 	layer := eng.Layer(0)
 	layer.CamMode = vgfx.LayerCamModeFixed
 	layer.Scale = 1.5
@@ -25,7 +25,7 @@ func TestOutSnapshot(t *testing.T) {
 	if ptr != uintptr(unsafe.Pointer(out)) {
 		t.Fatal("OutPtr() does not point to the shared output")
 	}
-	if out.Cam != *eng.Cam() || out.RenderMode != vgfx.RenderModePixel {
+	if out.Cam != eng.Cam() || out.RenderMode != vgfx.RenderModePixel {
 		t.Error("initial output lost camera or render mode")
 	}
 	if out.AtlasMetaCount != 1 || out.AtlasMetaPtr == 0 || out.AtlasCelsCount != 2 ||

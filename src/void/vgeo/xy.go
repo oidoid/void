@@ -1,6 +1,7 @@
 package vgeo
 
 import (
+	"github.com/oidoid/void/src/void/vmath"
 	"github.com/oidoid/void/src/void/vtypes"
 )
 
@@ -21,6 +22,11 @@ func NewXY[T vtypes.Num](x, y T) XY[T] {
 //go:inline
 func (this XY[T]) Cast[To vtypes.Num]() XY[To] {
 	return NewXY(To(this.X), To(this.Y))
+}
+
+// rounds each axis to the nearest integer, with ties toward positive infinity.
+func (this XY[T]) Round() XY[T] {
+	return NewXY(vmath.Round(this.X), vmath.Round(this.Y))
 }
 
 //go:inline

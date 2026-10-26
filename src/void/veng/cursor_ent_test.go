@@ -19,6 +19,77 @@ func TestNewCursorEnt_Hitbox(t *testing.T) {
 	}
 }
 
+func TestPixelCursorUsesDrawnOrigin(t *testing.T) {
+	for _, circle := range []bool{false, true} {
+		t.Run(fmt.Sprintf("circle%v", circle), func(t *testing.T) {
+			eng := NewEng(&EngOpts{RenderMode: vgfx.RenderModePixel})
+			layer := eng.Layer(1)
+			layer.Scale = 2.5
+			layer.Clip = defaultBounds
+			layer.ClipPhy = vgeo.XYWH[uint16](20, 30, 500, 400)
+			layer.Cam = vgeo.NewXY[float32](1.25, 2.5)
+			ent := NewCursorEnt(vboards.Spawn{
+				WH: vgeo.NewWH[float32](15, 17), Z: vgfx.Layer(1).Z(0),
+			}, 0, 0, vgeo.XYWH[uint16](2, 3, 6, 8))
+			ent.Circle = circle
+			point := layer.LayerToPhy(vgeo.NewXY[float32](10.25, -.25))
+			poll := vin.InPoll{PtrsLen: 1}
+			poll.Ptrs[0] = vin.PtrPoll{
+				ID: 1, Device: vin.PtrDevMouse, Primary: true,
+				Phy: vgeo.XYWH(point.X, point.Y, float32(0), float32(0)),
+			}
+			eng.In().Update(0, &poll, vgeo.Box[float32]{})
+			ent.Update(eng)
+			wantOrigin := vgeo.NewXY[float32](10, 0)
+			wantPhy := vgeo.NewBox[float32](48.75, 35, 63.75, 55)
+			if circle {
+				wantOrigin = vgeo.NewXY[float32](3, -9)
+				wantPhy = vgeo.NewBox[float32](31.25, 12.5, 46.25, 32.5)
+			}
+			if got := ent.HitboxPhy(); got == nil || *got != wantPhy {
+				t.Fatalf("physical bounds = %v, want %v", got, wantPhy)
+			}
+			if ent.XY != vgeo.NewXY[float32](10.25, -.25) {
+				t.Fatalf("pointer source was rounded: %v", ent.XY)
+			}
+			if len(layer.Sprs) != 1 || layer.Sprs[0].XY != wantOrigin {
+				t.Fatalf("drawn origin differs from collision origin: %v", layer.Sprs)
+			}
+			eng.In().Update(1, &poll, vgeo.Box[float32]{})
+			eng.In().Dir = vgeo.NewXY[int8](1, 1)
+			eng.Poll().DeltaMillis = 10
+			ent.KbdEnabled, ent.KbdVel = true, 10
+			layer.Sprs = layer.Sprs[:0]
+			ent.Update(eng)
+			if len(layer.Sprs) != 1 || layer.Sprs[0].XY != wantOrigin {
+				t.Fatalf("keyboard handover moved the drawn origin: %v", layer.Sprs)
+			}
+		})
+	}
+}
+
+func TestPixelCursorReprojectsStationaryPointer(t *testing.T) {
+	eng := NewEng(&EngOpts{RenderMode: vgfx.RenderModePixel})
+	layer := eng.Layer(0)
+	layer.Scale = 2
+	ent := NewCursorEnt(vboards.Spawn{}, 0, 0,
+		vgeo.XYWH[uint16](0, 0, 2, 2))
+	poll := vin.InPoll{PtrsLen: 1}
+	poll.Ptrs[0] = vin.PtrPoll{
+		ID: 1, Device: vin.PtrDevMouse, Primary: true,
+		Phy: vgeo.XYWH[float32](21, 13, 0, 0),
+	}
+	eng.In().Update(0, &poll, vgeo.Box[float32]{})
+	ent.Update(eng)
+	layer.Scale = 3
+	eng.In().Update(1, &poll, vgeo.Box[float32]{})
+	ent.Update(eng)
+	if got := ent.HitboxPhy(); got == nil ||
+		*got != vgeo.NewBox[float32](21, 12, 27, 18) {
+		t.Fatalf("stationary pointer bounds after resize = %v", got)
+	}
+}
+
 func TestCursorEntUpdateEng(t *testing.T) {
 	eng := NewEng(&EngOpts{MaxSprs: 1})
 	ent := testCursorEnt(0)
@@ -516,19 +587,19 @@ func TestOnCursorKey_SnapsDiagonal(t *testing.T) {
 	ent := testCursorEnt(10)
 	setCursorXY(&ent, vgeo.NewXY[float32](.25, .75))
 	in := vin.NewIn()
-	ent.onCursorKey(in, 1, 1, .01, defaultBounds)
-	if got, want := ent.Spr.XY, vgeo.NewXY[float32](1, 1); got != want {
+	ent.onCursorKey(in, 1, 1, .0125, defaultBounds)
+	if got, want := ent.Spr.XY, vgeo.NewXY[float32](0, 1); got != want {
 		t.Errorf("first diagonal snapXY = %v, want %v", got, want)
 	}
-	if got, want := ent.XY, vgeo.NewXY[float32](1.1, 1.1); got != want {
+	if got, want := ent.XY, vgeo.NewXY[float32](.125, 1.125); got != want {
 		t.Errorf("first diagonal XY = %v, want %v", got, want)
 	}
 	in.PrevDir = vgeo.NewXY[int8](1, 1)
 	ent.onCursorKey(in, 1, 1, .1, defaultBounds)
-	if got, want := ent.Spr.XY, vgeo.NewXY[float32](2, 2); got != want {
+	if got, want := ent.Spr.XY, vgeo.NewXY[float32](1, 2); got != want {
 		t.Errorf("second diagonal snapXY = %v, want %v", got, want)
 	}
-	if got, want := ent.XY, vgeo.NewXY[float32](2.1, 2.1); got != want {
+	if got, want := ent.XY, vgeo.NewXY[float32](1.125, 2.125); got != want {
 		t.Errorf("second diagonal XY = %v, want %v", got, want)
 	}
 }
@@ -595,11 +666,11 @@ func TestOnCursorKey_RestartsAfterPoint(t *testing.T) {
 	)
 	in := vin.NewIn()
 	in.PrevDir = vgeo.NewXY[int8](1, 0)
-	ent.onCursorKey(in, 1, 0, .01, defaultBounds)
-	if got, want := ent.Spr.XY, vgeo.NewXY[float32](1, 1); got != want {
+	ent.onCursorKey(in, 1, 0, .0125, defaultBounds)
+	if got, want := ent.Spr.XY, vgeo.NewXY[float32](0, 1); got != want {
 		t.Errorf("keyboard restart snapXY = %v, want %v", got, want)
 	}
-	if got, want := ent.XY, vgeo.NewXY[float32](1.1, 1); got != want {
+	if got, want := ent.XY, vgeo.NewXY[float32](.125, 1); got != want {
 		t.Errorf("keyboard restart XY = %v, want %v", got, want)
 	}
 }

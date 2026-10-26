@@ -8,6 +8,7 @@ import (
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vgrid"
+	"github.com/oidoid/void/src/void/vmath"
 	"github.com/oidoid/void/src/void/vmem/vvec"
 )
 
@@ -42,28 +43,24 @@ func NewSuperballEntFromSpawn(
 }
 
 //go:inline
-func (this *SuperballEnt) Move(
-	deltaSec float32,
-	board vgeo.Box[float32],
-	radius float32,
-) {
+func (this *SuperballEnt) Move(deltaSec float32, bounds vgeo.Box[float32]) {
 	this.Rot += this.RotVel * deltaSec
-	diameter := radius * 2
 	this.X += this.Vel.X * deltaSec
 	this.Y += this.Vel.Y * deltaSec
-	if this.X < board.Min.X {
-		this.X = board.Min.X
-		this.Vel.X = -this.Vel.X
-	} else if this.X+diameter > board.Max.X {
-		this.X = board.Max.X - diameter
-		this.Vel.X = -this.Vel.X
+	xy := this.XY.Round()
+	if xy.X < bounds.Min.X {
+		this.X = bounds.Min.X
+		this.Vel.X = vmath.Abs(this.Vel.X)
+	} else if xy.X > bounds.Max.X {
+		this.X = bounds.Max.X
+		this.Vel.X = -vmath.Abs(this.Vel.X)
 	}
-	if this.Y < board.Min.Y {
-		this.Y = board.Min.Y
-		this.Vel.Y = -this.Vel.Y
-	} else if this.Y+diameter > board.Max.Y {
-		this.Y = board.Max.Y - diameter
-		this.Vel.Y = -this.Vel.Y
+	if xy.Y < bounds.Min.Y {
+		this.Y = bounds.Min.Y
+		this.Vel.Y = vmath.Abs(this.Vel.Y)
+	} else if xy.Y > bounds.Max.Y {
+		this.Y = bounds.Max.Y
+		this.Vel.Y = -vmath.Abs(this.Vel.Y)
 	}
 }
 
@@ -72,7 +69,7 @@ func (this *SuperballEnt) Draw(
 	sprs *[]vgfx.Spr,
 	clip vgeo.Box[float32],
 ) veng.Status {
-	if clip.HitsXY(this.XY) {
+	if clip.HitsXY(this.XY.Round()) {
 		spr := vgfx.Spr{
 			Tag: tags.SuperballDefault,
 			XY:  this.XY,
@@ -85,7 +82,8 @@ func (this *SuperballEnt) Draw(
 }
 
 func (this *SuperballEnt) Hit(other *SuperballEnt, diameter float32) bool {
-	dx := other.X - this.X
+	x, otherX := vmath.Round(this.X), vmath.Round(other.X)
+	dx := otherX - x
 	if dx < 0 {
 		dx = -dx
 	}
@@ -93,7 +91,8 @@ func (this *SuperballEnt) Hit(other *SuperballEnt, diameter float32) bool {
 	if dx <= 0 {
 		return false
 	}
-	dy := other.Y - this.Y
+	y, otherY := vmath.Round(this.Y), vmath.Round(other.Y)
+	dy := otherY - y
 	if dy < 0 {
 		dy = -dy
 	}
@@ -103,21 +102,21 @@ func (this *SuperballEnt) Hit(other *SuperballEnt, diameter float32) bool {
 	}
 	if dx < dy {
 		dir := float32(1)
-		if other.X < this.X {
+		if otherX < x {
 			dir = -1
 		}
-		this.X -= dir * dx / 2
-		other.X += dir * dx / 2
+		this.X = x - dir*dx/2
+		other.X = otherX + dir*dx/2
 		if dir*(other.Vel.X-this.Vel.X) < 0 {
 			this.Vel.X, other.Vel.X = other.Vel.X, this.Vel.X
 		}
 	} else {
 		dir := float32(1)
-		if other.Y < this.Y {
+		if otherY < y {
 			dir = -1
 		}
-		this.Y -= dir * dy / 2
-		other.Y += dir * dy / 2
+		this.Y = y - dir*dy/2
+		other.Y = otherY + dir*dy/2
 		if dir*(other.Vel.Y-this.Vel.Y) < 0 {
 			this.Vel.Y, other.Vel.Y = other.Vel.Y, this.Vel.Y
 		}
@@ -131,21 +130,23 @@ func UpdateSuperballs(
 ) veng.Status {
 	meta := gam.Atlas().Meta[tags.SuperballDefault]
 	hitbox := meta.Hitbox
-	radius := float32(hitbox.W()) / 2
-	diameter := radius * 2
+	diameter := float32(hitbox.W())
 	layer := gam.Layer(gfx.LayerSuperballs)
 	sprs := &layer.Sprs
 	clip := layer.Clip
 	nearbox := layer.Nearbox()
-	clip.Min.X -= diameter
-	clip.Min.Y -= diameter
+	// conservative extents for rotation about the sprite center.
+	clip.Min.X -= float32(meta.W) + float32(meta.H)/2
+	clip.Min.Y -= float32(meta.H) + float32(meta.W)/2
+	clip.Max.X += float32(meta.H) / 2
+	clip.Max.Y += float32(meta.W) / 2
 	tileW := float32(gam.BoardTileW())
 	tileH := float32(gam.BoardTileH())
 	board := vgeo.NewBox(
-		tileW,
-		tileH,
-		float32(gam.Board().W)-tileW,
-		float32(gam.Board().H)-tileH,
+		tileW-float32(hitbox.Min.X),
+		tileH-float32(hitbox.Min.Y),
+		float32(gam.Board().W)-tileW-float32(hitbox.Max.X),
+		float32(gam.Board().H)-tileH-float32(hitbox.Max.Y),
 	)
 
 	ents := vec.Vals()
@@ -156,7 +157,6 @@ func UpdateSuperballs(
 		boing,
 		nearbox,
 		board,
-		radius,
 		float32(gam.DeltaSecs()),
 	)
 	if gam.HitSuperballs {
@@ -188,18 +188,17 @@ func hitSuperballs(
 ) {
 	grid.Clear()
 	for i := range ents {
-		grid.InsertAt(ents[i].XY, int32(i))
+		grid.InsertAt(ents[i].XY.Round(), int32(i))
 	}
 	grid.ForEach(func(l, r int32) bool {
-		if !beep || !nearbox.HitsXY(ents[l].XY) {
-			return ents[l].Hit(&ents[r], diameter)
-		}
 		dx := ents[r].Vel.X - ents[l].Vel.X
 		dy := ents[r].Vel.Y - ents[l].Vel.Y
 		if !ents[l].Hit(&ents[r], diameter) {
 			return false
 		}
-		boing(dx, dy)
+		if beep && nearbox.HitsXY(ents[l].XY.Round()) {
+			boing(dx, dy)
+		}
 		return true
 	})
 }
@@ -210,16 +209,15 @@ func moveSuperballs(
 	boing func(float32, float32),
 	nearbox vgeo.Box[float32],
 	board vgeo.Box[float32],
-	radius float32,
 	deltaSec float32,
 ) {
 	for i := range ents {
-		if !beep || !nearbox.HitsXY(ents[i].XY) {
-			ents[i].Move(deltaSec, board, radius)
+		if !beep || !nearbox.HitsXY(ents[i].XY.Round()) {
+			ents[i].Move(deltaSec, board)
 			continue
 		}
 		dx, dy := ents[i].Vel.X, ents[i].Vel.Y
-		ents[i].Move(deltaSec, board, radius)
+		ents[i].Move(deltaSec, board)
 		if ents[i].Vel.X != dx || ents[i].Vel.Y != dy {
 			boing(dx, dy)
 		}

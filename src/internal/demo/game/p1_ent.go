@@ -8,7 +8,6 @@ import (
 	"github.com/oidoid/void/src/void/veng"
 	"github.com/oidoid/void/src/void/vgeo"
 	"github.com/oidoid/void/src/void/vgfx"
-	"github.com/oidoid/void/src/void/vmath"
 )
 
 type P1Ent struct {
@@ -45,8 +44,9 @@ func (this *P1Ent) Update(gam *Game) veng.Status {
 	this.SetFlipX(this.Dir == vgeo.DirW)
 	this.Anim.Update(gam.Atlas(), gam.DeltaMs())
 	layer := gam.Layer(this.Z.Layer())
+	xy := this.XY.Round()
 	if layer.Clip.HitsBox(vgeo.XYWH(
-		this.X, this.Y, float32(this.W), float32(this.H),
+		xy.X, xy.Y, float32(this.W), float32(this.H),
 	)) {
 		layer.Sprs = append(layer.Sprs, this.Spr)
 	}
@@ -55,17 +55,18 @@ func (this *P1Ent) Update(gam *Game) veng.Status {
 
 func (this *P1Ent) Move(deltaSecs float64, board *vboards.Board) {
 	by := min(float32(deltaSecs)*p1Vel, p1MaxMove)
-	next := this.XY
+	move := vgeo.NewXY[float32](0, 0)
 	switch this.Dir {
 	case vgeo.DirE:
-		next.X += by
+		move.X = by
 	case vgeo.DirN:
-		next.Y -= by
+		move.Y = -by
 	case vgeo.DirW:
-		next.X -= by
+		move.X = -by
 	case vgeo.DirS:
-		next.Y += by
+		move.Y = by
 	}
+	next := this.XY.Add(move)
 	if this.hitsWall(next, board) {
 		this.XY = this.moveToWall(next, board)
 		this.turn()
@@ -75,8 +76,7 @@ func (this *P1Ent) Move(deltaSecs float64, board *vboards.Board) {
 }
 
 func (this *P1Ent) moveToWall(
-	next vgeo.XY[float32],
-	board *vboards.Board,
+	next vgeo.XY[float32], board *vboards.Board,
 ) vgeo.XY[float32] {
 	safe, wall := this.XY, next
 	for range 8 {
@@ -91,37 +91,11 @@ func (this *P1Ent) moveToWall(
 }
 
 func (this *P1Ent) hitsWall(
-	xy vgeo.XY[float32],
-	board *vboards.Board,
+	xy vgeo.XY[float32], board *vboards.Board,
 ) bool {
-	minX := int32(vmath.Floor(xy.X + float32(this.Hurtbox.Min.X)))
-	maxX := int32(vmath.Ceil(xy.X+float32(this.Hurtbox.Max.X))) - 1
-	minY := int32(vmath.Floor(xy.Y + float32(this.Hurtbox.Min.Y)))
-	maxY := int32(vmath.Ceil(xy.Y+float32(this.Hurtbox.Max.Y))) - 1
-	if minX < 0 || maxX >= board.W || minY < 0 || maxY >= board.H {
-		return true
-	}
-	switch this.Dir {
-	case vgeo.DirE, vgeo.DirW:
-		tileX := minX
-		if this.Dir == vgeo.DirE {
-			tileX = maxX
-		}
-		if board.HitsXY(vgeo.NewXY(tileX, minY)) {
-			return true
-		}
-		return board.HitsXY(vgeo.NewXY(tileX, maxY))
-	case vgeo.DirN, vgeo.DirS:
-		tileY := minY
-		if this.Dir == vgeo.DirS {
-			tileY = maxY
-		}
-		if board.HitsXY(vgeo.NewXY(minX, tileY)) {
-			return true
-		}
-		return board.HitsXY(vgeo.NewXY(maxX, tileY))
-	}
-	return false
+	box := this.Hurtbox.Cast[float32]()
+	box.MoveTo(xy.Round())
+	return board.HitsBox(box)
 }
 
 func (this *P1Ent) turn() {

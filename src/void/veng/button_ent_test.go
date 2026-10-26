@@ -1,10 +1,12 @@
 package veng
 
 import (
+	"math"
 	"testing"
 
 	"github.com/oidoid/void/src/void/vatlas"
 	"github.com/oidoid/void/src/void/vgeo"
+	"github.com/oidoid/void/src/void/vgfx"
 	"github.com/oidoid/void/src/void/vin"
 )
 
@@ -54,6 +56,47 @@ func TestButtonEnt_FocusesCursorHitbox(t *testing.T) {
 				t.Errorf("Focused = %v, want %v", ent.Focused, test.focused)
 			}
 		})
+	}
+}
+
+func TestButtonEntPixelBounds(t *testing.T) {
+	for _, mode := range []vgfx.RenderMode{
+		vgfx.RenderModeFloat, vgfx.RenderModePixel,
+	} {
+		eng := NewEng(&EngOpts{RenderMode: mode})
+		layer := eng.Layer(0)
+		layer.Scale = 3
+		layer.ClipPhy = vgeo.XYWH[uint16](20, 30, 300, 300)
+		layer.Cam = vgeo.NewXY[float32](2, 4)
+		layer.Clip = vgeo.XYWH[float32](0, 0, 100, 100)
+		// drawn button begins at (51, 59); float bounds begin at (50.25, 58.25).
+		eng.SetCursor(&CursorEnt{
+			hitboxPhy: vgeo.NewBox[float32](50.5, 60, 51, 61), hitboxPhyOn: true,
+		})
+		ent := ButtonEnt{}
+		ent.XY = vgeo.NewXY[float32](10.75, 10.75)
+		ent.WH = vgeo.NewWH[uint16](10, 10)
+		ent.Update(eng)
+		if want := mode == vgfx.RenderModeFloat; ent.Focused != want {
+			t.Fatalf("mode %v focused = %v, want %v", mode, ent.Focused, want)
+		}
+		if ent.XY != vgeo.NewXY[float32](10.75, 10.75) {
+			t.Fatal("pixel collision modified button layout coordinates")
+		}
+	}
+}
+
+func TestButtonEntPixelPiecesShareOrigin(t *testing.T) {
+	eng := NewEng(&EngOpts{RenderMode: vgfx.RenderModePixel})
+	layer := eng.Layer(0)
+	layer.Clip = vgeo.XYWH[float32](-10, 0, 100, 100)
+	ent := ButtonEnt{}
+	ent.XY = vgeo.NewXY(math.Nextafter32(-.5, -1), float32(10))
+	ent.WH = vgeo.NewWH[uint16](10, 10)
+	ent.CornerWH = vgeo.NewWH[uint16](1, 1)
+	ent.Update(eng)
+	if got := layer.Sprs[0].XY.Round(); got != vgeo.NewXY[float32](8, 11) {
+		t.Fatalf("right edge origin = %v, want (8, 11)", got)
 	}
 }
 

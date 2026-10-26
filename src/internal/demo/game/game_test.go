@@ -56,10 +56,8 @@ func newGame(camX, camY float32, superballCount int) *Game {
 	// pre-size the superballs sprite buffer so the benchmark measures
 	// steady-state draw performance rather than slice growth.
 	gam.Layer(gfx.LayerSuperballs).Sprs = make([]vgfx.Spr, 0, superballCount)
-	gam.CanvasPhy().W = benchCanvasSize
-	gam.CanvasPhy().H = benchCanvasSize
-	gam.Cam().X = camX
-	gam.Cam().Y = camY
+	gam.Poll().CanvasPhy = vgeo.NewWH[uint16](benchCanvasSize, benchCanvasSize)
+	gam.SetCam(vgeo.NewXY(camX, camY))
 	gam.Poll().DeltaMillis = 1000. / fps
 	for i := range superballCount {
 		superball := NewSuperballEnt(

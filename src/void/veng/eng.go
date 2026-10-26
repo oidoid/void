@@ -187,10 +187,12 @@ func (this *Eng) OutPtr() uintptr {
 
 func (this *Eng) BeepCount() uint32 { return this.out.BeepCount }
 
-func (this *Eng) Cam() *vgeo.XY[float32] { return &this.out.Cam }
+func (this *Eng) Cam() vgeo.XY[float32] { return this.out.Cam }
 
-func (this *Eng) CanvasPhy() *vgeo.WH[uint16] {
-	return &this.poll.CanvasPhy
+func (this *Eng) SetCam(cam vgeo.XY[float32]) { this.out.Cam = cam }
+
+func (this *Eng) CanvasPhy() vgeo.WH[uint16] {
+	return this.poll.CanvasPhy
 }
 func (this *Eng) In() *vin.In {
 	return this.in

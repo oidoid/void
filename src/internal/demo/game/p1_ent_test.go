@@ -106,50 +106,41 @@ func TestP1EntTurnsRightAtWalls(t *testing.T) {
 		for range want.moves {
 			ent.Move(.5, &board)
 		}
-		if ent.XY != want.xy || ent.Dir != want.dir {
+		if ent.XY.Round() != want.xy || ent.Dir != want.dir {
 			t.Fatalf("P1 = (%v, %v), want (%v, %v)", ent.XY, ent.Dir, want.xy, want.dir)
 		}
 	}
 }
 
-func TestP1EntHitsWallEdges(t *testing.T) {
+func TestP1EntReachesWall(t *testing.T) {
 	board := vboards.Board{
 		WH: vgeo.NewWH[int32](48, 48), Tile: vgeo.NewWH[uint8](16, 16),
 		Tiles: make([]vboards.Tile, 9),
 	}
 	board.Tiles[4] = vboards.NewTile(1, true)
 	for _, test := range []struct {
-		name string
-		x, y float32
-		dir  vgeo.Dir
-		want bool
+		name   string
+		x, y   float32
+		dir    vgeo.Dir
+		wantXY vgeo.XY[float32]
 	}{
-		{"east contact", 15, 16, vgeo.DirE, false},
-		{"west contact", 32, 16, vgeo.DirW, false},
-		{"north contact", 16, 32, vgeo.DirN, false},
-		{"south contact", 16, 15, vgeo.DirS, false},
-		{"east overlap", 15.25, 16, vgeo.DirE, true},
-		{"west overlap", 31.75, 16, vgeo.DirW, true},
-		{"north overlap", 16, 31.75, vgeo.DirN, true},
-		{"south overlap", 16, 15.25, vgeo.DirS, true},
-		{"east corner contact", 15, 15, vgeo.DirE, false},
-		{"south corner contact", 15, 15, vgeo.DirS, false},
-		{"east board contact", 47, 0, vgeo.DirE, false},
-		{"west board contact", 0, 0, vgeo.DirW, false},
-		{"north board contact", 0, 0, vgeo.DirN, false},
-		{"south board contact", 0, 47, vgeo.DirS, false},
-		{"east board overlap", 47.25, 0, vgeo.DirE, true},
-		{"west board overlap", -0.25, 0, vgeo.DirW, true},
-		{"north board overlap", 0, -0.25, vgeo.DirN, true},
-		{"south board overlap", 0, 47.25, vgeo.DirS, true},
+		{"east", 13.25, 16, vgeo.DirE, vgeo.NewXY[float32](15, 16)},
+		{"west", 33.75, 16, vgeo.DirW, vgeo.NewXY[float32](32, 16)},
+		{"north", 16, 33.75, vgeo.DirN, vgeo.NewXY[float32](16, 32)},
+		{"south", 16, 13.25, vgeo.DirS, vgeo.NewXY[float32](16, 15)},
+		{"east board", 45.25, 0, vgeo.DirE, vgeo.NewXY[float32](47, 0)},
+		{"west board", 2.75, 0, vgeo.DirW, vgeo.NewXY[float32](0, 0)},
+		{"north board", 0, 2.75, vgeo.DirN, vgeo.NewXY[float32](0, 0)},
+		{"south board", 0, 45.25, vgeo.DirS, vgeo.NewXY[float32](0, 47)},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			ent := P1Ent{
+				Anim:    vgfx.Anim{Spr: vgfx.Spr{XY: vgeo.NewXY(test.x, test.y)}},
 				Hurtbox: vgeo.XYWH[uint16](0, 0, 1, 1), Dir: test.dir,
 			}
-			if got := ent.hitsWall(vgeo.NewXY(test.x, test.y), &board); got != test.want {
-				t.Fatalf("hitsWall(%v, %v) = %v, want %v",
-					test.x, test.y, got, test.want)
+			ent.Move(.5, &board)
+			if ent.XY.Round() != test.wantXY {
+				t.Fatalf("position = %v, want %v", ent.XY, test.wantXY)
 			}
 		})
 	}

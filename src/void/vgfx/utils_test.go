@@ -6,40 +6,6 @@ import (
 	"github.com/oidoid/void/src/void/vgeo"
 )
 
-func TestSnapXY(t *testing.T) {
-	tests := []struct {
-		name string
-		xy   vgeo.XY[float32]
-		by   vgeo.XY[float32]
-		want vgeo.XY[float32]
-	}{
-		{
-			name: "positive",
-			xy:   vgeo.NewXY[float32](-10.25, -10.25),
-			by:   vgeo.NewXY[float32](1, 1),
-			want: vgeo.NewXY[float32](-10, -10),
-		},
-		{
-			name: "negative",
-			xy:   vgeo.NewXY[float32](-10.25, -10.25),
-			by:   vgeo.NewXY[float32](-1, -1),
-			want: vgeo.NewXY[float32](-11, -11),
-		},
-		{
-			name: "nearest",
-			xy:   vgeo.NewXY[float32](-10.25, -10.75),
-			want: vgeo.NewXY[float32](-10, -11),
-		},
-	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			if got := SnapXY(test.xy, test.by); got != test.want {
-				t.Errorf("SnapXY() = %v, want %v", got, test.want)
-			}
-		})
-	}
-}
-
 func TestSnapMove(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -56,6 +22,26 @@ func TestSnapMove(t *testing.T) {
 			want:   vgeo.NewXY[float32](0, 5),
 		},
 		{
+			name:   "negative partial",
+			xy:     vgeo.NewXY[float32](-.75, 5),
+			snapXY: vgeo.NewXY[float32](0, 5),
+			by:     vgeo.NewXY[float32](-.75, 0),
+			want:   vgeo.NewXY[float32](0, 5),
+		},
+		{
+			name:   "vertical preserves X",
+			xy:     vgeo.NewXY[float32](9.75, -.75),
+			snapXY: vgeo.NewXY[float32](10, 1),
+			by:     vgeo.NewXY[float32](0, -1),
+			want:   vgeo.NewXY[float32](10, 0),
+		},
+		{
+			name:   "idle keeps position",
+			xy:     vgeo.NewXY[float32](8.75, -3.75),
+			snapXY: vgeo.NewXY[float32](8, -3),
+			want:   vgeo.NewXY[float32](8, -3),
+		},
+		{
 			name: "diagonal",
 			xy:   vgeo.NewXY[float32](1, 2),
 			by:   vgeo.NewXY[float32](1, 1),
@@ -66,6 +52,20 @@ func TestSnapMove(t *testing.T) {
 			xy:   vgeo.NewXY[float32](-2, 1),
 			by:   vgeo.NewXY[float32](-1, 1),
 			want: vgeo.NewXY[float32](-1, 1),
+		},
+		{
+			name:   "diagonal waits for Y",
+			xy:     vgeo.NewXY[float32](-8.25, 5.75),
+			snapXY: vgeo.NewXY[float32](-10, 5),
+			by:     vgeo.NewXY[float32](1, 1),
+			want:   vgeo.NewXY[float32](-10, 5),
+		},
+		{
+			name:   "negative diagonal from offset",
+			xy:     vgeo.NewXY[float32](-7.75, 3.25),
+			snapXY: vgeo.NewXY[float32](-5, 7),
+			by:     vgeo.NewXY[float32](-1, -1),
+			want:   vgeo.NewXY[float32](-7, 5),
 		},
 	}
 	for _, test := range tests {

@@ -54,9 +54,9 @@ func NewGame() *Game {
 	this.Layer(gfx.LayerTiles).ScaleMode = vgfx.LayerScaleModeManual
 	this.Layer(gfx.LayerP1).ScaleMode = vgfx.LayerScaleModeManual
 	this.Layer(gfx.LayerSuperballs).ScaleMode = vgfx.LayerScaleModeManual
-	*this.Cam() = this.Layer(gfx.LayerSuperballs).LayerToPhyScale(
+	this.SetCam(this.Layer(gfx.LayerSuperballs).LayerToPhyScale(
 		vgeo.NewXY[float32](-96, -96),
-	)
+	))
 	this.Layer(gfx.LayerUI).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerUI).Depth = true
 	this.Layer(gfx.LayerUI).ScaleMode = vgfx.LayerScaleModeAutoInt
@@ -80,20 +80,14 @@ func (this *Game) SetBoard(board *vboards.Board) {
 	}
 	meta := this.Atlas().Meta[tags.SuperballDefault]
 	diameter := float32(meta.Hitbox.W())
-	// omit board edge.
-	bounds := vgeo.NewBox(
-		float32(board.Tile.W),
-		float32(board.Tile.H),
-		float32(board.W-int32(board.Tile.W)),
-		float32(board.H-int32(board.Tile.H)),
-	)
+	bounds := vgeo.NewBox[float32](0, 0, float32(board.W), float32(board.H))
 	this.SuperballGrid = vgrid.New(bounds, diameter, 2*1024*1024)
 }
 
 func (this *Game) SuperballCount() int { return this.Superballs.Len() }
 
 func (this *Game) UpdateLvlLayers() {
-	canvasPhy := *this.CanvasPhy()
+	canvasPhy := this.CanvasPhy()
 	baseScale := lvlScale(canvasPhy)
 	scale := this.lvlZoom(baseScale)
 	this.applyLvlScale(canvasPhy, baseScale, scale)
@@ -127,28 +121,28 @@ func (this *Game) ZoomLvlAt(phy vgeo.XY[float32], by float32) bool {
 	if by <= 0 {
 		return false
 	}
-	baseScale := lvlScale(*this.CanvasPhy())
+	baseScale := lvlScale(this.CanvasPhy())
 	scale := this.lvlZoom(baseScale) * by
 	return this.setLvlScaleAt(phy, scale)
 }
 
 // adjusts lvl scale while keeping the point at phy fixed on screen.
 func (this *Game) AdjustLvlScaleAt(phy vgeo.XY[float32], by float32) bool {
-	baseScale := lvlScale(*this.CanvasPhy())
+	baseScale := lvlScale(this.CanvasPhy())
 	scale := this.lvlZoom(baseScale) + by
 	return this.setLvlScaleAt(phy, scale)
 }
 
 // resets lvl scale to the fitted scale while keeping the point at phy fixed.
 func (this *Game) ResetLvlScaleAt(phy vgeo.XY[float32]) bool {
-	return this.setLvlScaleAt(phy, float32(lvlScale(*this.CanvasPhy())))
+	return this.setLvlScaleAt(phy, float32(lvlScale(this.CanvasPhy())))
 }
 
 func (this *Game) setLvlScaleAt(
 	phy vgeo.XY[float32],
 	scale float32,
 ) bool {
-	canvasPhy := *this.CanvasPhy()
+	canvasPhy := this.CanvasPhy()
 	baseScale := lvlScale(canvasPhy)
 	scale = clampLvlScale(scale)
 	if scale == this.lvlZoom(baseScale) {
@@ -157,17 +151,17 @@ func (this *Game) setLvlScaleAt(
 	tiles := this.Layer(gfx.LayerTiles)
 	oldClipPhy := tiles.ClipPhy
 	oldScale := tiles.ScaleOrDefault()
-	cam := *this.Cam()
+	cam := this.Cam()
 	clipPhy := this.applyLvlScale(canvasPhy, baseScale, scale)
 	ratio := scale / oldScale
 	// scales cam's old clip-relative distance about phy, then shifts it into the
 	// new clip so phy stays fixed on screen.
-	this.Cam().X =
-		(phy.X-float32(oldClipPhy.Min.X)+cam.X)*ratio +
-			float32(clipPhy.Min.X) - phy.X
-	this.Cam().Y =
-		(phy.Y-float32(oldClipPhy.Min.Y)+cam.Y)*ratio +
-			float32(clipPhy.Min.Y) - phy.Y
+	this.SetCam(vgeo.NewXY(
+		(phy.X-float32(oldClipPhy.Min.X)+cam.X)*ratio+
+			float32(clipPhy.Min.X)-phy.X,
+		(phy.Y-float32(oldClipPhy.Min.Y)+cam.Y)*ratio+
+			float32(clipPhy.Min.Y)-phy.Y,
+	))
 	return true
 }
 

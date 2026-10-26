@@ -29,7 +29,7 @@ func UpdateLvlEdgeNinePatches(
 ) veng.Status {
 	ui := gam.Layer(gfx.LayerUI)
 	lvl := gam.Layer(gfx.LayerTiles)
-	edge := lvlEdge(lvl.ClipPhy, *gam.CanvasPhy(), ui)
+	edge := lvlEdge(lvl.ClipPhy, gam.CanvasPhy(), ui)
 
 	ents := vec.Vals()
 	for i := range ents {

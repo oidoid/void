@@ -3,7 +3,9 @@ package game
 import (
 	"testing"
 
+	"github.com/oidoid/void/src/internal/demo/gfx"
 	"github.com/oidoid/void/src/void/vgeo"
+	"github.com/oidoid/void/src/void/vgrid"
 )
 
 func TestSuperballEntHitRequiresOverlap(t *testing.T) {
@@ -19,14 +21,18 @@ func TestSuperballEntHitRequiresOverlap(t *testing.T) {
 		{"east corner contact", 20, 20, false},
 		{"west corner contact", 0, 0, false},
 		{"gap", 20.125, 10, false},
-		{"east overlap", 19.875, 10, true},
-		{"west overlap", 0.125, 10, true},
-		{"north overlap", 10, 0.125, true},
-		{"south overlap", 10, 19.875, true},
+		{"rounded east contact", 19.51, 10, false},
+		{"rounded west contact", 0.49, 10, false},
+		{"rounded north contact", 10, 0.49, false},
+		{"rounded south contact", 10, 19.51, false},
+		{"east overlap", 19.49, 10, true},
+		{"west overlap", 0.51, 10, true},
+		{"north overlap", 10, 0.51, true},
+		{"south overlap", 10, 19.49, true},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			ent := SuperballEnt{
-				XY:  vgeo.NewXY[float32](10, 10),
+				XY:  vgeo.NewXY[float32](10.25, 10.25),
 				Vel: vgeo.NewXY[float32](1, 2), Rot: 0.5, RotVel: 1,
 			}
 			other := SuperballEnt{
@@ -86,5 +92,64 @@ func TestSuperballEntHitResolvesOverlap(t *testing.T) {
 					test.wantVel, test.wantOtherVel)
 			}
 		})
+	}
+}
+
+func TestSuperballEntPixelBoardContact(t *testing.T) {
+	board := vgeo.NewBox[float32](0, 0, 26, 26)
+	ent := SuperballEnt{
+		XY: vgeo.NewXY[float32](25.25, 10.25), Vel: vgeo.NewXY[float32](1, 0),
+	}
+	ent.Move(.125, board)
+	if ent.X != 25.375 || ent.Vel.X != 1 {
+		t.Fatalf("unobstructed subpixel movement changed: %+v", ent)
+	}
+	ent.X = 26.25
+	ent.Move(.125, board)
+	if ent.X != 26.375 || ent.Vel.X != 1 {
+		t.Fatalf("drawn edge contact bounced: %+v", ent)
+	}
+	ent.Move(.25, board)
+	if ent.X != 26 || ent.Vel.X != -1 {
+		t.Fatalf("drawn board overlap did not stop and bounce: %+v", ent)
+	}
+}
+
+func TestSuperballGridUsesDrawnOrigins(t *testing.T) {
+	for _, test := range []struct {
+		otherX float32
+		want   int
+	}{
+		{30.25, 1}, {30.51, 0},
+	} {
+		ents := []SuperballEnt{
+			{XY: vgeo.NewXY[float32](25.25, 10)},
+			{XY: vgeo.NewXY(test.otherX, float32(10))},
+		}
+		grid := vgrid.New(vgeo.NewBox[float32](0, 0, 30, 30), 6, 2)
+		beeps := 0
+		nearbox := vgeo.NewBox[float32](-10, -10, 50, 50)
+		hitSuperballs(ents, &grid, true, func(float32, float32) { beeps++ },
+			nearbox, 6)
+		if beeps != test.want {
+			t.Fatalf("other X=%v: collisions=%d, want %d", test.otherX, beeps, test.want)
+		}
+		if test.want != 0 && ents[0].Hit(&ents[1], 6) {
+			t.Fatal("grid collision left overlapping drawn bounds")
+		}
+	}
+}
+
+func TestSuperballDrawIncludesRotatedEdges(t *testing.T) {
+	gam := NewGame()
+	gam.Superballs.Clear()
+	layer := gam.Layer(gfx.LayerSuperballs)
+	layer.Clip = vgeo.XYWH[float32](100, 100, 10, 10)
+	gam.Superballs.Add(SuperballEnt{
+		XY: vgeo.NewXY[float32](91, 100), Rot: 0.7853982,
+	})
+	gam.Superballs.Update(gam)
+	if len(layer.Sprs) != 1 {
+		t.Fatal("rotated sprite visible at the clip edge was culled")
 	}
 }

@@ -70,6 +70,7 @@ void main() {
   bool zTop = (aFlags >> sprZTopShift & sprZTopMask) != 0u;
 
   highp vec2 corner = corners[gl_VertexID];
+  // nearest layer origin, including negative ties; matches `XY.Round()`.
   highp vec2 originPx = uPixel ? floor(aXY + .5) : aXY;
   highp vec2 originScreenPx = originPx - uCamXY;
   highp vec2 centerPx = wh * .5;

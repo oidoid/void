@@ -79,7 +79,8 @@ func (this *ButtonEnt) Update(eng *Eng) Status {
 	if this.OnUpdate != nil {
 		this.OnUpdate(this)
 	}
-	bounds := this.AnchorBox()
+	xy := eng.RenderMode().SnapXY(this.XY)
+	bounds := vgeo.XYWH(xy.X, xy.Y, float32(this.WH.W), float32(this.WH.H))
 	this.Focused = eng.Cursor().HitsPhy(vgeo.Box[float32]{
 		Min: layer.LayerToPhy(bounds.Min), Max: layer.LayerToPhy(bounds.Max),
 	})
@@ -108,12 +109,12 @@ func (this *ButtonEnt) Update(eng *Eng) Status {
 	for i := range this.PatchByDir {
 		this.PatchByDir[i].SetPal(this.pal(this.Pals, pressed))
 	}
-	this.NinePatchEnt.Update(&layer.Sprs)
+	this.NinePatchEnt.updateAt(&layer.Sprs, xy)
 
 	if this.Text.Text() != "" {
 		this.Text.XY = vgeo.NewXY(
-			int16(this.XY.X)+(int16(this.WH.W)-this.Text.Layout.W)/2,
-			int16(this.XY.Y)+(int16(this.WH.H)-this.Text.Layout.TrimAllForceH)/2,
+			int16(xy.X)+(int16(this.WH.W)-this.Text.Layout.W)/2,
+			int16(xy.Y)+(int16(this.WH.H)-this.Text.Layout.TrimAllForceH)/2,
 		)
 		this.Text.Pal = this.pal(this.TextPals, pressed)
 		this.Text.Update(font, &layer.Sprs, layer.Clip)

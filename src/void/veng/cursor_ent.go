@@ -25,6 +25,7 @@ type CursorEnt struct {
 	KbdVel float32
 	// reports whether keyboard movement initialized XY and Spr.XY.
 	kbdOn       bool
+	pointOn     bool // pointer owns the origin until keyboard input takes over.
 	hitboxCopy  vgeo.Box[float32]
 	hitboxPhy   vgeo.Box[float32]
 	hitboxPhyOn bool
@@ -58,7 +59,7 @@ func (this *CursorEnt) Update(eng *Eng) Status {
 	layer := eng.Layer(this.Spr.Z.Layer())
 	ptr := in.Ptr
 	ptrMoved := ptr != nil && ptr.Moved
-	if ptr != nil && (ptrMoved || this.Circle && !this.KbdEnabled) {
+	if ptr != nil && (ptrMoved || this.pointOn || this.Circle && !this.KbdEnabled) {
 		this.onCursorPoint(*ptr.CenterPhy(), ptr.Device(), layer)
 	}
 	if ptr == nil && !this.KbdEnabled {
@@ -79,6 +80,7 @@ func (this *CursorEnt) Update(eng *Eng) Status {
 		xy.X -= float32(this.Spr.W) / 2
 		xy.Y -= float32(this.Spr.H) / 2
 	}
+	xy = eng.RenderMode().SnapXY(xy)
 	this.Hitbox = this.hitboxCopy
 	this.Hitbox.MoveTo(xy)
 	this.hitboxPhyOn = this.Visible || !this.KbdEnabled && ptr != nil &&
@@ -110,6 +112,7 @@ func (this *CursorEnt) onCursorPoint(
 	this.XY = layer.PhyToLayer(phy)
 	this.Spr.XY = this.XY
 	this.kbdOn = false
+	this.pointOn = true
 	this.Visible = dev == vin.PtrDevMouse
 }
 
@@ -144,6 +147,7 @@ func (this *CursorEnt) HitsPhy(box vgeo.Box[float32]) bool {
 func (this *CursorEnt) onCursorKey(
 	in *vin.In, dirX, dirY int, deltaSecs float64, clip vgeo.Box[float32],
 ) {
+	this.pointOn = false
 	by := vgeo.NewXY(
 		float32(dirX)*this.KbdVel*float32(deltaSecs),
 		float32(dirY)*this.KbdVel*float32(deltaSecs),
@@ -152,7 +156,12 @@ func (this *CursorEnt) onCursorKey(
 	if by != (vgeo.XY[float32]{}) {
 		snapXY := this.Spr.XY
 		if !this.kbdOn || in.PrevDir == (vgeo.XY[int8]{}) {
-			*xy = vgfx.SnapXY(snapXY, by)
+			// preserve the drawn origin when centering an odd-sized sprite.
+			if this.Circle {
+				snapXY.X -= float32(this.Spr.W%2) / 2
+				snapXY.Y -= float32(this.Spr.H%2) / 2
+			}
+			*xy = snapXY.Round()
 			snapXY = *xy
 		} else {
 			if in.PrevDir.X != int8(dirX) {

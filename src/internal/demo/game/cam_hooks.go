@@ -90,11 +90,10 @@ func UpdateCam(gam *Game) veng.Status {
 	cam := gam.Cam()
 	if dirOn {
 		keyStart := in.PrevDir == (vgeo.XY[int8]{}) || lvlScaleChanged
-		snapXY := tiles.PhyToLayerScale(*cam)
+		snapXY := tiles.PhyToLayerScale(cam)
 		if keyStart {
 			// resume from the current snapped camera after a key or pan break.
-			gam.CamKeyPhy = *cam
-			snapXY = vgfx.SnapXY(snapXY, keyBy)
+			snapXY = snapXY.Round()
 			gam.CamKeyPhy = tiles.LayerToPhyScale(snapXY)
 		}
 		keyPhy := &gam.CamKeyPhy
@@ -111,23 +110,23 @@ func UpdateCam(gam *Game) veng.Status {
 		}
 		keyPhy.AddTo(keyBy)
 		keyXY := tiles.PhyToLayerScale(*keyPhy)
-		*cam = tiles.LayerToPhyScale(
+		cam = tiles.LayerToPhyScale(
 			vgfx.SnapMove(keyXY, snapXY, keyBy),
 		)
 	}
 	if by == (vgeo.XY[float32]{}) && !dirOn {
 		if panEnd {
-			snapCam(gam, vgeo.XY[float32]{})
+			snapCam(gam)
 			return stat | veng.Loop
 		}
 		return stat
 	}
-	cam.AddTo(by)
+	gam.SetCam(cam.Add(by))
 	if panEnd {
-		snapCam(gam, vgeo.XY[float32]{})
+		snapCam(gam)
 	}
 	if dirOn && (by != (vgeo.XY[float32]{}) || panEnd) {
-		gam.CamKeyPhy = *cam
+		gam.CamKeyPhy = gam.Cam()
 	}
 	return stat | veng.Loop
 }
@@ -175,12 +174,10 @@ func lvlDragOn(ptr *vin.Ptr, clipPhy vgeo.Box[uint16]) bool {
 	return clip.HitsXY(ptr.Drag.StartPhy)
 }
 
-func snapCam(gam *Game, by vgeo.XY[float32]) {
-	cam := gam.Cam()
+func snapCam(gam *Game) {
 	tiles := gam.Layer(gfx.LayerTiles)
-	xy := tiles.PhyToLayerScale(*cam)
-	xy = vgfx.SnapXY(xy, by)
-	*cam = tiles.LayerToPhyScale(xy)
+	xy := tiles.PhyToLayerScale(gam.Cam()).Round()
+	gam.SetCam(tiles.LayerToPhyScale(xy))
 }
 
 func UpdateLayers(gam *Game) veng.Status {

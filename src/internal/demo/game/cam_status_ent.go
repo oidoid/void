@@ -40,9 +40,9 @@ func NewCamStatusEnt(fillTag vatlas.Tag, z vgfx.Z) CamStatusEnt {
 func (this *CamStatusEnt) Update(gam *Game) veng.Status {
 	font := gam.Font()
 	layer := gam.Layer(this.Z.Layer())
-	canvasPhy := *gam.CanvasPhy()
+	canvasPhy := gam.CanvasPhy()
 	tiles := gam.Layer(gfx.LayerTiles)
-	cam := *gam.Cam()
+	cam := gam.Cam()
 	sprs := &layer.Sprs
 	camLvl := tiles.PhyToLayerScale(cam)
 	clip := layer.Clip
