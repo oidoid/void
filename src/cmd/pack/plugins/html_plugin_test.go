@@ -1,8 +1,12 @@
 package plugins
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -552,4 +556,83 @@ console.log(wasm);`,
 		t.Fatalf("generated output triggered another build: %v", result.Errors)
 	case <-time.After(500 * time.Millisecond):
 	}
+}
+
+func TestHTMLPluginStableRebuilds(t *testing.T) {
+	dir := t.TempDir()
+	out := filepath.Join(dir, "dist")
+	if err := os.Mkdir(out, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	entry := filepath.Join(dir, "index.html")
+	for name, contents := range map[string]string{
+		"index.html": `<script type="module" src="index.js"></script>`,
+		"index.js":   `console.log("unchanged");`,
+	} {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(contents), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	config := &cliconfig.CLIConfig{
+		Entries: []string{entry}, OutDir: out, WatchPort: 1234,
+	}
+	ctx, err := api.Context(api.BuildOptions{
+		Bundle: true, Format: api.FormatESModule, Write: true,
+		EntryPoints: []string{filepath.Join(dir, "index.js")},
+		Outdir:      out, Sourcemap: api.SourceMapLinked,
+		LogLevel: api.LogLevelSilent,
+		Plugins:  []api.Plugin{HTMLPlugin(config)},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ctx.Dispose()
+	if result := ctx.Rebuild(); len(result.Errors) != 0 {
+		t.Fatal(result.Errors)
+	}
+	readJS := func(t *testing.T) []byte {
+		t.Helper()
+		bin, err := os.ReadFile(filepath.Join(out, "index.js"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		return bin
+	}
+	t.Run("unchanged rebuild", func(t *testing.T) {
+		before := readJS(t)
+		if result := ctx.Rebuild(); len(result.Errors) != 0 {
+			t.Fatal(result.Errors)
+		}
+		if !bytes.Equal(before, readJS(t)) {
+			t.Fatal("unchanged rebuild changed JavaScript and would trigger a reload")
+		}
+	})
+	t.Run("source map request", func(t *testing.T) {
+		server, err := ctx.Serve(api.ServeOptions{
+			Host: "127.0.0.1", Port: -1, Servedir: out,
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		before := readJS(t)
+		// esbuild reuses builds for 250ms; DevTools can open much later.
+		time.Sleep(300 * time.Millisecond)
+		client := &http.Client{Timeout: 5 * time.Second}
+		resp, err := client.Get(fmt.Sprintf(
+			"http://127.0.0.1:%d/index.js.map", server.Port,
+		))
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+		if _, err := io.Copy(io.Discard, resp.Body); err != nil {
+			t.Fatal(err)
+		}
+		if resp.StatusCode != http.StatusOK {
+			t.Fatalf("source map response = %d", resp.StatusCode)
+		}
+		if !bytes.Equal(before, readJS(t)) {
+			t.Fatal("source map request changed JavaScript and would trigger a reload")
+		}
+	})
 }

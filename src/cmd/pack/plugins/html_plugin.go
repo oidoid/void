@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
-	"time"
 
 	"github.com/evanw/esbuild/pkg/api"
 	"github.com/oidoid/void/src/cmd/pack/cliconfig"
@@ -53,8 +52,11 @@ func HTMLPlugin(config *cliconfig.CLIConfig) api.Plugin {
 							result.Errors = []api.Message{{Text: err.Error()}}
 							return result, nil
 						}
-						// esbuild sends reload events only when its outputs change.
-						contents := fmt.Sprintf("/*! build %d */", time.Now().UnixNano())
+						contents, err := htmlWatchContents(files, result.WatchDirs)
+						if err != nil {
+							result.Errors = []api.Message{{Text: err.Error()}}
+							return result, nil
+						}
 						result.Contents = &contents
 						return result, nil
 					})
@@ -79,6 +81,36 @@ func HTMLPlugin(config *cliconfig.CLIConfig) api.Plugin {
 			})
 		},
 	}
+}
+
+// esbuild rebuilds on HTTP requests, including DevTools source map requests.
+// change the output only when file metadata or directory entries change.
+func htmlWatchContents(files, dirs []string) (string, error) {
+	var contents strings.Builder
+	for _, file := range files {
+		stat, err := os.Stat(file)
+		if err != nil {
+			return "", err
+		}
+		fmt.Fprintf(
+			&contents,
+			"%q:%d:%d\n",
+			file,
+			stat.Size(),
+			stat.ModTime().UnixNano(),
+		)
+	}
+	for _, dir := range dirs {
+		entries, err := os.ReadDir(dir)
+		if err != nil {
+			return "", err
+		}
+		fmt.Fprintf(&contents, "%q\n", dir)
+		for _, entry := range entries {
+			fmt.Fprintf(&contents, "%q\n", entry.Name())
+		}
+	}
+	return fmt.Sprintf("//! assets %q", contents.String()), nil
 }
 
 func transformHTML(
