@@ -40,7 +40,9 @@ export const keyByCode: {readonly [k: string]: number} = {
   Enter: bridge.keyMenu,
 
   // back.
-  Escape: bridge.keyBack
+  Escape: bridge.keyBack,
+
+  F9: bridge.keyScreenshot
 }
 
 // to-do: support multiple keyboards distinctly.

@@ -5,7 +5,65 @@ import (
 
 	"github.com/oidoid/void/src/void/vboards"
 	"github.com/oidoid/void/src/void/vgeo"
+	"github.com/oidoid/void/src/void/vin"
 )
+
+func TestScreenshotButton(t *testing.T) {
+	eng := NewEng(&EngOpts{MaxSprs: 1})
+	eng.In().MapDefaults()
+	tests := []struct {
+		name string
+		keys vin.Key
+		mask vin.Button
+		want bool
+	}{
+		{name: "idle"},
+		{name: "press", keys: vin.KeyScreenshot | vin.KeyA, want: true},
+		{name: "hold", keys: vin.KeyScreenshot | vin.KeyA},
+		{name: "release"},
+		{name: "press again", keys: vin.KeyScreenshot, want: true},
+		{name: "release again"},
+		{
+			name: "consumed", keys: vin.KeyScreenshot,
+			mask: vin.ButtonScreenshot,
+		},
+		{name: "hold after consumed", keys: vin.KeyScreenshot},
+		{name: "release consumed"},
+		{
+			name: "unrelated mask", keys: vin.KeyScreenshot,
+			mask: vin.ButtonA, want: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			eng.Poll().InPoll.Kbd.Keys = test.keys
+			eng.BeginTick()
+			eng.In().Mask = test.mask
+			eng.EndTick(Pause)
+			got := eng.out.Requests&
+				(OutReqMask<<OutReqScreenshotShift) != 0
+			if got != test.want {
+				t.Errorf("screenshot requested = %v, want %v", got, test.want)
+			}
+		})
+	}
+}
+
+func TestScreenshotButtonRemapping(t *testing.T) {
+	eng := NewEng(&EngOpts{MaxSprs: 1})
+	eng.In().MapDefaults()
+	eng.In().MapKey(vin.KeyScreenshot, vin.ButtonB)
+	eng.In().MapKey(vin.KeyA, vin.ButtonScreenshot)
+	for _, keys := range []vin.Key{vin.KeyScreenshot, 0, vin.KeyA} {
+		eng.Poll().InPoll.Kbd.Keys = keys
+		eng.BeginTick()
+		eng.EndTick(Pause)
+		got := eng.out.Requests&(OutReqMask<<OutReqScreenshotShift) != 0
+		if want := keys == vin.KeyA; got != want {
+			t.Errorf("keys %v: screenshot requested = %v, want %v", keys, got, want)
+		}
+	}
+}
 
 func TestFullscreenReq(t *testing.T) {
 	eng := NewEng(nil)

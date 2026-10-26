@@ -1,4 +1,5 @@
 import {test} from 'node:test'
+import * as bridge from '../eng/bridge.ts'
 import {assert} from '../test/assert.ts'
 import {KeyTestEvent} from '../test/test-event.ts'
 import {Keyboard, keyByCode} from './keyboard.ts'
@@ -53,6 +54,20 @@ test('two buttons mapped to the same bit are unioned', async ctx => {
     canvas.dispatchEvent(KeyTestEvent('keyup', {code: 'Space'}))
     assert(kbd.keys, 0)
   })
+})
+
+test('F9 maps to screenshot until released', () => {
+  const canvas = TestElement()
+  using kbd = new Keyboard(canvas).register('add')
+
+  canvas.dispatchEvent(KeyTestEvent('keydown', {code: 'F9'}))
+  assert(kbd.keys, bridge.keyScreenshot)
+  canvas.dispatchEvent(KeyTestEvent('keydown', {code: 'F9', repeat: true}))
+  assert(kbd.keys, bridge.keyScreenshot)
+  canvas.dispatchEvent(KeyTestEvent('keydown', {code: 'Space'}))
+  assert(kbd.keys, bridge.keyScreenshot | bridge.keyA)
+  canvas.dispatchEvent(KeyTestEvent('keyup', {code: 'F9'}))
+  assert(kbd.keys, bridge.keyA)
 })
 
 test('untrusted', () => {

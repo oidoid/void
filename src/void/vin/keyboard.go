@@ -12,6 +12,7 @@ const (
 	KeyC
 	KeyMenu
 	KeyBack
+	KeyScreenshot
 
 	keyBits = iota
 )

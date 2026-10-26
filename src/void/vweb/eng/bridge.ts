@@ -13,6 +13,7 @@ export const keyB: number = 32
 export const keyC: number = 64
 export const keyMenu: number = 128
 export const keyBack: number = 256
+export const keyScreenshot: number = 512
 export const ptrDevUnknown: 0 = 0
 export const ptrDevMouse: 1 = 1
 export const ptrDevPen: 2 = 2

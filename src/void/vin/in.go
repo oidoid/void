@@ -202,6 +202,7 @@ func (this *In) MapDefaultKeyboard() {
 	this.MapKey(KeyC, ButtonC)
 	this.MapKey(KeyMenu, ButtonMenu)
 	this.MapKey(KeyBack, ButtonBack)
+	this.MapKey(KeyScreenshot, ButtonScreenshot)
 }
 
 func (this *In) MapDefaultPtr() {

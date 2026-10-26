@@ -59,6 +59,7 @@ func generate() []byte {
 		"KeyC":                     vin.KeyC,
 		"KeyMenu":                  vin.KeyMenu,
 		"KeyBack":                  vin.KeyBack,
+		"KeyScreenshot":            vin.KeyScreenshot,
 		"PtrDevUnknown":            vin.PtrDevUnknown,
 		"PtrDevMouse":              vin.PtrDevMouse,
 		"PtrDevPen":                vin.PtrDevPen,

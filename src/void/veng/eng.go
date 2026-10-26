@@ -245,6 +245,9 @@ func (this *Eng) BoardTileH() uint8 {
 }
 
 func (this *Eng) EndTick(stat Status) Status {
+	if this.in.IsOnStart(vin.ButtonScreenshot) {
+		this.ReqScreenshot()
+	}
 	stat |= this.updateTexts()
 	if this.out.DrawAlways {
 		stat |= Loop

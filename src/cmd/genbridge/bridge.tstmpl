@@ -13,6 +13,7 @@ export const keyB: number = {{.KeyB}}
 export const keyC: number = {{.KeyC}}
 export const keyMenu: number = {{.KeyMenu}}
 export const keyBack: number = {{.KeyBack}}
+export const keyScreenshot: number = {{.KeyScreenshot}}
 export const ptrDevUnknown: {{.PtrDevUnknown}} = {{.PtrDevUnknown}}
 export const ptrDevMouse: {{.PtrDevMouse}} = {{.PtrDevMouse}}
 export const ptrDevPen: {{.PtrDevPen}} = {{.PtrDevPen}}

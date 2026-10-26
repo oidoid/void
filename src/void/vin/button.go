@@ -15,5 +15,6 @@ const (
 	ButtonScaleInc
 	ButtonScaleReset
 	ButtonScaleDec
+	ButtonScreenshot
 	// to-do: ButtonShift / ButtonMod
 )
