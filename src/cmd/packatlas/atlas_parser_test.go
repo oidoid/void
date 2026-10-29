@@ -62,6 +62,124 @@ func TestNameToIdent(t *testing.T) {
 	}
 }
 
+func TestParseAtlasTagless(t *testing.T) {
+	for _, test := range []struct {
+		name   string
+		frames int
+		tag    *vatlas.AseTagSpan
+		want   string
+		err    string
+	}{
+		{name: "single frame", frames: 1, want: "Foo"},
+		{name: "animation", frames: 3, want: "Foo"},
+		{name: "cel limit", frames: 255, want: "Foo"},
+		{name: "cel overflow", frames: 256, err: "maximum is 255"},
+		{
+			name: "explicit tag", frames: 3, want: "FooRun",
+			tag: &vatlas.AseTagSpan{
+				Name: "run", Header: vatlas.AseTagSpanHeader{From: 1, To: 1},
+			},
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			file := &vatlas.Ase{
+				Header: vatlas.AseHeader{
+					W: 1, H: 1, ColorDepth: vatlas.AseColorRGBA,
+				},
+				Frames: make([]vatlas.AseFrame, test.frames),
+			}
+			file.Frames[0].Chunks = []vatlas.AseChunk{{
+				Layer: &vatlas.AseLayer{Header: vatlas.AseLayerHeader{
+					Flags: 1, Opacity: 255,
+				}},
+			}}
+			if test.tag != nil {
+				file.Frames[0].Chunks = append(file.Frames[0].Chunks,
+					vatlas.AseChunk{Tags: &vatlas.AseTags{
+						Tags: []vatlas.AseTagSpan{*test.tag},
+					}})
+			}
+			for i := range file.Frames {
+				frame := &file.Frames[i]
+				frame.Header.Millis = uint16(i + 1)
+				frame.Chunks = append(frame.Chunks, vatlas.AseChunk{
+					Cel: &vatlas.AseCel{
+						Header: vatlas.AseCelHeader{Opacity: 255},
+						Image:  vatlas.AseCelImageHeader{W: 1, H: 1},
+						Pxs:    []byte{byte(i), 0, 0, 255},
+					},
+				})
+			}
+			src, err := parseAsset(file)
+			if err != nil {
+				t.Fatal(err)
+			}
+			src.name = "some/path/foo.aseprite"
+			img, atlas, keys, err := parseAtlas([]*asset{src})
+			if test.err != "" {
+				if err == nil || !strings.Contains(err.Error(), test.err) {
+					t.Fatalf("error = %v, want %q", err, test.err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(keys) != 2 || keys[1].qualifiedTag() != test.want {
+				t.Fatalf("keys = %v, want Nil and %s", keys, test.want)
+			}
+			from, count := 0, test.frames
+			if test.tag != nil {
+				from = int(test.tag.Header.From)
+				count = int(test.tag.Header.To) - from + 1
+			}
+			decoded := vatlas.DecodeAtlas(vatlas.EncodeAtlas(atlas))
+			meta := decoded.Meta[1]
+			if int(meta.Cels) != count || meta.Dir != vatlas.AnimDirForward ||
+				meta.Repeat != 0 {
+				t.Fatalf("playback = %+v, want %d looping forward cels",
+					meta, count)
+			}
+			for i := range count {
+				cel := decoded.Cel(1, uint8(i))
+				px := img.NRGBAAt(int(cel.X), int(cel.Y))
+				if cel.Millis != uint16(from+i+1) ||
+					px.R != byte(from+i) || px.A != 255 {
+					t.Fatalf("frame %d: cel = %+v, pixel = %v", i, cel, px)
+				}
+			}
+		})
+	}
+}
+
+func TestFilterAnimsRejectsDuplicateNames(t *testing.T) {
+	for _, test := range []struct {
+		name   string
+		assets []*asset
+	}{
+		{"reserved nil", []*asset{{
+			name: "nil.aseprite", Frames: []assetFrame{{Millis: 1}},
+		}}},
+		{"same stem", []*asset{
+			{name: "foo.aseprite", Frames: []assetFrame{{Millis: 1}}},
+			{name: "dir/foo.aseprite", Frames: []assetFrame{{Millis: 1}}},
+		}},
+		{"qualified name", []*asset{
+			{name: "foo-run.aseprite", Frames: []assetFrame{{Millis: 1}}},
+			{name: "foo.aseprite", TagSpans: []assetTagSpan{{
+				AseTagSpan: vatlas.AseTagSpan{Name: "run"},
+			}}},
+		}},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			_, err := filterAnims(test.assets)
+			if err == nil || !strings.Contains(err.Error(), "duplicate") {
+				t.Fatalf("error = %v, want duplicate name", err)
+			}
+		})
+	}
+}
+
 func TestParseFramesKeepsCels(t *testing.T) {
 	// duration, direction, and repeat do not duplicate, omit, or reorder cels.
 	for _, dir := range []vatlas.AnimDir{

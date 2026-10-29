@@ -39,7 +39,7 @@ type palAssets map[*asset]bool
 type stemTag struct {
 	// source basename without extension (qualifier); eg, `widget` or `void`.
 	stem string
-	tag  string // unqualified Aseprite animation tag; eg, `EdgeLight` or `Nil`.
+	tag  string // unqualified animation tag; empty for tagless sprites.
 }
 
 func (this stemTag) qualifiedTag() string {
@@ -118,17 +118,25 @@ func placeCels(
 
 // collects uniquely keyed animation tags from assets.
 func filterAnims(assets []*asset) (anims []anim, err error) {
-	seen := map[stemTag]bool{nilKey: true}
+	seen := map[string]bool{nilKey.qualifiedTag(): true}
 	for _, asset := range assets {
 		stem := strings.TrimSuffix(
 			filepath.Base(asset.name), filepath.Ext(asset.name),
 		)
-		for _, tag := range asset.TagSpans {
+		tags := asset.TagSpans
+		if len(tags) == 0 && len(asset.Frames) != 0 && len(asset.Tilesets) == 0 {
+			// tagless sprites use their filename for the full timeline.
+			tags = []assetTagSpan{{AseTagSpan: vatlas.AseTagSpan{
+				Header: vatlas.AseTagSpanHeader{To: uint16(len(asset.Frames) - 1)},
+			}}}
+		}
+		for _, tag := range tags {
 			k := stemTag{stem: stem, tag: tag.Name}
-			if seen[k] {
+			name := k.qualifiedTag()
+			if seen[name] {
 				return nil, fmt.Errorf("tag %q duplicate", k.qualifiedTag())
 			}
-			seen[k] = true
+			seen[name] = true
 			anims = append(anims, anim{stemTag: k, asset: asset, tagSpan: tag})
 		}
 	}

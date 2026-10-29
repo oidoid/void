@@ -23,6 +23,7 @@ func TestGenTags(t *testing.T) {
 	got, err := genTags("tags", []stemTag{
 		{stem: "ui", tag: "idle"},
 		{stem: "player", tag: "run"},
+		{stem: "foo"},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -35,6 +36,7 @@ import "github.com/oidoid/void/src/void/vatlas"
 const (
 	UIIdle vatlas.Tag = iota
 	PlayerRun
+	Foo
 )
 `
 	if string(got) != want {
