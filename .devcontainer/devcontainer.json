@@ -9,10 +9,10 @@
   "customizations": {
     "vscode": {
       "extensions": [
+        "anthropic.claude-code",
         "biomejs.biome",
         "golang.go",
         "ms-vscode.makefile-tools",
-        "openai.chatgpt",
         "slevesque.shader"
       ]
     }
