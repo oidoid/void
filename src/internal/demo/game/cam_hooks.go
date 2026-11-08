@@ -73,7 +73,7 @@ func UpdateCam(gam *Game) veng.Status {
 			lvlScaleChanged = true
 		}
 	}
-	d := camKeyVel * float32(gam.DeltaSecs()) * tiles.ScaleOrDefault()
+	d := camKeyVel * float32(gam.DeltaSecs())
 	if dirOn && in.IsOn(vin.ButtonC) {
 		in.Mask |= vin.ButtonC
 		d *= 10
@@ -87,32 +87,27 @@ func UpdateCam(gam *Game) veng.Status {
 		by.X -= ptr.Drag.DeltaPhy.X
 		by.Y -= ptr.Drag.DeltaPhy.Y
 	}
+	by = tiles.PhyToLayerScale(by)
 	cam := gam.Cam()
 	if dirOn {
 		keyStart := in.PrevDir == (vgeo.XY[int8]{}) || lvlScaleChanged
-		snapXY := tiles.PhyToLayerScale(cam)
+		snapXY := cam
+		key := &gam.CamKey
 		if keyStart {
 			// resume from the current snapped camera after a key or pan break.
-			snapXY = vgeo.RoundXY(snapXY)
-			gam.CamKeyPhy = tiles.LayerToPhyScale(snapXY)
-		}
-		keyPhy := &gam.CamKeyPhy
-		if !keyStart {
+			snapXY = vgeo.RoundXY(cam)
+			*key = snapXY
+		} else {
 			// retain fractional progress only on axes whose direction is unchanged.
-			keyXY := tiles.PhyToLayerScale(*keyPhy)
 			if in.PrevDir.X != in.Dir.X {
-				keyXY.X = snapXY.X
+				key.X = snapXY.X
 			}
 			if in.PrevDir.Y != in.Dir.Y {
-				keyXY.Y = snapXY.Y
+				key.Y = snapXY.Y
 			}
-			*keyPhy = tiles.LayerToPhyScale(keyXY)
 		}
-		keyPhy.AddTo(keyBy)
-		keyXY := tiles.PhyToLayerScale(*keyPhy)
-		cam = tiles.LayerToPhyScale(
-			vgfx.SnapMove(keyXY, snapXY, keyBy),
-		)
+		key.AddTo(keyBy)
+		cam = vgfx.SnapMove(*key, snapXY, keyBy)
 	}
 	if by == (vgeo.XY[float32]{}) && !dirOn {
 		if panEnd {
@@ -126,7 +121,7 @@ func UpdateCam(gam *Game) veng.Status {
 		snapCam(gam)
 	}
 	if dirOn && (by != (vgeo.XY[float32]{}) || panEnd) {
-		gam.CamKeyPhy = gam.Cam()
+		gam.CamKey = gam.Cam()
 	}
 	return stat | veng.Loop
 }
@@ -175,9 +170,7 @@ func lvlDragOn(ptr *vin.Ptr, clipPhy vgeo.Box[uint16]) bool {
 }
 
 func snapCam(gam *Game) {
-	tiles := gam.Layer(gfx.LayerTiles)
-	xy := vgeo.RoundXY(tiles.PhyToLayerScale(gam.Cam()))
-	gam.SetCam(tiles.LayerToPhyScale(xy))
+	gam.SetCam(vgeo.RoundXY(gam.Cam()))
 }
 
 func UpdateLayers(gam *Game) veng.Status {

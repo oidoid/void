@@ -42,9 +42,8 @@ func (this *CamStatusEnt) Update(gam *Game) veng.Status {
 	layer := gam.Layer(this.Z.Layer())
 	canvasPhy := gam.CanvasPhy()
 	tiles := gam.Layer(gfx.LayerTiles)
-	cam := gam.Cam()
 	sprs := &layer.Sprs
-	camLvl := tiles.PhyToLayerScale(cam)
+	camLvl := gam.Cam()
 	clip := layer.Clip
 	text := "(" + vtext.FmtFloat(camLvl.X) + ", " + vtext.FmtFloat(camLvl.Y) + ") " +
 		vtext.Itoa(int(canvasPhy.W)) + "x" + vtext.Itoa(int(canvasPhy.H))

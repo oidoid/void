@@ -19,6 +19,8 @@ import (
 type Eng struct {
 	atlas      vatlas.Atlas
 	board      *vboards.Board
+	cam        vgeo.XY[float32] // in camLayer coords.
+	camLayer   vgfx.Layer
 	cursor     *CursorEnt
 	drawAlways bool
 	font       *vtext.Font
@@ -37,7 +39,8 @@ type Eng struct {
 type EngOpts struct {
 	Atlas      vatlas.Atlas
 	Board      *vboards.Board
-	DrawOnBlur bool // allows updates and drawing without focus; defaults off.
+	CamLayer   vgfx.Layer // layer whose coords Cam() uses; defaults to the first.
+	DrawOnBlur bool       // allows updates and drawing without focus; defaults off.
 	Font       *vtext.Font
 	MaxSprs    int
 	RenderMode vgfx.RenderMode
@@ -62,10 +65,11 @@ func NewEng(opts *EngOpts) *Eng {
 		opts.Seed2 = rand.Uint64()
 	}
 	this := &Eng{
-		font:  opts.Font,
-		atlas: opts.Atlas,
-		in:    vin.NewIn(),
-		rnd:   rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
+		font:     opts.Font,
+		atlas:    opts.Atlas,
+		camLayer: opts.CamLayer,
+		in:       vin.NewIn(),
+		rnd:      rand.New(rand.NewPCG(opts.Seed1, opts.Seed2)),
 		out: Out{
 			RenderMode: opts.RenderMode,
 			DrawOnBlur: opts.DrawOnBlur,
@@ -196,9 +200,16 @@ func (this *Eng) OutPtr() uintptr {
 
 func (this *Eng) BeepCount() uint32 { return this.out.BeepCount }
 
-func (this *Eng) Cam() vgeo.XY[float32] { return this.out.Cam }
+// cam origin in EngOpts.CamLayer coords. web receives physical pixels via
+// CamPhy().
+func (this *Eng) Cam() vgeo.XY[float32] { return this.cam }
 
-func (this *Eng) SetCam(cam vgeo.XY[float32]) { this.out.Cam = cam }
+func (this *Eng) SetCam(cam vgeo.XY[float32]) { this.cam = cam }
+
+// cam origin in physical pixels at the cam layer's current scale.
+func (this *Eng) CamPhy() vgeo.XY[float32] {
+	return this.layers[this.camLayer].LayerToPhyScale(this.cam)
+}
 
 func (this *Eng) CanvasPhy() vgeo.WH[uint16] {
 	return this.poll.CanvasPhy
@@ -292,7 +303,7 @@ func (this *Eng) BeginTick() Status {
 		this.poll.NowMillis,
 		&this.poll.InPoll,
 		vgeo.Box[float32]{
-			Min: this.out.Cam}, // to-do: actual cam box.
+			Min: this.CamPhy()}, // to-do: actual cam box.
 	)
 	this.tick.DrawCount = this.poll.DrawCount
 	// a browser-driven exit (eg, Esc) reverts to Windowed so web doesn't
@@ -310,6 +321,7 @@ func (this *Eng) BeginTick() Status {
 func (this *Eng) updateOut() {
 	out := &this.out
 	out.WindowMode = this.WindowMode()
+	out.Cam = this.CamPhy()
 	if board := this.board; board != nil {
 		out.BoardLevel = uint16(board.Level)
 		out.BoardW, out.BoardH = board.W, board.H
@@ -354,9 +366,11 @@ func (this *Eng) updateLayerScales() {
 }
 
 func (this *Eng) updateLayerClips() {
+	this.updateLayerScales() // cam phy depends on the cam layer's scale.
+	camPhy := this.CamPhy()
 	for i := range this.layers {
 		config := &this.layers[i]
-		config.UpdateCam(this.out.Cam)
+		config.UpdateCam(camPhy)
 		clip := config.ClipPhy
 		clipX := float32(clip.Min.X)
 		clipY := float32(clip.Min.Y)
@@ -368,7 +382,6 @@ func (this *Eng) updateLayerClips() {
 			clipW = float32(this.poll.CanvasPhy.W)
 			clipH = float32(this.poll.CanvasPhy.H)
 		}
-		config.UpdateScale(vgeo.NewWH(clipW, clipH))
 		minXY := config.PhyToLayer(vgeo.NewXY(clipX, clipY))
 		maxXY := config.PhyToLayer(vgeo.NewXY(clipX+clipW, clipY+clipH))
 		config.Clip = vgeo.Box[float32]{Min: minXY, Max: maxXY}

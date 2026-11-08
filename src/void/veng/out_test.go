@@ -25,7 +25,8 @@ func TestOutSnapshot(t *testing.T) {
 	if ptr != uintptr(unsafe.Pointer(out)) {
 		t.Fatal("OutPtr() does not point to the shared output")
 	}
-	if out.Cam != eng.Cam() || out.RenderMode != vgfx.RenderModePixel {
+	if out.Cam != eng.CamPhy() || out.Cam != vgeo.NewXY[float32](-1.875, 3.75) ||
+		out.RenderMode != vgfx.RenderModePixel {
 		t.Error("initial output lost camera or render mode")
 	}
 	if out.AtlasMetaCount != 1 || out.AtlasMetaPtr == 0 || out.AtlasCelsCount != 2 ||

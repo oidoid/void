@@ -65,6 +65,27 @@ func TestScreenshotButtonRemapping(t *testing.T) {
 	}
 }
 
+// converts the cam from the cam layer's coords to physical pixels for web.
+func TestCamPhy(t *testing.T) {
+	eng := NewEng(&EngOpts{CamLayer: 1, MaxSprs: 1})
+	eng.Layer(0).Scale = 4
+	eng.Layer(1).Scale = 2
+	eng.SetCam(vgeo.NewXY[float32](3, -4))
+	want := vgeo.NewXY[float32](6, -8)
+	if got := eng.CamPhy(); got != want {
+		t.Errorf("CamPhy() = %v, want %v", got, want)
+	}
+	eng.BeginTick()
+	eng.updateLayerClips()
+	if got := eng.Layer(0).Cam; got != want {
+		t.Errorf("layer cam = %v, want %v", got, want)
+	}
+	eng.EndTick(Pause)
+	if eng.out.Cam != want {
+		t.Errorf("out.Cam = %v, want %v", eng.out.Cam, want)
+	}
+}
+
 func TestWindowMode(t *testing.T) {
 	eng := NewEng(nil)
 	for _, mode := range []WindowMode{

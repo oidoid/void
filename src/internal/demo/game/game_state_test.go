@@ -59,7 +59,7 @@ func TestZoomLvlAt(t *testing.T) {
 		gfx.LayerP1,
 		gfx.LayerSuperballs,
 	} {
-		gam.Layer(layer).UpdateCam(gam.Cam())
+		gam.Layer(layer).UpdateCam(gam.CamPhy())
 	}
 	anchor := vgeo.NewXY[float32](256, 160)
 	tiles := gam.Layer(gfx.LayerTiles)
@@ -67,7 +67,7 @@ func TestZoomLvlAt(t *testing.T) {
 	if !gam.ZoomLvlAt(anchor, 2) {
 		t.Fatal("ZoomLvlAt() = false, want true")
 	}
-	tiles.UpdateCam(gam.Cam())
+	tiles.UpdateCam(gam.CamPhy())
 	gotXY := tiles.PhyToLayer(anchor)
 	if math.Abs(float64(gotXY.X-wantXY.X)) > .0001 ||
 		math.Abs(float64(gotXY.Y-wantXY.Y)) > .0001 {
@@ -94,14 +94,14 @@ func TestZoomLvlAtKeepsStationaryAnchor(t *testing.T) {
 	gam.SetCam(vgeo.NewXY[float32](100, 40))
 	gam.UpdateLvlLayers()
 	tiles := gam.Layer(gfx.LayerTiles)
-	tiles.UpdateCam(gam.Cam())
+	tiles.UpdateCam(gam.CamPhy())
 	anchor := vgeo.NewXY[float32](256, 160)
 	want := tiles.PhyToLayer(anchor)
 	for range 10 {
 		if !gam.ZoomLvlAt(anchor, 1.01) {
 			t.Fatal("ZoomLvlAt() = false, want true")
 		}
-		tiles.UpdateCam(gam.Cam())
+		tiles.UpdateCam(gam.CamPhy())
 		got := tiles.PhyToLayer(anchor)
 		if math.Abs(float64(got.X-want.X)) > .00001 ||
 			math.Abs(float64(got.Y-want.Y)) > .00001 {

@@ -26,7 +26,7 @@ type Game struct {
 	LastBoingMs    float64
 	LvlZoom        float32 // absolute lvl scale; zero uses the fitted scale.
 	// to-do: Cam struct.
-	CamKeyPhy        vgeo.XY[float32] // accumulates keyboard movement in phy coordinates.
+	CamKey           vgeo.XY[float32] // accumulates keyboard movement in lvl coords.
 	CamZoomAnchorPhy vgeo.XY[float32]
 	CamPanOn         bool
 	CamZoomOn        bool
@@ -54,9 +54,7 @@ func NewGame() *Game {
 	this.Layer(gfx.LayerTiles).ScaleMode = vgfx.LayerScaleModeManual
 	this.Layer(gfx.LayerP1).ScaleMode = vgfx.LayerScaleModeManual
 	this.Layer(gfx.LayerSuperballs).ScaleMode = vgfx.LayerScaleModeManual
-	this.SetCam(this.Layer(gfx.LayerSuperballs).LayerToPhyScale(
-		vgeo.NewXY[float32](-96, -96),
-	))
+	this.SetCam(vgeo.NewXY[float32](-96, -96))
 	this.Layer(gfx.LayerUI).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerUI).Depth = true
 	this.Layer(gfx.LayerUI).ScaleMode = vgfx.LayerScaleModeAutoInt
@@ -153,14 +151,13 @@ func (this *Game) setLvlScaleAt(
 	oldScale := tiles.ScaleOrDefault()
 	cam := this.Cam()
 	clipPhy := this.applyLvlScale(canvasPhy, baseScale, scale)
-	ratio := scale / oldScale
-	// scales cam's old clip-relative distance about phy, then shifts it into the
-	// new clip so phy stays fixed on screen.
+	// keeps the lvl point under phy fixed on screen across the scale and clip
+	// change.
 	this.SetCam(vgeo.NewXY(
-		(phy.X-float32(oldClipPhy.Min.X)+cam.X)*ratio+
-			float32(clipPhy.Min.X)-phy.X,
-		(phy.Y-float32(oldClipPhy.Min.Y)+cam.Y)*ratio+
-			float32(clipPhy.Min.Y)-phy.Y,
+		(phy.X-float32(oldClipPhy.Min.X))/oldScale+cam.X-
+			(phy.X-float32(clipPhy.Min.X))/scale,
+		(phy.Y-float32(oldClipPhy.Min.Y))/oldScale+cam.Y-
+			(phy.Y-float32(clipPhy.Min.Y))/scale,
 	))
 	return true
 }
