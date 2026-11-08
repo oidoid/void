@@ -1,3 +1,4 @@
+import './types/file-system.d.ts'
 import './types/glsl.d.ts'
 import './types/wasm.d.ts'
 
