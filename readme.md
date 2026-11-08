@@ -101,8 +101,11 @@ flowchart TB
     vrle["<b>vrle</b><br/>run-length encoding"]:::voidCode
     vtypes["<b>vtypes</b><br/>util types"]:::voidCode
 
-    veng ~~~ vatlas ~~~ vmath
-    vin ~~~ vtext ~~~ vvec
+    vheap["<b>vheap</b><br/>min heap"]:::voidCode
+    vastar["<b>vastar</b><br/>A* search"]:::voidCode
+
+    veng ~~~ vatlas ~~~ vmath ~~~ vheap
+    vin ~~~ vtext ~~~ vvec ~~~ vastar
     vgfx ~~~ vgeo ~~~ vrle
     vboards ~~~ vgrid ~~~ vtypes
     veng ~~~ vtext
