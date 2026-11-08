@@ -263,7 +263,12 @@ func (this *In) Update(now float64, poll *InPoll, cam vgeo.Box[float32]) {
 	this.Ptrs = this.Ptrs[:0]
 	this.Pads = this.Pads[:0]
 
-	this.On = this.evalOn(poll)
+	this.Kbd = Keyboard{
+		Keys:         poll.Kbd.Keys,
+		Text:         string(poll.Kbd.Text[:poll.Kbd.TextLen]),
+		TextOverflow: poll.Kbd.TextOverflow,
+	}
+	this.On = this.evalOn(poll) // maps Kbd.Text so Kbd must precede.
 	if this.On != 0 {
 		this.EverOn = true
 	}
@@ -278,11 +283,6 @@ func (this *In) Update(now float64, poll *InPoll, cam vgeo.Box[float32]) {
 	this.Dir = buttonDir(this.On)
 	this.DirOn = this.Dir != (vgeo.XY[int8]{})
 
-	this.Kbd = Keyboard{
-		Keys:         poll.Kbd.Keys,
-		Text:         string(poll.Kbd.Text[:poll.Kbd.TextLen]),
-		TextOverflow: poll.Kbd.TextOverflow,
-	}
 	this.Wheel = Wheel{WheelPoll: poll.Wheel}
 	primaryI := -1
 	for i := range poll.PtrsLen {
@@ -482,11 +482,8 @@ func (this *In) evalOn(poll *InPoll) Button {
 		on |= this.wheelMap[1]
 	}
 
-	kbd := &poll.Kbd
-	if kbd.TextLen > 0 {
-		for _, ch := range string(kbd.Text[:kbd.TextLen]) {
-			on |= this.textMap[ch]
-		}
+	for _, ch := range this.Kbd.Text {
+		on |= this.textMap[ch]
 	}
 
 	return on
@@ -497,8 +494,8 @@ func inputEq(l, r *InPoll) bool {
 		return false
 	}
 
-	// manually implement `PtrPoll` and `GamepadPoll` equality to skip heavy
-	// fat costs.
+	// manually implement `PtrPoll` and `GamepadPoll` equality to skip heavy fat
+	// costs.
 	for i := range l.PtrsLen {
 		if l.Ptrs[i] != r.Ptrs[i] {
 			return false
