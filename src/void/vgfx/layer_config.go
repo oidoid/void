@@ -55,10 +55,11 @@ type LayerConfig struct {
 	// physical clipbox. zero width or height means the full canvas.
 	ClipPhy vgeo.Box[uint16]
 	// clipbox in this layer's coordinate system derived from `ClipPhy`. always
-	// prefer phy values to converting layer clip to avoid rounding errors.
+	// prefer phy values to converting layer clip to avoid rounding errors. its
+	// origin is the camera in layer px.
 	Clip vgeo.Box[float32]
-	// effective camera for this layer after mode is applied. updated by veng.
-	Cam     vgeo.XY[float32]
+	// camera in physical px after mode is applied. updated by veng.
+	CamPhy  vgeo.XY[float32]
 	CamMode LayerCamMode
 	// physical px per layer px. 0 means 1; autoscaling overwrites this value.
 	Scale     float32
@@ -136,8 +137,8 @@ func (this *LayerConfig) PhyToLayer(xy vgeo.XY[float32]) vgeo.XY[float32] {
 	scale := this.ScaleOrDefault()
 	offset := this.offsetPhy()
 	return vgeo.NewXY(
-		(xy.X-offset.X+this.Cam.X)/scale,
-		(xy.Y-offset.Y+this.Cam.Y)/scale,
+		(xy.X-offset.X+this.CamPhy.X)/scale,
+		(xy.Y-offset.Y+this.CamPhy.Y)/scale,
 	)
 }
 
@@ -152,8 +153,8 @@ func (this *LayerConfig) LayerToPhy(xy vgeo.XY[float32]) vgeo.XY[float32] {
 	scale := this.ScaleOrDefault()
 	offset := this.offsetPhy()
 	return vgeo.NewXY(
-		xy.X*scale+offset.X-this.Cam.X,
-		xy.Y*scale+offset.Y-this.Cam.Y,
+		xy.X*scale+offset.X-this.CamPhy.X,
+		xy.Y*scale+offset.Y-this.CamPhy.Y,
 	)
 }
 
@@ -213,10 +214,10 @@ func (this *LayerConfig) UpdateScale(clip vgeo.WH[float32]) {
 
 func (this *LayerConfig) UpdateCam(cam vgeo.XY[float32]) {
 	if this.CamMode == LayerCamModeFixed {
-		this.Cam = vgeo.XY[float32]{}
+		this.CamPhy = vgeo.XY[float32]{}
 		return
 	}
-	this.Cam = cam
+	this.CamPhy = cam
 }
 
 func (this *LayerConfig) offsetPhy() vgeo.XY[float32] {

@@ -25,11 +25,7 @@ type Game struct {
 	SuperballGrid  vgrid.Grid
 	LastBoingMs    float64
 	LvlZoom        float32 // absolute lvl scale; zero uses the fitted scale.
-	// to-do: Cam struct.
-	CamKey           vgeo.XY[float32] // accumulates keyboard movement in lvl coords.
-	CamZoomAnchorPhy vgeo.XY[float32]
-	CamPanOn         bool
-	CamZoomOn        bool
+	CamHooks       CamHooks
 }
 
 var Version string

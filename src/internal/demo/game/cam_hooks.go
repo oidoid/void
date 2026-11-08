@@ -14,8 +14,18 @@ import (
 
 const camKeyVel = float32(10) // lvl px / sec.
 
+// pans and zooms the lvl cam from pointer, wheel, pinch, and key input.
+type CamHooks struct {
+	// accumulates keyboard movement in lvl coords.
+	key vgeo.XY[float32]
+	// phy point held fixed on screen while zooming.
+	zoomAnchorPhy vgeo.XY[float32]
+	panOn         bool
+	zoomOn        bool
+}
+
 // to-do: update cam last and check click mask state.
-func UpdateCam(gam *Game) veng.Status {
+func (this *CamHooks) Update(gam *Game) veng.Status {
 	in := gam.In()
 	stat := veng.Pause
 	anchor := zoomAnchor(gam)
@@ -26,16 +36,16 @@ func UpdateCam(gam *Game) veng.Status {
 	tiles := gam.Layer(gfx.LayerTiles)
 	dragOn := lvlDragOn(ptr, tiles.ClipPhy)
 	panOn := pinch != nil || dragOn
-	panEnd := gam.CamPanOn && !panOn
-	gam.CamPanOn = panOn
+	panEnd := this.panOn && !panOn
+	this.panOn = panOn
 	wheelZoomOn := in.Wheel.Delta.Y != 0
 	zoomOn := pinch != nil || wheelZoomOn
-	zoomEnd := gam.CamZoomOn && !zoomOn
-	gam.CamZoomOn = zoomOn
+	zoomEnd := this.zoomOn && !zoomOn
+	this.zoomOn = zoomOn
 	if pinch != nil {
-		gam.CamZoomAnchorPhy = pinch.CenterPhy
+		this.zoomAnchorPhy = pinch.CenterPhy
 	} else if wheelZoomOn {
-		gam.CamZoomAnchorPhy = anchor
+		this.zoomAnchorPhy = anchor
 	}
 	lvlScaleChanged := false
 	if pinch != nil &&
@@ -48,7 +58,7 @@ func UpdateCam(gam *Game) veng.Status {
 		stat |= veng.Loop
 		lvlScaleChanged = true
 	}
-	if zoomEnd && snapLvlScaleAt(gam, gam.CamZoomAnchorPhy) {
+	if zoomEnd && snapLvlScaleAt(gam, this.zoomAnchorPhy) {
 		stat |= veng.Loop
 		lvlScaleChanged = true
 	}
@@ -92,7 +102,7 @@ func UpdateCam(gam *Game) veng.Status {
 	if dirOn {
 		keyStart := in.PrevDir == (vgeo.XY[int8]{}) || lvlScaleChanged
 		snapXY := cam
-		key := &gam.CamKey
+		key := &this.key
 		if keyStart {
 			// resume from the current snapped camera after a key or pan break.
 			snapXY = vgeo.RoundXY(cam)
@@ -121,7 +131,7 @@ func UpdateCam(gam *Game) veng.Status {
 		snapCam(gam)
 	}
 	if dirOn && (by != (vgeo.XY[float32]{}) || panEnd) {
-		gam.CamKey = gam.Cam()
+		this.key = gam.Cam()
 	}
 	return stat | veng.Loop
 }

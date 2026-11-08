@@ -11,7 +11,7 @@ import (
 
 func initGame(gam *Game) {
 	gam.SetBoard(&boards.InitBoard)
-	gam.RegisterPreupdate(UpdateCam)
+	gam.RegisterPreupdate(gam.CamHooks.Update)
 	gam.RegisterPreupdate(UpdateLayers)
 	for _, spawn := range boards.InitTextSpawns {
 		if spawn.Hidden {

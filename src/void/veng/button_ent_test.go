@@ -67,7 +67,7 @@ func TestButtonEntPixelBounds(t *testing.T) {
 		layer := eng.Layer(0)
 		layer.Scale = 3
 		layer.ClipPhy = vgeo.XYWH[uint16](20, 30, 300, 300)
-		layer.Cam = vgeo.NewXY[float32](2, 4)
+		layer.CamPhy = vgeo.NewXY[float32](2, 4)
 		layer.Clip = vgeo.XYWH[float32](0, 0, 100, 100)
 		// drawn button begins at (51, 59); float bounds begin at (50.25, 58.25).
 		eng.SetCursor(&CursorEnt{

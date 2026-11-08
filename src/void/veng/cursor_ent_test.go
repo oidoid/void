@@ -27,7 +27,7 @@ func TestPixelCursorUsesDrawnOrigin(t *testing.T) {
 			layer.Scale = 2.5
 			layer.Clip = defaultBounds
 			layer.ClipPhy = vgeo.XYWH[uint16](20, 30, 500, 400)
-			layer.Cam = vgeo.NewXY[float32](1.25, 2.5)
+			layer.CamPhy = vgeo.NewXY[float32](1.25, 2.5)
 			ent := NewCursorEnt(vboards.Spawn{
 				WH: vgeo.NewWH[float32](15, 17), Z: vgfx.Layer(1).Z(0),
 			}, 0, 0, vgeo.XYWH[uint16](2, 3, 6, 8))
@@ -182,7 +182,7 @@ func TestUpdate_CircleCenteredOnPointer(t *testing.T) {
 			in := vin.NewIn()
 			layer := vgfx.NewLayerConfig(0)
 			layer.ClipPhy = vgeo.XYWH[uint16](20, 30, 320, 240)
-			layer.Cam = vgeo.NewXY[float32](4, 6)
+			layer.CamPhy = vgeo.NewXY[float32](4, 6)
 			sprs := []vgfx.Spr{}
 			for frame, scale := range []float32{2, 3, 3} {
 				layer.Scale = scale

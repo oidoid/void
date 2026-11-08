@@ -77,7 +77,7 @@ func TestCamPhy(t *testing.T) {
 	}
 	eng.BeginTick()
 	eng.updateLayerClips()
-	if got := eng.Layer(0).Cam; got != want {
+	if got := eng.Layer(0).CamPhy; got != want {
 		t.Errorf("layer cam = %v, want %v", got, want)
 	}
 	eng.EndTick(Pause)
