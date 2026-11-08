@@ -1,5 +1,6 @@
 import type {BoardConfig} from '../boards/board-config.ts'
 import {packAtlasTexels} from '../gfx/atlas.ts'
+import type {ClipTarget} from '../gfx/clip-renderer/clip-renderer.ts'
 import type {
   LayerBlendMode,
   LayerCamMode,
@@ -161,34 +162,34 @@ export class Eng {
     const camY = this.#out.getFloat32(bridge.outCamYOffset, true)
     this.#renderer.clear(...this.#clearColor)
     this.#drawCount++
+    // consecutive layers with equal pass settings share one offscreen pass.
+    let target: ClipTarget | undefined
+    let prev: LayerConfig | undefined
     for (let layer = 0; layer < bridge.layerCount; layer++) {
       const config = this.#layerConfig(layer)
-      const lx = config.camMode === bridge.layerCamModeFixed ? 0 : camX
-      const ly = config.camMode === bridge.layerCamModeFixed ? 0 : camY
-      if (config.shader === bridge.shaderTiles) {
-        this.#renderer.drawTiles(
-          lx,
-          ly,
-          config.scale,
-          config.blendMode,
-          config.depth,
-          config.clipPhy
+      const tiles = config.shader === bridge.shaderTiles
+      if (!tiles && config.sprCount === 0) continue
+      if (!target || !prev || !sharesPass(prev, config)) {
+        if (target) this.#renderer.end(target)
+        const fixed = config.camMode === bridge.layerCamModeFixed
+        target = this.#renderer.begin(
+          config,
+          fixed ? 0 : camX,
+          fixed ? 0 : camY
         )
-      } else if (config.shader === bridge.shaderSprs && config.sprCount !== 0) {
-        this.#renderer.drawLayer(
+      }
+      prev = config
+      if (tiles) this.#renderer.drawTiles(target)
+      else
+        this.#renderer.drawSprs(
+          target,
           layer,
           buffer,
           config.sprsPtr,
-          config.sprCount,
-          lx,
-          ly,
-          config.scale,
-          config.blendMode,
-          config.depth,
-          config.clipPhy
+          config.sprCount
         )
-      }
     }
+    if (target) this.#renderer.end(target)
     this.#applyPostDrawReqs(this.#renderer, requests)
   }
 
@@ -444,4 +445,25 @@ export class Eng {
     this.#input.postupdate() // to-do: move to postupdate()?
     this.#lastTime = frameMillis
   }
+}
+
+/**
+ * true when b can draw in a's offscreen pass. depth-tested layers keep their
+ * own pass: the depth buffer encodes sublayer and screen Y but not layer.
+ */
+function sharesPass(
+  a: Readonly<LayerConfig>,
+  b: Readonly<LayerConfig>
+): boolean {
+  return (
+    !a.depth &&
+    !b.depth &&
+    a.scale === b.scale &&
+    a.camMode === b.camMode &&
+    a.blendMode === b.blendMode &&
+    a.clipPhy.x === b.clipPhy.x &&
+    a.clipPhy.y === b.clipPhy.y &&
+    a.clipPhy.w === b.clipPhy.w &&
+    a.clipPhy.h === b.clipPhy.h
+  )
 }

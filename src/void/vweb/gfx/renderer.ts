@@ -1,6 +1,6 @@
 import type {BoardConfig} from '../boards/board-config.ts'
-import type {XYWH} from '../geo/box.ts'
-import {ClipRenderer} from './clip-renderer/clip-renderer.ts'
+import {ClipRenderer, type ClipTarget} from './clip-renderer/clip-renderer.ts'
+import type {LayerConfig} from './layer-config.ts'
 import {SprRenderer} from './spr-renderer/spr-renderer.ts'
 import {TileRenderer} from './tile-renderer/tile-renderer.ts'
 
@@ -109,63 +109,45 @@ export class Renderer {
     this.#gl.clear(this.#gl.COLOR_BUFFER_BIT)
   }
 
-  drawTiles(
-    camX: number,
-    camY: number,
-    layerScale: number,
-    blendMode: number,
-    depth: boolean,
-    clipPhy: Readonly<XYWH>
-  ): void {
-    const clipTarget = this.#clip.begin(
-      layerScale,
-      blendMode,
-      depth,
-      clipPhy,
+  // starts an offscreen pass with a layer's settings. draw into it, then end()
+  // composites.
+  begin(config: Readonly<LayerConfig>, camX: number, camY: number): ClipTarget {
+    return this.#clip.begin(
+      config.scale,
+      config.blendMode,
+      config.depth,
+      config.clipPhy,
       camX,
       camY
     )
-    this.#tiles.draw(
-      clipTarget.camX,
-      clipTarget.camY,
-      clipTarget.w,
-      clipTarget.h
-    )
-    this.#clip.end(clipTarget, blendMode)
   }
 
-  drawLayer(
+  drawTiles(target: Readonly<ClipTarget>): void {
+    this.#tiles.draw(target.camX, target.camY, target.w, target.h)
+  }
+
+  drawSprs(
+    target: Readonly<ClipTarget>,
     layer: number,
     buffer: ArrayBuffer,
     sprPtr: number,
-    sprCount: number,
-    camX: number,
-    camY: number,
-    layerScale: number,
-    blendMode: number,
-    depth: boolean,
-    clipPhy: Readonly<XYWH>
+    sprCount: number
   ): void {
-    const clipTarget = this.#clip.begin(
-      layerScale,
-      blendMode,
-      depth,
-      clipPhy,
-      camX,
-      camY
-    )
     this.#sprs.draw(
       layer,
       buffer,
       sprPtr,
       sprCount,
-      clipTarget.camX,
-      clipTarget.camY,
-      blendMode,
-      clipTarget.w,
-      clipTarget.h
+      target.camX,
+      target.camY,
+      target.blendMode,
+      target.w,
+      target.h
     )
-    this.#clip.end(clipTarget, blendMode)
+  }
+
+  end(target: Readonly<ClipTarget>): void {
+    this.#clip.end(target)
   }
 
   // https://webgl2fundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html

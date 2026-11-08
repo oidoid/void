@@ -22,6 +22,7 @@ export type ClipTarget = {
   scale: number // physical pixels per layer pixel.
   camX: number // layer camera snapped to framebuffer pixels.
   camY: number
+  blendMode: number // viewport composite.
 }
 
 export class ClipRenderer {
@@ -152,12 +153,14 @@ export class ClipRenderer {
       h,
       scale: layerScale,
       camX: layerCamX,
-      camY: layerCamY
+      camY: layerCamY,
+      blendMode
     }
   }
 
-  end(clip: ClipTarget, blendMode: number): void {
+  end(clip: Readonly<ClipTarget>): void {
     const gl = this.#gl
+    const blendMode = clip.blendMode
     gl.disable(gl.DEPTH_TEST)
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight)
