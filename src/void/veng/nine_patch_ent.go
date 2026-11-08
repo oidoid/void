@@ -6,8 +6,8 @@ import (
 )
 
 // to-do: rename ninep?
-// 3x3 spr panel. all sprs except corners are scaled to fit w/h. corners
-// are assumed to be same size.
+// 3x3 spr panel. all sprs except corners are scaled to fit w/h. corners are
+// assumed to be same size.
 type NinePatchEnt struct {
 	PatchByDir [9]vgfx.Spr
 	XY         vgeo.XY[float32]
@@ -31,8 +31,13 @@ func (this *NinePatchEnt) updateAt(sprs *[]vgfx.Spr, xy vgeo.XY[float32]) {
 	x, y := xy.X, xy.Y
 	w, h := float32(this.WH.W), float32(this.WH.H)
 	cornerW, cornerH := float32(this.CornerWH.W), float32(this.CornerWH.H)
-	midW, midH := uint16(w-2*cornerW), uint16(h-2*cornerH)
-	patch := this.PatchByDir
+	// clamp before converting: host Go wraps a negative float to uint16 while
+	// TinyGo saturates it to zero.
+	midW, midH := uint16(max(0, w-2*cornerW)), uint16(max(0, h-2*cornerH))
+	// append first and position in place to skip a copy of the patches.
+	start := len(*sprs)
+	*sprs = append(*sprs, this.PatchByDir[:]...)
+	patch := (*sprs)[start:]
 	patch[vgeo.DirE].XY = vgeo.NewXY(x+w-cornerW, y+cornerH)
 	patch[vgeo.DirE].WH = vgeo.NewWH(this.CornerWH.W, midH)
 	patch[vgeo.DirNE].XY = vgeo.NewXY(x+w-cornerW, y)
@@ -51,15 +56,4 @@ func (this *NinePatchEnt) updateAt(sprs *[]vgfx.Spr, xy vgeo.XY[float32]) {
 	patch[vgeo.DirSE].WH = this.CornerWH
 	patch[vgeo.DirCenter].XY = vgeo.NewXY(x+cornerW, y+cornerH)
 	patch[vgeo.DirCenter].WH = vgeo.NewWH(midW, midH)
-	*sprs = append(*sprs,
-		patch[vgeo.DirE],
-		patch[vgeo.DirNE],
-		patch[vgeo.DirN],
-		patch[vgeo.DirNW],
-		patch[vgeo.DirW],
-		patch[vgeo.DirSW],
-		patch[vgeo.DirS],
-		patch[vgeo.DirSE],
-		patch[vgeo.DirCenter],
-	)
 }
