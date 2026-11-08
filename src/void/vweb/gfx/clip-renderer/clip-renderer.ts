@@ -29,6 +29,8 @@ export class ClipRenderer {
     const pgm = buildProgram(gl, clipVert, clipFrag)
     const uResolution = gl.getUniformLocation(pgm, 'uResolution')!
     const uDstXYWH = gl.getUniformLocation(pgm, 'uDstXYWH')!
+    const uUVScale = gl.getUniformLocation(pgm, 'uUVScale')!
+    const uUVMax = gl.getUniformLocation(pgm, 'uUVMax')!
     const uTex = gl.getUniformLocation(pgm, 'uTex')!
     const uDiscardTransparent = gl.getUniformLocation(
       pgm,
@@ -48,6 +50,8 @@ export class ClipRenderer {
       pgm,
       uResolution,
       uDstXYWH,
+      uUVScale,
+      uUVMax,
       uTex,
       uDiscardTransparent,
       vao,
@@ -61,12 +65,17 @@ export class ClipRenderer {
   readonly #pgm: WebGLProgram
   readonly #uResolution: WebGLUniformLocation
   readonly #uDstXYWH: WebGLUniformLocation
+  readonly #uUVScale: WebGLUniformLocation
+  readonly #uUVMax: WebGLUniformLocation
   readonly #uTex: WebGLUniformLocation
   readonly #uDiscardTransparent: WebGLUniformLocation
   readonly #vao: WebGLVertexArrayObject
   readonly #framebuffer: WebGLFramebuffer
   readonly #colorTex: WebGLTexture
   readonly #depthBuffer: WebGLRenderbuffer
+  // allocated target size in layer pixels. it grows to the largest layer and
+  // never shrinks so layers of differing scales don't reallocate every frame;
+  // smaller layers draw into a sub-rectangle.
   #w: number = 0
   #h: number = 0
 
@@ -75,6 +84,8 @@ export class ClipRenderer {
     pgm: WebGLProgram,
     uResolution: WebGLUniformLocation,
     uDstXYWH: WebGLUniformLocation,
+    uUVScale: WebGLUniformLocation,
+    uUVMax: WebGLUniformLocation,
     uTex: WebGLUniformLocation,
     uDiscardTransparent: WebGLUniformLocation,
     vao: WebGLVertexArrayObject,
@@ -86,6 +97,8 @@ export class ClipRenderer {
     this.#pgm = pgm
     this.#uResolution = uResolution
     this.#uDstXYWH = uDstXYWH
+    this.#uUVScale = uUVScale
+    this.#uUVMax = uUVMax
     this.#uTex = uTex
     this.#uDiscardTransparent = uDiscardTransparent
     this.#vao = vao
@@ -120,10 +133,15 @@ export class ClipRenderer {
     // to phy.
     const w = Math.ceil((phy.w + offsetX) / layerScale)
     const h = Math.ceil((phy.h + offsetY) / layerScale)
-    this.#resize(w, h)
-    this.#gl.bindFramebuffer(this.#gl.FRAMEBUFFER, this.#framebuffer)
-    this.#gl.viewport(0, 0, w, h)
+    this.#grow(w, h)
+    const gl = this.#gl
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.#framebuffer)
+    gl.viewport(0, 0, w, h)
+    // clear only the layer area; end() clamps sampling to it.
+    gl.enable(gl.SCISSOR_TEST)
+    gl.scissor(0, 0, w, h)
     this.#clear(blendMode)
+    gl.disable(gl.SCISSOR_TEST)
     this.#setSourceBlend(blendMode, true)
     this.#setDepth(depth)
     return {
@@ -168,6 +186,12 @@ export class ClipRenderer {
       clip.w * clip.scale,
       clip.h * clip.scale
     )
+    gl.uniform2f(this.#uUVScale, clip.w / this.#w, clip.h / this.#h)
+    gl.uniform2f(
+      this.#uUVMax,
+      (clip.w - 0.5) / this.#w,
+      (clip.h - 0.5) / this.#h
+    )
     gl.uniform1i(this.#uTex, 0)
     gl.uniform1i(
       this.#uDiscardTransparent,
@@ -192,10 +216,10 @@ export class ClipRenderer {
     this.#gl.deleteRenderbuffer(this.#depthBuffer)
   }
 
-  #resize(w: number, h: number): void {
-    if (w === this.#w && h === this.#h) return
-    this.#w = w
-    this.#h = h
+  #grow(w: number, h: number): void {
+    if (w <= this.#w && h <= this.#h) return
+    this.#w = Math.max(w, this.#w)
+    this.#h = Math.max(h, this.#h)
     const gl = this.#gl
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.#framebuffer)
     gl.bindTexture(gl.TEXTURE_2D, this.#colorTex)
@@ -203,8 +227,8 @@ export class ClipRenderer {
       gl.TEXTURE_2D,
       0,
       gl.RGBA,
-      w,
-      h,
+      this.#w,
+      this.#h,
       0,
       gl.RGBA,
       gl.UNSIGNED_BYTE,
@@ -218,7 +242,12 @@ export class ClipRenderer {
       0
     )
     gl.bindRenderbuffer(gl.RENDERBUFFER, this.#depthBuffer)
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, w, h)
+    gl.renderbufferStorage(
+      gl.RENDERBUFFER,
+      gl.DEPTH_COMPONENT16,
+      this.#w,
+      this.#h
+    )
     gl.framebufferRenderbuffer(
       gl.FRAMEBUFFER,
       gl.DEPTH_ATTACHMENT,

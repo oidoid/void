@@ -2,6 +2,7 @@
 
 uniform highp ivec2 uResolution;
 uniform highp vec4 uDstXYWH;
+uniform highp vec2 uUVScale; // layer size over target texture size.
 
 out highp vec2 vUV;
 
@@ -21,5 +22,5 @@ void main() {
   highp vec2 ndc = px / vec2(uResolution) * 2. - 1.;
   ndc.y = -ndc.y;
   gl_Position = vec4(ndc, 0., 1.);
-  vUV = vec2(corner.x, 1. - corner.y);
+  vUV = vec2(corner.x, 1. - corner.y) * uUVScale;
 }

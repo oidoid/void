@@ -165,7 +165,6 @@ export class Eng {
       const lx = config.camMode === bridge.layerCamModeFixed ? 0 : camX
       const ly = config.camMode === bridge.layerCamModeFixed ? 0 : camY
       if (config.shader === bridge.shaderTiles) {
-        this.#renderer.clearDepth()
         this.#renderer.drawTiles(
           lx,
           ly,
@@ -175,8 +174,8 @@ export class Eng {
           config.clipPhy
         )
       } else if (config.shader === bridge.shaderSprs && config.sprCount !== 0) {
-        this.#renderer.clearDepth()
         this.#renderer.drawLayer(
+          layer,
           buffer,
           config.sprsPtr,
           config.sprCount,

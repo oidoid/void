@@ -135,6 +135,7 @@ export class Renderer {
   }
 
   drawLayer(
+    layer: number,
     buffer: ArrayBuffer,
     sprPtr: number,
     sprCount: number,
@@ -154,6 +155,7 @@ export class Renderer {
       camY
     )
     this.#sprs.draw(
+      layer,
       buffer,
       sprPtr,
       sprCount,
