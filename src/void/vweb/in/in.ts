@@ -111,20 +111,17 @@ export function writeInPoll(
     true
   )
   view.setUint16(bridge.keyboardOffset, keyboard.keys, true)
-  const textBytes = encoder.encode(keyboard.text)
-  const textLen = Math.min(textBytes.length, bridge.maxTextLen)
-  view.setUint16(bridge.keyboardTextLenOffset, textLen, true)
-  view.setUint8(
-    bridge.keyboardTextOverflowOffset,
-    textBytes.length > bridge.maxTextLen ? 1 : 0
-  )
   if (u8.buffer !== view.buffer)
     u8 = new Uint8Array(
       view.buffer,
       view.byteOffset + bridge.keyboardTextOffset,
       bridge.maxTextLen
     )
-  u8.set(textBytes.subarray(0, textLen))
+  // encodes straight into Wasm memory and never splits a code point.
+  const text = keyboard.text
+  const {read, written} = encoder.encodeInto(text, u8)
+  view.setUint16(bridge.keyboardTextLenOffset, written, true)
+  view.setUint8(bridge.keyboardTextOverflowOffset, read < text.length ? 1 : 0)
   const pads = Object.values(gamepad.polls)
   const padsLen = Math.min(pads.length, bridge.maxGamepads)
   view.setUint8(bridge.gamepadsLenOffset, padsLen)
