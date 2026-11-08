@@ -20,7 +20,7 @@ never run:
 - tune dx. keep it practical and idiomatic. consider usage patterns and lines of code cost at definition and call sites. suggest applying new patterns broadly.
 - minimize heap de/allocations in game loop.
 - prefer Go to TS.
-- `src/void` packages start with "v", such as `ventities`. demo packages often mirror void structure but without the "v", such as `entities`.
+- `src/void` packages start with "v", such as `vgfx`. demo packages often mirror void structure but without the "v", such as `gfx`.
 
 ### Pitfalls
 

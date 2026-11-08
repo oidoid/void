@@ -10,7 +10,7 @@ void is a 2D game and app engine for web browsers featuring:
 
 ## Development
 
-all system packages start with "v" such as `vents` for "void ents".
+all system packages start with "v" such as `vgfx` for "void graphics".
 
 see the [agent file](AGENTS.md).
 
