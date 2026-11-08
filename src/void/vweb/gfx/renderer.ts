@@ -4,12 +4,14 @@ import {ClipRenderer} from './clip-renderer/clip-renderer.ts'
 import {SprRenderer} from './spr-renderer/spr-renderer.ts'
 import {TileRenderer} from './tile-renderer/tile-renderer.ts'
 
-export function getWebGL2(
-  canvas: HTMLCanvasElement,
-  antialias: boolean
-): WebGL2RenderingContext {
+export function getWebGL2(canvas: HTMLCanvasElement): WebGL2RenderingContext {
   const gl = canvas.getContext('webgl2', {
-    antialias,
+    // sprites draw into offscreen targets; the canvas only composites
+    // axis-aligned quads so multisampling would smooth nothing.
+    antialias: false,
+    // layers depth test in their own offscreen target; the canvas only
+    // composites them.
+    depth: false,
     powerPreference: 'low-power',
     // avoid flicker caused by clearing the drawing buffer. see
     // https://developer.chrome.com/blog/desynchronized/.
@@ -105,12 +107,6 @@ export class Renderer {
   clear(r: number, g: number, b: number, a: number): void {
     this.#gl.clearColor(r, g, b, a)
     this.#gl.clear(this.#gl.COLOR_BUFFER_BIT)
-  }
-
-  // layers are composited in draw order; depth is local to one layer.
-  clearDepth(): void {
-    this.#gl.clearDepth(1)
-    this.#gl.clear(this.#gl.DEPTH_BUFFER_BIT)
   }
 
   drawTiles(

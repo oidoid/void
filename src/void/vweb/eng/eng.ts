@@ -323,7 +323,7 @@ export class Eng {
     const pixel =
       out.getUint8(bridge.outRenderModeOffset) === bridge.RenderModePixel
     return new Renderer(
-      getWebGL2(this.#canvas, !pixel),
+      getWebGL2(this.#canvas),
       this.#boardRenderState(),
       atlasTexels,
       atlasImg,
