@@ -57,7 +57,6 @@ func (this *Vec[V]) Add(v V) Handle {
 }
 
 func (this *Vec[V]) Cap() int { return cap(this.vals) }
-func (this *Vec[V]) Clear()   { this.vals = this.vals[:0] }
 
 func (this *Vec[V]) get(handle Handle) *V {
 	return &this.vals[this.slots[handle.slotIndex()].valIndex()]
