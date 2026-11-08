@@ -7,24 +7,24 @@ import "github.com/oidoid/void/src/void/vatlas"
 // holds metrics and detail metadata for a bitmap font.
 type Font struct {
 	// PostScript font name less than 63 characters and does not contain
-	// `(){}[]<>%/ `. matches the font filename stem. Eg, "mem-mono-3x3".
+	// `(){}[]<>%/ `. matches the font filename stem. eg, "mem-mono-3x3".
 	ID string
 	// human readable font name. eg, "mem mono 3x3".
 	Name string
-	// maximum width of any character in the font in pixels. usually present
-	// in font name. eg, the max width of "mem prop 5x6" is five pixels.
+	// maximum width of any character in the font in pixels. usually present in
+	// font name. eg, the max width of "mem prop 5x6" is five pixels.
 	CellW uint8
-	// maximum height of any character in the font in pixels, including
-	// descenders but not leading. usually present in font name. eg, the max
-	// height of "mem prop 5x6" is six pixels. the line height is
-	// `cellH + leading` or seven pixels.
+	// maximum height of any character in the font in pixels, including descenders
+	// but not leading. usually present in font name. eg, the max height of "mem
+	// prop 5x6" is six pixels. the line height is `cellH + leading` or seven
+	// pixels.
 	CellH uint8
 	// distance between lines in pixels.
 	Leading uint8
 	// `cellH + leading`.
 	LineH uint8
-	// the font's baseline as measured in pixels from the bottom of the cell
-	// (`cellH`). when nonzero, this is the space available for descenders.
+	// baseline as measured in pixels from the bottom of the cell (`cellH`). when
+	// nonzero, this is the space available for descenders.
 	Baseline uint8
 	// character-to-character kerning pair widths in pixels. when a pair is not
 	// present, `endOfLineKerning` is used when the pair matches the regular
@@ -39,16 +39,16 @@ type Font struct {
 	// character width in pixels. when a character is not present in `charWidths`,
 	// `defaultCharW` is used.
 	DefaultCharW uint8
-	// variable distance between characters in pixels. the key is two
-	// characters (left, right) and the value may be negative.
+	// variable distance between characters in pixels. the key is two characters
+	// (left, right) and the value may be negative.
 	kerningPairs map[[2]byte]int8
 	// character width in pixels. when a character is not present, `defaultCharW`
 	// is used.
 	charWidths [256]uint8
 	// characters that descend below the baseline.
 	descends [32]uint8
-	// the first tag for this font's glyphs. character sprs are indexed as
-	// FirstTag + charCode.
+	// first tag for this font's glyphs. character sprs are indexed as FirstTag +
+	// charCode.
 	FirstTag vatlas.Tag
 }
 

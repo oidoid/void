@@ -50,8 +50,10 @@ func (this *TextEnt) Update(
 		uint16(font.CellW)*uint16(scale),
 		uint16(font.CellH)*uint16(scale),
 	)
-	for i, ch := range []rune(this.text) {
+	i := 0 // rune index. ranging the string avoids a rune slice on TinyGo.
+	for _, ch := range this.text {
 		chBox := this.Layout.Chars[i]
+		i++
 		if chBox == zeroChar {
 			// to-do: better to just draw instead of testing every char?
 			continue

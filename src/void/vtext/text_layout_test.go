@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
+	"unicode/utf8"
 
 	"github.com/oidoid/void/src/void/vgeo"
 )
@@ -624,18 +625,15 @@ func TestLayoutWord(t *testing.T) {
 				tc.index,
 			),
 			func(t *testing.T) {
-				got := layoutWord(
-					font,
-					tc.xy,
-					tc.maxW,
-					[]rune(tc.str),
-					tc.index,
-					0,
-					1,
-					0,
-					0,
-				)
-				assertWordLayout(t, got, tc.expected)
+				text := string([]rune(tc.str)[tc.index:])
+				chars := make([]vgeo.Box[int16], utf8.RuneCountInString(text))
+				got := layoutWord(font, chars, text, tc.xy, tc.maxW, 1, 0, 0)
+				assertWordLayout(t, TextLayout{
+					Chars:  chars[:got.runes],
+					Cursor: got.cursor,
+					TrimH:  int16(got.trimH),
+					WH:     vgeo.WH[int16]{W: got.w},
+				}, tc.expected)
 			},
 		)
 	}
