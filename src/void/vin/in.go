@@ -61,7 +61,7 @@ func NewIn() *In {
 	return &In{DragMinPhy: 5, MinHeldMillis: 300, textMap: make(map[rune]Button)}
 }
 
-// true if on hasn't changed in MinHeldAge ms.
+// true if on hasn't changed in MinHeldMillis.
 func (this *In) IsHeld() bool {
 	return this.now-this.onChangedAt >= this.MinHeldMillis
 }

@@ -6,11 +6,14 @@ import (
 )
 
 const (
-	flagHitbox   = 1
-	flagHurtbox  = 2
-	flagDirMask  = 3
-	flagDirShift = 2
-	flagRepeat   = 16
+	flagHitboxMask   = 1
+	flagHitboxShift  = 0
+	flagHurtboxMask  = 1
+	flagHurtboxShift = 1
+	flagDirMask      = 3
+	flagDirShift     = 2
+	flagRepeatMask   = 1
+	flagRepeatShift  = 4
 )
 
 func DecodeAtlas(bin []byte) Atlas {
@@ -38,13 +41,13 @@ func DecodeAtlas(bin []byte) Atlas {
 		meta.Cels, meta.W, meta.H = readByte(), readU16(), readU16()
 		flags := readByte()
 		meta.Dir = AnimDir(flags >> flagDirShift & flagDirMask)
-		if flags&flagRepeat != 0 {
+		if flags>>flagRepeatShift&flagRepeatMask != 0 {
 			meta.Repeat = readByte()
 		}
-		if flags&flagHitbox != 0 {
+		if flags>>flagHitboxShift&flagHitboxMask != 0 {
 			meta.Hitbox = readBox()
 		}
-		if flags&flagHurtbox != 0 {
+		if flags>>flagHurtboxShift&flagHurtboxMask != 0 {
 			meta.Hurtbox = readBox()
 		}
 		totalCels += int(meta.Cels)
@@ -84,22 +87,22 @@ func EncodeAtlas(atlas *Atlas) []byte {
 		buf = appendU16(buf, meta.H)
 		flags := uint8(meta.Dir) & flagDirMask << flagDirShift
 		if meta.Repeat != 0 {
-			flags |= flagRepeat
+			flags |= flagRepeatMask << flagRepeatShift
 		}
 		if meta.Hitbox != (vgeo.Box[uint16]{}) {
-			flags |= flagHitbox
+			flags |= flagHitboxMask << flagHitboxShift
 		}
 		if meta.Hurtbox != (vgeo.Box[uint16]{}) {
-			flags |= flagHurtbox
+			flags |= flagHurtboxMask << flagHurtboxShift
 		}
 		buf = append(buf, flags)
 		if meta.Repeat != 0 {
 			buf = append(buf, meta.Repeat)
 		}
-		if flags&flagHitbox != 0 {
+		if flags>>flagHitboxShift&flagHitboxMask != 0 {
 			buf = appendBox(buf, meta.Hitbox)
 		}
-		if flags&flagHurtbox != 0 {
+		if flags>>flagHurtboxShift&flagHurtboxMask != 0 {
 			buf = appendBox(buf, meta.Hurtbox)
 		}
 	}

@@ -211,8 +211,8 @@ export class Eng {
       shader: view.getUint8(o + bridge.layerConfigShaderOffset) as Shader,
       depth:
         ((flags >>> bridge.layerFlagsDepthShift) &
-          bridge.layerFlagsDepthMask) ===
-        bridge.layerFlagsDepthFlag,
+          bridge.layerFlagsDepthMask) !==
+        0,
       blendMode: ((flags >>> bridge.layerFlagsBlendModeShift) &
         bridge.layerFlagsBlendModeMask) as LayerBlendMode,
       sprsPtr: view.getUint32(o + bridge.layerConfigSprsPtrOffset, true),

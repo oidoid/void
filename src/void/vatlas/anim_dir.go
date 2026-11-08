@@ -1,6 +1,6 @@
 package vatlas
 
-// Animation direction.
+// animation direction.
 type AnimDir uint8
 
 const (

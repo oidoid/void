@@ -380,7 +380,7 @@ func (this *Eng) updateLayerConfigExport() {
 		flags := (uint8(layer.BlendMode) & vgfx.LayerFlagsBlendModeMask) <<
 			vgfx.LayerFlagsBlendModeShift
 		if layer.Depth {
-			flags |= vgfx.LayerFlagsDepthFlag << vgfx.LayerFlagsDepthShift
+			flags |= vgfx.LayerFlagsDepthMask << vgfx.LayerFlagsDepthShift
 		}
 		this.out.Layers[i] = vgfx.LayerConfigExport{
 			CamMode:  layer.CamMode,

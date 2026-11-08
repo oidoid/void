@@ -70,7 +70,6 @@ func generate() []byte {
 		"SprStride":                vgfx.SprStride,
 		"LayerCount":               vgfx.LayerCount,
 		"LayerFlagsDepthShift":     vgfx.LayerFlagsDepthShift,
-		"LayerFlagsDepthFlag":      vgfx.LayerFlagsDepthFlag,
 		"LayerFlagsDepthMask":      vgfx.LayerFlagsDepthMask,
 		"LayerFlagsBlendModeShift": vgfx.LayerFlagsBlendModeShift,
 		"LayerFlagsBlendModeMask":  vgfx.LayerFlagsBlendModeMask,

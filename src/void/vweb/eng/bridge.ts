@@ -92,13 +92,12 @@ export const outAtlasMetaCountOffset: number = 56
 export const outAtlasCelsPtrOffset: number = 60
 export const outAtlasCelsCountOffset: number = 64
 export const outFullscreenReqOffset: number = 68
-export const outDrawAlwaysOffset: number = 69
-export const outDrawOnBlurOffset: number = 70
-export const outRenderModeOffset: number = 71
-export const outRequestsOffset: number = 72
-export const outBeepCountOffset: number = 76
-export const outBeepsOffset: number = 80
-export const outLayersOffset: number = 336
+export const outDrawOnBlurOffset: number = 69
+export const outRenderModeOffset: number = 70
+export const outRequestsOffset: number = 71
+export const outBeepCountOffset: number = 72
+export const outBeepsOffset: number = 76
+export const outLayersOffset: number = 332
 
 export const outCamXOffset: number = 8
 export const outCamYOffset: number = 12
@@ -139,7 +138,6 @@ export const layerConfigSprsPtrOffset: number = 16
 export const layerConfigSprCountOffset: number = 20
 
 export const layerFlagsDepthShift: number = 0
-export const layerFlagsDepthFlag: number = 1
 export const layerFlagsDepthMask: number = 1
 export const layerFlagsBlendModeShift: number = 1
 export const layerFlagsBlendModeMask: number = 3

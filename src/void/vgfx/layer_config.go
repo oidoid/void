@@ -27,13 +27,12 @@ const (
 	LayerBlendModeReplace
 )
 
-// bit positions within the packed flags byte in LayerConfigExport.Flags.
+// bit fields within the packed flags byte in LayerConfigExport.Flags.
 const (
-	LayerFlagsDepthShift           = uint8(0)
-	LayerFlagsDepthFlag            = uint8(0x1)
 	LayerFlagsDepthMask      uint8 = 0x1
-	LayerFlagsBlendModeShift       = uint8(1)
+	LayerFlagsDepthShift           = uint8(0)
 	LayerFlagsBlendModeMask  uint8 = 0x3
+	LayerFlagsBlendModeShift       = uint8(1)
 )
 
 // how a layer's scale is set from its physical clipbox size.
@@ -65,7 +64,7 @@ type LayerConfig struct {
 	Scale     float32
 	ScaleMode LayerScaleMode
 	// desired minimum visible size in layer px. autoscaling uses the smaller
-	// phy-to-layer size ratio so both dimensions fit before lauer mode clamping.
+	// phy-to-layer size ratio so both dimensions fit before layer mode clamping.
 	// a zero dimension is ignored; if both dims are zero, scale is unchanged.
 	AutoscaleMinClip  vgeo.WH[uint16]
 	AutoscaleMaxScale uint8 // caps computed scale; 0 = uncapped.

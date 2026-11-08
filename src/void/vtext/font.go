@@ -9,12 +9,12 @@ type Font struct {
 	// PostScript font name less than 63 characters and does not contain
 	// `(){}[]<>%/ `. matches the font filename stem. Eg, "mem-mono-3x3".
 	ID string
-	// the human readable font name. eg, "mem mono 3x3".
+	// human readable font name. eg, "mem mono 3x3".
 	Name string
-	// the maximum width of any character in the font in pixels. usually present
+	// maximum width of any character in the font in pixels. usually present
 	// in font name. eg, the max width of "mem prop 5x6" is five pixels.
 	CellW uint8
-	// the maximum height of any character in the font in pixels, including
+	// maximum height of any character in the font in pixels, including
 	// descenders but not leading. usually present in font name. eg, the max
 	// height of "mem prop 5x6" is six pixels. the line height is
 	// `cellH + leading` or seven pixels.

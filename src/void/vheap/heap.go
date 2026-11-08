@@ -1,6 +1,6 @@
 package vheap
 
-// min Heap is a slice of values ordered by their less method:
+// min-heap of values ordered by their less method:
 //   - no child is less than its parent.
 //   - the tree is balanced and complete but not necessarily perfect. slice
 //     indices run left to right across each level, then continue below. all

@@ -14,12 +14,13 @@ type Poll struct {
 	UtcMillis  uint64
 	CanvasPhy  vgeo.WH[uint16]
 	Fullscreen bool
+	// forces drawing every frame; set by the web debug URL.
 	DrawAlways bool
 	_          [2]byte
 
 	// number of renderer clears completed.
 	DrawCount int32
-	// one-time URL override.
+	// browser-driven exits and the one-time URL override.
 	FullscreenReq FullscreenReq
 	Ptrlocked     bool
 	_             [2]byte

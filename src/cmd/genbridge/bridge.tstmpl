@@ -102,7 +102,6 @@ export const layerConfigStride: number = {{.LayerConfigExport.Size}}
 {{range fields .LayerConfigExport}}export const layerConfig{{.Name}}Offset: number = {{.Offset}}
 {{end}}
 export const layerFlagsDepthShift: number = {{.LayerFlagsDepthShift}}
-export const layerFlagsDepthFlag: number = {{.LayerFlagsDepthFlag}}
 export const layerFlagsDepthMask: number = {{.LayerFlagsDepthMask}}
 export const layerFlagsBlendModeShift: number = {{.LayerFlagsBlendModeShift}}
 export const layerFlagsBlendModeMask: number = {{.LayerFlagsBlendModeMask}}

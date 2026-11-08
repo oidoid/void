@@ -35,7 +35,7 @@ func TestOutSnapshot(t *testing.T) {
 	exported := out.Layers[0]
 	if exported.Scale != 1.5 || exported.CamMode != vgfx.LayerCamModeFixed ||
 		exported.SprCount != 1 || exported.SprsPtr == 0 ||
-		exported.Flags != vgfx.LayerFlagsDepthFlag|
+		exported.Flags != vgfx.LayerFlagsDepthMask<<vgfx.LayerFlagsDepthShift|
 			uint8(vgfx.LayerBlendModeMultiply)<<vgfx.LayerFlagsBlendModeShift {
 		t.Errorf("initial layer = %+v", exported)
 	}
