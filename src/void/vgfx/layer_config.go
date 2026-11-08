@@ -43,8 +43,8 @@ const (
 	LayerScaleModeManual LayerScaleMode = iota
 	// fits AutoscaleMinClip using a float scale, allowing scales below 1.
 	LayerScaleModeAutoFloat
-	// fits AutoscaleMinClip using a floored scale clamped to at least 1.
-	// clips content if the physical clipbox is too small at scale 1.
+	// fits AutoscaleMinClip using a floored scale clamped to at least 1. clips
+	// content if the physical clipbox is too small at scale 1.
 	LayerScaleModeAutoInt
 )
 
@@ -134,9 +134,10 @@ func (this *LayerConfig) PhyToLayerScale(xy vgeo.XY[float32]) vgeo.XY[float32] {
 // converts physical pixels to layer coords, applying cam and clip.
 func (this *LayerConfig) PhyToLayer(xy vgeo.XY[float32]) vgeo.XY[float32] {
 	scale := this.ScaleOrDefault()
+	offset := this.offsetPhy()
 	return vgeo.NewXY(
-		(xy.X-this.offsetPhy().X+this.Cam.X)/scale,
-		(xy.Y-this.offsetPhy().Y+this.Cam.Y)/scale,
+		(xy.X-offset.X+this.Cam.X)/scale,
+		(xy.Y-offset.Y+this.Cam.Y)/scale,
 	)
 }
 
@@ -149,9 +150,10 @@ func (this *LayerConfig) PhyToLayerInt(xy vgeo.XY[float32]) vgeo.XY[float32] {
 // converts a layer coord to physical pixels, applying cam and clip.
 func (this *LayerConfig) LayerToPhy(xy vgeo.XY[float32]) vgeo.XY[float32] {
 	scale := this.ScaleOrDefault()
+	offset := this.offsetPhy()
 	return vgeo.NewXY(
-		xy.X*scale+this.offsetPhy().X-this.Cam.X,
-		xy.Y*scale+this.offsetPhy().Y-this.Cam.Y,
+		xy.X*scale+offset.X-this.Cam.X,
+		xy.Y*scale+offset.Y-this.Cam.Y,
 	)
 }
 
