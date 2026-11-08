@@ -40,3 +40,73 @@ func TestBoxHitsBox(t *testing.T) {
 		})
 	}
 }
+
+func TestBoxHitsPoint(t *testing.T) {
+	box := XYWH[float32](-5, -5, 10, 10)
+	for _, test := range []struct {
+		name string
+		xy   XY[float32]
+		want bool
+	}{
+		{"center", NewXY[float32](0, 0), true},
+		{"min corner inclusive", NewXY[float32](-5, -5), true},
+		{"max corner exclusive", NewXY[float32](5, 5), false},
+		{"east edge exclusive", NewXY[float32](5, 0), false},
+		{"south edge exclusive", NewXY[float32](0, 5), false},
+		{"just inside max", NewXY(math.Nextafter32(5, 0), math.Nextafter32(5, 0)), true},
+		{"outside west", NewXY[float32](-6, 0), false},
+		{"outside north", NewXY[float32](0, -6), false},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			if got := box.HitsXY(test.xy); got != test.want {
+				t.Errorf("HitsXY(%v) = %v, want %v", test.xy, got, test.want)
+			}
+		})
+	}
+}
+
+func TestBoxCastTruncatesTowardZero(t *testing.T) {
+	for _, test := range []struct {
+		name string
+		box  Box[float32]
+		want Box[int16]
+	}{
+		{"integral", NewBox[float32](-2, 3, 4, 5), NewBox[int16](-2, 3, 4, 5)},
+		{"positive fraction", NewBox[float32](.9, 1.5, 2.1, 3.99), NewBox[int16](0, 1, 2, 3)},
+		{"negative fraction", NewBox[float32](-.9, -1.5, -2.1, -3.99), NewBox[int16](0, -1, -2, -3)},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			if got := test.box.Cast[int16](); got != test.want {
+				t.Errorf("Cast() = %v, want %v", got, test.want)
+			}
+		})
+	}
+}
+
+func TestBoxXYWHAndSize(t *testing.T) {
+	for _, test := range []struct {
+		name string
+		box  Box[int]
+		w, h int
+	}{
+		{"positive", XYWH(1, 2, 3, 4), 3, 4},
+		{"negative origin", XYWH(-3, -4, 3, 4), 3, 4},
+		{"zero size", XYWH(5, 5, 0, 0), 0, 0},
+		{"inverted", NewBox(3, 4, 1, 2), -2, -2},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			if test.box.W() != test.w || test.box.H() != test.h {
+				t.Errorf("WH = %dx%d, want %dx%d",
+					test.box.W(), test.box.H(), test.w, test.h)
+			}
+		})
+	}
+}
+
+func TestBoxMoveTo(t *testing.T) {
+	box := XYWH(1, 2, 3, 4)
+	box.MoveTo(NewXY(-10, 20))
+	if want := XYWH(-9, 22, 3, 4); box != want {
+		t.Errorf("MoveTo() = %v, want %v", box, want)
+	}
+}

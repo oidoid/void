@@ -32,3 +32,41 @@ func TestGeometryConversions(t *testing.T) {
 		t.Errorf("Box.Cast() = %v, want %v", got, want)
 	}
 }
+
+func TestRoundXY(t *testing.T) {
+	for _, test := range []struct {
+		name string
+		xy   XY[float32]
+		want XY[float32]
+	}{
+		{"integral", NewXY[float32](1, -2), NewXY[float32](1, -2)},
+		{"below half", NewXY[float32](1.49, -1.49), NewXY[float32](1, -1)},
+		{"above half", NewXY[float32](1.51, -1.51), NewXY[float32](2, -2)},
+		{"positive ties up", NewXY[float32](.5, 1.5), NewXY[float32](1, 2)},
+		{"negative ties toward positive", NewXY[float32](-.5, -1.5), NewXY[float32](0, -1)},
+		{"subpixel stays near zero", NewXY[float32](-.49, .49), NewXY[float32](0, 0)},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			if got := RoundXY(test.xy); got != test.want {
+				t.Errorf("RoundXY(%v) = %v, want %v", test.xy, got, test.want)
+			}
+		})
+	}
+}
+
+func TestXYCastTruncatesTowardZero(t *testing.T) {
+	for _, test := range []struct {
+		name string
+		xy   XY[float32]
+		want XY[int16]
+	}{
+		{"positive fraction", NewXY[float32](.9, 1.5), NewXY[int16](0, 1)},
+		{"negative fraction", NewXY[float32](-.9, -1.5), NewXY[int16](0, -1)},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			if got := test.xy.Cast[int16](); got != test.want {
+				t.Errorf("Cast() = %v, want %v", got, test.want)
+			}
+		})
+	}
+}
