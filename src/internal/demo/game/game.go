@@ -65,7 +65,7 @@ func NewGame() *Game {
 	this.Layer(gfx.LayerCursor).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerGrid).CamMode = vgfx.LayerCamModeFixed
 	this.Layer(gfx.LayerGrid).BlendMode = vgfx.LayerBlendModeMultiply
-	this.ReqFullscreen(veng.FullscreenReqEnter)
+	this.SetWindowMode(veng.Fullscreen)
 	this.In().MapDefaults()
 	this.Superballs = *veng.NewEntVec(UpdateSuperballs)
 	this.RegisterUpdate(this.Superballs.Update)

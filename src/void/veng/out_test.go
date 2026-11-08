@@ -58,7 +58,7 @@ func TestOutSnapshot(t *testing.T) {
 func TestOutRequests(t *testing.T) {
 	eng := NewEng(&EngOpts{MaxSprs: 1})
 	eng.BeginTick()
-	eng.ReqFullscreen(FullscreenReqLandscape)
+	eng.SetWindowMode(FullscreenLandscape)
 	eng.ReqScreenshot()
 	eng.ReqContextLoss()
 	eng.ReqUpdateInMillis(125)
@@ -79,7 +79,7 @@ func TestOutRequests(t *testing.T) {
 	if out.Requests != 0 || out.UpdateInMillis != 0 {
 		t.Error("one-shot requests were replayed on the next frame")
 	}
-	if out.FullscreenReq != FullscreenReqLandscape {
+	if out.WindowMode != FullscreenLandscape {
 		t.Error("fullscreen intent did not persist for browser retries")
 	}
 	eng.ReqUpdateInMillis(125)

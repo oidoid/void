@@ -11,17 +11,14 @@ import (
 	"github.com/oidoid/void/src/void/vgfx"
 )
 
-// applies the window URL override before the demo submits its fullscreen req.
-func TestFullscreenURLDisable(t *testing.T) {
+// the window URL override forces windowed over the demo's default.
+func TestWindowModeURLOverride(t *testing.T) {
 	gam := NewGame()
 	gam.Router().Update = func(*Game) veng.Status { return veng.Pause }
-	gam.Poll().FullscreenReq = veng.FullscreenReqExit
+	gam.Poll().Windowed = true
 	gam.Update()
-	if gam.FullscreenEnabled() {
-		t.Error("FullscreenEnabled() = true, want false")
-	}
-	if got := gam.FullscreenReq(); got != int32(veng.FullscreenReqExit) {
-		t.Errorf("FullscreenReq() = %v, want exit", got)
+	if got := gam.WindowMode(); got != veng.Windowed {
+		t.Errorf("WindowMode() = %v, want windowed", got)
 	}
 }
 
@@ -152,10 +149,7 @@ func TestDefaults(t *testing.T) {
 	gam := NewGame()
 	gam.Router().Update = func(*Game) veng.Status { return veng.Pause }
 	gam.Update()
-	if !gam.FullscreenEnabled() {
-		t.Error("FullscreenEnabled() = false, want true")
-	}
-	if got := gam.FullscreenReq(); got != int32(veng.FullscreenReqEnter) {
-		t.Errorf("FullscreenReq() = %v, want enter", got)
+	if got := gam.WindowMode(); got != veng.Fullscreen {
+		t.Errorf("WindowMode() = %v, want fullscreen", got)
 	}
 }

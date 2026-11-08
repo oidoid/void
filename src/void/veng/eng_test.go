@@ -65,30 +65,15 @@ func TestScreenshotButtonRemapping(t *testing.T) {
 	}
 }
 
-func TestFullscreenReq(t *testing.T) {
+func TestWindowMode(t *testing.T) {
 	eng := NewEng(nil)
-	eng.ReqFullscreen(FullscreenReqEnter)
-	want := int32(FullscreenReqEnter)
-	if got := eng.FullscreenReq(); got != want {
-		t.Errorf("FullscreenReq() = %v, want %v", got, want)
-	}
-
-	eng.ReqFullscreen(FullscreenReqLandscape)
-	want = int32(FullscreenReqLandscape)
-	if got := eng.FullscreenReq(); got != want {
-		t.Errorf("FullscreenReq() = %v, want %v", got, want)
-	}
-
-	eng.ReqFullscreen(FullscreenReqPortrait)
-	want = int32(FullscreenReqPortrait)
-	if got := eng.FullscreenReq(); got != want {
-		t.Errorf("FullscreenReq() = %v, want %v", got, want)
-	}
-
-	eng.Poll().Fullscreen = true
-	eng.ReqFullscreen(FullscreenReqExit)
-	if got := eng.FullscreenReq(); got != int32(FullscreenReqExit) {
-		t.Errorf("FullscreenReq() = %v, want exit", got)
+	for _, mode := range []WindowMode{
+		Fullscreen, FullscreenLandscape, FullscreenPortrait, Windowed,
+	} {
+		eng.SetWindowMode(mode)
+		if got := eng.WindowMode(); got != mode {
+			t.Errorf("WindowMode() = %v, want %v", got, mode)
+		}
 	}
 }
 
@@ -317,34 +302,44 @@ func assertBoardExport(
 	}
 }
 
-// starts windowed and accepts an explicit override.
-func TestFullscreenPlatformDefault(t *testing.T) {
+// starts windowed; the web debug URL forces windowed until cleared.
+func TestWindowModeURLOverride(t *testing.T) {
 	eng := NewEng(nil)
-	if eng.FullscreenEnabled() {
-		t.Error("FullscreenEnabled() = true, want false")
-	}
 	eng.BeginTick()
-	if got := eng.FullscreenReq(); got != int32(FullscreenReqNone) {
-		t.Errorf("FullscreenReq() = %v, want none", got)
+	if got := eng.WindowMode(); got != Windowed {
+		t.Errorf("WindowMode() = %v, want windowed", got)
 	}
 
-	eng.Poll().FullscreenReq = FullscreenReqLandscape
+	eng.Poll().Windowed = true
+	eng.SetWindowMode(FullscreenLandscape)
 	eng.BeginTick()
-	if eng.Poll().FullscreenReq != FullscreenReqLandscape {
-		t.Error("BeginTick() changed browser-owned input")
+	if got := eng.WindowMode(); got != Windowed {
+		t.Errorf("WindowMode() = %v, want windowed", got)
 	}
-	if !eng.FullscreenEnabled() {
-		t.Error("FullscreenEnabled() = false, want true")
-	}
-	if got := eng.FullscreenReq(); got != int32(FullscreenReqLandscape) {
-		t.Errorf("FullscreenReq() = %v, want landscape", got)
+	eng.EndTick(Pause)
+	if eng.out.WindowMode != Windowed {
+		t.Errorf("out.WindowMode = %v, want windowed", eng.out.WindowMode)
 	}
 
-	eng.ReqFullscreen(FullscreenReqExit)
-	if eng.FullscreenEnabled() {
-		t.Error("FullscreenEnabled() = true, want false")
+	eng.Poll().Windowed = false
+	if got := eng.WindowMode(); got != FullscreenLandscape {
+		t.Errorf("WindowMode() = %v, want landscape", got)
 	}
-	if got := eng.FullscreenReq(); got != int32(FullscreenReqExit) {
-		t.Errorf("FullscreenReq() = %v, want exit", got)
+}
+
+// a browser-driven exit reverts to windowed; a pending fullscreen persists.
+func TestWindowModeBrowserExit(t *testing.T) {
+	eng := NewEng(nil)
+	eng.SetWindowMode(Fullscreen)
+	eng.BeginTick() // windowed until a user activation; the mode persists.
+	if got := eng.WindowMode(); got != Fullscreen {
+		t.Errorf("WindowMode() = %v, want fullscreen", got)
+	}
+	eng.Poll().Fullscreen = true
+	eng.BeginTick()
+	eng.Poll().Fullscreen = false
+	eng.BeginTick()
+	if got := eng.WindowMode(); got != Windowed {
+		t.Errorf("WindowMode() = %v, want windowed", got)
 	}
 }

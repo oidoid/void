@@ -26,10 +26,10 @@ export class Eng {
   #clearColor: [number, number, number, number] = [0, 0, 0, 1]
   #drawCount: number = 0
   // waits through pointer/key release so the activating press reaches Go UI.
-  #deferFullscreenReq: boolean = false
+  #deferWindowMode: boolean = false
   #drawAlways: boolean = false
-  // carries browser-driven exits to Go independently of debug URL state.
-  #fullscreenReq: number = bridge.FullscreenReqNone
+  // forces windowed mode; set by the debug URL.
+  #windowed: boolean = false
   #updateMs: number = 0
   #poll!: DataView
   #out!: DataView
@@ -82,6 +82,7 @@ export class Eng {
 
     this.#input = new In(canvas)
     this.#drawAlways = debug?.draw === 'always'
+    this.#windowed = debug?.window != null
     initMetaViewport(undefined) // to-do: pass description.
     initBody()
 
@@ -146,7 +147,7 @@ export class Eng {
       this.#out.getBigUint64(bridge.outUpdateInMillisOffset, true)
     )
     this.#playBeeps()
-    if (!this.#deferFullscreenReq) this.#applyFullscreenReq()
+    if (!this.#deferWindowMode) this.#applyWindowMode()
     if (loop !== bridge.LoopLoop || this.#paused()) {
       this.#cancelFrame()
       this.#lastTime = 0
@@ -368,16 +369,14 @@ export class Eng {
     this.#reqUpdate()
   }
 
+  // Go observes the change through Poll.Fullscreen, even while paused.
   #onFullscreenChange = (): void => {
-    this.#fullscreenReq = document.fullscreenElement
-      ? bridge.FullscreenReqNone
-      : bridge.FullscreenReqExit
     this.#reqUpdate('Force')
   }
 
   #onInput = (ev: AnyEvent): void => {
     if (ev === 'input-pointerdown' || ev === 'input-keydown') {
-      this.#deferFullscreenReq = true
+      this.#deferWindowMode = true
       this.#reqUpdate('Force')
       return
     }
@@ -386,24 +385,17 @@ export class Eng {
       ev === 'input-pointercancel' ||
       ev === 'input-keyup'
     ) {
-      this.#deferFullscreenReq = false
+      this.#deferWindowMode = false
       this.#reqUpdate('Force')
       return
     }
     this.#reqUpdate()
   }
 
-  #applyFullscreenReq(): void {
-    const req = this.#out.getUint8(bridge.outFullscreenReqOffset)
-    if (
-      req === bridge.FullscreenReqEnter ||
-      req === bridge.FullscreenReqPortrait ||
-      req === bridge.FullscreenReqLandscape
-    ) {
-      void this.#fullscreen.enter(req)
-    } else if (req === bridge.FullscreenReqExit) {
-      void this.#fullscreen.exit()
-    }
+  #applyWindowMode(): void {
+    const mode = this.#out.getUint8(bridge.outWindowModeOffset)
+    if (mode === bridge.WindowModeWindowed) void this.#fullscreen.exit()
+    else void this.#fullscreen.enter(mode)
   }
 
   #applyPostDrawReqs(renderer: Renderer, requests: number): void {
@@ -429,15 +421,8 @@ export class Eng {
     this.#poll.setUint16(bridge.canvasHOffset, renderer.phyH, true)
     this.#poll.setUint8(bridge.isFullscreenOffset, isFullscreen() ? 1 : 0)
     this.#poll.setUint8(bridge.drawAlwaysOffset, this.#drawAlways ? 1 : 0)
+    this.#poll.setUint8(bridge.windowedOffset, this.#windowed ? 1 : 0)
     this.#poll.setInt32(bridge.drawCountOffset, this.#drawCount, true)
-    const fullscreenReq =
-      this.#fullscreenReq !== bridge.FullscreenReqNone
-        ? this.#fullscreenReq
-        : this.#drawCount === 0 && debug?.window
-          ? bridge.FullscreenReqExit
-          : bridge.FullscreenReqNone
-    this.#fullscreenReq = bridge.FullscreenReqNone
-    this.#poll.setUint8(bridge.fullscreenReqOffset, fullscreenReq)
     this.#poll.setUint8(
       bridge.ptrlockedOffset,
       document.pointerLockElement === this.#canvas ? 1 : 0

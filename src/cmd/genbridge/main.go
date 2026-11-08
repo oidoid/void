@@ -84,11 +84,10 @@ func generate() []byte {
 		"Loop":                     veng.Loop,
 		"RenderModeFloat":          vgfx.RenderModeFloat,
 		"RenderModePixel":          vgfx.RenderModePixel,
-		"FullscreenReqNone":        veng.FullscreenReqNone,
-		"FullscreenReqExit":        veng.FullscreenReqExit,
-		"FullscreenReqEnter":       veng.FullscreenReqEnter,
-		"FullscreenReqPortrait":    veng.FullscreenReqPortrait,
-		"FullscreenReqLandscape":   veng.FullscreenReqLandscape,
+		"Windowed":                 veng.Windowed,
+		"Fullscreen":               veng.Fullscreen,
+		"FullscreenPortrait":       veng.FullscreenPortrait,
+		"FullscreenLandscape":      veng.FullscreenLandscape,
 	}
 	var out bytes.Buffer
 	if err := bridgeTempl.Execute(&out, data); err != nil {

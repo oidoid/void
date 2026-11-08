@@ -29,6 +29,9 @@ type Eng struct {
 	rnd        *rand.Rand
 	texts      vvec.Vec[TextEnt]
 	tick       Tick
+	// `Poll.Fullscreen` last tick; detects browser-driven exits.
+	wasFullscreen bool
+	windowMode    WindowMode
 }
 
 type EngOpts struct {
@@ -140,12 +143,17 @@ func (this *Eng) DeltaMs() float64   { return this.poll.DeltaMillis }
 func (this *Eng) DeltaSecs() float64 { return this.poll.DeltaSecs() }
 func (this *Eng) Tick() *Tick        { return &this.tick }
 
-func (this *Eng) ReqFullscreen(req FullscreenReq) {
-	this.out.FullscreenReq = req
-}
+// sets the desired presentation. fullscreen modes persist so web can retry
+// until a user activation permits them; a browser-driven exit (eg, Esc)
+// reverts to Windowed. the web debug URL can force Windowed via Poll.
+func (this *Eng) SetWindowMode(mode WindowMode) { this.windowMode = mode }
 
-func (this *Eng) FullscreenReq() int32 {
-	return int32(this.out.FullscreenReq)
+// effective mode as exported to web.
+func (this *Eng) WindowMode() WindowMode {
+	if this.poll.Windowed {
+		return Windowed
+	}
+	return this.windowMode
 }
 
 func (this *Eng) ReqScreenshot() {
@@ -172,12 +180,6 @@ func (this *Eng) DrawAlways() bool {
 func (this *Eng) SetDrawOnBlur(on bool) { this.out.DrawOnBlur = on }
 
 func (this *Eng) DrawOnBlur() bool { return this.out.DrawOnBlur }
-
-func (this *Eng) FullscreenEnabled() bool {
-	return this.out.FullscreenReq == FullscreenReqEnter ||
-		this.out.FullscreenReq == FullscreenReqPortrait ||
-		this.out.FullscreenReq == FullscreenReqLandscape
-}
 
 func (this *Eng) RenderMode() vgfx.RenderMode {
 	return this.out.RenderMode
@@ -293,10 +295,12 @@ func (this *Eng) BeginTick() Status {
 			Min: this.out.Cam}, // to-do: actual cam box.
 	)
 	this.tick.DrawCount = this.poll.DrawCount
-	req := this.poll.FullscreenReq
-	if req != FullscreenReqNone {
-		this.ReqFullscreen(req)
+	// a browser-driven exit (eg, Esc) reverts to Windowed so web doesn't
+	// re-enter on the next user activation.
+	if this.wasFullscreen && !this.poll.Fullscreen {
+		this.windowMode = Windowed
 	}
+	this.wasFullscreen = this.poll.Fullscreen
 	for i := range this.layers {
 		this.layers[i].Sprs = this.layers[i].Sprs[:0]
 	}
@@ -305,6 +309,7 @@ func (this *Eng) BeginTick() Status {
 
 func (this *Eng) updateOut() {
 	out := &this.out
+	out.WindowMode = this.WindowMode()
 	if board := this.board; board != nil {
 		out.BoardLevel = uint16(board.Level)
 		out.BoardW, out.BoardH = board.W, board.H

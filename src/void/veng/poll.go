@@ -16,14 +16,14 @@ type Poll struct {
 	Fullscreen bool
 	// forces drawing every frame; set by the web debug URL.
 	DrawAlways bool
-	_          [2]byte
+	// forces Windowed; set by the web debug URL.
+	Windowed bool
+	_        byte
 
 	// number of renderer clears completed.
 	DrawCount int32
-	// browser-driven exits and the one-time URL override.
-	FullscreenReq FullscreenReq
-	Ptrlocked     bool
-	_             [2]byte
+	Ptrlocked bool
+	_         [3]byte
 	// duration of the previous Go update call in milliseconds.
 	UpdateMillis     float64
 	DevicePixelRatio float64

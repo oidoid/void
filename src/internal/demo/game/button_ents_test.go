@@ -16,10 +16,7 @@ func TestFullscreenToggle(t *testing.T) {
 	}
 	toggle.On = true
 	toggle.OnClick(toggle)
-	if gam.FullscreenEnabled() {
-		t.Error("FullscreenEnabled() = true, want false")
-	}
-	if got := gam.FullscreenReq(); got != int32(veng.FullscreenReqExit) {
-		t.Errorf("FullscreenReq() = %v, want exit", got)
+	if got := gam.WindowMode(); got != veng.Windowed {
+		t.Errorf("WindowMode() = %v, want windowed", got)
 	}
 }

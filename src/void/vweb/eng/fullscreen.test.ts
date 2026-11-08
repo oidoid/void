@@ -1,20 +1,20 @@
 import {test} from 'node:test'
 import {assert} from '../test/assert.ts'
 import {FullscreenMock} from '../test/fullscreen-mock.ts'
-import {FullscreenReqEnter, FullscreenReqLandscape} from './bridge.ts'
+import {WindowModeFullscreen, WindowModeFullscreenLandscape} from './bridge.ts'
 import {Fullscreen} from './fullscreen.ts'
 
 test('Fullscreen enters without locking orientation', async () => {
   using mock = new FullscreenMock()
   const fullscreen = new Fullscreen(mock.target, mock.canvas)
-  await fullscreen.enter(FullscreenReqEnter)
+  await fullscreen.enter(WindowModeFullscreen)
   assert(mock.orientationLocks, [])
 })
 
 test('Fullscreen enters and exits', async () => {
   using mock = new FullscreenMock()
   const fullscreen = new Fullscreen(mock.target, mock.canvas)
-  await fullscreen.enter(FullscreenReqLandscape)
+  await fullscreen.enter(WindowModeFullscreenLandscape)
   assert(mock.orientationLocks, ['landscape'])
   await fullscreen.exit()
   assert.equal(mock.exits, 1)

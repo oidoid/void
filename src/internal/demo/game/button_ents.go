@@ -56,13 +56,13 @@ func NewScreenshotButton(gam *Game) *veng.ButtonEnt {
 func NewFullscreenToggle(gam *Game) *veng.ButtonEnt {
 	this := newButtonEnt("window", veng.ButtonTypeToggle)
 	this.OnUpdate = func(ent *veng.ButtonEnt) {
-		ent.On = !gam.FullscreenEnabled()
+		ent.On = gam.WindowMode() == veng.Windowed
 	}
 	this.OnClick = func(ent *veng.ButtonEnt) {
 		if ent.On {
-			gam.ReqFullscreen(veng.FullscreenReqExit)
+			gam.SetWindowMode(veng.Windowed)
 		} else {
-			gam.ReqFullscreen(veng.FullscreenReqEnter)
+			gam.SetWindowMode(veng.Fullscreen)
 		}
 	}
 	return this

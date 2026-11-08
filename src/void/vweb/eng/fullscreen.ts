@@ -4,12 +4,12 @@ import {
   reqFullscreen
 } from '../utils/fullscreen-util.ts'
 
+/** orientation lock by window mode. */
 const orientationLocks: readonly (OrientationLockType | undefined)[] = [
-  undefined, // FullscreenReqNone.
-  undefined, // FullscreenReqExit.
-  undefined, // FullscreenReqEnter: fullscreen without an orientation lock.
-  'portrait', // FullscreenReqPortrait.
-  'landscape' // FullscreenReqLandscape.
+  undefined, // WindowModeWindowed.
+  undefined, // WindowModeFullscreen.
+  'portrait', // WindowModeFullscreenPortrait.
+  'landscape' // WindowModeFullscreenLandscape.
 ]
 
 export class Fullscreen {
@@ -22,21 +22,21 @@ export class Fullscreen {
     // this.#ptrlock = ptrlock
   }
 
-  enter(orientation: number): Promise<void> {
-    return this.#enter(orientation)
+  enter(mode: number): Promise<void> {
+    return this.#enter(mode)
   }
 
   exit(): Promise<void> {
     return this.#exit()
   }
 
-  async #enter(orientation: number): Promise<void> {
+  async #enter(mode: number): Promise<void> {
     if (this.#changing || isFullscreen()) return
     this.#changing = true
     const changed = await reqFullscreen(this.#target)
     // to-do: ptr lock.
     // if (changed) await reqPtrlock(this.#ptrlock)
-    const lock = orientationLocks[orientation]
+    const lock = orientationLocks[mode]
     if (changed && lock)
       try {
         await screen.orientation.lock(lock)

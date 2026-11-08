@@ -3,7 +3,7 @@ precision highp float;
 
 uniform mediump sampler2D uTex; // RGBA8 color.
 uniform bool uDiscardTransparent;
-// last texel centers of the layer's sub-rectangle;.
+// last texel centers of the layer's sub-rectangle; clamps like clamp-to-edge.
 uniform highp vec2 uUVMax;
 
 in highp vec2 vUV;

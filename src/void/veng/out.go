@@ -10,8 +10,7 @@ import (
 // all Go outputs and bookkeeping consumed by web. written by Go, read by web.
 // pointers are just byte offsets into the single linear chunk of Wasm memory
 // (not `Out` itself).
-// `FullscreenReq` persists so requests can be retried during user activation.
-// to-do: should `FullscreenReq` be limited?
+// to-do: should `WindowMode` retries be limited?
 type Out struct {
 	UpdateInMillis uint64
 	Cam            vgeo.XY[float32]
@@ -27,7 +26,7 @@ type Out struct {
 	AtlasMetaCount uint32
 	AtlasCelsPtr   uint32
 	AtlasCelsCount uint32
-	FullscreenReq  FullscreenReq
+	WindowMode     WindowMode
 	DrawOnBlur     bool
 	RenderMode     vgfx.RenderMode
 	Requests       uint8
