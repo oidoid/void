@@ -41,10 +41,13 @@ type EngOpts struct {
 	Seed2      uint64
 }
 
+// copies opts; zero fields take defaults and zero seeds are randomized.
 func NewEng(opts *EngOpts) *Eng {
-	if opts == nil {
-		opts = &EngOpts{}
+	var copied EngOpts
+	if opts != nil {
+		copied = *opts
 	}
+	opts = &copied
 	if opts.MaxSprs == 0 {
 		opts.MaxSprs = 16 * 1024
 	}
@@ -100,7 +103,9 @@ func (this *Eng) SetCursor(cursor *CursorEnt) {
 
 func (this *Eng) Board() *vboards.Board { return this.board }
 
-// selects a board and invalidates its full tile bounds for this tick.
+// selects a board and invalidates its full tile bounds for this tick. boards
+// are identified by Level: a different board with the current level is ignored,
+// so mutate the current board or use a new level to reload.
 func (this *Eng) SetBoard(board *vboards.Board) bool {
 	if this.board == board || this.board != nil && board != nil &&
 		this.board.Level == board.Level {
