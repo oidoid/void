@@ -78,7 +78,6 @@ export class Keyboard {
 
   postupdate(): void {
     this.#input.value = ''
-    this.#input.focus({focusVisible: false, preventScroll: true})
   }
 
   register(op: 'add' | 'remove'): this {
@@ -89,6 +88,10 @@ export class Keyboard {
       this.#onDragOver as EventListener
     )
     this.#canvas[`${op}EventListener`]('drop', this.#onDrop as EventListener)
+    // the canvas is the tab stop and click target; its focus moves to the
+    // hidden input which receives keys and text.
+    this.#canvas[`${op}EventListener`]('focus', this.#onFocus)
+    if (op === 'add') this.#focus()
     return this
   }
 
@@ -104,6 +107,12 @@ export class Keyboard {
   get text(): string {
     return this.#input.value
   }
+
+  #focus(): void {
+    this.#input.focus({focusVisible: false, preventScroll: true})
+  }
+
+  #onFocus = (): void => this.#focus()
 
   #onDragOver = (ev: DragEvent): void => {
     ev.preventDefault()
