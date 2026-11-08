@@ -17,17 +17,18 @@ import (
 )
 
 type Eng struct {
-	atlas  vatlas.Atlas
-	board  *vboards.Board
-	cursor *CursorEnt
-	font   *vtext.Font
-	out    Out
-	in     *vin.In
-	layers [vgfx.LayerCount]vgfx.LayerConfig
-	poll   Poll
-	rnd    *rand.Rand
-	texts  vvec.Vec[TextEnt]
-	tick   Tick
+	atlas      vatlas.Atlas
+	board      *vboards.Board
+	cursor     *CursorEnt
+	drawAlways bool
+	font       *vtext.Font
+	out        Out
+	in         *vin.In
+	layers     [vgfx.LayerCount]vgfx.LayerConfig
+	poll       Poll
+	rnd        *rand.Rand
+	texts      vvec.Vec[TextEnt]
+	tick       Tick
 }
 
 type EngOpts struct {
@@ -160,11 +161,12 @@ func (this *Eng) ReqUpdateInMillis(millis uint64) {
 	this.out.UpdateInMillis = millis
 }
 
-func (this *Eng) SetDrawAlways(always bool) {
-	this.out.DrawAlways = always
-}
+// draws every frame. the web debug URL can also force drawing via Poll.
+func (this *Eng) SetDrawAlways(always bool) { this.drawAlways = always }
 
-func (this *Eng) DrawAlways() bool { return this.out.DrawAlways }
+func (this *Eng) DrawAlways() bool {
+	return this.drawAlways || this.poll.DrawAlways
+}
 
 // allow normal updates and drawing while unfocused.
 func (this *Eng) SetDrawOnBlur(on bool) { this.out.DrawOnBlur = on }
@@ -254,7 +256,7 @@ func (this *Eng) EndTick(stat Status) Status {
 		this.ReqScreenshot()
 	}
 	stat |= this.updateTexts()
-	if this.out.DrawAlways {
+	if this.DrawAlways() {
 		stat |= Loop
 	}
 	this.tick.UpdateMs = this.poll.UpdateMillis
@@ -291,7 +293,6 @@ func (this *Eng) BeginTick() Status {
 			Min: this.out.Cam}, // to-do: actual cam box.
 	)
 	this.tick.DrawCount = this.poll.DrawCount
-	this.out.DrawAlways = this.poll.DrawAlways
 	req := this.poll.FullscreenReq
 	if req != FullscreenReqNone {
 		this.ReqFullscreen(req)

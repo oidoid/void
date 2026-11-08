@@ -28,7 +28,6 @@ type Out struct {
 	AtlasCelsPtr   uint32
 	AtlasCelsCount uint32
 	FullscreenReq  FullscreenReq
-	DrawAlways     bool
 	DrawOnBlur     bool
 	RenderMode     vgfx.RenderMode
 	Requests       uint8

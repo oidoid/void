@@ -147,7 +147,6 @@ export class Eng {
     )
     this.#playBeeps()
     if (!this.#deferFullscreenReq) this.#applyFullscreenReq()
-    this.#applyDrawAlways()
     if (loop !== bridge.LoopLoop || this.#paused()) {
       this.#cancelFrame()
       this.#lastTime = 0
@@ -413,12 +412,6 @@ export class Eng {
       void downloadScreenshot(this.#canvas, 'void', Date.now())
     if ((requests >>> bridge.outReqContextLossShift) & bridge.outReqMask)
       renderer.loseContext()
-  }
-
-  #applyDrawAlways(): void {
-    const drawAlways = this.#out.getUint8(bridge.outDrawAlwaysOffset) !== 0
-    if (drawAlways === this.#drawAlways) return
-    this.#drawAlways = drawAlways
   }
 
   #refreshMemory(): void {
