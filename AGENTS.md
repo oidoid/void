@@ -8,6 +8,7 @@
 ## Forbidden
 
 never run:
+
 - `make` (default target), `make watch`, or any daemon / forked / background process but you can ask the user to run.
 - `make fat-save` or `make slow-save`. do not edit `.fat` or `.slow`.
 - `make slow-check` or any performance test. these cannot run consistently without superuser permissions.
@@ -30,7 +31,6 @@ never run:
 - use numeric millis not `time.Time` in Go. time comes from `Poll` via `Engine`; don't call `time.Now()`.
 - http://localhost:1234 pauses when backgrounded.
 - to force no kern, use `'\v'` between chars. to force a 1px kern, use `\t`.
-- the Biome IDE extension is frequently corrupt.
 
 ## Style
 
@@ -108,6 +108,7 @@ never run:
   // ok: pads a non-negative integer to at least width digits with spaces.
   func PadInt(n, w int) string {
   ```
+
 - remove excess parens.
 
 ### TS
@@ -117,6 +118,7 @@ never run:
 ## Fractional Values
 
 supporting both modern and pixel games is critical. be very sensitive to rounding errors.
+
 - prefer flooring integral coords. avoid truncation that causes the range (-1, 1) to snap to 0.
 - prefer ceiling integral sizes. avoid truncation that causes sizes to be unexpectedly short.
 - prefer source data over inverted transforms to avoid accumulation errors.
@@ -127,6 +129,7 @@ supporting both modern and pixel games is critical. be very sensitive to roundin
 
 - typecheck Go: `go build ./...`.
 - typecheck TS: `make typecheck-web`.
+- lint TS: `make lint-web`.
 - test filesize: `make build && make fat-check`. do not mix `fat-check` with other unoptimized build commands. the bottom line is `dist/demo/index.html` uncompressed size (first numerical column). if size drops 50+ KiB unexpectedly, ask the user if `make watch` is running. analyze filesize with `make fat-analyze`.
 - `make build` and TinyGo take ~10s; run only when worthwhile. prefer `go build ./...` for typechecking.
 

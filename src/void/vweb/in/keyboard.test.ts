@@ -1,58 +1,60 @@
-import {test} from 'node:test'
+import {afterAll, describe, expect, test} from 'bun:test'
 import * as bridge from '../eng/bridge.ts'
-import {assert} from '../test/assert.ts'
+import {TestEventTarget} from '../test/test-event-target.ts'
 import {KeyTestEvent} from '../test/test-event.ts'
 import {Keyboard, keyByCode} from './keyboard.ts'
 
 test('constructor() inits', () => {
   const canvas = TestElement()
   using kbd = new Keyboard(canvas).register('add')
-  assert(kbd.keys, 0)
-  assert(kbd.text, '')
+  expect(kbd.keys).toBe(0)
+  expect(kbd.text).toBe('')
 })
 
-test('bits map to button state: A↓, B↓, A↑', async ctx => {
+describe('bits map to button state: A↓, B↓, A↑', () => {
   const canvas = TestElement()
-  using kbd = new Keyboard(canvas).register('add')
+  const kbd = new Keyboard(canvas).register('add')
+  afterAll(() => kbd[Symbol.dispose]())
 
-  await ctx.test('A↓', () => {
+  test('A↓', () => {
     canvas.dispatchEvent(KeyTestEvent('keydown', {code: 'ShiftLeft'}))
-    assert(kbd.keys, keyByCode.ShiftLeft)
+    expect(kbd.keys).toBe(keyByCode['ShiftLeft']!)
   })
 
-  await ctx.test('B↓', () => {
+  test('B↓', () => {
     canvas.dispatchEvent(KeyTestEvent('keydown', {code: 'KeyX'}))
-    assert(kbd.keys, keyByCode.ShiftLeft! | keyByCode.KeyX!)
+    expect(kbd.keys).toBe(keyByCode['ShiftLeft']! | keyByCode['KeyX']!)
   })
 
-  await ctx.test('A↑', () => {
+  test('A↑', () => {
     canvas.dispatchEvent(KeyTestEvent('keyup', {code: 'ShiftLeft'}))
-    assert(kbd.keys, keyByCode.KeyX)
+    expect(kbd.keys).toBe(keyByCode['KeyX']!)
   })
 })
 
-test('two buttons mapped to the same bit are unioned', async ctx => {
+describe('two buttons mapped to the same bit are unioned', () => {
   const canvas = TestElement()
-  using kbd = new Keyboard(canvas).register('add')
+  const kbd = new Keyboard(canvas).register('add')
+  afterAll(() => kbd[Symbol.dispose]())
 
-  await ctx.test('A↓', () => {
+  test('A↓', () => {
     canvas.dispatchEvent(KeyTestEvent('keydown', {code: 'ShiftLeft'}))
-    assert(kbd.keys, keyByCode.ShiftLeft)
+    expect(kbd.keys).toBe(keyByCode['ShiftLeft']!)
   })
 
-  await ctx.test('B↓', () => {
+  test('B↓', () => {
     canvas.dispatchEvent(KeyTestEvent('keydown', {code: 'Space'}))
-    assert(kbd.keys, keyByCode.ShiftLeft)
+    expect(kbd.keys).toBe(keyByCode['ShiftLeft']!)
   })
 
-  await ctx.test('A↑', () => {
+  test('A↑', () => {
     canvas.dispatchEvent(KeyTestEvent('keyup', {code: 'ShiftLeft'}))
-    assert(kbd.keys, keyByCode.Space)
+    expect(kbd.keys).toBe(keyByCode['Space']!)
   })
 
-  await ctx.test('B↑', () => {
+  test('B↑', () => {
     canvas.dispatchEvent(KeyTestEvent('keyup', {code: 'Space'}))
-    assert(kbd.keys, 0)
+    expect(kbd.keys).toBe(0)
   })
 })
 
@@ -61,20 +63,20 @@ test('F9 maps to screenshot until released', () => {
   using kbd = new Keyboard(canvas).register('add')
 
   canvas.dispatchEvent(KeyTestEvent('keydown', {code: 'F9'}))
-  assert(kbd.keys, bridge.keyScreenshot)
+  expect(kbd.keys).toBe(bridge.keyScreenshot)
   canvas.dispatchEvent(KeyTestEvent('keydown', {code: 'F9', repeat: true}))
-  assert(kbd.keys, bridge.keyScreenshot)
+  expect(kbd.keys).toBe(bridge.keyScreenshot)
   canvas.dispatchEvent(KeyTestEvent('keydown', {code: 'Space'}))
-  assert(kbd.keys, bridge.keyScreenshot | bridge.keyA)
+  expect(kbd.keys).toBe(bridge.keyScreenshot | bridge.keyA)
   canvas.dispatchEvent(KeyTestEvent('keyup', {code: 'F9'}))
-  assert(kbd.keys, bridge.keyA)
+  expect(kbd.keys).toBe(bridge.keyA)
 })
 
 test('untrusted', () => {
   const canvas = TestElement()
   using kbd = new Keyboard(canvas).register('add')
   canvas.dispatchEvent(Object.assign(new Event('keydown'), {code: 'KeyA'}))
-  assert(kbd.keys, 0)
+  expect(kbd.keys).toBe(0)
 })
 
 test('stopPropagation()', () => {
@@ -88,13 +90,13 @@ test('stopPropagation()', () => {
       stopPropagation: () => (stopped = true)
     })
   )
-  assert(stopped, true)
+  expect(stopped).toBe(true)
 })
 
 test('text from drop', () => {
   const canvas = TestElement()
   using kbd = new Keyboard(canvas).register('add')
-  assert(kbd.text, '')
+  expect(kbd.text).toBe('')
   canvas.dispatchEvent(
     Object.assign(new Event('drop'), {
       dataTransfer: {
@@ -102,11 +104,11 @@ test('text from drop', () => {
       }
     })
   )
-  assert(kbd.text, 'hello')
+  expect(kbd.text).toBe('hello')
 })
 
 function TestElement(): Element {
-  const target = new EventTarget()
+  const target = new TestEventTarget()
   return Object.assign(target, {
     style: {},
     focus() {},

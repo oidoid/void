@@ -18,22 +18,25 @@ export class FullscreenMock {
       fullscreenEnabled: true,
       fullscreenElement: null as Element | null,
       pointerLockElement: null as Element | null,
-      exitFullscreen: async (): Promise<void> => {
+      exitFullscreen: (): Promise<void> => {
         this.exits++
         document.fullscreenElement = null
+        return Promise.resolve()
       }
     }
     this.target = {
-      requestFullscreen: async (): Promise<void> => {
+      requestFullscreen: (): Promise<void> => {
         this.reqs++
-        if (this.rejection) throw this.rejection
+        if (this.rejection) return Promise.reject(this.rejection)
         document.fullscreenElement = this.target
+        return Promise.resolve()
       }
     } as Element
     this.canvas = {
-      requestPointerLock: async (): Promise<void> => {
+      requestPointerLock: (): Promise<void> => {
         this.ptrlocks++
         document.pointerLockElement = this.canvas
+        return Promise.resolve()
       }
     } as Element
     globalThis.document = document as Document
@@ -43,7 +46,10 @@ export class FullscreenMock {
       width: 1,
       height: 1,
       orientation: {
-        lock: async orientation => void this.orientationLocks.push(orientation),
+        lock: (orientation): Promise<void> => {
+          this.orientationLocks.push(orientation)
+          return Promise.resolve()
+        },
         unlock: () => {
           this.orientationUnlocks++
         }

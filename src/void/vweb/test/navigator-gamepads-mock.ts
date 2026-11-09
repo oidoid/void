@@ -1,4 +1,5 @@
 export class NavigatorGamepadsMock {
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   readonly #getGamepads = navigator.getGamepads
   #gamepads: (Gamepad | null)[] = []
 

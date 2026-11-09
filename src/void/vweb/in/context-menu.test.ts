@@ -1,38 +1,39 @@
-import {test} from 'node:test'
-import {assert} from '../test/assert.ts'
+import {afterAll, describe, expect, test} from 'bun:test'
+import {TestEventTarget} from '../test/test-event-target.ts'
 import {MenuTestEvent} from '../test/test-event.ts'
 import {ContextMenu} from './context-menu.ts'
 
-test('ContextMenu', async ctx => {
-  const target = new EventTarget()
-  using menu = new ContextMenu(target).register('add')
+describe('ContextMenu', () => {
+  const target = new TestEventTarget()
+  const menu = new ContextMenu(target).register('add')
+  afterAll(() => menu[Symbol.dispose]())
 
-  await ctx.test('disabled', () => {
+  test('disabled', () => {
     let blocked = 0
     target.dispatchEvent(
       MenuTestEvent('contextmenu', {preventDefault: () => blocked++})
     )
-    assert(blocked, 1)
+    expect(blocked).toBe(1)
     target.dispatchEvent(
       MenuTestEvent('touchstart', {preventDefault: () => blocked++})
     )
-    assert(blocked, 2)
+    expect(blocked).toBe(2)
   })
 
-  await ctx.test('enabled', () => {
+  test('enabled', () => {
     menu.enable = true
     let blocked = 0
     target.dispatchEvent(
       MenuTestEvent('contextmenu', {preventDefault: () => blocked++})
     )
-    assert(blocked, 0)
+    expect(blocked).toBe(0)
     target.dispatchEvent(
       MenuTestEvent('touchstart', {preventDefault: () => blocked++})
     )
-    assert(blocked, 0)
+    expect(blocked).toBe(0)
   })
 
-  await ctx.test('modified events are skipped', () => {
+  test('modified events are skipped', () => {
     menu.enable = true
     let blocked = 0
     target.dispatchEvent(
@@ -41,24 +42,24 @@ test('ContextMenu', async ctx => {
         preventDefault: () => blocked++
       })
     )
-    assert(blocked, 0)
+    expect(blocked).toBe(0)
     target.dispatchEvent(
       MenuTestEvent('contextmenu', {
         metaKey: true,
         preventDefault: () => blocked++
       })
     )
-    assert(blocked, 0)
+    expect(blocked).toBe(0)
     target.dispatchEvent(
       MenuTestEvent('contextmenu', {
         ctrlKey: true,
         preventDefault: () => blocked++
       })
     )
-    assert(blocked, 0)
+    expect(blocked).toBe(0)
   })
 
-  await ctx.test('untrusted events are skipped', () => {
+  test('untrusted events are skipped', () => {
     menu.enable = true
     let blocked = 0
     target.dispatchEvent(
@@ -66,6 +67,6 @@ test('ContextMenu', async ctx => {
         preventDefault: () => blocked++
       })
     )
-    assert(blocked, 0)
+    expect(blocked).toBe(0)
   })
 })

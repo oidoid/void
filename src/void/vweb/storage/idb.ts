@@ -1,4 +1,4 @@
-export async function idbDelete(
+export function idbDelete(
   db: IDBDatabase,
   store: string,
   k: string
@@ -7,11 +7,11 @@ export async function idbDelete(
   tx.objectStore(store).delete(k)
   return new Promise((fulfil, reject) => {
     tx.oncomplete = () => fulfil()
-    tx.onerror = () => reject(tx.error)
+    tx.onerror = () => reject(tx.error!)
   })
 }
 
-export async function idbGet<V>(
+export function idbGet<V>(
   db: IDBDatabase,
   store: string,
   k: string
@@ -19,8 +19,8 @@ export async function idbGet<V>(
   const tx = db.transaction(store, 'readonly')
   return new Promise((fulfil, reject) => {
     const req = tx.objectStore(store).get(k)
-    req.onsuccess = () => fulfil(req.result)
-    req.onerror = () => reject(req.error)
+    req.onsuccess = () => fulfil(req.result as V | undefined)
+    req.onerror = () => reject(req.error!)
   })
 }
 
@@ -33,12 +33,12 @@ export function idbOpen(
     const req = indexedDB.open(db, version)
     req.onupgradeneeded = () => req.result.createObjectStore(store)
     req.onsuccess = () => fulfil(req.result)
-    req.onerror = () => reject(req.error)
+    req.onerror = () => reject(req.error!)
   })
 }
 
 /** v can be anything structure cloneable. */
-export async function idbPut<V>(
+export function idbPut<V>(
   db: IDBDatabase,
   store: string,
   k: string,
@@ -48,6 +48,6 @@ export async function idbPut<V>(
   tx.objectStore(store).put(v, k)
   return new Promise((fulfil, reject) => {
     tx.oncomplete = () => fulfil()
-    tx.onerror = () => reject(tx.error)
+    tx.onerror = () => reject(tx.error!)
   })
 }

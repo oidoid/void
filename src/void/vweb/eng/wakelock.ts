@@ -1,6 +1,6 @@
 export class Wakelock {
   #locking: boolean = false
-  #sentinel?: WakeLockSentinel
+  #sentinel: WakeLockSentinel | undefined
 
   get locked(): boolean {
     return this.#sentinel != null
@@ -11,6 +11,7 @@ export class Wakelock {
       this.#unlock()
       return
     }
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- absent in insecure contexts.
     if (this.locked || this.#locking || !navigator.wakeLock) return
     void this.#lock(navigator.wakeLock)
   }
@@ -46,6 +47,8 @@ export class Wakelock {
   async #releaseSentinel(sentinel: WakeLockSentinel): Promise<void> {
     try {
       await sentinel.release()
-    } catch {}
+    } catch {
+      // sentinel already dropped.
+    }
   }
 }

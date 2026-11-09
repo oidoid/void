@@ -1,57 +1,58 @@
-import {test} from 'node:test'
-import {assert} from '../test/assert.ts'
+import {afterAll, describe, expect, test} from 'bun:test'
+import {TestEventTarget} from '../test/test-event-target.ts'
 import {WheelTestEvent} from '../test/test-event.ts'
 import {Wheel} from './wheel.ts'
 
-test('Wheel', async ctx => {
-  const target = new EventTarget()
-  using wheel = new Wheel(target).register('add')
+describe('Wheel', () => {
+  const target = new TestEventTarget()
+  const wheel = new Wheel(target).register('add')
+  afterAll(() => wheel[Symbol.dispose]())
 
-  await ctx.test('init', () => {
-    assert(wheel.deltaX, 0)
-    assert(wheel.deltaY, 0)
-    assert(wheel.deltaZ, 0)
+  test('init', () => {
+    expect(wheel.deltaX).toBe(0)
+    expect(wheel.deltaY).toBe(0)
+    expect(wheel.deltaZ).toBe(0)
   })
 
-  await ctx.test('modifiers', () => {
+  test('modifiers', () => {
     target.dispatchEvent(
       WheelTestEvent({deltaX: 1, deltaY: 2, deltaZ: 3, metaKey: true})
     )
-    assert(wheel.deltaX, 0)
-    assert(wheel.deltaY, 0)
-    assert(wheel.deltaZ, 0)
+    expect(wheel.deltaX).toBe(0)
+    expect(wheel.deltaY).toBe(0)
+    expect(wheel.deltaZ).toBe(0)
     target.dispatchEvent(
       WheelTestEvent({deltaX: 1, deltaY: 2, deltaZ: 3, altKey: true})
     )
-    assert(wheel.deltaX, 0)
-    assert(wheel.deltaY, 0)
-    assert(wheel.deltaZ, 0)
+    expect(wheel.deltaX).toBe(0)
+    expect(wheel.deltaY).toBe(0)
+    expect(wheel.deltaZ).toBe(0)
     target.dispatchEvent(
       WheelTestEvent({deltaX: 1, deltaY: 2, deltaZ: 3, ctrlKey: true})
     )
-    assert(wheel.deltaX, 0)
-    assert(wheel.deltaY, 0)
-    assert(wheel.deltaZ, 0)
+    expect(wheel.deltaX).toBe(0)
+    expect(wheel.deltaY).toBe(0)
+    expect(wheel.deltaZ).toBe(0)
   })
 
-  await ctx.test('untrusted', () => {
+  test('untrusted', () => {
     target.dispatchEvent(
       WheelTestEvent({isTrusted: false, deltaX: 4, deltaY: 5, deltaZ: 6})
     )
-    assert(wheel.deltaX, 0)
+    expect(wheel.deltaX).toBe(0)
   })
 
-  await ctx.test('event', () => {
+  test('event', () => {
     target.dispatchEvent(WheelTestEvent({deltaX: 1, deltaY: 2, deltaZ: 3}))
-    assert(wheel.deltaX, 1)
-    assert(wheel.deltaY, 2)
-    assert(wheel.deltaZ, 3)
+    expect(wheel.deltaX).toBe(1)
+    expect(wheel.deltaY).toBe(2)
+    expect(wheel.deltaZ).toBe(3)
   })
 
-  await ctx.test('postupdate', () => {
+  test('postupdate', () => {
     wheel.postupdate()
-    assert(wheel.deltaX, 0)
-    assert(wheel.deltaY, 0)
-    assert(wheel.deltaZ, 0)
+    expect(wheel.deltaX).toBe(0)
+    expect(wheel.deltaY).toBe(0)
+    expect(wheel.deltaZ).toBe(0)
   })
 })

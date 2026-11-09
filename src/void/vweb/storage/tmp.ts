@@ -7,7 +7,7 @@ export type Tmp = {
 
 const databaseName: string = 'void' // to-do: game specific.
 const tmpDatabaseStore: string = 'tmp'
-const version: 1 = 1
+const version = 1 as const
 
 export async function saveTmp(tmp: Tmp): Promise<void> {
   const db = await idbOpen(databaseName, tmpDatabaseStore, version)

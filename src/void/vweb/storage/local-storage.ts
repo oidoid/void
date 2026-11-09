@@ -4,7 +4,7 @@ export function localStorageGetJSON<T extends PartialJSONValue>(
   k: string
 ): T | undefined {
   const v = localStorage.getItem(k)
-  return v == null ? undefined : JSON.parse(v)
+  return v == null ? undefined : (JSON.parse(v) as T)
 }
 
 export function localStoragePutJSON<T extends PartialJSONValue>(

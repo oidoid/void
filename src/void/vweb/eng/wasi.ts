@@ -4,7 +4,7 @@
  */
 export class WASI {
   [k: string]: WebAssembly.ImportValue
-  #decoder: TextDecoder = new TextDecoder()
+  readonly #decoder: TextDecoder = new TextDecoder()
   #mem!: WebAssembly.Memory
 
   args_get = (argv: number, argvBuf: number): number => {

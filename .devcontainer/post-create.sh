@@ -6,6 +6,18 @@ sudo apt update
 # Shader Minifier, cwebp.
 sudo apt install --no-install-recommends --yes mono-runtime webp
 
+# Bun; see .bun-version. exact canary builds are published to npm but not
+# GitHub releases, so this skips the installer script.
+# to-do: switch to https://bun.com/install once a stable release has `bun lint`.
+curl \
+  --fail \
+  --location \
+  --silent \
+  --show-error \
+  "https://registry.npmjs.org/@oven/bun-linux-x64/-/bun-linux-x64-$(cat .bun-version).tgz" |
+sudo tar --extract --gzip --directory /usr/local/bin/ --strip-components=2 package/bin/bun
+sudo ln --force --symbolic /usr/local/bin/bun /usr/local/bin/bunx
+
 # Shader Minifier.
 curl \
   --location https://github.com/laurentlb/shader-minifier/releases/download/1.6.0/shader_minifier.exe \
@@ -41,10 +53,7 @@ sudo apt install \
   libxext6 \
   libxrandr2
 
-# `xvfb-run`. start as `xvfb-run npm start`.
+# `xvfb-run`. start as `xvfb-run make`.
 sudo apt install --no-install-recommends --yes xauth xvfb
 
 make install
-
-npm install --global playwright@1.64.1 @playwright/test@1.64.1
-npx playwright install --with-deps

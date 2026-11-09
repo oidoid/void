@@ -19,9 +19,9 @@ export class TileRenderer {
     const uBoardWH = gl.getUniformLocation(pgm, 'uBoardWH')!
     const uTileWH = gl.getUniformLocation(pgm, 'uTileWH')!
 
-    const vao = gl.createVertexArray()!
+    const vao = gl.createVertexArray()
 
-    const tilesTex = gl.createTexture()!
+    const tilesTex = gl.createTexture()
     gl.activeTexture(gl.TEXTURE0)
     gl.bindTexture(gl.TEXTURE_2D, tilesTex)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
@@ -29,9 +29,9 @@ export class TileRenderer {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
     gl.useProgram(pgm)
-    gl.uniform1i(gl.getUniformLocation(pgm, 'uTiles')!, 0)
-    gl.uniform1i(gl.getUniformLocation(pgm, 'uAtlas')!, 1)
-    gl.uniform1i(gl.getUniformLocation(pgm, 'uSprsheet')!, 2)
+    gl.uniform1i(gl.getUniformLocation(pgm, 'uTiles'), 0)
+    gl.uniform1i(gl.getUniformLocation(pgm, 'uAtlas'), 1)
+    gl.uniform1i(gl.getUniformLocation(pgm, 'uSprsheet'), 2)
     gl.useProgram(null)
 
     const renderer = new TileRenderer(

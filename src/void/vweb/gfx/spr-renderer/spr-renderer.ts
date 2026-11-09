@@ -34,7 +34,7 @@ export class SprRenderer {
 
     gl.uniform1i(gl.getUniformLocation(pgm, 'uAtlas'), 0)
     gl.uniform1i(gl.getUniformLocation(pgm, 'uSprsheet'), 1)
-    gl.uniform1i(gl.getUniformLocation(pgm, 'uPixel')!, pixel ? 1 : 0)
+    gl.uniform1i(gl.getUniformLocation(pgm, 'uPixel'), pixel ? 1 : 0)
 
     const maxSize = gl.getParameter(gl.MAX_TEXTURE_SIZE) as number
     const count = Math.max(1, atlasTexels.length / 4)
@@ -46,7 +46,7 @@ export class SprRenderer {
       texels = new Uint16Array(w * h * 4)
       texels.set(atlasTexels)
     }
-    const atlasTex = gl.createTexture()!
+    const atlasTex = gl.createTexture()
     gl.activeTexture(gl.TEXTURE0)
     gl.bindTexture(gl.TEXTURE_2D, atlasTex)
     gl.texImage2D(
@@ -67,7 +67,7 @@ export class SprRenderer {
 
     const filter = pixel ? gl.NEAREST : gl.LINEAR
 
-    const sprsheetTex = gl.createTexture()!
+    const sprsheetTex = gl.createTexture()
     gl.activeTexture(gl.TEXTURE1)
     gl.bindTexture(gl.TEXTURE_2D, sprsheetTex)
     // pal-swappable source texels store a pal slot in their red byte. sRGB
@@ -84,7 +84,7 @@ export class SprRenderer {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter)
     gl.uniform2f(
-      gl.getUniformLocation(pgm, 'uAtlasSize')!,
+      gl.getUniformLocation(pgm, 'uAtlasSize'),
       atlasImg.naturalWidth,
       atlasImg.naturalHeight
     )
@@ -193,8 +193,8 @@ export class SprRenderer {
 }
 
 function newInstances(gl: WebGL2RenderingContext): LayerInstanceBuffer {
-  const vbo = gl.createBuffer()!
-  const vao = gl.createVertexArray()!
+  const vbo = gl.createBuffer()
+  const vao = gl.createVertexArray()
   gl.bindVertexArray(vao)
   gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
 

@@ -15,11 +15,19 @@ export type PtrTestEventInit = {
   width: number
 }
 
+/**
+ * a plain object standing in for an `Event` since `isTrusted` can't be set on
+ * real events; dispatch through `TestEventTarget`.
+ */
 export function TestEvent(type: string, isTrusted: boolean = true): Event {
-  return Object.defineProperty(new Event(type), 'isTrusted', {
-    value: isTrusted,
-    writable: true
-  })
+  return {
+    type,
+    isTrusted,
+    defaultPrevented: false,
+    preventDefault(): void {},
+    stopImmediatePropagation(): void {},
+    stopPropagation(): void {}
+  } as unknown as Event
 }
 
 export function KeyTestEvent(

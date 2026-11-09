@@ -1,5 +1,4 @@
-import assert from 'node:assert/strict'
-import {test} from 'node:test'
+import {expect, test} from 'bun:test'
 import * as bridge from '../eng/bridge.ts'
 import {packAtlasTexels} from './atlas.ts'
 
@@ -40,19 +39,19 @@ function lookup(texels: Uint16Array, tag: number, cel: number) {
 
 test('compact atlas packs odd tag counts and distinct cel ranges', () => {
   const texels = source([1, 3, 1])
-  assert.equal(texels.byteLength, 16 + 5 * 8)
-  assert.deepEqual(lookup(texels, 0, 0), [0, 0, 1, 2])
-  assert.deepEqual(lookup(texels, 1, 2), [3, 0, 2, 3])
-  assert.deepEqual(lookup(texels, 2, 0), [4, 0, 3, 4])
+  expect(texels.byteLength).toBe(16 + 5 * 8)
+  expect(lookup(texels, 0, 0)).toStrictEqual([0, 0, 1, 2])
+  expect(lookup(texels, 1, 2)).toStrictEqual([3, 0, 2, 3])
+  expect(lookup(texels, 2, 0)).toStrictEqual([4, 0, 3, 4])
 })
 
 test('compact atlas supports 65535 cels with texture addresses beyond 65535', () => {
   const texels = source(Array<number>(257).fill(255))
-  assert.equal(texels.byteLength, 258 * 4 + 65535 * 8) // header pads odd tag count.
-  assert.deepEqual(lookup(texels, 256, 254), [65534, 0, 257, 258])
-  assert.deepEqual(lookup(texels, 0, 254), [254, 0, 1, 2])
+  expect(texels.byteLength).toBe(258 * 4 + 65535 * 8) // header pads odd tag count.
+  expect(lookup(texels, 256, 254)).toStrictEqual([65534, 0, 257, 258])
+  expect(lookup(texels, 0, 254)).toStrictEqual([254, 0, 1, 2])
 })
 
 test('empty atlas has no CPU padding', () => {
-  assert.equal(source([]).byteLength, 0)
+  expect(source([]).byteLength).toBe(0)
 })

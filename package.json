@@ -1,17 +1,11 @@
 {
   "private": true,
-  "scripts": {
-    "test:unit": "node --test ${@:-'src/**/*.test.ts'}",
-    "typecheck": "tsc --build"
-  },
   "type": "module",
   "workspaces": [
     "src/**"
   ],
   "devDependencies": {
-    "@biomejs/biome": "2.6.2",
-    "@oidoid/config": "0.0.16",
-    "@types/node": "24.13.3",
-    "typescript": "7.1.0-beta"
+    "@types/bun": "1.4.4",
+    "mem-font": "11.0.0-13"
   }
 }

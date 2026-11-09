@@ -31,7 +31,7 @@ export class Wheel {
     this.register('remove')
   }
 
-  #onWheel = (ev: WheelEvent): void => {
+  readonly #onWheel = (ev: WheelEvent): void => {
     // note: visual viewport magnification, a pinch on trackpad, dispatches a
     // wheel event. prevent default to disable that zoom mechanism.
     if (!ev.isTrusted || ev.metaKey || ev.altKey || ev.ctrlKey) return

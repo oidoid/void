@@ -1,7 +1,8 @@
 {
+  "name": "@oidoid/void-demo",
   "private": true,
   "type": "module",
   "devDependencies": {
-    "@oidoid/void": "*"
+    "@oidoid/void": "workspace:*"
   }
 }

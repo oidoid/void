@@ -1,28 +1,32 @@
-import {test} from 'node:test'
-import {assert} from '../test/assert.ts'
+import {afterAll, describe, expect, test} from 'bun:test'
 import {NavigatorGamepadsMock} from '../test/navigator-gamepads-mock.ts'
 import {SecureContextMock} from '../test/secure-context-mock.ts'
 import {Gamepad} from './gamepad.ts'
 
-test('Gamepad', async ctx => {
-  using secureContext = new SecureContextMock()
+describe('Gamepad', () => {
+  const secureContext = new SecureContextMock()
   secureContext.secure = true
-  using nav = new NavigatorGamepadsMock()
+  const nav = new NavigatorGamepadsMock()
   const target = new EventTarget()
-  using gamepad = new Gamepad(target).register('add')
-
-  await ctx.test('init', () => {
-    nav.gamepads = [null]
-    assert(gamepad.polls, {})
+  const gamepad = new Gamepad(target).register('add')
+  afterAll(() => {
+    gamepad[Symbol.dispose]()
+    nav[Symbol.dispose]()
+    secureContext[Symbol.dispose]()
   })
 
-  await ctx.test('no pads', () => {
+  test('init', () => {
+    nav.gamepads = [null]
+    expect(gamepad.polls).toStrictEqual({})
+  })
+
+  test('no pads', () => {
     nav.gamepads = []
     gamepad.update()
-    assert(gamepad.polls, {})
+    expect(gamepad.polls).toStrictEqual({})
   })
 
-  await ctx.test('one pad', () => {
+  test('one pad', () => {
     nav.gamepads = [
       {
         index: 0,
@@ -33,12 +37,12 @@ test('Gamepad', async ctx => {
       } as unknown as globalThis.Gamepad
     ]
     gamepad.update()
-    assert(gamepad.polls, {
+    expect(gamepad.polls).toStrictEqual({
       0: {index: 0, connected: true, mapping: 0, buttons: 1, axes: [0, 0, 0, 0]}
     })
   })
 
-  await ctx.test('update clears previous polls', () => {
+  test('update clears previous polls', () => {
     nav.gamepads = [
       {
         index: 0,
@@ -49,7 +53,7 @@ test('Gamepad', async ctx => {
       } as unknown as globalThis.Gamepad
     ]
     gamepad.update()
-    assert(gamepad.polls[0]?.buttons, 1)
+    expect(gamepad.polls[0]?.buttons).toBe(1)
 
     nav.gamepads = [
       {
@@ -61,10 +65,10 @@ test('Gamepad', async ctx => {
       } as unknown as globalThis.Gamepad
     ]
     gamepad.update()
-    assert(gamepad.polls[0]?.buttons, 0)
+    expect(gamepad.polls[0]?.buttons).toBe(0)
   })
 
-  await ctx.test('axes', () => {
+  test('axes', () => {
     nav.gamepads = [
       {
         index: 0,
@@ -75,7 +79,7 @@ test('Gamepad', async ctx => {
       } as unknown as globalThis.Gamepad
     ]
     gamepad.update()
-    assert(gamepad.polls[0]?.axes, [0.5, -0.5, 1, 0])
+    expect(gamepad.polls[0]?.axes).toStrictEqual([0.5, -0.5, 1, 0])
   })
 })
 
@@ -97,5 +101,5 @@ test('insecure context ignores pads', () => {
     } as unknown as globalThis.Gamepad
   ]
   gamepad.update()
-  assert(gamepad.polls, {})
+  expect(gamepad.polls).toStrictEqual({})
 })

@@ -1,0 +1,8 @@
+// tests and test utils.
+{
+  "extends": "./tsconfig.web.json",
+  "compilerOptions": {"types": ["bun"]},
+  "include": ["src/**/*.test.ts", "src/**/test/"],
+  "exclude": [],
+  "references": [{"path": "./tsconfig.web.json"}]
+}

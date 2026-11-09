@@ -2,17 +2,14 @@
 {
   "name": "linux",
   "image": "mcr.microsoft.com/devcontainers/base:2-trixie",
-  "features": {
-    "ghcr.io/devcontainers/features/go:1": {"version": "1.27.3"},
-    "ghcr.io/devcontainers/features/node:2": {"version": "24.18.0"}
-  },
+  "features": {"ghcr.io/devcontainers/features/go:1": {"version": "1.27.3"}},
   "customizations": {
     "vscode": {
       "extensions": [
         "anthropic.claude-code",
-        "biomejs.biome",
         "golang.go",
         "ms-vscode.makefile-tools",
+        "oven.bun-vscode",
         "slevesque.shader"
       ]
     }

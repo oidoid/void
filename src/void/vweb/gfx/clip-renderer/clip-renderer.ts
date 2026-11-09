@@ -37,8 +37,8 @@ export class ClipRenderer {
       pgm,
       'uDiscardTransparent'
     )!
-    const vao = gl.createVertexArray()!
-    const colorTex = gl.createTexture()!
+    const vao = gl.createVertexArray()
+    const colorTex = gl.createTexture()
     gl.bindTexture(gl.TEXTURE_2D, colorTex)
     const filter = pixel ? gl.NEAREST : gl.LINEAR
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter)
@@ -56,9 +56,9 @@ export class ClipRenderer {
       uTex,
       uDiscardTransparent,
       vao,
-      gl.createFramebuffer()!,
+      gl.createFramebuffer(),
       colorTex,
-      gl.createRenderbuffer()!
+      gl.createRenderbuffer()
     )
   }
 

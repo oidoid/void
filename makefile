@@ -22,7 +22,7 @@ tinygo_flags += --trimpath $(go_tags) --ldflags="-X github.com/oidoid/void/src/i
 # defer initializer loops to runtime in debug builds for faster rebuilds.
 tinygo_flags += $(if $(value DEBUG),--interp-loop-limit=1,)
 # $(1) flags
-pack_demo = go run ./src/cmd/pack --out=dist/demo/ --tsconfig=src/internal/demo/web/tsconfig.json $(1) src/internal/demo/web/assets/index.html
+pack_demo = go run ./src/cmd/pack --out=dist/demo/ --tsconfig=tsconfig.web.json $(1) src/internal/demo/web/assets/index.html
 # $(1) flags
 tileset_manifest_demo := dist/demo/tileset-manifest.json
 packatlas_demo = go run ./src/cmd/packatlas --name=atlas --img-out=dist/demo/ --atlas-out=src/internal/demo/assets/atlas_bin.go --tags-out=src/internal/demo/tags/tags.go --tileset-manifest-out=$(tileset_manifest_demo) $(1) src/internal/demo/assets/atlas/
@@ -35,7 +35,7 @@ favicon_demo = \
 		cwebp -exact -lossless -mt -quiet -z 9 $$favicon.png -o $$favicon.webp; \
 	done
 
-.PHONY: bench build build-cmd build-demo build-go build-atlas build-boards build-favicon build-web clean codegen dependencies fat-analyze fat-check fat-save fmt fmt-go fmt-mod fmt-web install lint lint-critic lint-static lint-vet lint-web slow-check slow-save test test-fmt-go test-fmt-mod test-go test-web typecheck-web watch watch-go watch-atlas watch-boards watch-web
+.PHONY: bench build build-cmd build-demo build-go build-atlas build-boards build-favicon build-web clean codegen dependencies fat-analyze fat-check fat-save fmt fmt-go fmt-mod fmt-web install lint lint-critic lint-static lint-vet lint-web slow-check slow-save test test-fmt-go test-fmt-mod test-fmt-web test-go test-web typecheck-web watch watch-go watch-atlas watch-boards watch-web
 
 watch: export DEBUG := 1
 watch: dependencies build-atlas .WAIT build-boards build-favicon .WAIT watch-go watch-atlas watch-boards watch-web
@@ -63,7 +63,7 @@ clean:; rm --force --recursive dist/ src/internal/demo/assets/atlas_bin.go src/i
 codegen:; go generate ./src/...
 
 dependencies:
-	for exe in aseprite cwebp go mono node shader_minifier.exe tinygo wasm-opt watchexec; do
+	for exe in aseprite bun cwebp go mono shader_minifier.exe tinygo wasm-opt watchexec; do
 		command -v $$exe > /dev/null || { echo "no $$exe" >&2; false; }
 	done
 
@@ -76,26 +76,25 @@ fat-save:; go run ./src/cmd/fat save
 fmt: fmt-mod fmt-go fmt-web
 fmt-mod:; go mod tidy
 fmt-go:; go fmt ./src/...
-fmt-web:; npx lint --fix > /dev/null
+fmt-web:; bun fmt --log-level=warn
 
-install:; go mod download; npm install;
+install:; go mod download; bun install $(if $(value V),,--silent)
 
 lint: lint-critic lint-static lint-vet lint-web
 lint-critic:; go tool go-critic check --enableAll --disable=unnamedResult ./src/...
 lint-static:; go tool staticcheck ./src/...
 lint-vet:; go vet ./src/...
-lint-web:; npx lint > /dev/null
+lint-web:; bun lint
 
-test: dependencies .WAIT build .WAIT test-fmt-go test-fmt-mod lint test-go test-web typecheck-web .WAIT fat-check
+test: dependencies .WAIT build .WAIT test-fmt-go test-fmt-mod test-fmt-web lint test-go test-web typecheck-web .WAIT fat-check
 test-fmt-go:
 	out=$$(go fmt ./src/...)
 	[ -z "$$out" ] || { printf >&2 "unformatted files:\n%s\n" "$$out"; false; }
 test-fmt-mod:; go mod tidy -diff
+test-fmt-web:; bun fmt --check
 test-go:;	go test $(go_tags) ./src/... | $(go_test_filter)
-test-web:;
-	FORCE_COLOR=3 npm run test:unit|
-	sed --unbuffered $(if $(value V),'','1,/✖ failing tests:/ {/[✔ℹ▶✖] /d}')
-typecheck-web:; npm run typecheck
+test-web:; bun test --isolate $(if $(value V),,--only-failures)
+typecheck-web:; bun check --build
 
 bench:; $(bench_test) | $(go_test_filter)
 slow-check:; $(bench_test) | go run ./src/cmd/slow check

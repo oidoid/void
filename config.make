@@ -13,5 +13,3 @@ SHELL := bash
 .SHELLFLAGS := -euo pipefail -c
 
 .DELETE_ON_ERROR: # if a recipe fails, delete the target.
-
-export NPM_CONFIG_LOGLEVEL ?= $(if $(value V),,silent)

@@ -1,5 +1,4 @@
-import {test} from 'node:test'
-import {assert} from '../test/assert.ts'
+import {expect, test} from 'bun:test'
 import {localStorageGetJSON, localStoragePutJSON} from './local-storage.ts'
 
 test('localStorageGetJSON() / localStoragePutJSON()', () => {
@@ -7,10 +6,10 @@ test('localStorageGetJSON() / localStoragePutJSON()', () => {
 
   const v = {a: 1, b: true, c: 'c'}
   localStoragePutJSON('v', v)
-  assert(localStorageGetJSON('v'), v)
+  expect(localStorageGetJSON('v')).toStrictEqual(v)
 
   localStoragePutJSON('v', undefined)
-  assert(localStorageGetJSON('v'), undefined)
+  expect(localStorageGetJSON('v')).toBe(undefined)
 })
 
 class StorageMock {

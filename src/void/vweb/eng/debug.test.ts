@@ -1,5 +1,4 @@
-import {test} from 'node:test'
-import {assert} from '../test/assert.ts'
+import {expect, test} from 'bun:test'
 import {Debug} from './debug.ts'
 
 declare module './debug.ts' {
@@ -13,17 +12,17 @@ declare module './debug.ts' {
 
 test('one param', () => {
   const url = 'https://oidoid.com/?debug=draw'
-  assert(Debug(url), {draw: 'true'})
+  expect(Debug(url)).toStrictEqual({draw: 'true'})
 })
 
 test('debug and params are case-insensitive', () => {
   const url = 'https://oidoid.com/?Debug=draw=foo'
-  assert(Debug(url), {draw: 'foo'})
+  expect(Debug(url)).toStrictEqual({draw: 'foo'})
 })
 
 test('multiple vals', () => {
   const url = 'https://oidoid.com/?debug=cam,input=bar,draw=Foo'
-  assert(Debug(url), {cam: 'true', input: 'bar', draw: 'Foo'})
+  expect(Debug(url)).toStrictEqual({cam: 'true', input: 'bar', draw: 'Foo'})
 })
 
 test('multiple vals and params', () => {
@@ -31,54 +30,54 @@ test('multiple vals and params', () => {
     'https://oidoid.com/?abc=1&debug=cam,input=foo,unknown0=Bar,Unknown1,draw=baz,&def'
 
   const debug = Debug(url)
-  assert(debug, {
+  expect(debug).toStrictEqual({
     cam: 'true',
     input: 'foo',
     unknown0: 'Bar',
     unknown1: 'true',
     draw: 'baz'
   } as Debug)
-  assert((debug as unknown as {unknown1: string}).unknown1, 'true')
-  assert((debug as unknown as {unknown2: undefined}).unknown2, undefined)
+  expect((debug as unknown as {unknown1: string}).unknown1).toBe('true')
+  expect((debug as unknown as {unknown2: undefined}).unknown2).toBe(undefined)
 })
 
 test('no vals', () => {
   const url = 'https://oidoid.com/?debug'
   const debug = Debug(url)
-  assert(debug?.looper, 'true')
-  assert(debug?.draw, undefined)
+  expect(debug?.looper).toBe('true')
+  expect(debug?.draw).toBe(undefined)
 })
 
 test('all', () => {
   const url = 'https://oidoid.com/?debug=all,abc=def'
   const debug = Debug(url)
-  assert(debug?.invalid, 'true')
-  assert(debug?.looper, 'true')
-  assert(debug?.draw, undefined)
-  assert((debug as {abc: string}).abc, 'def')
+  expect(debug?.invalid).toBe('true')
+  expect(debug?.looper).toBe('true')
+  expect(debug?.draw).toBe(undefined)
+  expect((debug as {abc: string}).abc).toBe('def')
 })
 
 test('void', () => {
   const url = 'https://oidoid.com/?debug=nativescale,void,draw=always'
   const debug = Debug(url)
-  assert(debug?.invalid, undefined)
-  assert(debug?.looper, 'true')
-  assert(debug?.draw, 'always')
-  assert((debug as {nativescale: string}).nativescale, 'true')
-  assert((debug as {unknown?: string}).unknown, undefined)
+  expect(debug?.invalid).toBe(undefined)
+  expect(debug?.looper).toBe('true')
+  expect(debug?.draw).toBe('always')
+  expect((debug as {nativescale: string}).nativescale).toBe('true')
+  expect((debug as {unknown?: string}).unknown).toBe(undefined)
 })
 
 test('zzz', () => {
-  assert(Debug('https://oidoid.com/?debug=zzz')?.zzz, 'true')
-  assert(Debug('https://oidoid.com/?debug=zzz=1')?.zzz, '1')
+  expect(Debug('https://oidoid.com/?debug=zzz')?.zzz).toBe('true')
+  expect(Debug('https://oidoid.com/?debug=zzz=1')?.zzz).toBe('1')
 })
 
 test('window', () => {
-  assert(Debug('https://oidoid.com/?debug=window')?.window, 'true')
-  assert(Debug('https://oidoid.com/?debug=window=1')?.window, '1')
+  expect(Debug('https://oidoid.com/?debug=window')?.window).toBe('true')
+  expect(Debug('https://oidoid.com/?debug=window=1')?.window).toBe('1')
 })
 
 test('no params', () => {
   const url = 'https://oidoid.com/'
-  assert(Debug(url), undefined)
+  expect(Debug(url)).toBe(undefined)
 })

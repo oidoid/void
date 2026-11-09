@@ -5,7 +5,7 @@ export function buildProgram(
   vertSrc: string,
   fragSrc: string
 ): WebGLProgram {
-  const pgm = gl.createProgram()!
+  const pgm = gl.createProgram()
   const vert = compileShader(gl, gl.VERTEX_SHADER, vertSrc)
   const frag = compileShader(gl, gl.FRAGMENT_SHADER, fragSrc)
   gl.attachShader(pgm, vert)

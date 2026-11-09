@@ -28,6 +28,8 @@ export async function loadImgFromHandle(
 export async function loadConfigData(
   handle: FileSystemFileHandle
 ): Promise<unknown> {
-  const json = JSON.parse(await (await handle.getFile()).text())
+  const json = JSON.parse(await (await handle.getFile()).text()) as {
+    tileset: unknown
+  }
   return json.tileset
 }

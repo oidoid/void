@@ -57,7 +57,7 @@ export class Gamepad {
         index: pad.index,
         connected: pad.connected,
         mapping:
-          GamepadMapping[pad.mapping as keyof typeof GamepadMapping] ??
+          (GamepadMapping as {[name: string]: GamepadMapping})[pad.mapping] ??
           GamepadMapping.Unknown,
         buttons,
         axes: [
@@ -70,7 +70,7 @@ export class Gamepad {
     }
   }
 
-  #onEvent = (ev: Event): void => {
+  readonly #onEvent = (ev: Event): void => {
     if (!ev.isTrusted) return // to-do: review other event callbacks for trusted.
     this.onEvent('input-gamepad')
   }

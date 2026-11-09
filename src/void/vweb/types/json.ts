@@ -23,9 +23,7 @@ export type JSONPrimitive = boolean | null | number | string
  * - `JSON.parse('undefined')`.
  */
 export type PartialJSONValue =
-  | PartialJSONPrimitive
-  | PartialJSONArray
-  | PartialJSONObject
+  PartialJSONPrimitive | PartialJSONArray | PartialJSONObject
 export type PartialJSONObject = {[k in string]?: PartialJSONValue}
 export type PartialJSONArray = PartialJSONValue[]
 export type PartialJSONPrimitive = JSONPrimitive | undefined

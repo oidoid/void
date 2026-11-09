@@ -41,7 +41,7 @@ export class Eng {
   #phyW: number = 0 // don't care if these init later.
   #phyH: number = 0
   #rafId: number = 0
-  #sfx: SFX = SFX()
+  readonly #sfx: SFX = SFX()
   #updateTimeoutId: number = 0
   #registered: boolean = false
   #renderer: Renderer | undefined
@@ -237,7 +237,7 @@ export class Eng {
 
   #resumeSFX(): void {
     if (this.#sfx.ctx.state !== 'suspended') return
-    if (!navigator.userActivation?.isActive) return
+    if (!navigator.userActivation.isActive) return
     void this.#sfx.ctx.resume().catch(() => {})
   }
 
@@ -285,7 +285,7 @@ export class Eng {
     this.#reqUpdate('Force')
   }
 
-  #onCtxLost = (ev: Event): void => {
+  readonly #onCtxLost = (ev: Event): void => {
     ev.preventDefault()
     this.#cancelFrame()
     clearTimeout(this.#updateTimeoutId)
@@ -297,7 +297,7 @@ export class Eng {
     this.#updateMs = 0
   }
 
-  #onCtxRestored = (): void => {
+  readonly #onCtxRestored = (): void => {
     this.#renderer = this.#newRenderer()
     if (this.#registered) this.#reqUpdate('Force')
   }
@@ -355,11 +355,11 @@ export class Eng {
     }
   }
 
-  #onVisibility = (): void => {
+  readonly #onVisibility = (): void => {
     this.#onFocus()
   }
 
-  #onFocus = (): void => {
+  readonly #onFocus = (): void => {
     this.#wakelock.update()
     this.#input.reset()
     this.#cancelFrame()
@@ -371,11 +371,11 @@ export class Eng {
   }
 
   // Go observes the change through Poll.Fullscreen, even while paused.
-  #onFullscreenChange = (): void => {
+  readonly #onFullscreenChange = (): void => {
     this.#reqUpdate('Force')
   }
 
-  #onInput = (ev: AnyEvent): void => {
+  readonly #onInput = (ev: AnyEvent): void => {
     if (ev === 'input-pointerdown' || ev === 'input-keydown') {
       this.#deferWindowMode = true
       this.#reqUpdate('Force')
@@ -408,6 +408,7 @@ export class Eng {
 
   #refreshMemory(): void {
     const buffer = this.#wasm.memory.buffer
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- unset before the first refresh.
     if (this.#poll?.buffer === buffer) return
     this.#poll = new DataView(buffer, this.#pollPtr, bridge.updateByteLen)
     this.#out = new DataView(buffer, this.#outPtr, bridge.outByteLen)

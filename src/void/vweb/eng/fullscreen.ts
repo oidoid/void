@@ -40,7 +40,9 @@ export class Fullscreen {
     if (changed && lock)
       try {
         await screen.orientation.lock(lock)
-      } catch {}
+      } catch {
+        // rejects on desktop.
+      }
     this.#changing = false
   }
 
@@ -51,7 +53,9 @@ export class Fullscreen {
     if (changed)
       try {
         screen.orientation.unlock()
-      } catch {}
+      } catch {
+        // absent in Safari.
+      }
     this.#changing = false
   }
 }

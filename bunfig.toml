@@ -1,0 +1,25 @@
+# see https://bun.com/docs/runtime/bunfig.
+
+[fmt]
+singleQuote = true
+semi = false
+trailingComma = "none"
+bracketSpacing = false
+arrowParens = "avoid"
+ignorePatterns = ["*.tsx"] # Tiled.
+sortImports = { newlinesBetween = false }
+
+[lint]
+typeAware = true
+maxWarnings = 0
+ignorePatterns = ["*.tsx"] # Tiled.
+
+[lint.rules]
+"import/extensions" = [
+  "error",
+  "always",
+  { ignorePackages = true, checkTypeImports = true }
+]
+"import/no-cycle" = "error"
+"@typescript-eslint/no-unnecessary-condition" = "error"
+"@typescript-eslint/return-await" = ["error", "always"]

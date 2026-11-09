@@ -20,7 +20,7 @@ export class ContextMenu {
     this.register('remove')
   }
 
-  #onContextMenu = (ev: PointerEvent | TouchEvent): void => {
+  readonly #onContextMenu = (ev: PointerEvent | TouchEvent): void => {
     if (!ev.isTrusted || ev.metaKey || ev.altKey || ev.ctrlKey) return
     if (!this.enable) ev.preventDefault()
   }

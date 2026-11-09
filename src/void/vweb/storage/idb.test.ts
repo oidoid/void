@@ -1,5 +1,4 @@
-import {test} from 'node:test'
-import {assert} from '../test/assert.ts'
+import {expect, test} from 'bun:test'
 import {idbDelete, idbGet, idbOpen, idbPut} from './idb.ts'
 
 test('idbGet() / idbPut()', async () => {
@@ -8,7 +7,7 @@ test('idbGet() / idbPut()', async () => {
 
   await idbPut(db, 'test-store', 'key', {x: 1})
   const v = await idbGet<{x: number}>(db, 'test-store', 'key')
-  assert(v, {x: 1})
+  expect(v).toStrictEqual({x: 1})
 })
 
 test('idbGet() returns undefined for missing key', async () => {
@@ -16,7 +15,7 @@ test('idbGet() returns undefined for missing key', async () => {
   const db = await idbOpen('test-db', 'test-store', 1)
 
   const v = await idbGet(db, 'test-store', 'missing')
-  assert(v, undefined)
+  expect(v).toBe(undefined)
 })
 
 test('idbDelete() removes a key', async () => {
@@ -26,7 +25,7 @@ test('idbDelete() removes a key', async () => {
   await idbPut(db, 'test-store', 'key', 'value')
   await idbDelete(db, 'test-store', 'key')
   const v = await idbGet(db, 'test-store', 'key')
-  assert(v, undefined)
+  expect(v).toBe(undefined)
 })
 
 class IDBMock {

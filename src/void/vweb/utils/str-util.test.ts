@@ -1,8 +1,7 @@
-import test from 'node:test'
-import {assert} from '../test/assert.ts'
+import {expect, test} from 'bun:test'
 import {capitalize, uncapitalize} from './str-util.ts'
 
-for (const [input, expected] of [
+test.each([
   ['', ''],
   ['a', 'A'],
   ['A', 'A'],
@@ -12,11 +11,11 @@ for (const [input, expected] of [
   ['ßeta', 'SSeta'],
   ['1hello', '1hello'],
   ['🎮game', '🎮game']
-] as const) {
-  test(`capitalize(${input})`, () => assert(capitalize(input), expected))
-}
+] as const)('capitalize(%s)', (input, expected) =>
+  expect(capitalize(input)).toBe(expected)
+)
 
-for (const [input, expected] of [
+test.each([
   ['', ''],
   ['A', 'a'],
   ['a', 'a'],
@@ -25,6 +24,6 @@ for (const [input, expected] of [
   ['Σigma', 'σigma'],
   ['1Hello', '1Hello'],
   ['🎮Game', '🎮Game']
-] as const) {
-  test(`uncapitalize(${input})`, () => assert(uncapitalize(input), expected))
-}
+] as const)('uncapitalize(%s)', (input, expected) =>
+  expect(uncapitalize(input)).toBe(expected)
+)

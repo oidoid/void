@@ -1,7 +1,11 @@
 import * as bridge from '../eng/bridge.ts'
 import type {AnyEvent, OnEvent} from '../eng/event.ts'
 
-export type PtrDevice = (typeof PtrDevice)[keyof typeof PtrDevice]
+export type PtrDevice =
+  | typeof bridge.ptrDevUnknown
+  | typeof bridge.ptrDevMouse
+  | typeof bridge.ptrDevPen
+  | typeof bridge.ptrDevTouch
 const PtrDevice = {
   Unknown: bridge.ptrDevUnknown,
   Mouse: bridge.ptrDevMouse,
@@ -82,7 +86,7 @@ export class Ptr {
     this.#ended.clear()
   }
 
-  #onPtr = (ev: PointerEvent): void => {
+  readonly #onPtr = (ev: PointerEvent): void => {
     if (
       ev.type === 'pointerleave' &&
       ev.buttons === 0 &&
@@ -123,5 +127,5 @@ export class Ptr {
     this.onEvent(`input-${ev.type}` as AnyEvent)
   }
 
-  #onPtrlock = (): void => this.onEvent('input-pointerlockchange')
+  readonly #onPtrlock = (): void => this.onEvent('input-pointerlockchange')
 }

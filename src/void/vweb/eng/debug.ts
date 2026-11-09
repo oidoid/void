@@ -10,7 +10,7 @@
  */
 export interface Debug {
   /** enables WebGL error checks; `always` also draws while idle. */
-  draw?: 'always' | string
+  draw?: string
   /** debug draw invalidations. */
   invalid?: string
   looper?: string
@@ -20,6 +20,7 @@ export interface Debug {
 
 type DebugParams = {[k: string]: string}
 
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 export const debug: Debug | undefined = Debug(globalThis.location?.href)
 
 export function findDebugParam(url: string): string | undefined {
@@ -39,6 +40,7 @@ export function Debug(url: string | undefined): Debug | undefined {
       .split(',') // split KV pairs.
       .filter(Boolean) // drop empties.
       .map(kv => kv.split('=')) // split each pair.
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
       .map(([k, v]) => [k!.toLowerCase(), v || 'true'])
   )
   const debug: DebugParams = {...vals}
@@ -53,5 +55,5 @@ export function Debug(url: string | undefined): Debug | undefined {
 
   for (const k in fallback) if (fallback[k as keyof Debug]) debug[k] ??= 'true'
 
-  return debug as Debug
+  return debug
 }

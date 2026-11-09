@@ -17,17 +17,18 @@ export class WakelockMock {
       hasFocus: () => this.focused
     } as Document
     ;(navigator as {wakeLock: WakeLock}).wakeLock = {
-      request: async (): Promise<WakeLockSentinel> => {
+      request: (): Promise<WakeLockSentinel> => {
         this.reqs++
-        if (this.rejection) throw this.rejection
+        if (this.rejection) return Promise.reject(this.rejection)
         const sentinel = Object.assign(new EventTarget(), {
-          release: async (): Promise<void> => {
+          release: (): Promise<void> => {
             this.releases++
             sentinel.dispatchEvent(new Event('release'))
+            return Promise.resolve()
           }
         })
         this.sentinel = sentinel
-        return sentinel as WakeLockSentinel
+        return Promise.resolve(sentinel as WakeLockSentinel)
       }
     }
   }

@@ -27,10 +27,10 @@ export function packAtlasTexels(metas: DataView, cels: DataView): Uint16Array {
     const start = header / 4 + first
     texels[tag * 2] = start & 0xffff
     texels[tag * 2 + 1] = start >>> 16
-    const count = metas.getUint8(offset + tagMetaCelsOffset)
+    const celCount = metas.getUint8(offset + tagMetaCelsOffset)
     const w = metas.getUint16(offset + tagMetaWOffset, true)
     const h = metas.getUint16(offset + tagMetaHOffset, true)
-    for (let cel = 0; cel < count; cel++) {
+    for (let cel = 0; cel < celCount; cel++) {
       const src = (first + cel) * atlasCelStride
       const dst = (start + cel) * 4
       texels[dst] = cels.getUint16(src + atlasCelXOffset, true)

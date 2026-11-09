@@ -1,19 +1,18 @@
-import {describe, test} from 'node:test'
-import {assert} from '../test/assert.ts'
+import {describe, expect, test} from 'bun:test'
 import {parseComputedColor, rgbaHex} from './color-util.ts'
 
 describe('parseComputedColor()', () => {
   test('rgb', () => {
-    assert(parseComputedColorHex('rgb(18, 52, 86)'), `#123456ff`)
-    assert(parseComputedColorHex('rgb(255, 0, 0)'), `#ff0000ff`)
-    assert(parseComputedColorHex('rgb(0,0,0)'), `#000000ff`)
-    assert(parseComputedColorHex('rgb(12.4, 34.5, 56.6)'), `#0c2339ff`)
+    expect(parseComputedColorHex('rgb(18, 52, 86)')).toBe(`#123456ff`)
+    expect(parseComputedColorHex('rgb(255, 0, 0)')).toBe(`#ff0000ff`)
+    expect(parseComputedColorHex('rgb(0,0,0)')).toBe(`#000000ff`)
+    expect(parseComputedColorHex('rgb(12.4, 34.5, 56.6)')).toBe(`#0c2339ff`)
   })
 
   test('a', () => {
-    assert(parseComputedColorHex('rgba(255, 0, 0, 0.5)'), `#ff000080`)
-    assert(parseComputedColorHex('rgba(0, 255, 0, .25)'), `#00ff0040`)
-    assert(parseComputedColorHex('rgba(0, 0, 255, 1)'), `#0000ffff`)
+    expect(parseComputedColorHex('rgba(255, 0, 0, 0.5)')).toBe(`#ff000080`)
+    expect(parseComputedColorHex('rgba(0, 255, 0, .25)')).toBe(`#00ff0040`)
+    expect(parseComputedColorHex('rgba(0, 0, 255, 1)')).toBe(`#0000ffff`)
   })
 })
 

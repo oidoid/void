@@ -1,0 +1,28 @@
+// browser code.
+{
+  "compilerOptions": {
+    "composite": true,
+    "emitDeclarationOnly": true,
+    "target": "ES2024",
+    "module": "ESNext",
+    "lib": ["DOM", "ES2024", "ESNext.Disposable"],
+    "allowImportingTsExtensions": true,
+    "isolatedDeclarations": true,
+    "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true,
+    "skipLibCheck": true,
+    // maximize type checking.
+    "exactOptionalPropertyTypes": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false
+  },
+  "include": ["src/internal/demo/web/", "src/void/vweb/"],
+  "exclude": ["src/**/*.test.ts", "src/**/test/"]
+}

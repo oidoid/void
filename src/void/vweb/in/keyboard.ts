@@ -112,13 +112,13 @@ export class Keyboard {
     this.#input.focus({focusVisible: false, preventScroll: true})
   }
 
-  #onFocus = (): void => this.#focus()
+  readonly #onFocus = (): void => this.#focus()
 
-  #onDragOver = (ev: DragEvent): void => {
+  readonly #onDragOver = (ev: DragEvent): void => {
     ev.preventDefault()
   }
 
-  #onDrop = (ev: DragEvent): void => {
+  readonly #onDrop = (ev: DragEvent): void => {
     ev.preventDefault()
     const text = ev.dataTransfer?.getData('text/plain')
     if (text) {
@@ -127,7 +127,7 @@ export class Keyboard {
     }
   }
 
-  #onKey = (ev: KeyboardEvent): void => {
+  readonly #onKey = (ev: KeyboardEvent): void => {
     if (!ev.isTrusted) return
     if (ev.type === 'keydown') this.#keys.add(ev.code)
     else this.#keys.delete(ev.code)

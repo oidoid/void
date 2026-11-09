@@ -36,5 +36,7 @@ export async function reqPtrlock(el: Element): Promise<void> {
   if (!document.pointerLockElement)
     try {
       await el.requestPointerLock()
-    } catch {}
+    } catch {
+      // rejects without user activation.
+    }
 }

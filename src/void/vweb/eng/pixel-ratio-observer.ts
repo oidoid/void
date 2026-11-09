@@ -20,7 +20,7 @@ export class PixelRatioObserver {
     this.register('remove')
   }
 
-  #onChange = (): void => {
+  readonly #onChange = (): void => {
     this.register('add')
     this.onChange()
   }

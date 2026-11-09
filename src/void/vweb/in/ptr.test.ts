@@ -1,15 +1,15 @@
-import {test} from 'node:test'
-import {assert} from '../test/assert.ts'
+import {afterAll, describe, expect, test} from 'bun:test'
 import {DevicePixelRatioMock} from '../test/device-pixel-ratio-mock.ts'
 import {DocumentMock} from '../test/document-mock.ts'
+import {TestEventTarget} from '../test/test-event-target.ts'
 import {PtrTestEvent} from '../test/test-event.ts'
 import {Ptr} from './ptr.ts'
 
-test('Ptr', async ctx => {
-  using _doc = new DocumentMock()
-  using dpr = new DevicePixelRatioMock()
+describe('Ptr', () => {
+  const doc = new DocumentMock()
+  const dpr = new DevicePixelRatioMock()
   dpr.ratio = 3
-  const target = Object.assign(new EventTarget(), {
+  const target = Object.assign(new TestEventTarget(), {
     getBoundingClientRect: () => ({left: 0, top: 0, width: 100, height: 100}),
     height: 200,
     setPointerCapture: () => {},
@@ -17,16 +17,21 @@ test('Ptr', async ctx => {
   }) as unknown as HTMLCanvasElement
   const ptr = new Ptr(target)
   ptr.register('add')
+  afterAll(() => {
+    ptr.register('remove')
+    dpr[Symbol.dispose]()
+    doc[Symbol.dispose]()
+  })
 
-  await ctx.test('reports ptr event names', () => {
+  test('reports ptr event names', () => {
     const events: string[] = []
     ptr.onEvent = event => events.push(event)
     target.dispatchEvent(PtrTestEvent('pointermove'))
-    assert(events, ['input-pointermove'])
+    expect(events).toStrictEqual(['input-pointermove'])
     ptr.onEvent = () => {}
   })
 
-  await ctx.test('stores contact bounds around the pointer center', () => {
+  test('stores contact bounds around the pointer center', () => {
     target.dispatchEvent(
       PtrTestEvent('pointermove', {
         clientX: 40,
@@ -35,31 +40,31 @@ test('Ptr', async ctx => {
         width: 10
       })
     )
-    assert(ptr.polls[1]!.physX, 70)
-    assert(ptr.polls[1]!.physY, 112)
-    assert(ptr.polls[1]!.physW, 20)
-    assert(ptr.polls[1]!.physH, 16)
+    expect(ptr.polls[1]!.physX).toBe(70)
+    expect(ptr.polls[1]!.physY).toBe(112)
+    expect(ptr.polls[1]!.physW).toBe(20)
+    expect(ptr.polls[1]!.physH).toBe(16)
   })
 
-  await ctx.test('retains an end record through postupdate', () => {
+  test('retains an end record through postupdate', () => {
     target.dispatchEvent(
       PtrTestEvent('pointerdown', {buttons: 1, pointerType: 'touch'})
     )
     target.dispatchEvent(PtrTestEvent('pointerup', {pointerType: 'touch'}))
-    assert(ptr.polls[1]!.buttons, 0)
+    expect(ptr.polls[1]!.buttons).toBe(0)
     ptr.postupdate()
-    assert(ptr.polls, {})
+    expect(ptr.polls).toStrictEqual({})
   })
 
-  await ctx.test('retains cancellation through postupdate', () => {
+  test('retains cancellation through postupdate', () => {
     target.dispatchEvent(PtrTestEvent('pointerdown', {buttons: 1}))
     target.dispatchEvent(PtrTestEvent('pointercancel'))
-    assert(ptr.polls[1]!.buttons, 0)
+    expect(ptr.polls[1]!.buttons).toBe(0)
     ptr.postupdate()
-    assert(ptr.polls, {})
+    expect(ptr.polls).toStrictEqual({})
   })
 
-  await ctx.test('keeps a renewed ptr after postupdate', () => {
+  test('keeps a renewed ptr after postupdate', () => {
     target.dispatchEvent(
       PtrTestEvent('pointerdown', {buttons: 1, pointerType: 'touch'})
     )
@@ -68,33 +73,31 @@ test('Ptr', async ctx => {
       PtrTestEvent('pointerdown', {buttons: 1, pointerType: 'touch'})
     )
     ptr.postupdate()
-    assert(ptr.polls[1]!.buttons, 1)
+    expect(ptr.polls[1]!.buttons).toBe(1)
   })
 
-  await ctx.test('keeps mouse position after pointerup', () => {
+  test('keeps mouse position after pointerup', () => {
     target.dispatchEvent(PtrTestEvent('pointerdown', {buttons: 1}))
     target.dispatchEvent(PtrTestEvent('pointerup'))
     ptr.postupdate()
-    assert(ptr.polls[1]!.buttons, 0)
+    expect(ptr.polls[1]!.buttons).toBe(0)
     target.dispatchEvent(PtrTestEvent('pointerleave'))
-    assert(ptr.polls, {})
+    expect(ptr.polls).toStrictEqual({})
   })
 
-  await ctx.test('ends active ptrs on reset', () => {
+  test('ends active ptrs on reset', () => {
     target.dispatchEvent(PtrTestEvent('pointerdown', {buttons: 1}))
     ptr.reset()
-    assert(ptr.polls[1]!.buttons, 0)
+    expect(ptr.polls[1]!.buttons).toBe(0)
     ptr.postupdate()
-    assert(ptr.polls, {})
+    expect(ptr.polls).toStrictEqual({})
   })
 
-  await ctx.test('keeps a pressed ptr on leave', () => {
+  test('keeps a pressed ptr on leave', () => {
     target.dispatchEvent(PtrTestEvent('pointerdown', {buttons: 1}))
     target.dispatchEvent(PtrTestEvent('pointerleave', {buttons: 1}))
-    assert(ptr.polls[1]!.buttons, 1)
+    expect(ptr.polls[1]!.buttons).toBe(1)
   })
-
-  ptr.register('remove')
 })
 
 test('ptr registers ptrlock changes', () => {
@@ -105,8 +108,8 @@ test('ptr registers ptrlock changes', () => {
   ptr.onEvent = event => events.push(event)
   ptr.register('add')
   doc.dispatchEvent(new Event('pointerlockchange'))
-  assert(events, ['input-pointerlockchange'])
+  expect(events).toStrictEqual(['input-pointerlockchange'])
   ptr.register('remove')
   doc.dispatchEvent(new Event('pointerlockchange'))
-  assert(events, ['input-pointerlockchange'])
+  expect(events).toStrictEqual(['input-pointerlockchange'])
 })

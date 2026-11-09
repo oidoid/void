@@ -1,5 +1,4 @@
 ---
-
 name: add-ent
 description: add a new direct ent or batch hook to void or a void app.
 ---
@@ -15,7 +14,6 @@ read the referenced example files before writing any code.
 **3. add the batch hook.** if >= 100 instances, add an update-all function to the same `<name>_ent.go` file. it loops over the value slice and calls the ent's hot methods without per-ent pointer dereferences. eg, [`src/internal/demo/game/superball_ent.go`](../../../src/internal/demo/game/superball_ent.go). keep standalone `<name>_hooks.go` files only for hooks without an ent.
 
 **4. wire the ent instances and hook into the game.** if >= 100 instances, create a new ent vector with `veng.NewEntVec()` and register its update method with `gam.RegisterUpdate()`. otherwise register the bound method directly, eg `gam.RegisterUpdate(ent.Update)`. see [`src/internal/demo/game/init.go`](../../../src/internal/demo/game/init.go).
-
 
 # Tips
 
