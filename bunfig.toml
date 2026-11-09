@@ -13,13 +13,11 @@ sortImports = { newlinesBetween = false }
 typeAware = true
 maxWarnings = 0
 ignorePatterns = ["*.tsx"] # Tiled.
-
-[lint.rules]
-"import/extensions" = [
+rules."import/extensions" = [
   "error",
   "always",
   { ignorePackages = true, checkTypeImports = true }
 ]
-"import/no-cycle" = "error"
-"@typescript-eslint/no-unnecessary-condition" = "error"
-"@typescript-eslint/return-await" = ["error", "always"]
+rules."import/no-cycle" = "error"
+rules."@typescript-eslint/no-unnecessary-condition" = "error"
+rules."@typescript-eslint/return-await" = ["error", "always"]
