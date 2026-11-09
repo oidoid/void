@@ -38,7 +38,7 @@ describe('Gamepad', () => {
     ]
     gamepad.update()
     expect(gamepad.polls).toStrictEqual({
-      0: {index: 0, connected: true, mapping: 0, buttons: 1, axes: [0, 0, 0, 0]}
+      0: {index: 0, connected: true, mapping: 1, buttons: 1, axes: [0, 0, 0, 0]}
     })
   })
 

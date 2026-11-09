@@ -57,8 +57,9 @@ export class Gamepad {
         index: pad.index,
         connected: pad.connected,
         mapping:
-          (GamepadMapping as {[name: string]: GamepadMapping})[pad.mapping] ??
-          GamepadMapping.Unknown,
+          pad.mapping === 'standard'
+            ? GamepadMapping.Standard
+            : GamepadMapping.Unknown,
         buttons,
         axes: [
           pad.axes[0] ?? 0,
